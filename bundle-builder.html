@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bundle Builder — Seed the Word Ministry</title>
+  <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <div class="header-left">
+      <a href="index.html" class="site-logo">
+        <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">
+        Seed the Word
+      </a>
+      <div class="header-verse">
+        <span class="header-verse__text">"He answered and said unto them, He that soweth the good seed is the Son of man;" — Matthew 13:37 KJV</span>
+      </div>
+    </div>
+    <nav id="site-nav">
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="store.html">Store</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="community.html">Community</a></li>
+      </ul>
+    </nav>
+    <div class="header-social">
+      <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="32" height="32"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      </a>
+      <a href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="32" height="32"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+      </a>
+    </div>
+    <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<section class="hero hero--short hero--builder">
+  <div class="hero__overlay"></div>
+  <div class="hero__content">
+    <h1 class="hero__title">Build Your Bundle</h1>
+    <p class="hero__tagline">Customize a Bible gift for someone beginning their faith journey.</p>
+  </div>
+</section>
+
+<main class="section section--white">
+  <div class="container">
+
+    <div class="builder-mission">
+      Starting out with only $2 per Bible, you can help build a special welcoming gift for someone you believe or know may be a newcomer to our faith and help them find the necessary resources to grow in the Word that Is Jesus Christ.
+    </div>
+
+    <div class="builder-layout">
+
+      <!-- Controls -->
+      <div class="builder-controls">
+
+        <!-- Step 1 -->
+        <div class="builder-step">
+          <h2 class="builder-step__head">
+            <span class="builder-step__num">1</span> Choose Your Base Bundle
+          </h2>
+          <div class="bundle-radios">
+            <label class="bundle-radio">
+              <input type="radio" name="bundle" value="essentials" data-price="2" data-name="Essentials Welcome Bundle">
+              <div class="bundle-radio__card">
+                <span class="bundle-radio__name">📖 Essentials Welcome Bundle</span>
+                <span class="bundle-radio__price">From $2.00</span>
+              </div>
+            </label>
+            <label class="bundle-radio">
+              <input type="radio" name="bundle" value="devotional" data-price="2" data-name="Devotional Journey Bundle">
+              <div class="bundle-radio__card">
+                <span class="bundle-radio__name">✝️ Devotional Journey Bundle</span>
+                <span class="bundle-radio__price">From $2.00</span>
+              </div>
+            </label>
+            <label class="bundle-radio">
+              <input type="radio" name="bundle" value="complete" data-price="2" data-name="Complete Faith Starter">
+              <div class="bundle-radio__card">
+                <span class="bundle-radio__name">🕊️ Complete Faith Starter</span>
+                <span class="bundle-radio__price">From $2.00</span>
+              </div>
+            </label>
+            <label class="bundle-radio">
+              <input type="radio" name="bundle" value="premium" data-price="2" data-name="Premium Engraved Bundle">
+              <div class="bundle-radio__card">
+                <span class="bundle-radio__name">💎 Premium Engraved Bundle</span>
+                <span class="bundle-radio__price">From $2.00</span>
+              </div>
+            </label>
+          </div>
+          <p id="bundle-error" style="display:none;color:var(--red);font-size:.875rem;font-weight:600;margin-top:.75rem">Please select a bundle to continue.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="builder-step">
+          <h2 class="builder-step__head">
+            <span class="builder-step__num">2</span> Personalise Your Gift
+          </h2>
+          <p style="font-size:.9rem;color:#6b5744;margin-bottom:1rem">Select any customisations — each one makes the gift more special.</p>
+          <div class="addon-pills">
+            <span class="addon-pill" data-price="5" data-label="Custom Engraving">Custom Engraving <span class="addon-pill__price">+$5.00</span></span>
+            <span class="addon-pill" data-price="2" data-label="Verse Highlighting">Verse Highlighting <span class="addon-pill__price">+$2.00</span></span>
+            <span class="addon-pill" data-price="1" data-label="Personalized Note">Personalized Note <span class="addon-pill__price">+$1.00</span></span>
+            <span class="addon-pill" data-price="8" data-label="Custom Cover">Custom Cover <span class="addon-pill__price">+$8.00</span></span>
+            <span class="addon-pill" data-price="1.5" data-label="Bookmarks &amp; Ribbons">Bookmarks &amp; Ribbons <span class="addon-pill__price">+$1.50</span></span>
+            <span class="addon-pill" data-price="6" data-label="Carrying Case / Gift Box">Carrying Case / Gift Box <span class="addon-pill__price">+$6.00</span></span>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="builder-step">
+          <h2 class="builder-step__head">
+            <span class="builder-step__num">3</span>
+            <button class="accordion-toggle" aria-expanded="false" aria-controls="details-body" id="details-toggle">
+              Additional Details <span class="accordion-icon">▾</span>
+            </button>
+          </h2>
+          <div id="details-body" class="accordion-body" hidden>
+            <div class="form-group">
+              <label>Upload an Image <span style="font-weight:400;color:#8a6a3a">(max 5MB)</span></label>
+              <input type="file" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label>Engraving Text</label>
+              <input type="text" maxlength="100" placeholder="e.g. John 3:16 — For God so loved the world…">
+            </div>
+            <div class="form-group">
+              <label>Verses to Highlight</label>
+              <textarea rows="3" placeholder="e.g. John 3:16, Romans 8:28, Psalm 23"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Additional Notes for the Ministry Team</label>
+              <textarea rows="4" placeholder="Any other details or special requests…"></textarea>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /controls -->
+
+      <!-- Summary panel -->
+      <aside class="builder-summary">
+        <div class="summary-panel">
+          <h2 class="summary-panel__title">Your Bundle</h2>
+          <p class="summary-panel__bundle" id="summary-bundle-name" style="font-style:italic;color:#aaa">No bundle selected</p>
+          <div class="summary-panel__addons" id="summary-addons-list">
+            <span style="color:#aaa;font-style:italic">No add-ons selected</span>
+          </div>
+          <div class="summary-panel__total-row">
+            <span class="summary-panel__total-label">Estimated Total</span>
+            <span class="summary-panel__total" id="price-display">$2.00</span>
+          </div>
+          <div class="summary-panel__actions">
+            <button class="btn btn-gold btn-block" id="btn-complete-gift">Complete My Gift</button>
+            <button class="btn btn-outline-gold btn-block" id="btn-request-donation">Request Ministry to Cover This Gift</button>
+          </div>
+        </div>
+      </aside>
+
+    </div><!-- /builder-layout -->
+
+    <!-- Donation request panel -->
+    <div class="donation-panel" id="donation-panel" hidden>
+      <div class="donation-panel__inner">
+        <button class="donation-panel__close" id="donation-panel-close" aria-label="Close">&times;</button>
+        <h2 class="donation-panel__title">Request the Ministry to Cover This Gift</h2>
+        <p class="donation-panel__intro">If you are unable to cover the cost of this bundle, our ministry would love to help. Please share your circumstances below and we will review your request personally.</p>
+        <div class="form-group"><label>Your Name <span class="req">*</span></label><input type="text" placeholder="Full name"></div>
+        <div class="form-group"><label>Your Email <span class="req">*</span></label><input type="email" placeholder="your@email.com"></div>
+        <div class="form-group"><label>Phone <span style="font-weight:400;color:#888">(optional)</span></label><input type="tel" placeholder="+1 (555) 000-0000"></div>
+        <div class="form-group"><label>Please describe your circumstances <span class="req">*</span></label><textarea rows="5" placeholder="Tell us about your situation and why you are requesting this gift…"></textarea></div>
+        <div class="form-group" style="display:flex;align-items:flex-start;gap:.5rem">
+          <input type="checkbox" id="consent" style="width:auto;margin-top:.2rem">
+          <label for="consent" style="font-weight:400;cursor:pointer">I agree that the Ministry may contact me to discuss this request</label>
+        </div>
+        <button class="btn btn-gold" onclick="this.closest('.donation-panel').innerHTML='<div style=\'padding:1.25rem 1.5rem;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;color:#2e7d32;font-weight:600\'>Thank you for reaching out. Our team will review your request and follow up with you personally.</div>'">Submit Request</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Order summary modal -->
+<div id="order-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title" style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center">
+  <div class="modal-backdrop" style="position:absolute;inset:0;background:rgba(0,0,0,.55)"></div>
+  <div style="position:relative;z-index:1;background:#fff;border-radius:12px;padding:2rem 1.75rem 1.75rem;max-width:480px;width:calc(100% - 2rem);max-height:calc(100vh - 3rem);overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.22)">
+    <button id="modal-close" style="position:absolute;top:.75rem;right:.85rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#6b5744">&times;</button>
+    <h2 id="modal-title" style="font-size:1.2rem;font-weight:700;color:#2c1a0e;margin:0 0 1.25rem;padding-right:1.5rem">Review Your Order</h2>
+    <div id="modal-content"></div>
+    <div style="display:flex;flex-direction:column;gap:.65rem;margin-top:1.5rem">
+      <button id="modal-confirm" class="btn btn-gold btn-block">Confirm &amp; Go to Checkout</button>
+      <button id="modal-back" class="btn btn-outline-gold btn-block">Back to Builder</button>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <!-- Social Media Section -->
+    <div class="footer-social">
+      <div class="social-icons">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="40" height="40" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="40" height="40" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      </div>
+      <div class="footer-social-content">
+        <h3 class="footer-social-title">Join Our Community</h3>
+        <p class="footer-social-desc">Connect with us on Telegram and Instagram for daily encouragement</p>
+      </div>
+      <div class="footer-social-buttons">
+        <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram">Join Telegram</a>
+        <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="btn btn-instagram">Follow Instagram</a>
+      </div>
+    </div>
+    
+    <!-- Main Footer Content -->
+    <div class="footer-main">
+      <div>
+        <p class="footer-brand-name">Seed the Word Ministry</p>
+        <p class="footer-brand-tagline">Welcoming newcomers to faith — one Bible at a time.</p>
+      </div>
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="store.html">Store</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="community.html">Community</a></li>
+      </ul>
+      <p class="footer-copy">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

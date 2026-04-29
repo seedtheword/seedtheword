@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ministry Admin Controls</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #fff3e0 100%);
+      min-height: 100vh;
+    }
+    .admin-panel {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.7);
+    }
+    h1 {
+      color: #2C5F2E;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .control-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+    .control-section h2 {
+      color: #2C5F2E;
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+    }
+    .status-display {
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    .status-live {
+      background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+      color: white;
+      animation: pulse 2s infinite;
+    }
+    .status-offline {
+      background: rgba(108, 117, 125, 0.2);
+      color: #6c757d;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      text-align: center;
+      margin: 0.5rem;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(192, 57, 43, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(192, 57, 43, 0.5);
+    }
+    .btn-success {
+      background: linear-gradient(135deg, #2C5F2E 0%, #3a7d3c 100%);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(44, 95, 46, 0.4);
+    }
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(44, 95, 46, 0.5);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      color: #6c757d;
+      border: 2px solid rgba(108, 117, 125, 0.5);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.5);
+      border-color: #6c757d;
+      transform: translateY(-2px);
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #2C5F2E;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid rgba(213, 208, 203, 0.5);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #2C5F2E;
+      box-shadow: 0 0 0 4px rgba(44, 95, 46, 0.12);
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .instructions {
+      background: rgba(212, 165, 116, 0.1);
+      border: 2px solid rgba(212, 165, 116, 0.3);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+      color: #8b5e3c;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-panel">
+    <h1>🎛️ Ministry Admin Controls</h1>
+    
+    <div class="instructions">
+      <strong>Instructions:</strong> Use these controls to manage live stream status and events. Changes will be reflected on the main website immediately. This is a temporary admin interface - in production, you would use the Netlify CMS admin panel.
+    </div>
+
+    <!-- Live Stream Controls -->
+    <div class="control-section">
+      <h2>📺 Live Stream Status</h2>
+      <div id="stream-status" class="status-display status-offline">
+        🔴 Stream Offline
+      </div>
+      
+      <div class="form-group">
+        <label for="stream-title">Stream Title:</label>
+        <input type="text" id="stream-title" value="Study Saturday Live" />
+      </div>
+      
+      <div class="form-group">
+        <label for="twitch-url">Twitch URL:</label>
+        <input type="url" id="twitch-url" value="https://twitch.tv/seedtheword" />
+      </div>
+      
+      <div class="form-group">
+        <label for="youtube-url">YouTube URL (optional):</label>
+        <input type="url" id="youtube-url" value="" />
+      </div>
+      
+      <button id="go-live-btn" class="btn btn-success">🔴 Go Live</button>
+      <button id="go-offline-btn" class="btn btn-secondary">⏹️ Go Offline</button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="control-section">
+      <h2>⚡ Quick Actions</h2>
+      <a href="news.html" class="btn btn-primary" target="_blank">📰 View News Page</a>
+      <a href="community.html" class="btn btn-primary" target="_blank">🌟 View Community Page</a>
+      <a href="admin/" class="btn btn-primary" target="_blank">🎛️ Netlify CMS Admin</a>
+      <button id="refresh-calendar" class="btn btn-secondary">🔄 Refresh Calendar</button>
+    </div>
+
+    <!-- Event Management -->
+    <div class="control-section">
+      <h2>📅 Event Management</h2>
+      <p>For full event management, use the <a href="admin/" target="_blank">Netlify CMS Admin Panel</a>. You can add, edit, and delete events, testimonies, and team members.</p>
+      
+      <div class="form-group">
+        <label for="quick-event-title">Quick Event Title:</label>
+        <input type="text" id="quick-event-title" placeholder="Special Prayer Meeting" />
+      </div>
+      
+      <div class="form-group">
+        <label for="quick-event-date">Event Date:</label>
+        <input type="datetime-local" id="quick-event-date" />
+      </div>
+      
+      <div class="form-group">
+        <label for="quick-event-type">Event Type:</label>
+        <select id="quick-event-type">
+          <option value="upcoming">Upcoming</option>
+          <option value="live">Live</option>
+          <option value="ongoing">Ongoing</option>
+        </select>
+      </div>
+      
+      <button id="add-event-btn" class="btn btn-success">➕ Add Quick Event</button>
+    </div>
+  </div>
+
+  <script>
+    // Live Stream Controls
+    let isLive = false;
+    
+    const streamStatus = document.getElementById('stream-status');
+    const goLiveBtn = document.getElementById('go-live-btn');
+    const goOfflineBtn = document.getElementById('go-offline-btn');
+    const streamTitle = document.getElementById('stream-title');
+    const twitchUrl = document.getElementById('twitch-url');
+    const youtubeUrl = document.getElementById('youtube-url');
+    
+    function updateStreamStatus() {
+      if (isLive) {
+        streamStatus.className = 'status-display status-live';
+        streamStatus.innerHTML = '🔴 Live Now: ' + streamTitle.value;
+        goLiveBtn.style.display = 'none';
+        goOfflineBtn.style.display = 'inline-block';
+      } else {
+        streamStatus.className = 'status-display status-offline';
+        streamStatus.innerHTML = '⏹️ Stream Offline';
+        goLiveBtn.style.display = 'inline-block';
+        goOfflineBtn.style.display = 'none';
+      }
+    }
+    
+    goLiveBtn.addEventListener('click', () => {
+      isLive = true;
+      updateStreamStatus();
+      
+      // Notify the main website if it's open
+      if (window.opener && window.opener.liveStreamManager) {
+        window.opener.liveStreamManager.goLive({
+          title: streamTitle.value,
+          twitch_url: twitchUrl.value,
+          youtube_url: youtubeUrl.value,
+          started_at: new Date().toISOString()
+        });
+      }
+      
+      // Also notify community page if it's open
+      if (window.opener && window.opener.communityLiveStream) {
+        window.opener.communityLiveStream.goLive({
+          title: streamTitle.value,
+          twitch_url: twitchUrl.value,
+          youtube_url: youtubeUrl.value,
+          started_at: new Date().toISOString()
+        });
+      }
+      
+      alert('Stream is now LIVE! 🔴\n\nBoth the news page and community page have been updated to show the live status.');
+    });
+    
+    goOfflineBtn.addEventListener('click', () => {
+      isLive = false;
+      updateStreamStatus();
+      
+      // Notify the main website if it's open
+      if (window.opener && window.opener.liveStreamManager) {
+        window.opener.liveStreamManager.goOffline();
+      }
+      
+      // Also notify community page if it's open
+      if (window.opener && window.opener.communityLiveStream) {
+        window.opener.communityLiveStream.goOffline();
+      }
+      
+      alert('Stream is now OFFLINE. ⏹️\n\nBoth pages have been updated.');
+    });
+    
+    // Quick Event Management
+    const addEventBtn = document.getElementById('add-event-btn');
+    const refreshCalendarBtn = document.getElementById('refresh-calendar');
+    
+    addEventBtn.addEventListener('click', () => {
+      const title = document.getElementById('quick-event-title').value;
+      const date = document.getElementById('quick-event-date').value;
+      const type = document.getElementById('quick-event-type').value;
+      
+      if (!title || !date) {
+        alert('Please fill in both title and date for the event.');
+        return;
+      }
+      
+      const eventData = {
+        title: title,
+        type: type,
+        time: new Date(date).toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          timeZoneName: 'short'
+        })
+      };
+      
+      // Add to calendar if main website is open
+      if (window.opener && window.opener.ministryCalendar) {
+        window.opener.ministryCalendar.addSpecialEvent(new Date(date), eventData);
+      }
+      
+      alert(`Event "${title}" has been added to the calendar! 📅`);
+      
+      // Clear form
+      document.getElementById('quick-event-title').value = '';
+      document.getElementById('quick-event-date').value = '';
+    });
+    
+    refreshCalendarBtn.addEventListener('click', () => {
+      if (window.opener && window.opener.ministryCalendar) {
+        window.opener.ministryCalendar.renderCalendar();
+        alert('Calendar refreshed! 🔄');
+      } else {
+        alert('Please open the main website first to refresh the calendar.');
+      }
+    });
+    
+    // Initialize
+    updateStreamStatus();
+    
+    // Set default date to next hour
+    const nextHour = new Date();
+    nextHour.setHours(nextHour.getHours() + 1);
+    nextHour.setMinutes(0);
+    document.getElementById('quick-event-date').value = nextHour.toISOString().slice(0, 16);
+  </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "site/assets/images/uploads"
+public_folder: "/assets/images/uploads"
+
+collections:
+  - name: "events"
+    label: "Events & Announcements"
+    folder: "site/_data/events"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Status", name: "status", widget: "select", options: ["live", "upcoming", "ongoing"]}
+      - {label: "Date & Time", name: "datetime", widget: "datetime"}
+      - {label: "Description", name: "description", widget: "text"}
+      - {label: "Image", name: "image", widget: "image"}
+      - {label: "Button Text", name: "button_text", widget: "string"}
+      - {label: "Button Link", name: "button_link", widget: "string"}
+      - {label: "Live Stream URL", name: "stream_url", widget: "string", required: false}
+      - {label: "Is Recurring", name: "recurring", widget: "boolean", default: false}
+      - {label: "Recurring Schedule", name: "recurring_schedule", widget: "string", required: false}
+
+  - name: "archive"
+    label: "Ministry Archive"
+    folder: "site/_data/archive"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Type", name: "type", widget: "select", options: ["livestream", "event", "study", "testimony"]}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "Description", name: "description", widget: "text"}
+      - {label: "Thumbnail", name: "thumbnail", widget: "image", required: false}
+      - {label: "Link URL", name: "link_url", widget: "string"}
+      - {label: "Link Text", name: "link_text", widget: "string"}
+      - {label: "Platform", name: "platform", widget: "select", options: ["twitch", "youtube", "instagram", "telegram", "website"]}
+      - {label: "Featured", name: "featured", widget: "boolean", default: false}
+      - {label: "Tags", name: "tags", widget: "list", required: false}
+
+  - name: "livestream"
+    label: "Live Stream Status"
+    files:
+      - label: "Current Stream"
+        name: "current_stream"
+        file: "site/_data/livestream.json"
+        fields:
+          - {label: "Is Live", name: "is_live", widget: "boolean", default: false}
+          - {label: "Stream Title", name: "title", widget: "string"}
+          - {label: "Twitch URL", name: "twitch_url", widget: "string"}
+          - {label: "YouTube URL", name: "youtube_url", widget: "string"}
+          - {label: "Started At", name: "started_at", widget: "datetime"}
+
+  - name: "testimonies"
+    label: "Testimonies"
+    folder: "site/_data/testimonies"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Name", name: "name", widget: "string"}
+      - {label: "Short Quote", name: "short_quote", widget: "text"}
+      - {label: "Full Testimony", name: "full_testimony", widget: "text"}
+      - {label: "Photo", name: "photo", widget: "image", required: false}
+
+  - name: "team"
+    label: "Team Members"
+    folder: "site/_data/team"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Name", name: "name", widget: "string"}
+      - {label: "Role", name: "role", widget: "string"}
+      - {label: "Photo", name: "photo", widget: "image"}
+      - {label: "Testimony Link", name: "testimony_link", widget: "string", required: false}

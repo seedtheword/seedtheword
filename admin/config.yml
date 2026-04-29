@@ -1,6 +1,10 @@
 backend:
   name: git-gateway
   branch: main
+  
+# Important: This tells Netlify CMS where files are located
+site_url: https://your-site-name.netlify.app
+display_url: https://your-site-name.netlify.app
 
 media_folder: "site/assets/images/uploads"
 public_folder: "/assets/images/uploads"

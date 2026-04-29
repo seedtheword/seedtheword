@@ -519,17 +519,135 @@ class MinistryCalendar {
     this.modalBody = document.getElementById('event-modal-body');
     this.modalClose = document.getElementById('event-modal-close');
     
-    // Ministry events data - this would come from CMS in production
+    // Ministry events data - this will be loaded from CMS
     this.events = this.getMinistryEvents();
+    this.cmsEvents = []; // Will store CMS events
     
     if (this.calendarGrid) {
       this.init();
     }
   }
   
-  init() {
+  async init() {
     this.bindEvents();
+    await this.loadCMSEvents(); // Load CMS events first
     this.renderCalendar();
+  }
+  
+  async loadCMSEvents() {
+    try {
+      // Try to load events from the CMS data files
+      const response = await fetch('/_data/events/');
+      if (response.ok) {
+        // If we can access the directory, we'd need to implement directory listing
+        // For now, we'll use a different approach
+        console.log('CMS events loading...');
+      }
+      
+      // Alternative: Load from a generated events index (you'd create this via build process)
+      // For now, we'll check for individual event files or use GitHub API
+      await this.loadEventsFromGitHub();
+      
+    } catch (error) {
+      console.log('Using default events, CMS events not available yet');
+    }
+  }
+  
+  async loadEventsFromGitHub() {
+    try {
+      // This loads events from your GitHub repository
+      // Using your actual repository: seedtheword/seedtheword
+      const repoUrl = 'https://api.github.com/repos/seedtheword/seedtheword/contents/_data/events';
+      const response = await fetch(repoUrl);
+      
+      if (response.ok) {
+        const files = await response.json();
+        
+        for (const file of files) {
+          if (file.name.endsWith('.md')) {
+            try {
+              const fileResponse = await fetch(file.download_url);
+              const content = await fileResponse.text();
+              const event = this.parseEventFile(content, file.name);
+              if (event) {
+                this.addCMSEvent(event);
+              }
+            } catch (error) {
+              console.log('Error loading event file:', file.name);
+            }
+          }
+        }
+        
+        // Re-render calendar with new events
+        this.renderCalendar();
+      }
+    } catch (error) {
+      console.log('GitHub API not available, using default events');
+    }
+  }
+  
+  parseEventFile(content, filename) {
+    try {
+      // Parse the frontmatter and content
+      const lines = content.split('\n');
+      let inFrontmatter = false;
+      let frontmatter = {};
+      let body = '';
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.trim() === '---') {
+          if (!inFrontmatter) {
+            inFrontmatter = true;
+            continue;
+          } else {
+            inFrontmatter = false;
+            body = lines.slice(i + 1).join('\n');
+            break;
+          }
+        }
+        
+        if (inFrontmatter && line.includes(':')) {
+          const [key, ...valueParts] = line.split(':');
+          const value = valueParts.join(':').trim().replace(/['"]/g, '');
+          frontmatter[key.trim()] = value;
+        }
+      }
+      
+      if (frontmatter.title && frontmatter.datetime) {
+        return {
+          title: frontmatter.title,
+          date: new Date(frontmatter.datetime),
+          type: frontmatter.status || 'upcoming',
+          time: new Date(frontmatter.datetime).toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            timeZoneName: 'short'
+          }),
+          description: frontmatter.description || body.trim(),
+          button_text: frontmatter.button_text,
+          button_link: frontmatter.button_link
+        };
+      }
+    } catch (error) {
+      console.log('Error parsing event file:', filename, error);
+    }
+    return null;
+  }
+  
+  addCMSEvent(event) {
+    const dateKey = event.date.toISOString().split('T')[0];
+    if (!this.events.special[dateKey]) {
+      this.events.special[dateKey] = [];
+    }
+    this.events.special[dateKey].push({
+      title: event.title,
+      type: event.type,
+      time: event.time,
+      description: event.description,
+      button_text: event.button_text,
+      button_link: event.button_link
+    });
   }
   
   bindEvents() {
@@ -557,8 +675,7 @@ class MinistryCalendar {
   }
   
   getMinistryEvents() {
-    // This would be loaded from CMS/backend in production
-    // For now, return recurring ministry schedule
+    // This will be loaded from CMS/backend in production
     return {
       recurring: {
         // Daily Bible Reading (Monday-Friday)
@@ -577,8 +694,7 @@ class MinistryCalendar {
         0: [{ title: 'Sunday Worship', type: 'upcoming', time: '10:00 AM PST' }] // Sunday
       },
       special: {
-        // Special events would be loaded from CMS
-        // Format: 'YYYY-MM-DD': [events]
+        // Special events will be loaded from CMS
       }
     };
   }
@@ -777,6 +893,14 @@ class MinistryCalendar {
     }, 300);
   }
   
+  // Method to refresh events from CMS (call this after adding events)
+  async refreshEvents() {
+    console.log('Refreshing events from CMS...');
+    this.events.special = {}; // Clear existing special events
+    await this.loadCMSEvents();
+    this.renderCalendar();
+  }
+  
   // Method to add special events (for CMS integration)
   addSpecialEvent(date, event) {
     const dateKey = date.toISOString().split('T')[0];
@@ -799,10 +923,174 @@ class MinistryCalendar {
   }
 }
 
+// ── Load CMS Events for Announcements ─────────────────────────────────
+async function loadCMSAnnouncements() {
+  try {
+    // Load events from GitHub API (since we can't directly access _data folder from frontend)
+    const repoUrl = 'https://api.github.com/repos/seedtheword/seedtheword/contents/_data/events';
+    const response = await fetch(repoUrl);
+    
+    if (response.ok) {
+      const files = await response.json();
+      const events = [];
+      
+      for (const file of files) {
+        if (file.name.endsWith('.md')) {
+          try {
+            const fileResponse = await fetch(file.download_url);
+            const content = await fileResponse.text();
+            const event = parseAnnouncementFile(content);
+            if (event) {
+              events.push(event);
+            }
+          } catch (error) {
+            console.log('Error loading announcement file:', file.name);
+          }
+        }
+      }
+      
+      // Update announcements with CMS data
+      updateAnnouncementsDisplay(events);
+    }
+  } catch (error) {
+    console.log('Using default announcements, CMS not available');
+  }
+}
+
+function parseAnnouncementFile(content) {
+  try {
+    const lines = content.split('\n');
+    let inFrontmatter = false;
+    let frontmatter = {};
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (line.trim() === '---') {
+        if (!inFrontmatter) {
+          inFrontmatter = true;
+          continue;
+        } else {
+          break;
+        }
+      }
+      
+      if (inFrontmatter && line.includes(':')) {
+        const [key, ...valueParts] = line.split(':');
+        const value = valueParts.join(':').trim().replace(/['"]/g, '');
+        frontmatter[key.trim()] = value;
+      }
+    }
+    
+    if (frontmatter.title && frontmatter.datetime) {
+      const eventDate = new Date(frontmatter.datetime);
+      const now = new Date();
+      
+      return {
+        title: frontmatter.title,
+        date: eventDate,
+        type: frontmatter.status || 'upcoming',
+        time: eventDate.toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          timeZoneName: 'short'
+        }),
+        description: frontmatter.description,
+        button_text: frontmatter.button_text || 'Learn More',
+        button_link: frontmatter.button_link || '#',
+        isToday: eventDate.toDateString() === now.toDateString(),
+        isPast: eventDate < now,
+        isFuture: eventDate > now
+      };
+    }
+  } catch (error) {
+    console.log('Error parsing announcement:', error);
+  }
+  return null;
+}
+
+function updateAnnouncementsDisplay(events) {
+  // Sort events by date
+  events.sort((a, b) => a.date - b.date);
+  
+  const now = new Date();
+  const liveEvents = events.filter(e => e.isToday && e.type === 'live');
+  const currentEvents = events.filter(e => (e.isToday || e.isFuture) && e.type !== 'live');
+  const upcomingEvents = events.filter(e => e.isFuture).slice(0, 3);
+  
+  // Update Live & Current column
+  const liveColumn = document.querySelector('.announcements-column:first-child .announcements-list');
+  if (liveColumn && liveEvents.length > 0) {
+    const liveHTML = liveEvents.map(event => `
+      <div class="announcement-item live">
+        <div class="announcement-item__status">🔴 LIVE NOW</div>
+        <div class="announcement-item__content">
+          <h4>${event.title}</h4>
+          <p class="announcement-item__time">${event.time}</p>
+          <p class="announcement-item__desc">${event.description}</p>
+          <a href="${event.button_link}" class="btn btn-primary btn-sm">${event.button_text}</a>
+        </div>
+      </div>
+    `).join('');
+    
+    liveColumn.innerHTML = liveHTML + liveColumn.innerHTML;
+  }
+  
+  // Update Upcoming Events column
+  const upcomingColumn = document.querySelector('.announcements-column:nth-child(2) .announcements-list');
+  if (upcomingColumn && upcomingEvents.length > 0) {
+    const upcomingHTML = upcomingEvents.map(event => `
+      <div class="announcement-item upcoming">
+        <div class="announcement-item__status">📅 ${event.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}</div>
+        <div class="announcement-item__content">
+          <h4>${event.title}</h4>
+          <p class="announcement-item__time">${event.time}</p>
+          <p class="announcement-item__desc">${event.description}</p>
+          <a href="${event.button_link}" class="btn btn-secondary btn-sm">${event.button_text}</a>
+        </div>
+      </div>
+    `).join('');
+    
+    upcomingColumn.innerHTML = upcomingHTML;
+  }
+}
+
+// Load CMS announcements when page loads
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.location.pathname.includes('news.html')) {
+    loadCMSAnnouncements();
+  }
+});
+
 // Initialize calendar when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   window.ministryCalendar = new MinistryCalendar();
 });
+
+// Global function to refresh calendar events
+function refreshCalendarEvents() {
+  if (window.ministryCalendar) {
+    window.ministryCalendar.refreshEvents();
+  }
+  
+  // Also refresh announcements if on news page
+  if (window.location.pathname.includes('news.html')) {
+    loadCMSAnnouncements();
+  }
+  
+  // Show feedback
+  const button = event.target;
+  const originalText = button.innerHTML;
+  button.innerHTML = '<span>✓</span> Refreshed!';
+  button.style.background = 'rgba(76, 175, 80, 0.3)';
+  
+  setTimeout(() => {
+    button.innerHTML = originalText;
+    button.style.background = '';
+  }, 2000);
+}
+
+// Make refresh function globally available
+window.refreshCalendarEvents = refreshCalendarEvents;
 
 // Also initialize if script loads after DOM
 if (document.readyState === 'loading') {

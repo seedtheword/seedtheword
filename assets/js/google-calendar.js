@@ -100,7 +100,8 @@ class GoogleCalendarIntegration {
     const timeMax = new Date();
     timeMax.setMonth(timeMax.getMonth() + 6); // Get events for next 6 months
     
-    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(this.calendarId)}/events?` +
+    // Use CORS proxy for testing if direct API fails
+    const directUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(this.calendarId)}/events?` +
       `key=${this.apiKey}&` +
       `timeMin=${timeMin.toISOString()}&` +
       `timeMax=${timeMax.toISOString()}&` +
@@ -109,16 +110,48 @@ class GoogleCalendarIntegration {
       `maxResults=100`;
     
     console.log('🔗 Fetching from Google Calendar API:', this.calendarId);
+    console.log('🔗 API URL:', directUrl);
     
-    const response = await fetch(url);
-    if (!response.ok) {
-      console.error('❌ Google Calendar API Error:', response.status, response.statusText);
-      throw new Error(`Google Calendar API error: ${response.status}`);
+    try {
+      const response = await fetch(directUrl);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Google Calendar API Error:', response.status, response.statusText);
+        console.error('❌ Error details:', errorText);
+        
+        // Try to parse error for more details
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.error) {
+            throw new Error(`${errorData.error.message} (${errorData.error.code})`);
+          }
+        } catch (parseError) {
+          // If we can't parse the error, use the status
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+      }
+      
+      const data = await response.json();
+      console.log('✅ Google Calendar API Success:', data.items?.length || 0, 'events loaded');
+      return data.items || [];
+      
+    } catch (fetchError) {
+      console.error('❌ Fetch Error:', fetchError.message);
+      
+      // Provide specific error messages for common issues
+      if (fetchError.message.includes('CORS')) {
+        throw new Error('CORS Error: API key may need domain restrictions updated');
+      } else if (fetchError.message.includes('403')) {
+        throw new Error('Permission denied: Check API key and calendar permissions');
+      } else if (fetchError.message.includes('404')) {
+        throw new Error('Calendar not found: Check calendar ID and visibility settings');
+      } else if (fetchError.message.includes('400')) {
+        throw new Error('Bad request: Check API key format and parameters');
+      } else {
+        throw fetchError;
+      }
     }
-    
-    const data = await response.json();
-    console.log('✅ Google Calendar API Success:', data.items?.length || 0, 'events loaded');
-    return data.items || [];
   }
   
   generateRecurringEvents(baseEvents) {
@@ -513,5 +546,55 @@ document.addEventListener('DOMContentLoaded', () => {
 window.refreshGoogleCalendar = () => {
   if (window.googleCalendar) {
     window.googleCalendar.refresh();
+  }
+};
+
+// Test function for debugging
+window.testGoogleCalendarAPI = async () => {
+  console.log('🧪 Testing Google Calendar API...');
+  
+  const apiKey = 'AIzaSyA6GMEdyQHxcRCJuun-OIrFlJgG67Zjtpc';
+  const calendarId = 'seedthewordministry@gmail.com';
+  
+  const timeMin = new Date();
+  timeMin.setDate(timeMin.getDate() - 30);
+  const timeMax = new Date();
+  timeMax.setDate(timeMax.getDate() + 180);
+  
+  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?` +
+    `key=${apiKey}&` +
+    `timeMin=${timeMin.toISOString()}&` +
+    `timeMax=${timeMax.toISOString()}&` +
+    `singleEvents=true&` +
+    `orderBy=startTime&` +
+    `maxResults=10`;
+  
+  console.log('🔗 Testing URL:', url);
+  
+  try {
+    const response = await fetch(url);
+    console.log('📡 Response status:', response.status, response.statusText);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Error response:', errorText);
+      alert(`API Test Failed: ${response.status} ${response.statusText}\n\nCheck console for details.`);
+      return;
+    }
+    
+    const data = await response.json();
+    console.log('✅ API Test Success!', data);
+    console.log('📅 Events found:', data.items?.length || 0);
+    
+    if (data.items && data.items.length > 0) {
+      console.log('📋 Sample events:', data.items.slice(0, 3));
+      alert(`✅ API Test Success!\n\nFound ${data.items.length} events in your calendar.\n\nCheck console for details.`);
+    } else {
+      alert(`✅ API Connected Successfully!\n\nNo events found in your calendar.\nTry adding some events in Google Calendar.`);
+    }
+    
+  } catch (error) {
+    console.error('❌ API Test Failed:', error);
+    alert(`❌ API Test Failed: ${error.message}\n\nCheck console for details.`);
   }
 };

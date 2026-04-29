@@ -62,28 +62,8 @@
       <!-- Column 1: Live & Current Events -->
       <div class="announcements-column">
         <h3 class="announcements-column__title">🔴 Live & Current</h3>
-        <div class="announcements-list">
-          
-          <div class="announcement-item live">
-            <div class="announcement-item__status">🔴 LIVE NOW</div>
-            <div class="announcement-item__content">
-              <h4>Study Saturday Live</h4>
-              <p class="announcement-item__time">Every Saturday</p>
-              <p class="announcement-item__desc">Join our weekly livestream for Bible study, fellowship, and prayer with members worldwide.</p>
-              <a href="community.html" class="btn btn-primary btn-sm">Join Community</a>
-            </div>
-          </div>
-
-          <div class="announcement-item current">
-            <div class="announcement-item__status">📖 TODAY</div>
-            <div class="announcement-item__content">
-              <h4>Daily Bible Reading</h4>
-              <p class="announcement-item__time">Monday-Friday</p>
-              <p class="announcement-item__desc">Journey through the New Testament with our community, starting from Matthew.</p>
-              <a href="https://t.me/seedtheword" target="_blank" class="btn btn-telegram btn-sm">Join Telegram</a>
-            </div>
-          </div>
-
+        <div class="announcements-list" id="live-events-container">
+          <!-- Live events will be populated by JavaScript -->
         </div>
       </div>
 
@@ -92,33 +72,33 @@
         <h3 class="announcements-column__title">📅 Upcoming Events</h3>
         <div class="announcements-list">
           
-          <div class="announcement-item upcoming">
-            <div class="announcement-item__status">📅 THIS FRIDAY</div>
-            <div class="announcement-item__content">
-              <h4>Youth Outreach</h4>
-              <p class="announcement-item__time">Fridays • 6:00 PM PST</p>
-              <p class="announcement-item__desc">Connecting with local youth to share the Gospel and build lasting relationships in Christ.</p>
-              <a href="about.html#contact" class="btn btn-secondary btn-sm">Get Involved</a>
+          <div class="event-card upcoming glass-morphism">
+            <div class="event-card__status">📅 THIS FRIDAY</div>
+            <div class="event-card__content">
+              <h4 class="event-card__title">Youth Outreach</h4>
+              <p class="event-card__time">Fridays • 6:00 PM PST</p>
+              <p class="event-card__description">Connecting with local youth to share the Gospel and build lasting relationships in Christ.</p>
+              <div class="event-card__location">Community Centers</div>
             </div>
           </div>
 
-          <div class="announcement-item upcoming">
-            <div class="announcement-item__status">⛪ SUNDAY</div>
-            <div class="announcement-item__content">
-              <h4>Sunday Worship</h4>
-              <p class="announcement-item__time">Sundays • 10:00 AM PST</p>
-              <p class="announcement-item__desc">Come to church and devote this holy day to God through worship and fellowship.</p>
-              <a href="community.html" class="btn btn-secondary btn-sm">Learn More</a>
+          <div class="event-card upcoming glass-morphism">
+            <div class="event-card__status">⛪ SUNDAY</div>
+            <div class="event-card__content">
+              <h4 class="event-card__title">Sunday Worship</h4>
+              <p class="event-card__time">Sundays • 10:00 AM PST</p>
+              <p class="event-card__description">Come to church and devote this holy day to God through worship and fellowship.</p>
+              <div class="event-card__location">Local Church</div>
             </div>
           </div>
 
-          <div class="announcement-item upcoming">
-            <div class="announcement-item__status">🤝 TUESDAY</div>
-            <div class="announcement-item__content">
-              <h4>Life Group Fellowship</h4>
-              <p class="announcement-item__time">Tuesdays • 7:00 PM PST</p>
-              <p class="announcement-item__desc">Encounter the Word together by visiting a life group for deeper fellowship and study.</p>
-              <a href="community.html" class="btn btn-secondary btn-sm">Join Us</a>
+          <div class="event-card upcoming glass-morphism">
+            <div class="event-card__status">🤝 TUESDAY</div>
+            <div class="event-card__content">
+              <h4 class="event-card__title">Life Group Fellowship</h4>
+              <p class="event-card__time">Tuesdays • 7:00 PM PST</p>
+              <p class="event-card__description">Encounter the Word together by visiting a life group for deeper fellowship and study.</p>
+              <div class="event-card__location">Various Locations</div>
             </div>
           </div>
 
@@ -130,33 +110,33 @@
         <h3 class="announcements-column__title">💝 Ongoing Ministries</h3>
         <div class="announcements-list">
           
-          <div class="announcement-item ongoing">
-            <div class="announcement-item__status">💝 ONGOING</div>
-            <div class="announcement-item__content">
-              <h4>Bible Bundle Drive</h4>
-              <p class="announcement-item__time">Ongoing Campaign</p>
-              <p class="announcement-item__desc">Help us provide personalized Bible bundles to newcomers in faith. Every donation matters.</p>
-              <a href="about.html#contact" class="btn btn-primary btn-sm">Donate Now</a>
+          <div class="event-card ongoing glass-morphism">
+            <div class="event-card__status">💝 ONGOING</div>
+            <div class="event-card__content">
+              <h4 class="event-card__title">Bible Bundle Drive</h4>
+              <p class="event-card__time">Ongoing Campaign</p>
+              <p class="event-card__description">Help us provide personalized Bible bundles to newcomers in faith. Every donation matters.</p>
+              <div class="event-card__location">Worldwide Shipping</div>
             </div>
           </div>
 
-          <div class="announcement-item ongoing">
-            <div class="announcement-item__status">🎶 OPEN</div>
-            <div class="announcement-item__content">
-              <h4>Worship Ministry</h4>
-              <p class="announcement-item__time">Seeking Talent</p>
-              <p class="announcement-item__desc">We're looking for gifted individuals to produce, sing, and minister through worship.</p>
-              <a href="about.html#contact" class="btn btn-secondary btn-sm">Ask our Team</a>
+          <div class="event-card ongoing glass-morphism">
+            <div class="event-card__status">🎶 OPEN</div>
+            <div class="event-card__content">
+              <h4 class="event-card__title">Worship Ministry</h4>
+              <p class="event-card__time">Seeking Talent</p>
+              <p class="event-card__description">We're looking for gifted individuals to produce, sing, and minister through worship.</p>
+              <div class="event-card__location">Music Ministry</div>
             </div>
           </div>
 
-          <div class="announcement-item ongoing">
-            <div class="announcement-item__status">🙏 ALWAYS</div>
-            <div class="announcement-item__content">
-              <h4>Prayer Requests</h4>
-              <p class="announcement-item__time">24/7 Support</p>
-              <p class="announcement-item__desc">Share your prayer needs with our community. We believe in the power of prayer.</p>
-              <a href="about.html#contact" class="btn btn-secondary btn-sm">Request Prayer</a>
+          <div class="event-card ongoing glass-morphism">
+            <div class="event-card__status">🙏 ALWAYS</div>
+            <div class="event-card__content">
+              <h4 class="event-card__title">Prayer Requests</h4>
+              <p class="event-card__time">24/7 Support</p>
+              <p class="event-card__description">Share your prayer needs with our community. We believe in the power of prayer.</p>
+              <div class="event-card__location">Online Community</div>
             </div>
           </div>
 
@@ -171,14 +151,21 @@
 <section class="section section--white">
   <div class="container">
     <h2 class="section-title">📅 Ministry Calendar</h2>
-    <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">View our complete schedule of events, services, and activities</p>
+    <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">
+      View our complete schedule of events, services, and activities
+    </p>
     
-    <div style="text-align: center; margin-bottom: 1rem;">
-      <button onclick="refreshCalendarEvents()" class="btn btn-secondary btn-sm">
-        <span>🔄</span> Refresh Events
+    <!-- Calendar Controls -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <button onclick="refreshGoogleCalendar()" class="btn btn-secondary btn-sm glass-morphism">
+        <span>🔄</span> Refresh Calendar
+      </button>
+      <button onclick="window.open('https://calendar.google.com/calendar/u/0/r', '_blank')" class="btn btn-primary btn-sm glass-morphism" style="margin-left: 0.5rem;">
+        <span>📅</span> Add to Google Calendar
       </button>
     </div>
     
+    <!-- Glass Morphism Calendar -->
     <div class="calendar-container">
       <div class="calendar-header">
         <button class="calendar-nav-btn" id="prev-month">‹</button>
@@ -215,6 +202,20 @@
           <!-- Event details will be populated here -->
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- Upcoming Events Cards -->
+<section class="section section--light">
+  <div class="container">
+    <h2 class="section-title">🎯 Upcoming Events</h2>
+    <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">
+      Don't miss these upcoming ministry events and activities
+    </p>
+    
+    <div class="cards-grid" id="upcoming-events-container">
+      <!-- Upcoming events will be populated by JavaScript -->
     </div>
   </div>
 </section>
@@ -336,6 +337,7 @@
 </footer>
 
 <script src="assets/js/main.js"></script>
+<script src="assets/js/google-calendar.js"></script>
 <script src="assets/js/livestream.js"></script>
 </body>
 </html>

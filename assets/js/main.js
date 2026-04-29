@@ -536,6 +536,15 @@ class MinistryCalendar {
   
   async loadCMSEvents() {
     try {
+      // First try to load from cms-events.js (simple fallback)
+      if (window.cmsEvents && window.cmsEvents.length > 0) {
+        window.cmsEvents.forEach(event => {
+          this.addCMSEvent(event);
+        });
+        console.log('Loaded events from cms-events.js');
+        return;
+      }
+      
       // Try to load events from the CMS data files
       const response = await fetch('/_data/events/');
       if (response.ok) {
@@ -557,7 +566,7 @@ class MinistryCalendar {
     try {
       // This loads events from your GitHub repository
       // Using your actual repository: seedtheword/seedtheword
-      const repoUrl = 'https://api.github.com/repos/seedtheword/seedtheword/contents/_data/events';
+      const repoUrl = 'https://api.github.com/repos/seedtheword/seedtheword/contents/site/_data/events';
       const response = await fetch(repoUrl);
       
       if (response.ok) {
@@ -643,11 +652,18 @@ class MinistryCalendar {
     this.events.special[dateKey].push({
       title: event.title,
       type: event.type,
-      time: event.time,
+      time: event.date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        timeZoneName: 'short'
+      }),
       description: event.description,
       button_text: event.button_text,
       button_link: event.button_link
     });
+    
+    // Re-render calendar
+    this.renderCalendar();
   }
   
   bindEvents() {
@@ -927,7 +943,7 @@ class MinistryCalendar {
 async function loadCMSAnnouncements() {
   try {
     // Load events from GitHub API (since we can't directly access _data folder from frontend)
-    const repoUrl = 'https://api.github.com/repos/seedtheword/seedtheword/contents/_data/events';
+    const repoUrl = 'https://api.github.com/repos/seedtheword/seedtheword/contents/site/_data/events';
     const response = await fetch(repoUrl);
     
     if (response.ok) {
@@ -1063,7 +1079,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Initialize calendar when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('Initializing ministry calendar...');
   window.ministryCalendar = new MinistryCalendar();
+  
+  // Load CMS events after a short delay
+  setTimeout(() => {
+    if (window.loadCMSEventsIntoCalendar) {
+      console.log('Loading CMS events into calendar...');
+      window.loadCMSEventsIntoCalendar();
+    }
+  }, 2000);
 });
 
 // Global function to refresh calendar events

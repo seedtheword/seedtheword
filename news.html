@@ -50,79 +50,43 @@
   </div>
 </section>
 
-<!-- Announcements Section -->
+<!-- Announcements & Calendar Section -->
 <section class="section section--light" style="padding: 3rem 0;">
   <div class="container">
-    <h2 class="section-title">📢 Current Events & Announcements</h2>
+    <h2 class="section-title">📢 Announcements</h2>
     <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">Stay connected with what's happening in our ministry community</p>
     
     <!-- Compact 3-Column Announcements Layout -->
-    <div class="announcements-3col-layout" style="margin-bottom: 1rem;">
+    <div class="announcements-3col-layout" style="margin-bottom: 2rem;">
       
       <!-- Column 1: Live & Current Events -->
       <div class="announcements-column">
         <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">🔴 Live & Current</h3>
         <div class="announcements-list" id="live-events-container">
-          <!-- Live events will be populated by JavaScript -->
+          <!-- Live events will be populated by JavaScript from Google Calendar -->
         </div>
       </div>
 
       <!-- Column 2: Upcoming Events -->
       <div class="announcements-column">
         <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">📅 Upcoming Events</h3>
-        <div class="announcements-list">
-          
-          <div class="event-card upcoming glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
-            <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">📅 THIS FRIDAY</div>
-            <div class="event-card__content">
-              <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Youth Outreach</h4>
-              <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">Fridays • 6:00 PM PST</p>
-              <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Connecting with local youth to share the Gospel and build lasting relationships in Christ.</p>
-            </div>
-          </div>
-
-          <div class="event-card upcoming glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
-            <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">⛪ SUNDAY</div>
-            <div class="event-card__content">
-              <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Sunday Worship</h4>
-              <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">Sundays • 10:00 AM PST</p>
-              <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Come to church and devote this holy day to God through worship and fellowship.</p>
-            </div>
-          </div>
-
+        <div class="announcements-list" id="upcoming-events-container">
+          <!-- Upcoming events will be populated by JavaScript from Google Calendar -->
         </div>
       </div>
 
       <!-- Column 3: Ongoing Ministries -->
       <div class="announcements-column">
         <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">💝 Ongoing Ministries</h3>
-        <div class="announcements-list">
-          
-          <div class="event-card ongoing glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
-            <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">💝 ONGOING</div>
-            <div class="event-card__content">
-              <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Bible Bundle Drive</h4>
-              <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">Ongoing Campaign</p>
-              <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Help us provide personalized Bible bundles to newcomers in faith. Every donation matters.</p>
-            </div>
-          </div>
-
-          <div class="event-card ongoing glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
-            <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">🙏 ALWAYS</div>
-            <div class="event-card__content">
-              <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Prayer Requests</h4>
-              <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">24/7 Support</p>
-              <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Share your prayer needs with our community. We believe in the power of prayer.</p>
-            </div>
-          </div>
-
+        <div class="announcements-list" id="ongoing-ministries-container">
+          <!-- Ongoing ministries will be populated by JavaScript from Google Calendar -->
         </div>
       </div>
 
     </div>
     
     <!-- Quick Navigation -->
-    <div style="text-align: center; margin-top: 1rem;">
+    <div style="text-align: center; margin-top: 1.5rem;">
       <button onclick="document.getElementById('calendar-section').scrollIntoView({behavior: 'smooth'})" class="btn btn-primary btn-sm glass-morphism">
         <span>📅</span> View Full Calendar
       </button>
@@ -131,28 +95,15 @@
 </section>
 
 <!-- Ministry Calendar -->
-<section class="section section--white">
+<section class="section section--white" id="calendar-section">
   <div class="container">
     <h2 class="section-title">📅 Ministry Calendar</h2>
     <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">
       View our complete schedule of events, services, and activities
     </p>
     
-    <!-- Calendar Controls -->
-    <div style="text-align: center; margin-bottom: 2rem;">
-      <button onclick="refreshGoogleCalendar()" class="btn btn-secondary btn-sm glass-morphism">
-        <span>🔄</span> Refresh Calendar
-      </button>
-      <button onclick="window.open('https://calendar.google.com/calendar/u/0/r', '_blank')" class="btn btn-primary btn-sm glass-morphism" style="margin-left: 0.5rem;">
-        <span>📅</span> Add to Google Calendar
-      </button>
-      <button onclick="testGoogleCalendarAPI()" class="btn btn-secondary btn-sm glass-morphism" style="margin-left: 0.5rem;">
-        <span>🧪</span> Test API
-      </button>
-    </div>
-    
-    <!-- Glass Morphism Calendar -->
-    <div class="calendar-container">
+    <!-- Ministry Calendar -->
+    <div class="calendar-container" id="calendar-section">
       <div class="calendar-header">
         <button class="calendar-nav-btn" id="prev-month">‹</button>
         <h3 class="calendar-month" id="calendar-month">January 2026</h3>
@@ -192,68 +143,75 @@
   </div>
 </section>
 
-<!-- Upcoming Events Cards -->
-<section class="section section--light">
-  <div class="container">
-    <h2 class="section-title">🎯 Upcoming Events</h2>
-    <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">
-      Don't miss these upcoming ministry events and activities
-    </p>
-    
-    <div class="cards-grid" id="upcoming-events-container">
-      <!-- Upcoming events will be populated by JavaScript -->
-    </div>
-  </div>
-</section>
-
-<!-- Testimonies grid -->
+<!-- Ministry Highlights -->
 <section class="section section--white">
   <div class="container">
-    <h2 class="section-title">Community Testimonies</h2>
-    <div class="cards-grid">
-
-      <article class="testimony-card">
-        <div class="testimony-card__avatar"></div>
-        <h3 class="testimony-card__name">Maria G.</h3>
-        <p class="testimony-card__text" data-full="Receiving this Bible changed everything for me. I never expected someone to reach out with such a personal gift. It felt like a hug from God. I have been reading it every morning since the day I received it.">"Receiving this Bible changed everything for me. I never expected someone to reach out with such a personal gift…"</p>
-        <button class="testimony-card__more" aria-expanded="false">Read More</button>
-      </article>
-
-      <article class="testimony-card">
-        <div class="testimony-card__avatar"></div>
-        <h3 class="testimony-card__name">James T.</h3>
-        <p class="testimony-card__text" data-full="I had so many questions about faith and wasn't sure where to start. This ministry gave me not just a Bible but a community that walked alongside me with patience and love. I am forever grateful.">"I had so many questions about faith. This ministry gave me a Bible and helped me find a community…"</p>
-        <button class="testimony-card__more" aria-expanded="false">Read More</button>
-      </article>
-
-      <article class="testimony-card">
-        <div class="testimony-card__avatar"></div>
-        <h3 class="testimony-card__name">Priya N.</h3>
-        <p class="testimony-card__text" data-full="The personalized note inside my Bible still makes me smile every time I open it. Someone prayed for me specifically — a stranger. That changed how I see God's love for me personally.">"The personalized note inside my Bible still makes me smile. Someone prayed for me specifically…"</p>
-        <button class="testimony-card__more" aria-expanded="false">Read More</button>
-      </article>
-
-      <article class="testimony-card">
-        <div class="testimony-card__avatar"></div>
-        <h3 class="testimony-card__name">Carlos M.</h3>
-        <p class="testimony-card__text" data-full="I requested a donation-funded bundle because I couldn't afford one. No judgment, no conditions — just love. The ministry team followed up with me personally. I'll never forget it.">"I requested a donation-funded bundle because I couldn't afford one. No judgment, no conditions — just love…"</p>
-        <button class="testimony-card__more" aria-expanded="false">Read More</button>
-      </article>
-
-      <article class="testimony-card">
-        <div class="testimony-card__avatar"></div>
-        <h3 class="testimony-card__name">Sarah K.</h3>
-        <p class="testimony-card__text" data-full="I gifted a bundle to my coworker who recently lost her husband. The engraved cover with a comforting verse meant more to her than I can put into words.">"I gifted a bundle to my coworker who recently lost her husband. The engraved cover meant more than words…"</p>
-        <button class="testimony-card__more" aria-expanded="false">Read More</button>
-      </article>
-
-      <article class="testimony-card">
-        <div class="testimony-card__avatar"></div>
-        <h3 class="testimony-card__name">David L.</h3>
-        <p class="testimony-card__text" data-full="As a youth pastor, I've used this ministry to welcome new teens into our group. Every single bundle has been received with joy and gratitude.">"As a youth pastor, I've used this ministry to welcome new teens. Every bundle has been received with joy…"</p>
-        <button class="testimony-card__more" aria-expanded="false">Read More</button>
-      </article>
-
+    <h2 class="section-title">🌟 Ministry Highlights</h2>
+    <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">
+      See how God is working through our community to spread His Word
+    </p>
+    
+    <!-- Video Gallery from Community Page -->
+    <div class="video-gallery">
+      <div class="video-card">
+        <video controls poster="assets/images/bible-ministry-1.jpg">
+          <source src="assets/videos/bible-flip.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-card__content">
+          <h3>Bible Study Sessions</h3>
+          <p>Join us as we dive deep into God's Word together</p>
+        </div>
+      </div>
+      
+      <div class="video-card">
+        <video controls poster="assets/images/stw-ministry-team.jpg">
+          <source src="assets/videos/ministry-clip.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-card__content">
+          <h3>Ministry Highlights</h3>
+          <p>See our community serving and growing together</p>
+        </div>
+      </div>
+      
+      <div class="video-card">
+        <video controls poster="assets/images/stw-bibles-giveaway.jpg">
+          <source src="assets/videos/pack-ship.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-card__content">
+          <h3>Packing & Shipping</h3>
+          <p>Behind the scenes: preparing Bible bundles with love</p>
+        </div>
+      </div>
+      
+      <div class="video-card">
+        <video controls poster="assets/images/seed-the-word.jpg">
+          <source src="assets/videos/worship-composing.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-card__content">
+          <h3>Worship & Music</h3>
+          <p>Creating songs of praise and worship together</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Ministry Photos -->
+    <div style="margin-top:3rem">
+      <h3 style="text-align:center;font-size:1.5rem;margin-bottom:2rem;color:var(--text)">Recent Ministry Photos</h3>
+      <div class="photo-strip" style="border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12)">
+        <div class="photo-strip__item">
+          <img src="assets/images/bible-ministry-1.jpg" alt="Bible ministry in action" loading="lazy">
+        </div>
+        <div class="photo-strip__item">
+          <img src="assets/images/bible-ministry-gift-zander.jpg" alt="Bible gift to Zander" loading="lazy">
+        </div>
+        <div class="photo-strip__item">
+          <img src="assets/images/stw-bibles-giveaway.jpg" alt="Bibles giveaway" loading="lazy">
+        </div>
+      </div>
     </div>
   </div>
 </section>

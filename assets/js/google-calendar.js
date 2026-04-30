@@ -287,8 +287,9 @@ class GoogleCalendarIntegration {
   }
   
   renderEventCards() {
-    this.renderUpcomingEvents();
     this.renderLiveEvents();
+    this.renderUpcomingEvents();
+    this.renderOngoingMinistries();
   }
   
   renderUpcomingEvents() {
@@ -298,22 +299,95 @@ class GoogleCalendarIntegration {
     const now = new Date();
     const upcomingEvents = this.events
       .filter(event => new Date(event.start.dateTime) > now)
-      .slice(0, 6);
+      .slice(0, 3); // Limit to 3 for compact layout
+    
+    if (upcomingEvents.length === 0) {
+      container.innerHTML = `
+        <div class="event-card upcoming glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
+          <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">📅 THIS FRIDAY</div>
+          <div class="event-card__content">
+            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Youth Outreach</h4>
+            <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">Fridays • 6:00 PM PST</p>
+            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Connecting with local youth to share the Gospel and build lasting relationships in Christ.</p>
+          </div>
+        </div>
+        <div class="event-card upcoming glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
+          <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">⛪ SUNDAY</div>
+          <div class="event-card__content">
+            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Sunday Worship</h4>
+            <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">Sundays • 10:00 AM PST</p>
+            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Come to church and devote this holy day to God through worship and fellowship.</p>
+          </div>
+        </div>
+      `;
+      return;
+    }
     
     container.innerHTML = upcomingEvents.map(event => {
       const startDate = new Date(event.start.dateTime);
       const eventType = this.getEventType(event);
+      const statusText = this.getEventStatusForAnnouncement(startDate);
       
       return `
-        <div class="event-card glass-morphism ${eventType}" onclick="googleCalendar.showEventModal(${JSON.stringify(event).replace(/"/g, '&quot;')}, '${startDate.toISOString()}')">
-          <div class="event-card__status">${this.getEventStatusIcon(eventType)} ${this.getEventStatusText(eventType)}</div>
+        <div class="event-card ${eventType} glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;" onclick="googleCalendar.showEventModal(${JSON.stringify(event).replace(/"/g, '&quot;')}, '${startDate.toISOString()}')">
+          <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">${statusText}</div>
           <div class="event-card__content">
-            <h4 class="event-card__title">${event.summary || event.title}</h4>
-            <p class="event-card__time">${this.formatEventTime(startDate)}</p>
-            <p class="event-card__description">${this.truncateText(event.description || '', 100)}</p>
-            <div class="event-card__location">${event.location || ''}</div>
+            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">${event.summary || event.title}</h4>
+            <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">${this.formatCompactEventTime(startDate)}</p>
+            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">${this.truncateText(event.description || '', 80)}</p>
           </div>
-          <div class="event-card__hover-effect"></div>
+        </div>
+      `;
+    }).join('');
+  }
+  
+  renderOngoingMinistries() {
+    const container = document.getElementById('ongoing-ministries-container');
+    if (!container) return;
+    
+    // Filter for recurring/ongoing events
+    const ongoingEvents = this.events.filter(event => 
+      event.recurring || (event.summary && (
+        event.summary.toLowerCase().includes('daily') ||
+        event.summary.toLowerCase().includes('weekly') ||
+        event.summary.toLowerCase().includes('ongoing') ||
+        event.summary.toLowerCase().includes('ministry')
+      ))
+    ).slice(0, 3);
+    
+    if (ongoingEvents.length === 0) {
+      container.innerHTML = `
+        <div class="event-card ongoing glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
+          <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">💝 ONGOING</div>
+          <div class="event-card__content">
+            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Bible Bundle Drive</h4>
+            <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">Ongoing Campaign</p>
+            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Help us provide personalized Bible bundles to newcomers in faith. Every donation matters.</p>
+          </div>
+        </div>
+        <div class="event-card ongoing glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
+          <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">🙏 ALWAYS</div>
+          <div class="event-card__content">
+            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Prayer Requests</h4>
+            <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">24/7 Support</p>
+            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Share your prayer needs with our community. We believe in the power of prayer.</p>
+          </div>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = ongoingEvents.map(event => {
+      const startDate = new Date(event.start.dateTime);
+      
+      return `
+        <div class="event-card ongoing glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;" onclick="googleCalendar.showEventModal(${JSON.stringify(event).replace(/"/g, '&quot;')}, '${startDate.toISOString()}')">
+          <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">🔄 ONGOING</div>
+          <div class="event-card__content">
+            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">${event.summary || event.title}</h4>
+            <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">${this.getRecurringSchedule(event)}</p>
+            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">${this.truncateText(event.description || '', 80)}</p>
+          </div>
         </div>
       `;
     }).join('');
@@ -358,6 +432,47 @@ class GoogleCalendarIntegration {
   }
   
   // Utility methods
+  getEventStatusForAnnouncement(date) {
+    const now = new Date();
+    const diffDays = Math.ceil((date - now) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return '📅 TODAY';
+    if (diffDays === 1) return '📅 TOMORROW';
+    if (diffDays <= 7) {
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+      return `📅 THIS ${dayName}`;
+    }
+    return '📅 UPCOMING';
+  }
+  
+  formatCompactEventTime(date) {
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const time = date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
+    return `${dayName}s • ${time}`;
+  }
+  
+  getRecurringSchedule(event) {
+    if (event.recurring) {
+      const startDate = new Date(event.start.dateTime);
+      const dayName = startDate.toLocaleDateString('en-US', { weekday: 'long' });
+      const time = startDate.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        timeZoneName: 'short'
+      });
+      
+      if (event.recurring.includes('DAILY')) return `Daily • ${time}`;
+      if (event.recurring.includes('WEEKLY')) return `${dayName}s • ${time}`;
+      return `Regular Schedule • ${time}`;
+    }
+    
+    return 'Ongoing Ministry';
+  }
+  
   getEventType(event) {
     const now = new Date();
     const start = new Date(event.start.dateTime);

@@ -50,316 +50,202 @@
   </div>
 </section>
 
-<!-- Live Stream Section -->
-<section class="section section--light">
+<!-- Livestream -->
+<section class="section section--light" style="padding: 4rem 0;">
   <div class="container">
-    <h2 class="section-title">📺 Live Stream</h2>
-    <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 3rem; font-size: 1.125rem; color: var(--muted);">
-      Join us live for Bible study, fellowship, and prayer with members worldwide.
+    <h2 class="section-title">📺 Study Saturday Live</h2>
+    <div id="livestream-card-container"></div>
+  </div>
+</section>
+
+<!-- This Week in God's Word -->
+<section class="section section--white" style="padding: 4rem 0;">
+  <div class="container">
+    <h2 class="section-title">📖 This Week in God's Word</h2>
+    <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
+      We read one chapter each weekday, journeying through the New Testament together.
     </p>
-    
-    <div id="livestream-section">
-      <!-- Twitch integration will populate this -->
+    <div id="bible-plan-container"></div>
+  </div>
+</section>
+
+<!-- Featured Slideshow -->
+<section class="section section--light" style="padding: 4rem 0;">
+  <div class="container">
+    <h2 class="section-title">✨ Featured from Our Ministry</h2>
+    <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
+      Highlights from our recent events, outreach, and community moments — automatically
+      surfaced from what's resonating most with our followers.
+    </p>
+    <div id="featured-slideshow-container"></div>
+  </div>
+</section>
+
+<!-- Live Feed: Telegram + Instagram side by side -->
+<section class="section section--white" style="padding: 4rem 0;">
+  <div class="container">
+    <h2 class="section-title">📣 What's Happening Right Now</h2>
+    <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
+      Our latest posts from Telegram and Instagram, all in one place.
+    </p>
+
+    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 2rem; align-items: start;" class="community-feeds-grid">
+      <!-- Telegram Widget -->
+      <div class="telegram-feed-wrap glass-morphism">
+        <div class="telegram-feed-wrap__header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="28" height="28" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+          <h3 class="telegram-feed-wrap__title">Telegram Channel</h3>
+        </div>
+        <div class="telegram-feed-wrap__widget">
+          <script async src="https://telegram.org/js/telegram-widget.js?22"
+                  data-telegram-post="seedtheword/1"
+                  data-width="100%"
+                  data-userpic="true"
+                  data-dark="0"></script>
+          <noscript>
+            <a href="https://t.me/seedtheword" target="_blank" rel="noopener">View our Telegram channel</a>
+          </noscript>
+        </div>
+        <div style="margin-top: 1rem; text-align: center;">
+          <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram">
+            Open in Telegram
+          </a>
+        </div>
+      </div>
+
+      <!-- Instagram Grid -->
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="28" height="28" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          <h3 style="margin: 0; font-size: 1.2rem; color: var(--text);">Instagram</h3>
+        </div>
+        <div id="instagram-grid-container"></div>
+        <div style="margin-top: 1rem; text-align: center;">
+          <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="btn btn-instagram">
+            Follow @seedtheword
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Get Involved (Gideon-style with expandable details) -->
-<section class="section section--white">
+<!-- How to Join -->
+<section class="section section--light" style="padding: 4rem 0;">
   <div class="container">
-    <h2 class="section-title">Ways to Get Involved</h2>
-    <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 3rem; font-size: 1.125rem; color: var(--muted);">
-      There are many ways to partner with us in welcoming newcomers to faith through God's Word.
+    <h2 class="section-title">🚀 How to Get Plugged In</h2>
+    <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
+      New here? Here's everything you need to join the community and stay connected.
+    </p>
+
+    <div class="howto-grid">
+      <!-- Telegram -->
+      <div class="howto-card glass-morphism">
+        <div class="howto-card__icon">💬</div>
+        <h3 class="howto-card__title">Join Our Telegram</h3>
+        <p class="howto-card__intro">Daily Bible discussion, prayer, and community chat — our most active space.</p>
+        <details>
+          <summary>Step-by-step</summary>
+          <ol>
+            <li>Download the Telegram app from your phone's app store (it's free).</li>
+            <li>Sign up with your phone number and pick a display name.</li>
+            <li>Tap the button below or search for <strong>@seedtheword</strong> in Telegram.</li>
+            <li>Tap <strong>Join</strong> — you're in. Say hi to introduce yourself.</li>
+          </ol>
+        </details>
+        <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram">Join Telegram</a>
+      </div>
+
+      <!-- Instagram -->
+      <div class="howto-card glass-morphism">
+        <div class="howto-card__icon">📸</div>
+        <h3 class="howto-card__title">Follow on Instagram</h3>
+        <p class="howto-card__intro">Photos, videos, and behind-the-scenes from our outreach and events.</p>
+        <details>
+          <summary>Step-by-step</summary>
+          <ol>
+            <li>Download the Instagram app or visit <strong>instagram.com</strong> in your browser.</li>
+            <li>Create a free account if you don't already have one.</li>
+            <li>Tap the button below or search for <strong>@seedtheword</strong>.</li>
+            <li>Tap <strong>Follow</strong> and turn on notifications to catch new posts.</li>
+          </ol>
+        </details>
+        <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="btn btn-instagram">Follow Instagram</a>
+      </div>
+
+      <!-- Bible Reading -->
+      <div class="howto-card glass-morphism">
+        <div class="howto-card__icon">📖</div>
+        <h3 class="howto-card__title">Read Along With Us</h3>
+        <p class="howto-card__intro">One chapter a day, Monday through Friday. Simple and sustainable.</p>
+        <details>
+          <summary>Step-by-step</summary>
+          <ol>
+            <li>Check this page (or our Telegram) each morning for today's chapter.</li>
+            <li>Open your Bible — or use a free app like <strong>YouVersion</strong> or <strong>Bible.com</strong>.</li>
+            <li>Read slowly. Look up one word or idea you don't understand.</li>
+            <li>Share a verse that stood out in our Telegram group — we'd love to hear it.</li>
+          </ol>
+        </details>
+        <a href="#bible-plan-container" class="btn btn-secondary">See This Week</a>
+      </div>
+
+      <!-- Livestream -->
+      <div class="howto-card glass-morphism">
+        <div class="howto-card__icon">📺</div>
+        <h3 class="howto-card__title">Watch the Livestream</h3>
+        <p class="howto-card__intro">Saturday afternoons on Twitch — Bible study, fellowship, and prayer together.</p>
+        <details>
+          <summary>Step-by-step</summary>
+          <ol>
+            <li>Visit <strong>twitch.tv/seedtheword</strong> — no account needed to watch.</li>
+            <li>Create a free Twitch account if you want to chat with us live.</li>
+            <li>Click <strong>Follow</strong> on our channel to get notified when we go live.</li>
+            <li>Join us Saturdays at 2:00 PM Pacific Time.</li>
+          </ol>
+        </details>
+        <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" class="btn btn-secondary">Open Twitch</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ways to Get Involved -->
+<section class="section section--white" style="padding: 4rem 0;">
+  <div class="container">
+    <h2 class="section-title">🙌 Ways to Get Involved</h2>
+    <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
+      Partner with us in welcoming newcomers to faith through God's Word.
     </p>
     <div class="cta-blocks">
       <div class="cta-block">
-        <span class="cta-block__icon">💬</span>
-        <h3 class="cta-block__title">Join Our Telegram</h3>
-        <p class="cta-block__desc">Connect with fellow believers for daily encouragement, Bible reading, and fellowship in our active Telegram community.</p>
-        <details style="margin: 1rem 0; text-align: left;">
-          <summary style="cursor: pointer; font-weight: 600; color: var(--green); margin-bottom: .5rem;">+ Learn More</summary>
-          <ul style="list-style: disc; padding-left: 1.5rem; margin: .75rem 0; font-size: .9375rem; color: var(--muted); line-height: 1.7;">
-            <li>Daily Bible reading plans and discussions</li>
-            <li>Prayer requests and testimonies</li>
-            <li>Fellowship with believers worldwide</li>
-            <li>Ministry updates and opportunities</li>
-          </ul>
-        </details>
-        <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram">Join on Telegram</a>
-      </div>
-      <div class="cta-block">
         <span class="cta-block__icon">🙏</span>
         <h3 class="cta-block__title">Volunteer</h3>
-        <p class="cta-block__desc">Help us prepare and distribute Bible bundles, visit newcomers, or support our weekly gatherings.</p>
-        <details style="margin: 1rem 0; text-align: left;">
-          <summary style="cursor: pointer; font-weight: 600; color: var(--green); margin-bottom: .5rem;">+ Learn More</summary>
-          <ul style="list-style: disc; padding-left: 1.5rem; margin: .75rem 0; font-size: .9375rem; color: var(--muted); line-height: 1.7;">
-            <li>Pack and personalize Bible bundles</li>
-            <li>Visit newcomers and share the Gospel</li>
-            <li>Support weekly gatherings and events</li>
-            <li>Mentor new believers in their faith journey</li>
-          </ul>
-        </details>
+        <p class="cta-block__desc">Help prepare and distribute Bible bundles, visit newcomers, or support our weekly gatherings.</p>
         <a href="about.html#contact" class="btn btn-secondary">Get in Touch</a>
       </div>
       <div class="cta-block">
         <span class="cta-block__icon">❤️</span>
         <h3 class="cta-block__title">Support the Ministry</h3>
         <p class="cta-block__desc">Help fund Bible bundles for those who cannot afford them. Every gift makes a difference.</p>
-        <details style="margin: 1rem 0; text-align: left;">
-          <summary style="cursor: pointer; font-weight: 600; color: var(--green); margin-bottom: .5rem;">+ Learn More</summary>
-          <ul style="list-style: disc; padding-left: 1.5rem; margin: .75rem 0; font-size: .9375rem; color: var(--muted); line-height: 1.7;">
-            <li>Provide Bibles for those who cannot afford them</li>
-            <li>Help equip believers committed to sharing the Gospel</li>
-            <li>Support ministry operations and outreach</li>
-            <li>100% of donations go directly to Bible bundles</li>
-          </ul>
-        </details>
         <a href="about.html#contact" class="btn btn-secondary">Donate</a>
       </div>
+      <div class="cta-block">
+        <span class="cta-block__icon">📣</span>
+        <h3 class="cta-block__title">Share Our Mission</h3>
+        <p class="cta-block__desc">Invite friends and family to join the community and help plant seeds of faith.</p>
+        <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram">Share Telegram</a>
+      </div>
     </div>
   </div>
 </section>
-
-<!-- Community Engagement Hub -->
-<section class="section section--light">
-  <div class="container">
-    <h2 class="section-title">🌟 Community Engagement Hub</h2>
-    <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 3rem;font-size:1rem;line-height:1.7">Connect, participate, and explore our ministry journey together</p>
-    
-    <!-- Live Stream Container (shows when live) -->
-    <div id="live-stream-container" class="live-stream-section"></div>
-    
-    <!-- 3-Column Engagement Layout -->
-    <div class="engagement-hub-layout">
-      
-      <!-- Column 1: Live Stream / Current Activity -->
-      <div class="engagement-column">
-        <div class="engagement-card glass-card">
-          <div class="engagement-card__header">
-            <span class="engagement-card__icon">📺</span>
-            <h3 class="engagement-card__title">Live Stream</h3>
-          </div>
-          <div class="engagement-card__content" id="stream-status-card">
-            <div class="stream-status-offline">
-              <h4>Next Live Stream</h4>
-              <div class="next-stream-details">
-                <p><strong>Study Saturday Live</strong></p>
-                <p class="stream-time">Every Saturday • 2:00 PM PST</p>
-                <p class="stream-description">Bible study, fellowship, prayer, and community discussion with members worldwide.</p>
-              </div>
-              <div class="stream-actions">
-                <a href="https://t.me/seedtheword" target="_blank" class="btn btn-telegram btn-sm">
-                  <span>🔔</span> Get Notified
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Column 2: Community Engagement -->
-      <div class="engagement-column">
-        <div class="engagement-card glass-card">
-          <div class="engagement-card__header">
-            <span class="engagement-card__icon">💬</span>
-            <h3 class="engagement-card__title">Join the Conversation</h3>
-          </div>
-          <div class="engagement-card__content">
-            <div class="engagement-options">
-              <div class="engagement-option">
-                <div class="engagement-option__icon">📖</div>
-                <div class="engagement-option__content">
-                  <h4>Daily Bible Reading</h4>
-                  <p>Journey through the New Testament with our community</p>
-                </div>
-              </div>
-              
-              <div class="engagement-option">
-                <div class="engagement-option__icon">🙏</div>
-                <div class="engagement-option__content">
-                  <h4>Prayer Requests</h4>
-                  <p>Share your needs and pray for others</p>
-                </div>
-              </div>
-              
-              <div class="engagement-option">
-                <div class="engagement-option__icon">❤️</div>
-                <div class="engagement-option__content">
-                  <h4>Share Testimonies</h4>
-                  <p>Tell how God's Word has impacted your life</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="engagement-actions">
-              <a href="https://t.me/seedtheword" target="_blank" class="btn btn-telegram">
-                <span>💬</span> Join Telegram
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Column 3: Previous Events Archive -->
-      <div class="engagement-column">
-        <div class="engagement-card glass-card">
-          <div class="engagement-card__header">
-            <span class="engagement-card__icon">📚</span>
-            <h3 class="engagement-card__title">Ministry Archive</h3>
-          </div>
-          <div class="engagement-card__content">
-            <div class="archive-intro">
-              <p>Browse our ministry history, past streams, and community highlights</p>
-            </div>
-            
-            <div class="archive-categories" id="archive-content">
-              <div class="archive-category">
-                <div class="archive-category__icon">🎥</div>
-                <div class="archive-category__content">
-                  <h4>Past Livestreams</h4>
-                  <p>Watch previous Study Saturday sessions</p>
-                </div>
-              </div>
-              
-              <div class="archive-category">
-                <div class="archive-category__icon">📸</div>
-                <div class="archive-category__content">
-                  <h4>Ministry Events</h4>
-                  <p>Photos and updates from our outreach</p>
-                </div>
-              </div>
-              
-              <div class="archive-category">
-                <div class="archive-category__icon">📖</div>
-                <div class="archive-category__content">
-                  <h4>Bible Studies</h4>
-                  <p>Access past study materials and notes</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="archive-actions">
-              <button class="btn btn-secondary" onclick="showArchiveModal()">
-                <span>📚</span> Browse Archive
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- Archive Modal -->
-<div class="archive-modal" id="archive-modal">
-  <div class="archive-modal__backdrop"></div>
-  <div class="archive-modal__content">
-    <div class="archive-modal__header">
-      <h3>Ministry Archive</h3>
-      <button class="archive-modal__close" id="archive-modal-close">&times;</button>
-    </div>
-    <div class="archive-modal__body" id="archive-modal-body">
-      <!-- Archive content will be loaded here -->
-      <div class="archive-loading">
-        <p>Loading ministry archive...</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Recent Activity -->
-<section class="section section--white">
-  <div class="container">
-    <h2 class="section-title">Ministry in Action</h2>
-    
-    <!-- Video Gallery -->
-    <div class="video-gallery">
-      <div class="video-card">
-        <video controls poster="assets/images/bible-ministry-1.jpg">
-          <source src="assets/videos/bible-flip.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-        <div class="video-card__content">
-          <h3>Bible Study Sessions</h3>
-          <p>Join us as we dive deep into God's Word together</p>
-        </div>
-      </div>
-      
-      <div class="video-card">
-        <video controls poster="assets/images/stw-ministry-team.jpg">
-          <source src="assets/videos/ministry-clip.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-        <div class="video-card__content">
-          <h3>Ministry Highlights</h3>
-          <p>See our community serving and growing together</p>
-        </div>
-      </div>
-      
-      <div class="video-card">
-        <video controls poster="assets/images/stw-bibles-giveaway.jpg">
-          <source src="assets/videos/pack-ship.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-        <div class="video-card__content">
-          <h3>Packing & Shipping</h3>
-          <p>Behind the scenes: preparing Bible bundles with love</p>
-        </div>
-      </div>
-      
-      <div class="video-card">
-        <video controls poster="assets/images/seed-the-word.jpg">
-          <source src="assets/videos/worship-composing.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-        <div class="video-card__content">
-          <h3>Worship & Music</h3>
-          <p>Creating songs of praise and worship together</p>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Photo Gallery -->
-    <div style="margin-top:4rem">
-      <h3 style="text-align:center;font-size:1.75rem;margin-bottom:2rem;color:var(--text)">Recent Ministry Photos</h3>
-      <div class="photo-strip" style="border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12)">
-        <div class="photo-strip__item">
-          <img src="assets/images/bible-ministry-1.jpg" alt="Bible ministry in action" loading="lazy">
-        </div>
-        <div class="photo-strip__item">
-          <img src="assets/images/bible-ministry-gift-zander.jpg" alt="Bible gift to Zander" loading="lazy">
-        </div>
-        <div class="photo-strip__item">
-          <img src="assets/images/stw-bibles-giveaway.jpg" alt="Bibles giveaway" loading="lazy">
-        </div>
-      </div>
-      <div class="photo-strip" style="border-radius:0 0 12px 12px;overflow:hidden;margin-top:0;box-shadow:0 4px 20px rgba(0,0,0,.08)">
-        <div class="photo-strip__item">
-          <img src="assets/images/gideon-background-2.jpg" alt="Gideon Bible ministry" loading="lazy">
-        </div>
-        <div class="photo-strip__item">
-          <img src="assets/images/gideon-background-3.jpg" alt="Ministry outreach" loading="lazy">
-        </div>
-        <div class="photo-strip__item">
-          <img src="assets/images/stw-ministry-team.jpg" alt="Ministry team" loading="lazy">
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-
 
 <footer class="site-footer">
   <div class="container">
-    <!-- Social Media Section -->
     <div class="footer-social">
       <div class="social-icons">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="40" height="40" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="40" height="40" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.90-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="40" height="40" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
       </div>
       <div class="footer-social-content">
         <h3 class="footer-social-title">Join Our Community</h3>
@@ -370,8 +256,7 @@
         <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="btn btn-instagram">Follow Instagram</a>
       </div>
     </div>
-    
-    <!-- Main Footer Content -->
+
     <div class="footer-main">
       <div>
         <p class="footer-brand-name">Seed the Word Ministry</p>
@@ -389,7 +274,18 @@
   </div>
 </footer>
 
-<script src="assets/js/main.js"></script>
-<script src="assets/js/twitch-integration.js"></script>
+<script src="assets/js/main.js?v=8"></script>
+<script src="assets/js/bible-plan.js?v=1"></script>
+<script src="assets/js/twitch-integration.js?v=2"></script>
+<script src="assets/js/instagram-feed.js?v=1"></script>
+
+<style>
+/* Responsive fallback for community feeds grid */
+@media (max-width: 900px) {
+  .community-feeds-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+</style>
 </body>
 </html>

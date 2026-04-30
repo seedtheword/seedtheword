@@ -167,10 +167,20 @@ class GoogleCalendarIntegration {
     const calendarGrid = document.getElementById('calendar-grid');
     const monthDisplay = document.getElementById('calendar-month');
     
-    if (!calendarGrid || !monthDisplay) return;
+    if (!calendarGrid || !monthDisplay) {
+      console.error('❌ Calendar elements not found in DOM');
+      return;
+    }
     
-    // Simple clear - just remove all content
+    console.log('🎨 Rendering calendar for', this.currentMonth + 1, '/', this.currentYear);
+    
+    // Clear existing content
     calendarGrid.innerHTML = '';
+    
+    // Ensure grid layout is applied inline (defensive)
+    calendarGrid.style.display = 'grid';
+    calendarGrid.style.gridTemplateColumns = 'repeat(7, 1fr)';
+    calendarGrid.style.gap = '8px';
     
     // Update month display
     const monthNames = [
@@ -179,11 +189,11 @@ class GoogleCalendarIntegration {
     ];
     monthDisplay.textContent = `${monthNames[this.currentMonth]} ${this.currentYear}`;
     
-    // Add day headers with glass morphism
+    // Add day headers
     const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     dayHeaders.forEach(day => {
       const header = document.createElement('div');
-      header.className = 'calendar-day-header glass-morphism';
+      header.className = 'calendar-day-header';
       header.textContent = day;
       calendarGrid.appendChild(header);
     });
@@ -194,34 +204,49 @@ class GoogleCalendarIntegration {
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
     
+    let cellsCreated = 0;
+    
     // Add empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
       const prevMonthDay = new Date(this.currentYear, this.currentMonth, 0 - (startingDayOfWeek - 1 - i));
-      const dayCell = this.createDayCell(prevMonthDay.getDate(), true);
-      calendarGrid.appendChild(dayCell);
+      try {
+        const dayCell = this.createDayCell(prevMonthDay.getDate(), true);
+        calendarGrid.appendChild(dayCell);
+        cellsCreated++;
+      } catch (err) {
+        console.error('Error creating prev-month cell:', err);
+      }
     }
     
     // Add days of current month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(this.currentYear, this.currentMonth, day);
-      const dayCell = this.createDayCell(day, false, date);
-      calendarGrid.appendChild(dayCell);
+      try {
+        const dayCell = this.createDayCell(day, false, date);
+        calendarGrid.appendChild(dayCell);
+        cellsCreated++;
+      } catch (err) {
+        console.error(`Error creating cell for day ${day}:`, err);
+      }
     }
     
-    // Add empty cells for days after month ends
-    const totalCells = calendarGrid.children.length - 7; // Subtract headers
-    const remainingCells = 42 - totalCells; // 6 rows × 7 days = 42 cells
-    for (let i = 1; i <= remainingCells; i++) {
-      const dayCell = this.createDayCell(i, true);
-      calendarGrid.appendChild(dayCell);
+    // Add empty cells for days after month ends to fill grid to 42 cells
+    const cellsNeeded = 42 - cellsCreated;
+    for (let i = 1; i <= cellsNeeded; i++) {
+      try {
+        const dayCell = this.createDayCell(i, true);
+        calendarGrid.appendChild(dayCell);
+      } catch (err) {
+        console.error('Error creating trailing cell:', err);
+      }
     }
     
-    console.log('📅 Calendar rendered with', this.events.length, 'real events from Google Calendar');
+    console.log(`✅ Calendar rendered: ${cellsCreated} active cells, ${daysInMonth} days in month`);
   }
   
   createDayCell(dayNumber, isOtherMonth = false, date = null) {
     const dayCell = document.createElement('div');
-    dayCell.className = 'calendar-day glass-morphism';
+    dayCell.className = 'calendar-day';
     
     if (isOtherMonth) {
       dayCell.classList.add('other-month');
@@ -232,10 +257,14 @@ class GoogleCalendarIntegration {
       dayCell.classList.add('today');
     }
     
-    // Add day number
+    // Add day number with explicit inline styles to guarantee visibility
     const dayNumberEl = document.createElement('div');
     dayNumberEl.className = 'calendar-day-number';
     dayNumberEl.textContent = dayNumber;
+    dayNumberEl.style.fontSize = '1.1rem';
+    dayNumberEl.style.fontWeight = '700';
+    dayNumberEl.style.color = isOtherMonth ? '#b0b0b0' : '#1a1a1a';
+    dayNumberEl.style.marginBottom = '0.25rem';
     dayCell.appendChild(dayNumberEl);
     
     // Add events for this day
@@ -243,8 +272,8 @@ class GoogleCalendarIntegration {
       const dayEvents = this.getEventsForDate(date);
       dayEvents.forEach(event => {
         const eventEl = document.createElement('div');
-        eventEl.className = `calendar-event ${this.getEventType(event)} glass-morphism-subtle`;
-        eventEl.textContent = this.truncateText(event.summary || event.title, 15);
+        eventEl.className = `calendar-event ${this.getEventType(event)}`;
+        eventEl.textContent = this.truncateText(event.summary || event.title || 'Event', 15);
         eventEl.addEventListener('click', (e) => {
           e.stopPropagation();
           this.showEventModal(event, date);

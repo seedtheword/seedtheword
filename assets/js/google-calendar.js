@@ -187,16 +187,8 @@ class GoogleCalendarIntegration {
     
     if (!calendarGrid || !monthDisplay) return;
     
-    // AGGRESSIVE CLEAR - Remove all existing content and event listeners
+    // Simple clear - just remove all content
     calendarGrid.innerHTML = '';
-    calendarGrid.removeAttribute('data-events');
-    
-    // Remove any old event listeners by cloning the element
-    const newCalendarGrid = calendarGrid.cloneNode(false);
-    calendarGrid.parentNode.replaceChild(newCalendarGrid, calendarGrid);
-    
-    // Update reference to the new clean element
-    const cleanCalendarGrid = document.getElementById('calendar-grid');
     
     // Update month display
     const monthNames = [
@@ -211,7 +203,7 @@ class GoogleCalendarIntegration {
       const header = document.createElement('div');
       header.className = 'calendar-day-header glass-morphism';
       header.textContent = day;
-      cleanCalendarGrid.appendChild(header);
+      calendarGrid.appendChild(header);
     });
     
     // Get first day of month and number of days
@@ -224,25 +216,25 @@ class GoogleCalendarIntegration {
     for (let i = 0; i < startingDayOfWeek; i++) {
       const prevMonthDay = new Date(this.currentYear, this.currentMonth, 0 - (startingDayOfWeek - 1 - i));
       const dayCell = this.createDayCell(prevMonthDay.getDate(), true);
-      cleanCalendarGrid.appendChild(dayCell);
+      calendarGrid.appendChild(dayCell);
     }
     
     // Add days of current month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(this.currentYear, this.currentMonth, day);
       const dayCell = this.createDayCell(day, false, date);
-      cleanCalendarGrid.appendChild(dayCell);
+      calendarGrid.appendChild(dayCell);
     }
     
     // Add empty cells for days after month ends
-    const totalCells = cleanCalendarGrid.children.length - 7; // Subtract headers
+    const totalCells = calendarGrid.children.length - 7; // Subtract headers
     const remainingCells = 42 - totalCells; // 6 rows × 7 days = 42 cells
     for (let i = 1; i <= remainingCells; i++) {
       const dayCell = this.createDayCell(i, true);
-      cleanCalendarGrid.appendChild(dayCell);
+      calendarGrid.appendChild(dayCell);
     }
     
-    console.log('📅 Calendar rendered with', this.events.length, 'real events from Google Calendar (fake events completely removed)');
+    console.log('📅 Calendar rendered with', this.events.length, 'real events from Google Calendar');
   }
   
   createDayCell(dayNumber, isOtherMonth = false, date = null) {

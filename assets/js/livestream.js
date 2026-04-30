@@ -51,7 +51,7 @@ class LiveStreamManager {
       // Fallback data structure
       return {
         is_live: false,
-        title: 'Study Saturday Live',
+        title: 'Live Stream',
         twitch_url: 'https://twitch.tv/seedtheword',
         youtube_url: '',
         started_at: new Date().toISOString()
@@ -66,7 +66,7 @@ class LiveStreamManager {
       const title = item.querySelector('h4');
       const status = item.querySelector('.announcement-item__status');
       
-      if (title && title.textContent.includes('Study Saturday') && this.isLive) {
+      if (title && title.textContent.includes('Live') && this.isLive) {
         status.className = 'announcement-item__status';
         status.innerHTML = '🔴 LIVE NOW';
         item.className = 'announcement-item live';
@@ -168,8 +168,8 @@ class LiveStreamManager {
             <h3>📺 Next Live Stream</h3>
             <div class="next-stream-info">
               <div class="stream-schedule">
-                <h4>🗓️ Study Saturday Live</h4>
-                <p><strong>Every Saturday at 2:00 PM PST</strong></p>
+                <h4>🗓️ Live Stream</h4>
+                <p><strong>Check our calendar for schedule</strong></p>
                 <p>Bible study • Fellowship • Prayer • Community discussion</p>
               </div>
               

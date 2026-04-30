@@ -691,27 +691,10 @@ class MinistryCalendar {
   }
   
   getMinistryEvents() {
-    // This will be loaded from CMS/backend in production
+    // Events are now loaded from Google Calendar only - no fake events
     return {
-      recurring: {
-        // Daily Bible Reading (Monday-Friday)
-        1: [{ title: 'Daily Bible Reading', type: 'ongoing', time: 'All Day' }], // Monday
-        2: [
-          { title: 'Daily Bible Reading', type: 'ongoing', time: 'All Day' },
-          { title: 'Life Group Fellowship', type: 'upcoming', time: '7:00 PM PST' }
-        ], // Tuesday
-        3: [{ title: 'Daily Bible Reading', type: 'ongoing', time: 'All Day' }], // Wednesday
-        4: [{ title: 'Daily Bible Reading', type: 'ongoing', time: 'All Day' }], // Thursday
-        5: [
-          { title: 'Daily Bible Reading', type: 'ongoing', time: 'All Day' },
-          { title: 'Youth Outreach', type: 'upcoming', time: '6:00 PM PST' }
-        ], // Friday
-        6: [{ title: 'Study Saturday Live', type: 'live', time: '2:00 PM PST' }], // Saturday
-        0: [{ title: 'Sunday Worship', type: 'upcoming', time: '10:00 AM PST' }] // Sunday
-      },
-      special: {
-        // Special events will be loaded from CMS
-      }
+      recurring: {},
+      special: {}
     };
   }
   
@@ -859,32 +842,9 @@ class MinistryCalendar {
     let buttonHtml = '';
     let description = '';
     
-    // Customize content based on event type
-    switch (event.title) {
-      case 'Study Saturday Live':
-        description = 'Join our weekly livestream for Bible study, fellowship, and prayer with members worldwide. We review the week\'s readings, discuss insights, and pray for community members.';
-        buttonHtml = '<a href="community.html" class="btn btn-primary">Watch Live</a>';
-        break;
-      case 'Daily Bible Reading':
-        description = 'Journey through the New Testament with our community, starting from Matthew. We read together and share insights in our Telegram group.';
-        buttonHtml = '<a href="https://t.me/seedtheword" target="_blank" class="btn btn-telegram">Join Telegram</a>';
-        break;
-      case 'Youth Outreach':
-        description = 'Connecting with local youth to share the Gospel and build lasting relationships in Christ. Join us as we reach out to the next generation.';
-        buttonHtml = '<a href="about.html#contact" class="btn btn-secondary">Get Involved</a>';
-        break;
-      case 'Sunday Worship':
-        description = 'Come to church and devote this holy day to God through worship and fellowship. A time to gather as the body of Christ.';
-        buttonHtml = '<a href="community.html" class="btn btn-secondary">Learn More</a>';
-        break;
-      case 'Life Group Fellowship':
-        description = 'Encounter the Word together by visiting a life group for deeper fellowship and study. Small groups meeting throughout the week.';
-        buttonHtml = '<a href="community.html" class="btn btn-secondary">Join Us</a>';
-        break;
-      default:
-        description = 'Join us for this ministry event. Contact us for more information.';
-        buttonHtml = '<a href="about.html#contact" class="btn btn-secondary">Contact Us</a>';
-    }
+    // All event descriptions now come from Google Calendar - no hardcoded fake events
+    description = event.description || 'Join us for this ministry event. Contact us for more information.';
+    buttonHtml = '<a href="about.html#contact" class="btn btn-secondary">Contact Us</a>';
     
     this.modalBody.innerHTML = `
       <h3>${event.title}</h3>
@@ -929,13 +889,8 @@ class MinistryCalendar {
   
   // Method to update live status (for livestream integration)
   updateLiveStatus(isLive) {
-    // Update Saturday events to show live status
-    if (isLive) {
-      this.events.recurring[6] = [{ title: 'Study Saturday Live', type: 'live', time: '2:00 PM PST' }];
-    } else {
-      this.events.recurring[6] = [{ title: 'Study Saturday Live', type: 'upcoming', time: '2:00 PM PST' }];
-    }
-    this.renderCalendar();
+    // No longer updating fake events - all events come from Google Calendar
+    console.log('Live status updated:', isLive);
   }
 }
 
@@ -1079,15 +1034,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Initialize calendar when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Initializing ministry calendar...');
-  window.ministryCalendar = new MinistryCalendar();
+  console.log('Old ministry calendar disabled - using Google Calendar integration only');
+  // window.ministryCalendar = new MinistryCalendar(); // DISABLED
   
   // Load CMS events after a short delay
   setTimeout(() => {
-    if (window.loadCMSEventsIntoCalendar) {
-      console.log('Loading CMS events into calendar...');
-      window.loadCMSEventsIntoCalendar();
-    }
+    // CMS events disabled - using Google Calendar only
+    console.log('CMS events disabled - using Google Calendar integration');
   }, 2000);
 });
 
@@ -1120,10 +1073,10 @@ window.refreshCalendarEvents = refreshCalendarEvents;
 // Also initialize if script loads after DOM
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    window.ministryCalendar = new MinistryCalendar();
+    // window.ministryCalendar = new MinistryCalendar(); // DISABLED
   });
 } else {
-  window.ministryCalendar = new MinistryCalendar();
+  // window.ministryCalendar = new MinistryCalendar(); // DISABLED
 }
 
 // ── Prayer Form Integration ─────────────────────────────────

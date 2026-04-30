@@ -17,6 +17,12 @@ class GoogleCalendarIntegration {
   }
   
   async init() {
+    // Clear any cached fake events
+    localStorage.removeItem('ministryEvents');
+    sessionStorage.removeItem('ministryEvents');
+    localStorage.removeItem('calendarEvents');
+    sessionStorage.removeItem('calendarEvents');
+    
     await this.loadEvents();
     this.renderCalendar();
     this.renderEventCards();
@@ -26,11 +32,13 @@ class GoogleCalendarIntegration {
   async loadEvents() {
     try {
       console.log('📅 Loading events from Google Calendar...');
+      console.log('🔗 Calendar ID:', this.calendarId);
       
       const events = await this.fetchGoogleCalendarEvents();
       if (events && events.length > 0) {
         this.events = events;
         console.log('✅ Successfully loaded', events.length, 'events from Google Calendar');
+        console.log('📋 Event titles:', events.map(e => e.summary).slice(0, 10)); // Show first 10 event titles
         this.updateLastRefreshTime();
       } else {
         console.log('📭 No events found in Google Calendar');
@@ -167,15 +175,15 @@ class GoogleCalendarIntegration {
     
     if (!calendarGrid || !monthDisplay) return;
     
+    // FORCE CLEAR - Remove all existing content
+    calendarGrid.innerHTML = '';
+    
     // Update month display
     const monthNames = [
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'
     ];
     monthDisplay.textContent = `${monthNames[this.currentMonth]} ${this.currentYear}`;
-    
-    // Clear calendar
-    calendarGrid.innerHTML = '';
     
     // Add day headers with glass morphism
     const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -213,6 +221,8 @@ class GoogleCalendarIntegration {
       const dayCell = this.createDayCell(i, true);
       calendarGrid.appendChild(dayCell);
     }
+    
+    console.log('📅 Calendar rendered with', this.events.length, 'real events from Google Calendar');
   }
   
   createDayCell(dayNumber, isOtherMonth = false, date = null) {
@@ -627,5 +637,44 @@ document.addEventListener('DOMContentLoaded', () => {
 window.refreshGoogleCalendar = () => {
   if (window.googleCalendar) {
     window.googleCalendar.refresh();
+  }
+};
+
+// Nuclear option - completely wipe and rebuild calendar
+window.nukeCalendar = () => {
+  console.log('🧨 NUKING CALENDAR - Complete rebuild');
+  
+  // Clear all storage
+  localStorage.clear();
+  sessionStorage.clear();
+  
+  // Remove all calendar elements
+  const calendarGrid = document.getElementById('calendar-grid');
+  if (calendarGrid) {
+    calendarGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #666;">🔄 Rebuilding calendar...</div>';
+  }
+  
+  // Destroy and recreate calendar instance
+  if (window.googleCalendar) {
+    delete window.googleCalendar;
+  }
+  
+  // Wait a moment then recreate
+  setTimeout(() => {
+    window.googleCalendar = new GoogleCalendarIntegration();
+  }, 1000);
+};
+
+// Debug function to see what events are in your Google Calendar
+window.debugGoogleCalendarEvents = () => {
+  if (window.googleCalendar && window.googleCalendar.events) {
+    console.log('🔍 DEBUG: Current events in calendar:', window.googleCalendar.events.length);
+    window.googleCalendar.events.forEach((event, index) => {
+      console.log(`${index + 1}. "${event.summary}" - ${new Date(event.start.dateTime).toLocaleDateString()}`);
+    });
+    
+    alert(`Found ${window.googleCalendar.events.length} events in your Google Calendar.\n\nCheck the browser console (F12) to see the full list of events.\n\nThese are REAL events from your Google Calendar, not fake ones.`);
+  } else {
+    alert('No calendar data loaded yet. Try refreshing first.');
   }
 };

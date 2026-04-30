@@ -277,6 +277,9 @@
     <div class="admin-header">
       <h1>🌱 Visual Admin</h1>
       <p>Edit and preview in real-time</p>
+      <div id="github-status" style="margin-top: 1rem; padding: 0.5rem; border-radius: 6px; font-size: 0.8rem;">
+        <!-- GitHub status will be populated here -->
+      </div>
     </div>
     
     <!-- Status Messages -->
@@ -494,7 +497,7 @@ function refreshPreview() {
 }
 
 // Data management functions
-function saveStreamData() {
+async function saveStreamData() {
   const data = {
     status: document.getElementById('stream-status').value,
     title: document.getElementById('stream-title').value || 'Study Saturday Live',
@@ -507,13 +510,23 @@ function saveStreamData() {
   // Save to localStorage for persistence
   localStorage.setItem('livestream_data', JSON.stringify(data));
   
-  // Show JSON for manual copying
-  showJSONModal('Livestream Data', data, '_data/livestream.json');
+  // Try to save directly to GitHub
+  const success = await saveToGitHub('_data/livestream.json', data);
   
-  showStatus('💾 Stream data saved! Copy the JSON to update your website.', 'success');
+  if (success) {
+    showStatus('✅ Stream data updated on website! Changes are live.', 'success');
+    // Refresh the preview to show changes
+    setTimeout(() => {
+      refreshPreview();
+    }, 2000);
+  } else {
+    // Fallback to manual copy if GitHub API fails
+    showJSONModal('Livestream Data', data, '_data/livestream.json');
+    showStatus('⚠️ Auto-update failed. Please copy the JSON manually.', 'error');
+  }
 }
 
-function addTestimony() {
+async function addTestimony() {
   const name = document.getElementById('testimony-name').value;
   const text = document.getElementById('testimony-text').value;
   const featured = document.getElementById('testimony-featured').value === 'true';
@@ -552,19 +565,29 @@ function addTestimony() {
   // Save to localStorage
   localStorage.setItem('testimonies_data', JSON.stringify(data));
   
-  // Show JSON for manual copying
-  showJSONModal('Testimonies Data', data, '_data/testimonies.json');
+  // Try to save directly to GitHub
+  const success = await saveToGitHub('_data/testimonies.json', data);
   
-  // Clear form
-  document.getElementById('testimony-name').value = '';
-  document.getElementById('testimony-text').value = '';
-  document.getElementById('testimony-featured').value = 'false';
-  updateTestimonyPreview();
-  
-  showStatus('💾 Testimony added! Copy the JSON to update your website.', 'success');
+  if (success) {
+    showStatus('✅ Testimony added to website! Changes are live.', 'success');
+    // Clear form
+    document.getElementById('testimony-name').value = '';
+    document.getElementById('testimony-text').value = '';
+    document.getElementById('testimony-featured').value = 'false';
+    updateTestimonyPreview();
+    
+    // Refresh the preview to show changes
+    setTimeout(() => {
+      refreshPreview();
+    }, 2000);
+  } else {
+    // Fallback to manual copy if GitHub API fails
+    showJSONModal('Testimonies Data', data, '_data/testimonies.json');
+    showStatus('⚠️ Auto-update failed. Please copy the JSON manually.', 'error');
+  }
 }
 
-function addTeamMember() {
+async function addTeamMember() {
   const name = document.getElementById('team-name').value;
   const role = document.getElementById('team-role').value;
   const description = document.getElementById('team-description').value;
@@ -603,16 +626,26 @@ function addTeamMember() {
   // Save to localStorage
   localStorage.setItem('team_data', JSON.stringify(data));
   
-  // Show JSON for manual copying
-  showJSONModal('Team Data', data, '_data/team.json');
+  // Try to save directly to GitHub
+  const success = await saveToGitHub('_data/team.json', data);
   
-  // Clear form
-  document.getElementById('team-name').value = '';
-  document.getElementById('team-role').value = '';
-  document.getElementById('team-description').value = '';
-  updateTeamPreview();
-  
-  showStatus('💾 Team member added! Copy the JSON to update your website.', 'success');
+  if (success) {
+    showStatus('✅ Team member added to website! Changes are live.', 'success');
+    // Clear form
+    document.getElementById('team-name').value = '';
+    document.getElementById('team-role').value = '';
+    document.getElementById('team-description').value = '';
+    updateTeamPreview();
+    
+    // Refresh the preview to show changes
+    setTimeout(() => {
+      refreshPreview();
+    }, 2000);
+  } else {
+    // Fallback to manual copy if GitHub API fails
+    showJSONModal('Team Data', data, '_data/team.json');
+    showStatus('⚠️ Auto-update failed. Please copy the JSON manually.', 'error');
+  }
 }
 
 function exportData() {
@@ -624,6 +657,10 @@ function exportData() {
   
   showJSONModal('All Data Export', allData, 'backup.json');
 }
+
+// Make setupGitHubAccess globally available
+window.setupGitHubAccess = setupGitHubAccess;
+window.cancelGitHubSetup = cancelGitHubSetup;
 
 // JSON Modal for easy copying
 function showJSONModal(title, data, filename) {
@@ -757,7 +794,27 @@ document.addEventListener('DOMContentLoaded', () => {
   updateStreamPreview();
   updateTestimonyPreview();
   updateTeamPreview();
+  
+  // Update GitHub status
+  updateGitHubStatus();
 });
+
+function updateGitHubStatus() {
+  const statusDiv = document.getElementById('github-status');
+  const token = getGitHubToken();
+  
+  if (token) {
+    statusDiv.innerHTML = '✅ Auto-update enabled - changes save directly to website';
+    statusDiv.style.background = 'rgba(39, 174, 96, 0.2)';
+    statusDiv.style.color = '#27ae60';
+    statusDiv.style.border = '1px solid rgba(39, 174, 96, 0.4)';
+  } else {
+    statusDiv.innerHTML = '⚠️ Manual mode - you\'ll need to copy/paste JSON to update website';
+    statusDiv.style.background = 'rgba(255, 193, 7, 0.2)';
+    statusDiv.style.color = '#ffc107';
+    statusDiv.style.border = '1px solid rgba(255, 193, 7, 0.4)';
+  }
+}
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {

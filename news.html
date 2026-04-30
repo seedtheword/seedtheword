@@ -87,14 +87,11 @@
     
     <!-- Quick Navigation -->
     <div style="text-align: center; margin-top: 1.5rem;">
-      <button onclick="document.getElementById('calendar-section').scrollIntoView({behavior: 'smooth'})" class="btn btn-primary btn-sm glass-morphism">
+      <button onclick="document.getElementById('calendar-section').scrollIntoView({behavior: 'smooth'})" class="btn btn-primary btn-sm">
         <span>📅</span> View Full Calendar
       </button>
-      <button onclick="window.refreshGoogleCalendar()" class="btn btn-secondary btn-sm glass-morphism" style="margin-left: 0.5rem;">
+      <button onclick="window.refreshGoogleCalendar()" class="btn btn-secondary btn-sm" style="margin-left: 0.5rem;">
         <span>🔄</span> Refresh
-      </button>
-      <button onclick="window.nukeCalendar()" class="btn btn-gold btn-sm glass-morphism" style="margin-left: 0.5rem;" title="Completely rebuild calendar to remove any cached fake events">
-        <span>🧨</span> Clear All
       </button>
     </div>
   </div>
@@ -289,8 +286,8 @@
   </div>
 </footer>
 
-<script src="assets/js/main.js?v=4"></script>
-<script src="assets/js/google-calendar.js?v=4"></script>
+<script src="assets/js/main.js?v=5"></script>
+<script src="assets/js/google-calendar.js?v=5"></script>
 <script src="assets/js/livestream.js?v=2"></script>
 </body>
 </html>

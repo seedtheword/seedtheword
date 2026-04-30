@@ -2,18 +2,6 @@
    Google Calendar Integration - Single Source of Truth
    ============================================================ */
 
-// FORCE CLEAR ALL CACHED FAKE EVENTS ON LOAD
-localStorage.removeItem('ministryEvents');
-sessionStorage.removeItem('ministryEvents');
-localStorage.removeItem('calendarEvents');
-sessionStorage.removeItem('calendarEvents');
-localStorage.removeItem('fakeEvents');
-sessionStorage.removeItem('fakeEvents');
-
-// Disable any old calendar systems
-window.ministryCalendar = null;
-window.oldCalendar = null;
-
 class GoogleCalendarIntegration {
   constructor() {
     // Your actual Google Calendar API credentials
@@ -29,12 +17,6 @@ class GoogleCalendarIntegration {
   }
   
   async init() {
-    // Clear any cached fake events
-    localStorage.removeItem('ministryEvents');
-    sessionStorage.removeItem('ministryEvents');
-    localStorage.removeItem('calendarEvents');
-    sessionStorage.removeItem('calendarEvents');
-    
     await this.loadEvents();
     this.renderCalendar();
     this.renderEventCards();
@@ -650,44 +632,6 @@ window.refreshGoogleCalendar = () => {
   if (window.googleCalendar) {
     window.googleCalendar.refresh();
   }
-};
-
-// Nuclear option - completely wipe and rebuild calendar
-window.nukeCalendar = () => {
-  console.log('🧨 NUKING CALENDAR - Complete rebuild');
-  
-  // Clear all storage
-  localStorage.clear();
-  sessionStorage.clear();
-  
-  // Disable any old calendar instances
-  window.ministryCalendar = null;
-  window.oldCalendar = null;
-  
-  // Remove all calendar elements
-  const calendarGrid = document.getElementById('calendar-grid');
-  if (calendarGrid) {
-    calendarGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #666;">🔄 Rebuilding calendar...</div>';
-  }
-  
-  // Clear all event containers
-  const containers = ['live-events-container', 'upcoming-events-container', 'ongoing-ministries-container'];
-  containers.forEach(containerId => {
-    const container = document.getElementById(containerId);
-    if (container) {
-      container.innerHTML = '<div style="text-align: center; padding: 1rem; color: #666;">🔄 Loading...</div>';
-    }
-  });
-  
-  // Destroy and recreate calendar instance
-  if (window.googleCalendar) {
-    delete window.googleCalendar;
-  }
-  
-  // Wait a moment then recreate
-  setTimeout(() => {
-    window.googleCalendar = new GoogleCalendarIntegration();
-  }, 1000);
 };
 
 // Debug function to see what events are in your Google Calendar

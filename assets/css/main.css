@@ -4168,3 +4168,152 @@ ul { margin: 0; padding: 0; list-style: none; }
   outline: 2px solid rgba(192, 57, 43, 0.6);
   outline-offset: 2px;
 }
+
+/* ============================================================
+   Livestream Section Styles
+   ============================================================ */
+
+.livestream-card {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+}
+
+.livestream-card.live {
+  border-color: rgba(255, 0, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(255, 0, 0, 0.1);
+}
+
+.livestream-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(44, 95, 46, 0.1);
+}
+
+.live-indicator, .offline-indicator {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.live-indicator {
+  color: #ff0000;
+}
+
+.offline-indicator {
+  color: var(--muted);
+}
+
+.viewer-count, .next-stream {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.livestream-content {
+  margin-bottom: 2rem;
+}
+
+.livestream-title {
+  font-size: 1.5rem;
+  color: var(--text);
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+}
+
+.livestream-category {
+  color: var(--muted);
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+}
+
+.livestream-description {
+  color: var(--text);
+  margin: 0 0 1.5rem;
+  line-height: 1.6;
+}
+
+.livestream-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-live {
+  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  color: white;
+  border: none;
+  animation: pulse-live 2s infinite;
+}
+
+.btn-live:hover {
+  background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+  transform: translateY(-2px);
+}
+
+@keyframes pulse-live {
+  0%, 100% { box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3); }
+  50% { box-shadow: 0 4px 20px rgba(255, 0, 0, 0.5); }
+}
+
+.livestream-preview {
+  margin-top: 2rem;
+}
+
+.stream-placeholder {
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, var(--green) 0%, #3a7d3c 100%);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+}
+
+.stream-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.recent-videos {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(44, 95, 46, 0.1);
+}
+
+.recent-videos h4 {
+  color: var(--text);
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .livestream-card {
+    padding: 1.5rem;
+  }
+  
+  .livestream-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .livestream-actions {
+    flex-direction: column;
+  }
+  
+  .livestream-actions .btn {
+    width: 100%;
+  }
+}

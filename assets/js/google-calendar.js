@@ -1,5 +1,5 @@
 /* ============================================================
-   Google Calendar Integration with Glass Morphism
+   Google Calendar Integration - Single Source of Truth
    ============================================================ */
 
 class GoogleCalendarIntegration {
@@ -7,50 +7,6 @@ class GoogleCalendarIntegration {
     // Your actual Google Calendar API credentials
     this.apiKey = 'AIzaSyA6GMEdyQHxcRCJuun-OIrFlJgG67Zjtpc';
     this.calendarId = 'seedthewordministry@gmail.com';
-    
-    // Fallback events (in case API is unavailable)
-    this.fallbackEvents = [
-      {
-        title: 'Daily Bible Reading',
-        start: { dateTime: '2026-04-29T09:00:00-08:00' },
-        end: { dateTime: '2026-04-29T09:30:00-08:00' },
-        description: 'Journey through the New Testament with our community',
-        location: 'Online - Telegram Group',
-        recurring: 'RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR'
-      },
-      {
-        title: 'Study Saturday Live',
-        start: { dateTime: '2026-05-03T14:00:00-08:00' },
-        end: { dateTime: '2026-05-03T16:00:00-08:00' },
-        description: 'Weekly livestream for Bible study, fellowship, and prayer',
-        location: 'Twitch/YouTube Live',
-        recurring: 'RRULE:FREQ=WEEKLY;BYDAY=SA'
-      },
-      {
-        title: 'Youth Outreach',
-        start: { dateTime: '2026-05-02T18:00:00-08:00' },
-        end: { dateTime: '2026-05-02T20:00:00-08:00' },
-        description: 'Connecting with local youth to share the Gospel',
-        location: 'Community Centers',
-        recurring: 'RRULE:FREQ=WEEKLY;BYDAY=FR'
-      },
-      {
-        title: 'Sunday Worship',
-        start: { dateTime: '2026-04-27T10:00:00-08:00' },
-        end: { dateTime: '2026-04-27T12:00:00-08:00' },
-        description: 'Come to church and devote this holy day to God',
-        location: 'Local Church',
-        recurring: 'RRULE:FREQ=WEEKLY;BYDAY=SU'
-      },
-      {
-        title: 'Life Group Fellowship',
-        start: { dateTime: '2026-04-29T19:00:00-08:00' },
-        end: { dateTime: '2026-04-29T21:00:00-08:00' },
-        description: 'Small groups for deeper fellowship and study',
-        location: 'Various Locations',
-        recurring: 'RRULE:FREQ=WEEKLY;BYDAY=TU'
-      }
-    ];
     
     this.events = [];
     this.currentDate = new Date();
@@ -71,27 +27,61 @@ class GoogleCalendarIntegration {
     try {
       console.log('📅 Loading events from Google Calendar...');
       
-      // Try to load from Google Calendar API
-      if (this.apiKey !== 'YOUR_GOOGLE_API_KEY_HERE') {
-        const events = await this.fetchGoogleCalendarEvents();
-        if (events && events.length > 0) {
-          this.events = events;
-          console.log('✅ Successfully loaded', events.length, 'events from Google Calendar');
-          return;
-        } else {
-          console.log('📭 No events found in Google Calendar, using fallback events');
-        }
+      const events = await this.fetchGoogleCalendarEvents();
+      if (events && events.length > 0) {
+        this.events = events;
+        console.log('✅ Successfully loaded', events.length, 'events from Google Calendar');
+      } else {
+        console.log('📭 No events found in Google Calendar');
+        this.events = [];
+        this.showCalendarSetupMessage();
       }
-      
-      // Fallback to local events
-      this.events = this.generateRecurringEvents(this.fallbackEvents);
-      console.log('📅 Using fallback events (', this.events.length, 'events generated)');
       
     } catch (error) {
       console.error('⚠️ Google Calendar API Error:', error.message);
-      console.log('📅 Falling back to local events');
-      this.events = this.generateRecurringEvents(this.fallbackEvents);
+      this.events = [];
+      this.showCalendarErrorMessage(error.message);
     }
+  }
+  
+  showCalendarSetupMessage() {
+    const containers = ['live-events-container', 'upcoming-events-container', 'ongoing-ministries-container'];
+    containers.forEach(containerId => {
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.innerHTML = `
+          <div class="event-card setup glass-morphism" style="padding: 1rem; text-align: center;">
+            <h4 style="color: var(--green); margin-bottom: 0.5rem;">📅 Set Up Your Calendar</h4>
+            <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem;">
+              Add events to your Google Calendar to see them here automatically.
+            </p>
+            <a href="https://calendar.google.com/calendar/u/0/r" target="_blank" class="btn btn-primary btn-sm">
+              Open Google Calendar
+            </a>
+          </div>
+        `;
+      }
+    });
+  }
+  
+  showCalendarErrorMessage(error) {
+    const containers = ['live-events-container', 'upcoming-events-container', 'ongoing-ministries-container'];
+    containers.forEach(containerId => {
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.innerHTML = `
+          <div class="event-card error glass-morphism" style="padding: 1rem; text-align: center;">
+            <h4 style="color: var(--red); margin-bottom: 0.5rem;">⚠️ Calendar Error</h4>
+            <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem;">
+              ${error}
+            </p>
+            <button onclick="window.googleCalendar.refresh()" class="btn btn-secondary btn-sm">
+              Try Again
+            </button>
+          </div>
+        `;
+      }
+    });
   }
   
   async fetchGoogleCalendarEvents() {
@@ -100,7 +90,6 @@ class GoogleCalendarIntegration {
     const timeMax = new Date();
     timeMax.setMonth(timeMax.getMonth() + 6); // Get events for next 6 months
     
-    // Use CORS proxy for testing if direct API fails
     const directUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(this.calendarId)}/events?` +
       `key=${this.apiKey}&` +
       `timeMin=${timeMin.toISOString()}&` +
@@ -110,7 +99,6 @@ class GoogleCalendarIntegration {
       `maxResults=100`;
     
     console.log('🔗 Fetching from Google Calendar API:', this.calendarId);
-    console.log('🔗 API URL:', directUrl);
     
     try {
       const response = await fetch(directUrl);
@@ -118,7 +106,6 @@ class GoogleCalendarIntegration {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('❌ Google Calendar API Error:', response.status, response.statusText);
-        console.error('❌ Error details:', errorText);
         
         // Try to parse error for more details
         try {
@@ -127,7 +114,6 @@ class GoogleCalendarIntegration {
             throw new Error(`${errorData.error.message} (${errorData.error.code})`);
           }
         } catch (parseError) {
-          // If we can't parse the error, use the status
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
       }
@@ -140,59 +126,16 @@ class GoogleCalendarIntegration {
       console.error('❌ Fetch Error:', fetchError.message);
       
       // Provide specific error messages for common issues
-      if (fetchError.message.includes('CORS')) {
-        throw new Error('CORS Error: API key may need domain restrictions updated');
-      } else if (fetchError.message.includes('403')) {
-        throw new Error('Permission denied: Check API key and calendar permissions');
+      if (fetchError.message.includes('403')) {
+        throw new Error('Calendar access denied. Make sure your calendar is public or check API permissions.');
       } else if (fetchError.message.includes('404')) {
-        throw new Error('Calendar not found: Check calendar ID and visibility settings');
+        throw new Error('Calendar not found. Check calendar ID and visibility settings.');
       } else if (fetchError.message.includes('400')) {
-        throw new Error('Bad request: Check API key format and parameters');
+        throw new Error('Bad request. Check API key format and parameters.');
       } else {
         throw fetchError;
       }
     }
-  }
-  
-  generateRecurringEvents(baseEvents) {
-    const events = [];
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 1);
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + 6);
-    
-    baseEvents.forEach(baseEvent => {
-      if (baseEvent.recurring) {
-        // Generate recurring events for the next 6 months
-        const eventStart = new Date(baseEvent.start.dateTime);
-        const current = new Date(startDate);
-        
-        while (current <= endDate) {
-          const dayOfWeek = current.getDay();
-          const eventDayOfWeek = eventStart.getDay();
-          
-          if (dayOfWeek === eventDayOfWeek) {
-            const newEvent = {
-              ...baseEvent,
-              start: {
-                dateTime: new Date(current.getFullYear(), current.getMonth(), current.getDate(), 
-                         eventStart.getHours(), eventStart.getMinutes()).toISOString()
-              },
-              end: {
-                dateTime: new Date(current.getFullYear(), current.getMonth(), current.getDate(), 
-                         eventStart.getHours() + 2, eventStart.getMinutes()).toISOString()
-              }
-            };
-            events.push(newEvent);
-          }
-          current.setDate(current.getDate() + 1);
-        }
-      } else {
-        events.push(baseEvent);
-      }
-    });
-    
-    return events.sort((a, b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
   }
   
   renderCalendar() {
@@ -303,21 +246,14 @@ class GoogleCalendarIntegration {
     
     if (upcomingEvents.length === 0) {
       container.innerHTML = `
-        <div class="event-card upcoming glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
-          <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">📅 THIS FRIDAY</div>
-          <div class="event-card__content">
-            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Youth Outreach</h4>
-            <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">Fridays • 6:00 PM PST</p>
-            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Connecting with local youth to share the Gospel and build lasting relationships in Christ.</p>
-          </div>
-        </div>
-        <div class="event-card upcoming glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
-          <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">⛪ SUNDAY</div>
-          <div class="event-card__content">
-            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Sunday Worship</h4>
-            <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">Sundays • 10:00 AM PST</p>
-            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Come to church and devote this holy day to God through worship and fellowship.</p>
-          </div>
+        <div class="event-card setup glass-morphism" style="padding: 1rem; text-align: center;">
+          <h4 style="color: var(--green); margin-bottom: 0.5rem;">📅 No Upcoming Events</h4>
+          <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem;">
+            Add events to your Google Calendar to see them here.
+          </p>
+          <a href="https://calendar.google.com/calendar/u/0/r" target="_blank" class="btn btn-primary btn-sm">
+            Add Events
+          </a>
         </div>
       `;
       return;
@@ -347,7 +283,7 @@ class GoogleCalendarIntegration {
     
     // Filter for recurring/ongoing events
     const ongoingEvents = this.events.filter(event => 
-      event.recurring || (event.summary && (
+      event.recurrence || (event.summary && (
         event.summary.toLowerCase().includes('daily') ||
         event.summary.toLowerCase().includes('weekly') ||
         event.summary.toLowerCase().includes('ongoing') ||
@@ -357,21 +293,14 @@ class GoogleCalendarIntegration {
     
     if (ongoingEvents.length === 0) {
       container.innerHTML = `
-        <div class="event-card ongoing glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
-          <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">💝 ONGOING</div>
-          <div class="event-card__content">
-            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Bible Bundle Drive</h4>
-            <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">Ongoing Campaign</p>
-            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Help us provide personalized Bible bundles to newcomers in faith. Every donation matters.</p>
-          </div>
-        </div>
-        <div class="event-card ongoing glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;">
-          <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">🙏 ALWAYS</div>
-          <div class="event-card__content">
-            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">Prayer Requests</h4>
-            <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">24/7 Support</p>
-            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">Share your prayer needs with our community. We believe in the power of prayer.</p>
-          </div>
+        <div class="event-card setup glass-morphism" style="padding: 1rem; text-align: center;">
+          <h4 style="color: var(--green); margin-bottom: 0.5rem;">🔄 No Ongoing Ministries</h4>
+          <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem;">
+            Create recurring events in Google Calendar for ongoing ministries.
+          </p>
+          <a href="https://calendar.google.com/calendar/u/0/r" target="_blank" class="btn btn-primary btn-sm">
+            Add Recurring Events
+          </a>
         </div>
       `;
       return;
@@ -406,13 +335,14 @@ class GoogleCalendarIntegration {
     
     if (liveEvents.length === 0) {
       container.innerHTML = `
-        <div class="event-card glass-morphism offline">
-          <div class="event-card__status">⏰ NEXT UP</div>
-          <div class="event-card__content">
-            <h4 class="event-card__title">Study Saturday Live</h4>
-            <p class="event-card__time">Saturdays • 2:00 PM PST</p>
-            <p class="event-card__description">Join our weekly livestream for Bible study, fellowship, and prayer with members worldwide.</p>
-          </div>
+        <div class="event-card setup glass-morphism" style="padding: 1rem; text-align: center;">
+          <h4 style="color: var(--green); margin-bottom: 0.5rem;">⏰ No Live Events</h4>
+          <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem;">
+            No events are currently live. Check your calendar for upcoming events.
+          </p>
+          <a href="https://calendar.google.com/calendar/u/0/r" target="_blank" class="btn btn-primary btn-sm">
+            View Calendar
+          </a>
         </div>
       `;
       return;
@@ -456,7 +386,7 @@ class GoogleCalendarIntegration {
   }
   
   getRecurringSchedule(event) {
-    if (event.recurring) {
+    if (event.recurrence) {
       const startDate = new Date(event.start.dateTime);
       const dayName = startDate.toLocaleDateString('en-US', { weekday: 'long' });
       const time = startDate.toLocaleTimeString('en-US', { 
@@ -465,8 +395,10 @@ class GoogleCalendarIntegration {
         timeZoneName: 'short'
       });
       
-      if (event.recurring.includes('DAILY')) return `Daily • ${time}`;
-      if (event.recurring.includes('WEEKLY')) return `${dayName}s • ${time}`;
+      // Check recurrence rules
+      const recurrenceRule = event.recurrence[0];
+      if (recurrenceRule.includes('DAILY')) return `Daily • ${time}`;
+      if (recurrenceRule.includes('WEEKLY')) return `${dayName}s • ${time}`;
       return `Regular Schedule • ${time}`;
     }
     
@@ -481,24 +413,6 @@ class GoogleCalendarIntegration {
     if (start <= now && end >= now) return 'live';
     if (start > now) return 'upcoming';
     return 'ongoing';
-  }
-  
-  getEventStatusIcon(type) {
-    const icons = {
-      live: '🔴',
-      upcoming: '📅',
-      ongoing: '🔄'
-    };
-    return icons[type] || '📅';
-  }
-  
-  getEventStatusText(type) {
-    const texts = {
-      live: 'LIVE NOW',
-      upcoming: 'UPCOMING',
-      ongoing: 'ONGOING'
-    };
-    return texts[type] || 'EVENT';
   }
   
   formatEventTime(date) {
@@ -661,55 +575,5 @@ document.addEventListener('DOMContentLoaded', () => {
 window.refreshGoogleCalendar = () => {
   if (window.googleCalendar) {
     window.googleCalendar.refresh();
-  }
-};
-
-// Test function for debugging
-window.testGoogleCalendarAPI = async () => {
-  console.log('🧪 Testing Google Calendar API...');
-  
-  const apiKey = 'AIzaSyA6GMEdyQHxcRCJuun-OIrFlJgG67Zjtpc';
-  const calendarId = 'seedthewordministry@gmail.com';
-  
-  const timeMin = new Date();
-  timeMin.setDate(timeMin.getDate() - 30);
-  const timeMax = new Date();
-  timeMax.setDate(timeMax.getDate() + 180);
-  
-  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?` +
-    `key=${apiKey}&` +
-    `timeMin=${timeMin.toISOString()}&` +
-    `timeMax=${timeMax.toISOString()}&` +
-    `singleEvents=true&` +
-    `orderBy=startTime&` +
-    `maxResults=10`;
-  
-  console.log('🔗 Testing URL:', url);
-  
-  try {
-    const response = await fetch(url);
-    console.log('📡 Response status:', response.status, response.statusText);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Error response:', errorText);
-      alert(`API Test Failed: ${response.status} ${response.statusText}\n\nCheck console for details.`);
-      return;
-    }
-    
-    const data = await response.json();
-    console.log('✅ API Test Success!', data);
-    console.log('📅 Events found:', data.items?.length || 0);
-    
-    if (data.items && data.items.length > 0) {
-      console.log('📋 Sample events:', data.items.slice(0, 3));
-      alert(`✅ API Test Success!\n\nFound ${data.items.length} events in your calendar.\n\nCheck console for details.`);
-    } else {
-      alert(`✅ API Connected Successfully!\n\nNo events found in your calendar.\nTry adding some events in Google Calendar.`);
-    }
-    
-  } catch (error) {
-    console.error('❌ API Test Failed:', error);
-    alert(`❌ API Test Failed: ${error.message}\n\nCheck console for details.`);
   }
 };

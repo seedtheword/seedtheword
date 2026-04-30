@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seed the Word - Visual Admin</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    /* Visual Preview Layout */
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .admin-sidebar {
+      background: linear-gradient(135deg, rgba(44, 95, 46, 0.95) 0%, rgba(44, 95, 46, 0.9) 100%);
+      backdrop-filter: blur(20px);
+      color: white;
+      padding: 1.5rem;
+      overflow-y: auto;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .admin-preview {
+      background: #f5f5f5;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .preview-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: white;
+    }
+    
+    .preview-controls {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1000;
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .preview-btn {
+      background: rgba(44, 95, 46, 0.9);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .preview-btn:hover {
+      background: var(--green);
+    }
+    
+    .preview-btn.active {
+      background: var(--gold);
+    }
+    
+    @media (max-width: 1200px) {
+      .admin-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+      
+      .admin-sidebar {
+        height: 50vh;
+        max-height: 50vh;
+      }
+    }
+    
+    .admin-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .admin-header h1 {
+      color: white;
+      margin: 0 0 0.5rem;
+      font-size: 1.4rem;
+    }
+    
+    .admin-header p {
+      color: rgba(255, 255, 255, 0.8);
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    
+    .admin-section {
+      margin-bottom: 1.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .admin-section h3 {
+      color: var(--gold);
+      margin: 0 0 1rem;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-label {
+      display: block;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+    
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      padding: 0.6rem;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--text);
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+    
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.2);
+    }
+    
+    .form-textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+    
+    .btn-admin {
+      background: linear-gradient(135deg, var(--gold) 0%, #f4c794 100%);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    
+    .btn-admin:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(212, 165, 116, 0.4);
+    }
+    
+    .btn-admin.secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .status-message {
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+    
+    .status-success {
+      background: rgba(39, 174, 96, 0.2);
+      color: #27ae60;
+      border: 1px solid rgba(39, 174, 96, 0.4);
+    }
+    
+    .status-error {
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.4);
+    }
+    
+    .live-preview {
+      background: rgba(212, 165, 116, 0.1);
+      border: 1px solid rgba(212, 165, 116, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .live-preview h4 {
+      color: var(--gold);
+      margin: 0 0 0.5rem;
+      font-size: 0.85rem;
+    }
+    
+    .live-preview p {
+      color: rgba(255, 255, 255, 0.8);
+      margin: 0;
+      font-size: 0.75rem;
+      line-height: 1.4;
+    }
+    
+    .preview-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+      color: var(--text);
+      font-size: 0.75rem;
+      border: 1px solid rgba(212, 165, 116, 0.3);
+    }
+    
+    .preview-card h5 {
+      margin: 0 0 0.25rem;
+      font-size: 0.8rem;
+      color: var(--green);
+    }
+    
+    .preview-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.3;
+    }
+    
+    .live-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #27ae60;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      animation: pulse 2s infinite;
+    }
+    
+    .live-indicator.offline {
+      background: #95a5a6;
+      animation: none;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .quick-actions .btn-admin {
+      font-size: 0.75rem;
+      padding: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Main Visual Admin Interface -->
+<div class="admin-layout">
+  
+  <!-- Sidebar Controls -->
+  <div class="admin-sidebar">
+    <div class="admin-header">
+      <h1>🌱 Visual Admin</h1>
+      <p>Edit and preview in real-time</p>
+    </div>
+    
+    <!-- Status Messages -->
+    <div id="admin-status"></div>
+    
+    <!-- Live Stream Management -->
+    <div class="admin-section">
+      <h3>📺 Live Stream</h3>
+      
+      <div class="live-preview">
+        <h4><span id="stream-indicator" class="live-indicator offline"></span>Current Status</h4>
+        <p id="stream-status-text">Stream is offline</p>
+        <div class="preview-card" id="stream-preview">
+          <h5>Study Saturday Live</h5>
+          <p>Join us for Bible study, fellowship, and prayer with members worldwide.</p>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select id="stream-status" class="form-select" onchange="updateStreamPreview()">
+          <option value="offline">Offline</option>
+          <option value="live">Live Now</option>
+          <option value="scheduled">Scheduled</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Stream Title</label>
+        <input type="text" id="stream-title" class="form-input" placeholder="Study Saturday Live" onchange="updateStreamPreview()" oninput="updateStreamPreview()">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea id="stream-description" class="form-textarea" placeholder="Join us for Bible study, fellowship, and prayer..." onchange="updateStreamPreview()" oninput="updateStreamPreview()"></textarea>
+      </div>
+      
+      <button onclick="saveStreamData()" class="btn-admin">💾 Save & Update Website</button>
+    </div>
+    
+    <!-- Quick Testimony Add -->
+    <div class="admin-section">
+      <h3>💬 Add Testimony</h3>
+      
+      <div class="live-preview">
+        <h4>Preview</h4>
+        <div class="preview-card" id="testimony-preview">
+          <h5>New Testimony</h5>
+          <p>Your testimony will appear here as you type...</p>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" id="testimony-name" class="form-input" placeholder="John D." onchange="updateTestimonyPreview()" oninput="updateTestimonyPreview()">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Testimony</label>
+        <textarea id="testimony-text" class="form-textarea" placeholder="Share how God's Word impacted your life..." onchange="updateTestimonyPreview()" oninput="updateTestimonyPreview()"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Featured on Homepage</label>
+        <select id="testimony-featured" class="form-select" onchange="updateTestimonyPreview()">
+          <option value="false">Regular Testimony</option>
+          <option value="true">Featured Testimony</option>
+        </select>
+      </div>
+      
+      <button onclick="addTestimony()" class="btn-admin">💾 Add to Website</button>
+    </div>
+    
+    <!-- Quick Team Member Add -->
+    <div class="admin-section">
+      <h3>👥 Add Team Member</h3>
+      
+      <div class="live-preview">
+        <h4>Preview</h4>
+        <div class="preview-card" id="team-preview">
+          <h5>New Team Member</h5>
+          <p>Team member details will appear here as you type...</p>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" id="team-name" class="form-input" placeholder="David L." onchange="updateTeamPreview()" oninput="updateTeamPreview()">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <input type="text" id="team-role" class="form-input" placeholder="Elder" onchange="updateTeamPreview()" oninput="updateTeamPreview()">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea id="team-description" class="form-textarea" placeholder="Specializes in Scripture and Doctrine..." onchange="updateTeamPreview()" oninput="updateTeamPreview()"></textarea>
+      </div>
+      
+      <button onclick="addTeamMember()" class="btn-admin">💾 Add to Website</button>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="admin-section">
+      <h3>⚡ Quick Actions</h3>
+      
+      <div class="quick-actions">
+        <button onclick="refreshPreview()" class="btn-admin secondary">🔄 Refresh</button>
+        <button onclick="exportData()" class="btn-admin secondary">📥 Export</button>
+      </div>
+      
+      <a href="https://calendar.google.com/calendar/u/0/r" target="_blank" class="btn-admin secondary">📅 Edit Calendar</a>
+      
+      <a href="https://github.com/seedtheword/seedtheword/tree/main/site/_data" target="_blank" class="btn-admin secondary">📁 GitHub Data</a>
+    </div>
+  </div>
+  
+  <!-- Preview Area -->
+  <div class="admin-preview">
+    <div class="preview-controls">
+      <button class="preview-btn active" onclick="switchPreview('home')">🏠 Home</button>
+      <button class="preview-btn" onclick="switchPreview('news')">📰 News</button>
+      <button class="preview-btn" onclick="switchPreview('community')">🌟 Community</button>
+      <button class="preview-btn" onclick="switchPreview('about')">ℹ️ About</button>
+    </div>
+    
+    <iframe id="preview-frame" class="preview-frame" src="../index.html"></iframe>
+  </div>
+  
+</div>
+
+<script>
+// Visual Admin JavaScript with Live Preview
+
+// Live preview update functions
+function updateStreamPreview() {
+  const status = document.getElementById('stream-status').value;
+  const title = document.getElementById('stream-title').value || 'Study Saturday Live';
+  const description = document.getElementById('stream-description').value || 'Join us for Bible study, fellowship, and prayer with members worldwide.';
+  
+  const indicator = document.getElementById('stream-indicator');
+  const statusText = document.getElementById('stream-status-text');
+  const preview = document.getElementById('stream-preview');
+  
+  // Update indicator
+  if (status === 'live') {
+    indicator.className = 'live-indicator';
+    statusText.textContent = 'Stream is LIVE NOW!';
+  } else if (status === 'scheduled') {
+    indicator.className = 'live-indicator';
+    statusText.textContent = 'Stream is scheduled';
+  } else {
+    indicator.className = 'live-indicator offline';
+    statusText.textContent = 'Stream is offline';
+  }
+  
+  // Update preview card
+  preview.innerHTML = `
+    <h5>${title}</h5>
+    <p>${description}</p>
+  `;
+}
+
+function updateTestimonyPreview() {
+  const name = document.getElementById('testimony-name').value || 'New Testimony';
+  const text = document.getElementById('testimony-text').value || 'Your testimony will appear here as you type...';
+  const featured = document.getElementById('testimony-featured').value === 'true';
+  
+  const preview = document.getElementById('testimony-preview');
+  preview.innerHTML = `
+    <h5>${name}${featured ? ' ⭐' : ''}</h5>
+    <p>${text}</p>
+  `;
+}
+
+function updateTeamPreview() {
+  const name = document.getElementById('team-name').value || 'New Team Member';
+  const role = document.getElementById('team-role').value || 'Role';
+  const description = document.getElementById('team-description').value || 'Team member details will appear here as you type...';
+  
+  const preview = document.getElementById('team-preview');
+  preview.innerHTML = `
+    <h5>${name} - ${role}</h5>
+    <p>${description}</p>
+  `;
+}
+
+// Preview frame switching
+function switchPreview(page) {
+  const frame = document.getElementById('preview-frame');
+  const buttons = document.querySelectorAll('.preview-btn');
+  
+  // Update active button
+  buttons.forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // Switch iframe source
+  const pages = {
+    'home': '../index.html',
+    'news': '../news.html',
+    'community': '../community.html',
+    'about': '../about.html'
+  };
+  
+  if (pages[page]) {
+    frame.src = pages[page];
+  }
+}
+
+function refreshPreview() {
+  const frame = document.getElementById('preview-frame');
+  frame.src = frame.src; // Reload current page
+  showStatus('🔄 Preview refreshed!', 'success');
+}
+
+// Data management functions
+function saveStreamData() {
+  const data = {
+    status: document.getElementById('stream-status').value,
+    title: document.getElementById('stream-title').value || 'Study Saturday Live',
+    url: '',
+    description: document.getElementById('stream-description').value || 'Join us for Bible study, fellowship, and prayer with members worldwide.',
+    scheduledTime: null,
+    lastUpdated: new Date().toISOString()
+  };
+  
+  // Save to localStorage for persistence
+  localStorage.setItem('livestream_data', JSON.stringify(data));
+  
+  // Show JSON for manual copying
+  showJSONModal('Livestream Data', data, '_data/livestream.json');
+  
+  showStatus('💾 Stream data saved! Copy the JSON to update your website.', 'success');
+}
+
+function addTestimony() {
+  const name = document.getElementById('testimony-name').value;
+  const text = document.getElementById('testimony-text').value;
+  const featured = document.getElementById('testimony-featured').value === 'true';
+  
+  if (!name || !text) {
+    showStatus('❌ Please fill in name and testimony text', 'error');
+    return;
+  }
+  
+  // Load existing testimonies
+  let existingTestimonies = [];
+  try {
+    const saved = localStorage.getItem('testimonies_data');
+    if (saved) {
+      existingTestimonies = JSON.parse(saved).testimonies || [];
+    }
+  } catch (e) {
+    console.log('No existing testimonies found');
+  }
+  
+  const newTestimony = {
+    id: Date.now(),
+    name,
+    location: null,
+    text,
+    featured,
+    dateAdded: new Date().toISOString()
+  };
+  
+  existingTestimonies.push(newTestimony);
+  
+  const data = {
+    testimonies: existingTestimonies
+  };
+  
+  // Save to localStorage
+  localStorage.setItem('testimonies_data', JSON.stringify(data));
+  
+  // Show JSON for manual copying
+  showJSONModal('Testimonies Data', data, '_data/testimonies.json');
+  
+  // Clear form
+  document.getElementById('testimony-name').value = '';
+  document.getElementById('testimony-text').value = '';
+  document.getElementById('testimony-featured').value = 'false';
+  updateTestimonyPreview();
+  
+  showStatus('💾 Testimony added! Copy the JSON to update your website.', 'success');
+}
+
+function addTeamMember() {
+  const name = document.getElementById('team-name').value;
+  const role = document.getElementById('team-role').value;
+  const description = document.getElementById('team-description').value;
+  
+  if (!name || !role || !description) {
+    showStatus('❌ Please fill in name, role, and description', 'error');
+    return;
+  }
+  
+  // Load existing team
+  let existingTeam = [];
+  try {
+    const saved = localStorage.getItem('team_data');
+    if (saved) {
+      existingTeam = JSON.parse(saved).team || [];
+    }
+  } catch (e) {
+    console.log('No existing team found');
+  }
+  
+  const newMember = {
+    id: Date.now(),
+    name,
+    role,
+    description,
+    photo: null,
+    dateAdded: new Date().toISOString()
+  };
+  
+  existingTeam.push(newMember);
+  
+  const data = {
+    team: existingTeam
+  };
+  
+  // Save to localStorage
+  localStorage.setItem('team_data', JSON.stringify(data));
+  
+  // Show JSON for manual copying
+  showJSONModal('Team Data', data, '_data/team.json');
+  
+  // Clear form
+  document.getElementById('team-name').value = '';
+  document.getElementById('team-role').value = '';
+  document.getElementById('team-description').value = '';
+  updateTeamPreview();
+  
+  showStatus('💾 Team member added! Copy the JSON to update your website.', 'success');
+}
+
+function exportData() {
+  const allData = {
+    livestream: JSON.parse(localStorage.getItem('livestream_data') || '{}'),
+    testimonies: JSON.parse(localStorage.getItem('testimonies_data') || '{"testimonies":[]}'),
+    team: JSON.parse(localStorage.getItem('team_data') || '{"team":[]}')
+  };
+  
+  showJSONModal('All Data Export', allData, 'backup.json');
+}
+
+// JSON Modal for easy copying
+function showJSONModal(title, data, filename) {
+  // Remove existing modal if any
+  const existingModal = document.getElementById('json-modal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
+  const modal = document.createElement('div');
+  modal.id = 'json-modal';
+  modal.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+  `;
+  
+  const jsonString = JSON.stringify(data, null, 2);
+  
+  modal.innerHTML = `
+    <div style="
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.3);
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    ">
+      <h3 style="color: var(--green); margin-bottom: 1rem;">${title}</h3>
+      <p style="color: var(--muted); margin-bottom: 1rem; font-size: 0.9rem;">
+        Copy this JSON and paste it into <strong>${filename}</strong> in your GitHub repository.
+      </p>
+      <textarea readonly style="
+        width: 100%;
+        height: 300px;
+        padding: 1rem;
+        border: 2px solid rgba(44, 95, 46, 0.2);
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 0.8rem;
+        background: rgba(44, 95, 46, 0.05);
+        margin-bottom: 1rem;
+      " id="json-content">${jsonString}</textarea>
+      <div style="display: flex; gap: 1rem;">
+        <button onclick="copyJSONToClipboard()" style="
+          background: var(--gold);
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          flex: 1;
+        ">📋 Copy JSON</button>
+        <button onclick="closeJSONModal()" style="
+          background: rgba(255, 255, 255, 0.8);
+          color: var(--text);
+          border: 2px solid rgba(44, 95, 46, 0.2);
+          padding: 0.75rem 1.5rem;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+        ">Close</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Close on backdrop click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeJSONModal();
+    }
+  });
+}
+
+function copyJSONToClipboard() {
+  const textarea = document.getElementById('json-content');
+  textarea.select();
+  document.execCommand('copy');
+  showStatus('📋 JSON copied to clipboard!', 'success');
+  closeJSONModal();
+}
+
+function closeJSONModal() {
+  const modal = document.getElementById('json-modal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+function showStatus(message, type) {
+  const container = document.getElementById('admin-status');
+  const className = type === 'error' ? 'status-error' : 'status-success';
+  
+  container.innerHTML = `<div class="status-message ${className}">${message}</div>`;
+  
+  // Auto-hide success messages after 5 seconds
+  if (type === 'success') {
+    setTimeout(() => {
+      container.innerHTML = '';
+    }, 5000);
+  }
+}
+
+// Load saved data on page load
+document.addEventListener('DOMContentLoaded', () => {
+  // Load saved livestream data
+  const savedLivestream = localStorage.getItem('livestream_data');
+  if (savedLivestream) {
+    try {
+      const data = JSON.parse(savedLivestream);
+      document.getElementById('stream-status').value = data.status || 'offline';
+      document.getElementById('stream-title').value = data.title || '';
+      document.getElementById('stream-description').value = data.description || '';
+      updateStreamPreview();
+    } catch (e) {
+      console.log('Could not load saved livestream data');
+    }
+  }
+  
+  // Initialize previews
+  updateStreamPreview();
+  updateTestimonyPreview();
+  updateTeamPreview();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  // Escape to close modal
+  if (e.key === 'Escape') {
+    closeJSONModal();
+  }
+  
+  // Ctrl+S to save (prevent default and show message)
+  if (e.ctrlKey && e.key === 's') {
+    e.preventDefault();
+    showStatus('💡 Use the save buttons to generate JSON for your website!', 'success');
+  }
+});
+</script>
+
+</body>
+</html>

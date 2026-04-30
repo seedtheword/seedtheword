@@ -268,7 +268,10 @@ class GoogleCalendarIntegration {
     
     const now = new Date();
     const upcomingEvents = this.events
-      .filter(event => new Date(event.start.dateTime) > now)
+      .filter(event => {
+        const start = this.getEventStart(event);
+        return start && start > now;
+      })
       .slice(0, 3); // Limit to 3 for compact layout
     
     if (upcomingEvents.length === 0) {
@@ -287,7 +290,7 @@ class GoogleCalendarIntegration {
     }
     
     container.innerHTML = upcomingEvents.map(event => {
-      const startDate = new Date(event.start.dateTime);
+      const startDate = this.getEventStart(event);
       const eventType = this.getEventType(event);
       const statusText = this.getEventStatusForAnnouncement(startDate);
       
@@ -334,7 +337,7 @@ class GoogleCalendarIntegration {
     }
     
     container.innerHTML = ongoingEvents.map(event => {
-      const startDate = new Date(event.start.dateTime);
+      const startDate = this.getEventStart(event);
       
       return `
         <div class="event-card ongoing glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;" onclick="googleCalendar.showEventModal(${JSON.stringify(event).replace(/"/g, '&quot;')}, '${startDate.toISOString()}')">
@@ -355,8 +358,9 @@ class GoogleCalendarIntegration {
     
     const now = new Date();
     const liveEvents = this.events.filter(event => {
-      const start = new Date(event.start.dateTime);
-      const end = new Date(event.end.dateTime);
+      const start = this.getEventStart(event);
+      const end = this.getEventEnd(event);
+      if (!start || !end) return false;
       return start <= now && end >= now;
     });
     
@@ -380,7 +384,7 @@ class GoogleCalendarIntegration {
         <div class="event-card__status">🔴 LIVE NOW</div>
         <div class="event-card__content">
           <h4 class="event-card__title">${event.summary || event.title}</h4>
-          <p class="event-card__time">Started ${this.formatEventTime(new Date(event.start.dateTime))}</p>
+          <p class="event-card__time">Started ${this.formatEventTime(this.getEventStart(event))}</p>
           <p class="event-card__description">${event.description || ''}</p>
         </div>
         <div class="live-pulse"></div>
@@ -414,7 +418,8 @@ class GoogleCalendarIntegration {
   
   getRecurringSchedule(event) {
     if (event.recurrence) {
-      const startDate = new Date(event.start.dateTime);
+      const startDate = this.getEventStart(event);
+      if (!startDate) return 'Ongoing Ministry';
       const dayName = startDate.toLocaleDateString('en-US', { weekday: 'long' });
       const time = startDate.toLocaleTimeString('en-US', { 
         hour: 'numeric', 
@@ -434,8 +439,9 @@ class GoogleCalendarIntegration {
   
   getEventType(event) {
     const now = new Date();
-    const start = new Date(event.start.dateTime);
-    const end = new Date(event.end.dateTime);
+    const start = this.getEventStart(event);
+    const end = this.getEventEnd(event);
+    if (!start || !end) return 'upcoming';
     
     if (start <= now && end >= now) return 'live';
     if (start > now) return 'upcoming';
@@ -443,6 +449,7 @@ class GoogleCalendarIntegration {
   }
   
   formatEventTime(date) {
+    if (!date) return '';
     return date.toLocaleString('en-US', {
       weekday: 'short',
       month: 'short',
@@ -468,9 +475,23 @@ class GoogleCalendarIntegration {
   getEventsForDate(date) {
     const dateStr = date.toISOString().split('T')[0];
     return this.events.filter(event => {
-      const eventDate = new Date(event.start.dateTime).toISOString().split('T')[0];
+      // Handle both timed events (dateTime) and all-day events (date)
+      const startValue = event.start?.dateTime || event.start?.date;
+      if (!startValue) return false;
+      const eventDate = new Date(startValue).toISOString().split('T')[0];
       return eventDate === dateStr;
     });
+  }
+  
+  // Safe helper to get a Date from an event's start (handles all-day events too)
+  getEventStart(event) {
+    const value = event.start?.dateTime || event.start?.date;
+    return value ? new Date(value) : null;
+  }
+  
+  getEventEnd(event) {
+    const value = event.end?.dateTime || event.end?.date;
+    return value ? new Date(value) : null;
   }
   
   showEventModal(event, date) {
@@ -479,8 +500,9 @@ class GoogleCalendarIntegration {
     
     if (!modal || !modalBody) return;
     
-    const startDate = new Date(event.start.dateTime);
-    const endDate = new Date(event.end.dateTime);
+    const startDate = this.getEventStart(event);
+    const endDate = this.getEventEnd(event);
+    if (!startDate || !endDate) return;
     
     modalBody.innerHTML = `
       <div class="event-modal__content glass-morphism">
@@ -495,7 +517,7 @@ class GoogleCalendarIntegration {
           <button class="btn btn-primary glass-morphism" onclick="googleCalendar.joinEvent('${event.htmlLink || '#'}')">
             Join Event
           </button>
-          <button class="btn btn-secondary glass-morphism" onclick="googleCalendar.addToCalendar('${event.start.dateTime}', '${event.summary || event.title}')">
+          <button class="btn btn-secondary glass-morphism" onclick="googleCalendar.addToCalendar('${startDate.toISOString()}', '${event.summary || event.title}')">
             Add to My Calendar
           </button>
         </div>
@@ -587,50 +609,33 @@ class GoogleCalendarIntegration {
   
   // Public methods for manual refresh
   async refresh() {
-    // Show loading feedback
-    const refreshBtn = document.querySelector('button[onclick="window.refreshGoogleCalendar()"]');
-    if (refreshBtn) {
-      const originalText = refreshBtn.innerHTML;
-      refreshBtn.innerHTML = '<span>⏳</span> Refreshing...';
-      refreshBtn.disabled = true;
-      
-      try {
-        await this.loadEvents();
-        this.renderCalendar();
-        this.renderEventCards();
-        
-        // Show success feedback
-        refreshBtn.innerHTML = '<span>✅</span> Refreshed!';
-        setTimeout(() => {
-          refreshBtn.innerHTML = originalText;
-          refreshBtn.disabled = false;
-        }, 2000);
-      } catch (error) {
-        // Show error feedback
-        refreshBtn.innerHTML = '<span>❌</span> Error';
-        setTimeout(() => {
-          refreshBtn.innerHTML = originalText;
-          refreshBtn.disabled = false;
-        }, 2000);
-      }
-    } else {
-      // Fallback if button not found
+    try {
+      console.log('🔄 Refreshing calendar...');
       await this.loadEvents();
       this.renderCalendar();
       this.renderEventCards();
+      console.log('✅ Calendar refreshed successfully');
+    } catch (error) {
+      console.error('❌ Error refreshing calendar:', error);
+      alert('Error refreshing calendar. Please check the console for details.');
     }
   }
 }
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('📅 Initializing Google Calendar Integration...');
   window.googleCalendar = new GoogleCalendarIntegration();
 });
 
 // Make refresh function globally available
 window.refreshGoogleCalendar = () => {
+  console.log('🔄 Refresh button clicked');
   if (window.googleCalendar) {
     window.googleCalendar.refresh();
+  } else {
+    console.error('❌ Google Calendar not initialized yet');
+    alert('Calendar not initialized. Please refresh the page.');
   }
 };
 
@@ -639,7 +644,8 @@ window.debugGoogleCalendarEvents = () => {
   if (window.googleCalendar && window.googleCalendar.events) {
     console.log('🔍 DEBUG: Current events in calendar:', window.googleCalendar.events.length);
     window.googleCalendar.events.forEach((event, index) => {
-      console.log(`${index + 1}. "${event.summary}" - ${new Date(event.start.dateTime).toLocaleDateString()}`);
+      const start = window.googleCalendar.getEventStart(event);
+      console.log(`${index + 1}. "${event.summary}" - ${start ? start.toLocaleDateString() : 'no date'}`);
     });
     
     alert(`Found ${window.googleCalendar.events.length} events in your Google Calendar.\n\nCheck the browser console (F12) to see the full list of events.\n\nThese are REAL events from your Google Calendar, not fake ones.`);

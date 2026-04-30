@@ -503,396 +503,10 @@ if (newContentBtn) {
 
 // Load content on page load
 loadDailyContent();
-// ── Ministry Calendar ─────────────────────────────────────
-class MinistryCalendar {
-  constructor() {
-    this.currentDate = new Date();
-    this.currentMonth = this.currentDate.getMonth();
-    this.currentYear = this.currentDate.getFullYear();
-    this.today = new Date();
-    
-    this.calendarGrid = document.getElementById('calendar-grid');
-    this.monthDisplay = document.getElementById('calendar-month');
-    this.prevBtn = document.getElementById('prev-month');
-    this.nextBtn = document.getElementById('next-month');
-    this.eventModal = document.getElementById('event-modal');
-    this.modalBody = document.getElementById('event-modal-body');
-    this.modalClose = document.getElementById('event-modal-close');
-    
-    // Ministry events data - this will be loaded from CMS
-    this.events = this.getMinistryEvents();
-    this.cmsEvents = []; // Will store CMS events
-    
-    if (this.calendarGrid) {
-      this.init();
-    }
-  }
-  
-  async init() {
-    this.bindEvents();
-    await this.loadCMSEvents(); // Load CMS events first
-    this.renderCalendar();
-  }
-  
-  async loadCMSEvents() {
-    try {
-      // First try to load from cms-events.js (simple fallback)
-      if (window.cmsEvents && window.cmsEvents.length > 0) {
-        window.cmsEvents.forEach(event => {
-          this.addCMSEvent(event);
-        });
-        console.log('Loaded events from cms-events.js');
-        return;
-      }
-      
-      // Try to load events from the CMS data files
-      const response = await fetch('/_data/events/');
-      if (response.ok) {
-        // If we can access the directory, we'd need to implement directory listing
-        // For now, we'll use a different approach
-        console.log('CMS events loading...');
-      }
-      
-      // Alternative: Load from a generated events index (you'd create this via build process)
-      // For now, we'll check for individual event files or use GitHub API
-      await this.loadEventsFromGitHub();
-      
-    } catch (error) {
-      console.log('Using default events, CMS events not available yet');
-    }
-  }
-  
-  async loadEventsFromGitHub() {
-    try {
-      // This loads events from your GitHub repository
-      // Using your actual repository: seedtheword/seedtheword
-      const repoUrl = 'https://api.github.com/repos/seedtheword/seedtheword/contents/site/_data/events';
-      const response = await fetch(repoUrl);
-      
-      if (response.ok) {
-        const files = await response.json();
-        
-        for (const file of files) {
-          if (file.name.endsWith('.md')) {
-            try {
-              const fileResponse = await fetch(file.download_url);
-              const content = await fileResponse.text();
-              const event = this.parseEventFile(content, file.name);
-              if (event) {
-                this.addCMSEvent(event);
-              }
-            } catch (error) {
-              console.log('Error loading event file:', file.name);
-            }
-          }
-        }
-        
-        // Re-render calendar with new events
-        this.renderCalendar();
-      }
-    } catch (error) {
-      console.log('GitHub API not available, using default events');
-    }
-  }
-  
-  parseEventFile(content, filename) {
-    try {
-      // Parse the frontmatter and content
-      const lines = content.split('\n');
-      let inFrontmatter = false;
-      let frontmatter = {};
-      let body = '';
-      
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        if (line.trim() === '---') {
-          if (!inFrontmatter) {
-            inFrontmatter = true;
-            continue;
-          } else {
-            inFrontmatter = false;
-            body = lines.slice(i + 1).join('\n');
-            break;
-          }
-        }
-        
-        if (inFrontmatter && line.includes(':')) {
-          const [key, ...valueParts] = line.split(':');
-          const value = valueParts.join(':').trim().replace(/['"]/g, '');
-          frontmatter[key.trim()] = value;
-        }
-      }
-      
-      if (frontmatter.title && frontmatter.datetime) {
-        return {
-          title: frontmatter.title,
-          date: new Date(frontmatter.datetime),
-          type: frontmatter.status || 'upcoming',
-          time: new Date(frontmatter.datetime).toLocaleTimeString('en-US', { 
-            hour: 'numeric', 
-            minute: '2-digit',
-            timeZoneName: 'short'
-          }),
-          description: frontmatter.description || body.trim(),
-          button_text: frontmatter.button_text,
-          button_link: frontmatter.button_link
-        };
-      }
-    } catch (error) {
-      console.log('Error parsing event file:', filename, error);
-    }
-    return null;
-  }
-  
-  addCMSEvent(event) {
-    const dateKey = event.date.toISOString().split('T')[0];
-    if (!this.events.special[dateKey]) {
-      this.events.special[dateKey] = [];
-    }
-    this.events.special[dateKey].push({
-      title: event.title,
-      type: event.type,
-      time: event.date.toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
-        minute: '2-digit',
-        timeZoneName: 'short'
-      }),
-      description: event.description,
-      button_text: event.button_text,
-      button_link: event.button_link
-    });
-    
-    // Re-render calendar
-    this.renderCalendar();
-  }
-  
-  bindEvents() {
-    if (this.prevBtn) {
-      this.prevBtn.addEventListener('click', () => this.previousMonth());
-    }
-    
-    if (this.nextBtn) {
-      this.nextBtn.addEventListener('click', () => this.nextMonth());
-    }
-    
-    if (this.modalClose) {
-      this.modalClose.addEventListener('click', () => this.closeModal());
-    }
-    
-    if (this.eventModal) {
-      this.eventModal.querySelector('.event-modal__backdrop')?.addEventListener('click', () => this.closeModal());
-    }
-    
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.eventModal && this.eventModal.style.display === 'flex') {
-        this.closeModal();
-      }
-    });
-  }
-  
-  getMinistryEvents() {
-    // Events are now loaded from Google Calendar only - no fake events
-    return {
-      recurring: {},
-      special: {}
-    };
-  }
-  
-  previousMonth() {
-    this.currentMonth--;
-    if (this.currentMonth < 0) {
-      this.currentMonth = 11;
-      this.currentYear--;
-    }
-    this.renderCalendar();
-  }
-  
-  nextMonth() {
-    this.currentMonth++;
-    if (this.currentMonth > 11) {
-      this.currentMonth = 0;
-      this.currentYear++;
-    }
-    this.renderCalendar();
-  }
-  
-  renderCalendar() {
-    if (!this.calendarGrid || !this.monthDisplay) return;
-    
-    // Update month display
-    const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    this.monthDisplay.textContent = `${monthNames[this.currentMonth]} ${this.currentYear}`;
-    
-    // Clear calendar
-    this.calendarGrid.innerHTML = '';
-    
-    // Add day headers
-    const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    dayHeaders.forEach(day => {
-      const header = document.createElement('div');
-      header.className = 'calendar-day-header';
-      header.textContent = day;
-      this.calendarGrid.appendChild(header);
-    });
-    
-    // Get first day of month and number of days
-    const firstDay = new Date(this.currentYear, this.currentMonth, 1);
-    const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-    
-    // Add empty cells for days before month starts
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      const prevMonthDay = new Date(this.currentYear, this.currentMonth, 0 - (startingDayOfWeek - 1 - i));
-      const dayCell = this.createDayCell(prevMonthDay.getDate(), true);
-      this.calendarGrid.appendChild(dayCell);
-    }
-    
-    // Add days of current month
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(this.currentYear, this.currentMonth, day);
-      const dayCell = this.createDayCell(day, false, date);
-      this.calendarGrid.appendChild(dayCell);
-    }
-    
-    // Add empty cells for days after month ends
-    const totalCells = this.calendarGrid.children.length - 7; // Subtract headers
-    const remainingCells = 42 - totalCells; // 6 rows × 7 days = 42 cells
-    for (let i = 1; i <= remainingCells; i++) {
-      const dayCell = this.createDayCell(i, true);
-      this.calendarGrid.appendChild(dayCell);
-    }
-  }
-  
-  createDayCell(dayNumber, isOtherMonth = false, date = null) {
-    const dayCell = document.createElement('div');
-    dayCell.className = 'calendar-day';
-    
-    if (isOtherMonth) {
-      dayCell.classList.add('other-month');
-    }
-    
-    // Check if this is today
-    if (date && this.isToday(date)) {
-      dayCell.classList.add('today');
-    }
-    
-    // Add day number
-    const dayNumberEl = document.createElement('div');
-    dayNumberEl.className = 'calendar-day-number';
-    dayNumberEl.textContent = dayNumber;
-    dayCell.appendChild(dayNumberEl);
-    
-    // Add events for this day
-    if (date && !isOtherMonth) {
-      const dayEvents = this.getEventsForDate(date);
-      dayEvents.forEach(event => {
-        const eventEl = document.createElement('div');
-        eventEl.className = `calendar-event ${event.type}`;
-        eventEl.textContent = event.title;
-        eventEl.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.showEventModal(event, date);
-        });
-        dayCell.appendChild(eventEl);
-      });
-    }
-    
-    return dayCell;
-  }
-  
-  isToday(date) {
-    return date.getDate() === this.today.getDate() &&
-           date.getMonth() === this.today.getMonth() &&
-           date.getFullYear() === this.today.getFullYear();
-  }
-  
-  getEventsForDate(date) {
-    const events = [];
-    
-    // Add recurring events based on day of week
-    const dayOfWeek = date.getDay();
-    if (this.events.recurring[dayOfWeek]) {
-      events.push(...this.events.recurring[dayOfWeek]);
-    }
-    
-    // Add special events for specific dates
-    const dateKey = date.toISOString().split('T')[0];
-    if (this.events.special[dateKey]) {
-      events.push(...this.events.special[dateKey]);
-    }
-    
-    return events;
-  }
-  
-  showEventModal(event, date) {
-    if (!this.eventModal || !this.modalBody) return;
-    
-    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    
-    const formattedDate = `${dayNames[date.getDay()]}, ${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-    
-    let buttonHtml = '';
-    let description = '';
-    
-    // All event descriptions now come from Google Calendar - no hardcoded fake events
-    description = event.description || 'Join us for this ministry event. Contact us for more information.';
-    buttonHtml = '<a href="about.html#contact" class="btn btn-secondary">Contact Us</a>';
-    
-    this.modalBody.innerHTML = `
-      <h3>${event.title}</h3>
-      <p><strong>Date:</strong> ${formattedDate}</p>
-      <p><strong>Time:</strong> ${event.time}</p>
-      <p>${description}</p>
-      ${buttonHtml}
-    `;
-    
-    this.eventModal.style.display = 'flex';
-    this.eventModal.classList.add('show');
-    document.body.style.overflow = 'hidden';
-  }
-  
-  closeModal() {
-    if (!this.eventModal) return;
-    
-    this.eventModal.classList.remove('show');
-    setTimeout(() => {
-      this.eventModal.style.display = 'none';
-      document.body.style.overflow = '';
-    }, 300);
-  }
-  
-  // Method to refresh events from CMS (call this after adding events)
-  async refreshEvents() {
-    console.log('Refreshing events from CMS...');
-    this.events.special = {}; // Clear existing special events
-    await this.loadCMSEvents();
-    this.renderCalendar();
-  }
-  
-  // Method to add special events (for CMS integration)
-  addSpecialEvent(date, event) {
-    const dateKey = date.toISOString().split('T')[0];
-    if (!this.events.special[dateKey]) {
-      this.events.special[dateKey] = [];
-    }
-    this.events.special[dateKey].push(event);
-    this.renderCalendar();
-  }
-  
-  // Method to update live status (for livestream integration)
-  updateLiveStatus(isLive) {
-    // No longer updating fake events - all events come from Google Calendar
-    console.log('Live status updated:', isLive);
-  }
-}
+// ── OLD MINISTRY CALENDAR COMPLETELY REMOVED ─────────────────────────────────────
+// This old calendar system has been completely removed to prevent conflicts
+// with the new Google Calendar integration. All calendar functionality is now
+// handled by the GoogleCalendarIntegration class in google-calendar.js
 
 // ── Load CMS Events for Announcements ─────────────────────────────────
 async function loadCMSAnnouncements() {
@@ -1032,22 +646,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Initialize calendar when DOM is loaded
+// Initialize calendar when DOM is loaded - OLD CALENDAR SYSTEM REMOVED
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Old ministry calendar disabled - using Google Calendar integration only');
-  // window.ministryCalendar = new MinistryCalendar(); // DISABLED
+  console.log('✅ Old ministry calendar completely removed - using Google Calendar integration only');
+  // OLD: window.ministryCalendar = new MinistryCalendar(); // COMPLETELY REMOVED
   
-  // Load CMS events after a short delay
+  // Load CMS events after a short delay - DISABLED
   setTimeout(() => {
-    // CMS events disabled - using Google Calendar only
-    console.log('CMS events disabled - using Google Calendar integration');
+    console.log('✅ CMS events disabled - using Google Calendar integration only');
   }, 2000);
 });
 
-// Global function to refresh calendar events
+// Global function to refresh calendar events - UPDATED FOR GOOGLE CALENDAR ONLY
 function refreshCalendarEvents() {
-  if (window.ministryCalendar) {
-    window.ministryCalendar.refreshEvents();
+  // OLD calendar system completely removed
+  console.log('✅ Old calendar system removed - using Google Calendar refresh only');
+  
+  // Use the Google Calendar refresh function instead
+  if (window.refreshGoogleCalendar) {
+    window.refreshGoogleCalendar();
+    return;
   }
   
   // Also refresh announcements if on news page
@@ -1070,13 +688,15 @@ function refreshCalendarEvents() {
 // Make refresh function globally available
 window.refreshCalendarEvents = refreshCalendarEvents;
 
-// Also initialize if script loads after DOM
+// Also initialize if script loads after DOM - OLD CALENDAR SYSTEM REMOVED
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    // window.ministryCalendar = new MinistryCalendar(); // DISABLED
+    console.log('✅ Old ministry calendar completely removed');
+    // OLD: window.ministryCalendar = new MinistryCalendar(); // COMPLETELY REMOVED
   });
 } else {
-  // window.ministryCalendar = new MinistryCalendar(); // DISABLED
+  console.log('✅ Old ministry calendar completely removed');
+  // OLD: window.ministryCalendar = new MinistryCalendar(); // COMPLETELY REMOVED
 }
 
 // ── Prayer Form Integration ─────────────────────────────────

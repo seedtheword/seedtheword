@@ -2,6 +2,18 @@
    Google Calendar Integration - Single Source of Truth
    ============================================================ */
 
+// FORCE CLEAR ALL CACHED FAKE EVENTS ON LOAD
+localStorage.removeItem('ministryEvents');
+sessionStorage.removeItem('ministryEvents');
+localStorage.removeItem('calendarEvents');
+sessionStorage.removeItem('calendarEvents');
+localStorage.removeItem('fakeEvents');
+sessionStorage.removeItem('fakeEvents');
+
+// Disable any old calendar systems
+window.ministryCalendar = null;
+window.oldCalendar = null;
+
 class GoogleCalendarIntegration {
   constructor() {
     // Your actual Google Calendar API credentials
@@ -175,8 +187,16 @@ class GoogleCalendarIntegration {
     
     if (!calendarGrid || !monthDisplay) return;
     
-    // FORCE CLEAR - Remove all existing content
+    // AGGRESSIVE CLEAR - Remove all existing content and event listeners
     calendarGrid.innerHTML = '';
+    calendarGrid.removeAttribute('data-events');
+    
+    // Remove any old event listeners by cloning the element
+    const newCalendarGrid = calendarGrid.cloneNode(false);
+    calendarGrid.parentNode.replaceChild(newCalendarGrid, calendarGrid);
+    
+    // Update reference to the new clean element
+    const cleanCalendarGrid = document.getElementById('calendar-grid');
     
     // Update month display
     const monthNames = [
@@ -191,7 +211,7 @@ class GoogleCalendarIntegration {
       const header = document.createElement('div');
       header.className = 'calendar-day-header glass-morphism';
       header.textContent = day;
-      calendarGrid.appendChild(header);
+      cleanCalendarGrid.appendChild(header);
     });
     
     // Get first day of month and number of days
@@ -204,25 +224,25 @@ class GoogleCalendarIntegration {
     for (let i = 0; i < startingDayOfWeek; i++) {
       const prevMonthDay = new Date(this.currentYear, this.currentMonth, 0 - (startingDayOfWeek - 1 - i));
       const dayCell = this.createDayCell(prevMonthDay.getDate(), true);
-      calendarGrid.appendChild(dayCell);
+      cleanCalendarGrid.appendChild(dayCell);
     }
     
     // Add days of current month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(this.currentYear, this.currentMonth, day);
       const dayCell = this.createDayCell(day, false, date);
-      calendarGrid.appendChild(dayCell);
+      cleanCalendarGrid.appendChild(dayCell);
     }
     
     // Add empty cells for days after month ends
-    const totalCells = calendarGrid.children.length - 7; // Subtract headers
+    const totalCells = cleanCalendarGrid.children.length - 7; // Subtract headers
     const remainingCells = 42 - totalCells; // 6 rows × 7 days = 42 cells
     for (let i = 1; i <= remainingCells; i++) {
       const dayCell = this.createDayCell(i, true);
-      calendarGrid.appendChild(dayCell);
+      cleanCalendarGrid.appendChild(dayCell);
     }
     
-    console.log('📅 Calendar rendered with', this.events.length, 'real events from Google Calendar');
+    console.log('📅 Calendar rendered with', this.events.length, 'real events from Google Calendar (fake events completely removed)');
   }
   
   createDayCell(dayNumber, isOtherMonth = false, date = null) {
@@ -648,11 +668,24 @@ window.nukeCalendar = () => {
   localStorage.clear();
   sessionStorage.clear();
   
+  // Disable any old calendar instances
+  window.ministryCalendar = null;
+  window.oldCalendar = null;
+  
   // Remove all calendar elements
   const calendarGrid = document.getElementById('calendar-grid');
   if (calendarGrid) {
     calendarGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #666;">🔄 Rebuilding calendar...</div>';
   }
+  
+  // Clear all event containers
+  const containers = ['live-events-container', 'upcoming-events-container', 'ongoing-ministries-container'];
+  containers.forEach(containerId => {
+    const container = document.getElementById(containerId);
+    if (container) {
+      container.innerHTML = '<div style="text-align: center; padding: 1rem; color: #666;">🔄 Loading...</div>';
+    }
+  });
   
   // Destroy and recreate calendar instance
   if (window.googleCalendar) {

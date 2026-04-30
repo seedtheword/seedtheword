@@ -90,6 +90,9 @@
       <button onclick="document.getElementById('calendar-section').scrollIntoView({behavior: 'smooth'})" class="btn btn-primary btn-sm glass-morphism">
         <span>📅</span> View Full Calendar
       </button>
+      <button onclick="window.refreshGoogleCalendar()" class="btn btn-secondary btn-sm glass-morphism" style="margin-left: 0.5rem;">
+        <span>🔄</span> Refresh
+      </button>
     </div>
   </div>
 </section>
@@ -126,6 +129,9 @@
         <div class="legend-item">
           <span class="legend-dot ongoing"></span>
           <span>Regular Schedule</span>
+        </div>
+        <div class="legend-item" style="margin-left: auto; font-size: 0.8rem; color: var(--muted);">
+          <span id="calendar-last-updated">Loading...</span>
         </div>
       </div>
     </div>

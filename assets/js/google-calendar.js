@@ -31,16 +31,39 @@ class GoogleCalendarIntegration {
       if (events && events.length > 0) {
         this.events = events;
         console.log('✅ Successfully loaded', events.length, 'events from Google Calendar');
+        this.updateLastRefreshTime();
       } else {
         console.log('📭 No events found in Google Calendar');
         this.events = [];
         this.showCalendarSetupMessage();
+        this.updateLastRefreshTime();
       }
       
     } catch (error) {
       console.error('⚠️ Google Calendar API Error:', error.message);
       this.events = [];
       this.showCalendarErrorMessage(error.message);
+      this.updateLastRefreshTime('Error');
+    }
+  }
+  
+  updateLastRefreshTime(status = 'Success') {
+    const lastUpdatedEl = document.getElementById('calendar-last-updated');
+    if (lastUpdatedEl) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        timeZoneName: 'short'
+      });
+      
+      if (status === 'Error') {
+        lastUpdatedEl.textContent = `Last refresh: ${timeStr} (Error)`;
+        lastUpdatedEl.style.color = 'var(--red)';
+      } else {
+        lastUpdatedEl.textContent = `Last refresh: ${timeStr}`;
+        lastUpdatedEl.style.color = 'var(--muted)';
+      }
     }
   }
   
@@ -560,9 +583,38 @@ class GoogleCalendarIntegration {
   
   // Public methods for manual refresh
   async refresh() {
-    await this.loadEvents();
-    this.renderCalendar();
-    this.renderEventCards();
+    // Show loading feedback
+    const refreshBtn = document.querySelector('button[onclick="window.refreshGoogleCalendar()"]');
+    if (refreshBtn) {
+      const originalText = refreshBtn.innerHTML;
+      refreshBtn.innerHTML = '<span>⏳</span> Refreshing...';
+      refreshBtn.disabled = true;
+      
+      try {
+        await this.loadEvents();
+        this.renderCalendar();
+        this.renderEventCards();
+        
+        // Show success feedback
+        refreshBtn.innerHTML = '<span>✅</span> Refreshed!';
+        setTimeout(() => {
+          refreshBtn.innerHTML = originalText;
+          refreshBtn.disabled = false;
+        }, 2000);
+      } catch (error) {
+        // Show error feedback
+        refreshBtn.innerHTML = '<span>❌</span> Error';
+        setTimeout(() => {
+          refreshBtn.innerHTML = originalText;
+          refreshBtn.disabled = false;
+        }, 2000);
+      }
+    } else {
+      // Fallback if button not found
+      await this.loadEvents();
+      this.renderCalendar();
+      this.renderEventCards();
+    }
   }
 }
 

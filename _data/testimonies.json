@@ -1,0 +1,28 @@
+{
+  "testimonies": [
+    {
+      "id": 1714478400000,
+      "name": "Maria G.",
+      "location": null,
+      "text": "Receiving this Bible changed everything for me. I never expected someone to reach out with such a personal gift. It felt like a hug from God. I have been reading it every morning since the day I received it.",
+      "featured": true,
+      "dateAdded": "2026-04-30T12:00:00.000Z"
+    },
+    {
+      "id": 1714478460000,
+      "name": "James T.",
+      "location": null,
+      "text": "I had so many questions about faith and wasn't sure where to start. This ministry gave me not just a Bible but a community that walked alongside me with patience and love. I am forever grateful.",
+      "featured": false,
+      "dateAdded": "2026-04-30T12:01:00.000Z"
+    },
+    {
+      "id": 1714478520000,
+      "name": "Priya N.",
+      "location": null,
+      "text": "The personalized note inside my Bible still makes me smile every time I open it. Someone prayed for me specifically — a stranger. That changed how I see God's love for me personally.",
+      "featured": false,
+      "dateAdded": "2026-04-30T12:02:00.000Z"
+    }
+  ]
+}

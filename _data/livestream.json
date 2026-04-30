@@ -1,7 +1,8 @@
 {
-  "is_live": false,
+  "status": "offline",
   "title": "Study Saturday Live",
-  "twitch_url": "https://twitch.tv/seedtheword",
-  "youtube_url": "",
-  "started_at": "2026-01-25T14:00:00.000Z"
+  "url": "",
+  "description": "Join us for Bible study, fellowship, and prayer with members worldwide.",
+  "scheduledTime": null,
+  "lastUpdated": "2026-04-30T12:00:00.000Z"
 }

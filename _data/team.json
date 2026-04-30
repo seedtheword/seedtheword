@@ -1,0 +1,44 @@
+{
+  "team": [
+    {
+      "id": 1714478600000,
+      "name": "David L.",
+      "role": "Elder",
+      "description": "Specializes in Scripture and Doctrine, bringing deep theological insight to our ministry and helping newcomers understand the foundations of faith.",
+      "photo": "David L..jpg",
+      "dateAdded": "2026-04-30T12:03:00.000Z"
+    },
+    {
+      "id": 1714478660000,
+      "name": "David A.",
+      "role": "Ministry Leader",
+      "description": "Leads our outreach efforts and coordinates Bible bundle distribution, ensuring every newcomer receives personalized care and attention.",
+      "photo": "David A..jpg",
+      "dateAdded": "2026-04-30T12:04:00.000Z"
+    },
+    {
+      "id": 1714478720000,
+      "name": "Vanessa",
+      "role": "Administrator",
+      "description": "Manages our social media presence and community engagement, helping connect believers worldwide through digital platforms.",
+      "photo": "Vanessa.jpg",
+      "dateAdded": "2026-04-30T12:05:00.000Z"
+    },
+    {
+      "id": 1714478780000,
+      "name": "Edward",
+      "role": "Worship Leader",
+      "description": "Leads our worship and music ministry, creating an atmosphere of praise and helping hearts connect with God through song.",
+      "photo": "Edward.jpg",
+      "dateAdded": "2026-04-30T12:06:00.000Z"
+    },
+    {
+      "id": 1714478840000,
+      "name": "Liam",
+      "role": "Prayer Warrior (aka Prayer Dog) 🐕",
+      "description": "Our faithful four-legged prayer warrior who reminds us of God's unconditional love and brings joy to our ministry gatherings.",
+      "photo": "Liam.jpg",
+      "dateAdded": "2026-04-30T12:07:00.000Z"
+    }
+  ]
+}

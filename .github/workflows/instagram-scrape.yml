@@ -1,0 +1,42 @@
+name: Scrape Instagram Feed
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install instaloader
+        run: pip install --upgrade instaloader
+
+      - name: Scrape posts
+        run: python .github/scripts/scrape_instagram.py
+        env:
+          IG_HANDLE: seedtheword
+          OUT_PATH: assets/data/instagram.json
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet assets/data/instagram.json; then
+            echo "No changes to Instagram data."
+          else
+            git add assets/data/instagram.json
+            git commit -m "chore(instagram): refresh feed [skip ci]"
+            git push
+          fi

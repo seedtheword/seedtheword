@@ -2,8 +2,8 @@ name: Scrape Instagram Feed
 
 on:
   schedule:
-    - cron: '0 9 * * *'
-  workflow_dispatch:
+    - cron: '0 9 * * *'   # 09:00 UTC daily (~02:00 PDT)
+  workflow_dispatch:       # allow manual runs from the Actions tab
 
 permissions:
   contents: write
@@ -20,13 +20,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install instaloader
-        run: pip install --upgrade instaloader
-
-      - name: Scrape posts
+      - name: Fetch feed and update JSON
         run: python .github/scripts/scrape_instagram.py
         env:
-          IG_HANDLE: seedtheword
+          FEED_URL: https://rss.app/feeds/v1.1/PfYYrhORCtf8iLjw.json
           OUT_PATH: assets/data/instagram.json
 
       - name: Commit if changed

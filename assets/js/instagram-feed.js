@@ -37,7 +37,7 @@ function renderInstagramGrid(container, posts) {
       <div class="ig-card__body">
         <p class="ig-card__caption">${escapeHtml(truncate(post.caption, 120))}</p>
         <div class="ig-card__meta">
-          <span>❤️ ${post.likes ?? 0}</span>
+          ${post.likes != null ? `<span>❤️ ${post.likes}</span>` : '<span></span>'}
           <span>${formatDate(post.date)}</span>
         </div>
       </div>
@@ -54,11 +54,16 @@ function renderFeaturedSlideshow(container, posts) {
     return;
   }
 
-  // Top 5 by likes from the last 30 days
+  // Top 5 most recent from the last 30 days (likes aren't available from
+  // rss.app, so we rank by recency)
   const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
   const featured = posts
     .filter(p => new Date(p.date).getTime() >= cutoff)
-    .sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0))
+    .sort((a, b) => {
+      const aLikes = a.likes, bLikes = b.likes;
+      if (aLikes != null && bLikes != null) return bLikes - aLikes;
+      return new Date(b.date) - new Date(a.date);
+    })
     .slice(0, 5);
 
   if (featured.length === 0) {
@@ -75,7 +80,7 @@ function renderFeaturedSlideshow(container, posts) {
       <div class="featured-slide__overlay">
         <p class="featured-slide__caption">${escapeHtml(truncate(post.caption, 140))}</p>
         <div class="featured-slide__meta">
-          <span>❤️ ${post.likes ?? 0}</span>
+          ${post.likes != null ? `<span>❤️ ${post.likes}</span>` : '<span></span>'}
           <span>${formatDate(post.date)}</span>
         </div>
       </div>

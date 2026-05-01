@@ -116,7 +116,12 @@ async function buildSlides() {
     const cutoff = Date.now() - 60 * 24 * 60 * 60 * 1000;
     const topIg = igPosts
       .filter(p => p.date && new Date(p.date).getTime() >= cutoff)
-      .sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0))
+      .sort((a, b) => {
+        // Sort by likes if available, otherwise fall back to date (newest first)
+        const aLikes = a.likes, bLikes = b.likes;
+        if (aLikes != null && bLikes != null) return bLikes - aLikes;
+        return new Date(b.date) - new Date(a.date);
+      })
       .slice(0, 3)
       .map(p => ({
         kind: 'instagram',

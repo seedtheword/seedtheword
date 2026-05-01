@@ -69,15 +69,99 @@
   </div>
 </section>
 
-<!-- Featured Slideshow -->
+<!-- Discussion -->
 <section class="section section--light" style="padding: 4rem 0;">
   <div class="container">
-    <h2 class="section-title">✨ Featured from Our Ministry</h2>
-    <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
-      Highlights from our recent events, outreach, and community moments — automatically
-      surfaced from what's resonating most with our followers.
+    <h2 class="section-title">💬 Discussion</h2>
+    <p style="text-align: center; max-width: 720px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
+      Our conversations happen live in Telegram — a global community of believers reading,
+      praying, and growing together. Join in, or start something new with a single tap.
     </p>
-    <div id="featured-slideshow-container"></div>
+
+    <div class="discussion">
+      <!-- Member stats bar -->
+      <div class="discussion__stats" id="telegram-stats" aria-live="polite">
+        <div class="discussion__stat">
+          <span class="discussion__stat-num" id="tg-stat-members">—</span>
+          <span class="discussion__stat-label">members</span>
+        </div>
+        <div class="discussion__stat">
+          <span class="discussion__stat-num discussion__stat-num--online" id="tg-stat-online">—</span>
+          <span class="discussion__stat-label">online now</span>
+        </div>
+        <div class="discussion__stat discussion__stat--text">
+          <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="discussion__stat-link">
+            @seedtheword on Telegram →
+          </a>
+        </div>
+      </div>
+
+      <!-- Start a conversation with a tap -->
+      <div class="discussion__actions">
+        <a class="discussion-card glass-morphism" target="_blank" rel="noopener"
+           href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fseedtheword&text=%F0%9F%99%8F+Prayer+request%3A+">
+          <div class="discussion-card__icon" aria-hidden="true">🙏</div>
+          <h3 class="discussion-card__title">Request Prayer</h3>
+          <p class="discussion-card__desc">
+            Share something our community can lift up in prayer.
+          </p>
+          <span class="discussion-card__action">
+            Open Telegram <span aria-hidden="true">→</span>
+          </span>
+        </a>
+
+        <a class="discussion-card glass-morphism" target="_blank" rel="noopener"
+           href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fseedtheword&text=%E2%9D%A4%EF%B8%8F+Testimony%3A+">
+          <div class="discussion-card__icon" aria-hidden="true">❤️</div>
+          <h3 class="discussion-card__title">Share a Testimony</h3>
+          <p class="discussion-card__desc">
+            Tell how God has moved in your life. Encourage someone today.
+          </p>
+          <span class="discussion-card__action">
+            Open Telegram <span aria-hidden="true">→</span>
+          </span>
+        </a>
+
+        <a class="discussion-card glass-morphism" target="_blank" rel="noopener"
+           href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fseedtheword&text=%E2%9D%93+Question%3A+">
+          <div class="discussion-card__icon" aria-hidden="true">❓</div>
+          <h3 class="discussion-card__title">Ask a Question</h3>
+          <p class="discussion-card__desc">
+            New to faith or stuck on a verse? Ask — we're here to talk.
+          </p>
+          <span class="discussion-card__action">
+            Open Telegram <span aria-hidden="true">→</span>
+          </span>
+        </a>
+
+        <a class="discussion-card glass-morphism" target="_blank" rel="noopener"
+           href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fseedtheword&text=%F0%9F%93%96+Discussion%3A+Today%27s+reading+">
+          <div class="discussion-card__icon" aria-hidden="true">📖</div>
+          <h3 class="discussion-card__title">Discuss Today's Reading</h3>
+          <p class="discussion-card__desc">
+            Share a verse that stood out. Ask what something meant. Study together.
+          </p>
+          <span class="discussion-card__action">
+            Open Telegram <span aria-hidden="true">→</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- How this works -->
+      <div class="discussion__howto glass-morphism">
+        <div class="discussion__howto-icon" aria-hidden="true">ℹ️</div>
+        <div class="discussion__howto-body">
+          <h4>How discussion works here</h4>
+          <p>
+            We host our conversation on Telegram — a free messaging app — so members
+            anywhere in the world can talk in real time. Tap any card above and it
+            opens Telegram with your message already started. First time using Telegram?
+            See our
+            <a href="#join">quick setup guide</a> below.
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -136,7 +220,7 @@
 </section>
 
 <!-- How to Join -->
-<section class="section section--light" style="padding: 4rem 0;">
+<section class="section section--light" id="join" style="padding: 4rem 0;">
   <div class="container">
     <h2 class="section-title">🚀 How to Get Plugged In</h2>
     <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
@@ -282,7 +366,8 @@
 <script src="assets/js/main.js?v=8"></script>
 <script src="assets/js/bible-plan.js?v=1"></script>
 <script src="assets/js/twitch-integration.js?v=2"></script>
-<script src="assets/js/instagram-feed.js?v=1"></script>
+<script src="assets/js/instagram-feed.js?v=2"></script>
+<script src="assets/js/telegram-stats.js?v=1"></script>
 
 <style>
 /* Responsive fallback for community feeds grid */

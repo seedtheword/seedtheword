@@ -415,6 +415,144 @@
     <p>We try not to post on Sundays — this encourages in-person church attendance and honors the rhythm of rest (Genesis 2:2).</p>
   </div>
 
+  <h2>🖼️ Updating images on the website</h2>
+  <p>Some parts of the site display images that admins manage directly (team photos, ministry highlights, homepage featured slides, hero backgrounds). Replacing these is done through GitHub's web interface — no coding, no terminal. Here's the full walkthrough.</p>
+
+  <div class="warning">
+    <strong>Before you start:</strong> You need a free GitHub account, and you need to be added as a collaborator on the repo. Ping the dev on duty if you haven't been added yet.
+  </div>
+
+  <h3>Step 1 — Sign in to GitHub</h3>
+  <ol>
+    <li>Open <a href="https://github.com/login" target="_blank" rel="noopener">github.com/login</a> in your browser.</li>
+    <li>Enter your GitHub username/email and password. (If you use two-factor, enter the code too.)</li>
+    <li>Once signed in, go to the repo: <a href="https://github.com/seedtheword/seedtheword" target="_blank" rel="noopener">github.com/seedtheword/seedtheword</a></li>
+  </ol>
+
+  <h3>Step 2 — Know which folder to go to</h3>
+  <p>Images are organized by how they're used on the site. Pick the folder that matches what you're updating:</p>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Folder</p>
+    <p class="admin-card__title"><code>assets/images/team/</code></p>
+    <p>Team member photos. One file per person. Filename should match the name on their card (e.g., <code>David A..jpg</code>, <code>Vanessa.jpg</code>).</p>
+    <p><strong>Appears on:</strong> About page → "Meet the Team" section</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Folder</p>
+    <p class="admin-card__title"><code>assets/images/featured/</code></p>
+    <p>Images used in the homepage Showcase Carousel (fallback slides). Keep file names descriptive (e.g., <code>bible-ministry-1.jpg</code>).</p>
+    <p><strong>Appears on:</strong> Homepage → "Featured From Our Ministry" rotating carousel</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Folder</p>
+    <p class="admin-card__title"><code>assets/images/ministry-highlights/</code></p>
+    <p>Photos/videos used in the 9-tile mixed grid on the News page.</p>
+    <p><strong>Appears on:</strong> News page → "🌟 Ministry Highlights" grid</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Folder</p>
+    <p class="admin-card__title"><code>assets/images/backgrounds/</code></p>
+    <p>Large hero-background images. These rarely change. If you swap one, keep the same filename so all pages automatically pick up the new version.</p>
+    <p><strong>Appears on:</strong> Hero banners on every page</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Folder</p>
+    <p class="admin-card__title"><code>assets/images/bundles/</code></p>
+    <p>Product photos for the Store page bundle cards.</p>
+    <p><strong>Appears on:</strong> Store page bundle cards</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Folder</p>
+    <p class="admin-card__title"><code>assets/images/seed-stitch/</code></p>
+    <p>The nine panels of the S-E-E-D ministry stitch logo. Don't rename these — they're numbered 1 through 9 in a specific order.</p>
+    <p><strong>Appears on:</strong> About page → S.E.E.D. interactive grid</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Folder</p>
+    <p class="admin-card__title"><code>assets/images/instagram/</code></p>
+    <p><strong>⚠️ Don't touch this folder.</strong> It's automatically managed by the Instagram sync every 6 hours. Files here are overwritten each run.</p>
+  </div>
+
+  <h3>Step 3 — Replace an existing image (keeping the same filename)</h3>
+  <p>Easiest case: you want to swap out a photo but keep everything on the page pointing to the same file.</p>
+  <ol>
+    <li>In the repo, navigate to the folder (e.g., <code>assets/images/team/</code>).</li>
+    <li>Click the file you want to replace (e.g., <code>Vanessa.jpg</code>).</li>
+    <li>Near the top right, click the <strong>pencil icon</strong> (🖊 Edit this file) — if the pencil is missing for image files, look for a button labeled <strong>"..."</strong> or <strong>"Replace"</strong>.</li>
+    <li>On the file page, there should be an option <strong>"Replace this file"</strong>. Click it.</li>
+    <li>Drag your new image into the upload box. <strong>The new file must have the same filename as the old one</strong> or the site won't find it.</li>
+    <li>At the bottom of the page, add a short commit message like "Update Vanessa's photo" and click <strong>Commit changes</strong>.</li>
+    <li>Wait about 30–60 seconds, then hard-refresh the live site (<code>Ctrl+Shift+R</code> / <code>Cmd+Shift+R</code>) to see the new image.</li>
+  </ol>
+
+  <div class="warning">
+    <strong>Filename capitalization matters.</strong> <code>vanessa.jpg</code> and <code>Vanessa.jpg</code> are different files on the web server. When you replace, use the exact same name and capitalization as the original.
+  </div>
+
+  <h3>Step 4 — Add a brand-new image to a folder</h3>
+  <p>Use this when you want to add (not replace) a photo — for example, adding a new team member or a new ministry-highlights photo.</p>
+  <ol>
+    <li>Navigate to the correct folder in the repo (see Step 2).</li>
+    <li>Near the top right, click <strong>"Add file"</strong> → <strong>"Upload files"</strong>.</li>
+    <li>Drag your image(s) into the upload area. Multiple files at once is fine.</li>
+    <li>Before you drag: make sure the filename is descriptive and uses only letters, numbers, and dashes. Avoid spaces, emojis, and unusual characters. Example good names: <code>pack-ship-april-2026.jpg</code>, <code>easter-worship.jpg</code>, <code>youth-outreach-may.jpg</code>.</li>
+    <li>Add a commit message like "Add April pack &amp; ship photos" at the bottom.</li>
+    <li>Click <strong>Commit changes</strong>.</li>
+  </ol>
+
+  <div class="warning">
+    <strong>Adding an image doesn't automatically make it appear on the site.</strong> The image file has to be referenced from somewhere in the HTML. If you want a new photo visible in, say, the Ministry Highlights grid, you also need to update <code>news.html</code> to point at it — that's a code change. Ping the dev on duty.
+  </div>
+
+  <h3>Step 5 — Update a specific spot on the site</h3>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Location</p>
+    <p class="admin-card__title">Homepage Showcase Carousel (fallback slides)</p>
+    <ol>
+      <li>Replace an image in <code>assets/images/featured/</code> with the same filename.</li>
+      <li>If you want different slide captions/titles, ping the dev. Captions live in the JavaScript and need a small code edit.</li>
+    </ol>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Location</p>
+    <p class="admin-card__title">Ministry Highlights grid (news page)</p>
+    <ol>
+      <li>Replace an image in <code>assets/images/ministry-highlights/</code> with the same filename.</li>
+      <li>Grid titles are in <code>news.html</code>. If you want to rename a tile, ping the dev.</li>
+    </ol>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Location</p>
+    <p class="admin-card__title">Team photos (about page)</p>
+    <ol>
+      <li>Navigate to <code>assets/images/team/</code>.</li>
+      <li>Replace a photo with the same filename, or add a new one.</li>
+      <li>If adding a new member (new filename), the <code>about.html</code> team section needs a code edit to include them. Ping the dev.</li>
+    </ol>
+  </div>
+
+  <h3>Step 6 — How to tell if your change went live</h3>
+  <ol>
+    <li>After clicking <strong>Commit changes</strong>, you'll see a small progress indicator at the top of the page. Wait for it to finish.</li>
+    <li>Go to the repo's <a href="https://github.com/seedtheword/seedtheword/actions" target="_blank" rel="noopener">Actions tab</a>. There'll be a new workflow run named "pages build and deployment" — wait for its green check (usually 30–60 seconds).</li>
+    <li>Open the live website and <strong>hard-refresh</strong> (<code>Ctrl+Shift+R</code> on Windows/Linux, <code>Cmd+Shift+R</code> on Mac). Normal refresh may serve a cached old version.</li>
+    <li>If the change still isn't visible after 2 minutes + hard refresh, check the Actions tab for a red X — that means the build failed. Screenshot it and ping the dev.</li>
+  </ol>
+
+  <div class="danger">
+    <strong>Don't worry if you break something.</strong> GitHub tracks every change. If you commit a bad image or the site breaks after your edit, we can revert the change in under a minute. Nothing is permanent. Just ping the dev with the commit message you used and they'll sort it out.
+  </div>
+
   <h2>🔧 How to do common tasks</h2>
 
   <h3>Add a new event to the calendar</h3>

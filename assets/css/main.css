@@ -614,7 +614,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   margin-top: 1rem;
 }
 .section--jesus-background {
-  background-image: url('../images/john-3-16.jpg');
+  background-image: url('../images/backgrounds/john-3-16.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -689,7 +689,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .hero--jesus {
   min-height: 100vh;
-  background-image: url('../images/1920 × 1080 stw background (JPEG).jpg');
+  background-image: url('../images/backgrounds/stw-background-1920x1080.jpg');
   background-position: center center;
   background-size: cover;
   display: flex;
@@ -760,15 +760,15 @@ ul { margin: 0; padding: 0; list-style: none; }
   font-weight: normal;
 }
 .hero--home    { 
-  background-image: url('../images/stw-background.jpg'); 
+  background-image: url('../images/backgrounds/stw-background.jpg'); 
   background-position: center top;
 }
-.hero--about   { background-image: url('../images/bible-in-background.jpg'); }
-.hero--bundles { background-image: url('../images/gideon-background.jpg'); }
-.hero--donate  { background-image: url('../images/john-3-16.jpg'); }
-.hero--testimonies { background-image: url('../images/stw-bibles-giveaway.jpg'); }
-.hero--contact { background-image: url('../images/seed-the-word.jpg'); background-position: center top; }
-.hero--builder { background-image: url('../images/bible-ministry-1.jpg'); }
+.hero--about   { background-image: url('../images/backgrounds/bible-in-background.jpg'); }
+.hero--bundles { background-image: url('../images/backgrounds/gideon-background.jpg'); }
+.hero--donate  { background-image: url('../images/backgrounds/john-3-16.jpg'); }
+.hero--testimonies { background-image: url('../images/backgrounds/stw-bibles-giveaway.jpg'); }
+.hero--contact { background-image: url('../images/backgrounds/seed-the-word.jpg'); background-position: center top; }
+.hero--builder { background-image: url('../images/backgrounds/bible-ministry-1.jpg'); }
 .hero__overlay { 
   position: absolute; inset: 0; 
   background: linear-gradient(135deg, rgba(0,0,0,.3) 0%, rgba(0,0,0,.2) 100%);

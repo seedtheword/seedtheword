@@ -15,7 +15,7 @@ const FALLBACK_SLIDES = [
     title: 'Bible Bundle Giveaway',
     body:
       "Hundreds of personalized Bibles have made their way into the hands of newcomers to faith — each with a handwritten note, highlighted verses, and prayer.",
-    image: 'assets/images/stw-bibles-giveaway.jpg',
+    image: 'assets/images/featured/stw-bibles-giveaway.jpg',
     ctaLabel: 'See Our Bundles',
     ctaHref: 'store.html',
   },
@@ -25,7 +25,7 @@ const FALLBACK_SLIDES = [
     title: 'Pack & Ship Nights',
     body:
       'Our volunteers pray over every Bible before it ships. Each package leaves with a blessing, a verse, and the love of our community behind it.',
-    image: 'assets/images/bible-ministry-1.jpg',
+    image: 'assets/images/featured/bible-ministry-1.jpg',
     ctaLabel: 'Meet the Team',
     ctaHref: 'about.html',
   },
@@ -35,7 +35,7 @@ const FALLBACK_SLIDES = [
     title: 'Study Saturday Live',
     body:
       'Every Saturday, 7 PM Pacific, we gather on Twitch for Bible study, prayer, and fellowship with members from around the world.',
-    image: 'assets/images/stw-ministry-team.jpg',
+    image: 'assets/images/featured/stw-ministry-team.jpg',
     ctaLabel: 'Join the Community',
     ctaHref: 'community.html',
   },
@@ -45,7 +45,7 @@ const FALLBACK_SLIDES = [
     title: 'Meeting People Where They Are',
     body:
       "We don't wait for people to find us — we bring the Gospel into streets, campuses, and coffee shops. Every seed matters.",
-    image: 'assets/images/gideon-background-2.jpg',
+    image: 'assets/images/backgrounds/gideon-background-2.jpg',
     ctaLabel: 'Support the Mission',
     ctaHref: 'community.html',
   },
@@ -55,7 +55,7 @@ const FALLBACK_SLIDES = [
     title: "Zander's Bible",
     body:
       "A simple hand-off. A personalized Bible. A story that keeps unfolding. This is what Seed the Word is about — one life, one verse, one seed at a time.",
-    image: 'assets/images/bible-ministry-gift-zander.jpg',
+    image: 'assets/images/featured/bible-ministry-gift-zander.jpg',
     ctaLabel: 'Read More Stories',
     ctaHref: 'news.html',
   },
@@ -168,7 +168,7 @@ function getDailyBibleSlide() {
     eyebrow: eyebrowMap[category] || "Today's Word",
     title: item.ref,
     body: item.text,
-    image: 'assets/images/john-3-16.jpg',
+    image: 'assets/images/backgrounds/john-3-16.jpg',
     ctaLabel: 'Share',
     ctaHref: '#',
     isShare: true,

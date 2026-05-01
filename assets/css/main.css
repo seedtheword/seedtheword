@@ -5348,3 +5348,220 @@ ul { margin: 0; padding: 0; list-style: none; }
     gap: 0.75rem;
   }
 }
+
+
+/* ============================================================
+   Ministry Highlights — mixed grid (photos + videos + see-more)
+   ============================================================ */
+
+.highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.highlight-tile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #111 center / cover no-repeat;
+  box-shadow: 0 8px 24px rgba(31, 38, 135, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.highlight-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 36px rgba(31, 38, 135, 0.25);
+}
+
+/* Video tiles: native video fills the tile */
+.highlight-tile--video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #000;
+}
+
+/* Overlay — visible by default, fades out slightly on hover */
+.highlight-tile__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1rem 1.1rem;
+  background: linear-gradient(180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(0, 0, 0, 0.55) 80%,
+    rgba(0, 0, 0, 0.85) 100%);
+  color: #fff;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+/* When video is playing the controls should be usable; our overlay gets in
+   the way. Just soften it on hover so the controls are easier to reach. */
+.highlight-tile--video:hover .highlight-tile__overlay {
+  opacity: 0.4;
+}
+
+.highlight-tile__type {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.85);
+  display: inline-block;
+  padding: 0.25rem 0.55rem;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  margin-bottom: 0.4rem;
+  align-self: flex-start;
+}
+
+.highlight-tile__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.25;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* "See More" tile */
+.highlight-tile--more {
+  background: linear-gradient(135deg, rgba(44, 95, 46, 0.85), rgba(58, 125, 60, 0.85));
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.highlight-tile--more:focus {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.highlight-more {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.highlight-more__default,
+.highlight-more__choices {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.25rem;
+  color: #fff;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.highlight-more__default {
+  opacity: 1;
+}
+.highlight-more__choices {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  gap: 0.65rem;
+  justify-content: center;
+}
+
+.highlight-tile--more.open .highlight-more__default {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+.highlight-tile--more.open .highlight-more__choices {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.highlight-more__icon {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  opacity: 0.85;
+}
+
+.highlight-more__title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+  color: #fff;
+}
+
+.highlight-more__desc {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  max-width: 240px;
+}
+
+.highlight-more__heading {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 0.25rem;
+  font-weight: 700;
+}
+
+.highlight-more__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 0.2s ease, transform 0.2s ease;
+  width: 85%;
+  justify-content: center;
+}
+
+.highlight-more__btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px);
+}
+
+.highlight-more__btn--ig {
+  border-color: rgba(228, 64, 95, 0.6);
+}
+
+.highlight-more__btn--tg {
+  border-color: rgba(0, 136, 204, 0.6);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .highlight-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .highlight-grid {
+    grid-template-columns: 1fr;
+  }
+  .highlight-tile {
+    aspect-ratio: 4 / 3;
+  }
+}

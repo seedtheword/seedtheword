@@ -34,7 +34,7 @@ const FALLBACK_SLIDES = [
     eyebrow: 'Community',
     title: 'Study Saturday Live',
     body:
-      'Every Saturday, 2 PM Pacific, we gather on Twitch for Bible study, prayer, and fellowship with members from around the world.',
+      'Every Saturday, 7 PM Pacific, we gather on Twitch for Bible study, prayer, and fellowship with members from around the world.',
     image: 'assets/images/stw-ministry-team.jpg',
     ctaLabel: 'Join the Community',
     ctaHref: 'community.html',

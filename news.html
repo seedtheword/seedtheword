@@ -153,71 +153,112 @@
 <section class="section section--white">
   <div class="container">
     <h2 class="section-title">🌟 Ministry Highlights</h2>
-    <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">
-      See how God is working through our community to spread His Word
+    <p style="text-align:center;color:var(--muted);max-width:640px;margin:0 auto 2.5rem;font-size:1rem;line-height:1.7">
+      See how God is working through our community to spread His Word — photos, videos,
+      and moments from the field.
     </p>
-    
-    <!-- Video Gallery from Community Page -->
-    <div class="video-gallery">
-      <div class="video-card">
+
+    <div class="highlight-grid">
+      <!-- 1: video -->
+      <article class="highlight-tile highlight-tile--video">
         <video controls poster="assets/images/bible-ministry-1.jpg">
           <source src="assets/videos/bible-flip.mp4" type="video/mp4">
-          Your browser does not support the video tag.
         </video>
-        <div class="video-card__content">
-          <h3>Bible Study Sessions</h3>
-          <p>Join us as we dive deep into God's Word together</p>
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">▶ Video</span>
+          <h3 class="highlight-tile__title">Bible Study Sessions</h3>
         </div>
-      </div>
-      
-      <div class="video-card">
+      </article>
+
+      <!-- 2: video -->
+      <article class="highlight-tile highlight-tile--video">
         <video controls poster="assets/images/stw-ministry-team.jpg">
           <source src="assets/videos/ministry-clip.mp4" type="video/mp4">
-          Your browser does not support the video tag.
         </video>
-        <div class="video-card__content">
-          <h3>Ministry Highlights</h3>
-          <p>See our community serving and growing together</p>
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">▶ Video</span>
+          <h3 class="highlight-tile__title">Ministry Highlights</h3>
         </div>
-      </div>
-      
-      <div class="video-card">
+      </article>
+
+      <!-- 3: photo -->
+      <article class="highlight-tile highlight-tile--photo" style="background-image:url('assets/images/bible-ministry-1.jpg')">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">Bible Ministry in Action</h3>
+        </div>
+      </article>
+
+      <!-- 4: photo -->
+      <article class="highlight-tile highlight-tile--photo" style="background-image:url('assets/images/bible-ministry-gift-zander.jpg')">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">A Bible for Zander</h3>
+        </div>
+      </article>
+
+      <!-- 5: video -->
+      <article class="highlight-tile highlight-tile--video">
         <video controls poster="assets/images/stw-bibles-giveaway.jpg">
           <source src="assets/videos/pack-ship.mp4" type="video/mp4">
-          Your browser does not support the video tag.
         </video>
-        <div class="video-card__content">
-          <h3>Packing & Shipping</h3>
-          <p>Behind the scenes: preparing Bible bundles with love</p>
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">▶ Video</span>
+          <h3 class="highlight-tile__title">Pack &amp; Ship</h3>
         </div>
-      </div>
-      
-      <div class="video-card">
+      </article>
+
+      <!-- 6: photo -->
+      <article class="highlight-tile highlight-tile--photo" style="background-image:url('assets/images/stw-bibles-giveaway.jpg')">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">Bibles Giveaway</h3>
+        </div>
+      </article>
+
+      <!-- 7: video -->
+      <article class="highlight-tile highlight-tile--video">
         <video controls poster="assets/images/seed-the-word.jpg">
           <source src="assets/videos/worship-composing.mp4" type="video/mp4">
-          Your browser does not support the video tag.
         </video>
-        <div class="video-card__content">
-          <h3>Worship & Music</h3>
-          <p>Creating songs of praise and worship together</p>
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">▶ Video</span>
+          <h3 class="highlight-tile__title">Worship &amp; Music</h3>
         </div>
-      </div>
-    </div>
-    
-    <!-- Recent Ministry Photos -->
-    <div style="margin-top:3rem">
-      <h3 style="text-align:center;font-size:1.5rem;margin-bottom:2rem;color:var(--text)">Recent Ministry Photos</h3>
-      <div class="photo-strip" style="border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12)">
-        <div class="photo-strip__item">
-          <img src="assets/images/bible-ministry-1.jpg" alt="Bible ministry in action" loading="lazy">
+      </article>
+
+      <!-- 8: photo -->
+      <article class="highlight-tile highlight-tile--photo" style="background-image:url('assets/images/stw-ministry-team.jpg')">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">Our Ministry Team</h3>
         </div>
-        <div class="photo-strip__item">
-          <img src="assets/images/bible-ministry-gift-zander.jpg" alt="Bible gift to Zander" loading="lazy">
+      </article>
+
+      <!-- 9: See more archive card -->
+      <article class="highlight-tile highlight-tile--more" tabindex="0" role="button"
+               aria-label="See more ministry content on our social channels"
+               onclick="this.classList.toggle('open')"
+               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.classList.toggle('open')}">
+        <div class="highlight-more">
+          <div class="highlight-more__default">
+            <span class="highlight-more__icon" aria-hidden="true">＋</span>
+            <h3 class="highlight-more__title">See More</h3>
+            <p class="highlight-more__desc">View our full archive of photos, videos, and audio.</p>
+          </div>
+          <div class="highlight-more__choices">
+            <h4 class="highlight-more__heading">Open our archives</h4>
+            <a class="highlight-more__btn highlight-more__btn--ig"
+               href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">
+              <span>📸</span> Photos &amp; Videos on Instagram
+            </a>
+            <a class="highlight-more__btn highlight-more__btn--tg"
+               href="https://t.me/seedtheword" target="_blank" rel="noopener">
+              <span>💬</span> Audio &amp; Chat on Telegram
+            </a>
+          </div>
         </div>
-        <div class="photo-strip__item">
-          <img src="assets/images/stw-bibles-giveaway.jpg" alt="Bibles giveaway" loading="lazy">
-        </div>
-      </div>
+      </article>
     </div>
   </div>
 </section>

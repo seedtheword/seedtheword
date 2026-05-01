@@ -32,7 +32,7 @@ class TwitchLiveCard {
     const dayPT = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
     const day = dayPT.getDay();   // 0 = Sun, 6 = Sat
     const hour = dayPT.getHours();
-    this.isLive = (day === 6 && hour >= 14 && hour < 16);
+    this.isLive = (day === 6 && hour >= 19 && hour < 22);
   }
 
   render() {
@@ -95,14 +95,14 @@ class TwitchLiveCard {
     const pt = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
     const next = new Date(pt);
     const diff = (6 - pt.getDay() + 7) % 7 || 7;
-    // If it's Saturday but already past 4 PM PT, skip to next Saturday
-    if (pt.getDay() === 6 && pt.getHours() >= 16) {
+    // If it's Saturday but already past 10 PM PT, skip to next Saturday
+    if (pt.getDay() === 6 && pt.getHours() >= 22) {
       next.setDate(next.getDate() + 7);
     } else {
       next.setDate(next.getDate() + diff);
     }
-    next.setHours(14, 0, 0, 0);
-    return next.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) + ' at 2:00 PM PT';
+    next.setHours(19, 0, 0, 0);
+    return next.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) + ' at 7:00 PM PT';
   }
 }
 

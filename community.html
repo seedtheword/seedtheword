@@ -84,32 +84,37 @@
 <!-- Live Feed: Telegram + Instagram side by side -->
 <section class="section section--white" style="padding: 4rem 0;">
   <div class="container">
-    <h2 class="section-title">📣 What's Happening Right Now</h2>
+    <h2 class="section-title">📣 Stay Connected</h2>
     <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
-      Our latest posts from Telegram and Instagram, all in one place.
+      Our latest Instagram posts, and an open door to our Telegram community.
     </p>
 
-    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 2rem; align-items: start;" class="community-feeds-grid">
-      <!-- Telegram Widget -->
-      <div class="telegram-feed-wrap glass-morphism">
-        <div class="telegram-feed-wrap__header">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="28" height="28" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-          <h3 class="telegram-feed-wrap__title">Telegram Channel</h3>
-        </div>
-        <div class="telegram-feed-wrap__widget">
-          <script async src="https://telegram.org/js/telegram-widget.js?22"
-                  data-telegram-post="seedtheword/1"
-                  data-width="100%"
-                  data-userpic="true"
-                  data-dark="0"></script>
-          <noscript>
-            <a href="https://t.me/seedtheword" target="_blank" rel="noopener">View our Telegram channel</a>
-          </noscript>
-        </div>
-        <div style="margin-top: 1rem; text-align: center;">
-          <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram">
-            Open in Telegram
+    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 2rem; align-items: stretch;" class="community-feeds-grid">
+      <!-- Telegram CTA Card -->
+      <div class="telegram-cta glass-morphism">
+        <div class="telegram-cta__glow" aria-hidden="true"></div>
+        <div class="telegram-cta__content">
+          <div class="telegram-cta__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="44" height="44" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+          </div>
+          <h3 class="telegram-cta__title">Join us on Telegram</h3>
+          <p class="telegram-cta__blurb">
+            Our most active space — daily Bible discussion, prayer requests, and
+            community chat with members around the world.
+          </p>
+
+          <ul class="telegram-cta__points">
+            <li><span class="telegram-cta__dot"></span> Daily chapter-by-chapter reading</li>
+            <li><span class="telegram-cta__dot"></span> Share and pray for each other</li>
+            <li><span class="telegram-cta__dot"></span> Announcements for livestreams &amp; events</li>
+            <li><span class="telegram-cta__dot"></span> Testimonies and verse-of-the-day</li>
+          </ul>
+
+          <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram telegram-cta__btn">
+            Join Telegram
+            <span aria-hidden="true">→</span>
           </a>
+          <p class="telegram-cta__foot">Free · Works on phone, tablet, desktop</p>
         </div>
       </div>
 

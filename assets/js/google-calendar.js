@@ -502,12 +502,16 @@ class GoogleCalendarIntegration {
   }
   
   getEventsForDate(date) {
-    const dateStr = date.toISOString().split('T')[0];
+    // Compare dates by LOCAL year/month/day to avoid UTC drift
+    const localKey = (d) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    const dateStr = localKey(date);
     return this.events.filter(event => {
       // Handle both timed events (dateTime) and all-day events (date)
       const startValue = event.start?.dateTime || event.start?.date;
       if (!startValue) return false;
-      const eventDate = new Date(startValue).toISOString().split('T')[0];
+      const eventDate = localKey(new Date(startValue));
       return eventDate === dateStr;
     });
   }

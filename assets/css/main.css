@@ -5841,3 +5841,73 @@ a.contact-card:hover .contact-card__cta span {
     grid-column: auto;
   }
 }
+
+
+/* ============================================================
+   "This Week in God's Word" — sub-section headings + podcast embed
+   ============================================================ */
+
+.week-subhead {
+  max-width: 900px;
+  margin: 3rem auto 1.25rem;
+  text-align: center;
+}
+
+.week-subhead__title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.01em;
+}
+
+.week-subhead__desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 auto;
+  max-width: 640px;
+}
+
+/* Spotify podcast embed */
+.podcast-embed {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.podcast-embed iframe {
+  display: block;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.18);
+}
+
+.podcast-embed__foot {
+  text-align: center;
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.podcast-embed__foot a {
+  color: #1DB954;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.podcast-embed__foot a:hover {
+  color: #1ed760;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .week-subhead {
+    margin-top: 2.5rem;
+    padding: 0 1rem;
+  }
+  .podcast-embed iframe {
+    border-radius: 12px;
+  }
+}

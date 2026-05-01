@@ -423,12 +423,23 @@ class GoogleCalendarIntegration {
   
   // Utility methods
   getEventStatusForAnnouncement(date) {
-    const now = new Date();
-    const diffDays = Math.ceil((date - now) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return '📅 TODAY';
-    if (diffDays === 1) return '📅 TOMORROW';
-    if (diffDays <= 7) {
+    if (!date) return '📅 UPCOMING';
+
+    // Compare by local calendar day, not elapsed hours, so evening
+    // events don't flip to "TOMORROW" just because they're > 24h ahead.
+    const startOfLocalDay = (d) => {
+      const copy = new Date(d);
+      copy.setHours(0, 0, 0, 0);
+      return copy;
+    };
+
+    const today = startOfLocalDay(new Date());
+    const eventDay = startOfLocalDay(date);
+    const dayDiff = Math.round((eventDay - today) / (1000 * 60 * 60 * 24));
+
+    if (dayDiff === 0) return '📅 TODAY';
+    if (dayDiff === 1) return '📅 TOMORROW';
+    if (dayDiff > 1 && dayDiff <= 7) {
       const dayName = date.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
       return `📅 THIS ${dayName}`;
     }

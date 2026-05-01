@@ -1921,7 +1921,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 @media (max-width: 768px) {
   .hamburger { display: flex; }
-  .site-nav {
+  #site-nav {
     position: absolute; top: 80px; left: 0; right: 0;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
@@ -1930,7 +1930,7 @@ ul { margin: 0; padding: 0; list-style: none; }
     transition: max-height .4s ease, padding .4s ease;
     padding: 0 32px;
   }
-  .site-nav.open { 
+  #site-nav.open { 
     max-height: 400px; 
     padding: 16px 32px 24px;
   }
@@ -1994,7 +1994,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   .btn-hero { min-width: 160px; }
 }
 @media (min-width: 769px) {
-  .site-nav { 
+  #site-nav { 
     max-height: none !important; 
     overflow: visible !important;
   }
@@ -5910,4 +5910,26 @@ a.contact-card:hover .contact-card__cta span {
   .podcast-embed iframe {
     border-radius: 12px;
   }
+}
+
+
+/* ============================================================
+   Header socials — responsive spacing
+   ============================================================ */
+
+.header-social {
+  gap: 0.5rem;
+}
+.header-social a {
+  width: 34px;
+  height: 34px;
+}
+.header-social svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* On narrow phones, hide the social icons so hamburger + logo fit. */
+@media (max-width: 480px) {
+  .header-social { display: none; }
 }

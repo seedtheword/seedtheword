@@ -135,10 +135,20 @@ function escapeHtml(s) {
 function formatDate(iso) {
   if (!iso) return '';
   const d = new Date(iso);
-  const diffDays = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
+
+  // Compare by local calendar day, not elapsed hours
+  const startOfLocalDay = (date) => {
+    const copy = new Date(date);
+    copy.setHours(0, 0, 0, 0);
+    return copy;
+  };
+  const today = startOfLocalDay(new Date());
+  const postDay = startOfLocalDay(d);
+  const diffDays = Math.round((today - postDay) / (1000 * 60 * 60 * 24));
+
   if (diffDays === 0) return 'Today';
   if (diffDays === 1) return 'Yesterday';
-  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays > 1 && diffDays < 7) return `${diffDays} days ago`;
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 

@@ -205,28 +205,87 @@ document.querySelectorAll('.testimony-card__more').forEach(btn => {
   });
 });
 
-// ── Contact form validation ────────────────────────────────
+// ── Contact form (Formspree-backed) ─────────────────────────
 const contactForm = document.getElementById('contact-form');
 if (contactForm) {
-  contactForm.addEventListener('submit', e => {
+  contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const name  = contactForm.querySelector('[name="name"]').value.trim();
     const email = contactForm.querySelector('[name="email"]').value.trim();
     const msg   = contactForm.querySelector('[name="message"]').value.trim();
     const errEl = document.getElementById('contact-errors');
+    const successEl = document.getElementById('contact-success');
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
+
+    // Validate
     const errors = [];
     if (!name)  errors.push('Your name is required.');
     if (!email || !email.includes('@')) errors.push('A valid email address is required.');
     if (!msg)   errors.push('A message is required.');
     if (errors.length) {
-      errEl.style.display = 'block';
-      errEl.innerHTML = errors.map(e => '• ' + e).join('<br>');
+      if (errEl) {
+        errEl.style.display = 'block';
+        errEl.innerHTML = errors.map(x => '• ' + x).join('<br>');
+      }
       return;
     }
-    errEl.style.display = 'none';
-    contactForm.style.display = 'none';
-    document.getElementById('contact-success').style.display = 'block';
-    // TODO: replace with fetch() to Formspree or backend endpoint
+    if (errEl) errEl.style.display = 'none';
+
+    // Check the endpoint is actually configured
+    const endpoint = contactForm.getAttribute('action') || '';
+    if (endpoint.includes('YOUR_FORMSPREE_ENDPOINT') || !endpoint) {
+      if (errEl) {
+        errEl.style.display = 'block';
+        errEl.textContent = "Email isn't set up yet. Please reach us on Telegram or Instagram in the meantime.";
+      }
+      return;
+    }
+
+    // Submit via fetch to Formspree
+    const originalLabel = submitBtn ? submitBtn.textContent : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+    }
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: new FormData(contactForm),
+      });
+
+      if (res.ok) {
+        contactForm.style.display = 'none';
+        if (successEl) successEl.style.display = 'block';
+      } else {
+        let msgText = 'Something went wrong sending your message.';
+        try {
+          const data = await res.json();
+          if (data?.errors?.length) {
+            msgText = data.errors.map(x => x.message).join(' ');
+          }
+        } catch (_) {}
+        if (errEl) {
+          errEl.style.display = 'block';
+          errEl.textContent = msgText + ' Please try again, or reach us on Telegram.';
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalLabel;
+        }
+      }
+    } catch (err) {
+      if (errEl) {
+        errEl.style.display = 'block';
+        errEl.textContent = "Couldn't send right now. Check your connection or reach us on Telegram.";
+      }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalLabel;
+      }
+    }
   });
 }
 

@@ -2,8 +2,8 @@ name: Scrape Instagram Feed
 
 on:
   schedule:
-    - cron: '0 9 * * *'   # 09:00 UTC daily (~02:00 PDT)
-  workflow_dispatch:       # allow manual runs from the Actions tab
+    - cron: '0 */6 * * *'   # every 6 hours
+  workflow_dispatch:          # allow manual runs from the Actions tab
 
 permissions:
   contents: write
@@ -20,20 +20,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Fetch feed and update JSON
+      - name: Fetch feed, download images, update JSON
         run: python .github/scripts/scrape_instagram.py
         env:
           FEED_URL: https://rss.app/feeds/v1.1/PfYYrhORCtf8iLjw.json
           OUT_PATH: assets/data/instagram.json
+          IMG_DIR: assets/images/instagram
 
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet assets/data/instagram.json; then
+          git add assets/data/instagram.json assets/images/instagram
+          if git diff --cached --quiet; then
             echo "No changes to Instagram data."
           else
-            git add assets/data/instagram.json
             git commit -m "chore(instagram): refresh feed [skip ci]"
             git push
           fi

@@ -51,30 +51,22 @@
     <p class="hero__text hero__text--intro">that is</p>
     <h2 class="hero__text hero__text--name">Jesus <span class="hero__cross">✝</span> Christ</h2>
     <a href="about.html" class="btn btn-jesus">Who is Jesus?</a>
-    <a href="#daily-content" class="hero__scroll-indicator">
+    <a href="#showcase" class="hero__scroll-indicator">
       <span>↓</span>
     </a>
   </div>
 </section>
 
-<!-- ── Daily Content Banner ── -->
-<section class="daily-content-banner" id="daily-content">
+<!-- ── Homepage Showcase (replaces old daily verse; rotates ministry highlights,
+       featured Instagram posts, and daily Bible content) ── -->
+<section class="showcase-section" id="showcase">
   <div class="container">
-    <div class="daily-content-banner__content">
-      <span class="daily-content-banner__label" id="content-label">Today's Verse</span>
-      <div class="daily-content-banner__text" id="content-text">
-        "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life."
-      </div>
-      <cite class="daily-content-banner__reference" id="content-ref">— John 3:16</cite>
-      <div class="daily-content-banner__actions">
-        <button class="btn-content-action" id="share-content" title="Share this content">
-          <span>📤</span> Share
-        </button>
-        <button class="btn-content-action" id="new-content" title="Get new content">
-          <span>🔄</span> Refresh
-        </button>
-      </div>
-    </div>
+    <h2 class="section-title">✨ Featured From Our Ministry</h2>
+    <p class="showcase-section__intro">
+      Highlights from our ministry, a verse for today, and moments from our community —
+      curated and always refreshing.
+    </p>
+    <div id="showcase-container"></div>
   </div>
 </section>
 
@@ -245,5 +237,6 @@
 </footer>
 
 <script src="assets/js/main.js"></script>
+<script src="assets/js/showcase-carousel.js?v=1"></script>
 </body>
 </html>

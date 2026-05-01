@@ -1,0 +1,23 @@
+# Editor / IDE metadata — local only
+.kiro/
+.vscode/
+.idea/
+*.code-workspace
+
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.bak
+*.orig
+*~
+
+# Logs
+*.log
+
+# Dependency artifacts (if we ever add a build step)
+node_modules/
+__pycache__/
+*.pyc

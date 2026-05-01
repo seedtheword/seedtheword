@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Help — Seed the Word</title>
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    .admin-gate {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .admin-gate__card {
+      max-width: 420px;
+      width: 100%;
+      padding: 2.5rem 2rem;
+      border-radius: 20px;
+      text-align: center;
+    }
+    .admin-gate__icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .admin-gate__title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin: 0 0 0.5rem;
+      color: var(--text);
+    }
+    .admin-gate__hint {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin: 0 0 1.5rem;
+      line-height: 1.6;
+    }
+    .admin-gate__input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      background: rgba(255, 255, 255, 0.85);
+      margin-bottom: 0.75rem;
+      font-family: inherit;
+    }
+    .admin-gate__input:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.15);
+    }
+    .admin-gate__error {
+      color: #c0392b;
+      font-size: 0.85rem;
+      min-height: 1.25rem;
+      margin: 0 0 0.5rem;
+    }
+    .admin-content {
+      max-width: 900px;
+      margin: 3rem auto;
+      padding: 2.5rem 2rem;
+      display: none;
+    }
+    .admin-content.visible {
+      display: block;
+    }
+    .admin-content h1 {
+      font-size: 1.8rem;
+      margin: 0 0 0.5rem;
+      color: var(--text);
+    }
+    .admin-content .admin-subtitle {
+      color: var(--muted);
+      margin: 0 0 2rem;
+      font-size: 0.95rem;
+    }
+    .admin-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin: 2.5rem 0 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      color: var(--text);
+    }
+    .admin-content h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 1.5rem 0 0.5rem;
+      color: var(--text);
+    }
+    .admin-content p,
+    .admin-content li {
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: #3a3a3a;
+    }
+    .admin-content ul,
+    .admin-content ol {
+      padding-left: 1.5rem;
+      margin: 0.5rem 0 1.25rem;
+    }
+    .admin-content li {
+      margin-bottom: 0.35rem;
+    }
+    .admin-content code {
+      background: rgba(0, 0, 0, 0.06);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.875em;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      color: var(--green);
+    }
+    .admin-content pre {
+      background: #1a1a1a;
+      color: #f0f0f0;
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .admin-content pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+    }
+    .admin-content a {
+      color: var(--green);
+      text-decoration: underline;
+    }
+    .admin-card {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .admin-card__label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin: 0 0 0.3rem;
+      font-weight: 700;
+    }
+    .admin-card__title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      color: var(--text);
+    }
+    .admin-content .warning {
+      background: rgba(212, 165, 116, 0.12);
+      border-left: 4px solid var(--gold);
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .admin-content .danger {
+      background: rgba(192, 57, 43, 0.08);
+      border-left: 4px solid #c0392b;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin: 1rem 0 1.5rem;
+      color: #8a2318;
+    }
+    .admin-logout {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .admin-logout button {
+      margin-left: 0.5rem;
+      background: none;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      padding: 0.35rem 0.85rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: inherit;
+    }
+    .admin-logout button:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <div class="header-left">
+      <a href="index.html" class="site-logo">
+        <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">
+        Seed the Word
+      </a>
+    </div>
+    <div style="font-size: 0.9rem; color: var(--muted);">Admin area</div>
+  </div>
+</header>
+
+<!-- Gate -->
+<section class="admin-gate" id="admin-gate">
+  <div class="admin-gate__card glass-morphism">
+    <div class="admin-gate__icon">🔒</div>
+    <h1 class="admin-gate__title">Admin Help</h1>
+    <p class="admin-gate__hint">This area is for ministry admins. Enter the team password to continue.</p>
+    <form id="gate-form" autocomplete="off">
+      <input
+        id="gate-input"
+        class="admin-gate__input"
+        type="password"
+        name="k"
+        placeholder="Team password"
+        autocomplete="off"
+        autofocus
+        required>
+      <p class="admin-gate__error" id="gate-error" role="alert"></p>
+      <button type="submit" class="btn btn-primary btn-block">Unlock</button>
+    </form>
+  </div>
+</section>
+
+<!-- Content (hidden until unlocked) -->
+<main class="admin-content glass-morphism" id="admin-content">
+  <h1>Admin Help &amp; FAQ</h1>
+  <p class="admin-subtitle">Everything admins need to keep the site running. Bookmark this page.</p>
+
+  <div class="warning">
+    <strong>Heads up:</strong> this page has only a basic password gate on a public
+    website. Don't paste real passwords, API keys, or member data here. For those,
+    use a password manager or a private doc.
+  </div>
+
+  <h2>📋 Overview — what the site depends on</h2>
+  <p>Your website is static (GitHub Pages) but pulls live data from a few services. If something on the site looks wrong, one of these is usually why.</p>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Calendar &amp; Events</p>
+    <p class="admin-card__title">Google Calendar</p>
+    <p>Events shown on <code>news.html</code> come from the ministry's Google Calendar (<code>seedthewordministry@gmail.com</code>). Add, edit, or delete events in Google Calendar and they appear on the site within a minute.</p>
+    <p><strong>Dashboard:</strong> <a href="https://calendar.google.com" target="_blank" rel="noopener">calendar.google.com</a></p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Instagram Feed</p>
+    <p class="admin-card__title">rss.app → GitHub Action → site</p>
+    <p>The site's Instagram feed (on <code>community.html</code> and the homepage Showcase) is fetched from a public RSS-style feed we configured at rss.app. Every 6 hours, a GitHub Action downloads new posts + images into the repo.</p>
+    <p><strong>Feed source:</strong> <a href="https://rss.app" target="_blank" rel="noopener">rss.app</a></p>
+    <p><strong>Run/check the sync:</strong> Repo → <strong>Actions</strong> tab → <em>Scrape Instagram Feed</em></p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Livestream Status</p>
+    <p class="admin-card__title">Twitch</p>
+    <p>The "LIVE NOW / OFFLINE" card on <code>community.html</code> is currently schedule-based (Saturday 7–10 PM Pacific). It does not query Twitch directly.</p>
+    <p><strong>Dashboard:</strong> <a href="https://dashboard.twitch.tv" target="_blank" rel="noopener">dashboard.twitch.tv</a></p>
+    <p><strong>Channel:</strong> <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener">twitch.tv/seedtheword</a></p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Podcast / Audio</p>
+    <p class="admin-card__title">Spotify for Podcasters</p>
+    <p>The Spotify embed on <code>community.html</code> pulls episodes from our Spotify show. New episodes appear automatically when published.</p>
+    <p><strong>Dashboard:</strong> <a href="https://podcasters.spotify.com" target="_blank" rel="noopener">podcasters.spotify.com</a></p>
+    <p><strong>Show page:</strong> <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener">Seed the Word on Spotify</a></p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Contact Form</p>
+    <p class="admin-card__title">Formspree</p>
+    <p>Form submissions on <code>about.html</code> land in the ministry Gmail inbox via Formspree. First submission each cycle may need an email confirmation click.</p>
+    <p><strong>Dashboard:</strong> <a href="https://formspree.io/forms" target="_blank" rel="noopener">formspree.io/forms</a></p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Hosting</p>
+    <p class="admin-card__title">GitHub Pages</p>
+    <p>The site itself lives in a GitHub repo. Every commit to <code>main</code> auto-deploys in about 30 seconds. No server to manage.</p>
+    <p><strong>Repo:</strong> <a href="https://github.com/seedtheword/seedtheword" target="_blank" rel="noopener">github.com/seedtheword/seedtheword</a></p>
+  </div>
+
+  <h2>🔧 How to do common tasks</h2>
+
+  <h3>Add a new event to the calendar</h3>
+  <ol>
+    <li>Sign in to <a href="https://calendar.google.com" target="_blank" rel="noopener">calendar.google.com</a> with <code>seedthewordministry@gmail.com</code>.</li>
+    <li>Click anywhere in the calendar on the target date.</li>
+    <li>Enter a title, pick a start/end time, add a description.</li>
+    <li>Save. The event shows on the website within 1 minute.</li>
+  </ol>
+
+  <h3>Publish a new podcast episode</h3>
+  <ol>
+    <li>Go to <a href="https://podcasters.spotify.com" target="_blank" rel="noopener">podcasters.spotify.com</a> and sign in.</li>
+    <li>Click <strong>New Episode</strong> → upload the audio file (MP3 or WAV).</li>
+    <li>Add a short title and 1-2 sentence description.</li>
+    <li>Click <strong>Publish</strong>. The episode appears in the site's Spotify embed automatically (may take a minute).</li>
+  </ol>
+
+  <h3>Change the livestream schedule</h3>
+  <p>The "LIVE NOW / OFFLINE" logic is hardcoded in <code>assets/js/twitch-integration.js</code>. If the schedule changes (e.g., moves from Saturday 7 PM), the site needs a code edit. Ping the dev on duty.</p>
+
+  <h3>Trigger a fresh Instagram sync</h3>
+  <ol>
+    <li>Go to the repo's <strong>Actions</strong> tab.</li>
+    <li>Pick <em>Scrape Instagram Feed</em> from the left sidebar.</li>
+    <li>Click <strong>Run workflow</strong> → choose branch <code>main</code> → <strong>Run workflow</strong>.</li>
+    <li>Wait ~1 minute. The site updates within a minute of completion.</li>
+  </ol>
+
+  <h2>🧯 Troubleshooting — if the site looks broken</h2>
+
+  <h3>Calendar is empty on news.html</h3>
+  <ul>
+    <li>Check if Google Calendar has any upcoming events at all — maybe there just aren't any.</li>
+    <li>Open the browser console (F12) on the news page and look for red errors mentioning "calendar" or "403/401."</li>
+    <li>If the API quota is exceeded, calendar will silently fail. Wait an hour and retry, or check the Google Cloud Console for the API key.</li>
+  </ul>
+
+  <h3>Instagram images look broken</h3>
+  <ul>
+    <li>Check the repo's Actions tab. Did the most recent "Scrape Instagram Feed" run succeed?</li>
+    <li>If it's been failing for days, rss.app may have disconnected. Sign in to <a href="https://rss.app" target="_blank" rel="noopener">rss.app</a> and re-authorize the Instagram source.</li>
+    <li>Worst case: trigger a fresh run manually (see above).</li>
+  </ul>
+
+  <h3>Contact form isn't sending</h3>
+  <ul>
+    <li>Sign in to <a href="https://formspree.io/forms" target="_blank" rel="noopener">formspree.io/forms</a> and check the form's message log.</li>
+    <li>Verify the form is still "Active" and the ministry email is confirmed.</li>
+    <li>Free tier is 50 submissions/month — check the usage counter.</li>
+  </ul>
+
+  <h3>Podcast embed is blank or broken</h3>
+  <ul>
+    <li>Visit <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener">the show page</a> directly — if that loads, the embed will too.</li>
+    <li>If the show is marked private, public embedding fails. Verify in the podcasters dashboard.</li>
+  </ul>
+
+  <h3>Livestream says "LIVE" when we're not, or vice versa</h3>
+  <ul>
+    <li>The status is schedule-based, not from Twitch. It'll show LIVE Saturday 7–10 PM Pacific regardless.</li>
+    <li>If the actual stream time moves, the code needs an update. Ping the dev on duty.</li>
+  </ul>
+
+  <h3>Something else looks wrong</h3>
+  <ul>
+    <li>Hard-refresh the page first (<code>Ctrl+Shift+R</code> / <code>Cmd+Shift+R</code>). Most "broken" reports are stale browser cache.</li>
+    <li>Check <a href="https://github.com/seedtheword/seedtheword/actions" target="_blank" rel="noopener">the repo's Actions tab</a> for recent failed runs.</li>
+    <li>Check the browser console (F12 → Console tab) for red errors. Screenshot them before pinging the dev.</li>
+  </ul>
+
+  <h2>🔐 Where secrets live (NOT here)</h2>
+  <p>We intentionally don't store API keys, passwords, or tokens on this page. Secrets live in:</p>
+  <ul>
+    <li><strong>GitHub Secrets</strong> (repo → Settings → Secrets) — used by Actions</li>
+    <li><strong>Service dashboards</strong> (rss.app, Formspree, etc.) — each has its own login</li>
+    <li><strong>The ministry's shared password manager</strong> (Bitwarden, 1Password, or similar — set this up if you haven't)</li>
+  </ul>
+
+  <div class="danger">
+    <strong>Never paste a real password or API key here or anywhere on the public website.</strong>
+    Even on this admin page — anyone who knows the team password can read everything here.
+  </div>
+
+  <h2>📝 Recent changes</h2>
+  <p>Big-picture history of what's on the site and when it was set up:</p>
+  <ul>
+    <li><strong>May 2026</strong> — Added Spotify podcast embed, 4-icon header/footer socials, mobile nav fix, announcement timezone fix, 3-column contact section with Formspree.</li>
+    <li><strong>April 2026</strong> — Community page redesign (Discussion section, Stay Connected, How to Get Plugged In), Instagram feed via rss.app, bible-reading plan, Showcase Carousel on homepage, Discussion time corrections, footer simplified.</li>
+    <li><strong>Earlier</strong> — Initial site build, Netlify CMS setup then removed, calendar integration, ministry highlights grid.</li>
+  </ul>
+
+  <h2>🆘 If everything is on fire</h2>
+  <ul>
+    <li>The site deploys from <code>main</code>. To revert a bad change: repo → Commits → find the last good commit → "Revert."</li>
+    <li>If you can't figure out what broke, email the dev on duty. Include a screenshot of the broken page and the browser console if possible.</li>
+  </ul>
+
+  <div class="admin-logout">
+    Done here? <button id="admin-logout" type="button">Lock this page</button>
+  </div>
+</main>
+
+<footer class="site-footer" style="margin-top: 0;">
+  <div class="container" style="padding: 1rem 0;">
+    <div class="footer-bottom" style="border-top: none; padding-top: 0; justify-content: center;">
+      <p>&copy; 2026 Seed the Word Ministry — Admin area</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Salted SHA-256 hash of the team password.
+  // Do not paste the raw password anywhere on the page; it's not truly secret
+  // anyway, this gate just keeps casual visitors out of the admin notes.
+  const SALT = 'stwm-2026-admin-gate';
+  const EXPECTED_HASH = '2e3df09a3a06ebdacb4cf637764073674243ed9497da164c94a955f7ae931440';
+  const SESSION_KEY = 'stwm-admin-unlocked';
+
+  const gate = document.getElementById('admin-gate');
+  const content = document.getElementById('admin-content');
+  const form = document.getElementById('gate-form');
+  const input = document.getElementById('gate-input');
+  const errorEl = document.getElementById('gate-error');
+  const logoutBtn = document.getElementById('admin-logout');
+
+  async function sha256(text) {
+    const buf = new TextEncoder().encode(text);
+    const digest = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(digest))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  function unlock() {
+    gate.style.display = 'none';
+    content.classList.add('visible');
+  }
+
+  function lock() {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (_) {}
+    location.reload();
+  }
+
+  // Auto-unlock if we've already authenticated this session
+  try {
+    if (sessionStorage.getItem(SESSION_KEY) === '1') {
+      unlock();
+    }
+  } catch (_) {}
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.textContent = '';
+    const attempt = input.value || '';
+    const hash = await sha256(SALT + attempt);
+    if (hash === EXPECTED_HASH) {
+      try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (_) {}
+      unlock();
+    } else {
+      errorEl.textContent = 'Incorrect password. Try again.';
+      input.value = '';
+      input.focus();
+    }
+  });
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', lock);
+  }
+})();
+</script>
+
+</body>
+</html>

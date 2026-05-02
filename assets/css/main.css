@@ -764,7 +764,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   background-position: center top;
 }
 .hero--about   { background-image: url('../images/backgrounds/bible-in-background.jpg'); }
-.hero--bundles { background-image: url('../images/backgrounds/store.jpg'); }
+.hero--bundles { background-image: url('../images/backgrounds/gideon-background.jpg'); }
 .hero--donate  { background-image: url('../images/backgrounds/john-3-16.jpg'); }
 .hero--testimonies { background-image: url('../images/backgrounds/stw-bibles-giveaway.jpg'); }
 .hero--contact { background-image: url('../images/backgrounds/seed-the-word.jpg'); background-position: center top; }
@@ -7014,5 +7014,50 @@ a.contact-card:hover .contact-card__cta span {
   .bundle-slide__caption {
     font-size: 0.78rem;
     padding: 1.25rem 0.9rem 0.75rem;
+  }
+}
+
+
+/* ============================================================
+   Store page — content-area background wrapper
+   Wraps all sections below the hero with store.jpg behind them.
+   Sections keep their own translucent tints, so the image reads
+   through subtly without overpowering the cards.
+   ============================================================ */
+
+.store-page-bg {
+  position: relative;
+  background-image: url('../images/backgrounds/store.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Soft veil so text/cards remain readable over any image */
+.store-page-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(249, 246, 241, 0.78) 40%,
+    rgba(255, 255, 255, 0.72) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.store-page-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* On mobile, fixed backgrounds hurt performance and look off.
+   Switch to scroll behavior on smaller screens. */
+@media (max-width: 900px) {
+  .store-page-bg {
+    background-attachment: scroll;
   }
 }

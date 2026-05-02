@@ -1,0 +1,8 @@
+{
+  "_help": "Ordered list of media for this outreach card's slideshow. 'type' is either 'photo' or 'video'. Photos hold for 5.5s; videos play their full duration before advancing. Keep filenames simple (01.jpg, 02.jpg, video-01.mp4...). See admin-help.html for the full walkthrough.",
+  "media": [
+    { "file": "01.jpg", "type": "photo", "caption": "" },
+    { "file": "02.jpg", "type": "photo", "caption": "" },
+    { "file": "03.jpg", "type": "photo", "caption": "" }
+  ]
+}

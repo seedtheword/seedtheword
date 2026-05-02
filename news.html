@@ -163,15 +163,37 @@
   </div>
 </section>
 
-<!-- Ministry Highlights -->
-<section class="section section--white">
+<!-- Ministry Outreach & Highlights — combined section -->
+<section class="section section--white outreach-section" id="ministry-outreach">
   <div class="container">
-    <h2 class="section-title">🌟 Ministry Highlights</h2>
-    <p style="text-align:center;color:var(--muted);max-width:640px;margin:0 auto 2.5rem;font-size:1rem;line-height:1.7">
-      See how God is working through our community to spread His Word — photos, videos,
-      and moments from the field.
+    <h2 class="section-title">🙌 Ministry Outreach &amp; Highlights</h2>
+    <p class="outreach-subheading">
+      The field is where the Word takes root. Below are stories from outreaches
+      our team has walked, followed by photos and clips that round out the journey.
     </p>
 
+    <!-- 3 outreach cards with their own carousels -->
+    <div class="outreach-grid" id="ministry-outreach-cards" aria-live="polite">
+      <!-- Populated by assets/js/ministry-outreach.js -->
+    </div>
+
+    <!-- Testimony call-out below the carousel row -->
+    <div class="outreach-callout glass-morphism">
+      <h3>Your story belongs here too</h3>
+      <p>
+        Has God used our ministry to meet you in your walk with Jesus? Have you
+        watched Him move through an outreach? We'd love to feature your testimony
+        to encourage someone else on their way to the cross.
+      </p>
+      <div class="outreach-callout__actions">
+        <a class="btn btn-primary btn-sm" href="about.html#contact">Submit a Testimony</a>
+        <a class="btn btn-secondary btn-sm" href="https://t.me/seedtheword" target="_blank" rel="noopener">Share on Telegram</a>
+      </div>
+    </div>
+
+    <div class="outreach-divider"><span>Highlights from the field</span></div>
+
+    <!-- Ministry Highlights grid (unchanged from before) -->
     <div class="highlight-grid">
       <!-- 1: video -->
       <article class="highlight-tile highlight-tile--video">
@@ -277,33 +299,7 @@
   </div>
 </section>
 
-<!-- Ways to Help -->
-<section class="ways-section">
-  <div class="container">
-    <h2 class="section-title">Ways to Help</h2>
-    <p class="ways-intro">Every act of generosity makes a difference. Here is how you can get involved today.</p>
-    <div class="ways-cards">
-      <div class="ways-card">
-        <div class="ways-card__icon">❤️</div>
-        <h3 class="ways-card__title">Make a Donation</h3>
-        <p class="ways-card__desc">Help fund Bible bundles for newcomers to faith who cannot afford them. Every dollar goes directly toward welcoming someone into the Word.</p>
-        <a href="community.html" class="btn btn-primary">Give Now</a>
-      </div>
-      <div class="ways-card">
-        <div class="ways-card__icon">✉️</div>
-        <h3 class="ways-card__title">Contact Us</h3>
-        <p class="ways-card__desc">Have questions, want to volunteer, or know someone who needs a Bible? Reach out — we would love to hear from you.</p>
-        <a href="about.html#contact" class="btn btn-secondary">Get in Touch</a>
-      </div>
-      <div class="ways-card">
-        <div class="ways-card__icon">💬</div>
-        <h3 class="ways-card__title">Join Our Community</h3>
-        <p class="ways-card__desc">Join our Telegram group for daily encouragement, Bible reading, and a community of believers growing together in faith.</p>
-        <a href="#telegram" class="btn btn-telegram">Join on Telegram</a>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- Ways to Help section removed per team decision -->
 
 <footer class="site-footer">
   <div class="container">
@@ -366,5 +362,6 @@
 <script src="assets/js/main.js?v=8"></script>
 <script src="assets/js/google-calendar.js?v=12"></script>
 <script src="assets/js/livestream.js?v=2"></script>
+<script src="assets/js/ministry-outreach.js?v=1"></script>
 </body>
 </html>

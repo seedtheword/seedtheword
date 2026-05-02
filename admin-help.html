@@ -688,6 +688,72 @@
     <li>If a slideshow doesn't appear at all, open the console (F12) and look for a "could not load manifest" warning — usually it's a JSON typo.</li>
   </ol>
 
+  <h2>🙌 Managing Ministry Outreach cards (news.html)</h2>
+  <p>The "Ministry Outreach &amp; Highlights" section on the News page leads with up to <strong>3 outreach cards</strong>, each with its own rotating slideshow of photos and videos. Each card represents one real outreach (a date, a location, a short write-up, an optional testimony). New events are added by dropping a new folder of media in and appending one entry to a master index — no HTML edits needed.</p>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Master index (what the page shows)</p>
+    <p class="admin-card__title"><code>assets/data/ministry-outreach.json</code></p>
+    <p>Contains an ordered <code>events</code> array. Only the top 3 are displayed on the News page. Keep the most-recent event first. When there are fewer than 3 real events, an automatic "Want to join the next one?" invitation card fills the empty slot.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Media folders (one per outreach)</p>
+    <p class="admin-card__title"><code>assets/images/ministry-outreach/&lt;folder&gt;/</code></p>
+    <p>Each outreach gets its own subfolder. Pick a short kebab-case name that hints at the event (e.g. <code>slavic-awakening-bellevue-may-2026</code>). Inside, you drop the photos/videos and an <code>images.json</code> file listing them in play order.</p>
+  </div>
+
+  <h3>Add a new outreach card</h3>
+  <ol>
+    <li>In the repo, open <code>assets/images/ministry-outreach/</code>. Click <strong>Add file → Create new file</strong> and type a folder path like <code>bellevue-park-july-2026/images.json</code> (GitHub creates the folder for you as you type the slash).</li>
+    <li>Upload your photos and videos into that new folder. Prep guidelines:
+      <ul>
+        <li><strong>Photos:</strong> 1600×1200 or similar 4:3, under ~300 KB each. Rename to <code>01.jpg</code>, <code>02.jpg</code>, <code>03.jpg</code> … for predictable ordering.</li>
+        <li><strong>Videos:</strong> MP4, vertical or horizontal both fine. Keep under ~10 MB each; compress on <a href="https://www.freeconvert.com/video-compressor" target="_blank" rel="noopener">freeconvert.com</a> if needed. Name them <code>video-01.mp4</code>, <code>video-02.mp4</code>.</li>
+      </ul>
+    </li>
+    <li>Open the <code>images.json</code> file you just created and paste this template (adjust filenames to match what you uploaded):
+<pre><code>{
+  "media": [
+    { "file": "01.jpg", "type": "photo", "caption": "" },
+    { "file": "02.jpg", "type": "photo", "caption": "" },
+    { "file": "video-01.mp4", "type": "video", "caption": "Moment from the outreach" },
+    { "file": "03.jpg", "type": "photo", "caption": "" }
+  ]
+}</code></pre>
+    Order is play order. Photos hold for ~5.5 seconds; videos play their full length before advancing. Captions are optional — leave <code>""</code> to hide the caption strip.</li>
+    <li>Now open <code>assets/data/ministry-outreach.json</code> and add a new entry at the <em>top</em> of the <code>events</code> array (most-recent first):
+<pre><code>{
+  "folder": "bellevue-park-july-2026",
+  "title": "Summer Park Evangelism",
+  "date": "July 12, 2026",
+  "location": "Downtown Park, Bellevue",
+  "body": "A short paragraph about the outreach — who we partnered with, what you handed out, how the day felt.",
+  "testimony": ""
+},</code></pre>
+    Put a comma after the closing <code>&#125;</code> if there are other entries below it.</li>
+    <li>Commit both changes with a message like "Add July 12 Bellevue park outreach card." Hard-refresh <code>news.html</code> and the new card appears at the front of the outreach row.</li>
+  </ol>
+
+  <h3>Add a testimony to an existing outreach</h3>
+  <p>Open <code>assets/data/ministry-outreach.json</code>, find the right event, and fill in the <code>"testimony"</code> field with a 1-3 sentence first-person quote. Keep the double quotes around it. Example:</p>
+  <pre><code>"testimony": "Aliosha handed me a pocket New Testament and said he'd pray for my studies. I hadn't opened a Bible in 10 years. Two weeks later, I'm still reading."</code></pre>
+  <p>Commit. The quote appears in a gold-bordered block on the card.</p>
+
+  <h3>Change the order of outreach cards</h3>
+  <p>The order of the <code>events</code> array is the display order. Cut and paste the blocks to reorder. Only the top 3 appear on the page — the rest sit archived in the file for later.</p>
+
+  <h3>Remove an outreach from the page</h3>
+  <p>Two options:</p>
+  <ul>
+    <li><strong>Temporary hide</strong> — move the event's block further down in the <code>events</code> array (below position 3).</li>
+    <li><strong>Permanent delete</strong> — delete the event's block from <code>ministry-outreach.json</code>, then delete its folder from <code>assets/images/ministry-outreach/</code>.</li>
+  </ul>
+
+  <div class="warning">
+    <strong>Videos auto-play muted.</strong> Browsers block unmuted autoplay, so the slideshow plays videos with sound off. If you need audio, use Instagram or YouTube for that piece of content instead of an outreach card.
+  </div>
+
   <h2>🔧 How to do common tasks</h2>
 
   <h3>Add a new event to the calendar</h3>

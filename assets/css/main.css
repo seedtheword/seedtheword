@@ -7551,3 +7551,283 @@ a.contact-card:hover .contact-card__cta span {
     font-size: 1.25rem;
   }
 }
+
+
+/* ============================================================
+   Ministry Outreach cards — news.html
+   Three picture-forward cards with mixed-media (photo + video)
+   slideshows on top, testimony/details on bottom. Invitation
+   card styling for the "join us" placeholder.
+   ============================================================ */
+
+.outreach-section {
+  padding: 4rem 0 3rem;
+}
+
+.outreach-subheading {
+  text-align: center;
+  max-width: 780px;
+  margin: -1.5rem auto 2.5rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.outreach-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+  margin-bottom: 2.5rem;
+}
+
+.outreach-divider {
+  max-width: 680px;
+  margin: 2.5rem auto 2rem;
+  text-align: center;
+  position: relative;
+}
+.outreach-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,.1), transparent);
+}
+.outreach-divider span {
+  position: relative;
+  background: var(--cream, #fdf6ec);
+  padding: 0 1rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.outreach-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  overflow: hidden;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  box-shadow: 0 10px 32px rgba(15, 23, 42, 0.12);
+}
+
+.outreach-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+}
+
+.outreach-card__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #0d0d10;
+  overflow: hidden;
+}
+
+.outreach-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 900ms ease-in-out;
+  pointer-events: none;
+}
+.outreach-slide.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.outreach-slide--video {
+  background: #000;
+}
+.outreach-slide__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.outreach-slide__caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.5rem 0.9rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.4;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.40) 55%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+.outreach-slide-dots {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+  z-index: 3;
+}
+.outreach-slide-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.outreach-slide-dot:hover { background: rgba(255, 255, 255, 0.8); }
+.outreach-slide-dot.active {
+  background: #fff;
+  transform: scale(1.25);
+}
+
+.outreach-card__body {
+  padding: 1.25rem 1.35rem 1.4rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.outreach-card__date {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0;
+}
+.outreach-card__title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.3;
+  color: var(--text);
+}
+.outreach-card__location {
+  font-size: 0.85rem;
+  margin: 0;
+  color: var(--muted);
+  font-style: italic;
+}
+.outreach-card__body-text {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0.35rem 0 0;
+  color: var(--text);
+}
+.outreach-card__testimony {
+  margin: 0.85rem 0 0;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--text);
+  background: rgba(212, 165, 116, 0.08);
+  border-left: 3px solid var(--gold);
+  border-radius: 6px;
+}
+
+.outreach-card__cta {
+  margin-top: auto;
+  padding-top: 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--green);
+  text-decoration: none;
+  align-self: flex-start;
+  transition: gap 0.2s ease, color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.outreach-card__cta:hover {
+  gap: 0.45rem;
+  color: #1d3f1f;
+}
+
+/* Invitation card (placeholder/CTA) */
+.outreach-card--invite {
+  background: linear-gradient(145deg, rgba(212, 165, 116, 0.12), rgba(255, 255, 255, 0.6));
+  border: 2px dashed rgba(212, 165, 116, 0.55);
+}
+.outreach-card__invite {
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 0.65rem;
+  flex: 1;
+  min-height: 340px;
+}
+.outreach-card__invite-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.25rem;
+}
+.outreach-card__invite-actions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+/* Testimony-submission call-out (sits below the grid) */
+.outreach-callout {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 1.5rem 1.75rem;
+  border-radius: 16px;
+  text-align: center;
+  border-left: 4px solid var(--green);
+}
+.outreach-callout h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 0 0 0.45rem;
+  color: var(--text);
+}
+.outreach-callout p {
+  font-size: 0.93rem;
+  line-height: 1.65;
+  color: var(--text);
+  margin: 0 0 1rem;
+}
+.outreach-callout__actions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .outreach-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .outreach-card--invite { grid-column: 1 / -1; }
+}
+@media (max-width: 620px) {
+  .outreach-grid { grid-template-columns: 1fr; }
+  .outreach-card--invite { grid-column: auto; }
+  .outreach-card__invite { min-height: auto; padding: 1.75rem 1.25rem; }
+}

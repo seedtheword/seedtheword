@@ -1,0 +1,21 @@
+{
+  "_help": "Master index for the Ministry Outreach cards on news.html. Each entry points to a folder under assets/images/ministry-outreach/{folder}/ that contains an images.json manifest. Add new events by (1) creating a new folder, (2) dropping photos/videos + an images.json manifest inside it, and (3) appending a new entry to the 'events' list below. See admin-help.html for the full walkthrough. Keep 'events' ordered most-recent-first.",
+  "events": [
+    {
+      "folder": "slavic-awakening-bellevue-may-2026",
+      "title": "Slavic Christian Awakening Evangelism",
+      "date": "May 2, 2026",
+      "location": "Bellevue Square Park, Bellevue",
+      "body": "Partnered with Slavic Christian Awakening Church for a day of open-air evangelism in the heart of Bellevue Square Park. Conversations, prayer, and pocket Bibles shared with passersby.",
+      "testimony": ""
+    },
+    {
+      "folder": "fishers-of-men-uw-april-2026",
+      "title": "Fishers of Men — UW Seattle",
+      "date": "April 17, 2026",
+      "location": "University of Washington, Seattle",
+      "body": "A day on the UW campus with the Fishers of Men team — student conversations, pocket Gideon NTs handed out, and prayers over the next generation walking those halls.",
+      "testimony": ""
+    }
+  ]
+}

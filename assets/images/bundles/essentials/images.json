@@ -1,0 +1,13 @@
+{
+  "_help": "List every image file in this folder here. The Essentials bundle card slideshow reads this list and rotates through them. Admins: add a new filename to 'images' (with its caption) after uploading a new photo, then commit. See admin-help.html for the full walkthrough.",
+  "images": [
+    {
+      "file": "01-welcome-bundle.jpg",
+      "caption": "The classic Essentials set, ready to gift"
+    },
+    {
+      "file": "02-hands-on-bible.jpg",
+      "caption": "Gideon New Testament in hand"
+    }
+  ]
+}

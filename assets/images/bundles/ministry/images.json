@@ -1,0 +1,13 @@
+{
+  "_help": "List every image file in this folder here. The Ministry calling card slideshow reads this list and rotates through them. Admins: add a new filename to 'images' (with its caption) after uploading a new photo, then commit. See admin-help.html for the full walkthrough.",
+  "images": [
+    {
+      "file": "01-premium-engraved.jpg",
+      "caption": "A personalized, engraved Bible"
+    },
+    {
+      "file": "02-john-3-16.jpg",
+      "caption": "John 3:16 — for God so loved the world"
+    }
+  ]
+}

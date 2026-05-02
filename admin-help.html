@@ -625,6 +625,69 @@
     <strong>Common syntax mistake:</strong> every property inside a block needs a comma at the end, and every block needs a comma after its closing <code>&#125;</code> (except optionally the last one). If you commit a broken file, the whole section will just disappear until it's fixed. When in doubt, ping the dev and copy-paste the example above exactly.
   </div>
 
+  <h2>🖼️ Managing bundle slideshow images (store.html)</h2>
+  <p>Each of the three bundle cards on the <strong>Store page</strong> has a rotating slideshow at the top of the card. The photos are pulled from three dedicated folders in the repo, and each folder has a tiny manifest file (<code>images.json</code>) that tells the site which photos to show and what caption to put on them. This is designed so you can keep the store feeling fresh without touching any HTML or CSS.</p>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Folders to edit</p>
+    <p class="admin-card__title"><code>assets/images/bundles/</code></p>
+    <p>Three subfolders, one per bundle card:</p>
+    <ul style="margin:0.4rem 0 0 1rem;">
+      <li><code>assets/images/bundles/essentials/</code> — Essentials card</li>
+      <li><code>assets/images/bundles/lifegroup/</code> — Life Group + Friends Starter card</li>
+      <li><code>assets/images/bundles/ministry/</code> — Jesus' Favorite Disciple / Ministry Needs card</li>
+    </ul>
+  </div>
+
+  <h3>Add a new photo to a bundle slideshow</h3>
+  <ol>
+    <li>Resize and compress your photo first. Aim for <strong>1600&times;900 px</strong> (16:9) and under <strong>300 KB</strong>. A free tool like <a href="https://squoosh.app" target="_blank" rel="noopener">squoosh.app</a> handles this in one step.</li>
+    <li>Rename the file with a numeric prefix so the order is obvious — for example <code>03-group-study.jpg</code>. Use lowercase and dashes. No spaces, no apostrophes, no weird characters.</li>
+    <li>In the GitHub repo, navigate into the right bundle folder (e.g. <code>assets/images/bundles/lifegroup/</code>) and click <strong>Add file → Upload files</strong>. Drag your photo in. Commit.</li>
+    <li>In that same folder, open <code>images.json</code> and click the pencil icon to edit. Add a new block inside the <code>"images"</code> array:
+<pre><code>{
+  "file": "03-group-study.jpg",
+  "caption": "Friday night life group at Riverside"
+}</code></pre>
+    </li>
+    <li>Important: put a comma after the previous block's closing <code>&#125;</code> so the JSON stays valid. The last block in the array should <em>not</em> have a trailing comma.</li>
+    <li>Commit with a message like "Add group study photo to life group bundle." Hard-refresh the store page — the new slide rotates in automatically.</li>
+  </ol>
+
+  <h3>Replace a photo</h3>
+  <p>Upload the replacement with the <em>same filename</em>, overwrite the existing one when GitHub asks, and commit. The caption in <code>images.json</code> stays the same. That's it.</p>
+
+  <h3>Remove a photo</h3>
+  <ol>
+    <li>Delete the image file from the bundle folder (click the file in GitHub → trash icon → commit).</li>
+    <li>Open <code>images.json</code> in the same folder and delete the matching block (including its surrounding curly braces and the comma).</li>
+    <li>Commit. The slide is gone.</li>
+  </ol>
+
+  <h3>Reorder the slides</h3>
+  <p>The order of blocks in <code>"images"</code> is the order they appear. Cut and paste them into whatever order you want, commit, done. Renaming the file prefixes (<code>01-</code>, <code>02-</code>, etc.) is a courtesy for future admins but not required for the rotation to work.</p>
+
+  <h3>Change a caption</h3>
+  <p>Open <code>images.json</code>, edit the <code>"caption"</code> field on the right block, keep the double quotes around the new text, commit. Captions can be empty (<code>"caption": ""</code>) — the caption strip just won't show on that slide.</p>
+
+  <div class="warning">
+    <strong>JSON syntax gotchas:</strong>
+    <ul style="margin-top:0.4rem;">
+      <li>Every string needs <em>double</em> quotes. Don't use single quotes or smart quotes.</li>
+      <li>Every block (pair of <code>&#123;&#125;</code>) except the last one needs a comma after it.</li>
+      <li>Never put a comma after the last block in the array.</li>
+      <li>If the JSON is broken, the slideshow on that card just hides itself and logs a warning in the browser console. The rest of the page keeps working.</li>
+    </ul>
+  </div>
+
+  <h3>Test everything at once</h3>
+  <ol>
+    <li>Go to <a href="store.html" target="_blank" rel="noopener">store.html</a> and hard-refresh (<code>Ctrl+Shift+R</code> / <code>Cmd+Shift+R</code>).</li>
+    <li>You should see each bundle card rotating through its photos every ~5.5 seconds, with dots at the bottom of each slideshow.</li>
+    <li>Hover over a card — the rotation pauses. Click a dot — it jumps to that slide.</li>
+    <li>If a slideshow doesn't appear at all, open the console (F12) and look for a "could not load manifest" warning — usually it's a JSON typo.</li>
+  </ol>
+
   <h2>🔧 How to do common tasks</h2>
 
   <h3>Add a new event to the calendar</h3>
@@ -712,6 +775,7 @@
   <h2>📝 Recent changes</h2>
   <p>Big-picture history of what's on the site and when it was set up:</p>
   <ul>
+    <li><strong>May 2026</strong> — Store page rebuilt around three tone-differentiated bundles (Essentials, Life Group, Ministry calling). Each bundle card now has a rotating slideshow powered by per-folder <code>images.json</code> manifests for easy admin updates. Added a general "Support the Ministry" PayPal quick-give panel.</li>
     <li><strong>May 2026</strong> — Added Spotify podcast embed, 4-icon header/footer socials, mobile nav fix, announcement timezone fix, 3-column contact section with Formspree.</li>
     <li><strong>April 2026</strong> — Community page redesign (Discussion section, Stay Connected, How to Get Plugged In), Instagram feed via rss.app, bible-reading plan, Showcase Carousel on homepage, Discussion time corrections, footer simplified.</li>
     <li><strong>Earlier</strong> — Initial site build, Netlify CMS setup then removed, calendar integration, ministry highlights grid.</li>

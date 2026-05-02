@@ -6903,3 +6903,116 @@ a.contact-card:hover .contact-card__cta span {
     gap: 0.5rem;
   }
 }
+
+
+/* ============================================================
+   Bundle card slideshows — store.html
+   Rotates through images in assets/images/bundles/{key}/ using
+   each bundle's images.json manifest. JS: bundle-slideshow.js
+   ============================================================ */
+
+.bundle-slideshow {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0d0d10;
+  overflow: hidden;
+  border-radius: 0;
+}
+
+.bundle-card-v2 .bundle-slideshow {
+  /* Slideshow sits between __header and __body */
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bundle-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 900ms ease-in-out;
+  pointer-events: none;
+}
+
+.bundle-slide.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bundle-slide__caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.75rem 1rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.45) 55%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.bundle-slide__caption:empty {
+  display: none;
+}
+
+.bundle-slide-dots {
+  position: absolute;
+  bottom: 0.55rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  z-index: 3;
+}
+
+.bundle-slide-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.bundle-slide-dot:hover {
+  background: rgba(255, 255, 255, 0.75);
+  transform: scale(1.15);
+}
+
+.bundle-slide-dot.active {
+  background: #fff;
+  transform: scale(1.25);
+}
+
+/* Slightly softer frame for the ministry-invitation card */
+.bundle-card-v2--invitation .bundle-slideshow {
+  aspect-ratio: 21 / 9;
+}
+
+@media (max-width: 640px) {
+  .bundle-slideshow {
+    aspect-ratio: 4 / 3;
+  }
+  .bundle-card-v2--invitation .bundle-slideshow {
+    aspect-ratio: 16 / 9;
+  }
+  .bundle-slide__caption {
+    font-size: 0.78rem;
+    padding: 1.25rem 0.9rem 0.75rem;
+  }
+}

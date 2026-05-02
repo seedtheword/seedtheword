@@ -1,0 +1,13 @@
+{
+  "_help": "List every image file in this folder here. The Life Group bundle card slideshow reads this list and rotates through them. Admins: add a new filename to 'images' (with its caption) after uploading a new photo, then commit. See admin-help.html for the full walkthrough.",
+  "images": [
+    {
+      "file": "01-youth-outreach.jpg",
+      "caption": "Youth outreach in action"
+    },
+    {
+      "file": "02-team-gathering.jpg",
+      "caption": "Our team gathered together"
+    }
+  ]
+}

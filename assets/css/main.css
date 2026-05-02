@@ -7460,3 +7460,94 @@ a.contact-card:hover .contact-card__cta span {
   .builder-intro { padding: 1.4rem 1.25rem; }
   .builder-intro__title { font-size: 1.35rem; }
 }
+
+
+/* ============================================================
+   Permanent "A Message from Our Friend" video card
+   Sits above the dynamic partner-ministries grid on community.html.
+   ============================================================ */
+
+.friend-message {
+  max-width: 880px;
+  margin: 0 auto 2.5rem;
+  padding: 1.5rem;
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: minmax(260px, 1.05fr) 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+  border-left: 4px solid var(--gold);
+}
+
+.friend-message__video {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0d0d10;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.25);
+  aspect-ratio: 9 / 16;
+  max-height: 480px;
+}
+
+.friend-message__video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.friend-message__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.friend-message__eyebrow {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--gold);
+  margin: 0;
+}
+
+.friend-message__title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--text);
+  margin: 0;
+}
+
+.friend-message__from {
+  font-size: 0.92rem;
+  color: var(--muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.friend-message__body p {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text);
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .friend-message {
+    grid-template-columns: 1fr;
+    padding: 1.25rem;
+  }
+  .friend-message__video {
+    max-height: 520px;
+    margin: 0 auto;
+    max-width: 320px;
+    aspect-ratio: 9 / 16;
+  }
+  .friend-message__title {
+    font-size: 1.25rem;
+  }
+}

@@ -553,6 +553,78 @@
     <strong>Don't worry if you break something.</strong> GitHub tracks every change. If you commit a bad image or the site breaks after your edit, we can revert the change in under a minute. Nothing is permanent. Just ping the dev with the commit message you used and they'll sort it out.
   </div>
 
+  <h2>🎧 Managing "What We're Listening To" &amp; Partner Ministries</h2>
+  <p>Both sections on the <strong>Community page</strong> read from a simple list in one JavaScript file. Adding or removing items is a small, guided edit — no images to upload, no styling to touch.</p>
+
+  <div class="admin-card">
+    <p class="admin-card__label">File to edit</p>
+    <p class="admin-card__title"><code>assets/js/recommendations.js</code></p>
+    <p>This file has two lists near the top: <code>LISTENING_ITEMS</code> (for "What We're Listening To") and <code>PARTNER_MINISTRIES</code>. Add or remove entries in those arrays — that's the whole workflow.</p>
+  </div>
+
+  <h3>Add a Spotify episode to "What We're Listening To"</h3>
+  <ol>
+    <li>Open the Spotify episode or show in your browser.</li>
+    <li>Copy the ID from the URL. Example: from <code>https://open.spotify.com/episode/<strong>1Y4cct2gyvhYJYLIxwuley</strong></code>, the ID is <code>1Y4cct2gyvhYJYLIxwuley</code>.</li>
+    <li>In the repo, navigate to <code>assets/js/recommendations.js</code> and click the pencil icon to edit.</li>
+    <li>Inside the <code>LISTENING_ITEMS</code> array, add a new block like:
+<pre><code>{
+  kind: 'spotify',
+  type: 'episode',     // or 'show'
+  id: 'PASTE_ID_HERE',
+  title: "Episode title",
+  source: 'Podcast name — Episode #',
+  note: "One line about why we recommend this.",
+},</code></pre>
+    </li>
+    <li>Add a commit message like "Add Sam Petrov episode to recommendations" and click <strong>Commit changes</strong>.</li>
+    <li>Wait 30–60 seconds, hard-refresh the Community page, and the new card appears.</li>
+  </ol>
+
+  <h3>Add a YouTube video</h3>
+  <p>Same workflow, but use <code>kind: 'youtube'</code> and use the video's ID (the string after <code>v=</code> in a YouTube URL).</p>
+  <pre><code>{
+  kind: 'youtube',
+  id: 'dQw4w9WgXcQ',
+  title: 'Video title',
+  source: 'Channel name',
+  note: "Why this stood out.",
+},</code></pre>
+
+  <h3>Add a plain link (article, sermon on another site)</h3>
+  <pre><code>{
+  kind: 'link',
+  url: 'https://example.com/full-url',
+  title: 'Article or sermon title',
+  source: 'Author or ministry',
+  note: "Why it matters.",
+  image: 'assets/images/featured/some-image.jpg', // optional thumbnail
+},</code></pre>
+
+  <h3>Remove an item</h3>
+  <p>Delete its full block (the curly braces <code>&#123; ... &#125;</code> and the comma after) from the array. Commit. Card disappears.</p>
+
+  <h3>Reorder items</h3>
+  <p>Cut and paste the blocks into a new order. The order in the array is the order on the page.</p>
+
+  <h3>Add a Partner Ministry</h3>
+  <ol>
+    <li>If you have a partner logo, upload it first to <code>assets/images/partners/</code> (create the folder if it doesn't exist — github.com's web UI lets you do this while uploading a file).</li>
+    <li>In <code>recommendations.js</code>, add a block to the <code>PARTNER_MINISTRIES</code> array:
+<pre><code>{
+  name: 'Partner Name',
+  url: 'https://partner-website.com',
+  logo: 'assets/images/partners/partner-logo.png', // optional
+  description: 'One sentence about the partnership.',
+},</code></pre>
+    </li>
+    <li>Commit. The new card appears on the Community page.</li>
+  </ol>
+
+  <div class="warning">
+    <strong>Common syntax mistake:</strong> every property inside a block needs a comma at the end, and every block needs a comma after its closing <code>&#125;</code> (except optionally the last one). If you commit a broken file, the whole section will just disappear until it's fixed. When in doubt, ping the dev and copy-paste the example above exactly.
+  </div>
+
   <h2>🔧 How to do common tasks</h2>
 
   <h3>Add a new event to the calendar</h3>

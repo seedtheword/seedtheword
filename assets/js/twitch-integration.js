@@ -68,15 +68,19 @@ class TwitchLiveCard {
 
   offlineMarkup() {
     const next = this.getNextSaturday();
+    const tonightSoon = this.isTonightBeforeLive();
     return `
       <div class="livestream-card glass-morphism offline">
         <div class="livestream-card__header">
-          <span class="offline-pill">OFFLINE</span>
+          <span class="offline-pill">${tonightSoon ? 'TONIGHT' : 'OFFLINE'}</span>
           <h3 class="livestream-card__title">Study Saturday Live</h3>
         </div>
         <p class="livestream-card__desc">
-          Our weekly livestream returns <strong>${next}</strong> — Bible study,
-          fellowship, and prayer with members worldwide.
+          ${tonightSoon
+            ? `We're going live <strong>tonight at 7:00 PM PT</strong> — Bible study,
+               fellowship, and prayer with members worldwide. See you there.`
+            : `Our weekly livestream returns <strong>${next}</strong> — Bible study,
+               fellowship, and prayer with members worldwide.`}
         </p>
         <div class="livestream-card__actions">
           <a href="https://twitch.tv/${TWITCH_CHANNEL}" target="_blank" rel="noopener" class="btn btn-secondary">
@@ -90,15 +94,28 @@ class TwitchLiveCard {
     `;
   }
 
+  /** True when we're on a Saturday in PT but the 7 PM stream hasn't started yet. */
+  isTonightBeforeLive() {
+    const pt = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    return pt.getDay() === 6 && pt.getHours() < 19;
+  }
+
   getNextSaturday() {
     const now = new Date();
     const pt = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
     const next = new Date(pt);
-    const diff = (6 - pt.getDay() + 7) % 7 || 7;
-    // If it's Saturday but already past 10 PM PT, skip to next Saturday
-    if (pt.getDay() === 6 && pt.getHours() >= 22) {
-      next.setDate(next.getDate() + 7);
+    const day = pt.getDay();
+    const hour = pt.getHours();
+
+    if (day === 6 && hour < 19) {
+      // Saturday before 7 PM PT — stream is TODAY, not next week.
+      // Keep `next` as today.
+    } else if (day === 6 && hour >= 19 && hour < 22) {
+      // Saturday during the live window — shouldn't reach here (we'd be in liveMarkup),
+      // but if it does, fall through to today.
     } else {
+      // Jump to the upcoming Saturday (1-7 days out).
+      const diff = (6 - day + 7) % 7 || 7;
       next.setDate(next.getDate() + diff);
     }
     next.setHours(19, 0, 0, 0);

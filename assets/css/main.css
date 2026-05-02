@@ -6204,3 +6204,86 @@ a.contact-card:hover .contact-card__cta span {
   line-height: 1.6;
   color: var(--muted);
 }
+
+
+/* ============================================================
+   Stay Connected — sub-section structure (Discussion + Feeds)
+   ============================================================ */
+
+.stay-sub {
+  max-width: 1080px;
+  margin: 3rem auto 0;
+}
+.stay-sub:first-of-type {
+  margin-top: 0;
+}
+
+.stay-sub__title {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem;
+  color: var(--text);
+}
+
+.stay-sub__desc {
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto 1.5rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* ============================================================
+   Bridge teasers — small pull toward Friends in Jesus section
+   ============================================================ */
+
+.bridge-teaser {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 900px;
+  margin: 1.5rem auto 0;
+  padding: 0.85rem 1.25rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(212, 165, 116, 0.14), rgba(44, 95, 46, 0.1));
+  border: 1px solid rgba(212, 165, 116, 0.35);
+  text-decoration: none;
+  color: var(--text);
+  font-size: 0.9rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.bridge-teaser:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(31, 38, 135, 0.14);
+  background: linear-gradient(90deg, rgba(212, 165, 116, 0.22), rgba(44, 95, 46, 0.16));
+}
+
+.bridge-teaser__label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.bridge-teaser__text {
+  flex: 1;
+  color: var(--text);
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .bridge-teaser {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding: 0.85rem 1rem;
+  }
+}

@@ -2,6 +2,13 @@
    Google Calendar Integration - Single Source of Truth
    ============================================================ */
 
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
 class GoogleCalendarIntegration {
   constructor() {
     // Your actual Google Calendar API credentials
@@ -493,11 +500,29 @@ class GoogleCalendarIntegration {
     const now = new Date();
     const start = this.getEventStart(event);
     const end = this.getEventEnd(event);
-    if (!start || !end) return 'upcoming';
-    
+    if (!start || !end) return 'future';
+
+    // Currently airing → live
     if (start <= now && end >= now) return 'live';
-    if (start > now) return 'upcoming';
-    return 'ongoing';
+
+    // Recurring / routine (events with recurrence rules) → ongoing (blue)
+    if (event.recurrence && start > now) return 'ongoing';
+
+    // Starts today → today (green)
+    const startOfLocalDay = (d) => {
+      const c = new Date(d);
+      c.setHours(0, 0, 0, 0);
+      return c;
+    };
+    const today = startOfLocalDay(now);
+    const startDay = startOfLocalDay(start);
+    const dayDiff = Math.round((startDay - today) / (1000 * 60 * 60 * 24));
+
+    if (dayDiff === 0) return 'today';
+    if (dayDiff > 0 && dayDiff <= 7) return 'upcoming'; // within a week → yellow
+    if (dayDiff > 7) return 'future';                   // further out → purple
+
+    return 'ongoing'; // past non-recurring events default here
   }
   
   formatEventTime(date) {
@@ -553,33 +578,53 @@ class GoogleCalendarIntegration {
   showEventModal(event, date) {
     const modal = document.getElementById('event-modal');
     const modalBody = document.getElementById('event-modal-body');
-    
+
     if (!modal || !modalBody) return;
-    
+
     const startDate = this.getEventStart(event);
     const endDate = this.getEventEnd(event);
     if (!startDate || !endDate) return;
-    
+
+    const title = event.summary || event.title || 'Event';
+    const niceTime = (d) => d.toLocaleTimeString('en-US', {
+      hour: 'numeric', minute: '2-digit', hour12: true,
+    });
+    const niceDate = startDate.toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+    });
+    const eventType = this.getEventType(event);
+    const eventTypeLabels = {
+      live: { label: 'LIVE NOW', className: 'event-modal__badge--live' },
+      today: { label: 'TODAY', className: 'event-modal__badge--today' },
+      upcoming: { label: 'UPCOMING', className: 'event-modal__badge--upcoming' },
+      ongoing: { label: 'RECURRING', className: 'event-modal__badge--ongoing' },
+      future: { label: 'FUTURE', className: 'event-modal__badge--future' },
+    };
+    const typeInfo = eventTypeLabels[eventType] || eventTypeLabels.upcoming;
+
+    const hasLink = event.htmlLink && event.htmlLink !== '#';
+
     modalBody.innerHTML = `
-      <div class="event-modal__content glass-morphism">
-        <h3 class="event-modal__title">${event.summary || event.title}</h3>
-        <div class="event-modal__details">
-          <p><strong>📅 Date:</strong> ${this.formatEventTime(startDate)}</p>
-          <p><strong>⏰ Duration:</strong> ${startDate.toLocaleTimeString()} - ${endDate.toLocaleTimeString()}</p>
-          ${event.location ? `<p><strong>📍 Location:</strong> ${event.location}</p>` : ''}
-          ${event.description ? `<p><strong>📝 Description:</strong> ${event.description}</p>` : ''}
-        </div>
-        <div class="event-modal__actions">
-          <button class="btn btn-primary glass-morphism" onclick="googleCalendar.joinEvent('${event.htmlLink || '#'}')">
-            Join Event
-          </button>
-          <button class="btn btn-secondary glass-morphism" onclick="googleCalendar.addToCalendar('${startDate.toISOString()}', '${event.summary || event.title}')">
-            Add to My Calendar
-          </button>
-        </div>
+      <span class="event-modal__badge ${typeInfo.className}">${typeInfo.label}</span>
+      <h3 class="event-modal__title">${escapeHtml(title)}</h3>
+      <ul class="event-modal__meta">
+        <li><span aria-hidden="true">📅</span><span>${niceDate}</span></li>
+        <li><span aria-hidden="true">⏰</span><span>${niceTime(startDate)} – ${niceTime(endDate)}</span></li>
+        ${event.location ? `<li><span aria-hidden="true">📍</span><span>${escapeHtml(event.location)}</span></li>` : ''}
+      </ul>
+      ${event.description ? `<div class="event-modal__desc">${escapeHtml(event.description).replace(/\|/g, '<br>').replace(/\n/g, '<br>')}</div>` : ''}
+      <div class="event-modal__actions">
+        ${hasLink ? `
+          <a class="btn btn-primary" href="${event.htmlLink}" target="_blank" rel="noopener">
+            View on Google Calendar
+          </a>
+        ` : ''}
+        <button class="btn btn-secondary" onclick="googleCalendar.addToCalendar('${startDate.toISOString()}', ${JSON.stringify(title)})">
+          Add to My Calendar
+        </button>
       </div>
     `;
-    
+
     modal.style.display = 'flex';
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';

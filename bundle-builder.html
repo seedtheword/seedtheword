@@ -56,11 +56,20 @@
   </div>
 </section>
 
-<main class="section section--white">
+<div class="store-page-bg">
+
+<main class="section section--white" style="padding: 3rem 0 4rem;">
   <div class="container">
 
-    <div class="builder-mission">
-      Starting out with only $2 per Bible, you can help build a special welcoming gift for someone you believe or know may be a newcomer to our faith and help them find the necessary resources to grow in the Word that Is Jesus Christ.
+    <div class="builder-intro glass-morphism">
+      <p class="builder-intro__eyebrow">How This Works</p>
+      <h2 class="builder-intro__title" id="builder-intro-title">Build your gift, together with us</h2>
+      <p class="builder-intro__body" id="builder-intro-body">
+        Starting at <strong>$2 per Bible</strong> (our ministry cost), you can build a
+        warm welcoming gift for someone taking their first step toward the Word.
+        Every dollar above cost pays forward the next bundle — <em>give as you feel led.</em>
+      </p>
+      <div id="builder-intro-contents" style="display:none;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid rgba(0,0,0,0.08);text-align:left;"></div>
     </div>
 
     <div class="builder-layout">
@@ -69,37 +78,44 @@
       <div class="builder-controls">
 
         <!-- Step 1 -->
-        <div class="builder-step">
+        <div class="builder-step glass-morphism">
           <h2 class="builder-step__head">
-            <span class="builder-step__num">1</span> Choose Your Base Bundle
+            <span class="builder-step__num">1</span> Choose Your Bundle
           </h2>
           <div class="bundle-radios">
             <label class="bundle-radio">
-              <input type="radio" name="bundle" value="essentials" data-price="2" data-name="Essentials Welcome Bundle">
+              <input type="radio" name="bundle" value="essentials" data-price="2" data-name="Essentials">
               <div class="bundle-radio__card">
-                <span class="bundle-radio__name">📖 Essentials Welcome Bundle</span>
-                <span class="bundle-radio__price">From $2.00</span>
+                <div class="bundle-radio__thumb" style="background-image:url('assets/images/bundles/essentials/01-welcome-bundle.jpg')"></div>
+                <div class="bundle-radio__body">
+                  <span class="bundle-radio__name">📖 Essentials</span>
+                  <span class="bundle-radio__blurb">A warm starter gift — pocket Bible plus hand-picked items for a newcomer.</span>
+                  <span class="bundle-radio__price">From $2 per Bible</span>
+                </div>
               </div>
             </label>
+
             <label class="bundle-radio">
-              <input type="radio" name="bundle" value="devotional" data-price="2" data-name="Devotional Journey Bundle">
+              <input type="radio" name="bundle" value="lifegroup" data-price="2" data-name="Life Group + Friends Starter">
               <div class="bundle-radio__card">
-                <span class="bundle-radio__name">✝️ Devotional Journey Bundle</span>
-                <span class="bundle-radio__price">From $2.00</span>
+                <div class="bundle-radio__thumb" style="background-image:url('assets/images/bundles/lifegroup/01-youth-outreach.jpg')"></div>
+                <div class="bundle-radio__body">
+                  <span class="bundle-radio__name">✝️ Life Group + Friends Starter</span>
+                  <span class="bundle-radio__blurb">Up to 5 Essentials sets for your circle — with optional full-size Bible upgrades.</span>
+                  <span class="bundle-radio__price">From $2 per Bible · up to 5</span>
+                </div>
               </div>
             </label>
+
             <label class="bundle-radio">
-              <input type="radio" name="bundle" value="complete" data-price="2" data-name="Complete Faith Starter">
+              <input type="radio" name="bundle" value="ministry" data-price="0" data-name="Jesus' Favorite Disciple / Ministry Needs">
               <div class="bundle-radio__card">
-                <span class="bundle-radio__name">🕊️ Complete Faith Starter</span>
-                <span class="bundle-radio__price">From $2.00</span>
-              </div>
-            </label>
-            <label class="bundle-radio">
-              <input type="radio" name="bundle" value="premium" data-price="2" data-name="Premium Engraved Bundle">
-              <div class="bundle-radio__card">
-                <span class="bundle-radio__name">💎 Premium Engraved Bundle</span>
-                <span class="bundle-radio__price">From $2.00</span>
+                <div class="bundle-radio__thumb" style="background-image:url('assets/images/bundles/ministry/01-premium-engraved.jpg')"></div>
+                <div class="bundle-radio__body">
+                  <span class="bundle-radio__name">🕊️ Jesus' Favorite Disciple</span>
+                  <span class="bundle-radio__blurb">A calling, not a purchase. Tell us your story — we'll walk with you.</span>
+                  <span class="bundle-radio__price">Story-led · give as led</span>
+                </div>
               </div>
             </label>
           </div>
@@ -107,7 +123,7 @@
         </div>
 
         <!-- Step 2 -->
-        <div class="builder-step">
+        <div class="builder-step glass-morphism">
           <h2 class="builder-step__head">
             <span class="builder-step__num">2</span> Personalise Your Gift
           </h2>
@@ -123,7 +139,7 @@
         </div>
 
         <!-- Step 3 -->
-        <div class="builder-step">
+        <div class="builder-step glass-morphism">
           <h2 class="builder-step__head">
             <span class="builder-step__num">3</span>
             <button class="accordion-toggle" aria-expanded="false" aria-controls="details-body" id="details-toggle">
@@ -164,7 +180,17 @@
             <span class="summary-panel__total-label">Estimated Total</span>
             <span class="summary-panel__total" id="price-display">$2.00</span>
           </div>
-          <div class="summary-panel__actions">
+
+          <!-- Quick-give pills for ministry-track supporters -->
+          <p class="support-panel__label" style="margin-bottom:.35rem;">Support the ministry</p>
+          <div class="builder-support-row">
+            <a class="support-pill" href="https://www.paypal.com/paypalme/DAgeyev/25" target="_blank" rel="noopener">$25</a>
+            <a class="support-pill" href="https://www.paypal.com/paypalme/DAgeyev/50" target="_blank" rel="noopener">$50</a>
+            <a class="support-pill" href="https://www.paypal.com/paypalme/DAgeyev/100" target="_blank" rel="noopener">$100</a>
+            <a class="support-pill support-pill--open" href="https://www.paypal.me/DAgeyev" target="_blank" rel="noopener">Custom →</a>
+          </div>
+
+          <div class="summary-panel__actions" style="margin-top:1.25rem;">
             <button class="btn btn-gold btn-block" id="btn-complete-gift">Complete My Gift</button>
             <button class="btn btn-outline-gold btn-block" id="btn-request-donation">Request Ministry to Cover This Gift</button>
           </div>
@@ -193,6 +219,8 @@
 
   </div>
 </main>
+
+</div><!-- /.store-page-bg -->
 
 <!-- Order summary modal -->
 <div id="order-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title" style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center">
@@ -267,5 +295,73 @@
 </footer>
 
 <script src="assets/js/main.js"></script>
+<script>
+  // Preselect bundle from ?bundle= query param, and tailor the intro copy
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const key = (params.get('bundle') || '').toLowerCase();
+
+    const INTRO = {
+      essentials: {
+        title: 'Build your Essentials gift',
+        body: 'A warm welcoming gift for a friend or newcomer. Pocket Bible plus hand-picked items starting at <strong>$2 per Bible</strong> — plus shipping and anything you customise below.',
+        contents: `
+          <p style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#8a6a3a;margin:0 0 .6rem;">What's inside</p>
+          <ul style="columns:2;column-gap:1.5rem;padding-left:1rem;margin:0;font-size:.9rem;line-height:1.7;color:var(--text);">
+            <li>Pocket Gideon New Testament</li>
+            <li>Mini notepad &amp; pencil</li>
+            <li>Highlighter &amp; sticky notes</li>
+            <li>3 ministry bookmarks</li>
+            <li>3 stickers (custom or random)</li>
+            <li>Keychain &amp; bracelet</li>
+            <li>Miniature Jesus figurine</li>
+            <li>QR card → "start a life group" guide</li>
+          </ul>`
+      },
+      lifegroup: {
+        title: 'Build a Life Group starter',
+        body: 'Equip up to five people in your circle. Every dollar above the <strong>$2-per-Bible</strong> cost pays forward the next bundle for someone who can\'t afford one. <em>Give as you feel led.</em>',
+        contents: `
+          <p style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#8a6a3a;margin:0 0 .6rem;">What's inside</p>
+          <ul style="padding-left:1rem;margin:0;font-size:.9rem;line-height:1.7;color:var(--text);">
+            <li><strong>Everything in Essentials</strong>, one per person</li>
+            <li>Up to 5 pocket Gideon New Testaments</li>
+            <li>Optional: swap any pocket Bible for a full Bible (+contribution)</li>
+            <li>Group leader guide (printed + QR to online tutorials)</li>
+          </ul>`
+      },
+      ministry: {
+        title: 'Share your story',
+        body: 'This one isn\'t a purchase. Tell us what God is stirring in you, and our team will reach out personally. Contribute toward ministry support below if you feel led.',
+        contents: `
+          <blockquote style="font-style:italic;color:var(--text);margin:0 0 .75rem;padding:.75rem 1rem;border-left:3px solid var(--gold);background:rgba(212,165,116,0.08);font-size:.9rem;line-height:1.55;">
+            "If anyone would come after me, let him deny himself and take up his cross and follow me."
+            <cite style="display:block;font-size:.78rem;font-style:normal;color:var(--muted);margin-top:.35rem;">— Matthew 16:24 KJV</cite>
+          </blockquote>
+          <p style="font-size:.9rem;line-height:1.65;color:var(--text);margin:0;"><strong>Seek God in His Word.</strong> Let the Holy Spirit lead. Fill out the form below with as much of your story as you'd like to share — we read and reply personally.</p>`
+      }
+    };
+
+    const intro = INTRO[key];
+    if (intro) {
+      const t = document.getElementById('builder-intro-title');
+      const b = document.getElementById('builder-intro-body');
+      const c = document.getElementById('builder-intro-contents');
+      if (t) t.textContent = intro.title;
+      if (b) b.innerHTML = intro.body;
+      if (c && intro.contents) {
+        c.innerHTML = intro.contents;
+        c.style.display = 'block';
+      }
+
+      const radio = document.querySelector(`input[name="bundle"][value="${key}"]`);
+      if (radio) {
+        radio.checked = true;
+        // Nudge existing builder logic if it listens for 'change'
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+  })();
+</script>
 </body>
 </html>

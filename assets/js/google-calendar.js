@@ -188,6 +188,18 @@ class GoogleCalendarIntegration {
       'July', 'August', 'September', 'October', 'November', 'December'
     ];
     monthDisplay.textContent = `${monthNames[this.currentMonth]} ${this.currentYear}`;
+
+    // Apply the monthly calendar-template image as a subtle backdrop
+    // behind the calendar header. Image numbers are 1..12 matching month number.
+    const headerEl = document.querySelector('.calendar-header');
+    if (headerEl) {
+      const monthNum = this.currentMonth + 1; // 1..12
+      headerEl.style.setProperty(
+        '--calendar-month-bg',
+        `url('assets/images/calendar-template/${monthNum}.jpg')`
+      );
+      headerEl.classList.add('has-month-bg');
+    }
     
     // Add day headers
     const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

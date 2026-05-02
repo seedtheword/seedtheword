@@ -6287,3 +6287,63 @@ a.contact-card:hover .contact-card__cta span {
     padding: 0.85rem 1rem;
   }
 }
+
+
+/* ============================================================
+   Calendar — month-themed backdrop on the header
+   Uses one of 12 images from assets/images/calendar-template/ as
+   a subtle backdrop behind the month title & nav arrows. Live day
+   grid below remains fully functional/unstyled by this.
+   ============================================================ */
+
+.calendar-header.has-month-bg {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  isolation: isolate;
+  min-height: 92px;
+}
+
+.calendar-header.has-month-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--calendar-month-bg);
+  background-size: cover;
+  background-position: center;
+  opacity: 0.45;
+  z-index: -2;
+  transition: opacity 0.4s ease;
+}
+
+.calendar-header.has-month-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.55) 50%, rgba(255, 255, 255, 0.82) 100%);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: -1;
+}
+
+.calendar-header.has-month-bg .calendar-month {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  color: #1a1a1a;
+}
+
+.calendar-header.has-month-bg .calendar-nav-btn {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 600px) {
+  .calendar-header.has-month-bg {
+    padding: 1.25rem 1rem;
+    min-height: 78px;
+  }
+}

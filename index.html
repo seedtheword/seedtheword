@@ -103,26 +103,16 @@
   </div>
 </section>
 
-<!-- ── How It Works ── -->
-<section class="section section--light">
+<!-- ── Today at Seed the Word — rotating cross-site content ── -->
+<section class="section section--light homepage-dashboard-section" id="today">
   <div class="container">
-    <h2 class="section-title">How It Works</h2>
-    <div class="steps">
-      <div class="step">
-        <div class="step__num">1</div>
-        <h3 class="step__title">Choose a Bundle</h3>
-        <p class="step__desc">Browse our curated Bible bundle options and pick the right starting point for your gift.</p>
-      </div>
-      <div class="step">
-        <div class="step__num">2</div>
-        <h3 class="step__title">Customize It</h3>
-        <p class="step__desc">Add a personal touch — engraving, highlighted verses, a handwritten note, or a custom cover.</p>
-      </div>
-      <div class="step">
-        <div class="step__num">3</div>
-        <h3 class="step__title">Gift or Donate</h3>
-        <p class="step__desc">Complete your gift or request the Ministry to cover the cost for someone who cannot afford it.</p>
-      </div>
+    <h2 class="section-title">Today at Seed the Word</h2>
+    <p class="homepage-dashboard-section__subtitle">
+      A verse to sit with, what's coming up, where our team's been out in the field,
+      and what's moving us lately — refreshed from across the ministry.
+    </p>
+    <div class="homepage-dashboard" id="homepage-dashboard" aria-live="polite">
+      <!-- Populated by assets/js/homepage-dashboard.js -->
     </div>
   </div>
 </section>
@@ -168,36 +158,36 @@
       </article>
     </div>
     <div style="text-align: center; margin-top: 2.5rem;">
-      <a href="news.html" class="btn btn-secondary">See More Testimonies</a>
+      <a href="news.html#ministry-outreach" class="btn btn-secondary">See More Testimonies</a>
     </div>
   </div>
 </section>
 
-<!-- ── CTAs (Gideon-style: Be Part of the Mission) ── -->
+<!-- ── Be Part of the Mission — slimmed to 2 primary CTAs ── -->
 <section class="section section--white">
   <div class="container">
     <h2 class="section-title">Be Part Of The Mission</h2>
     <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 3rem; font-size: 1.125rem; color: var(--muted);">
-      Join us in welcoming newcomers to faith through personalized Bible bundles and community support.
+      Gift a Bible. Support the ministry. Walk alongside us as we welcome newcomers to faith.
     </p>
     <div class="cta-blocks">
       <div class="cta-block">
         <span class="cta-block__icon">📖</span>
-        <h3 class="cta-block__title">Browse Bundles</h3>
-        <p class="cta-block__desc">Explore our curated Bible bundles and customize one as a welcoming gift.</p>
+        <h3 class="cta-block__title">Gift a Bundle</h3>
+        <p class="cta-block__desc">Build a warm welcoming gift for someone just beginning their walk with Jesus. Add-ons, engraving, and custom notes all included.</p>
         <a href="store.html" class="btn btn-secondary">See All Bundles</a>
       </div>
       <div class="cta-block">
         <span class="cta-block__icon">❤️</span>
-        <h3 class="cta-block__title">Provide For God's Word</h3>
-        <p class="cta-block__desc">Help cover the cost of a Bible bundle for someone who cannot afford it. Make an eternal impact today.</p>
-        <a href="community.html" class="btn btn-secondary">Give Now</a>
+        <h3 class="cta-block__title">Support the Ministry</h3>
+        <p class="cta-block__desc">Every contribution goes directly into sponsored bundles for people who can't afford one. Give any amount — monthly or one-time.</p>
+        <a href="store.html#support" class="btn btn-secondary">Give Now</a>
       </div>
       <div class="cta-block">
         <span class="cta-block__icon">👥</span>
         <h3 class="cta-block__title">Join Our Community</h3>
-        <p class="cta-block__desc">Connect with fellow believers in our Bible reading group and daily encouragement community.</p>
-        <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-secondary">Join on Telegram</a>
+        <p class="cta-block__desc">Daily Bible reading, Saturday livestreams, prayer requests, and a room full of believers walking it out together.</p>
+        <a href="community.html" class="btn btn-secondary">Open Community</a>
       </div>
     </div>
   </div>
@@ -266,5 +256,6 @@
 
 <script src="assets/js/main.js"></script>
 <script src="assets/js/showcase-carousel.js?v=2"></script>
+<script src="assets/js/homepage-dashboard.js?v=1"></script>
 </body>
 </html>

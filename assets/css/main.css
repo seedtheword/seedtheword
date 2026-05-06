@@ -7831,3 +7831,253 @@ a.contact-card:hover .contact-card__cta span {
   .outreach-card--invite { grid-column: auto; }
   .outreach-card__invite { min-height: auto; padding: 1.75rem 1.25rem; }
 }
+
+
+/* ============================================================
+   Homepage "Today at Seed the Word" dashboard
+   Rotating 6-card grid pulled from live data across the site.
+   ============================================================ */
+
+.homepage-dashboard-section {
+  padding: 4rem 0 3.5rem;
+}
+
+.homepage-dashboard-section .section-title {
+  margin-bottom: 0.5rem;
+}
+
+.homepage-dashboard-section__subtitle {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 2.5rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.homepage-dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+/* Every card shares this base look */
+.hd-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  overflow: hidden;
+  padding: 1.5rem 1.5rem 1.35rem;
+  min-height: 260px;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  position: relative;
+}
+.hd-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 52px rgba(15, 23, 42, 0.18);
+}
+
+.hd-card__eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--gold);
+  margin: 0 0 0.65rem;
+}
+
+.hd-card__title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--text);
+  margin: 0 0 0.45rem;
+}
+
+.hd-card__meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 0.65rem;
+  font-style: italic;
+}
+
+.hd-card__body-text,
+.hd-card__fallback {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text);
+  margin: 0 0 0.85rem;
+}
+.hd-card__fallback {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.hd-card__when {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin: 0 0 0.55rem;
+}
+.hd-card__when strong {
+  color: var(--green);
+  letter-spacing: 0.06em;
+}
+
+.hd-card__cta {
+  margin-top: auto;
+  align-self: flex-start;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--green);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: gap 0.2s ease, color 0.2s ease;
+  padding-top: 0.5rem;
+}
+.hd-card__cta:hover {
+  color: #1d3f1f;
+  gap: 0.5rem;
+}
+
+.hd-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+.hd-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.hd-chip:hover {
+  background: #fff;
+  transform: translateY(-1px);
+}
+.hd-chip--primary {
+  background: linear-gradient(135deg, var(--gold) 0%, #e6b884 100%);
+  color: #1a1a1a;
+  border-color: transparent;
+  box-shadow: 0 6px 16px rgba(212, 165, 116, 0.3);
+}
+
+/* ── Verse card ─────────────────────────────────────────────── */
+.hd-card--verse {
+  background:
+    linear-gradient(135deg, rgba(253, 248, 242, 0.9) 0%, rgba(244, 232, 211, 0.85) 100%);
+}
+.hd-card__verse {
+  margin: 0 0 0.5rem;
+  padding: 0;
+  border: 0;
+}
+.hd-card__verse p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+  font-style: italic;
+  margin: 0 0 0.6rem;
+}
+.hd-card__verse cite {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--green);
+  font-style: normal;
+  letter-spacing: 0.02em;
+}
+
+/* ── Event card ─────────────────────────────────────────────── */
+.hd-card--event {
+  background: linear-gradient(135deg, rgba(234, 252, 237, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+}
+
+/* ── Outreach card (image-forward) ──────────────────────────── */
+.hd-card--outreach {
+  padding: 0;
+  min-height: 320px;
+}
+.hd-card--outreach .hd-card__image {
+  width: 100%;
+  height: 160px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.hd-card--outreach .hd-card__image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.25) 100%);
+}
+.hd-card--outreach .hd-card__body {
+  padding: 1.25rem 1.5rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.hd-card--outreach .hd-card__body .hd-card__cta {
+  margin-top: auto;
+}
+
+/* ── Listen card ────────────────────────────────────────────── */
+.hd-card--listen {
+  background: linear-gradient(135deg, rgba(233, 247, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+}
+
+/* ── Instagram card (image-forward) ─────────────────────────── */
+.hd-card--ig {
+  padding: 0;
+  min-height: 320px;
+}
+.hd-card__ig-image {
+  display: block;
+  width: 100%;
+  height: 180px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.hd-card__ig-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(233, 64, 87, 0.18), rgba(255, 220, 128, 0.12));
+}
+.hd-card--ig .hd-card__body {
+  padding: 1.25rem 1.5rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* ── Bundle card ────────────────────────────────────────────── */
+.hd-card--bundle {
+  background: linear-gradient(135deg, rgba(253, 248, 242, 0.9) 0%, rgba(244, 211, 94, 0.22) 100%);
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 980px) {
+  .homepage-dashboard {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .homepage-dashboard {
+    grid-template-columns: 1fr;
+  }
+  .hd-card { min-height: auto; }
+}

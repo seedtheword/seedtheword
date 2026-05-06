@@ -754,6 +754,38 @@
     <strong>Videos auto-play muted.</strong> Browsers block unmuted autoplay, so the slideshow plays videos with sound off. If you need audio, use Instagram or YouTube for that piece of content instead of an outreach card.
   </div>
 
+  <h2>🏠 Managing the Homepage "Today at Seed the Word" dashboard</h2>
+  <p>The homepage shows a grid of six live cards pulled from different corners of the site: today's verse, the next calendar event, the latest outreach, a recommended listen, the latest Instagram post, and a bundle-gift CTA. All of them refresh automatically when the underlying data changes. The only card with its own dedicated admin file is the <strong>Verse of the Day</strong>.</p>
+
+  <div class="admin-card">
+    <p class="admin-card__label">File to edit</p>
+    <p class="admin-card__title"><code>assets/data/daily-verses.json</code></p>
+    <p>A list of verses that rotates by day of year. Verse #N is picked using <code>dayOfYear % verses.length</code>, so the order matters only for "which verse lands on which day" — it doesn't cycle manually.</p>
+  </div>
+
+  <h3>Add a new verse to the homepage rotation</h3>
+  <ol>
+    <li>Open <code>assets/data/daily-verses.json</code> in the repo and click the pencil icon to edit.</li>
+    <li>Inside the <code>"verses"</code> array, add a new block at the end:
+<pre><code>{ "text": "Full verse text here.", "ref": "Book 1:1", "version": "KJV" }</code></pre>
+    </li>
+    <li>Put a comma after the previous block's closing <code>}</code> so the JSON stays valid. The last block should NOT have a trailing comma.</li>
+    <li>Commit. The new verse joins the rotation. Hard-refresh the homepage to see today's verse update immediately (may not be yours — depends on day of year).</li>
+  </ol>
+
+  <h3>What data each homepage card pulls from</h3>
+  <ul>
+    <li><strong>📖 Verse of the Day</strong> → <code>assets/data/daily-verses.json</code></li>
+    <li><strong>📅 Coming Up</strong> → Google Calendar (same source as the News page). Shows the next event that hasn't ended yet, within 30 days. No admin action needed — just add events to the Google Calendar.</li>
+    <li><strong>🙌 Latest Outreach</strong> → First entry in <code>assets/data/ministry-outreach.json</code>. Whatever you list first is what shows.</li>
+    <li><strong>🎙️ Now Playing</strong> → First entry in <code>LISTENING_ITEMS</code> inside <code>assets/js/recommendations.js</code>. Reorder that array to change which recommendation shows up on the homepage.</li>
+    <li><strong>📸 From Instagram</strong> → First post in <code>assets/data/instagram.json</code>, which is auto-populated by the scheduled scrape every 6 hours.</li>
+    <li><strong>🎁 Gift a Bible</strong> → Static CTA pointing at the Store page. No admin needed.</li>
+  </ul>
+
+  <h3>Degraded states (what if a source is down?)</h3>
+  <p>Each card has a graceful fallback that links to the relevant page. If the Instagram feed fails to load, the IG card shows a "Follow us" link instead of a post. If the calendar API errors out, the Coming Up card says "Our next gathering will appear here" and links to the News calendar. Nothing is hardcoded — the page stays useful even if a service is temporarily unavailable.</p>
+
   <h2>🔧 How to do common tasks</h2>
 
   <h3>Add a new event to the calendar</h3>

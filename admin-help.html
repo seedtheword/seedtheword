@@ -190,6 +190,146 @@
     .admin-logout button:hover {
       background: rgba(0, 0, 0, 0.05);
     }
+
+    /* ── Search bar + TOC ─────────────────────────────────── */
+    .admin-search {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: linear-gradient(180deg, rgba(249, 246, 241, 0.98) 0%, rgba(249, 246, 241, 0.94) 100%);
+      backdrop-filter: blur(12px) saturate(160%);
+      margin: 0 -2rem 2rem;
+      padding: 1rem 2rem 0.9rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    }
+    .admin-search__row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      position: relative;
+    }
+    .admin-search__icon {
+      position: absolute;
+      left: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    .admin-search__input {
+      flex: 1;
+      padding: 0.7rem 2.75rem 0.7rem 2.25rem;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      background: #fff;
+      font-family: inherit;
+      color: var(--text);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .admin-search__input:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.15);
+    }
+    .admin-search__clear {
+      position: absolute;
+      right: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: 0;
+      padding: 0.25rem 0.55rem;
+      font-size: 1.1rem;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 6px;
+      display: none;
+    }
+    .admin-search__clear:hover {
+      color: var(--text);
+      background: rgba(0, 0, 0, 0.06);
+    }
+    .admin-search__kbd {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.45rem;
+      border-radius: 5px;
+      font-size: 0.72rem;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      position: absolute;
+      right: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .admin-search__meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin: 0.5rem 0 0;
+      min-height: 1.1rem;
+    }
+    .admin-search__meta.is-no-results { color: #b95828; font-weight: 600; }
+
+    .admin-toc {
+      margin: 1rem 0 0;
+      padding: 0.75rem 0 0;
+      border-top: 1px dashed rgba(0, 0, 0, 0.08);
+    }
+    .admin-toc__label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 0.45rem;
+      font-weight: 700;
+    }
+    .admin-toc__list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .admin-toc__list li { margin: 0 !important; }
+    .admin-toc__link {
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      font-size: 0.78rem !important;
+      color: var(--text) !important;
+      text-decoration: none !important;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .admin-toc__link:hover {
+      background: #fff;
+      border-color: rgba(44, 95, 46, 0.35);
+      color: var(--green) !important;
+    }
+    .admin-toc__link[hidden] { display: none; }
+
+    /* Search highlighting */
+    .admin-content mark.admin-search-hit {
+      background: #fff3bf;
+      color: inherit;
+      padding: 0 2px;
+      border-radius: 2px;
+      box-shadow: 0 0 0 1px rgba(244, 211, 94, 0.6);
+    }
+
+    /* Hide non-matching sections/subsections while searching */
+    .admin-content [data-search-hidden="true"] { display: none !important; }
+
+    @media (max-width: 640px) {
+      .admin-search { margin: 0 -1rem 1.5rem; padding: 0.75rem 1rem; }
+    }
   </style>
 </head>
 <body>
@@ -232,6 +372,28 @@
 <main class="admin-content glass-morphism" id="admin-content">
   <h1>Admin Help &amp; FAQ</h1>
   <p class="admin-subtitle">Everything admins need to keep the site running. Bookmark this page.</p>
+
+  <!-- Search & quick-jump -->
+  <div class="admin-search" id="admin-search">
+    <div class="admin-search__row">
+      <span class="admin-search__icon" aria-hidden="true">🔍</span>
+      <input
+        id="admin-search-input"
+        class="admin-search__input"
+        type="search"
+        placeholder="Search tutorials — try 'Instagram', 'calendar', 'verse'…"
+        aria-label="Search admin help"
+        autocomplete="off"
+        spellcheck="false">
+      <button class="admin-search__clear" id="admin-search-clear" type="button" aria-label="Clear search">&times;</button>
+      <span class="admin-search__kbd" id="admin-search-kbd" aria-hidden="true">/</span>
+    </div>
+    <p class="admin-search__meta" id="admin-search-meta" role="status" aria-live="polite"></p>
+    <div class="admin-toc" id="admin-toc">
+      <p class="admin-toc__label">Jump to a topic</p>
+      <ul class="admin-toc__list" id="admin-toc-list"></ul>
+    </div>
+  </div>
 
   <div class="warning">
     <strong>Heads up:</strong> this page has only a basic password gate on a public
@@ -925,6 +1087,8 @@
   function unlock() {
     gate.style.display = 'none';
     content.classList.add('visible');
+    // Build TOC + wire up search once content is visible
+    initAdminSearch();
   }
 
   function lock() {
@@ -956,6 +1120,209 @@
 
   if (logoutBtn) {
     logoutBtn.addEventListener('click', lock);
+  }
+
+  // ── Search + quick-jump TOC ───────────────────────────────
+  let searchInitialised = false;
+  function initAdminSearch() {
+    if (searchInitialised) return;
+    searchInitialised = true;
+
+    const searchEl = document.getElementById('admin-search-input');
+    const clearBtn = document.getElementById('admin-search-clear');
+    const kbdHint  = document.getElementById('admin-search-kbd');
+    const metaEl   = document.getElementById('admin-search-meta');
+    const tocList  = document.getElementById('admin-toc-list');
+    if (!searchEl || !tocList) return;
+
+    // Collect all h2-rooted sections. Each "section" is the h2 heading plus
+    // every subsequent sibling up to (but not including) the next h2.
+    const sections = [];
+    const allH2s = content.querySelectorAll('main#admin-content > h2');
+    allH2s.forEach(h2 => {
+      const id = slugify(h2.textContent);
+      h2.id = id;
+      const nodes = [h2];
+      let next = h2.nextElementSibling;
+      while (next && next.tagName !== 'H2') {
+        nodes.push(next);
+        next = next.nextElementSibling;
+      }
+      sections.push({
+        id,
+        title: h2.textContent.trim(),
+        nodes,
+        // Pre-computed lowercase text for fast filtering
+        haystack: nodes.map(n => n.textContent || '').join(' ').toLowerCase(),
+      });
+    });
+
+    // Build TOC chips
+    tocList.innerHTML = sections.map(s =>
+      `<li><a class="admin-toc__link" href="#${s.id}" data-section-id="${s.id}">${escapeHtml(s.title)}</a></li>`
+    ).join('');
+
+    // ── Apply filter ──
+    function applyFilter(rawQuery) {
+      const query = (rawQuery || '').trim().toLowerCase();
+      clearBtn.style.display = query ? 'block' : 'none';
+      kbdHint.style.display  = query ? 'none' : 'inline-flex';
+
+      // Always clear old highlights first
+      clearHighlights();
+
+      if (!query) {
+        sections.forEach(s => s.nodes.forEach(n => n.removeAttribute('data-search-hidden')));
+        tocList.querySelectorAll('.admin-toc__link').forEach(a => a.removeAttribute('hidden'));
+        metaEl.classList.remove('is-no-results');
+        metaEl.textContent = '';
+        return;
+      }
+
+      let matchCount = 0;
+      sections.forEach(s => {
+        const match = s.haystack.includes(query);
+        s.nodes.forEach(n => {
+          if (match) n.removeAttribute('data-search-hidden');
+          else n.setAttribute('data-search-hidden', 'true');
+        });
+        const tocLink = tocList.querySelector(`[data-section-id="${s.id}"]`);
+        if (tocLink) {
+          if (match) tocLink.removeAttribute('hidden');
+          else       tocLink.setAttribute('hidden', '');
+        }
+        if (match) matchCount++;
+      });
+
+      // Highlight matches in visible sections
+      if (matchCount > 0) highlightMatches(query);
+
+      if (matchCount === 0) {
+        metaEl.classList.add('is-no-results');
+        metaEl.textContent = `No tutorials found for "${rawQuery.trim()}". Try a different term, or ping the dev on duty.`;
+      } else {
+        metaEl.classList.remove('is-no-results');
+        metaEl.textContent = matchCount === 1
+          ? `1 section matches "${rawQuery.trim()}"`
+          : `${matchCount} sections match "${rawQuery.trim()}"`;
+      }
+    }
+
+    function highlightMatches(query) {
+      const re = new RegExp(escapeRegExp(query), 'gi');
+      sections.forEach(s => {
+        if (s.nodes[0].getAttribute('data-search-hidden') === 'true') return;
+        // Skip the h2 heading itself to avoid reflow; highlight body nodes
+        s.nodes.slice(1).forEach(root => walkAndHighlight(root, re));
+      });
+    }
+
+    function walkAndHighlight(root, re) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode: (node) => {
+          if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          // Skip content inside existing <mark>, <pre>, <code>? Actually allow
+          // code matches too — admins search for tag names. But skip existing marks.
+          const p = node.parentElement;
+          if (!p) return NodeFilter.FILTER_REJECT;
+          if (p.nodeName === 'MARK' && p.classList.contains('admin-search-hit')) return NodeFilter.FILTER_REJECT;
+          if (p.closest('#admin-search')) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const targets = [];
+      let n;
+      while ((n = walker.nextNode())) {
+        if (re.test(n.nodeValue)) {
+          re.lastIndex = 0;
+          targets.push(n);
+        }
+      }
+      targets.forEach(node => {
+        const frag = document.createDocumentFragment();
+        const text = node.nodeValue;
+        let last = 0;
+        let m;
+        re.lastIndex = 0;
+        while ((m = re.exec(text)) !== null) {
+          if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+          const mark = document.createElement('mark');
+          mark.className = 'admin-search-hit';
+          mark.textContent = m[0];
+          frag.appendChild(mark);
+          last = m.index + m[0].length;
+          if (m.index === re.lastIndex) re.lastIndex++; // safety for zero-length matches
+        }
+        if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+        node.parentNode.replaceChild(frag, node);
+      });
+    }
+
+    function clearHighlights() {
+      content.querySelectorAll('mark.admin-search-hit').forEach(mark => {
+        const parent = mark.parentNode;
+        parent.replaceChild(document.createTextNode(mark.textContent), mark);
+        parent.normalize();
+      });
+    }
+
+    // ── Wire events ──
+    let debounce;
+    searchEl.addEventListener('input', (e) => {
+      clearTimeout(debounce);
+      debounce = setTimeout(() => applyFilter(e.target.value), 60);
+    });
+
+    searchEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        searchEl.value = '';
+        applyFilter('');
+        searchEl.blur();
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      searchEl.value = '';
+      applyFilter('');
+      searchEl.focus();
+    });
+
+    // Global "/" shortcut focuses the search
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== '/') return;
+      const tag = document.activeElement && document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      e.preventDefault();
+      searchEl.focus();
+      searchEl.select();
+    });
+
+    // Smooth scroll for TOC chips
+    tocList.addEventListener('click', (e) => {
+      const link = e.target.closest('.admin-toc__link');
+      if (!link) return;
+      const id = link.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  // ── Utilities for search ───────────────────────────────────
+  function slugify(s) {
+    return String(s)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+      .slice(0, 80) || 'section';
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function escapeRegExp(s) {
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 })();
 </script>

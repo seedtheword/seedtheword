@@ -11,19 +11,17 @@ async function initHomepageDashboard() {
   const mount = document.getElementById('homepage-dashboard');
   if (!mount) return;
 
-  // Fire all sources in parallel so we never block on the slowest one
-  const [verseHtml, eventHtml, outreachHtml, listenHtml, igHtml, bundleHtml] = await Promise.all([
+  // Three focused cards: Verse, Coming Up, Latest Outreach.
+  // The Showcase Carousel above already cycles through Instagram,
+  // recommendations, and ministry highlights — so we don't duplicate
+  // those here.
+  const [verseHtml, eventHtml, outreachHtml] = await Promise.all([
     buildVerseCard(),
     buildEventCard(),
     buildOutreachCard(),
-    buildListenCard(),
-    buildInstagramCard(),
-    buildBundleCard(), // static — but async-shaped for consistency
   ]);
 
-  mount.innerHTML = [verseHtml, eventHtml, outreachHtml, listenHtml, igHtml, bundleHtml]
-    .filter(Boolean)
-    .join('');
+  mount.innerHTML = [verseHtml, eventHtml, outreachHtml].filter(Boolean).join('');
 }
 
 /* ── Verse of the day ───────────────────────────────────────── */

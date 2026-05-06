@@ -755,7 +755,7 @@
   </div>
 
   <h2>🏠 Managing the Homepage "Today at Seed the Word" dashboard</h2>
-  <p>The homepage shows a grid of six live cards pulled from different corners of the site: today's verse, the next calendar event, the latest outreach, a recommended listen, the latest Instagram post, and a bundle-gift CTA. All of them refresh automatically when the underlying data changes. The only card with its own dedicated admin file is the <strong>Verse of the Day</strong>.</p>
+  <p>The homepage shows three live cards pulled from across the site: today's verse, the next calendar event, and the latest outreach. All of them refresh automatically when the underlying data changes. The only card with its own dedicated admin file is the <strong>Verse of the Day</strong>.</p>
 
   <div class="admin-card">
     <p class="admin-card__label">File to edit</p>
@@ -777,14 +777,14 @@
   <ul>
     <li><strong>📖 Verse of the Day</strong> → <code>assets/data/daily-verses.json</code></li>
     <li><strong>📅 Coming Up</strong> → Google Calendar (same source as the News page). Shows the next event that hasn't ended yet, within 30 days. No admin action needed — just add events to the Google Calendar.</li>
-    <li><strong>🙌 Latest Outreach</strong> → First entry in <code>assets/data/ministry-outreach.json</code>. Whatever you list first is what shows.</li>
-    <li><strong>🎙️ Now Playing</strong> → First entry in <code>LISTENING_ITEMS</code> inside <code>assets/js/recommendations.js</code>. Reorder that array to change which recommendation shows up on the homepage.</li>
-    <li><strong>📸 From Instagram</strong> → First post in <code>assets/data/instagram.json</code>, which is auto-populated by the scheduled scrape every 6 hours.</li>
-    <li><strong>🎁 Gift a Bible</strong> → Static CTA pointing at the Store page. No admin needed.</li>
+    <li><strong>🙌 Latest Outreach</strong> → First entry in <code>assets/data/ministry-outreach.json</code>. Whatever you list first is what shows here and on the news page.</li>
   </ul>
 
   <h3>Degraded states (what if a source is down?)</h3>
-  <p>Each card has a graceful fallback that links to the relevant page. If the Instagram feed fails to load, the IG card shows a "Follow us" link instead of a post. If the calendar API errors out, the Coming Up card says "Our next gathering will appear here" and links to the News calendar. Nothing is hardcoded — the page stays useful even if a service is temporarily unavailable.</p>
+  <p>Each card has a graceful fallback that links to the relevant page. If the calendar API errors out, the Coming Up card says "Our next gathering will appear here" and links to the News calendar. Nothing is hardcoded — the page stays useful even if a service is temporarily unavailable.</p>
+
+  <h2>🌱 The Seeding Lifecycle section (homepage)</h2>
+  <p>The "Seeding Lifecycle" block on the homepage describes the ministry's north star — Seed &rarr; Water &rarr; Grow &rarr; Harvest &rarr; Repeat. Each phase card has a short paragraph, a tag line, and a call-to-action link. Changes here require an HTML edit in <code>index.html</code> (search for <code>lifecycle-section</code>). Keep paragraphs short — the cards are meant to be scannable. If the team's lifecycle framing evolves, update all four cards together so the loop still makes sense.</p>
 
   <h2>🔧 How to do common tasks</h2>
 

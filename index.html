@@ -57,9 +57,127 @@
     <p class="hero__text hero__text--intro">that is</p>
     <h2 class="hero__text hero__text--name">Jesus <span class="hero__cross">✝</span> Christ</h2>
     <a href="about.html" class="btn btn-jesus">Who is Jesus?</a>
-    <a href="#showcase" class="hero__scroll-indicator">
+    <a href="#the-path" class="hero__scroll-indicator">
       <span>↓</span>
     </a>
+  </div>
+</section>
+
+<!-- ── The Path of Light — our ministry mapped out ── -->
+<section class="the-path" id="the-path" aria-labelledby="the-path-title">
+  <div class="the-path__atmosphere" aria-hidden="true"></div>
+
+  <div class="container the-path__head">
+    <p class="the-path__eyebrow">Our North Star</p>
+    <h2 id="the-path-title" class="the-path__title">Walking the Path of Light</h2>
+    <blockquote class="the-path__verse">
+      <p>"Thy word is a lamp unto my feet, and a light unto my path."</p>
+      <cite>— Psalm 119:105 KJV</cite>
+    </blockquote>
+    <p class="the-path__subtitle">
+      This is the ministry of Jesus, mapped out. Seed the Word. Water it. Grow in it.
+      Harvest into the local church body. Then do it again — for the next person He brings us.
+    </p>
+  </div>
+
+  <!-- The road itself: SVG spine with glowing waypoints overlaid -->
+  <div class="the-path__road">
+    <svg class="the-path__road-svg" viewBox="0 0 100 1000" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="pathGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+          <stop offset="0%"  stop-color="#ffffff" stop-opacity="0.15"/>
+          <stop offset="15%" stop-color="#ffffff" stop-opacity="0.9"/>
+          <stop offset="85%" stop-color="#ffffff" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0.15"/>
+        </linearGradient>
+        <filter id="pathGlow">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <!-- A gently curving S-path drawn top to bottom -->
+      <path
+        d="
+          M 50 0
+          C 35 120, 70 220, 50 340
+          S 30 500, 50 620
+          S 70 780, 50 920
+          L 50 1000
+        "
+        fill="none"
+        stroke="url(#pathGrad)"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-dasharray="6 10"
+        filter="url(#pathGlow)"
+      />
+    </svg>
+
+    <ol class="the-path__waypoints">
+      <li class="waypoint waypoint--left">
+        <div class="waypoint__marker" aria-hidden="true">
+          <span class="waypoint__icon">🌱</span>
+        </div>
+        <div class="waypoint__card">
+          <p class="waypoint__phase">Phase 1</p>
+          <h3 class="waypoint__title">Seed</h3>
+          <p class="waypoint__tag">Evangelism &amp; new believers</p>
+          <p class="waypoint__body">
+            We reach those with no faith, little faith, or who have walked away.
+            Grace first — we show Jesus through action before we speak theology.
+            Tuesday meetings are where this begins.
+          </p>
+          <a class="waypoint__link" href="store.html">Gift a Bible →</a>
+        </div>
+      </li>
+
+      <li class="waypoint waypoint--right">
+        <div class="waypoint__marker" aria-hidden="true">
+          <span class="waypoint__icon">💧</span>
+        </div>
+        <div class="waypoint__card">
+          <p class="waypoint__phase">Phase 2</p>
+          <h3 class="waypoint__title">Water &amp; Grow</h3>
+          <p class="waypoint__tag">Discipleship &amp; deepening</p>
+          <p class="waypoint__body">
+            For those who need a doctor — healing through Scripture, the "Amen Prayer"
+            as Jesus taught, repentance, and thanksgiving (Philippians 4:6–8).
+            Saturday studies go deep using our five-pillar framework: historical,
+            linguistic, interpretive, personal, and external. Non-denominational
+            (John 17:3), anchored in intimacy with Christ — becoming images of Him.
+          </p>
+          <a class="waypoint__link" href="community.html">Study with us →</a>
+        </div>
+      </li>
+
+      <li class="waypoint waypoint--left">
+        <div class="waypoint__marker" aria-hidden="true">
+          <span class="waypoint__icon">🌾</span>
+        </div>
+        <div class="waypoint__card">
+          <p class="waypoint__phase">Phase 3</p>
+          <h3 class="waypoint__title">Harvest</h3>
+          <p class="waypoint__tag">Placement &amp; maturation</p>
+          <p class="waypoint__body">
+            We commission members into a local church body. Complex doctrine goes
+            to ordained leadership. We walk alongside — carrying each other through
+            prayer and mentorship (1 Timothy 1:5).
+          </p>
+          <a class="waypoint__link" href="about.html#contact">Connect with a mentor →</a>
+        </div>
+      </li>
+
+      <li class="waypoint waypoint--repeat">
+        <div class="waypoint__marker waypoint__marker--repeat" aria-hidden="true">
+          <span class="waypoint__icon">↻</span>
+        </div>
+        <p class="waypoint__repeat-label">Repeat</p>
+        <p class="waypoint__repeat-sub">For the next person He brings us.</p>
+      </li>
+    </ol>
   </div>
 </section>
 
@@ -107,66 +225,6 @@
     <div class="lives-changed__actions">
       <a href="about.html#contact" class="btn btn-primary">Submit Your Testimony</a>
       <a href="news.html#ministry-outreach" class="btn btn-outline-gold">See More Stories</a>
-    </div>
-  </div>
-</section>
-
-<!-- ── The Seeding Lifecycle — ministry north star ── -->
-<section class="section lifecycle-section" id="lifecycle">
-  <div class="container">
-    <p class="lifecycle__eyebrow">Our North Star</p>
-    <h2 class="section-title">The Seeding Lifecycle</h2>
-    <p class="lifecycle__subtitle">
-      Jesus gave us the pattern. We seed the Word, water it with truth and grace, walk with
-      people as they grow, and commission them into a local church body. Then we do it again.
-    </p>
-
-    <div class="lifecycle-loop" aria-label="Ministry lifecycle: Seed, Water & Grow, Harvest, Repeat">
-      <article class="lifecycle-card lifecycle-card--seed">
-        <div class="lifecycle-card__icon" aria-hidden="true">🌱</div>
-        <p class="lifecycle-card__phase">Phase 1</p>
-        <h3 class="lifecycle-card__title">Seed</h3>
-        <p class="lifecycle-card__tag">Evangelism &amp; new believers</p>
-        <p class="lifecycle-card__body">
-          We reach those with no faith, little faith, or who have walked away.
-          Grace first — we show Jesus through action before we speak theology.
-          Tuesday meetings are where this begins.
-        </p>
-        <a class="lifecycle-card__link" href="store.html">Gift a Bible →</a>
-      </article>
-
-      <article class="lifecycle-card lifecycle-card--water">
-        <div class="lifecycle-card__icon" aria-hidden="true">💧</div>
-        <p class="lifecycle-card__phase">Phase 2</p>
-        <h3 class="lifecycle-card__title">Water &amp; Grow</h3>
-        <p class="lifecycle-card__tag">Discipleship &amp; deepening</p>
-        <p class="lifecycle-card__body">
-          For those who need a doctor — healing through Scripture, the "Amen Prayer"
-          as Jesus taught, repentance, and thanksgiving (Philippians 4:6–8).
-          Saturday studies go deep using our five-pillar framework: historical,
-          linguistic, interpretive, personal, and external. Non-denominational
-          (John 17:3), anchored in intimacy with Christ — becoming images of Him.
-        </p>
-        <a class="lifecycle-card__link" href="community.html">Study with us →</a>
-      </article>
-
-      <article class="lifecycle-card lifecycle-card--harvest">
-        <div class="lifecycle-card__icon" aria-hidden="true">🌾</div>
-        <p class="lifecycle-card__phase">Phase 3</p>
-        <h3 class="lifecycle-card__title">Harvest</h3>
-        <p class="lifecycle-card__tag">Placement &amp; maturation</p>
-        <p class="lifecycle-card__body">
-          We commission members into a local church body. Complex doctrine goes to
-          ordained leadership. We walk alongside — carrying each other through prayer
-          and mentorship (1 Timothy 1:5).
-        </p>
-        <a class="lifecycle-card__link" href="about.html#contact">Connect with a mentor →</a>
-      </article>
-
-      <div class="lifecycle-repeat" aria-hidden="true">
-        <span class="lifecycle-repeat__arrow">↻</span>
-        <span class="lifecycle-repeat__label">Repeat</span>
-      </div>
     </div>
   </div>
 </section>

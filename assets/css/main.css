@@ -7842,7 +7842,6 @@ a.contact-card:hover .contact-card__cta span {
 
 /* Shared light canvas for every homepage section after the Showcase */
 .lives-changed,
-.lifecycle-section,
 .homepage-dashboard-section {
   position: relative;
   overflow: hidden;
@@ -7851,7 +7850,6 @@ a.contact-card:hover .contact-card__cta span {
 }
 
 .lives-changed::before,
-.lifecycle-section::before,
 .homepage-dashboard-section::before {
   content: '';
   position: absolute;
@@ -7882,33 +7880,29 @@ a.contact-card:hover .contact-card__cta span {
   z-index: 0;
 }
 
+/* Extra top padding on Lives Changed so the seam doesn't crash
+   into the section title. */
+.lives-changed {
+  padding-top: 6.5rem;
+}
+
 .lives-changed .container,
-.lifecycle-section .container,
 .homepage-dashboard-section .container {
   position: relative;
   z-index: 1;
 }
 
-/* Give the Lives Changed section a little extra top padding so the
-   dark-to-light seam doesn't crash into the title. */
-.lives-changed {
-  padding-top: 6.5rem;
-}
-
 .lives-changed .section-title,
-.lifecycle-section .section-title,
 .homepage-dashboard-section .section-title {
   color: var(--text);
 }
 .lives-changed .section-title::after,
-.lifecycle-section .section-title::after,
 .homepage-dashboard-section .section-title::after {
   background: linear-gradient(90deg, var(--green), var(--gold));
 }
 
 /* ── Shared subtitle treatment on the light canvas ─────────── */
 .lives-changed__subtitle,
-.lifecycle__subtitle,
 .homepage-dashboard-section__subtitle {
   text-align: center;
   max-width: 680px;
@@ -7948,158 +7942,6 @@ a.contact-card:hover .contact-card__cta span {
   justify-content: center;
   gap: 0.85rem;
   margin-top: 3rem;
-}
-
-/* ── The Seeding Lifecycle ─────────────────────────────────── */
-.lifecycle__eyebrow {
-  text-align: center;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--green);
-  margin: 0 0 0.75rem;
-}
-
-.lifecycle-loop {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  max-width: 1120px;
-  margin: 0 auto;
-}
-
-/* Connector line running through the loop on desktop */
-.lifecycle-loop::before {
-  content: '';
-  position: absolute;
-  top: 96px;
-  left: 16%;
-  right: 16%;
-  height: 2px;
-  background: linear-gradient(90deg,
-    rgba(44, 95, 46, 0),
-    rgba(44, 95, 46, 0.45) 20%,
-    rgba(212, 165, 116, 0.55) 80%,
-    rgba(212, 165, 116, 0));
-  z-index: 0;
-}
-
-.lifecycle-card {
-  position: relative;
-  z-index: 1;
-  padding: 2rem 1.75rem 1.75rem;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.86);
-  border: 1px solid rgba(212, 165, 116, 0.3);
-  backdrop-filter: blur(12px) saturate(140%);
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-  box-shadow: 0 10px 28px rgba(66, 44, 16, 0.08);
-}
-.lifecycle-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(212, 165, 116, 0.65);
-  box-shadow: 0 22px 44px rgba(66, 44, 16, 0.14);
-}
-
-.lifecycle-card__icon {
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.1rem;
-  margin: 0 auto 1rem;
-  background: linear-gradient(135deg, rgba(212, 165, 116, 0.22), rgba(44, 95, 46, 0.18));
-  border: 2px solid rgba(212, 165, 116, 0.5);
-  box-shadow: 0 8px 22px rgba(212, 165, 116, 0.22);
-}
-
-.lifecycle-card__phase {
-  text-align: center;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin: 0 0 0.3rem;
-}
-
-.lifecycle-card__title {
-  text-align: center;
-  font-size: 1.55rem;
-  font-weight: 800;
-  color: var(--text);
-  margin: 0 0 0.4rem;
-  letter-spacing: 0.01em;
-}
-
-.lifecycle-card__tag {
-  text-align: center;
-  font-size: 0.85rem;
-  color: var(--muted);
-  font-style: italic;
-  margin: 0 0 1rem;
-}
-
-.lifecycle-card__body {
-  font-size: 0.94rem;
-  line-height: 1.7;
-  color: #3a2e22;
-  margin: 0 0 1.25rem;
-  flex: 1;
-}
-
-.lifecycle-card__link {
-  align-self: center;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--green);
-  text-decoration: none;
-  letter-spacing: 0.02em;
-  transition: gap 0.2s ease, color 0.2s ease;
-  padding: 0.3rem 0;
-}
-.lifecycle-card__link:hover { color: #1d3f1f; }
-
-/* Per-phase accent glow on the icon */
-.lifecycle-card--seed    .lifecycle-card__icon { box-shadow: 0 0 24px rgba(44, 95, 46, 0.28),  0 8px 22px rgba(66,44,16,0.1); }
-.lifecycle-card--water   .lifecycle-card__icon { box-shadow: 0 0 24px rgba(90, 155, 200, 0.35),0 8px 22px rgba(66,44,16,0.1); }
-.lifecycle-card--harvest .lifecycle-card__icon { box-shadow: 0 0 28px rgba(212, 165, 116, 0.55), 0 8px 22px rgba(66,44,16,0.1); }
-
-/* Repeat badge floats below the row */
-.lifecycle-repeat {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-top: 1.75rem;
-  padding: 0.7rem 1.25rem;
-  border-radius: 999px;
-  background: rgba(212, 165, 116, 0.18);
-  border: 1px solid rgba(212, 165, 116, 0.55);
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-  color: #8a6a3a;
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-.lifecycle-repeat__arrow {
-  font-size: 1.1rem;
-  animation: lifecycleSpin 6s linear infinite;
-  display: inline-block;
-}
-@keyframes lifecycleSpin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
 }
 
 /* ── Today at Seed the Word — 3-card rail (light) ─────────── */
@@ -8286,13 +8128,317 @@ a.contact-card:hover .contact-card__cta span {
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 980px) {
   .homepage-dashboard { grid-template-columns: 1fr 1fr; }
-  .lifecycle-loop {
-    grid-template-columns: 1fr 1fr;
-  }
-  .lifecycle-loop::before { display: none; }
 }
 @media (max-width: 640px) {
   .homepage-dashboard { grid-template-columns: 1fr; }
-  .lifecycle-loop { grid-template-columns: 1fr; }
   .hd-card { min-height: auto; }
+}
+
+
+/* ============================================================
+   The Path of Light — homepage ministry map
+   A dark atmospheric canvas right under the hero, with a glowing
+   white road winding down, waypoint cards alternating left/right,
+   and a "Repeat" terminus at the bottom. Matches the hero's dark
+   tone so the site feels like a single continuous journey.
+   ============================================================ */
+
+.the-path {
+  position: relative;
+  overflow: hidden;
+  padding: 6rem 0 5rem;
+  color: rgba(255, 255, 255, 0.92);
+  /* Deep night-sky backdrop */
+  background:
+    radial-gradient(ellipse at 20% 15%, rgba(212, 165, 116, 0.18), transparent 55%),
+    radial-gradient(ellipse at 80% 85%, rgba(44, 95, 46, 0.18), transparent 55%),
+    linear-gradient(180deg, #0a0a0d 0%, #14131a 50%, #0a0a0d 100%);
+}
+
+/* Soft twinkling-stars layer using box-shadows */
+.the-path__atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.7), transparent 60%),
+    radial-gradient(1px 1px at 78% 22%, rgba(255, 255, 255, 0.55), transparent 60%),
+    radial-gradient(1px 1px at 25% 72%, rgba(255, 255, 255, 0.6), transparent 60%),
+    radial-gradient(1px 1px at 88% 68%, rgba(255, 255, 255, 0.5), transparent 60%),
+    radial-gradient(1px 1px at 55% 40%, rgba(255, 255, 255, 0.45), transparent 60%),
+    radial-gradient(1px 1px at 40% 90%, rgba(255, 255, 255, 0.5), transparent 60%),
+    radial-gradient(1px 1px at 92% 14%, rgba(255, 255, 255, 0.4), transparent 60%);
+  opacity: 0.6;
+}
+
+.the-path__head {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 760px;
+  margin-bottom: 3.5rem;
+}
+
+.the-path__eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(212, 165, 116, 0.9);
+  margin: 0 0 0.85rem;
+}
+
+.the-path__title {
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 1.25rem;
+  letter-spacing: 0.005em;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+}
+
+.the-path__verse {
+  margin: 0 auto 1.25rem;
+  padding: 0;
+  border: 0;
+  max-width: 540px;
+}
+.the-path__verse p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.88);
+  font-style: italic;
+  margin: 0 0 0.5rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.the-path__verse cite {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(212, 165, 116, 0.9);
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+
+.the-path__subtitle {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* ── The road + waypoints ──────────────────────────────────── */
+.the-path__road {
+  position: relative;
+  z-index: 2;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.the-path__road-svg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.the-path__waypoints {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.waypoint {
+  position: relative;
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 92px 1fr;
+  min-height: 180px;
+}
+
+.waypoint--left  .waypoint__card { grid-column: 1; text-align: right; justify-self: end; }
+.waypoint--left  .waypoint__marker { grid-column: 2; }
+.waypoint--right .waypoint__card { grid-column: 3; text-align: left;  justify-self: start; }
+.waypoint--right .waypoint__marker { grid-column: 2; }
+
+.waypoint__marker {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(244, 232, 211, 0.95) 40%,
+    rgba(212, 165, 116, 0.85) 100%
+  );
+  box-shadow:
+    0 0 0 6px rgba(255, 255, 255, 0.06),
+    0 0 28px rgba(255, 255, 255, 0.35),
+    0 0 60px rgba(212, 165, 116, 0.45);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  animation: waypointPulse 3.8s ease-in-out infinite;
+}
+@keyframes waypointPulse {
+  0%, 100% { box-shadow: 0 0 0 6px rgba(255,255,255,0.06), 0 0 28px rgba(255,255,255,0.35), 0 0 60px rgba(212,165,116,0.45); }
+  50%      { box-shadow: 0 0 0 8px rgba(255,255,255,0.10), 0 0 42px rgba(255,255,255,0.55), 0 0 88px rgba(212,165,116,0.65); }
+}
+
+.waypoint__icon {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+}
+
+.waypoint__card {
+  max-width: 420px;
+  padding: 1.5rem 1.75rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
+  transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.waypoint__card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(212, 165, 116, 0.55);
+  box-shadow: 0 26px 56px rgba(0, 0, 0, 0.45);
+}
+
+.waypoint__phase {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(212, 165, 116, 0.92);
+  margin: 0 0 0.3rem;
+}
+
+.waypoint__title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.35rem;
+  letter-spacing: 0.01em;
+}
+
+.waypoint__tag {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-style: italic;
+  margin: 0 0 0.9rem;
+}
+
+.waypoint__body {
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 1rem;
+}
+
+.waypoint__link {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(212, 165, 116, 0.92);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: color 0.2s ease;
+}
+.waypoint__link:hover { color: #fff; }
+
+/* Repeat terminus */
+.waypoint--repeat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: auto;
+  margin-top: 0.5rem;
+}
+.waypoint__marker--repeat {
+  animation: waypointSpin 10s linear infinite;
+}
+@keyframes waypointSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.waypoint--repeat .waypoint__icon {
+  font-size: 2rem;
+  color: #6b4d1d;
+  text-shadow: none;
+  filter: none;
+  font-weight: 700;
+  display: inline-block;
+  /* counter-rotate so "↻" stays legible while the marker spins */
+  animation: waypointCounterSpin 10s linear infinite;
+}
+@keyframes waypointCounterSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+.waypoint__repeat-label {
+  margin: 1rem 0 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(212, 165, 116, 0.95);
+}
+.waypoint__repeat-sub {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+  font-style: italic;
+  text-align: center;
+  max-width: 320px;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 820px) {
+  .the-path { padding: 4rem 0 3.5rem; }
+
+  .the-path__road-svg {
+    left: 36px;
+    transform: none;
+    width: 60px;
+  }
+
+  .the-path__waypoints { gap: 2.25rem; }
+
+  .waypoint {
+    grid-template-columns: 72px 1fr;
+    min-height: auto;
+  }
+  .waypoint--left  .waypoint__marker,
+  .waypoint--right .waypoint__marker { grid-column: 1; justify-self: center; }
+  .waypoint--left  .waypoint__card,
+  .waypoint--right .waypoint__card {
+    grid-column: 2;
+    text-align: left;
+    justify-self: stretch;
+    max-width: none;
+  }
+
+  .waypoint--repeat { grid-template-columns: 1fr; }
+  .waypoint--repeat .waypoint__marker { justify-self: center; grid-column: 1; }
+}
+
+@media (max-width: 520px) {
+  .waypoint__card { padding: 1.25rem; }
+  .waypoint__title { font-size: 1.35rem; }
 }

@@ -57,9 +57,22 @@
     <p class="hero__text hero__text--intro">that is</p>
     <h2 class="hero__text hero__text--name">Jesus <span class="hero__cross">✝</span> Christ</h2>
     <a href="about.html" class="btn btn-jesus">Who is Jesus?</a>
-    <a href="#the-path" class="hero__scroll-indicator">
+    <a href="#showcase" class="hero__scroll-indicator">
       <span>↓</span>
     </a>
+  </div>
+</section>
+
+<!-- ── Homepage Showcase: rotates ministry highlights, featured Instagram
+       posts, and daily Bible content (verses, tips, facts, encouragement) ── -->
+<section class="showcase-section" id="showcase">
+  <div class="container">
+    <h2 class="section-title">✨ Featured From Our Ministry</h2>
+    <p class="showcase-section__intro">
+      Highlights from our ministry, a verse for today, and moments from our community —
+      curated and always refreshing.
+    </p>
+    <div id="showcase-container"></div>
   </div>
 </section>
 
@@ -181,67 +194,6 @@
   </div>
 </section>
 
-<!-- ── Homepage Showcase (replaces old daily verse; rotates ministry highlights,
-       featured Instagram posts, and daily Bible content) ── -->
-<section class="showcase-section" id="showcase">
-  <div class="container">
-    <h2 class="section-title">✨ Featured From Our Ministry</h2>
-    <p class="showcase-section__intro">
-      Highlights from our ministry, a verse for today, and moments from our community —
-      curated and always refreshing.
-    </p>
-    <div id="showcase-container"></div>
-  </div>
-</section>
-
-<!-- ── Lives Changed by God's Word (dark, right after Showcase) ── -->
-<section class="section lives-changed" id="testimonies">
-  <div class="container">
-    <h2 class="section-title">Lives Changed by God's Word</h2>
-    <p class="lives-changed__subtitle">
-      Real stories from people who met Jesus through a simple Bible in their hands.
-      Have a story of your own? We'd love to hear it and share it.
-    </p>
-    <div class="cards-grid">
-      <article class="testimony-card testimony-card--dark">
-        <div class="testimony-card__avatar"></div>
-        <h3 class="testimony-card__name">Maria G.</h3>
-        <p class="testimony-card__text" data-full="Receiving this Bible changed everything for me. I never expected someone to reach out with such a personal gift. It felt like a hug from God. I have been reading it every morning since the day I received it.">"Receiving this Bible changed everything for me. I never expected someone to reach out with such a personal gift…"</p>
-        <button class="testimony-card__more" aria-expanded="false">Read More</button>
-      </article>
-      <article class="testimony-card testimony-card--dark">
-        <div class="testimony-card__avatar"></div>
-        <h3 class="testimony-card__name">James T.</h3>
-        <p class="testimony-card__text" data-full="I had so many questions about faith and wasn't sure where to start. This ministry gave me not just a Bible but a community that walked alongside me with patience and love. I am forever grateful.">"I had so many questions about faith. This ministry gave me a Bible and a community that answered with love…"</p>
-        <button class="testimony-card__more" aria-expanded="false">Read More</button>
-      </article>
-      <article class="testimony-card testimony-card--dark">
-        <div class="testimony-card__avatar"></div>
-        <h3 class="testimony-card__name">Priya N.</h3>
-        <p class="testimony-card__text" data-full="The personalized note inside my Bible still makes me smile every time I open it. Someone prayed for me specifically — a stranger. That changed how I see God's love for me personally.">"The personalized note inside my Bible still makes me smile. Someone prayed for me specifically — that changed everything…"</p>
-        <button class="testimony-card__more" aria-expanded="false">Read More</button>
-      </article>
-    </div>
-    <div class="lives-changed__actions">
-      <a href="about.html#contact" class="btn btn-primary">Submit Your Testimony</a>
-      <a href="news.html#ministry-outreach" class="btn btn-outline-gold">See More Stories</a>
-    </div>
-  </div>
-</section>
-
-<!-- ── Today at Seed the Word — 3 focused cards ── -->
-<section class="section homepage-dashboard-section" id="today">
-  <div class="container">
-    <h2 class="section-title">Today at Seed the Word</h2>
-    <p class="homepage-dashboard-section__subtitle">
-      A verse to sit with, what's coming up, and where our team's been out in the field.
-    </p>
-    <div class="homepage-dashboard" id="homepage-dashboard" aria-live="polite">
-      <!-- Populated by assets/js/homepage-dashboard.js -->
-    </div>
-  </div>
-</section>
-
 
 
 <!-- ── Footer ── -->
@@ -305,6 +257,5 @@
 
 <script src="assets/js/main.js"></script>
 <script src="assets/js/showcase-carousel.js?v=2"></script>
-<script src="assets/js/homepage-dashboard.js?v=1"></script>
 </body>
 </html>

@@ -1629,47 +1629,77 @@ flowchart TD
     <li>Check the browser console (F12 → Console tab) for red errors. Screenshot them before pinging the dev.</li>
   </ul>
 
-  <h2>📣 Announcing events to Telegram</h2>
-  <p>Every event on the News page has a built-in "Share to Telegram" shortcut. You don't need to write or copy-paste anything by hand — open the event, tap the button, pick the announcements chat, and send.</p>
+  <h2>📣 Announcing events to Telegram, Instagram &amp; beyond</h2>
+  <p>Every event on the News page has a single <strong>📣 Share Event</strong> button in its modal. Tapping it opens a dropdown with multiple destinations — Telegram, WhatsApp, Instagram, the device share sheet, or plain clipboard — and pre-fills each one with an announcement following our ministry format. No retyping, no copy-paste dance.</p>
 
   <div class="admin-flowchart">
     <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">Post a calendar event to Telegram in under 30 seconds</p>
+    <p class="admin-flowchart__title">Announce an event anywhere in under 30 seconds</p>
     <div class="mermaid">
 flowchart LR
     A([Add event to<br/>Google Calendar]) --> B[Open news.html<br/>click the event]
-    B --> C[Modal opens with:<br/>📣 Share to Telegram<br/>📋 Copy announcement]
-    C --> D{Picking the path}
-    D -->|Telegram button| E[Telegram share sheet<br/>opens with preview +<br/>pre-written caption]
-    D -->|Copy button| F[Announcement text<br/>on clipboard — paste<br/>anywhere]
-    E --> G[Pick 'Announcements'<br/>chat, hit Send]
-    F --> G
-    G --> H([Announcement posted<br/>with link preview<br/>back to news.html])
+    B --> C[Tap 📣 Share Event<br/>menu opens]
+    C --> D{Pick destination}
+    D -->|Device share…| E[iOS/Android share sheet<br/>every app available]
+    D -->|Telegram| F[Telegram share sheet<br/>pre-filled announcement]
+    D -->|WhatsApp| G[WhatsApp share sheet<br/>pre-filled announcement]
+    D -->|Instagram| H[Caption copied +<br/>IG opens — paste<br/>into post / story / DM]
+    D -->|Copy announcement| I[Clipboard — paste<br/>anywhere]
+    D -->|Copy event link| J[Deep link only<br/>for inline mentions]
 
     classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
     classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
     classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    class A,H start
+    class A start
     class D decision
-    class B,C,E,F,G action
+    class B,C,E,F,G,H,I,J action
     </div>
   </div>
 
-  <h3>What the Share to Telegram button does</h3>
+  <h3>The announcement format</h3>
+  <p>The Share button uses our ministry template. Every event auto-generates something like this:</p>
+  <pre><code>❕! TONIGHT 6 PM ! ❕
+🌱Seed The Word! 🌱
+@ Vanessa's House!
+
+Address:
+📍1505 Mukilteo Ln, Mukilteo, WA 98275 (https://maps.apple.com/?q=1505+Mukilteo+Ln%2C+Mukilteo%2C+WA+98275)
+Google maps link (https://maps.google.com/?q=1505+Mukilteo+Ln%2C+Mukilteo%2C+WA+98275)
+
+🙏🏻🤍sharing a worship and fellowship gathering for all who are in the area, with campfire, smores, and hotdogs!🙏🏻🤍
+
+We can\u2019t wait to see you there! \u2728
+
+Details → https://seedtheword.github.io/seedtheword/news.html#event=abc123</code></pre>
+
+  <h3>How each field is generated (so Calendar edits drive the post)</h3>
   <ul>
-    <li>Opens Telegram's native share sheet in a new tab (works on desktop and mobile).</li>
-    <li>Pre-fills the message with an emoji-formatted announcement: title, date, time, location, description, and a link back to the event on <code>news.html</code>.</li>
-    <li>Telegram automatically generates a <strong>rich link preview</strong> from the Open Graph tags on news.html, so members see the ministry image and description without clicking.</li>
-    <li>Picking the announcements chat and hitting Send is the only admin step.</li>
+    <li><strong>Time header</strong> ("TONIGHT 6 PM" / "TOMORROW 7 PM" / "SATURDAY 7 PM" / "MAY 15 7 PM") — derived from the event's start time. Close events get the friendlier label; events further out get the date.</li>
+    <li><strong>Venue line "@ Vanessa's House!"</strong> — pulled from the event title if it ends with <code>@ Something</code>, or falls back to the first part of the address. Add <code>@ Vanessa's House</code> to the event's Google Calendar title to get that exact line.</li>
+    <li><strong>Address + maps links</strong> — auto-built from the event's Location field in Google Calendar. Both Apple Maps and Google Maps links are included so the member can tap whichever they prefer.</li>
+    <li><strong>🙏🏻🤍 description 🙏🏻🤍</strong> — pulled from the event's Description field. Keep descriptions short — we trim to 400 characters.</li>
+    <li><strong>Details link</strong> — a deep link to the event's modal on news.html. Clicking it opens the News page with the event expanded.</li>
+  </ul>
+
+  <h3>Share destinations in the dropdown</h3>
+  <ul>
+    <li><strong>📱 Device share…</strong> — appears on phones (and some desktop browsers). Opens the native share sheet with every installed app. Fastest if you're on your phone.</li>
+    <li><strong>📣 Telegram</strong> — opens Telegram's share sheet pre-filled with the announcement and link. Pick the Announcements chat, hit send. Telegram generates a rich preview card from the News page's Open Graph image.</li>
+    <li><strong>💬 WhatsApp</strong> — opens WhatsApp with the announcement pre-filled.</li>
+    <li><strong>📷 Instagram</strong> — IG has no public share API, so this copies the caption to the clipboard and opens <em>@seedtheword</em>. From there you paste it into a new post, story, or DM.</li>
+    <li><strong>📋 Copy announcement</strong> — full text to clipboard. Paste anywhere.</li>
+    <li><strong>🔗 Copy event link only</strong> — just the URL, no message. Useful for inline mentions ("see ya at the @seedtheword study ↓ url").</li>
   </ul>
 
   <h3>Shareable event links</h3>
-  <p>Every event has a direct URL: <code>news.html#event=&lt;event-id&gt;</code>. If a member clicks that link from anywhere (Telegram, Instagram, a text message), the News page opens with the event's modal already expanded. No hunting through the calendar.</p>
+  <p>Every event has a direct URL: <code>news.html#event=&lt;event-id&gt;</code>. Clicking it opens the News page with that event's modal already expanded. The URL in your address bar updates automatically when you open an event, so you can grab it from there if you prefer. Closing the modal cleans up the hash.</p>
+
+  <h3>Pro tip: edit the event in Google Calendar to control the post</h3>
+  <p>Since everything in the announcement comes from the Calendar event, you can tune the wording by editing the Calendar entry:</p>
   <ul>
-    <li>When you open an event modal, the URL in your address bar updates automatically — you can always copy it straight from there too.</li>
-    <li>When you close the modal, the hash is cleaned up so the URL doesn't stay sticky.</li>
-    <li>The event IDs come straight from Google Calendar — if an event is deleted in Calendar, the deep-link gracefully falls back to a normal News page load.</li>
+    <li>Title ending in <code>@ Place Name</code> → venue line reads "@ Place Name!"</li>
+    <li>Paste the full street address into Location → Apple Maps + Google Maps links are auto-generated</li>
+    <li>Put the invite/description in the Description field → wraps with 🙏🏻🤍 automatically</li>
   </ul>
 
   <h3>Want fully-automated posting (no tap required)?</h3>

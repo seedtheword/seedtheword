@@ -8467,3 +8467,104 @@ a.contact-card:hover .contact-card__cta span {
   min-height: 1.2rem;
   text-align: center;
 }
+
+
+/* ============================================================
+   Event modal — Share dropdown menu
+   Multi-platform share (Telegram, WhatsApp, Instagram, Device
+   share sheet, Copy) replacing the previous single Telegram CTA.
+   ============================================================ */
+.event-share {
+  position: relative;
+  display: inline-block;
+}
+.event-share__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.event-share__caret {
+  font-size: 0.85em;
+  opacity: 0.9;
+  transition: transform 0.2s ease;
+}
+.event-share__toggle[aria-expanded="true"] .event-share__caret {
+  transform: rotate(180deg);
+}
+.event-share__menu {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  left: 0;
+  z-index: 10;
+  min-width: 280px;
+  max-width: 320px;
+  padding: 0.35rem;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.event-share__menu[hidden] { display: none; }
+
+.event-share__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  text-decoration: none;
+  color: var(--text);
+  transition: background 0.15s ease;
+}
+.event-share__item:hover,
+.event-share__item:focus-visible {
+  background: rgba(44, 95, 46, 0.07);
+  outline: none;
+}
+.event-share__item-icon {
+  font-size: 1.35rem;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.event-share__item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.event-share__item-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+}
+.event-share__item-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.event-modal__share-hint.is-error {
+  color: #b95828;
+}
+
+@media (max-width: 520px) {
+  .event-share__menu {
+    position: fixed;
+    top: auto;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    min-width: 0;
+    max-width: none;
+    padding: 0.5rem;
+  }
+}

@@ -640,22 +640,20 @@ class GoogleCalendarIntegration {
       </ul>
       ${event.description ? `<div class="event-modal__desc">${escapeHtml(event.description).replace(/\|/g, '<br>').replace(/\n/g, '<br>')}</div>` : ''}
       <div class="event-modal__actions">
-        <a class="btn btn-primary" id="event-share-telegram"
-           href="${this.buildTelegramShareUrl(event, shareUrl)}"
-           target="_blank" rel="noopener">
-          📣 Share to Telegram
-        </a>
-        <button class="btn btn-secondary" id="event-copy-share">
-          📋 Copy announcement
-        </button>
+        <div class="event-share" id="event-share-wrap">
+          <button type="button" class="btn btn-primary event-share__toggle"
+                  id="event-share-toggle"
+                  aria-haspopup="true" aria-expanded="false"
+                  aria-controls="event-share-menu">
+            📣 Share Event <span class="event-share__caret" aria-hidden="true">▾</span>
+          </button>
+          <div class="event-share__menu" id="event-share-menu" role="menu" hidden></div>
+        </div>
         ${hasLink ? `
           <a class="btn btn-outline-gold" href="${event.htmlLink}" target="_blank" rel="noopener">
             View on Google Calendar
           </a>
         ` : ''}
-        <button class="btn btn-outline-gold" onclick="googleCalendar.addToCalendar('${startDate.toISOString()}', ${JSON.stringify(title)})">
-          Add to My Calendar
-        </button>
       </div>
       <p class="event-modal__share-hint" id="event-share-hint" aria-live="polite"></p>
     `;
@@ -664,20 +662,175 @@ class GoogleCalendarIntegration {
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
 
-    // Wire up Copy button
-    const copyBtn = document.getElementById('event-copy-share');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', async () => {
-        const text = this.buildShareText(event, shareUrl);
-        const hint = document.getElementById('event-share-hint');
-        try {
-          await navigator.clipboard.writeText(text);
-          if (hint) hint.textContent = '✅ Copied — paste into any chat or post.';
-        } catch (_) {
-          if (hint) hint.textContent = 'Could not auto-copy. Select the Share to Telegram link and copy the URL instead.';
-        }
-        if (hint) setTimeout(() => { hint.textContent = ''; }, 4000);
+    // Wire up the share dropdown
+    this.wireShareMenu(event, shareUrl);
+  }
+
+  /** Build the dropdown of share destinations and wire each action. */
+  wireShareMenu(event, shareUrl) {
+    const toggle = document.getElementById('event-share-toggle');
+    const menu   = document.getElementById('event-share-menu');
+    const hint   = document.getElementById('event-share-hint');
+    if (!toggle || !menu) return;
+
+    const announcement = this.buildShareText(event, shareUrl);
+
+    // Destinations. Each entry renders a row; 'action' runs on click.
+    const items = [];
+
+    // 1) Native device share, if the browser exposes it (phones + some desktops).
+    //    This gives Telegram, IG, WhatsApp, AirDrop, Mail, etc. in one sheet.
+    if (typeof navigator.share === 'function') {
+      items.push({
+        icon: '📱',
+        label: 'Device share…',
+        desc: 'All apps on this device',
+        action: async () => {
+          try {
+            await navigator.share({
+              title: event.summary || 'Seed the Word event',
+              text: announcement,
+              url: shareUrl,
+            });
+            return { ok: true, msg: '✅ Shared.' };
+          } catch (err) {
+            if (err && err.name === 'AbortError') return { ok: true, msg: '' };
+            return { ok: false, msg: '⚠️ Share cancelled.' };
+          }
+        },
       });
+    }
+
+    // 2) Telegram — pre-filled share sheet, generates a rich preview from OG tags
+    items.push({
+      icon: '📣',
+      label: 'Telegram',
+      desc: 'Opens Telegram share sheet',
+      href: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(announcement)}`,
+    });
+
+    // 3) WhatsApp — same idea, different endpoint
+    items.push({
+      icon: '💬',
+      label: 'WhatsApp',
+      desc: 'Opens WhatsApp with the announcement',
+      href: `https://wa.me/?text=${encodeURIComponent(announcement)}`,
+    });
+
+    // 4) Instagram — no public share API. Copy + open so admins can paste
+    //    into a new story, DM, or post caption.
+    items.push({
+      icon: '📷',
+      label: 'Instagram',
+      desc: 'Copies caption, opens Instagram',
+      action: async () => {
+        const okCopy = await this.copyToClipboardSafe(announcement);
+        window.open('https://www.instagram.com/seedtheword/', '_blank', 'noopener');
+        return okCopy
+          ? { ok: true, msg: '✅ Caption copied — paste into your post, story, or DM.' }
+          : { ok: false, msg: 'Could not auto-copy. Use "Copy announcement" instead.' };
+      },
+    });
+
+    // 5) Copy full announcement
+    items.push({
+      icon: '📋',
+      label: 'Copy announcement',
+      desc: 'Clipboard — paste anywhere',
+      action: async () => {
+        const ok = await this.copyToClipboardSafe(announcement);
+        return ok
+          ? { ok: true, msg: '✅ Announcement copied.' }
+          : { ok: false, msg: 'Clipboard was blocked. Long-press the link in the modal to copy.' };
+      },
+    });
+
+    // 6) Copy just the deep link
+    items.push({
+      icon: '🔗',
+      label: 'Copy event link only',
+      desc: 'Just the URL, no message',
+      action: async () => {
+        const ok = await this.copyToClipboardSafe(shareUrl);
+        return ok
+          ? { ok: true, msg: '✅ Event link copied.' }
+          : { ok: false, msg: 'Clipboard was blocked.' };
+      },
+    });
+
+    menu.innerHTML = items.map((it, i) => `
+      ${it.href
+        ? `<a class="event-share__item" role="menuitem" data-idx="${i}" href="${it.href}" target="_blank" rel="noopener">`
+        : `<button type="button" class="event-share__item" role="menuitem" data-idx="${i}">`}
+        <span class="event-share__item-icon" aria-hidden="true">${it.icon}</span>
+        <span class="event-share__item-body">
+          <span class="event-share__item-label">${escapeHtml(it.label)}</span>
+          <span class="event-share__item-desc">${escapeHtml(it.desc)}</span>
+        </span>
+      ${it.href ? '</a>' : '</button>'}
+    `).join('');
+
+    const openMenu = (open) => {
+      menu.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+    };
+
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openMenu(menu.hidden);
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!menu.hidden && !menu.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
+        openMenu(false);
+      }
+    });
+
+    // Wire per-item actions (for buttons; href links just open as normal)
+    menu.querySelectorAll('[data-idx]').forEach((el) => {
+      el.addEventListener('click', async (e) => {
+        const idx = parseInt(el.dataset.idx, 10);
+        const item = items[idx];
+        if (!item) return;
+        if (item.action) {
+          e.preventDefault();
+          const res = await item.action();
+          if (hint && res && res.msg) {
+            hint.textContent = res.msg;
+            hint.classList.toggle('is-error', !res.ok);
+            setTimeout(() => { hint.textContent = ''; hint.classList.remove('is-error'); }, 4500);
+          }
+        }
+        openMenu(false);
+      });
+    });
+
+    // Esc closes the menu
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !menu.hidden) openMenu(false);
+    });
+  }
+
+  /** Safe-ish clipboard write that falls back to a select-based trick. */
+  async copyToClipboardSafe(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        return true;
+      } catch (_) {
+        return false;
+      }
     }
   }
 
@@ -693,42 +846,102 @@ class GoogleCalendarIntegration {
     return `${origin}${finalPath}#event=${id}`;
   }
 
-  /** Plain-text announcement ready for Telegram or pasting elsewhere. */
+  /** Plain-text announcement ready for Telegram, WhatsApp, IG caption, etc.
+   *  Follows the ministry's template:
+   *    ❕! TONIGHT 6PM ! ❕
+   *    🌱Seed The Word! 🌱
+   *    @ <place>!
+   *    Address:
+   *    📍 <address> (<apple maps>)
+   *    Google maps link (<google maps>)
+   *    🙏🏻🤍<description>🙏🏻🤍
+   *    <extra note, if any>
+   *    ✨
+   *    Details → <deep link>
+   */
   buildShareText(event, shareUrl) {
     const start = this.getEventStart(event);
     const end   = this.getEventEnd(event);
-    if (!start || !end) return '';
+    if (!start) return '';
 
     const isAllDay = !event.start?.dateTime;
+    const title    = (event.summary || 'Seed the Word Event').trim();
 
-    const dateLine = start.toLocaleDateString('en-US', {
-      weekday: 'long', month: 'long', day: 'numeric',
-    });
-    const time = isAllDay
-      ? 'All day'
-      : `${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} – ${end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+    // Banner line: "TONIGHT <time>", "TOMORROW <time>", or "<DAY>, <MONTH DAY> <time>"
+    const now = new Date();
+    const startOfDay = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c; };
+    const dayDiff = Math.round((startOfDay(start) - startOfDay(now)) / 86400000);
+    const timeStr = isAllDay
+      ? 'ALL DAY'
+      : start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+          .replace(':00', '')   // "7:00 PM" -> "7 PM"
+          .toUpperCase();
+    let banner;
+    if (dayDiff === 0)       banner = `TONIGHT ${timeStr}`;
+    else if (dayDiff === 1)  banner = `TOMORROW ${timeStr}`;
+    else if (dayDiff > 1 && dayDiff <= 7) {
+      const dayName = start.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+      banner = `${dayName} ${timeStr}`;
+    } else {
+      const d = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
+      banner = `${d} ${timeStr}`;
+    }
 
-    const lines = [];
-    lines.push(`📣 ${event.summary || 'Ministry Event'}`);
-    lines.push('');
-    lines.push(`📅 ${dateLine}`);
-    lines.push(`⏰ ${time}`);
-    if (event.location) lines.push(`📍 ${event.location}`);
+    // Pull "@ <place>!" out of the event title if it already has one,
+    // otherwise fall back to the location or title.
+    let venueLine = null;
+    const atMatch = title.match(/\s@\s(.+)$/i);
+    if (atMatch) {
+      venueLine = `@ ${atMatch[1].trim()}!`;
+    } else if (event.location) {
+      // Take the first line / first comma-separated segment of the address
+      const firstBit = String(event.location).split(/\r?\n/)[0].split(',')[0].trim();
+      if (firstBit) venueLine = `@ ${firstBit}!`;
+    }
+
+    // Maps links (Apple + Google) if we have an address
+    let addressBlock = null;
+    if (event.location) {
+      const rawAddr = String(event.location).trim();
+      const encAddr = encodeURIComponent(rawAddr);
+      const googleMaps = `https://maps.google.com/?q=${encAddr}`;
+      const appleMaps  = `https://maps.apple.com/?q=${encAddr}&address=${encAddr}`;
+      addressBlock = [
+        'Address:',
+        `📍${rawAddr} (${appleMaps})`,
+        `Google maps link (${googleMaps})`,
+      ].join('\n');
+    }
+
+    // Body: wrap description in 🙏🏻🤍 ... 🙏🏻🤍 if we have one
+    let bodyBlock = null;
     if (event.description) {
-      lines.push('');
-      // Strip HTML from description, cap at ~400 chars so the preview is clean
       const cleanDesc = String(event.description)
         .replace(/<[^>]+>/g, '')
         .replace(/\|/g, '\n')
         .trim();
       const capped = cleanDesc.length > 400 ? cleanDesc.slice(0, 397) + '…' : cleanDesc;
-      lines.push(capped);
+      if (capped) bodyBlock = `🙏🏻🤍${capped}🙏🏻🤍`;
     }
-    lines.push('');
-    lines.push(`Details → ${shareUrl}`);
-    lines.push('');
-    lines.push('— Seed the Word Ministry');
-    return lines.join('\n');
+
+    // Assemble
+    const parts = [];
+    parts.push(`❕! ${banner} ! ❕`);
+    parts.push('🌱Seed The Word! 🌱');
+    if (venueLine) parts.push(venueLine);
+    if (addressBlock) {
+      parts.push('');
+      parts.push(addressBlock);
+    }
+    if (bodyBlock) {
+      parts.push('');
+      parts.push(bodyBlock);
+    }
+    parts.push('');
+    parts.push('We can\u2019t wait to see you there! \u2728');
+    parts.push('');
+    parts.push(`Details → ${shareUrl}`);
+    return parts.join('\n');
   }
 
   buildTelegramShareUrl(event, shareUrl) {

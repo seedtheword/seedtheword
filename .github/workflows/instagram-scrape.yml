@@ -8,12 +8,21 @@ on:
 permissions:
   contents: write
 
+# Only one scrape can run at a time. Queued runs wait instead of
+# cancelling, so a newly-triggered run never kills the one in flight.
+concurrency:
+  group: instagram-scrape
+  cancel-in-progress: false
+
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -27,14 +36,31 @@ jobs:
           OUT_PATH: assets/data/instagram.json
           IMG_DIR: assets/images/instagram
 
-      - name: Commit if changed
+      - name: Commit and push if changed
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/data/instagram.json assets/images/instagram
+
           if git diff --cached --quiet; then
             echo "No changes to Instagram data."
-          else
-            git commit -m "chore(instagram): refresh feed [skip ci]"
-            git push
+            exit 0
           fi
+
+          git commit -m "chore(instagram): refresh feed [skip ci]"
+
+          # Retry push up to 3 times, rebasing first in case local pushes
+          # landed on main while this job was running.
+          for attempt in 1 2 3; do
+            echo "Push attempt $attempt..."
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              echo "Push succeeded."
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; retrying in 5s..."
+            sleep 5
+          done
+
+          echo "All push attempts failed."
+          exit 1

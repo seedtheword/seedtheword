@@ -375,6 +375,168 @@
       .admin-search { margin: 0 -1rem 1.5rem; padding: 0.75rem 1rem; }
       .admin-flowchart { margin-left: -0.5rem; margin-right: -0.5rem; padding: 1rem; }
     }
+
+    /* ── Recommendations builder tool ─────────────────────── */
+    .reco-builder {
+      margin: 1.5rem 0 2rem;
+      padding: 1.5rem 1.75rem;
+      background: linear-gradient(135deg, rgba(253, 248, 242, 0.95), rgba(244, 232, 211, 0.75));
+      border: 1px solid rgba(212, 165, 116, 0.4);
+      border-radius: 14px;
+    }
+    .reco-builder__label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin: 0 0 0.4rem;
+    }
+    .reco-builder__title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text);
+      margin: 0 0 0.5rem;
+    }
+    .reco-builder__blurb {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0 0 1.25rem;
+    }
+    .reco-builder__tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .reco-builder__tab {
+      padding: 0.45rem 0.9rem;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .reco-builder__tab:hover {
+      background: #fff;
+      border-color: rgba(44, 95, 46, 0.4);
+    }
+    .reco-builder__tab.is-active {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+    .reco-builder__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .reco-builder__field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .reco-builder__field--full { grid-column: 1 / -1; }
+    .reco-builder__field label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .reco-builder__field input,
+    .reco-builder__field select,
+    .reco-builder__field textarea {
+      padding: 0.55rem 0.75rem;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: #fff;
+      color: var(--text);
+    }
+    .reco-builder__field textarea { resize: vertical; min-height: 3rem; }
+    .reco-builder__field input:focus,
+    .reco-builder__field select:focus,
+    .reco-builder__field textarea:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.15);
+    }
+    .reco-builder__field .hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .reco-builder__output {
+      margin-top: 0.75rem;
+      background: #1a1a1a;
+      color: #f0f0f0;
+      padding: 1rem 1.1rem;
+      border-radius: 10px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      white-space: pre;
+      overflow-x: auto;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .reco-builder__actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .reco-builder__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1rem;
+      border: 0;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .reco-builder__btn--primary {
+      background: var(--green);
+      color: #fff;
+    }
+    .reco-builder__btn--primary:hover {
+      background: #1d3f1f;
+      transform: translateY(-1px);
+    }
+    .reco-builder__btn--secondary {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      color: var(--text);
+    }
+    .reco-builder__btn--secondary:hover {
+      background: #fff;
+    }
+    .reco-builder__status {
+      font-size: 0.82rem;
+      color: var(--green);
+      font-weight: 700;
+      min-width: 120px;
+    }
+    .reco-builder__destination {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin: 0.6rem 0 0;
+      line-height: 1.55;
+    }
+    .reco-builder__destination code {
+      background: rgba(0, 0, 0, 0.06);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+    @media (max-width: 640px) {
+      .reco-builder__grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -529,6 +691,12 @@ flowchart TD
     <p class="admin-card__title">GitHub Pages</p>
     <p>The site itself lives in a GitHub repo. Every commit to <code>main</code> auto-deploys in about 30 seconds. No server to manage.</p>
     <p><strong>Repo:</strong> <a href="https://github.com/seedtheword/seedtheword" target="_blank" rel="noopener">github.com/seedtheword/seedtheword</a></p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Team Media Drop</p>
+    <p class="admin-card__title">Google Drive shared folder</p>
+    <p>Team members upload photos and videos via <a href="media-drop.html" target="_blank" rel="noopener">media-drop.html</a>, which links to a shared Drive folder. Admins curate from there. See <em>Managing the team media drop</em> below for setup.</p>
   </div>
 
   <div class="admin-card">
@@ -868,6 +1036,42 @@ flowchart TD
     <p>This file has two lists near the top: <code>LISTENING_ITEMS</code> (for "What We're Listening To") and <code>PARTNER_MINISTRIES</code>. Add or remove entries in those arrays — that's the whole workflow.</p>
   </div>
 
+  <!-- Interactive recommendations builder -->
+  <div class="reco-builder" id="reco-builder">
+    <p class="reco-builder__label">Interactive tool</p>
+    <h3 class="reco-builder__title">🪄 Recommendations builder</h3>
+    <p class="reco-builder__blurb">
+      Fill out the form and this tool generates the exact code block to paste into
+      <code>recommendations.js</code>. Paste a Spotify or YouTube URL and the ID gets extracted automatically. No syntax errors, no commas to count.
+    </p>
+
+    <div class="reco-builder__tabs" role="tablist">
+      <button class="reco-builder__tab is-active" data-kind="spotify" role="tab" type="button">🎙️ Spotify</button>
+      <button class="reco-builder__tab" data-kind="youtube" role="tab" type="button">📺 YouTube</button>
+      <button class="reco-builder__tab" data-kind="link" role="tab" type="button">🔗 Link / Article</button>
+      <button class="reco-builder__tab" data-kind="partner" role="tab" type="button">🤝 Partner Ministry</button>
+    </div>
+
+    <!-- Dynamic fields rendered by the script -->
+    <div id="reco-builder-fields"></div>
+
+    <div class="reco-builder__actions">
+      <button type="button" class="reco-builder__btn reco-builder__btn--primary" id="reco-builder-copy">
+        📋 Copy code
+      </button>
+      <button type="button" class="reco-builder__btn reco-builder__btn--secondary" id="reco-builder-reset">
+        Reset form
+      </button>
+      <span class="reco-builder__status" id="reco-builder-status" role="status" aria-live="polite"></span>
+    </div>
+
+    <pre class="reco-builder__output" id="reco-builder-output"><code>// Fill out the form above to generate a code block.</code></pre>
+
+    <p class="reco-builder__destination" id="reco-builder-destination">
+      Paste this block inside the <code>LISTENING_ITEMS</code> array in <code>assets/js/recommendations.js</code>. Put it between <code>[</code> and <code>]</code>, with a comma after the closing <code>&#125;</code> if there are other items.
+    </p>
+  </div>
+
   <h3>Add a Spotify episode to "What We're Listening To"</h3>
 
   <div class="admin-flowchart">
@@ -1037,6 +1241,74 @@ flowchart TD
     <li>You should see each bundle card rotating through its photos every ~5.5 seconds, with dots at the bottom of each slideshow.</li>
     <li>Hover over a card — the rotation pauses. Click a dot — it jumps to that slide.</li>
     <li>If a slideshow doesn't appear at all, open the console (F12) and look for a "could not load manifest" warning — usually it's a JSON typo.</li>
+  </ol>
+
+  <h2>📤 Team media drop (how the team uploads photos/videos)</h2>
+  <p>We have a public landing page at <a href="media-drop.html" target="_blank" rel="noopener"><code>media-drop.html</code></a> that our team uses to share photos and videos they capture out in the field. It points at a shared Google Drive folder so anyone on the team can drop media in from their phone, laptop, or camera. Admins then review and decide what ships to the site.</p>
+
+  <div class="admin-flowchart">
+    <p class="admin-flowchart__label">Visual guide</p>
+    <p class="admin-flowchart__title">From phone → Drive → admin review → live site</p>
+    <div class="mermaid">
+flowchart LR
+    T([Team member<br/>captures moment]) --> U[Opens media-drop.html<br/>on phone or laptop]
+    U --> D[Uploads to shared<br/>Google Drive folder]
+    D --> A([Admin reviews<br/>within a few days])
+    A --> Q{Is this a fit<br/>for the site?}
+    Q -->|Yes — outreach photos| O1[Resize / compress<br/>add to outreach folder]
+    Q -->|Yes — highlight-worthy| O2[Add to ministry-highlights<br/>or featured folder]
+    Q -->|Yes — team/member photo| O3[Add to team folder]
+    Q -->|Not this time| O4[Leave in Drive archive<br/>for later use]
+    O1 --> C([Commit to repo<br/>site updates in ~60s])
+    O2 --> C
+    O3 --> C
+
+    classDef team fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    classDef step fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
+    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
+    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    class T,A,C team
+    class U,D,O1,O2,O3,O4 step
+    class Q decision
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Config file</p>
+    <p class="admin-card__title"><code>assets/data/media-drop.json</code></p>
+    <p>Controls what shows up on <code>media-drop.html</code>. You can edit the Drive URL, upload guidelines, or turn the landing page off — no HTML edits needed.</p>
+  </div>
+
+  <h3>First-time setup (do this once)</h3>
+  <ol>
+    <li>Sign in to <a href="https://drive.google.com" target="_blank" rel="noopener">drive.google.com</a> with the ministry account (<code>seedthewordministry@gmail.com</code>).</li>
+    <li>Click <strong>New → Folder</strong> and name it something like <strong>"Seed the Word — Team Media Drop"</strong>.</li>
+    <li>Right-click the folder → <strong>Share</strong>. Under <strong>General access</strong>, pick <strong>"Anyone with the link"</strong>, and set the role to <strong>Editor</strong>. This is the key setting — it lets teammates upload without a Google login barrier.</li>
+    <li>Click <strong>Copy link</strong>. The URL will look like <code>https://drive.google.com/drive/folders/&lt;LONG_ID&gt;?usp=sharing</code>.</li>
+    <li>In the repo, open <code>assets/data/media-drop.json</code> and paste that URL into the <code>"uploadUrl"</code> field, replacing <code>REPLACE_WITH_YOUR_FOLDER_URL</code>. You can use the same URL for <code>"adminReviewUrl"</code> so admins have a quick jump link here too.</li>
+    <li>Commit. Visit <code>media-drop.html</code> — the upload button now works and the page is live.</li>
+  </ol>
+
+  <div class="warning">
+    <strong>Anyone-with-link Editor</strong> is how we keep the upload friction-free (team members don't need a Google account), but it also means anyone with the URL can see and add files to that folder. Don't put anything sensitive in the same folder, and treat <code>media-drop.html</code> as semi-public.
+  </div>
+
+  <h3>Share the upload page with the team</h3>
+  <p>Send them the link to <a href="media-drop.html" target="_blank" rel="noopener"><code>seedtheword.com/media-drop.html</code></a> (not the raw Drive link) so we can update the upload location later without having to re-notify everyone. The page works on phones and handles all the guidelines and expectations for them.</p>
+
+  <h3>Update guidelines or disable the drop</h3>
+  <ul>
+    <li><strong>Edit upload rules:</strong> in <code>media-drop.json</code>, edit the <code>"guidelines"</code> array. Each string in that array is a bullet point on the page. Commit.</li>
+    <li><strong>Turn the page off temporarily:</strong> set <code>"enabled": false</code> in <code>media-drop.json</code>. The page shows a "we're setting this up" message and an email fallback instead of the upload button.</li>
+    <li><strong>Switch to a different folder:</strong> paste a new URL into <code>"uploadUrl"</code>. Old links still resolve because we control the page, not the destination.</li>
+  </ul>
+
+  <h3>Admin review flow</h3>
+  <ol>
+    <li>Open the shared Google Drive folder (the one you pasted into <code>uploadUrl</code>).</li>
+    <li>Review new uploads. Use filename hints or README files teammates included for context.</li>
+    <li>For media you want to publish, download, resize/compress, and commit to the right folder in the repo (outreach, ministry-highlights, team, etc.). See the flowcharts earlier in this page for each destination's workflow.</li>
+    <li>Leave the rest in Drive as an archive. Nothing has to be deleted — the team drop is also the ministry's shoebox of memories.</li>
   </ol>
 
   <h2>🙌 Managing Ministry Outreach cards (news.html)</h2>
@@ -1371,6 +1643,8 @@ flowchart TD
     content.classList.add('visible');
     // Build TOC + wire up search once content is visible
     initAdminSearch();
+    // Wire up the recommendations builder tool
+    initRecoBuilder();
     // Load Mermaid on demand so the gate stays lightweight
     loadMermaid();
   }
@@ -1619,6 +1893,261 @@ flowchart TD
   }
   function escapeRegExp(s) {
     return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  // ── Recommendations builder ────────────────────────────────
+  let recoBuilderInited = false;
+  let recoKind = 'spotify';
+
+  const recoSchemas = {
+    spotify: {
+      title: 'Spotify episode or show',
+      destination: 'Paste inside <code>LISTENING_ITEMS</code> in <code>assets/js/recommendations.js</code>.',
+      fields: [
+        { name: 'url', label: 'Spotify URL', placeholder: 'https://open.spotify.com/episode/1Y4cct2…', hint: 'Paste the full URL — the ID gets extracted automatically.' },
+        { name: 'type', label: 'Type', kind: 'select', options: [['episode','Episode'],['show','Show']] },
+        { name: 'title', label: 'Title', placeholder: 'Intimacy With God Is Everything' },
+        { name: 'source', label: 'Source / show name', placeholder: 'After the Heart Podcast — Episode 38' },
+        { name: 'note', label: 'Why we recommend this (optional)', kind: 'textarea', placeholder: "Sam Petrov and Enoch Walter on intimacy with God…" },
+      ],
+    },
+    youtube: {
+      title: 'YouTube video',
+      destination: 'Paste inside <code>LISTENING_ITEMS</code> in <code>assets/js/recommendations.js</code>.',
+      fields: [
+        { name: 'url', label: 'YouTube URL', placeholder: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', hint: "Paste the full URL (the 'watch?v=' or 'youtu.be/' form both work)." },
+        { name: 'title', label: 'Title', placeholder: 'Sermon on the Mount — Part 1' },
+        { name: 'source', label: 'Source / channel name', placeholder: 'The Bible Project' },
+        { name: 'note', label: 'Why we recommend this (optional)', kind: 'textarea', placeholder: 'Why this stood out to us.' },
+      ],
+    },
+    link: {
+      title: 'Article, sermon page, or other link',
+      destination: 'Paste inside <code>LISTENING_ITEMS</code> in <code>assets/js/recommendations.js</code>.',
+      fields: [
+        { name: 'url', label: 'Full URL', placeholder: 'https://example.com/sermon' },
+        { name: 'title', label: 'Title', placeholder: 'Article or sermon title' },
+        { name: 'source', label: 'Source / author', placeholder: 'Author or ministry name' },
+        { name: 'note', label: 'Why it matters (optional)', kind: 'textarea', placeholder: 'One line about why we recommend this.' },
+        { name: 'image', label: 'Thumbnail image path (optional)', placeholder: 'assets/images/featured/some-image.jpg', hint: 'Optional. Leave blank for a generic card.' },
+      ],
+    },
+    partner: {
+      title: 'Partner ministry',
+      destination: 'Paste inside <code>PARTNER_MINISTRIES</code> in <code>assets/js/recommendations.js</code>.',
+      fields: [
+        { name: 'name', label: 'Partner name', placeholder: 'Slavic Christian Awakening' },
+        { name: 'url', label: 'Partner website', placeholder: 'https://partner-site.com' },
+        { name: 'logo', label: 'Logo path (optional)', placeholder: 'assets/images/partners/partner-logo.png', hint: 'Upload logo to assets/images/partners/ first, then put its path here.' },
+        { name: 'description', label: 'One-sentence description (optional)', kind: 'textarea', placeholder: 'One sentence about what they do together with STW.' },
+      ],
+    },
+  };
+
+  function initRecoBuilder() {
+    if (recoBuilderInited) return;
+    const fieldsEl = document.getElementById('reco-builder-fields');
+    const output   = document.getElementById('reco-builder-output');
+    const destEl   = document.getElementById('reco-builder-destination');
+    const copyBtn  = document.getElementById('reco-builder-copy');
+    const resetBtn = document.getElementById('reco-builder-reset');
+    const status   = document.getElementById('reco-builder-status');
+    const tabs     = document.querySelectorAll('.reco-builder__tab');
+    if (!fieldsEl || !output || !copyBtn) return;
+    recoBuilderInited = true;
+
+    function renderFields() {
+      const schema = recoSchemas[recoKind];
+      fieldsEl.innerHTML = `
+        <div class="reco-builder__grid">
+          ${schema.fields.map(f => renderField(f)).join('')}
+        </div>
+      `;
+      // Wire live updates
+      fieldsEl.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('input', updateOutput);
+        el.addEventListener('change', updateOutput);
+      });
+      destEl.innerHTML = schema.destination + ' Put it between <code>[</code> and <code>]</code>, with a comma after the closing <code>&#125;</code> if there are other items.';
+      updateOutput();
+    }
+
+    function renderField(f) {
+      const id = 'reco-f-' + f.name;
+      const hint = f.hint ? `<span class="hint">${escapeHtml(f.hint)}</span>` : '';
+      const full = (f.kind === 'textarea' || f.name === 'url' || f.name === 'note' || f.name === 'description' || f.name === 'logo' || f.name === 'image') ? ' reco-builder__field--full' : '';
+
+      if (f.kind === 'select') {
+        const opts = f.options.map(o => `<option value="${escapeAttr(o[0])}">${escapeHtml(o[1])}</option>`).join('');
+        return `
+          <div class="reco-builder__field${full}">
+            <label for="${id}">${escapeHtml(f.label)}</label>
+            <select id="${id}" data-name="${escapeAttr(f.name)}">${opts}</select>
+            ${hint}
+          </div>
+        `;
+      }
+      if (f.kind === 'textarea') {
+        return `
+          <div class="reco-builder__field${full}">
+            <label for="${id}">${escapeHtml(f.label)}</label>
+            <textarea id="${id}" data-name="${escapeAttr(f.name)}" rows="2" placeholder="${escapeAttr(f.placeholder || '')}"></textarea>
+            ${hint}
+          </div>
+        `;
+      }
+      return `
+        <div class="reco-builder__field${full}">
+          <label for="${id}">${escapeHtml(f.label)}</label>
+          <input id="${id}" data-name="${escapeAttr(f.name)}" type="text" placeholder="${escapeAttr(f.placeholder || '')}">
+          ${hint}
+        </div>
+      `;
+    }
+
+    function getValues() {
+      const v = {};
+      fieldsEl.querySelectorAll('[data-name]').forEach(el => {
+        v[el.dataset.name] = (el.value || '').trim();
+      });
+      return v;
+    }
+
+    function extractSpotifyId(url) {
+      const m = String(url).match(/\/(episode|show)\/([A-Za-z0-9]+)/);
+      if (!m) return { id: '', type: '' };
+      return { id: m[2], type: m[1] };
+    }
+    function extractYouTubeId(url) {
+      const s = String(url);
+      let m = s.match(/[?&]v=([A-Za-z0-9_\-]{6,})/);
+      if (m) return m[1];
+      m = s.match(/youtu\.be\/([A-Za-z0-9_\-]{6,})/);
+      if (m) return m[1];
+      m = s.match(/\/embed\/([A-Za-z0-9_\-]{6,})/);
+      if (m) return m[1];
+      return '';
+    }
+
+    function buildObject() {
+      const v = getValues();
+      if (recoKind === 'spotify') {
+        const parsed = extractSpotifyId(v.url || '');
+        return {
+          kind: 'spotify',
+          type: parsed.type || v.type || 'episode',
+          id: parsed.id,
+          title: v.title,
+          source: v.source,
+          note: v.note,
+        };
+      }
+      if (recoKind === 'youtube') {
+        return {
+          kind: 'youtube',
+          id: extractYouTubeId(v.url || ''),
+          title: v.title,
+          source: v.source,
+          note: v.note,
+        };
+      }
+      if (recoKind === 'link') {
+        const o = {
+          kind: 'link',
+          url: v.url,
+          title: v.title,
+          source: v.source,
+          note: v.note,
+        };
+        if (v.image) o.image = v.image;
+        return o;
+      }
+      if (recoKind === 'partner') {
+        const o = {
+          name: v.name,
+          url: v.url,
+        };
+        if (v.logo) o.logo = v.logo;
+        if (v.description) o.description = v.description;
+        return o;
+      }
+      return {};
+    }
+
+    // Format an object as the JS-literal block that goes in recommendations.js
+    function formatBlock(obj) {
+      const lines = ['{'];
+      const keys = Object.keys(obj).filter(k => obj[k] != null && obj[k] !== '');
+      keys.forEach((k, i) => {
+        const val = obj[k];
+        const stringified = JSON.stringify(val).replace(/\\"/g, '"').replace(/^"|"$/g, '');
+        // Use single quotes for short simple strings, JSON.stringify result otherwise
+        const v = typeof val === 'string'
+          ? (val.includes("'") || val.includes('\n') ? JSON.stringify(val) : `'${val.replace(/'/g, "\\'")}'`)
+          : JSON.stringify(val);
+        const comma = ',';
+        lines.push(`  ${k}: ${v}${comma}`);
+      });
+      lines.push('},');
+      return lines.join('\n');
+    }
+
+    function updateOutput() {
+      const obj = buildObject();
+      const missingId = (recoKind === 'spotify' || recoKind === 'youtube') && !obj.id;
+      if (missingId) {
+        output.textContent = "// Paste a valid Spotify or YouTube URL above to auto-extract the ID.";
+        return;
+      }
+      // Clear any empty core fields so the output doesn't ship placeholders
+      if (!obj.title && !obj.name) {
+        output.textContent = "// Fill out the form above to generate a code block.";
+        return;
+      }
+      output.textContent = formatBlock(obj);
+    }
+
+    function switchKind(kind) {
+      if (!recoSchemas[kind]) return;
+      recoKind = kind;
+      tabs.forEach(t => t.classList.toggle('is-active', t.dataset.kind === kind));
+      renderFields();
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => switchKind(tab.dataset.kind));
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const txt = output.textContent;
+      if (!txt || txt.startsWith('//')) {
+        status.textContent = '⚠️ Nothing to copy yet';
+        setTimeout(() => { status.textContent = ''; }, 2200);
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(txt);
+        status.textContent = '✅ Copied to clipboard';
+      } catch (_) {
+        // Fallback: select the text so user can Ctrl+C
+        const range = document.createRange();
+        range.selectNodeContents(output);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        status.textContent = '📋 Selected — press Ctrl+C';
+      }
+      setTimeout(() => { status.textContent = ''; }, 2500);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      fieldsEl.querySelectorAll('input, textarea').forEach(el => { el.value = ''; });
+      fieldsEl.querySelectorAll('select').forEach(el => { el.selectedIndex = 0; });
+      updateOutput();
+    });
+
+    // Initial render
+    renderFields();
   }
 
   // ── Mermaid flowchart rendering ────────────────────────────

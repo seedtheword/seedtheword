@@ -7819,6 +7819,13 @@ a.contact-card:hover .contact-card__cta span {
   flex-wrap: wrap;
   justify-content: center;
 }
+.outreach-callout__note {
+  margin: 0.9rem auto 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  max-width: 520px;
+}
 
 @media (max-width: 900px) {
   .outreach-grid {

@@ -166,22 +166,14 @@ async function buildOutreachCard() {
   }
 }
 
-/* ── Recommended listen (podcast/video) from recommendations.js ─ */
+/* ── Recommended listen (podcast/video) from recommendations.json ─ */
 async function buildListenCard() {
-  // recommendations.js sets its globals synchronously once loaded.
-  // We fetch the file here instead of depending on its load order.
   let items = null;
   try {
-    const res = await fetch(`assets/js/recommendations.js?t=${Date.now()}`, { cache: 'no-store' });
+    const res = await fetch(`assets/data/recommendations.json?t=${Date.now()}`, { cache: 'no-store' });
     if (res.ok) {
-      const txt = await res.text();
-      const m = txt.match(/LISTENING_ITEMS\s*=\s*(\[[\s\S]*?\n\])/);
-      if (m) {
-        // Best-effort: evaluate the array in a safe-ish way.
-        // It's our own file, committed to the repo, so this is fine.
-        // eslint-disable-next-line no-new-func
-        items = Function('"use strict"; return ' + m[1])();
-      }
+      const data = await res.json();
+      items = Array.isArray(data.listening) ? data.listening : [];
     }
   } catch (_) { /* ignore */ }
 

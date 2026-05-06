@@ -177,18 +177,26 @@
       <!-- Populated by assets/js/ministry-outreach.js -->
     </div>
 
-    <!-- Testimony call-out below the carousel row -->
+    <!-- Testimony + media-share call-out below the carousel row -->
     <div class="outreach-callout glass-morphism">
       <h3>Your story belongs here too</h3>
       <p>
-        Has God used our ministry to meet you in your walk with Jesus? Have you
-        watched Him move through an outreach? We'd love to feature your testimony
-        to encourage someone else on their way to the cross.
+        Has God used our ministry to meet you in your walk with Jesus? Have you watched
+        Him move through an outreach — or captured a moment out in the field? We'd love
+        to feature your testimony, photos, and videos to encourage someone else on their
+        way to the cross.
       </p>
       <div class="outreach-callout__actions">
         <a class="btn btn-primary btn-sm" href="about.html#contact">Submit a Testimony</a>
+        <a class="btn btn-gold btn-sm" id="outreach-upload-link" href="#" target="_blank" rel="noopener" hidden>
+          📤 Share Photos &amp; Videos
+        </a>
         <a class="btn btn-secondary btn-sm" href="https://t.me/seedtheword" target="_blank" rel="noopener">Share on Telegram</a>
       </div>
+      <p class="outreach-callout__note" id="outreach-upload-note" hidden>
+        Photos &amp; videos go straight to our shared team folder. Our team reviews and
+        curates everything before publishing.
+      </p>
     </div>
 
     <div class="outreach-divider"><span>Highlights from the field</span></div>
@@ -353,7 +361,6 @@
       <ul class="footer-bottom__links">
         <li><a href="about.html">About</a></li>
         <li><a href="about.html#contact">Contact</a></li>
-        <li><a href="media-drop.html">Share Your Moments</a></li>
         <li><a href="admin-help.html" style="opacity:0.55;">Admin</a></li>
       </ul>
     </div>
@@ -364,5 +371,24 @@
 <script src="assets/js/google-calendar.js?v=12"></script>
 <script src="assets/js/livestream.js?v=2"></script>
 <script src="assets/js/ministry-outreach.js?v=1"></script>
+<script>
+// Reveal the "Share Photos & Videos" button on the outreach call-out
+// only when assets/data/media-drop.json has a real Drive URL configured.
+(async function () {
+  const link = document.getElementById('outreach-upload-link');
+  const note = document.getElementById('outreach-upload-note');
+  if (!link) return;
+  try {
+    const res = await fetch('assets/data/media-drop.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const cfg = await res.json();
+    const url = cfg && cfg.uploadUrl;
+    if (!url || cfg.enabled === false || url.includes('REPLACE_WITH_YOUR_FOLDER_URL')) return;
+    link.href = url;
+    link.hidden = false;
+    if (note) note.hidden = false;
+  } catch (_) { /* leave the upload button hidden */ }
+})();
+</script>
 </body>
 </html>

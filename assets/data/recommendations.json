@@ -1,0 +1,14 @@
+{
+  "_help": "Drives the 'What We're Listening To' and 'Partner Ministries' sections on community.html. Admins: use the builder on admin-help.html to generate entries, then paste them into the right array below and commit. Each listening item supports one of these kinds: 'spotify' (type: 'episode' or 'show'), 'youtube', or 'link'. Partners just need name + url, with optional logo and description.",
+  "listening": [
+    {
+      "kind": "spotify",
+      "type": "episode",
+      "id": "1Y4cct2gyvhYJYLIxwuley",
+      "title": "Intimacy With God Is Everything",
+      "source": "After the Heart Podcast — Episode 38",
+      "note": "Sam Petrov and Enoch Walter on intimacy with God, discerning His voice, and reaching youth with the Gospel."
+    }
+  ],
+  "partners": []
+}

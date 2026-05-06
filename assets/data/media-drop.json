@@ -1,15 +1,7 @@
 {
-  "_help": "Config for the team media drop landing page (media-drop.html). Paste the Google Drive folder URL below so team members can upload photos/videos directly. Admins: when setting up the folder for the first time, create a new Google Drive folder, right-click it, choose 'Share', set 'General access' to 'Anyone with the link' with 'Editor' permission so teammates can upload without a Google login barrier, then copy the share URL into uploadUrl below. See admin-help.html for the full walkthrough.",
+  "_help": "Config for the 'Share Photos & Videos' button inside the Ministry Outreach & Highlights call-out on news.html. Paste your Google Drive folder URL into 'uploadUrl' so team members can upload directly from the site. Admins: when setting up the folder for the first time, create a new Google Drive folder, right-click it → Share, set 'General access' to 'Anyone with the link' with 'Editor' permission so teammates can upload without a Google login barrier, then copy the share URL into uploadUrl below. The button stays hidden on the site until a real URL is configured. See admin-help.html for the full walkthrough.",
   "enabled": true,
   "uploadUrl": "https://drive.google.com/drive/folders/REPLACE_WITH_YOUR_FOLDER_URL",
   "uploadProvider": "Google Drive",
-  "adminReviewUrl": "https://drive.google.com/drive/folders/REPLACE_WITH_YOUR_FOLDER_URL",
-  "contactEmail": "seedthewordministry@gmail.com",
-  "guidelines": [
-    "Photos: any resolution is fine — we'll resize before publishing.",
-    "Videos: MP4 preferred, keep under ~100MB each.",
-    "Caption help: drop a short note in the filename (e.g. 'fishers-of-men-uw-april-handing-out-bibles.jpg') or include a README.txt in the folder.",
-    "Please don't upload anything showing minors without a signed release.",
-    "It may take a few days for your media to appear on the site — we review and curate everything before publishing."
-  ]
+  "adminReviewUrl": "https://drive.google.com/drive/folders/REPLACE_WITH_YOUR_FOLDER_URL"
 }

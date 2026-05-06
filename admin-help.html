@@ -534,6 +534,39 @@
       border-radius: 4px;
       font-size: 0.85em;
     }
+    .reco-builder__preview {
+      margin-top: 0.75rem;
+      padding: 1rem 1.15rem;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px dashed rgba(44, 95, 46, 0.3);
+      border-radius: 10px;
+    }
+    .reco-builder__preview-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin: 0 0 0.55rem;
+    }
+    .reco-builder__preview-body {
+      min-height: 1.25rem;
+    }
+    .reco-builder__preview-body .reco-empty {
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 8px;
+    }
+    .reco-builder__preview-body .reco-grid {
+      display: block;
+    }
+    .reco-builder__preview-body .reco-card {
+      max-width: 480px;
+      margin: 0 auto;
+    }
     @media (max-width: 640px) {
       .reco-builder__grid { grid-template-columns: 1fr; }
     }
@@ -626,7 +659,7 @@ flowchart TD
     P3 --> Commit
     P4 --> Commit
 
-    Q1 -->|Recommended content<br/>Spotify, YouTube, link| R1[Edit assets/js/<br/>recommendations.js]
+    Q1 -->|Recommended content<br/>Spotify, YouTube, link| R1[Edit assets/data/<br/>recommendations.json<br/>— use the builder tool]
     R1 --> Commit
 
     Q1 -->|Verse of the Day| V1[Edit assets/data/<br/>daily-verses.json]
@@ -696,7 +729,7 @@ flowchart TD
   <div class="admin-card">
     <p class="admin-card__label">Team Media Drop</p>
     <p class="admin-card__title">Google Drive shared folder</p>
-    <p>Team members upload photos and videos via <a href="media-drop.html" target="_blank" rel="noopener">media-drop.html</a>, which links to a shared Drive folder. Admins curate from there. See <em>Managing the team media drop</em> below for setup.</p>
+    <p>Team members upload photos and videos through the encouragement call-out on the <a href="news.html#ministry-outreach" target="_blank" rel="noopener">News page</a>, which links to a shared Drive folder when <code>assets/data/media-drop.json</code> is configured. Admins curate from there. See <em>Managing the team media drop</em> below for setup.</p>
   </div>
 
   <div class="admin-card">
@@ -1032,8 +1065,8 @@ flowchart TD
 
   <div class="admin-card">
     <p class="admin-card__label">File to edit</p>
-    <p class="admin-card__title"><code>assets/js/recommendations.js</code></p>
-    <p>This file has two lists near the top: <code>LISTENING_ITEMS</code> (for "What We're Listening To") and <code>PARTNER_MINISTRIES</code>. Add or remove entries in those arrays — that's the whole workflow.</p>
+    <p class="admin-card__title"><code>assets/data/recommendations.json</code></p>
+    <p>Two arrays live here: <code>"listening"</code> (for "What We're Listening To") and <code>"partners"</code> (for Partner Ministries). Add or remove entries in those arrays — the builder tool below generates the JSON for you, so there's no JavaScript syntax to get wrong.</p>
   </div>
 
   <!-- Interactive recommendations builder -->
@@ -1041,8 +1074,7 @@ flowchart TD
     <p class="reco-builder__label">Interactive tool</p>
     <h3 class="reco-builder__title">🪄 Recommendations builder</h3>
     <p class="reco-builder__blurb">
-      Fill out the form and this tool generates the exact code block to paste into
-      <code>recommendations.js</code>. Paste a Spotify or YouTube URL and the ID gets extracted automatically. No syntax errors, no commas to count.
+      Fill out the form. The live preview below uses the same Spotify/YouTube embed the site does — if it plays here, it'll play on the site. When it looks right, copy the JSON block and paste it into <code>assets/data/recommendations.json</code>. No JavaScript syntax to get wrong.
     </p>
 
     <div class="reco-builder__tabs" role="tablist">
@@ -1055,9 +1087,17 @@ flowchart TD
     <!-- Dynamic fields rendered by the script -->
     <div id="reco-builder-fields"></div>
 
+    <!-- Live preview using the SAME renderer the site uses -->
+    <div class="reco-builder__preview">
+      <p class="reco-builder__preview-label">Live preview (this is exactly how it'll look on the site)</p>
+      <div class="reco-builder__preview-body" id="reco-builder-preview">
+        <div class="reco-empty">Fill out the form above to preview.</div>
+      </div>
+    </div>
+
     <div class="reco-builder__actions">
       <button type="button" class="reco-builder__btn reco-builder__btn--primary" id="reco-builder-copy">
-        📋 Copy code
+        📋 Copy JSON
       </button>
       <button type="button" class="reco-builder__btn reco-builder__btn--secondary" id="reco-builder-reset">
         Reset form
@@ -1065,10 +1105,10 @@ flowchart TD
       <span class="reco-builder__status" id="reco-builder-status" role="status" aria-live="polite"></span>
     </div>
 
-    <pre class="reco-builder__output" id="reco-builder-output"><code>// Fill out the form above to generate a code block.</code></pre>
+    <pre class="reco-builder__output" id="reco-builder-output"><code>// Fill out the form above to generate a JSON block.</code></pre>
 
     <p class="reco-builder__destination" id="reco-builder-destination">
-      Paste this block inside the <code>LISTENING_ITEMS</code> array in <code>assets/js/recommendations.js</code>. Put it between <code>[</code> and <code>]</code>, with a comma after the closing <code>&#125;</code> if there are other items.
+      Paste this JSON block inside the <code>"listening"</code> array in <code>assets/data/recommendations.json</code>. Put it between <code>[</code> and <code>]</code>, with a comma after the previous block's closing <code>&#125;</code>. The last item in the array should <em>not</em> have a trailing comma.
     </p>
   </div>
 
@@ -1079,9 +1119,9 @@ flowchart TD
     <p class="admin-flowchart__title">Add a Spotify episode in 4 steps</p>
     <div class="mermaid">
 flowchart LR
-    A([Open Spotify episode<br/>in browser]) --> B[Copy the ID from the URL<br/>the part after /episode/]
-    B --> C[Edit recommendations.js<br/>on GitHub]
-    C --> D[Add a new block<br/>inside LISTENING_ITEMS]
+    A([Open Spotify episode<br/>in browser]) --> B[Copy the full URL<br/>from the address bar]
+    B --> C[Paste URL into the Recommendations<br/>builder tool above]
+    C --> D[Copy the generated JSON block<br/>and paste into recommendations.json]
     D --> E([Commit — card appears<br/>within 60 seconds])
 
     classDef step fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
@@ -1092,21 +1132,13 @@ flowchart LR
   </div>
 
   <ol>
-    <li>Open the Spotify episode or show in your browser.</li>
-    <li>Copy the ID from the URL. Example: from <code>https://open.spotify.com/episode/<strong>1Y4cct2gyvhYJYLIxwuley</strong></code>, the ID is <code>1Y4cct2gyvhYJYLIxwuley</code>.</li>
-    <li>In the repo, navigate to <code>assets/js/recommendations.js</code> and click the pencil icon to edit.</li>
-    <li>Inside the <code>LISTENING_ITEMS</code> array, add a new block like:
-<pre><code>{
-  kind: 'spotify',
-  type: 'episode',     // or 'show'
-  id: 'PASTE_ID_HERE',
-  title: "Episode title",
-  source: 'Podcast name — Episode #',
-  note: "One line about why we recommend this.",
-},</code></pre>
-    </li>
-    <li>Add a commit message like "Add Sam Petrov episode to recommendations" and click <strong>Commit changes</strong>.</li>
-    <li>Wait 30–60 seconds, hard-refresh the Community page, and the new card appears.</li>
+    <li>Open the Spotify episode or show in your browser. Copy the full URL from the address bar.</li>
+    <li>Scroll up to the <strong>Recommendations builder</strong> tool above. Make sure the <em>Spotify</em> tab is selected.</li>
+    <li>Paste the URL into the <strong>Spotify URL</strong> field. The ID and type (episode/show) are extracted automatically. Fill in the title, source, and note fields. Check the live preview — if it plays, it'll play on the site.</li>
+    <li>Click <strong>📋 Copy JSON</strong>.</li>
+    <li>Open <code>assets/data/recommendations.json</code> on GitHub and click the pencil to edit.</li>
+    <li>Paste the JSON block inside the <code>"listening"</code> array. Put a comma after the previous block's closing <code>&#125;</code>. The last item in the array should <em>not</em> have a trailing comma.</li>
+    <li>Commit. The card appears on the Community page within 60 seconds.</li>
   </ol>
 
   <h3>Add a YouTube video</h3>
@@ -1138,15 +1170,11 @@ flowchart LR
   <h3>Add a Partner Ministry</h3>
   <ol>
     <li>If you have a partner logo, upload it first to <code>assets/images/partners/</code> (create the folder if it doesn't exist — github.com's web UI lets you do this while uploading a file).</li>
-    <li>In <code>recommendations.js</code>, add a block to the <code>PARTNER_MINISTRIES</code> array:
-<pre><code>{
-  name: 'Partner Name',
-  url: 'https://partner-website.com',
-  logo: 'assets/images/partners/partner-logo.png', // optional
-  description: 'One sentence about the partnership.',
-},</code></pre>
-    </li>
-    <li>Commit. The new card appears on the Community page.</li>
+    <li>Scroll up to the <strong>Recommendations builder</strong> tool and pick the <em>🤝 Partner Ministry</em> tab. Fill in the name, website URL, optional logo path, and optional description.</li>
+    <li>Click <strong>📋 Copy JSON</strong>.</li>
+    <li>Open <code>assets/data/recommendations.json</code> on GitHub and click the pencil to edit.</li>
+    <li>Paste the JSON block inside the <code>"partners"</code> array, with a comma after the previous block's closing <code>&#125;</code>. The last item in the array should <em>not</em> have a trailing comma.</li>
+    <li>Commit. The partner card appears on the Community page within 60 seconds.</li>
   </ol>
 
   <div class="warning">
@@ -1243,15 +1271,15 @@ flowchart TD
     <li>If a slideshow doesn't appear at all, open the console (F12) and look for a "could not load manifest" warning — usually it's a JSON typo.</li>
   </ol>
 
-  <h2>📤 Team media drop (how the team uploads photos/videos)</h2>
-  <p>We have a public landing page at <a href="media-drop.html" target="_blank" rel="noopener"><code>media-drop.html</code></a> that our team uses to share photos and videos they capture out in the field. It points at a shared Google Drive folder so anyone on the team can drop media in from their phone, laptop, or camera. Admins then review and decide what ships to the site.</p>
+  <h2>📤 Team media drop (how the team shares photos/videos)</h2>
+  <p>We don't have a separate upload page. Instead, we use an <strong>encouragement call-out inside the "Ministry Outreach &amp; Highlights" section on news.html</strong> — the "Your story belongs here too" card. When <code>assets/data/media-drop.json</code> is configured, a 📤 <strong>Share Photos &amp; Videos</strong> button appears next to "Submit a Testimony" and "Share on Telegram", and it links directly to our shared Google Drive folder. Admins then review and decide what ships to the site.</p>
 
   <div class="admin-flowchart">
     <p class="admin-flowchart__label">Visual guide</p>
     <p class="admin-flowchart__title">From phone → Drive → admin review → live site</p>
     <div class="mermaid">
 flowchart LR
-    T([Team member<br/>captures moment]) --> U[Opens media-drop.html<br/>on phone or laptop]
+    T([Team member<br/>captures moment]) --> U[Taps 'Share Photos &amp; Videos'<br/>on news.html call-out]
     U --> D[Uploads to shared<br/>Google Drive folder]
     D --> A([Admin reviews<br/>within a few days])
     A --> Q{Is this a fit<br/>for the site?}
@@ -1276,7 +1304,7 @@ flowchart LR
   <div class="admin-card">
     <p class="admin-card__label">Config file</p>
     <p class="admin-card__title"><code>assets/data/media-drop.json</code></p>
-    <p>Controls what shows up on <code>media-drop.html</code>. You can edit the Drive URL, upload guidelines, or turn the landing page off — no HTML edits needed.</p>
+    <p>Controls whether the 📤 <strong>Share Photos &amp; Videos</strong> button shows up on the news page, and where it points. The button stays hidden until this file has a real Drive URL, so the call-out still works even before you've set this up.</p>
   </div>
 
   <h3>First-time setup (do this once)</h3>
@@ -1286,21 +1314,18 @@ flowchart LR
     <li>Right-click the folder → <strong>Share</strong>. Under <strong>General access</strong>, pick <strong>"Anyone with the link"</strong>, and set the role to <strong>Editor</strong>. This is the key setting — it lets teammates upload without a Google login barrier.</li>
     <li>Click <strong>Copy link</strong>. The URL will look like <code>https://drive.google.com/drive/folders/&lt;LONG_ID&gt;?usp=sharing</code>.</li>
     <li>In the repo, open <code>assets/data/media-drop.json</code> and paste that URL into the <code>"uploadUrl"</code> field, replacing <code>REPLACE_WITH_YOUR_FOLDER_URL</code>. You can use the same URL for <code>"adminReviewUrl"</code> so admins have a quick jump link here too.</li>
-    <li>Commit. Visit <code>media-drop.html</code> — the upload button now works and the page is live.</li>
+    <li>Commit. Hard-refresh <a href="news.html#ministry-outreach" target="_blank" rel="noopener">news.html</a> — the 📤 Share Photos &amp; Videos button now appears on the "Your story belongs here too" call-out.</li>
   </ol>
 
   <div class="warning">
-    <strong>Anyone-with-link Editor</strong> is how we keep the upload friction-free (team members don't need a Google account), but it also means anyone with the URL can see and add files to that folder. Don't put anything sensitive in the same folder, and treat <code>media-drop.html</code> as semi-public.
+    <strong>Anyone-with-link Editor</strong> is how we keep the upload friction-free (team members don't need a Google account), but it also means anyone with the URL can see and add files to that folder. Don't put anything sensitive in the same folder, and treat the Drive folder as semi-public.
   </div>
 
-  <h3>Share the upload page with the team</h3>
-  <p>Send them the link to <a href="media-drop.html" target="_blank" rel="noopener"><code>seedtheword.com/media-drop.html</code></a> (not the raw Drive link) so we can update the upload location later without having to re-notify everyone. The page works on phones and handles all the guidelines and expectations for them.</p>
-
-  <h3>Update guidelines or disable the drop</h3>
+  <h3>Update the Drive folder or disable the button</h3>
   <ul>
-    <li><strong>Edit upload rules:</strong> in <code>media-drop.json</code>, edit the <code>"guidelines"</code> array. Each string in that array is a bullet point on the page. Commit.</li>
-    <li><strong>Turn the page off temporarily:</strong> set <code>"enabled": false</code> in <code>media-drop.json</code>. The page shows a "we're setting this up" message and an email fallback instead of the upload button.</li>
-    <li><strong>Switch to a different folder:</strong> paste a new URL into <code>"uploadUrl"</code>. Old links still resolve because we control the page, not the destination.</li>
+    <li><strong>Switch to a different folder:</strong> paste a new URL into <code>"uploadUrl"</code> in <code>media-drop.json</code>. Commit. The call-out button updates without any HTML changes.</li>
+    <li><strong>Turn the upload button off temporarily:</strong> set <code>"enabled": false</code> in <code>media-drop.json</code>. The button hides; "Submit a Testimony" and "Share on Telegram" stay visible.</li>
+    <li><strong>Remove it entirely:</strong> you don't need to — if the URL still contains <code>REPLACE_WITH_YOUR_FOLDER_URL</code>, the button stays hidden automatically.</li>
   </ul>
 
   <h3>Admin review flow</h3>
@@ -1898,14 +1923,27 @@ flowchart TD
   // ── Recommendations builder ────────────────────────────────
   let recoBuilderInited = false;
   let recoKind = 'spotify';
+  // Load the site's own recommendations renderer so the preview uses
+  // identical markup to what will actually appear on community.html.
+  let recoRendererLoaded = false;
+  function ensureRecoRenderer() {
+    if (recoRendererLoaded) return Promise.resolve();
+    return new Promise((resolve) => {
+      const s = document.createElement('script');
+      s.src = 'assets/js/recommendations.js?t=' + Date.now();
+      s.onload = () => { recoRendererLoaded = true; resolve(); };
+      s.onerror = () => resolve(); // Fail open — preview will be empty
+      document.head.appendChild(s);
+    });
+  }
 
   const recoSchemas = {
     spotify: {
       title: 'Spotify episode or show',
-      destination: 'Paste inside <code>LISTENING_ITEMS</code> in <code>assets/js/recommendations.js</code>.',
+      destination: 'Paste inside the <code>"listening"</code> array in <code>assets/data/recommendations.json</code>.',
       fields: [
-        { name: 'url', label: 'Spotify URL', placeholder: 'https://open.spotify.com/episode/1Y4cct2…', hint: 'Paste the full URL — the ID gets extracted automatically.' },
-        { name: 'type', label: 'Type', kind: 'select', options: [['episode','Episode'],['show','Show']] },
+        { name: 'url', label: 'Spotify URL', placeholder: 'https://open.spotify.com/episode/1Y4cct2…', hint: 'Paste the full URL — the ID and type (episode/show) are detected automatically.' },
+        { name: 'type', label: 'Type (auto-detected from URL)', kind: 'select', options: [['episode','Episode'],['show','Show']] },
         { name: 'title', label: 'Title', placeholder: 'Intimacy With God Is Everything' },
         { name: 'source', label: 'Source / show name', placeholder: 'After the Heart Podcast — Episode 38' },
         { name: 'note', label: 'Why we recommend this (optional)', kind: 'textarea', placeholder: "Sam Petrov and Enoch Walter on intimacy with God…" },
@@ -1913,9 +1951,9 @@ flowchart TD
     },
     youtube: {
       title: 'YouTube video',
-      destination: 'Paste inside <code>LISTENING_ITEMS</code> in <code>assets/js/recommendations.js</code>.',
+      destination: 'Paste inside the <code>"listening"</code> array in <code>assets/data/recommendations.json</code>.',
       fields: [
-        { name: 'url', label: 'YouTube URL', placeholder: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', hint: "Paste the full URL (the 'watch?v=' or 'youtu.be/' form both work)." },
+        { name: 'url', label: 'YouTube URL', placeholder: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', hint: "Paste the full URL — watch?v=, youtu.be/, or /embed/ all work." },
         { name: 'title', label: 'Title', placeholder: 'Sermon on the Mount — Part 1' },
         { name: 'source', label: 'Source / channel name', placeholder: 'The Bible Project' },
         { name: 'note', label: 'Why we recommend this (optional)', kind: 'textarea', placeholder: 'Why this stood out to us.' },
@@ -1923,7 +1961,7 @@ flowchart TD
     },
     link: {
       title: 'Article, sermon page, or other link',
-      destination: 'Paste inside <code>LISTENING_ITEMS</code> in <code>assets/js/recommendations.js</code>.',
+      destination: 'Paste inside the <code>"listening"</code> array in <code>assets/data/recommendations.json</code>.',
       fields: [
         { name: 'url', label: 'Full URL', placeholder: 'https://example.com/sermon' },
         { name: 'title', label: 'Title', placeholder: 'Article or sermon title' },
@@ -1934,7 +1972,7 @@ flowchart TD
     },
     partner: {
       title: 'Partner ministry',
-      destination: 'Paste inside <code>PARTNER_MINISTRIES</code> in <code>assets/js/recommendations.js</code>.',
+      destination: 'Paste inside the <code>"partners"</code> array in <code>assets/data/recommendations.json</code>.',
       fields: [
         { name: 'name', label: 'Partner name', placeholder: 'Slavic Christian Awakening' },
         { name: 'url', label: 'Partner website', placeholder: 'https://partner-site.com' },
@@ -1952,9 +1990,13 @@ flowchart TD
     const copyBtn  = document.getElementById('reco-builder-copy');
     const resetBtn = document.getElementById('reco-builder-reset');
     const status   = document.getElementById('reco-builder-status');
+    const previewEl = document.getElementById('reco-builder-preview');
     const tabs     = document.querySelectorAll('.reco-builder__tab');
-    if (!fieldsEl || !output || !copyBtn) return;
+    if (!fieldsEl || !output || !copyBtn || !previewEl) return;
     recoBuilderInited = true;
+
+    // Load the site renderer so the preview matches community.html
+    ensureRecoRenderer();
 
     function renderFields() {
       const schema = recoSchemas[recoKind];
@@ -1965,11 +2007,11 @@ flowchart TD
       `;
       // Wire live updates
       fieldsEl.querySelectorAll('input, select, textarea').forEach(el => {
-        el.addEventListener('input', updateOutput);
-        el.addEventListener('change', updateOutput);
+        el.addEventListener('input', updateAll);
+        el.addEventListener('change', updateAll);
       });
-      destEl.innerHTML = schema.destination + ' Put it between <code>[</code> and <code>]</code>, with a comma after the closing <code>&#125;</code> if there are other items.';
-      updateOutput();
+      destEl.innerHTML = schema.destination + ' Put it between <code>[</code> and <code>]</code>, with a comma after the previous block\'s closing <code>&#125;</code>. The last item in the array should <em>not</em> have a trailing comma.';
+      updateAll();
     }
 
     function renderField(f) {
@@ -2033,6 +2075,11 @@ flowchart TD
       const v = getValues();
       if (recoKind === 'spotify') {
         const parsed = extractSpotifyId(v.url || '');
+        // Auto-sync the type select when the URL implies a type
+        if (parsed.type) {
+          const sel = fieldsEl.querySelector('[data-name="type"]');
+          if (sel && sel.value !== parsed.type) sel.value = parsed.type;
+        }
         return {
           kind: 'spotify',
           type: parsed.type || v.type || 'episode',
@@ -2074,37 +2121,75 @@ flowchart TD
       return {};
     }
 
-    // Format an object as the JS-literal block that goes in recommendations.js
+    // Format an object as a nicely-indented JSON block (for recommendations.json)
     function formatBlock(obj) {
-      const lines = ['{'];
-      const keys = Object.keys(obj).filter(k => obj[k] != null && obj[k] !== '');
-      keys.forEach((k, i) => {
-        const val = obj[k];
-        const stringified = JSON.stringify(val).replace(/\\"/g, '"').replace(/^"|"$/g, '');
-        // Use single quotes for short simple strings, JSON.stringify result otherwise
-        const v = typeof val === 'string'
-          ? (val.includes("'") || val.includes('\n') ? JSON.stringify(val) : `'${val.replace(/'/g, "\\'")}'`)
-          : JSON.stringify(val);
-        const comma = ',';
-        lines.push(`  ${k}: ${v}${comma}`);
+      const cleaned = {};
+      Object.keys(obj).forEach(k => {
+        if (obj[k] != null && obj[k] !== '') cleaned[k] = obj[k];
       });
-      lines.push('},');
-      return lines.join('\n');
+      return JSON.stringify(cleaned, null, 2);
     }
 
-    function updateOutput() {
+    function readiness(obj) {
+      if (recoKind === 'spotify' || recoKind === 'youtube') {
+        if (!obj.id) return 'needs-url';
+      }
+      if (recoKind === 'partner') {
+        if (!obj.name || !obj.url) return 'incomplete';
+      } else {
+        if (!obj.title && !obj.name) return 'incomplete';
+      }
+      return 'ready';
+    }
+
+    function updateAll() {
       const obj = buildObject();
-      const missingId = (recoKind === 'spotify' || recoKind === 'youtube') && !obj.id;
-      if (missingId) {
-        output.textContent = "// Paste a valid Spotify or YouTube URL above to auto-extract the ID.";
+      const state = readiness(obj);
+
+      if (state === 'needs-url') {
+        output.textContent = '// Paste a valid Spotify or YouTube URL above to auto-extract the ID.';
+      } else if (state === 'incomplete') {
+        output.textContent = '// Fill out the form above to generate a JSON block.';
+      } else {
+        output.textContent = formatBlock(obj);
+      }
+
+      updatePreview(obj, state);
+    }
+
+    function updatePreview(obj, state) {
+      if (state !== 'ready') {
+        previewEl.innerHTML = `<div class="reco-empty">${
+          state === 'needs-url'
+            ? 'Paste a URL above to see the live embed preview.'
+            : 'Fill out the form above to preview.'
+        }</div>`;
         return;
       }
-      // Clear any empty core fields so the output doesn't ship placeholders
-      if (!obj.title && !obj.name) {
-        output.textContent = "// Fill out the form above to generate a code block.";
+
+      // Prefer the site's own renderer so preview == production
+      const hasSiteRenderer = typeof window.renderListeningCard === 'function';
+
+      if (recoKind === 'partner') {
+        // Use the site's partner renderer by spinning up a mini container
+        if (typeof window.renderPartners === 'function') {
+          const tmp = document.createElement('div');
+          window.renderPartners(tmp, [obj]);
+          previewEl.innerHTML = '';
+          previewEl.appendChild(tmp);
+        } else {
+          previewEl.innerHTML = `<div class="reco-empty">Renderer not available yet — refresh the page.</div>`;
+        }
         return;
       }
-      output.textContent = formatBlock(obj);
+
+      if (hasSiteRenderer) {
+        previewEl.innerHTML = '<div class="reco-grid">' + window.renderListeningCard(obj) + '</div>';
+      } else {
+        previewEl.innerHTML = `<div class="reco-empty">Loading preview renderer…</div>`;
+        // Retry shortly — the renderer script may still be loading
+        setTimeout(() => updatePreview(obj, state), 400);
+      }
     }
 
     function switchKind(kind) {
@@ -2129,7 +2214,6 @@ flowchart TD
         await navigator.clipboard.writeText(txt);
         status.textContent = '✅ Copied to clipboard';
       } catch (_) {
-        // Fallback: select the text so user can Ctrl+C
         const range = document.createRange();
         range.selectNodeContents(output);
         const sel = window.getSelection();
@@ -2143,7 +2227,7 @@ flowchart TD
     resetBtn.addEventListener('click', () => {
       fieldsEl.querySelectorAll('input, textarea').forEach(el => { el.value = ''; });
       fieldsEl.querySelectorAll('select').forEach(el => { el.selectedIndex = 0; });
-      updateOutput();
+      updateAll();
     });
 
     // Initial render

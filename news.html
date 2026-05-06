@@ -194,8 +194,8 @@
         <a class="btn btn-secondary btn-sm" href="https://t.me/seedtheword" target="_blank" rel="noopener">Share on Telegram</a>
       </div>
       <p class="outreach-callout__note" id="outreach-upload-note" hidden>
-        Photos &amp; videos go straight to our shared team folder. Our team reviews and
-        curates everything before publishing.
+        Photos &amp; videos land in our team account for review — sign in with any
+        Google account to upload. Our team curates everything before publishing.
       </p>
     </div>
 
@@ -373,7 +373,10 @@
 <script src="assets/js/ministry-outreach.js?v=1"></script>
 <script>
 // Reveal the "Share Photos & Videos" button on the outreach call-out
-// only when assets/data/media-drop.json has a real Drive URL configured.
+// only when assets/data/media-drop.json has a real upload target
+// configured. Google Forms is the preferred path (files land in our
+// account automatically with full metadata) but a direct Drive folder
+// link is supported as a fallback.
 (async function () {
   const link = document.getElementById('outreach-upload-link');
   const note = document.getElementById('outreach-upload-note');
@@ -382,9 +385,21 @@
     const res = await fetch('assets/data/media-drop.json?t=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) return;
     const cfg = await res.json();
-    const url = cfg && cfg.uploadUrl;
-    if (!url || cfg.enabled === false || url.includes('REPLACE_WITH_YOUR_FOLDER_URL')) return;
-    link.href = url;
+    if (cfg.enabled === false) return;
+
+    const isPlaceholder = (u) =>
+      !u ||
+      u.includes('REPLACE_WITH_YOUR_FORM_ID') ||
+      u.includes('REPLACE_WITH_YOUR_FOLDER_URL');
+
+    // Prefer the Google Form if configured — it's accountable, structured,
+    // and everything lands in our Google account.
+    let target = null;
+    if (!isPlaceholder(cfg.formUrl)) target = cfg.formUrl;
+    else if (!isPlaceholder(cfg.uploadUrl)) target = cfg.uploadUrl;
+    if (!target) return;
+
+    link.href = target;
     link.hidden = false;
     if (note) note.hidden = false;
   } catch (_) { /* leave the upload button hidden */ }

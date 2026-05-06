@@ -1272,16 +1272,17 @@ flowchart TD
   </ol>
 
   <h2>📤 Team media drop (how the team shares photos/videos)</h2>
-  <p>We don't have a separate upload page. Instead, we use an <strong>encouragement call-out inside the "Ministry Outreach &amp; Highlights" section on news.html</strong> — the "Your story belongs here too" card. When <code>assets/data/media-drop.json</code> is configured, a 📤 <strong>Share Photos &amp; Videos</strong> button appears next to "Submit a Testimony" and "Share on Telegram", and it links directly to our shared Google Drive folder. Admins then review and decide what ships to the site.</p>
+  <p>We don't have a separate upload page. Instead, we use an <strong>encouragement call-out inside the "Ministry Outreach &amp; Highlights" section on news.html</strong> — the "Your story belongs here too" card. When <code>assets/data/media-drop.json</code> is configured, a 📤 <strong>Share Photos &amp; Videos</strong> button appears next to "Submit a Testimony" and "Share on Telegram", and it opens our Google Form. Every submission lands in our ministry Google account with the uploader's name, caption, and the files themselves — plus a row in a Responses spreadsheet. Admins review from there and push the good stuff to the site.</p>
 
   <div class="admin-flowchart">
     <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">From phone → Drive → admin review → live site</p>
+    <p class="admin-flowchart__title">From phone → Google Form → our Drive → live site</p>
     <div class="mermaid">
 flowchart LR
     T([Team member<br/>captures moment]) --> U[Taps 'Share Photos &amp; Videos'<br/>on news.html call-out]
-    U --> D[Uploads to shared<br/>Google Drive folder]
-    D --> A([Admin reviews<br/>within a few days])
+    U --> F[Fills Google Form:<br/>name, caption, upload files]
+    F --> D[Files land in our<br/>Google Drive<br/>Response logged to Sheet]
+    D --> A([Admin reviews<br/>Form Responses])
     A --> Q{Is this a fit<br/>for the site?}
     Q -->|Yes — outreach photos| O1[Resize / compress<br/>add to outreach folder]
     Q -->|Yes — highlight-worthy| O2[Add to ministry-highlights<br/>or featured folder]
@@ -1296,7 +1297,7 @@ flowchart LR
     classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
     classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
     class T,A,C team
-    class U,D,O1,O2,O3,O4 step
+    class U,F,D,O1,O2,O3,O4 step
     class Q decision
     </div>
   </div>
@@ -1304,37 +1305,67 @@ flowchart LR
   <div class="admin-card">
     <p class="admin-card__label">Config file</p>
     <p class="admin-card__title"><code>assets/data/media-drop.json</code></p>
-    <p>Controls whether the 📤 <strong>Share Photos &amp; Videos</strong> button shows up on the news page, and where it points. The button stays hidden until this file has a real Drive URL, so the call-out still works even before you've set this up.</p>
+    <p>Controls whether the 📤 <strong>Share Photos &amp; Videos</strong> button shows up on the news page, and where it points. Two options supported: <code>formUrl</code> (Google Form — recommended) or <code>uploadUrl</code> (direct Drive folder — less accountable). The button stays hidden on the site until one of these is set.</p>
   </div>
 
-  <h3>First-time setup (do this once)</h3>
+  <h3>First-time setup — Google Form (recommended)</h3>
+  <p>This is the cleanest path. Every upload arrives with who sent it, what caption they gave it, when, plus a row in a Responses spreadsheet. All files live in our own Google Drive.</p>
   <ol>
-    <li>Sign in to <a href="https://drive.google.com" target="_blank" rel="noopener">drive.google.com</a> with the ministry account (<code>seedthewordministry@gmail.com</code>).</li>
-    <li>Click <strong>New → Folder</strong> and name it something like <strong>"Seed the Word — Team Media Drop"</strong>.</li>
-    <li>Right-click the folder → <strong>Share</strong>. Under <strong>General access</strong>, pick <strong>"Anyone with the link"</strong>, and set the role to <strong>Editor</strong>. This is the key setting — it lets teammates upload without a Google login barrier.</li>
-    <li>Click <strong>Copy link</strong>. The URL will look like <code>https://drive.google.com/drive/folders/&lt;LONG_ID&gt;?usp=sharing</code>.</li>
-    <li>In the repo, open <code>assets/data/media-drop.json</code> and paste that URL into the <code>"uploadUrl"</code> field, replacing <code>REPLACE_WITH_YOUR_FOLDER_URL</code>. You can use the same URL for <code>"adminReviewUrl"</code> so admins have a quick jump link here too.</li>
-    <li>Commit. Hard-refresh <a href="news.html#ministry-outreach" target="_blank" rel="noopener">news.html</a> — the 📤 Share Photos &amp; Videos button now appears on the "Your story belongs here too" call-out.</li>
+    <li>Sign in to <a href="https://forms.google.com" target="_blank" rel="noopener">forms.google.com</a> with the ministry Google account (<code>seedthewordministry@gmail.com</code>).</li>
+    <li>Click <strong>Blank form</strong>. Title it <strong>"Share Photos &amp; Videos — Seed the Word"</strong>.</li>
+    <li>Add these questions (use the <strong>+</strong> button to add each one):
+      <ul>
+        <li><strong>Your name</strong> — Short answer, required</li>
+        <li><strong>Your email</strong> — Short answer, required, enable <em>Response validation → Email</em></li>
+        <li><strong>Where was this taken?</strong> — Short answer, optional (e.g. "UW Seattle outreach" or "Saturday study")</li>
+        <li><strong>Tell us about it</strong> — Paragraph, optional</li>
+        <li><strong>Upload photos &amp; videos</strong> — File upload, required. Allow any file type. Set max file size to <strong>10 MB</strong> (or higher if your storage allows) and max number of files to <strong>10</strong>.</li>
+      </ul>
+    </li>
+    <li>Click the <strong>Settings</strong> tab:
+      <ul>
+        <li>Leave <em>"Collect email addresses"</em> unchecked (you already ask in a question, and this setting would force a Google login for verified email).</li>
+        <li>Under <em>Responses</em>, enable <em>"Restrict to users in..."</em> → <strong>OFF</strong> so non-ministry-account users can submit.</li>
+        <li>Turn <strong>ON</strong> <em>"Allow response editing"</em> so uploaders can fix typos.</li>
+      </ul>
+      Note: <strong>File upload questions require the uploader to sign in to any Google account</strong>. This is a Google policy we can't disable, but most phones are already signed in so it's invisible to them.</li>
+    <li>Click the <strong>Responses</strong> tab → <strong>Link to Sheets</strong> → create a new spreadsheet. This is your review queue.</li>
+    <li>Click the <strong>Send</strong> button (top right) → the <strong>link icon</strong> tab → check <em>"Shorten URL"</em> → <strong>Copy</strong>.</li>
+    <li>In the repo, open <code>assets/data/media-drop.json</code> and paste that URL into the <code>"formUrl"</code> field, replacing <code>REPLACE_WITH_YOUR_FORM_ID</code>.</li>
+    <li>Commit. Hard-refresh <a href="news.html#ministry-outreach" target="_blank" rel="noopener">news.html</a> — the 📤 <strong>Share Photos &amp; Videos</strong> button now appears on the "Your story belongs here too" call-out.</li>
   </ol>
 
-  <div class="warning">
-    <strong>Anyone-with-link Editor</strong> is how we keep the upload friction-free (team members don't need a Google account), but it also means anyone with the URL can see and add files to that folder. Don't put anything sensitive in the same folder, and treat the Drive folder as semi-public.
+  <div class="admin-card">
+    <p class="admin-card__label">Where uploaded files live</p>
+    <p class="admin-card__title">Google Drive folder (auto-created by Forms)</p>
+    <p>Google Forms automatically creates a folder in our Drive named <em>"Share Photos &amp; Videos — Seed the Word (File responses)"</em> (or similar) and drops every upload inside it. You can find the folder link inside the Form's Responses tab. Paste it into <code>"adminReviewUrl"</code> so you have a quick jump link bookmarked here.</p>
   </div>
-
-  <h3>Update the Drive folder or disable the button</h3>
-  <ul>
-    <li><strong>Switch to a different folder:</strong> paste a new URL into <code>"uploadUrl"</code> in <code>media-drop.json</code>. Commit. The call-out button updates without any HTML changes.</li>
-    <li><strong>Turn the upload button off temporarily:</strong> set <code>"enabled": false</code> in <code>media-drop.json</code>. The button hides; "Submit a Testimony" and "Share on Telegram" stay visible.</li>
-    <li><strong>Remove it entirely:</strong> you don't need to — if the URL still contains <code>REPLACE_WITH_YOUR_FOLDER_URL</code>, the button stays hidden automatically.</li>
-  </ul>
 
   <h3>Admin review flow</h3>
   <ol>
-    <li>Open the shared Google Drive folder (the one you pasted into <code>uploadUrl</code>).</li>
-    <li>Review new uploads. Use filename hints or README files teammates included for context.</li>
-    <li>For media you want to publish, download, resize/compress, and commit to the right folder in the repo (outreach, ministry-highlights, team, etc.). See the flowcharts earlier in this page for each destination's workflow.</li>
-    <li>Leave the rest in Drive as an archive. Nothing has to be deleted — the team drop is also the ministry's shoebox of memories.</li>
+    <li>Open the Form's <strong>Responses</strong> tab (or the linked Google Sheet) to see a table of every submission — uploader name, email, caption, links to files.</li>
+    <li>Click a file link to preview it in Drive.</li>
+    <li>For media you want to publish, download, resize/compress, and commit to the right folder in the repo (outreach, ministry-highlights, team, etc.). Flowcharts earlier in this page walk through each destination.</li>
+    <li>Leave the rest in Drive as an archive. Nothing has to be deleted.</li>
   </ol>
+
+  <h3>Alternative: direct Drive folder (less recommended)</h3>
+  <p>If you'd rather skip the Google sign-in step and let anyone with the link drop files straight into a shared folder (no name, no caption, no accountability), you can use a plain Drive folder instead of a Form:</p>
+  <ol>
+    <li>Create a Drive folder. Right-click → <strong>Share</strong> → <em>"Anyone with the link"</em> → <strong>Editor</strong>.</li>
+    <li>Paste the share URL into <code>"uploadUrl"</code> in <code>media-drop.json</code> (leave <code>"formUrl"</code> blank or as the placeholder).</li>
+    <li>Commit.</li>
+  </ol>
+  <div class="warning">
+    <strong>Anyone-with-link Editor</strong> means anyone who gets the URL can see and add files to that folder. Less metadata, less oversight. The Form is usually the better call for a public-facing ministry page.
+  </div>
+
+  <h3>Turn the upload button off or swap targets</h3>
+  <ul>
+    <li><strong>Switch to a different Form or folder:</strong> paste the new URL into <code>"formUrl"</code> or <code>"uploadUrl"</code>, commit. The call-out button updates without any HTML changes.</li>
+    <li><strong>Turn the upload button off temporarily:</strong> set <code>"enabled": false</code> in <code>media-drop.json</code>. The button hides; "Submit a Testimony" and "Share on Telegram" stay visible.</li>
+    <li><strong>Leave it unconfigured:</strong> if both URLs still contain <code>REPLACE_WITH_...</code>, the button stays hidden automatically — nothing looks broken on the site.</li>
+  </ul>
 
   <h2>🙌 Managing Ministry Outreach cards (news.html)</h2>
   <p>The "Ministry Outreach &amp; Highlights" section on the News page leads with up to <strong>3 outreach cards</strong>, each with its own rotating slideshow of photos and videos. Each card represents one real outreach (a date, a location, a short write-up, an optional testimony). New events are added by dropping a new folder of media in and appending one entry to a master index — no HTML edits needed.</p>

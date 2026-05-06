@@ -1459,36 +1459,36 @@ flowchart TD
     <strong>Videos auto-play muted.</strong> Browsers block unmuted autoplay, so the slideshow plays videos with sound off. If you need audio, use Instagram or YouTube for that piece of content instead of an outreach card.
   </div>
 
-  <h2>🏠 Managing the Homepage "Today at Seed the Word" dashboard</h2>
-  <p>The homepage shows three live cards pulled from across the site: today's verse, the next calendar event, and the latest outreach. All of them refresh automatically when the underlying data changes. The only card with its own dedicated admin file is the <strong>Verse of the Day</strong>.</p>
+  <h2>🏠 Managing the Homepage</h2>
+  <p>The homepage is intentionally tight: <strong>Hero → Featured From Our Ministry (Showcase Carousel) → Walking the Path of Light → Footer</strong>. The Showcase Carousel does all the rotating-content heavy lifting, and the daily verse, tips, and featured highlights are integrated into it.</p>
 
   <div class="admin-card">
-    <p class="admin-card__label">File to edit</p>
+    <p class="admin-card__label">Daily verse rotation (used by the Showcase Carousel)</p>
     <p class="admin-card__title"><code>assets/data/daily-verses.json</code></p>
-    <p>A list of verses that rotates by day of year. Verse #N is picked using <code>dayOfYear % verses.length</code>, so the order matters only for "which verse lands on which day" — it doesn't cycle manually.</p>
+    <p>A list of verses that rotates by day of year. Verse #N is picked using <code>dayOfYear % verses.length</code>, so the order matters only for "which verse lands on which day" — it doesn't cycle manually. Add more verses to expand the pool.</p>
   </div>
 
-  <h3>Add a new verse to the homepage rotation</h3>
+  <h3>Add a new verse to the rotation</h3>
   <ol>
     <li>Open <code>assets/data/daily-verses.json</code> in the repo and click the pencil icon to edit.</li>
     <li>Inside the <code>"verses"</code> array, add a new block at the end:
 <pre><code>{ "text": "Full verse text here.", "ref": "Book 1:1", "version": "KJV" }</code></pre>
     </li>
     <li>Put a comma after the previous block's closing <code>}</code> so the JSON stays valid. The last block should NOT have a trailing comma.</li>
-    <li>Commit. The new verse joins the rotation. Hard-refresh the homepage to see today's verse update immediately (may not be yours — depends on day of year).</li>
+    <li>Commit. The new verse joins the rotation. It may not land on today's screen — that depends on the day-of-year math.</li>
   </ol>
 
-  <h3>What data each homepage card pulls from</h3>
+  <h3>What the Showcase Carousel rotates</h3>
   <ul>
-    <li><strong>📖 Verse of the Day</strong> → <code>assets/data/daily-verses.json</code></li>
-    <li><strong>📅 Coming Up</strong> → Google Calendar (same source as the News page). Shows the next event that hasn't ended yet, within 30 days. No admin action needed — just add events to the Google Calendar.</li>
-    <li><strong>🙌 Latest Outreach</strong> → First entry in <code>assets/data/ministry-outreach.json</code>. Whatever you list first is what shows here and on the news page.</li>
+    <li><strong>Featured ministry highlights</strong> — editorial slides defined in <code>assets/js/showcase-carousel.js</code> (Study Saturday Live, Pack &amp; Ship Nights, Zander's Bible, etc.)</li>
+    <li><strong>Daily Bible content</strong> — one slide per day auto-picked from <code>DAILY_CONTENT</code> in <code>showcase-carousel.js</code> (verses, tips, facts, encouragement). The rotation cycles through categories day-of-year so each day feels different.</li>
+    <li><strong>Latest Instagram posts</strong> — top 3 by likes from the last 60 days, pulled live from <code>assets/data/instagram.json</code>.</li>
   </ul>
 
-  <h3>Degraded states (what if a source is down?)</h3>
-  <p>Each card has a graceful fallback that links to the relevant page. If the calendar API errors out, the Coming Up card says "Our next gathering will appear here" and links to the News calendar. Nothing is hardcoded — the page stays useful even if a service is temporarily unavailable.</p>
+  <h3>Edit the showcase slides or daily content</h3>
+  <p>Both lists live at the top of <code>assets/js/showcase-carousel.js</code> — <code>FALLBACK_SLIDES</code> and <code>DAILY_CONTENT</code>. This is a JS file, so follow JSON-ish syntax carefully: single quotes, commas after every item, no trailing comma on the last one. If in doubt, ping the dev on duty.</p>
 
-  <h2>🌱 The Seeding Lifecycle section (homepage)</h2>
+  <h2>🌱 Walking the Path of Light (homepage ministry map)</h2>
 
   <div class="admin-flowchart">
     <p class="admin-flowchart__label">Ministry framing</p>
@@ -1510,7 +1510,7 @@ flowchart LR
     </div>
   </div>
 
-  <p>The "Seeding Lifecycle" block on the homepage describes the ministry's north star — Seed &rarr; Water &amp; Grow &rarr; Harvest &rarr; Repeat. Each phase card has a short paragraph, a tag line, and a call-to-action link. Changes here require an HTML edit in <code>index.html</code> (search for <code>the-path</code>). Keep paragraphs short — the cards are meant to be scannable. If the team's lifecycle framing evolves, update all three phase cards together so the loop still makes sense.</p>
+  <p>The homepage's second section, anchored in Psalm 119:105 ("Thy word is a lamp unto my feet, and a light unto my path"), draws the ministry's journey as a glowing path of waypoints on a dark canvas. Each waypoint card has a short paragraph, a tag line, and a call-to-action link. Changes here require an HTML edit in <code>index.html</code> (search for <code>the-path</code>). Keep paragraphs short — the cards are meant to be scannable. If the team's lifecycle framing evolves, update all three phase cards together so the loop still makes sense.</p>
 
   <h2>🔧 How to do common tasks</h2>
 
@@ -1721,10 +1721,12 @@ Details → https://seedtheword.github.io/seedtheword/news.html#event=abc123</co
   <h2>📝 Recent changes</h2>
   <p>Big-picture history of what's on the site and when it was set up:</p>
   <ul>
-    <li><strong>May 2026</strong> — Store page rebuilt around three tone-differentiated bundles (Essentials, Life Group, Ministry calling). Each bundle card now has a rotating slideshow powered by per-folder <code>images.json</code> manifests for easy admin updates. Added a general "Support the Ministry" PayPal quick-give panel.</li>
-    <li><strong>May 2026</strong> — Added Spotify podcast embed, 4-icon header/footer socials, mobile nav fix, announcement timezone fix, 3-column contact section with Formspree.</li>
-    <li><strong>April 2026</strong> — Community page redesign (Discussion section, Stay Connected, How to Get Plugged In), Instagram feed via rss.app, bible-reading plan, Showcase Carousel on homepage, Discussion time corrections, footer simplified.</li>
-    <li><strong>Earlier</strong> — Initial site build, Netlify CMS setup then removed, calendar integration, ministry highlights grid.</li>
+    <li><strong>May 2026 (current)</strong> — Homepage rebuilt as Hero → Featured From Our Ministry → Walking the Path of Light. Dropped the separate "Today at Seed the Word" dashboard section (Showcase Carousel already covers rotating content). News page gained "Ministry Outreach &amp; Highlights" (3 carousel cards + existing 9-tile grid); removed "Ways to Help". Calendar events now have a 📣 Share Event dropdown (Telegram, WhatsApp, Instagram, Device share, Copy) that pre-fills the ministry's announcement template with Apple/Google maps links. News page has Open Graph tags for rich link previews on Telegram. Admin help got a searchable interface, Mermaid flowcharts, and an interactive Recommendations builder with live Spotify/YouTube previews.</li>
+    <li><strong>May 2026</strong> — Store page rebuilt around three tone-differentiated bundles (Essentials, Life Group, Ministry calling). Each bundle card has a rotating slideshow powered by per-folder <code>images.json</code> manifests. Store header renamed to "Love. Gift. Repeat — that's Jesus." Added support-the-ministry PayPal quick-give panel. Bundle-builder page rebuilt to match aesthetic.</li>
+    <li><strong>May 2026</strong> — "A message from our friend, Ruslan Y." permanent video card added to Community page. Partner Ministries + What We're Listening To migrated from JS arrays to <code>assets/data/recommendations.json</code> (admin-editable via the builder tool). Media drop folded into the News outreach callout with Google Forms integration.</li>
+    <li><strong>May 2026</strong> — Added Spotify podcast embed, 4-icon header/footer socials, mobile nav fix, announcement timezone fix, 3-column contact section with Formspree. Fixed livestream "OFFLINE" showing on Saturdays before 7 PM PT.</li>
+    <li><strong>April 2026</strong> — Community page redesign (Discussion, Stay Connected, Friends in Jesus), Instagram feed via rss.app, bible-reading plan, Showcase Carousel on homepage, calendar event modal with 5-tier color codes, month-themed calendar backdrops.</li>
+    <li><strong>Earlier</strong> — Initial site build, Netlify CMS setup then removed, Google Calendar integration, ministry highlights grid.</li>
   </ul>
 
   <h2>🆘 If everything is on fire</h2>

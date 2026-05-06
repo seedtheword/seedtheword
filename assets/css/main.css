@@ -7811,7 +7811,9 @@ a.contact-card:hover .contact-card__cta span {
   font-size: 0.93rem;
   line-height: 1.65;
   color: var(--text);
-  margin: 0 0 1rem;
+  margin: 0 auto 1rem;
+  max-width: 640px;
+  text-align: center;
 }
 .outreach-callout__actions {
   display: flex;

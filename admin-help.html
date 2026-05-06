@@ -327,8 +327,53 @@
     /* Hide non-matching sections/subsections while searching */
     .admin-content [data-search-hidden="true"] { display: none !important; }
 
+    /* ── Flowchart containers (Mermaid) ───────────────────── */
+    .admin-flowchart {
+      margin: 1.5rem 0 2rem;
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, rgba(253, 248, 242, 0.95), rgba(244, 232, 211, 0.7));
+      border: 1px solid rgba(212, 165, 116, 0.35);
+      border-radius: 14px;
+      overflow-x: auto;
+    }
+    .admin-flowchart__label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin: 0 0 0.6rem;
+    }
+    .admin-flowchart__title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 0.85rem;
+    }
+    .admin-flowchart .mermaid {
+      background: transparent;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .admin-flowchart .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+    /* While Mermaid processes, show the source as monospace rather than
+       flashing raw graph syntax at the reader. */
+    .admin-flowchart .mermaid:not([data-processed="true"]) {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 0.5rem 0;
+      text-align: left;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
     @media (max-width: 640px) {
       .admin-search { margin: 0 -1rem 1.5rem; padding: 0.75rem 1rem; }
+      .admin-flowchart { margin-left: -0.5rem; margin-right: -0.5rem; padding: 1rem; }
     }
   </style>
 </head>
@@ -399,6 +444,43 @@
     <strong>Heads up:</strong> this page has only a basic password gate on a public
     website. Don't paste real passwords, API keys, or member data here. For those,
     use a password manager or a private doc.
+  </div>
+
+  <div class="admin-flowchart">
+    <p class="admin-flowchart__label">Visual guide</p>
+    <p class="admin-flowchart__title">"Something needs updating" — where do I go?</p>
+    <div class="mermaid">
+flowchart TD
+    Start([I need to update<br/>something on the site]) --> Q1{What kind of<br/>update?}
+
+    Q1 -->|An event| E1[Open Google Calendar<br/>Add/edit the event]
+    E1 --> E2([Site updates<br/>within 1 minute])
+
+    Q1 -->|A photo or video| P1{Where does it<br/>belong?}
+    P1 -->|Team, Highlights,<br/>Featured, Backgrounds| P2[Upload to matching folder<br/>under assets/images/]
+    P1 -->|Bundle slideshow| P3[Upload to bundle folder<br/>Edit images.json manifest]
+    P1 -->|Outreach card| P4[Create folder under<br/>ministry-outreach/<br/>Add images.json + index entry]
+    P2 --> Commit([Commit on GitHub<br/>Site redeploys in ~60s])
+    P3 --> Commit
+    P4 --> Commit
+
+    Q1 -->|Recommended content<br/>Spotify, YouTube, link| R1[Edit assets/js/<br/>recommendations.js]
+    R1 --> Commit
+
+    Q1 -->|Verse of the Day| V1[Edit assets/data/<br/>daily-verses.json]
+    V1 --> Commit
+
+    Q1 -->|Something is<br/>broken| B1[Jump to the<br/>Troubleshooting section below]
+
+    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
+    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
+    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    class Start start
+    class Q1,P1 decision
+    class E1,P2,P3,P4,R1,V1,B1 action
+    class E2,Commit done
+    </div>
   </div>
 
   <h2>📋 Overview — what the site depends on</h2>
@@ -472,6 +554,35 @@
 
   <h2>🗓️ Ministry Operations Schedule</h2>
   <p>This is the working rhythm for admin stewardship — who does what, when, and on which platform. It ensures consistency across every channel we serve.</p>
+
+  <div class="admin-flowchart">
+    <p class="admin-flowchart__label">Visual guide</p>
+    <p class="admin-flowchart__title">Weekly rhythm at a glance</p>
+    <div class="mermaid">
+flowchart LR
+    Mon([Mon–Fri<br/>📅 Daily]) --> D1[Encounter the Word<br/>chapter post]
+    Mon --> D2[Daily audio reading<br/>→ Telegram]
+    Mon --> D3[Prayer &amp; Thanksgiving<br/>prompt]
+    Mon --> D4[Monitor #verse tag<br/>share highlights]
+
+    Mid([Every 2–3 days<br/>🔁 Mid-week]) --> M1[Cross-platform<br/>outreach posts]
+    Mid --> M2[Announcements<br/>+ IG Highlights]
+    Mid --> M3[Calendar planning<br/>future events]
+    Mid --> M4[Youth content<br/>curation]
+    Mid --> M5[Inbox triage<br/>IG + Telegram]
+
+    Sat([Saturday<br/>📚 Study Day]) --> S1[Theme of the week]
+    Sat --> S2[Weekly summary<br/>in Discuss Scripture]
+    Sat --> S3[Resource &amp; stewardship<br/>accountability]
+
+    Sun([Sunday<br/>⛪ Fellowship]) --> R1[Rest &amp; rhythm<br/>minimal posting<br/>in-person church]
+
+    classDef day fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    classDef task fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
+    class Mon,Mid,Sat,Sun day
+    class D1,D2,D3,D4,M1,M2,M3,M4,M5,S1,S2,S3,R1 task
+    </div>
+  </div>
 
   <h3>📅 Daily (Monday–Friday)</h3>
 
@@ -579,6 +690,39 @@
 
   <h2>🖼️ Updating images on the website</h2>
   <p>Some parts of the site display images that admins manage directly (team photos, ministry highlights, homepage featured slides, hero backgrounds). Replacing these is done through GitHub's web interface — no coding, no terminal. Here's the full walkthrough.</p>
+
+  <div class="admin-flowchart">
+    <p class="admin-flowchart__label">Visual guide</p>
+    <p class="admin-flowchart__title">Replace vs Add — which path am I on?</p>
+    <div class="mermaid">
+flowchart TD
+    Start([I have a photo to<br/>put on the site]) --> Q1{Is this replacing<br/>an existing photo?}
+
+    Q1 -->|Yes — same spot,<br/>new image| R1[Match the OLD filename<br/>exactly, capitalization too]
+    R1 --> R2[Open the file on GitHub<br/>Click 'Replace this file']
+    R2 --> R3[Upload, commit]
+    R3 --> Done([Hard-refresh the site<br/>in 30–60 seconds])
+
+    Q1 -->|No — brand-new photo| A1[Pick a short, descriptive<br/>filename: all lowercase,<br/>dashes, no spaces]
+    A1 --> A2[Navigate to the right folder<br/>in the repo]
+    A2 --> A3[Click 'Add file → Upload files']
+    A3 --> A4[Drag in, commit]
+    A4 --> Q2{Does the site<br/>already reference it?}
+    Q2 -->|Yes — filename matches<br/>a JSON manifest| Done
+    Q2 -->|No — HTML edit needed<br/>to make it appear| Dev([Ping the dev on duty])
+
+    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
+    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
+    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    classDef dev fill:#c0392b,stroke:#8a2318,color:#fff,stroke-width:2px;
+    class Start start
+    class Q1,Q2 decision
+    class R1,R2,R3,A1,A2,A3,A4 action
+    class Done done
+    class Dev dev
+    </div>
+  </div>
 
   <div class="warning">
     <strong>Before you start:</strong> You need a free GitHub account, and you need to be added as a collaborator on the repo. Ping the dev on duty if you haven't been added yet.
@@ -725,6 +869,24 @@
   </div>
 
   <h3>Add a Spotify episode to "What We're Listening To"</h3>
+
+  <div class="admin-flowchart">
+    <p class="admin-flowchart__label">Visual guide</p>
+    <p class="admin-flowchart__title">Add a Spotify episode in 4 steps</p>
+    <div class="mermaid">
+flowchart LR
+    A([Open Spotify episode<br/>in browser]) --> B[Copy the ID from the URL<br/>the part after /episode/]
+    B --> C[Edit recommendations.js<br/>on GitHub]
+    C --> D[Add a new block<br/>inside LISTENING_ITEMS]
+    D --> E([Commit — card appears<br/>within 60 seconds])
+
+    classDef step fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
+    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    class A,E done
+    class B,C,D step
+    </div>
+  </div>
+
   <ol>
     <li>Open the Spotify episode or show in your browser.</li>
     <li>Copy the ID from the URL. Example: from <code>https://open.spotify.com/episode/<strong>1Y4cct2gyvhYJYLIxwuley</strong></code>, the ID is <code>1Y4cct2gyvhYJYLIxwuley</code>.</li>
@@ -802,6 +964,33 @@
   </div>
 
   <h3>Add a new photo to a bundle slideshow</h3>
+
+  <div class="admin-flowchart">
+    <p class="admin-flowchart__label">Visual guide</p>
+    <p class="admin-flowchart__title">Add a photo to a bundle card</p>
+    <div class="mermaid">
+flowchart TD
+    A([Photo ready<br/>on your computer]) --> B[Resize to 1600×900<br/>compress under 300 KB<br/>squoosh.app works great]
+    B --> C[Rename with a number prefix:<br/>03-group-study.jpg]
+    C --> D{Which bundle?}
+    D -->|Essentials| D1[essentials/ folder]
+    D -->|Life Group| D2[lifegroup/ folder]
+    D -->|Ministry| D3[ministry/ folder]
+    D1 --> E[Upload to that folder<br/>on GitHub, commit]
+    D2 --> E
+    D3 --> E
+    E --> F[Edit images.json in<br/>same folder, add new block<br/>with file + caption]
+    F --> G([Commit — slide joins<br/>the rotation immediately])
+
+    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
+    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
+    class A,G start
+    class D decision
+    class B,C,D1,D2,D3,E,F action
+    </div>
+  </div>
+
   <ol>
     <li>Resize and compress your photo first. Aim for <strong>1600&times;900 px</strong> (16:9) and under <strong>300 KB</strong>. A free tool like <a href="https://squoosh.app" target="_blank" rel="noopener">squoosh.app</a> handles this in one step.</li>
     <li>Rename the file with a numeric prefix so the order is obvious — for example <code>03-group-study.jpg</code>. Use lowercase and dashes. No spaces, no apostrophes, no weird characters.</li>
@@ -866,6 +1055,32 @@
   </div>
 
   <h3>Add a new outreach card</h3>
+
+  <div class="admin-flowchart">
+    <p class="admin-flowchart__label">Visual guide</p>
+    <p class="admin-flowchart__title">Add a new outreach to the News page</p>
+    <div class="mermaid">
+flowchart TD
+    Start([New outreach to feature]) --> F1[Pick a folder name<br/>kebab-case, includes the date<br/>e.g. bellevue-park-july-2026]
+    F1 --> F2[Create the folder under<br/>assets/images/ministry-outreach/]
+    F2 --> F3[Upload photos 01.jpg, 02.jpg...<br/>videos video-01.mp4...<br/>all under ~10MB]
+    F3 --> F4[Create images.json in folder<br/>list media in play order]
+    F4 --> I1[Open ministry-outreach.json<br/>Add event entry at TOP<br/>most recent first]
+    I1 --> I2[Fill in title, date, location,<br/>body — leave testimony blank]
+    I2 --> C([Commit — card appears<br/>on News page &amp; Today's<br/>Latest Outreach])
+    C --> T{Got a testimony<br/>from the field?}
+    T -->|Yes| T1[Edit the 'testimony' field<br/>later, commit]
+    T -->|Not yet| T2[Come back when you do]
+
+    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
+    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
+    class Start,C start
+    class T decision
+    class F1,F2,F3,F4,I1,I2,T1,T2 action
+    </div>
+  </div>
+
   <ol>
     <li>In the repo, open <code>assets/images/ministry-outreach/</code>. Click <strong>Add file → Create new file</strong> and type a folder path like <code>bellevue-park-july-2026/images.json</code> (GitHub creates the folder for you as you type the slash).</li>
     <li>Upload your photos and videos into that new folder. Prep guidelines:
@@ -946,7 +1161,28 @@
   <p>Each card has a graceful fallback that links to the relevant page. If the calendar API errors out, the Coming Up card says "Our next gathering will appear here" and links to the News calendar. Nothing is hardcoded — the page stays useful even if a service is temporarily unavailable.</p>
 
   <h2>🌱 The Seeding Lifecycle section (homepage)</h2>
-  <p>The "Seeding Lifecycle" block on the homepage describes the ministry's north star — Seed &rarr; Water &rarr; Grow &rarr; Harvest &rarr; Repeat. Each phase card has a short paragraph, a tag line, and a call-to-action link. Changes here require an HTML edit in <code>index.html</code> (search for <code>lifecycle-section</code>). Keep paragraphs short — the cards are meant to be scannable. If the team's lifecycle framing evolves, update all four cards together so the loop still makes sense.</p>
+
+  <div class="admin-flowchart">
+    <p class="admin-flowchart__label">Ministry framing</p>
+    <p class="admin-flowchart__title">The Seed → Water &amp; Grow → Harvest → Repeat loop</p>
+    <div class="mermaid">
+flowchart LR
+    P1[Phase 1 — SEED<br/>Evangelism &amp; new believers<br/>Grace first, action before theology<br/>Tuesday meetings]
+    P2[Phase 2 — WATER &amp; GROW<br/>Discipleship &amp; deepening<br/>Amen Prayer, Phil 4:6–8<br/>Saturday studies, 5 pillars]
+    P3[Phase 3 — HARVEST<br/>Placement &amp; maturation<br/>Commission into local church<br/>Mentorship, 1 Tim 1:5]
+    R[↻ REPEAT<br/>For the next person<br/>He brings us]
+
+    P1 --> P2 --> P3 --> R
+    R -.next person.-> P1
+
+    classDef phase fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:2px;
+    classDef loop fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    class P1,P2,P3 phase
+    class R loop
+    </div>
+  </div>
+
+  <p>The "Seeding Lifecycle" block on the homepage describes the ministry's north star — Seed &rarr; Water &amp; Grow &rarr; Harvest &rarr; Repeat. Each phase card has a short paragraph, a tag line, and a call-to-action link. Changes here require an HTML edit in <code>index.html</code> (search for <code>the-path</code>). Keep paragraphs short — the cards are meant to be scannable. If the team's lifecycle framing evolves, update all three phase cards together so the loop still makes sense.</p>
 
   <h2>🔧 How to do common tasks</h2>
 
@@ -978,6 +1214,52 @@
   </ol>
 
   <h2>🧯 Troubleshooting — if the site looks broken</h2>
+
+  <div class="admin-flowchart">
+    <p class="admin-flowchart__label">Visual guide</p>
+    <p class="admin-flowchart__title">Triage — start here when something looks wrong</p>
+    <div class="mermaid">
+flowchart TD
+    S([The site looks broken]) --> HR[Hard-refresh first:<br/>Ctrl+Shift+R / Cmd+Shift+R<br/>Stale cache is the #1 cause]
+    HR --> Q1{Still broken?}
+    Q1 -->|No — fixed!| Done([Phew.])
+    Q1 -->|Yes| Q2{What's wrong?}
+
+    Q2 -->|Calendar empty| C1[Check Google Calendar<br/>has events for this range]
+    C1 --> C2{Still empty on site?}
+    C2 -->|Yes| C3[Open browser console F12<br/>look for 403/401/quota errors]
+    C2 -->|No| Done
+    C3 --> Dev
+
+    Q2 -->|IG images broken| I1[Check GitHub Actions tab<br/>Scrape Instagram Feed run]
+    I1 --> I2{Recent run succeeded?}
+    I2 -->|No| I3[Re-authorize rss.app<br/>or ping dev]
+    I2 -->|Yes| I4[Manually trigger<br/>'Scrape Instagram Feed']
+    I3 --> Dev
+    I4 --> Done
+
+    Q2 -->|Contact form<br/>not sending| F1[Sign in to formspree.io<br/>check message log &amp; quota]
+    F1 --> Dev
+
+    Q2 -->|Livestream wrong| L1[Schedule-based logic<br/>check twitch-integration.js<br/>or ping dev]
+    L1 --> Dev
+
+    Q2 -->|Something else| E1[Check GitHub Actions<br/>for red X deploys]
+    E1 --> E2[Screenshot console errors]
+    E2 --> Dev([Ping the dev on duty<br/>with screenshot + details])
+
+    classDef start fill:#c0392b,stroke:#8a2318,color:#fff,stroke-width:2px;
+    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
+    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
+    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    classDef dev fill:#c0392b,stroke:#8a2318,color:#fff,stroke-width:2px;
+    class S start
+    class Q1,Q2,C2,I2 decision
+    class HR,C1,C3,I1,I3,I4,F1,L1,E1,E2 action
+    class Done done
+    class Dev dev
+    </div>
+  </div>
 
   <h3>Calendar is empty on news.html</h3>
   <ul>
@@ -1089,6 +1371,8 @@
     content.classList.add('visible');
     // Build TOC + wire up search once content is visible
     initAdminSearch();
+    // Load Mermaid on demand so the gate stays lightweight
+    loadMermaid();
   }
 
   function lock() {
@@ -1148,12 +1432,19 @@
         nodes.push(next);
         next = next.nextElementSibling;
       }
+      // Build haystack from section text, but strip out raw Mermaid source
+      // so searches don't match graph syntax like "flowchart TD".
+      const haystackParts = [];
+      nodes.forEach(n => {
+        const clone = n.cloneNode(true);
+        clone.querySelectorAll('.mermaid').forEach(m => m.remove());
+        haystackParts.push(clone.textContent || '');
+      });
       sections.push({
         id,
         title: h2.textContent.trim(),
         nodes,
-        // Pre-computed lowercase text for fast filtering
-        haystack: nodes.map(n => n.textContent || '').join(' ').toLowerCase(),
+        haystack: haystackParts.join(' ').toLowerCase(),
       });
     });
 
@@ -1227,6 +1518,11 @@
           if (!p) return NodeFilter.FILTER_REJECT;
           if (p.nodeName === 'MARK' && p.classList.contains('admin-search-hit')) return NodeFilter.FILTER_REJECT;
           if (p.closest('#admin-search')) return NodeFilter.FILTER_REJECT;
+          // Never edit nodes inside a rendered Mermaid flowchart — its
+          // structure must stay intact, and the textual source already
+          // lives in the haystack for discovery purposes.
+          if (p.closest('.mermaid')) return NodeFilter.FILTER_REJECT;
+          if (p.closest('svg')) return NodeFilter.FILTER_REJECT;
           return NodeFilter.FILTER_ACCEPT;
         }
       });
@@ -1323,6 +1619,48 @@
   }
   function escapeRegExp(s) {
     return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  // ── Mermaid flowchart rendering ────────────────────────────
+  let mermaidLoaded = false;
+  function loadMermaid() {
+    if (mermaidLoaded) return;
+    mermaidLoaded = true;
+    if (!document.querySelector('.admin-flowchart .mermaid')) return;
+
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
+    script.defer = true;
+    script.onload = () => {
+      if (!window.mermaid) return;
+      window.mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        themeVariables: {
+          primaryColor: '#fdf8f1',
+          primaryTextColor: '#2b2b2b',
+          primaryBorderColor: '#d4a574',
+          lineColor: '#8a6a3a',
+          fontFamily: 'inherit',
+        },
+        flowchart: {
+          curve: 'basis',
+          nodeSpacing: 45,
+          rankSpacing: 55,
+          padding: 14,
+        },
+      });
+      // Run Mermaid on all charts
+      try {
+        window.mermaid.run({ querySelector: '.admin-flowchart .mermaid' });
+      } catch (err) {
+        console.warn('Mermaid render failed:', err);
+      }
+    };
+    script.onerror = () => {
+      console.warn('Mermaid failed to load — flowchart source will remain visible as plain text.');
+    };
+    document.head.appendChild(script);
   }
 })();
 </script>

@@ -7825,6 +7825,8 @@ a.contact-card:hover .contact-card__cta span {
   color: var(--muted);
   font-style: italic;
   max-width: 520px;
+  text-align: center;
+  line-height: 1.55;
 }
 
 @media (max-width: 900px) {

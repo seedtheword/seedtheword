@@ -867,24 +867,30 @@ class GoogleCalendarIntegration {
     const isAllDay = !event.start?.dateTime;
     const title    = (event.summary || 'Seed the Word Event').trim();
 
-    // Banner line: "TONIGHT <time>", "TOMORROW <time>", or "<DAY>, <MONTH DAY> <time>"
+    // Banner line — matches team's Telegram template:
+    //   ❕! TONIGHT, 10AM ! ❕   (same-day)
+    //   ❕! TOMORROW, 7PM ! ❕   (next-day)
+    //   ❕! FRIDAY, 7PM ! ❕     (within the week)
+    //   ❕! MAY 25, 10AM ! ❕    (further out)
     const now = new Date();
     const startOfDay = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c; };
     const dayDiff = Math.round((startOfDay(start) - startOfDay(now)) / 86400000);
+    // "7:00 PM" -> "7PM"; "10:30 AM" -> "10:30AM"
     const timeStr = isAllDay
       ? 'ALL DAY'
       : start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-          .replace(':00', '')   // "7:00 PM" -> "7 PM"
+          .replace(':00', '')
+          .replace(/\s+/g, '')
           .toUpperCase();
     let banner;
-    if (dayDiff === 0)       banner = `TONIGHT ${timeStr}`;
-    else if (dayDiff === 1)  banner = `TOMORROW ${timeStr}`;
+    if (dayDiff === 0)       banner = `TONIGHT, ${timeStr}`;
+    else if (dayDiff === 1)  banner = `TOMORROW, ${timeStr}`;
     else if (dayDiff > 1 && dayDiff <= 7) {
       const dayName = start.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
-      banner = `${dayName} ${timeStr}`;
+      banner = `${dayName}, ${timeStr}`;
     } else {
       const d = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
-      banner = `${d} ${timeStr}`;
+      banner = `${d}, ${timeStr}`;
     }
 
     // Pull "@ <place>!" out of the event title if it already has one,
@@ -913,15 +919,16 @@ class GoogleCalendarIntegration {
       ].join('\n');
     }
 
-    // Body: wrap description in 🙏🏻🤍 ... 🙏🏻🤍 if we have one
+    // Body: description passes through verbatim (team adds their own
+    // 🙏🏻🤍 wrappers or emojis in Google Calendar when they want them).
     let bodyBlock = null;
     if (event.description) {
       const cleanDesc = String(event.description)
         .replace(/<[^>]+>/g, '')
         .replace(/\|/g, '\n')
         .trim();
-      const capped = cleanDesc.length > 400 ? cleanDesc.slice(0, 397) + '…' : cleanDesc;
-      if (capped) bodyBlock = `🙏🏻🤍${capped}🙏🏻🤍`;
+      const capped = cleanDesc.length > 600 ? cleanDesc.slice(0, 597) + '…' : cleanDesc;
+      if (capped) bodyBlock = '🙏🏻🤍' + capped;
     }
 
     // Assemble
@@ -940,7 +947,7 @@ class GoogleCalendarIntegration {
     parts.push('');
     parts.push('We can\u2019t wait to see you there! \u2728');
     parts.push('');
-    parts.push(`Details → ${shareUrl}`);
+    parts.push(`More Details (${shareUrl})`);
     return parts.join('\n');
   }
 

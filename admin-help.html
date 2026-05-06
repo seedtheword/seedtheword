@@ -1658,27 +1658,36 @@ flowchart LR
 
   <h3>The announcement format</h3>
   <p>The Share button uses our ministry template. Every event auto-generates something like this:</p>
-  <pre><code>❕! TONIGHT 6 PM ! ❕
+  <pre><code>❕! MAY 25, 10AM ! ❕
 🌱Seed The Word! 🌱
-@ Vanessa's House!
+@ Lincoln Rock State Park!
 
 Address:
-📍1505 Mukilteo Ln, Mukilteo, WA 98275 (https://maps.apple.com/?q=1505+Mukilteo+Ln%2C+Mukilteo%2C+WA+98275)
-Google maps link (https://maps.google.com/?q=1505+Mukilteo+Ln%2C+Mukilteo%2C+WA+98275)
+📍Lincoln Rock State Park, 13253 US-2, East Wenatchee, WA 98802, USA (https://maps.apple.com/?q=Lincoln+Rock+State+Park...)
+Google maps link (https://maps.google.com/?q=Lincoln+Rock+State+Park...)
 
-🙏🏻🤍sharing a worship and fellowship gathering for all who are in the area, with campfire, smores, and hotdogs!🙏🏻🤍
+🙏🏻🤍Hello youth!! 🎉
+Memorial Day is coming up soon!
+
+Sign ups are open now!
+
+Date &amp; time 📆 : May 25th, 10am
+Cost💲: 20$
+
+Sign up with : @Alina Matyuk-Pavlun
+(contact @seedtheword admins for details)
 
 We can\u2019t wait to see you there! \u2728
 
-Details → https://seedtheword.github.io/seedtheword/news.html#event=abc123</code></pre>
+More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)</code></pre>
 
   <h3>How each field is generated (so Calendar edits drive the post)</h3>
   <ul>
-    <li><strong>Time header</strong> ("TONIGHT 6 PM" / "TOMORROW 7 PM" / "SATURDAY 7 PM" / "MAY 15 7 PM") — derived from the event's start time. Close events get the friendlier label; events further out get the date.</li>
-    <li><strong>Venue line "@ Vanessa's House!"</strong> — pulled from the event title if it ends with <code>@ Something</code>, or falls back to the first part of the address. Add <code>@ Vanessa's House</code> to the event's Google Calendar title to get that exact line.</li>
+    <li><strong>Time header</strong> — format is <code>❕! DAY-OR-DATE, TIME ! ❕</code>. Close events get the friendlier label (<code>TONIGHT, 6PM</code>, <code>TOMORROW, 7PM</code>, <code>SATURDAY, 10AM</code>); events further than a week out show the date (<code>MAY 25, 10AM</code>). On-the-hour times drop the minutes.</li>
+    <li><strong>Venue line "@ Lincoln Rock State Park!"</strong> — pulled from the event title if it ends with <code>@ Something</code>, or falls back to the first part of the address. Add <code>@ Lincoln Rock State Park</code> to the event's Google Calendar title to get that exact line.</li>
     <li><strong>Address + maps links</strong> — auto-built from the event's Location field in Google Calendar. Both Apple Maps and Google Maps links are included so the member can tap whichever they prefer.</li>
-    <li><strong>🙏🏻🤍 description 🙏🏻🤍</strong> — pulled from the event's Description field. Keep descriptions short — we trim to 400 characters.</li>
-    <li><strong>Details link</strong> — a deep link to the event's modal on news.html. Clicking it opens the News page with the event expanded.</li>
+    <li><strong>🙏🏻🤍 description</strong> — pulled verbatim from the event's Description field, prefixed with 🙏🏻🤍. The team's emojis, line breaks, and sign-up instructions come through as written. Keep descriptions under 600 characters — longer ones get trimmed.</li>
+    <li><strong>More Details link</strong> — a deep link to the event's modal on news.html. Clicking it opens the News page with the event expanded.</li>
   </ul>
 
   <h3>Share destinations in the dropdown</h3>

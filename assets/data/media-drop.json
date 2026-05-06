@@ -1,7 +1,7 @@
 {
   "_help": "Config for the 'Share Photos & Videos' button inside the Ministry Outreach & Highlights call-out on news.html. Primary path is a Google Form with a file-upload question (all submissions land in our own Google Drive + a Responses spreadsheet with who/what/when). Paste the form's share URL into 'formUrl'. If you'd rather skip the Google sign-in step and let anyone drop files straight into a shared folder, paste that folder URL into 'uploadUrl' instead — but the form is the recommended default. The button stays hidden on the site until one of the two URLs is configured. See admin-help.html for the full walkthrough.",
   "enabled": true,
-  "formUrl": "https://docs.google.com/forms/d/e/REPLACE_WITH_YOUR_FORM_ID/viewform",
+  "formUrl": "https://docs.google.com/forms/d/e/1FAIpQLScujGvLDhsovfbUtwj-_W5plU6DcJ454Vy2fIsfWJ3AYFE0Lg/viewform?usp=header",
   "uploadUrl": "",
   "adminReviewUrl": "https://drive.google.com/drive/folders/REPLACE_WITH_YOUR_FOLDER_URL"
 }

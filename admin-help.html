@@ -1629,6 +1629,52 @@ flowchart TD
     <li>Check the browser console (F12 → Console tab) for red errors. Screenshot them before pinging the dev.</li>
   </ul>
 
+  <h2>📣 Announcing events to Telegram</h2>
+  <p>Every event on the News page has a built-in "Share to Telegram" shortcut. You don't need to write or copy-paste anything by hand — open the event, tap the button, pick the announcements chat, and send.</p>
+
+  <div class="admin-flowchart">
+    <p class="admin-flowchart__label">Visual guide</p>
+    <p class="admin-flowchart__title">Post a calendar event to Telegram in under 30 seconds</p>
+    <div class="mermaid">
+flowchart LR
+    A([Add event to<br/>Google Calendar]) --> B[Open news.html<br/>click the event]
+    B --> C[Modal opens with:<br/>📣 Share to Telegram<br/>📋 Copy announcement]
+    C --> D{Picking the path}
+    D -->|Telegram button| E[Telegram share sheet<br/>opens with preview +<br/>pre-written caption]
+    D -->|Copy button| F[Announcement text<br/>on clipboard — paste<br/>anywhere]
+    E --> G[Pick 'Announcements'<br/>chat, hit Send]
+    F --> G
+    G --> H([Announcement posted<br/>with link preview<br/>back to news.html])
+
+    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
+    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
+    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    class A,H start
+    class D decision
+    class B,C,E,F,G action
+    </div>
+  </div>
+
+  <h3>What the Share to Telegram button does</h3>
+  <ul>
+    <li>Opens Telegram's native share sheet in a new tab (works on desktop and mobile).</li>
+    <li>Pre-fills the message with an emoji-formatted announcement: title, date, time, location, description, and a link back to the event on <code>news.html</code>.</li>
+    <li>Telegram automatically generates a <strong>rich link preview</strong> from the Open Graph tags on news.html, so members see the ministry image and description without clicking.</li>
+    <li>Picking the announcements chat and hitting Send is the only admin step.</li>
+  </ul>
+
+  <h3>Shareable event links</h3>
+  <p>Every event has a direct URL: <code>news.html#event=&lt;event-id&gt;</code>. If a member clicks that link from anywhere (Telegram, Instagram, a text message), the News page opens with the event's modal already expanded. No hunting through the calendar.</p>
+  <ul>
+    <li>When you open an event modal, the URL in your address bar updates automatically — you can always copy it straight from there too.</li>
+    <li>When you close the modal, the hash is cleaned up so the URL doesn't stay sticky.</li>
+    <li>The event IDs come straight from Google Calendar — if an event is deleted in Calendar, the deep-link gracefully falls back to a normal News page load.</li>
+  </ul>
+
+  <h3>Want fully-automated posting (no tap required)?</h3>
+  <p>It's possible, but it's a separate project: we'd need to create a Telegram bot, add its token to GitHub Secrets, write a scheduled GitHub Action that reads the calendar each morning, and have the bot post to the announcements chat directly. The current workflow keeps admins in the loop (intentional) and costs nothing extra. If you want to move to full automation later, ping the dev on duty.</p>
+
   <h2>🔐 Where secrets live (NOT here)</h2>
   <p>We intentionally don't store API keys, passwords, or tokens on this page. Secrets live in:</p>
   <ul>

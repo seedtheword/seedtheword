@@ -28,6 +28,22 @@ class GoogleCalendarIntegration {
     this.renderCalendar();
     this.renderEventCards();
     this.bindEvents();
+    this.maybeOpenEventFromHash();
+  }
+
+  /** If the URL contains #event=<id>, open that event's modal on load. */
+  maybeOpenEventFromHash() {
+    const m = (window.location.hash || '').match(/^#event=(.+)$/);
+    if (!m) return;
+    const wantedId = decodeURIComponent(m[1]);
+    const target = this.events.find(e => e.id === wantedId);
+    if (!target) {
+      // Event may be outside our fetched window or simply gone
+      console.info('Shared event id not found in current window:', wantedId);
+      return;
+    }
+    // Defer so the calendar finishes painting first
+    setTimeout(() => this.showEventModal(target, this.getEventStart(target)), 50);
   }
   
   async loadEvents() {
@@ -604,6 +620,16 @@ class GoogleCalendarIntegration {
 
     const hasLink = event.htmlLink && event.htmlLink !== '#';
 
+    // Deep-link back to this event so it can be pasted into Telegram, IG, etc.
+    const shareUrl = this.buildShareUrl(event);
+    // Update the browser URL so reload/share from the address bar works too.
+    try {
+      history.replaceState(null, '', '#event=' + encodeURIComponent(event.id || ''));
+    } catch (_) { /* non-critical */ }
+
+    // Stash the event on the instance so the Copy / Share handlers have access
+    this.currentEvent = event;
+
     modalBody.innerHTML = `
       <span class="event-modal__badge ${typeInfo.className}">${typeInfo.label}</span>
       <h3 class="event-modal__title">${escapeHtml(title)}</h3>
@@ -614,31 +640,119 @@ class GoogleCalendarIntegration {
       </ul>
       ${event.description ? `<div class="event-modal__desc">${escapeHtml(event.description).replace(/\|/g, '<br>').replace(/\n/g, '<br>')}</div>` : ''}
       <div class="event-modal__actions">
+        <a class="btn btn-primary" id="event-share-telegram"
+           href="${this.buildTelegramShareUrl(event, shareUrl)}"
+           target="_blank" rel="noopener">
+          📣 Share to Telegram
+        </a>
+        <button class="btn btn-secondary" id="event-copy-share">
+          📋 Copy announcement
+        </button>
         ${hasLink ? `
-          <a class="btn btn-primary" href="${event.htmlLink}" target="_blank" rel="noopener">
+          <a class="btn btn-outline-gold" href="${event.htmlLink}" target="_blank" rel="noopener">
             View on Google Calendar
           </a>
         ` : ''}
-        <button class="btn btn-secondary" onclick="googleCalendar.addToCalendar('${startDate.toISOString()}', ${JSON.stringify(title)})">
+        <button class="btn btn-outline-gold" onclick="googleCalendar.addToCalendar('${startDate.toISOString()}', ${JSON.stringify(title)})">
           Add to My Calendar
         </button>
       </div>
+      <p class="event-modal__share-hint" id="event-share-hint" aria-live="polite"></p>
     `;
 
     modal.style.display = 'flex';
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
+
+    // Wire up Copy button
+    const copyBtn = document.getElementById('event-copy-share');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async () => {
+        const text = this.buildShareText(event, shareUrl);
+        const hint = document.getElementById('event-share-hint');
+        try {
+          await navigator.clipboard.writeText(text);
+          if (hint) hint.textContent = '✅ Copied — paste into any chat or post.';
+        } catch (_) {
+          if (hint) hint.textContent = 'Could not auto-copy. Select the Share to Telegram link and copy the URL instead.';
+        }
+        if (hint) setTimeout(() => { hint.textContent = ''; }, 4000);
+      });
+    }
+  }
+
+  /** Public URL that deep-links to this event's modal on the News page. */
+  buildShareUrl(event) {
+    const origin = window.location.origin;
+    const path = window.location.pathname.replace(/\/[^\/]*$/, '/') + 'news.html';
+    // pathname might already BE news.html; handle that too
+    const finalPath = path.endsWith('news.html')
+      ? path
+      : window.location.pathname;
+    const id = encodeURIComponent(event.id || '');
+    return `${origin}${finalPath}#event=${id}`;
+  }
+
+  /** Plain-text announcement ready for Telegram or pasting elsewhere. */
+  buildShareText(event, shareUrl) {
+    const start = this.getEventStart(event);
+    const end   = this.getEventEnd(event);
+    if (!start || !end) return '';
+
+    const isAllDay = !event.start?.dateTime;
+
+    const dateLine = start.toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric',
+    });
+    const time = isAllDay
+      ? 'All day'
+      : `${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} – ${end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+
+    const lines = [];
+    lines.push(`📣 ${event.summary || 'Ministry Event'}`);
+    lines.push('');
+    lines.push(`📅 ${dateLine}`);
+    lines.push(`⏰ ${time}`);
+    if (event.location) lines.push(`📍 ${event.location}`);
+    if (event.description) {
+      lines.push('');
+      // Strip HTML from description, cap at ~400 chars so the preview is clean
+      const cleanDesc = String(event.description)
+        .replace(/<[^>]+>/g, '')
+        .replace(/\|/g, '\n')
+        .trim();
+      const capped = cleanDesc.length > 400 ? cleanDesc.slice(0, 397) + '…' : cleanDesc;
+      lines.push(capped);
+    }
+    lines.push('');
+    lines.push(`Details → ${shareUrl}`);
+    lines.push('');
+    lines.push('— Seed the Word Ministry');
+    return lines.join('\n');
+  }
+
+  buildTelegramShareUrl(event, shareUrl) {
+    const text = this.buildShareText(event, shareUrl);
+    // Telegram's share endpoint; url is the preview-able URL, text becomes the caption
+    return `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`;
   }
   
   closeModal() {
     const modal = document.getElementById('event-modal');
     if (!modal) return;
-    
+
     modal.classList.remove('show');
     setTimeout(() => {
       modal.style.display = 'none';
       document.body.style.overflow = '';
     }, 300);
+
+    // Clear the #event= hash so the URL reflects reality
+    if (window.location.hash.startsWith('#event=')) {
+      try {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      } catch (_) { /* ignore */ }
+    }
   }
   
   joinEvent(link) {

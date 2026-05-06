@@ -8451,3 +8451,19 @@ a.contact-card:hover .contact-card__cta span {
   .waypoint__card { padding: 1.25rem; }
   .waypoint__title { font-size: 1.35rem; }
 }
+
+
+/* ============================================================
+   Event modal — Share to Telegram / copy-announcement hint
+   ============================================================ */
+.event-modal__actions {
+  flex-wrap: wrap;
+}
+.event-modal__share-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--green);
+  font-weight: 600;
+  min-height: 1.2rem;
+  text-align: center;
+}

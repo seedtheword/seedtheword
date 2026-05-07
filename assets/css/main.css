@@ -8570,3 +8570,60 @@ a.contact-card:hover .contact-card__cta span {
     padding: 0.5rem;
   }
 }
+
+
+/* ============================================================
+   Calendar event chips — readable at every cell width
+   The chips live inside each day cell. Prior styling truncated
+   titles to 15 chars and forced a single line, which made the
+   grid unreadable. This block overrides to allow wrapping with
+   a clamp of 2 lines, tight line-height, and sizing that scales
+   comfortably across desktop, tablet, and phone widths.
+   ============================================================ */
+.calendar-event {
+  font-size: clamp(0.68rem, 1.3vw, 0.82rem);
+  line-height: 1.25;
+  padding: 0.25rem 0.45rem;
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  text-align: left;
+}
+
+/* A little more room inside each day cell so 2-line chips don't
+   crowd the day number */
+.calendar-day {
+  padding: 0.5rem 0.45rem;
+  row-gap: 0.2rem;
+}
+.calendar-day .calendar-event + .calendar-event {
+  margin-top: 0.2rem;
+}
+
+/* Mid-size tablets: keep cells roomy, chips slightly smaller */
+@media (max-width: 900px) {
+  .calendar-event {
+    font-size: clamp(0.66rem, 1.5vw, 0.78rem);
+    padding: 0.22rem 0.4rem;
+  }
+}
+
+/* Phones: chip becomes a single visible line with ellipsis so the
+   cells don't grow tall, but the full title still shows on tap
+   (via the title attribute + the event modal). */
+@media (max-width: 560px) {
+  .calendar-event {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.35rem;
+    -webkit-line-clamp: 1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}

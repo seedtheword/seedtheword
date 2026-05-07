@@ -379,7 +379,10 @@ class GoogleCalendarIntegration {
       dayEvents.forEach(event => {
         const eventEl = document.createElement('div');
         eventEl.className = `calendar-event ${this.getEventType(event)}`;
-        eventEl.textContent = this.truncateText(event.summary || event.title || 'Event', 15);
+        // Let CSS handle wrapping/truncation so full titles show on wider
+        // cells and collapse gracefully on narrow mobile cells.
+        eventEl.textContent = event.summary || event.title || 'Event';
+        eventEl.title = event.summary || event.title || 'Event';
         eventEl.addEventListener('click', (e) => {
           e.stopPropagation();
           this.showEventModal(event, date);

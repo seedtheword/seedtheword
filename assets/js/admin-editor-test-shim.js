@@ -48,6 +48,7 @@ export async function loadModule(name) {
     clearTimeout,
     setInterval,
     clearInterval,
+    queueMicrotask,
     Promise,
     Date,
     Math,
@@ -64,6 +65,19 @@ export async function loadModule(name) {
     Map,
     Set,
     Symbol,
+    // Base64 + binary utilities — Node 18+ provides these as globals but the
+    // vm context does NOT inherit them unless we thread them in explicitly.
+    Buffer,
+    btoa,
+    atob,
+    // Text encoders, occasionally useful in the modules we load.
+    TextEncoder,
+    TextDecoder,
+    // Legacy URI helpers used by older base64 shims.
+    encodeURIComponent,
+    decodeURIComponent,
+    escape,
+    unescape,
   };
   sandbox.globalThis = sandbox;
 

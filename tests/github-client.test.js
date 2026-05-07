@@ -26,25 +26,22 @@ const gh = await loadModule('admin-editor-github');
 
 const FAKE_PAT = 'github_pat_TEST_1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-
 function installClient({ fetch, pat = FAKE_PAT, storage }) {
-  // The client is designed to accept injected fetch/pat/storage so tests can
-  // deterministically observe request shape. In production these come from
-  // window.fetch / localStorage.
-  const client = gh.createClient({
+  return gh.createClient({
     fetch,
     pat,
     storage: storage || makeFakeStorage(),
     clock: { now: () => Date.now(), sleep: () => Promise.resolve() },
   });
-  return client;
 }
 
+// Operations that exercise a single public method on the client. validatePat
+// is intentionally excluded because it temporarily substitutes the stored PAT
+// with the candidate parameter, which makes the "the stored PAT appears in
+// Authorization" invariant in Property 7d ambiguous. validatePat gets its own
+// dedicated tests further below.
 function genMethodCall() {
-  // Each entry is a function (client) → Promise that exercises one public method.
   const ops = [
-    (c) => c.validatePat(FAKE_PAT),
     (c) => c.readFile('assets/data/recommendations.json'),
     (c) =>
       c.writeFile('assets/data/recommendations.json', '{"listening":[]}', {
@@ -59,35 +56,47 @@ function genMethodCall() {
   return pick(ops);
 }
 
-// Handler that returns 200 for most things; a few endpoints need tailored bodies.
-function defaultHandler(url) {
-  if (url.includes('/contents/') && url.includes('GET')) {
-    return { status: 200, body: { sha: 'abc123', content: btoa('{}'), encoding: 'base64' } };
-  }
-  if (url.includes('/user')) {
+// Handler that returns a well-formed 200 tailored to each endpoint we hit.
+// Method dispatch looks at init.method, not at the URL string (the earlier
+// url.includes('GET') check was nonsense — GET is a method, not a URL
+// component).
+function defaultHandler(url, init) {
+  const method = (init && init.method) || 'GET';
+  if (url.endsWith('/user')) {
     return { status: 200, body: { login: 'test-user' } };
   }
-  if (url.includes('/repos/seedtheword/seedtheword') && !url.includes('/contents/')) {
+  if (url.endsWith('/repos/seedtheword/seedtheword')) {
     return { status: 200, body: { permissions: { push: true, pull: true } } };
+  }
+  if (url.includes('/contents/')) {
+    if (method === 'GET') {
+      return {
+        status: 200,
+        body: { sha: 'abc123', content: b64encode('{}'), encoding: 'base64' },
+      };
+    }
+    // PUT or DELETE
+    return {
+      status: 200,
+      body: {
+        content: { sha: 'newsha', path: 'x' },
+        commit: { sha: 'commitsha', html_url: 'https://github.com/x' },
+      },
+    };
   }
   if (url.includes('/dispatches')) {
     return { status: 204, body: '' };
   }
-  // Default — includes the content PUT path.
-  return {
-    status: 200,
-    body: {
-      content: { sha: 'newsha', path: 'x' },
-      commit: { sha: 'commitsha', html_url: 'https://github.com/x' },
-    },
-  };
+  // Fall-through — shouldn't happen in these tests.
+  return { status: 200, body: {} };
 }
 
-// btoa shim for Node (some methods base64 payloads).
-function btoa(s) {
-  return Buffer.from(s, 'binary').toString('base64');
+function b64encode(s) {
+  return Buffer.from(String(s), 'utf-8').toString('base64');
 }
-globalThis.btoa = globalThis.btoa || btoa;
+
+// The production admin-editor-github.js uses btoa/atob when available and
+// falls back to Buffer on Node, so we don't need to shim them here.
 
 // ── Property 7: request-shape invariants ───────────────────────────────────
 

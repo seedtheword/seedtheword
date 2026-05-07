@@ -1,0 +1,10 @@
+{
+  "name": "seedtheword-site",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Seed the Word ministry website — static GitHub Pages site with admin editor.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/"
+  }
+}

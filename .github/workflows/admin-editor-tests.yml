@@ -1,0 +1,41 @@
+name: Admin Editor Tests
+
+# Runs the Node-based test suite on any PR or push that touches the
+# admin-editor modules or their tests. Uses only Node's built-in test
+# runner (node --test) and built-in assert module — zero external deps.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/admin-editor*.js'
+      - 'tests/**'
+      - '.github/workflows/admin-editor-tests.yml'
+  pull_request:
+    paths:
+      - 'assets/js/admin-editor*.js'
+      - 'tests/**'
+      - '.github/workflows/admin-editor-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Print versions
+        run: node --version
+
+      - name: Run tests
+        run: node --test tests/

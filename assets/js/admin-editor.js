@@ -100,6 +100,7 @@
       'validating': renderValidating,
       'scope-warning': renderScopeWarning,
       'content-picker': renderContentPicker,
+      'loading': renderLoading,
       'editing': renderEditing,
       'diff': renderDiff,
       'confirm': renderConfirm,
@@ -112,6 +113,12 @@
 
   function renderIdle() {
     editor.root.appendChild(el('p', { className: 'ae-muted', text: 'Editor is booting…' }));
+  }
+
+  function renderLoading() {
+    const box = el('section', { className: 'ae-panel' });
+    box.appendChild(el('p', { className: 'ae-muted', text: 'Loading ' + (editor.schema && editor.schema.path ? editor.schema.path : '') + '…' }));
+    editor.root.appendChild(box);
   }
 
   // ── PAT onboarding ──────────────────────────────────────────────────────
@@ -315,13 +322,24 @@
     if (!schema) return;
     editor.schemaId = schemaId;
     editor.schema = schema;
-    goto('editing');
-    // Fetch current content
+    editor.form = null;
+    editor.baseSha = null;
+    editor.origContent = null;
+    // Show a "loading" state synchronously; only transition to 'editing'
+    // AFTER readFile resolves so the form renderer has a non-null form.
+    goto('loading');
     try {
       const file = await editor.client.readFile(schema.path);
       editor.baseSha = file.sha;
       editor.origContent = file.content;
-      editor.form = JSON.parse(file.content);
+      try {
+        editor.form = JSON.parse(file.content);
+      } catch (_) {
+        // Malformed JSON on the server — fall back to an empty shape so the
+        // admin can fix it rather than crashing. Flag it visually.
+        editor.form = { listening: [], partners: [] };
+        console.warn('[admin-editor] ' + schema.path + ' contains malformed JSON; starting from an empty shape.');
+      }
       // Offer draft restore if applicable
       const draft = editor.drafts.restore(schema.path);
       if (draft && draft.schemaId === schemaId) {
@@ -331,7 +349,7 @@
           editor.drafts.discard(schema.path);
         }
       }
-      render();
+      goto('editing');
     } catch (err) {
       showError(err);
     }
@@ -339,6 +357,12 @@
 
   // ── Editing view ────────────────────────────────────────────────────────
   function renderEditing() {
+    if (!editor.form || !editor.schema) {
+      // Safety belt: if we somehow ended up here without a loaded form,
+      // bounce back to the content picker rather than crashing.
+      goto('content-picker');
+      return;
+    }
     const box = el('section', { className: 'ae-panel' });
 
     const head = el('div', { className: 'ae-head' });
@@ -512,6 +536,7 @@
   }
 
   function renderRepeatingGroup(container, group, form, onChange) {
+    if (!form || typeof form !== 'object') return; // safety belt
     if (!form[group.name]) form[group.name] = [];
     const rows = form[group.name];
     const listEl = el('ol', { className: 'ae-repeating' });

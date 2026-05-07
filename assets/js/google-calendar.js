@@ -779,14 +779,19 @@ class GoogleCalendarIntegration {
       });
     }
 
-    // 2) Telegram — pre-filled share sheet. Pass only `text` so Telegram
-    //    doesn't duplicate the URL on top; the deep link is already in
-    //    the announcement body and will auto-linkify there.
+    // 2) Telegram — pre-filled share sheet. Telegram's endpoint REQUIRES
+    //    the `url` param (without it, the link just opens telegram.org).
+    //    To avoid the URL appearing twice in the post, we hand Telegram
+    //    the real deep link as `url` and send a body that has the
+    //    'More Details' line stripped.
+    const telegramBody = announcement
+      .replace(/\n?More Details \([^)]*\)\s*$/i, '')
+      .trimEnd();
     items.push({
       icon: '📣',
       label: 'Telegram',
       desc: 'Opens Telegram share sheet',
-      href: `https://t.me/share/url?text=${encodeURIComponent(announcement)}`,
+      href: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(telegramBody)}`,
     });
 
     // 3) WhatsApp — same idea, different endpoint
@@ -1032,9 +1037,11 @@ class GoogleCalendarIntegration {
 
   buildTelegramShareUrl(event, shareUrl) {
     const text = this.buildShareText(event, shareUrl);
-    // Pass only `text` so Telegram doesn't prepend a duplicate URL line —
-    // the More Details link already lives inside the announcement body.
-    return `https://t.me/share/url?text=${encodeURIComponent(text)}`;
+    // Telegram's endpoint requires `url=` — without it the share link
+    // redirects to telegram.org. We pass the deep link there and strip
+    // the 'More Details' footer from the body so it doesn't double-up.
+    const telegramBody = text.replace(/\n?More Details \([^)]*\)\s*$/i, '').trimEnd();
+    return `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(telegramBody)}`;
   }
   
   closeModal() {

@@ -42,6 +42,9 @@
   ];
   const DEFAULT_CATEGORY = 'howto';
   const ALL_CATEGORY = { id: 'all', label: '📚 All' };
+  // Special pseudo-category that, instead of filtering help sections, swaps
+  // the help content out for the browser admin editor.
+  const EDITOR_CATEGORY = { id: 'editor', label: '✏️ Editor', external: true };
 
   // ── Sections collected from the page ────────────────────────
   // Each section = h2 + all following siblings up to the next h2
@@ -157,12 +160,20 @@
     const tabsEl = document.getElementById('admin-tabs');
     if (!tabsEl) return;
 
-    const cats = [ALL_CATEGORY, ...CATEGORIES];
+    const cats = [ALL_CATEGORY, ...CATEGORIES, EDITOR_CATEGORY];
     const counts = {};
     sections.forEach((s) => { counts[s.category] = (counts[s.category] || 0) + 1; });
     counts.all = sections.length;
 
     tabsEl.innerHTML = cats.map((c) => {
+      if (c.external) {
+        const active = c.id === activeCategory ? ' is-active' : '';
+        return (
+          '<button type="button" class="admin-tab' + active +
+          '" data-cat="' + c.id + '" role="tab" title="Commit changes directly from the browser">' +
+          escapeHtml(c.label) + '</button>'
+        );
+      }
       const count = counts[c.id] || 0;
       if (count === 0 && c.id !== 'all') return '';
       const active = c.id === activeCategory ? ' is-active' : '';
@@ -182,8 +193,31 @@
       tabsEl.querySelectorAll('.admin-tab').forEach((b) => {
         b.classList.toggle('is-active', b.dataset.cat === activeCategory);
       });
-      applyFilters();
+      if (activeCategory === 'editor') {
+        showEditor();
+      } else {
+        hideEditor();
+        applyFilters();
+      }
     });
+  }
+
+  function showEditor() {
+    const shell = document.getElementById('admin-editor-shell');
+    const root  = document.getElementById('admin-editor-root');
+    if (shell) { shell.hidden = false; shell.setAttribute('aria-hidden', 'false'); }
+    if (content) content.classList.add('is-hidden-behind-editor');
+    if (window.AdminEditor && typeof window.AdminEditor.mount === 'function' && root) {
+      window.AdminEditor.mount(root);
+    } else if (root) {
+      root.textContent = 'Editor failed to load. Hard-refresh (Ctrl+Shift+R) and try again.';
+    }
+  }
+
+  function hideEditor() {
+    const shell = document.getElementById('admin-editor-shell');
+    if (shell) { shell.hidden = true; shell.setAttribute('aria-hidden', 'true'); }
+    if (content) content.classList.remove('is-hidden-behind-editor');
   }
 
   // ── Alphabet rail ───────────────────────────────────────────

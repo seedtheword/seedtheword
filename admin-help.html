@@ -6,6 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Help — Seed the Word</title>
   <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/admin-editor.css?v=1">
   <style>
     /* ============================================================
        Admin Help page — v3
@@ -416,6 +417,8 @@
 
     /* Visibility helpers driven by the script */
     .admin-content [data-hidden="true"] { display: none !important; }
+    .admin-content.is-hidden-behind-editor { display: none !important; }
+    .admin-editor-shell { margin-top: 1.25rem; }
 
     /* Logout */
     .admin-logout {
@@ -843,6 +846,13 @@
       <!-- Populated by the script; hover or tap a letter to see topics -->
     </div>
   </nav>
+
+  <!-- Browser admin editor (Phase A — recommendations only).
+       Mounted on demand by assets/js/admin-help.js when the admin clicks
+       the "✏️ Editor" tab. Hidden by default. -->
+  <section id="admin-editor-shell" class="admin-editor-shell" hidden aria-hidden="true">
+    <div id="admin-editor-root"></div>
+  </section>
 
   <!-- Content (hidden until unlocked, shell unhides on unlock too) -->
   <main class="admin-content" id="admin-content">
@@ -2085,7 +2095,14 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   </div>
 </footer>
 
-<script src="assets/js/admin-help.js?v=5" defer></script>
+<script src="assets/js/admin-editor-schemas.js?v=1" defer></script>
+<script src="assets/js/admin-editor-github.js?v=1" defer></script>
+<script src="assets/js/admin-editor-diff.js?v=1" defer></script>
+<script src="assets/js/admin-editor-drafts.js?v=1" defer></script>
+<script src="assets/js/admin-editor-validate.js?v=1" defer></script>
+<script src="assets/js/admin-editor-commit-message.js?v=1" defer></script>
+<script src="assets/js/admin-editor.js?v=1" defer></script>
+<script src="assets/js/admin-help.js?v=6" defer></script>
 
 </body>
 </html>

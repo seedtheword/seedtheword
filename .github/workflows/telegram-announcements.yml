@@ -50,7 +50,6 @@ jobs:
       - name: Run announcement script
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          GOOGLE_CAL_API_KEY: ${{ secrets.GOOGLE_CAL_API_KEY }}
           DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
         run: python .github/scripts/post_calendar_to_telegram.py
 

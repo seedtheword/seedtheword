@@ -22,10 +22,7 @@ announcement template (banner line, venue line, address, description,
 closer).
 
 Env vars:
-  TELEGRAM_BOT_TOKEN   — bot token (GitHub Secret)
-  GOOGLE_CAL_API_KEY   — Google Calendar API key (GitHub Secret; we
-                         reuse the same one the frontend uses, but
-                         keep it secret-side for the Action)
+  TELEGRAM_BOT_TOKEN   — bot token (GitHub Secret); only secret required
   GOOGLE_CAL_ID        — calendar ID (defaults to the ministry's)
   BOT_CONFIG           — path to telegram-bot.json
                          (default: assets/data/telegram-bot.json)
@@ -60,13 +57,9 @@ BOT_CONFIG_PATH = Path(os.environ.get("BOT_CONFIG", REPO_ROOT / "assets/data/tel
 LOG_PATH = Path(os.environ.get("LOG_PATH", REPO_ROOT / "assets/data/telegram-announcement-log.json"))
 SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://seedtheword.github.io/seedtheword").rstrip("/")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
-# The Google Calendar API key is not actually secret — it's already
-# embedded in the public frontend at assets/js/google-calendar.js so
-# anyone can see it in browser devtools. We keep this default so the
-# Action doesn't require a separate GitHub Secret; set GOOGLE_CAL_API_KEY
-# in the environment to override.
-_DEFAULT_CAL_API_KEY = "AIzaSyA6GMEdyQHxcRCJuun-OIrFlJgG67Zjtpc"
-GOOGLE_CAL_API_KEY = (os.environ.get("GOOGLE_CAL_API_KEY") or _DEFAULT_CAL_API_KEY).strip()
+# We read the calendar's public iCal feed so no auth/API key is needed.
+# This sidesteps Google's HTTP-referrer restrictions that apply to the
+# frontend's embedded API key (which would 403 from a server).
 GOOGLE_CAL_ID = os.environ.get("GOOGLE_CAL_ID", "seedthewordministry@gmail.com").strip()
 DRY_RUN = bool(os.environ.get("DRY_RUN", "").strip())
 
@@ -261,26 +254,137 @@ def build_share_url(event: dict) -> str:
     return f"{SITE_BASE_URL}/news.html#event=" + quote(ev_id, safe="")
 
 
-# ── Google Calendar API ────────────────────────────────────────────────
+# ── Google Calendar iCal fetcher ───────────────────────────────────────
+def _ics_unfold(lines: list[str]) -> list[str]:
+    """Join continuation lines (lines starting with a space/tab belong
+    to the previous line per RFC 5545)."""
+    out: list[str] = []
+    for ln in lines:
+        if ln.startswith((" ", "\t")) and out:
+            out[-1] += ln[1:]
+        else:
+            out.append(ln)
+    return out
+
+
+def _ics_unescape(val: str) -> str:
+    # Unescape in the order the spec specifies
+    return (val
+            .replace("\\N", "\n")
+            .replace("\\n", "\n")
+            .replace("\\,", ",")
+            .replace("\\;", ";")
+            .replace("\\\\", "\\"))
+
+
+def _parse_ics_datetime(props: dict, raw_val: str) -> tuple[str, str]:
+    """Returns (field_name, iso_value) where field_name is 'dateTime'
+    or 'date' (matching the Google API v3 shape the rest of the code
+    expects)."""
+    val = raw_val.strip()
+    if "T" not in val:
+        # All-day date: 20260525
+        y, m, d = val[:4], val[4:6], val[6:8]
+        return ("date", f"{y}-{m}-{d}")
+    # Date-time value: 20260525T190000Z or 20260525T190000 (local/TZID)
+    if val.endswith("Z"):
+        y, m, d = val[:4], val[4:6], val[6:8]
+        hh, mm, ss = val[9:11], val[11:13], val[13:15]
+        return ("dateTime", f"{y}-{m}-{d}T{hh}:{mm}:{ss}+00:00")
+    # TZID-qualified or floating; treat as UTC best-effort, the frontend
+    # tolerates it and event bodies rarely floating-time events
+    y, m, d = val[:4], val[4:6], val[6:8]
+    hh, mm, ss = val[9:11], val[11:13], val[13:15]
+    tzid = props.get("TZID")
+    if tzid:
+        try:
+            tz = ZoneInfo(tzid)
+            local_dt = datetime(int(y), int(m), int(d), int(hh), int(mm), int(ss), tzinfo=tz)
+            return ("dateTime", local_dt.astimezone(timezone.utc).isoformat())
+        except Exception:
+            pass
+    # Fallback: treat as UTC
+    return ("dateTime", f"{y}-{m}-{d}T{hh}:{mm}:{ss}+00:00")
+
+
+def _parse_vevent_block(lines: list[str]) -> dict:
+    """Turn a VEVENT block into an object shaped like Google API v3 events."""
+    ev: dict = {"start": {}, "end": {}}
+    for ln in lines:
+        if ":" not in ln:
+            continue
+        name_raw, value = ln.split(":", 1)
+        # name_raw may include parameters: DTSTART;TZID=America/Los_Angeles
+        parts = name_raw.split(";")
+        name = parts[0].upper()
+        props = {}
+        for p in parts[1:]:
+            if "=" in p:
+                k, v = p.split("=", 1)
+                props[k.upper()] = v
+
+        if name == "UID":
+            ev["id"] = value.strip()
+        elif name == "SUMMARY":
+            ev["summary"] = _ics_unescape(value.strip())
+        elif name == "DESCRIPTION":
+            ev["description"] = _ics_unescape(value.strip())
+        elif name == "LOCATION":
+            ev["location"] = _ics_unescape(value.strip())
+        elif name == "DTSTART":
+            field, iso = _parse_ics_datetime(props, value)
+            ev["start"][field] = iso
+        elif name == "DTEND":
+            field, iso = _parse_ics_datetime(props, value)
+            ev["end"][field] = iso
+    return ev
+
+
 def fetch_events(time_min: datetime, time_max: datetime) -> list[dict]:
-    if not GOOGLE_CAL_API_KEY:
-        raise SystemExit("Missing GOOGLE_CAL_API_KEY; aborting.")
-    params = {
-        "key": GOOGLE_CAL_API_KEY,
-        "timeMin": time_min.isoformat(),
-        "timeMax": time_max.isoformat(),
-        "singleEvents": "true",
-        "orderBy": "startTime",
-        "maxResults": "50",
-    }
-    url = (
-        "https://www.googleapis.com/calendar/v3/calendars/"
-        f"{quote(GOOGLE_CAL_ID, safe='')}/events?{urlencode(params)}"
+    """Fetch events from the calendar's public iCal feed. No API key
+    required; Google publishes /public/basic.ics for any calendar that
+    is set to 'Make available to public'."""
+    ics_url = (
+        "https://calendar.google.com/calendar/ical/"
+        f"{quote(GOOGLE_CAL_ID, safe='')}/public/basic.ics"
     )
-    req = Request(url, headers={"Accept": "application/json"})
+    req = Request(ics_url, headers={"Accept": "text/calendar", "User-Agent": "seedtheword-bot/1.0"})
     with urlopen(req, timeout=30) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-    return data.get("items", [])
+        raw = resp.read().decode("utf-8", errors="replace")
+
+    lines = _ics_unfold(raw.replace("\r\n", "\n").split("\n"))
+    events: list[dict] = []
+    in_event = False
+    current: list[str] = []
+    for ln in lines:
+        if ln.strip() == "BEGIN:VEVENT":
+            in_event = True
+            current = []
+            continue
+        if ln.strip() == "END:VEVENT":
+            in_event = False
+            try:
+                ev = _parse_vevent_block(current)
+                if ev.get("start"):
+                    events.append(ev)
+            except Exception as err:
+                log(f"Skipping unparseable VEVENT: {err}")
+            continue
+        if in_event:
+            current.append(ln)
+
+    # Narrow to the requested window; iCal feeds return everything.
+    def _in_window(ev: dict) -> bool:
+        start = parse_ev_start(ev)
+        end = parse_ev_end(ev) or start
+        if not start:
+            return False
+        # Keep anything whose window overlaps [time_min, time_max]
+        return (end or start) >= time_min and start <= time_max
+
+    filtered = [e for e in events if _in_window(e)]
+    filtered.sort(key=lambda e: parse_ev_start(e) or datetime.max.replace(tzinfo=timezone.utc))
+    return filtered
 
 
 # ── Telegram API ───────────────────────────────────────────────────────

@@ -1911,9 +1911,9 @@ flowchart LR
 
   <h3>Secrets (set once in repo Settings)</h3>
   <ul>
-    <li><code>TELEGRAM_BOT_TOKEN</code> — from BotFather. Rotate with BotFather's <code>/revoke</code> if it ever leaks. This is the only secret the bot strictly requires.</li>
-    <li><code>GOOGLE_CAL_API_KEY</code> <em>(optional)</em> — defaults to the same public key the frontend already uses. Set this only if you want to rotate to a new Google API key without editing code.</li>
+    <li><code>TELEGRAM_BOT_TOKEN</code> — from BotFather. Rotate with BotFather's <code>/revoke</code> if it ever leaks. <strong>This is the only secret the bot needs.</strong></li>
   </ul>
+  <p>The bot reads the calendar from its public iCal feed, so no Google API key is needed. Make sure the calendar is set to <strong>"Make available to public"</strong> in Google Calendar settings (it already is for our ministry calendar).</p>
 
   <div class="warning">
     <strong>If the bot goes quiet unexpectedly:</strong> check <strong>Actions → Telegram Announcements</strong> for red runs. 90% of the time it's either (1) an expired token (<code>401 Unauthorized</code> in the log) or (2) the bot lost admin permission in the chat. Fix the permission or regenerate the token via BotFather, then re-run the workflow manually.

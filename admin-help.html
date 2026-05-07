@@ -1844,7 +1844,80 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   </ul>
 
   <h3>Want fully-automated posting (no tap required)?</h3>
-  <p>It's possible, but it's a separate project: we'd need to create a Telegram bot, add its token to GitHub Secrets, write a scheduled GitHub Action that reads the calendar each morning, and have the bot post to the announcements chat directly. The current workflow keeps admins in the loop (intentional) and costs nothing extra. If you want to move to full automation later, ping the dev on duty.</p>
+  <p>Done — see the next section for how the Telegram bot handles scheduled announcements automatically.</p>
+
+  <h2>🤖 Telegram announcement bot</h2>
+  <p>Our bot auto-posts today's calendar events to the <strong>Announcements</strong> topic in the <code>@seedtheword</code> Telegram group on a schedule. No admin taps needed. The <em>📣 Share Event</em> button on news.html is still available for ad-hoc posts.</p>
+
+  <div class="admin-flowchart">
+    <p class="admin-flowchart__label">Visual guide</p>
+    <p class="admin-flowchart__title">Automated posting flow</p>
+    <div class="mermaid">
+flowchart LR
+    A([Google Calendar<br/>has events for today]) --> B[Scheduled GitHub Action<br/>runs 3x daily, Mon–Sat]
+    B --> C[Python script reads the<br/>calendar via API]
+    C --> D{Is there anything<br/>new to announce?}
+    D -->|No — already posted| X([Exit cleanly<br/>no Telegram call])
+    D -->|Yes| E[Build MarkdownV2<br/>announcement with<br/>real *bold* + _italic_]
+    E --> F[Post to Announcements<br/>topic via Bot API]
+    F --> G([Dedup log updated &<br/>committed back to repo])
+
+    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
+    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
+    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    class A,X,G start
+    class D decision
+    class B,C,E,F action
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Config file</p>
+    <p class="admin-card__title"><code>assets/data/telegram-bot.json</code></p>
+    <p>Controls the bot's destination, schedule skips, headers, and footer. The bot token lives only in GitHub Secrets and never appears in the repo.</p>
+  </div>
+
+  <h3>Schedule</h3>
+  <ul>
+    <li><strong>07:00 Pacific</strong> — "☀️ Today at Seed the Word" — morning digest of events happening today</li>
+    <li><strong>12:00 Pacific</strong> — "🌿 Still happening today" — anything left, plus events that just went live</li>
+    <li><strong>17:00 Pacific</strong> — "🔴 Live now &amp; coming up" — evening catch-up</li>
+    <li><strong>Sunday: no runs.</strong> Matches the ministry rhythm's rest day.</li>
+  </ul>
+
+  <h3>Anti-spam rules</h3>
+  <ul>
+    <li>Each event is announced <strong>at most twice</strong> per day — once when it's upcoming, again when it transitions to LIVE.</li>
+    <li>If the 12:00 run has nothing new (everything already announced at 07:00 is still in the same status), the bot <strong>posts nothing</strong> that slot.</li>
+    <li>Dedup tracking lives in <code>assets/data/telegram-announcement-log.json</code> (auto-managed by the bot; don't edit by hand).</li>
+    <li>Events older than 14 days are garbage-collected from the log each run.</li>
+  </ul>
+
+  <h3>Turn the bot off or pause it</h3>
+  <ul>
+    <li><strong>Temporary disable:</strong> edit <code>telegram-bot.json</code>, set <code>"enabled": false</code>, commit. The scheduled Action still runs but exits cleanly without posting.</li>
+    <li><strong>Different chat/topic:</strong> change <code>"chatId"</code> and/or <code>"messageThreadId"</code>, commit.</li>
+    <li><strong>Force re-announcement:</strong> open the announcement log, delete the relevant event entry, commit. The next run will post it again.</li>
+    <li><strong>Change the schedule:</strong> the cron lines live in <code>.github/workflows/telegram-announcements.yml</code>. If you only want morning posts, keep just the first cron line.</li>
+  </ul>
+
+  <h3>Test a post without spamming the chat</h3>
+  <ol>
+    <li>Go to the repo's <strong>Actions</strong> tab → <em>Telegram Announcements</em></li>
+    <li>Click <strong>Run workflow</strong> → set <em>dry_run</em> to <code>true</code> → <strong>Run workflow</strong></li>
+    <li>Open the finished run, expand <em>Run announcement script</em> in the log. You'll see the exact MarkdownV2 body that <em>would</em> have been posted, without anything hitting Telegram.</li>
+  </ol>
+
+  <h3>Secrets (set once in repo Settings)</h3>
+  <ul>
+    <li><code>TELEGRAM_BOT_TOKEN</code> — from BotFather. Rotate with BotFather's <code>/revoke</code> if it ever leaks.</li>
+    <li><code>GOOGLE_CAL_API_KEY</code> — the same API key the site's calendar uses. Stored in GitHub Secrets so the bot doesn't rely on the public key. Optional if the public key stays valid.</li>
+  </ul>
+
+  <div class="warning">
+    <strong>If the bot goes quiet unexpectedly:</strong> check <strong>Actions → Telegram Announcements</strong> for red runs. 90% of the time it's either (1) an expired token (<code>401 Unauthorized</code> in the log) or (2) the bot lost admin permission in the chat. Fix the permission or regenerate the token via BotFather, then re-run the workflow manually.
+  </div>
 
   <h2>🔐 Where secrets live (NOT here)</h2>
   <p>We intentionally don't store API keys, passwords, or tokens on this page. Secrets live in:</p>

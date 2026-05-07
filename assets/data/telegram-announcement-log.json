@@ -1,0 +1,5 @@
+{
+  "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
+  "updated": null,
+  "events": {}
+}

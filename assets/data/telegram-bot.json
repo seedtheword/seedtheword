@@ -1,0 +1,15 @@
+{
+  "_help": "Config for the Telegram announcement bot. The bot token lives only in GitHub Secrets (TELEGRAM_BOT_TOKEN) and is never committed here. Edit this file to change where/when/what the bot posts. See admin-help.html for the full walkthrough.",
+  "enabled": true,
+  "chatId": "@seedtheword",
+  "messageThreadId": 553,
+  "timezone": "America/Los_Angeles",
+  "skipDaysOfWeek": ["Sunday"],
+  "lookaheadDays": 1,
+  "header": {
+    "morning":  "☀️ Today at Seed the Word",
+    "midday":   "🌿 Still happening today",
+    "evening":  "🔴 Live now & coming up"
+  },
+  "footer": "— Posted automatically from our calendar. See the News page for full details."
+}

@@ -1,0 +1,76 @@
+name: Telegram Announcements
+
+on:
+  schedule:
+    # Cron is UTC. Pacific is UTC-7 (PDT) or UTC-8 (PST). We schedule
+    # for the PDT-shifted hours; during PST months the posts arrive
+    # one hour later locally, which the team has agreed is acceptable
+    # rather than splitting into two schedule windows.
+    #
+    # 07:00 PT (PDT = 14:00 UTC / PST = 15:00 UTC) — morning digest
+    - cron: '0 14 * * 1-6'
+    # 12:00 PT (PDT = 19:00 UTC / PST = 20:00 UTC) — midday
+    - cron: '0 19 * * 1-6'
+    # 17:00 PT (PDT = 00:00+1 UTC / PST = 01:00+1 UTC) — evening
+    - cron: '0 0 * * 2-7'
+  workflow_dispatch:
+    # Allow ad-hoc runs (including dry-runs) from the Actions tab.
+    inputs:
+      dry_run:
+        description: "If 'true', build and log the message without posting to Telegram"
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: telegram-announcements
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run announcement script
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          GOOGLE_CAL_API_KEY: ${{ secrets.GOOGLE_CAL_API_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+        run: python .github/scripts/post_calendar_to_telegram.py
+
+      - name: Commit dedup log if changed
+        run: |
+          set -e
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/data/telegram-announcement-log.json
+          if git diff --cached --quiet; then
+            echo "No dedup log changes."
+            exit 0
+          fi
+          git commit -m "chore(telegram): update announcement log [skip ci]"
+          # Retry a few times in case local pushes raced with us
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt $attempt..."
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              echo "Push succeeded."
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; retrying in 10s..."
+            sleep 10
+          done
+          # Non-fatal: the next run will rebuild the diff.
+          echo "Push retries exhausted; next scheduled run will retry."
+          exit 0

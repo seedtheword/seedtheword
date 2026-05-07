@@ -7,12 +7,16 @@ on:
     # one hour later locally, which the team has agreed is acceptable
     # rather than splitting into two schedule windows.
     #
-    # 07:00 PT (PDT = 14:00 UTC / PST = 15:00 UTC) — morning digest
+    # Day-of-week uses 0-6 (Sun-Sat). We want Mon-Sat, i.e. 1-6.
+    #
+    # 07:00 PT (PDT = 14:00 UTC)  — morning digest, Mon-Sat
     - cron: '0 14 * * 1-6'
-    # 12:00 PT (PDT = 19:00 UTC / PST = 20:00 UTC) — midday
+    # 12:00 PT (PDT = 19:00 UTC)  — midday, Mon-Sat
     - cron: '0 19 * * 1-6'
-    # 17:00 PT (PDT = 00:00+1 UTC / PST = 01:00+1 UTC) — evening
-    - cron: '0 0 * * 2-7'
+    # 17:00 PT (PDT = 00:00 UTC next day). Because the UTC hour rolls
+    # over, what is still Mon-Sat locally is Tue-Sun in UTC: 2-6 plus 0.
+    - cron: '0 0 * * 2-6'
+    - cron: '0 0 * * 0'
   workflow_dispatch:
     # Allow ad-hoc runs (including dry-runs) from the Actions tab.
     inputs:

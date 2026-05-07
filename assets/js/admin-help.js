@@ -1,10 +1,12 @@
 /* ============================================================
-   Admin Help page — gate, search, TOC, recommendations builder,
-   and Mermaid flowchart loader.
+   Admin Help — v3
+   Handles the password gate, and (after unlock) sets up the top
+   navigation: category tabs, alphabet-rail jump-menu, and the
+   search box. Also wires up the recommendations builder and
+   Mermaid flowchart rendering.
 
-   The page itself is gated by a simple SHA-256 hash check (client
-   side only — not meant to be strong security). Once unlocked,
-   the TOC + search + reco-builder all activate lazily.
+   Each subsystem is isolated in its own init function wrapped in
+   safeRun(), so a bug in one feature can't kill the others.
    ============================================================ */
 
 (function () {
@@ -16,6 +18,7 @@
 
   const gate      = document.getElementById('admin-gate');
   const content   = document.getElementById('admin-content');
+  const shell     = document.getElementById('admin-shell');
   const form      = document.getElementById('gate-form');
   const input     = document.getElementById('gate-input');
   const errorEl   = document.getElementById('gate-error');
@@ -26,25 +29,43 @@
     return;
   }
 
-  // ── Gate logic ─────────────────────────────────────────────
+  // ── Category definitions ────────────────────────────────────
+  // Each section h2 is slotted into one of these buckets. Matching
+  // is done by substring against the lower-cased heading text; the
+  // first rule that matches wins. Any heading that doesn't match
+  // falls into 'howto' by default.
+  const CATEGORIES = [
+    { id: 'overview',       label: '📋 Overview',    match: [/overview/i, /operations schedule/i, /recent changes/i] },
+    { id: 'howto',          label: '🧰 How-tos',     match: [/^how to/i, /managing/i, /updating images/i, /add a /i, /images/i, /outreach/i, /bundle/i, /media drop/i, /recommendation/i, /homepage/i, /walking the path/i, /announcing events/i] },
+    { id: 'bots',           label: '🤖 Bots',        match: [/telegram bot/i, /telegram bots/i, /auto-post/i] },
+    { id: 'troubleshoot',   label: '🧯 Troubleshoot', match: [/troubleshoot/i, /everything is on fire/i, /secrets/i] },
+  ];
+  const DEFAULT_CATEGORY = 'howto';
+  const ALL_CATEGORY = { id: 'all', label: '📚 All' };
+
+  // ── Sections collected from the page ────────────────────────
+  // Each section = h2 + all following siblings up to the next h2
+  const sections = [];  // { id, title, category, nodes, haystack, titleLetter }
+
+  // ── Gate logic ──────────────────────────────────────────────
   async function sha256(text) {
     const buf = new TextEncoder().encode(text);
     const digest = await crypto.subtle.digest('SHA-256', buf);
     return Array.from(new Uint8Array(digest))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
+      .map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
   function unlock() {
     gate.style.display = 'none';
-    content.classList.add('visible');
-    const shell = document.getElementById('admin-shell');
+    document.body.classList.add('admin-unlocked');
     if (shell) shell.classList.add('visible');
-    // Each init is idempotent and failure-tolerant so one broken
-    // feature doesn't kill the others.
-    safeRun('search', initAdminSearch);
-    safeRun('reco-builder', initRecoBuilder);
-    safeRun('mermaid', loadMermaid);
+    content.classList.add('visible');
+    collectSections();
+    safeRun('tabs',        initTabs);
+    safeRun('alphabet',    initAlphabet);
+    safeRun('search',      initSearch);
+    safeRun('reco',        initRecoBuilder);
+    safeRun('mermaid',     loadMermaid);
   }
 
   function lock() {
@@ -53,12 +74,10 @@
   }
 
   function safeRun(name, fn) {
-    try { fn(); } catch (err) {
-      console.error('[admin-help] ' + name + ' init failed:', err);
-    }
+    try { fn(); }
+    catch (err) { console.error('[admin-help] ' + name + ' init failed:', err); }
   }
 
-  // Auto-unlock if we've already authenticated this session
   try {
     if (sessionStorage.getItem(SESSION_KEY) === '1') unlock();
   } catch (e) { /* ignore */ }
@@ -76,192 +95,235 @@
       if (input) { input.value = ''; input.focus(); }
     }
   });
-
   if (logoutBtn) logoutBtn.addEventListener('click', lock);
 
-  // ── Search + Table of Contents ────────────────────────────
-  let searchInit = false;
-  function initAdminSearch() {
-    if (searchInit) return;
-
-    const searchEl = document.getElementById('admin-search-input');
-    const clearBtn = document.getElementById('admin-search-clear');
-    const kbdHint  = document.getElementById('admin-search-kbd');
-    const metaEl   = document.getElementById('admin-search-meta');
-    const tocList  = document.getElementById('admin-toc-list');
-    const sideList = document.getElementById('admin-side-list');
-    if (!searchEl || !tocList) return;
-    searchInit = true;
-
-    // Build sections: each h2 heading + its siblings up to the next h2
-    const sections = [];
+  // ── Collect sections from the DOM ───────────────────────────
+  function collectSections() {
+    sections.length = 0;
     const h2s = content.querySelectorAll('main#admin-content > h2');
     h2s.forEach((h2) => {
-      const id = slugify(h2.textContent);
+      const title = h2.textContent.trim();
+      const id = slugify(title);
       h2.id = id;
+
       const nodes = [h2];
       let n = h2.nextElementSibling;
       while (n && n.tagName !== 'H2') {
         nodes.push(n);
         n = n.nextElementSibling;
       }
-      // Haystack excludes .mermaid source so raw graph syntax doesn't match
+
+      // Category assignment
+      const cat = matchCategory(title) || DEFAULT_CATEGORY;
+
+      // Haystack for search — skip rendered flowchart text to avoid matching graph syntax
       const parts = [];
       nodes.forEach((nd) => {
         const clone = nd.cloneNode(true);
         clone.querySelectorAll('.mermaid').forEach((m) => m.remove());
         parts.push(clone.textContent || '');
       });
+
+      // First letter for alphabet rail — strip leading emoji/punctuation
+      const letter = getPrimaryLetter(title);
+
       sections.push({
-        id: id,
-        title: h2.textContent.trim(),
-        nodes: nodes,
-        haystack: parts.join(' ').toLowerCase()
+        id, title, category: cat, nodes,
+        haystack: parts.join(' ').toLowerCase(),
+        letter,
       });
+
+      // Tag every section node with its category so we can CSS-filter
+      nodes.forEach((nd) => nd.setAttribute('data-category', cat));
+    });
+  }
+
+  function matchCategory(title) {
+    for (const cat of CATEGORIES) {
+      for (const re of cat.match) {
+        if (re.test(title)) return cat.id;
+      }
+    }
+    return null;
+  }
+
+  function getPrimaryLetter(title) {
+    // Strip leading emoji + whitespace, look at the first alpha char
+    const stripped = title.replace(/^[^A-Za-z]+/, '');
+    const c = (stripped[0] || '').toUpperCase();
+    return /[A-Z]/.test(c) ? c : '#';
+  }
+
+  // ── Tabs ────────────────────────────────────────────────────
+  let activeCategory = 'all';
+
+  function initTabs() {
+    const tabsEl = document.getElementById('admin-tabs');
+    if (!tabsEl) return;
+
+    const cats = [ALL_CATEGORY, ...CATEGORIES];
+    const counts = {};
+    sections.forEach((s) => { counts[s.category] = (counts[s.category] || 0) + 1; });
+    counts.all = sections.length;
+
+    tabsEl.innerHTML = cats.map((c) => {
+      const count = counts[c.id] || 0;
+      if (count === 0 && c.id !== 'all') return '';
+      const active = c.id === activeCategory ? ' is-active' : '';
+      return (
+        '<button type="button" class="admin-tab' + active +
+        '" data-cat="' + c.id + '" role="tab">' +
+        escapeHtml(c.label) +
+        '<span class="admin-tab__count">' + count + '</span>' +
+        '</button>'
+      );
+    }).join('');
+
+    tabsEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.admin-tab');
+      if (!btn) return;
+      activeCategory = btn.dataset.cat;
+      tabsEl.querySelectorAll('.admin-tab').forEach((b) => {
+        b.classList.toggle('is-active', b.dataset.cat === activeCategory);
+      });
+      applyFilters();
+    });
+  }
+
+  // ── Alphabet rail ───────────────────────────────────────────
+  function initAlphabet() {
+    const rail = document.getElementById('admin-alpha');
+    if (!rail) return;
+
+    // Group section titles by starting letter
+    const byLetter = {};
+    sections.forEach((s) => {
+      const L = s.letter;
+      if (!byLetter[L]) byLetter[L] = [];
+      byLetter[L].push(s);
     });
 
-    // Render TOC chips (mobile-inline list) + side list (desktop sticky)
-    const tocChipsHtml = sections.map((s) => (
-      '<li><a class="admin-toc__link" href="#' + s.id +
-      '" data-section-id="' + s.id + '">' +
-      escapeHtml(s.title) + '</a></li>'
-    )).join('');
-    tocList.innerHTML = tocChipsHtml;
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    // If any sections start with a non-alpha char, add '#'
+    const hasHash = sections.some((s) => s.letter === '#');
 
-    if (sideList) {
-      sideList.innerHTML = sections.map((s) => (
-        '<li><a class="admin-side__link" href="#' + s.id +
-        '" data-section-id="' + s.id + '">' +
-        escapeHtml(s.title) + '</a></li>'
-      )).join('');
+    const letterButtons = letters.map((L) => {
+      const items = byLetter[L] || [];
+      const isEmpty = items.length === 0;
+      const popup = isEmpty
+        ? ''
+        : '<div class="admin-alpha__popup">' +
+            items.map((s) =>
+              '<a class="admin-alpha__popup-link" href="#' + s.id +
+              '" data-section-id="' + s.id + '">' + escapeHtml(s.title) + '</a>'
+            ).join('') +
+          '</div>';
+      return (
+        '<span class="admin-alpha__letter' + (isEmpty ? ' is-empty' : '') +
+        '" data-letter="' + L + '" tabindex="' + (isEmpty ? '-1' : '0') + '">' +
+        L + popup + '</span>'
+      );
+    });
+
+    if (hasHash) {
+      const items = byLetter['#'] || [];
+      const popup = '<div class="admin-alpha__popup">' +
+        items.map((s) =>
+          '<a class="admin-alpha__popup-link" href="#' + s.id +
+          '" data-section-id="' + s.id + '">' + escapeHtml(s.title) + '</a>'
+        ).join('') + '</div>';
+      letterButtons.push(
+        '<span class="admin-alpha__letter" data-letter="#" tabindex="0">#' + popup + '</span>'
+      );
     }
 
-    function clearHighlights() {
-      content.querySelectorAll('mark.admin-search-hit').forEach((mark) => {
-        const parent = mark.parentNode;
-        parent.replaceChild(document.createTextNode(mark.textContent), mark);
-        parent.normalize();
-      });
-    }
+    rail.innerHTML = letterButtons.join('');
 
-    function highlight(query) {
-      const re = new RegExp(escapeRegExp(query), 'gi');
-      sections.forEach((s) => {
-        if (s.nodes[0].getAttribute('data-search-hidden') === 'true') return;
-        s.nodes.slice(1).forEach((root) => walkAndMark(root, re));
-      });
-    }
+    // Hover to open, click/tap to toggle (mobile-friendly)
+    rail.addEventListener('mouseenter', (e) => {
+      const el = e.target.closest('.admin-alpha__letter');
+      if (!el || el.classList.contains('is-empty')) return;
+      closeAllExcept(el);
+      el.classList.add('is-open');
+    }, true);
 
-    function walkAndMark(root, re) {
-      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-        acceptNode: function (node) {
-          if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-          const p = node.parentElement;
-          if (!p) return NodeFilter.FILTER_REJECT;
-          if (p.nodeName === 'MARK' && p.classList.contains('admin-search-hit')) return NodeFilter.FILTER_REJECT;
-          if (p.closest('#admin-search')) return NodeFilter.FILTER_REJECT;
-          if (p.closest('.mermaid')) return NodeFilter.FILTER_REJECT;
-          if (p.closest('svg')) return NodeFilter.FILTER_REJECT;
-          return NodeFilter.FILTER_ACCEPT;
+    rail.addEventListener('mouseleave', (e) => {
+      const el = e.target.closest('.admin-alpha__letter');
+      if (!el) return;
+      // Delay so the user can mouse into the popup
+      setTimeout(() => {
+        if (!el.matches(':hover') && !el.querySelector('.admin-alpha__popup:hover')) {
+          el.classList.remove('is-open');
         }
-      });
-      const targets = [];
-      let n;
-      while ((n = walker.nextNode())) {
-        if (re.test(n.nodeValue)) { re.lastIndex = 0; targets.push(n); }
-      }
-      targets.forEach((node) => {
-        const frag = document.createDocumentFragment();
-        const text = node.nodeValue;
-        let last = 0;
-        let m;
-        re.lastIndex = 0;
-        while ((m = re.exec(text)) !== null) {
-          if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
-          const mark = document.createElement('mark');
-          mark.className = 'admin-search-hit';
-          mark.textContent = m[0];
-          frag.appendChild(mark);
-          last = m.index + m[0].length;
-          if (m.index === re.lastIndex) re.lastIndex++;
+      }, 120);
+    }, true);
+
+    rail.addEventListener('click', (e) => {
+      const link = e.target.closest('.admin-alpha__popup-link');
+      if (link) {
+        // Let the anchor nav happen; just close the popup
+        const el = link.closest('.admin-alpha__letter');
+        if (el) el.classList.remove('is-open');
+        // Smooth-scroll
+        const id = link.getAttribute('href').slice(1);
+        const target = document.getElementById(id);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Reset any filters so the section is visible
+          clearSearch(true);
         }
-        if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
-        node.parentNode.replaceChild(frag, node);
-      });
-    }
-
-    function applyFilter(raw) {
-      const q = (raw || '').trim().toLowerCase();
-      if (clearBtn) clearBtn.style.display = q ? 'inline-flex' : 'none';
-      if (kbdHint)  kbdHint.style.display  = q ? 'none' : 'inline-flex';
-      clearHighlights();
-
-      if (!q) {
-        sections.forEach((s) => s.nodes.forEach((n) => n.removeAttribute('data-search-hidden')));
-        tocList.querySelectorAll('.admin-toc__link').forEach((a) => a.removeAttribute('hidden'));
-        if (sideList) sideList.querySelectorAll('.admin-side__link').forEach((a) => a.removeAttribute('hidden'));
-        if (metaEl) { metaEl.classList.remove('is-no-results'); metaEl.textContent = ''; }
         return;
       }
-
-      let matches = 0;
-      sections.forEach((s) => {
-        const hit = s.haystack.includes(q);
-        s.nodes.forEach((n) => {
-          if (hit) n.removeAttribute('data-search-hidden');
-          else     n.setAttribute('data-search-hidden', 'true');
-        });
-        // Filter both the inline TOC chips and the side rail
-        const link = tocList.querySelector('[data-section-id="' + s.id + '"]');
-        if (link) {
-          if (hit) link.removeAttribute('hidden');
-          else     link.setAttribute('hidden', '');
-        }
-        if (sideList) {
-          const sideLink = sideList.querySelector('[data-section-id="' + s.id + '"]');
-          if (sideLink) {
-            if (hit) sideLink.removeAttribute('hidden');
-            else     sideLink.setAttribute('hidden', '');
-          }
-        }
-        if (hit) matches++;
-      });
-
-      if (matches > 0) highlight(q);
-
-      if (metaEl) {
-        if (matches === 0) {
-          metaEl.classList.add('is-no-results');
-          metaEl.textContent = 'No tutorials found for "' + raw.trim() + '". Try a different term.';
-        } else {
-          metaEl.classList.remove('is-no-results');
-          metaEl.textContent = (matches === 1 ? '1 section' : matches + ' sections') + ' match "' + raw.trim() + '"';
-        }
+      // Tapping the letter itself toggles the popup (for touch users)
+      const letter = e.target.closest('.admin-alpha__letter');
+      if (letter && !letter.classList.contains('is-empty')) {
+        const wasOpen = letter.classList.contains('is-open');
+        closeAllExcept(null);
+        if (!wasOpen) letter.classList.add('is-open');
       }
-    }
+    });
 
-    // Events
+    // Close all popups on outside click
+    document.addEventListener('click', (e) => {
+      if (!rail.contains(e.target)) closeAllExcept(null);
+    });
+    // Esc closes them too
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAllExcept(null);
+    });
+
+    function closeAllExcept(keep) {
+      rail.querySelectorAll('.admin-alpha__letter.is-open').forEach((n) => {
+        if (n !== keep) n.classList.remove('is-open');
+      });
+    }
+  }
+
+  // ── Search ──────────────────────────────────────────────────
+  let currentQuery = '';
+
+  function initSearch() {
+    const searchEl = document.getElementById('admin-search-input');
+    const clearBtn = document.getElementById('admin-search-clear');
+    if (!searchEl) return;
+
     let debounce;
     searchEl.addEventListener('input', (e) => {
       clearTimeout(debounce);
-      debounce = setTimeout(() => applyFilter(e.target.value), 60);
+      debounce = setTimeout(() => {
+        currentQuery = e.target.value.trim();
+        applyFilters();
+      }, 60);
     });
     searchEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        searchEl.value = '';
-        applyFilter('');
-        searchEl.blur();
-      }
+      if (e.key === 'Escape') clearSearch();
     });
     if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        searchEl.value = '';
-        applyFilter('');
-        searchEl.focus();
-      });
+      clearBtn.addEventListener('click', () => { clearSearch(); searchEl.focus(); });
     }
 
-    // Global "/" shortcut focuses the search
+    // Global "/" shortcut
     document.addEventListener('keydown', (e) => {
       if (e.key !== '/') return;
       const tag = document.activeElement && document.activeElement.tagName;
@@ -270,22 +332,121 @@
       searchEl.focus();
       searchEl.select();
     });
-
-    // Smooth scroll for TOC chips + side rail
-    function handleTocClick(e) {
-      const link = e.target.closest('.admin-toc__link, .admin-side__link');
-      if (!link) return;
-      const id = link.getAttribute('href').slice(1);
-      const target = document.getElementById(id);
-      if (!target) return;
-      e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    tocList.addEventListener('click', handleTocClick);
-    if (sideList) sideList.addEventListener('click', handleTocClick);
   }
 
-  // ── Recommendations builder ───────────────────────────────
+  function clearSearch(silent) {
+    const searchEl = document.getElementById('admin-search-input');
+    if (searchEl) searchEl.value = '';
+    currentQuery = '';
+    if (!silent) applyFilters();
+  }
+
+  // ── The single filter applicator — runs on tab OR search change ──
+  function applyFilters() {
+    const q = currentQuery.toLowerCase();
+    const clearBtn = document.getElementById('admin-search-clear');
+    const metaEl = document.getElementById('admin-search-meta');
+    if (clearBtn) clearBtn.style.display = q ? 'inline-flex' : 'none';
+
+    clearHighlights();
+
+    let matches = 0;
+    sections.forEach((s) => {
+      const catOk = activeCategory === 'all' || s.category === activeCategory;
+      const qOk = !q || s.haystack.includes(q);
+      const show = catOk && qOk;
+      s.nodes.forEach((n) => {
+        if (show) n.removeAttribute('data-hidden');
+        else      n.setAttribute('data-hidden', 'true');
+      });
+      if (show && q) matches++;
+      else if (show) matches++;
+    });
+
+    // Highlight matches
+    if (q && matches > 0) highlightMatches(q);
+
+    if (metaEl) {
+      if (q) {
+        if (matches === 0) {
+          metaEl.classList.add('is-no-results');
+          metaEl.textContent = 'No tutorials found for "' + currentQuery + '". Try a different term.';
+        } else {
+          metaEl.classList.remove('is-no-results');
+          metaEl.textContent = (matches === 1 ? '1 section' : matches + ' sections') +
+            ' match "' + currentQuery + '"' +
+            (activeCategory !== 'all' ? ' in ' + getCatLabel(activeCategory) : '');
+        }
+      } else if (activeCategory !== 'all') {
+        metaEl.classList.remove('is-no-results');
+        metaEl.textContent = 'Showing ' + matches + ' sections in ' + getCatLabel(activeCategory);
+      } else {
+        metaEl.classList.remove('is-no-results');
+        metaEl.textContent = '';
+      }
+    }
+  }
+
+  function getCatLabel(id) {
+    const c = CATEGORIES.find((x) => x.id === id);
+    return c ? c.label : id;
+  }
+
+  function clearHighlights() {
+    content.querySelectorAll('mark.admin-search-hit').forEach((mark) => {
+      const parent = mark.parentNode;
+      parent.replaceChild(document.createTextNode(mark.textContent), mark);
+      parent.normalize();
+    });
+  }
+
+  function highlightMatches(q) {
+    const re = new RegExp(escapeRegExp(q), 'gi');
+    sections.forEach((s) => {
+      if (s.nodes[0].getAttribute('data-hidden') === 'true') return;
+      s.nodes.slice(1).forEach((root) => walkAndMark(root, re));
+    });
+  }
+
+  function walkAndMark(root, re) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (node) {
+        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const p = node.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        if (p.nodeName === 'MARK' && p.classList.contains('admin-search-hit')) return NodeFilter.FILTER_REJECT;
+        if (p.closest('#admin-shell .admin-nav')) return NodeFilter.FILTER_REJECT;
+        if (p.closest('.mermaid')) return NodeFilter.FILTER_REJECT;
+        if (p.closest('svg')) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const targets = [];
+    let n;
+    while ((n = walker.nextNode())) {
+      if (re.test(n.nodeValue)) { re.lastIndex = 0; targets.push(n); }
+    }
+    targets.forEach((node) => {
+      const frag = document.createDocumentFragment();
+      const text = node.nodeValue;
+      let last = 0;
+      let m;
+      re.lastIndex = 0;
+      while ((m = re.exec(text)) !== null) {
+        if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const mark = document.createElement('mark');
+        mark.className = 'admin-search-hit';
+        mark.textContent = m[0];
+        frag.appendChild(mark);
+        last = m.index + m[0].length;
+        if (m.index === re.lastIndex) re.lastIndex++;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+
+  // ── Recommendations builder ─────────────────────────────────
   let recoBuilderInit = false;
   let recoKind = 'spotify';
   let recoRendererLoaded = false;
@@ -305,7 +466,7 @@
     spotify: {
       destination: 'Paste inside the <code>"listening"</code> array in <code>assets/data/recommendations.json</code>.',
       fields: [
-        { name: 'url',    label: 'Spotify URL',             placeholder: 'https://open.spotify.com/episode/1Y4cct2…', hint: 'Paste the full URL — ID and type (episode/show) auto-detected.' },
+        { name: 'url',    label: 'Spotify URL',             placeholder: 'https://open.spotify.com/episode/1Y4cct2…', hint: 'Paste the full URL — ID and type auto-detected.' },
         { name: 'type',   label: 'Type (auto-detected)',    kind: 'select', options: [['episode', 'Episode'], ['show', 'Show']] },
         { name: 'title',  label: 'Title',                   placeholder: 'Intimacy With God Is Everything' },
         { name: 'source', label: 'Source / show name',      placeholder: 'After the Heart Podcast — Episode 38' },
@@ -365,9 +526,7 @@
         el.addEventListener('input', updateAll);
         el.addEventListener('change', updateAll);
       });
-      if (destEl) {
-        destEl.innerHTML = schema.destination + ' Add a comma after the previous block\'s closing <code>}</code>. The last item in the array should NOT have a trailing comma.';
-      }
+      if (destEl) destEl.innerHTML = schema.destination + ' Add a comma after the previous block\'s closing <code>}</code>. The last item in the array should NOT have a trailing comma.';
       updateAll();
     }
 
@@ -376,27 +535,23 @@
       const hint = f.hint ? '<span class="hint">' + escapeHtml(f.hint) + '</span>' : '';
       const isFull = f.kind === 'textarea' || f.name === 'url' || f.name === 'note' || f.name === 'description' || f.name === 'logo' || f.name === 'image';
       const fullCls = isFull ? ' reco-builder__field--full' : '';
-
       if (f.kind === 'select') {
         const opts = f.options.map((o) => '<option value="' + escapeAttr(o[0]) + '">' + escapeHtml(o[1]) + '</option>').join('');
         return '<div class="reco-builder__field' + fullCls + '">' +
           '<label for="' + id + '">' + escapeHtml(f.label) + '</label>' +
           '<select id="' + id + '" data-name="' + escapeAttr(f.name) + '">' + opts + '</select>' +
-          hint +
-          '</div>';
+          hint + '</div>';
       }
       if (f.kind === 'textarea') {
         return '<div class="reco-builder__field' + fullCls + '">' +
           '<label for="' + id + '">' + escapeHtml(f.label) + '</label>' +
           '<textarea id="' + id + '" data-name="' + escapeAttr(f.name) + '" rows="2" placeholder="' + escapeAttr(f.placeholder || '') + '"></textarea>' +
-          hint +
-          '</div>';
+          hint + '</div>';
       }
       return '<div class="reco-builder__field' + fullCls + '">' +
         '<label for="' + id + '">' + escapeHtml(f.label) + '</label>' +
         '<input id="' + id + '" data-name="' + escapeAttr(f.name) + '" type="text" placeholder="' + escapeAttr(f.placeholder || '') + '">' +
-        hint +
-        '</div>';
+        hint + '</div>';
     }
 
     function getValues() {
@@ -470,13 +625,10 @@
     function updatePreview(obj, state) {
       if (state !== 'ready') {
         previewEl.innerHTML = '<div class="reco-empty">' + (
-          state === 'needs-url'
-            ? 'Paste a URL above to see the live embed preview.'
-            : 'Fill out the form above to preview.'
+          state === 'needs-url' ? 'Paste a URL above to see the live embed preview.' : 'Fill out the form above to preview.'
         ) + '</div>';
         return;
       }
-
       if (recoKind === 'partner') {
         if (typeof window.renderPartners === 'function') {
           const tmp = document.createElement('div');
@@ -488,7 +640,6 @@
         }
         return;
       }
-
       if (typeof window.renderListeningCard === 'function') {
         previewEl.innerHTML = '<div class="reco-grid">' + window.renderListeningCard(obj) + '</div>';
       } else {
@@ -500,13 +651,9 @@
     function updateAll() {
       const obj = buildObject();
       const state = readiness(obj);
-      if (state === 'needs-url') {
-        output.textContent = '// Paste a valid Spotify or YouTube URL above to auto-extract the ID.';
-      } else if (state === 'incomplete') {
-        output.textContent = '// Fill out the form above to generate a JSON block.';
-      } else {
-        output.textContent = formatJson(obj);
-      }
+      if (state === 'needs-url') output.textContent = '// Paste a valid Spotify or YouTube URL above to auto-extract the ID.';
+      else if (state === 'incomplete') output.textContent = '// Fill out the form above to generate a JSON block.';
+      else output.textContent = formatJson(obj);
       updatePreview(obj, state);
     }
 
@@ -516,7 +663,6 @@
       tabs.forEach((t) => t.classList.toggle('is-active', t.dataset.kind === kind));
       renderFields();
     }
-
     tabs.forEach((t) => t.addEventListener('click', () => switchKind(t.dataset.kind)));
 
     copyBtn.addEventListener('click', async () => {
@@ -542,15 +688,12 @@
         updateAll();
       });
     }
-
     renderFields();
   }
 
   async function copyToClipboard(text) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch (e) { /* fall through */ }
+    try { await navigator.clipboard.writeText(text); return true; }
+    catch (e) { /* fall through */ }
     try {
       const ta = document.createElement('textarea');
       ta.value = text;
@@ -561,17 +704,15 @@
       document.execCommand('copy');
       ta.remove();
       return true;
-    } catch (e) { /* ignore */ }
-    return false;
+    } catch (e) { return false; }
   }
 
-  // ── Mermaid flowchart rendering ───────────────────────────
+  // ── Mermaid ─────────────────────────────────────────────────
   let mermaidLoaded = false;
   function loadMermaid() {
     if (mermaidLoaded) return;
     if (!document.querySelector('.admin-flowchart .mermaid')) return;
     mermaidLoaded = true;
-
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
     s.defer = true;
@@ -581,26 +722,24 @@
         startOnLoad: false,
         theme: 'base',
         themeVariables: {
-          primaryColor: '#fdf8f1',
-          primaryTextColor: '#2b2b2b',
-          primaryBorderColor: '#d4a574',
-          lineColor: '#8a6a3a',
+          primaryColor: '#ffffff',
+          primaryTextColor: '#0a0a0a',
+          primaryBorderColor: '#0a0a0a',
+          lineColor: '#0a0a0a',
           fontFamily: 'inherit'
         },
         flowchart: { curve: 'basis', nodeSpacing: 45, rankSpacing: 55, padding: 14 }
       });
-      try {
-        window.mermaid.run({ querySelector: '.admin-flowchart .mermaid' });
-      } catch (err) { console.warn('Mermaid render failed:', err); }
+      try { window.mermaid.run({ querySelector: '.admin-flowchart .mermaid' }); }
+      catch (err) { console.warn('Mermaid render failed:', err); }
     };
     s.onerror = () => console.warn('Mermaid failed to load — flowchart source will display as plain text.');
     document.head.appendChild(s);
   }
 
-  // ── Utilities ─────────────────────────────────────────────
+  // ── Utilities ───────────────────────────────────────────────
   function slugify(s) {
-    return String(s)
-      .toLowerCase()
+    return String(s).toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '')
       .slice(0, 80) || 'section';

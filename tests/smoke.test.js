@@ -10,6 +10,7 @@ import {
   makeFakeStorage,
   genAsciiString,
 } from './harness.mjs';
+import { loadModule } from '../assets/js/admin-editor-test-shim.js';
 
 test('forAll iterates the requested number of times', () => {
   let count = 0;
@@ -91,4 +92,26 @@ test('genAsciiString returns strings within the requested length bounds', () => 
     },
     50
   );
+});
+
+// Shim smoke: each production module loads and exports the expected shape.
+test('loadModule: admin-editor-diff exports diffLines, formatUnified, applyUnified', async () => {
+  const m = await loadModule('admin-editor-diff');
+  assert.equal(typeof m.diffLines, 'function');
+  assert.equal(typeof m.formatUnified, 'function');
+  assert.equal(typeof m.applyUnified, 'function');
+});
+
+test('loadModule: admin-editor-github exports createClient + constants', async () => {
+  const m = await loadModule('admin-editor-github');
+  assert.equal(typeof m.createClient, 'function');
+  assert.equal(typeof m.constants, 'object');
+  assert.equal(m.constants.REPO_OWNER, 'seedtheword');
+});
+
+test('loadModule: admin-editor-drafts exports createStore + constants', async () => {
+  const m = await loadModule('admin-editor-drafts');
+  assert.equal(typeof m.createStore, 'function');
+  assert.equal(typeof m.KEY_PREFIX, 'string');
+  assert.equal(m.DEBOUNCE_MS, 1000);
 });

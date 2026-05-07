@@ -3,85 +3,52 @@
 
    Small compatibility layer so the admin-editor JS modules can be
    loaded either by the browser (as <script> tags, assigning to
-   window.AdminEditor.*) or by Node.js tests (as ES modules via a
-   dynamic import).
+   window.AdminEditor.*) or by Node.js tests (as dynamic imports).
 
    Every production module under assets/js/admin-editor*.js follows
-   the pattern:
+   the IIFE pattern:
 
      (function (global) {
        // ... module code ...
        const api = { foo, bar };
        if (typeof module !== 'undefined' && module.exports) {
-         module.exports = api;                  // CommonJS-style (tests)
+         module.exports = api;                  // tests (this loader)
        } else {
          global.AdminEditor = global.AdminEditor || {};
          global.AdminEditor.moduleName = api;   // browser
        }
      })(typeof window !== 'undefined' ? window : globalThis);
 
-   Tests import via the `loadModule()` helper below, which reads the
-   raw file and evaluates it inside a Node vm context with a custom
-   `module.exports` object. This keeps the production files free of
-   Node-specific import syntax so they stay `<script>`-loadable.
+   `loadModule(name)` reads the file and wraps it in `new Function`
+   so it evaluates with Node's real globals available (Buffer, btoa,
+   atob, setTimeout, etc.) without needing to enumerate them.
+   This is simpler and safer than vm.createContext, which does not
+   inherit the parent realm's built-ins.
    ============================================================ */
-
-// Node-side helper — not used in the browser.
-// Tests call: const diff = await loadModule('admin-editor-diff');
 
 export async function loadModule(name) {
   const { readFile } = await import('node:fs/promises');
   const { fileURLToPath } = await import('node:url');
   const { dirname, resolve } = await import('node:path');
-  const vm = await import('node:vm');
 
   const here = dirname(fileURLToPath(import.meta.url));
   const filePath = resolve(here, `${name}.js`);
   const src = await readFile(filePath, 'utf-8');
 
-  const sandbox = {
-    module: { exports: {} },
-    window: undefined,
-    globalThis: {},
-    console,
-    setTimeout,
-    clearTimeout,
-    setInterval,
-    clearInterval,
-    queueMicrotask,
-    Promise,
-    Date,
-    Math,
-    JSON,
-    Object,
-    Array,
-    String,
-    Number,
-    Boolean,
-    Error,
-    TypeError,
-    RangeError,
-    RegExp,
-    Map,
-    Set,
-    Symbol,
-    // Base64 + binary utilities — Node 18+ provides these as globals but the
-    // vm context does NOT inherit them unless we thread them in explicitly.
-    Buffer,
-    btoa,
-    atob,
-    // Text encoders, occasionally useful in the modules we load.
-    TextEncoder,
-    TextDecoder,
-    // Legacy URI helpers used by older base64 shims.
-    encodeURIComponent,
-    decodeURIComponent,
-    escape,
-    unescape,
-  };
-  sandbox.globalThis = sandbox;
+  // The production files close over `(typeof window !== 'undefined' ? window : globalThis)`.
+  // Under `new Function`, `globalThis` is the real Node globalThis, which is
+  // a live object — so any assignment the module makes to
+  // `globalThis.AdminEditor.foo` persists across calls. We reset it each load
+  // to avoid cross-test pollution.
+  delete globalThis.AdminEditor;
 
-  vm.createContext(sandbox);
-  vm.runInContext(src, sandbox, { filename: filePath });
-  return sandbox.module.exports;
+  // Wrap so `module.exports = api;` works inside the production IIFE.
+  const wrapped = `
+    "use strict";
+    const module = { exports: {} };
+    ${src}
+    ;return module.exports;
+  `;
+  const fn = new Function(wrapped);
+  return fn();
 }

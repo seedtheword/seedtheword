@@ -60,7 +60,13 @@ BOT_CONFIG_PATH = Path(os.environ.get("BOT_CONFIG", REPO_ROOT / "assets/data/tel
 LOG_PATH = Path(os.environ.get("LOG_PATH", REPO_ROOT / "assets/data/telegram-announcement-log.json"))
 SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://seedtheword.github.io/seedtheword").rstrip("/")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
-GOOGLE_CAL_API_KEY = os.environ.get("GOOGLE_CAL_API_KEY", "").strip()
+# The Google Calendar API key is not actually secret — it's already
+# embedded in the public frontend at assets/js/google-calendar.js so
+# anyone can see it in browser devtools. We keep this default so the
+# Action doesn't require a separate GitHub Secret; set GOOGLE_CAL_API_KEY
+# in the environment to override.
+_DEFAULT_CAL_API_KEY = "AIzaSyA6GMEdyQHxcRCJuun-OIrFlJgG67Zjtpc"
+GOOGLE_CAL_API_KEY = (os.environ.get("GOOGLE_CAL_API_KEY") or _DEFAULT_CAL_API_KEY).strip()
 GOOGLE_CAL_ID = os.environ.get("GOOGLE_CAL_ID", "seedthewordministry@gmail.com").strip()
 DRY_RUN = bool(os.environ.get("DRY_RUN", "").strip())
 

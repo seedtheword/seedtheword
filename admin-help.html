@@ -1911,8 +1911,8 @@ flowchart LR
 
   <h3>Secrets (set once in repo Settings)</h3>
   <ul>
-    <li><code>TELEGRAM_BOT_TOKEN</code> — from BotFather. Rotate with BotFather's <code>/revoke</code> if it ever leaks.</li>
-    <li><code>GOOGLE_CAL_API_KEY</code> — the same API key the site's calendar uses. Stored in GitHub Secrets so the bot doesn't rely on the public key. Optional if the public key stays valid.</li>
+    <li><code>TELEGRAM_BOT_TOKEN</code> — from BotFather. Rotate with BotFather's <code>/revoke</code> if it ever leaks. This is the only secret the bot strictly requires.</li>
+    <li><code>GOOGLE_CAL_API_KEY</code> <em>(optional)</em> — defaults to the same public key the frontend already uses. Set this only if you want to rotate to a new Google API key without editing code.</li>
   </ul>
 
   <div class="warning">

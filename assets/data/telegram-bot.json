@@ -8,10 +8,12 @@
     "timezone": "America/Los_Angeles",
     "skipDaysOfWeek": ["Sunday"],
     "lookaheadDays": 1,
+    "reminderMinutesBefore": 180,
     "header": {
       "morning":  "☀️ Today at Seed the Word",
       "midday":   "🌿 Still happening today",
-      "evening":  "🔴 Live now & coming up"
+      "evening":  "🔴 Live now & coming up",
+      "reminder": "⏰ Starting soon"
     },
     "footer": "— Posted automatically from our calendar. See the News page for full details."
   },

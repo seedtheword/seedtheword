@@ -491,15 +491,34 @@ def main() -> int:
         dedup["events"] = {}
 
     to_post: list[tuple[dict, str]] = []
+    reminder_minutes = int(cfg.get("reminderMinutesBefore", 180))
     for ev in todays:
         ev_id = ev.get("id")
         if not ev_id:
             continue
-        status = event_status(ev, now)
-        prev = dedup["events"].get(ev_id, {}).get("status")
-        if prev == status:
-            continue  # already posted this status
-        to_post.append((ev, status))
+        entry = dedup["events"].get(ev_id, {})
+        # Migrate legacy status field if present
+        legacy_status = entry.get("status")
+        if legacy_status == "upcoming":
+            entry.setdefault("upcomingPosted", True)
+        elif legacy_status == "live":
+            entry.setdefault("upcomingPosted", True)
+            entry.setdefault("livePosted", True)
+        current = event_status(ev, now)
+        start = parse_ev_start(ev)
+        # First time seeing it as upcoming
+        if current == "upcoming" and not entry.get("upcomingPosted"):
+            to_post.append((ev, "upcoming"))
+            continue
+        # Reminder: within reminder_minutes of start, haven't reminded yet
+        if current == "upcoming" and not entry.get("reminderPosted") and start:
+            mins_to_start = (start - now).total_seconds() / 60.0
+            if 0 <= mins_to_start <= reminder_minutes:
+                to_post.append((ev, "reminder"))
+                continue
+        # Live: just started, haven't posted live yet
+        if current == "live" and not entry.get("livePosted"):
+            to_post.append((ev, "live"))
 
     if not to_post:
         log("Everything relevant has already been announced; nothing to post.")
@@ -513,10 +532,12 @@ def main() -> int:
 
     # Compose a single combined message so we don't flood the chat
     parts: list[str] = [f"*{mdv2_escape(header_line)}*"]
-    for ev, status in to_post:
+    for ev, kind in to_post:
         announcement = build_announcement_markdown(ev, tz, now, build_share_url(ev))
-        if status == "live":
+        if kind == "live":
             parts.append("🔴 *LIVE NOW*")
+        elif kind == "reminder":
+            parts.append("⏰ *Starting in \\~" + str(int(reminder_minutes // 60)) + " hours*" if reminder_minutes >= 120 else "⏰ *Starting soon*")
         parts.append(announcement)
         parts.append("—" * 12)
     # Drop the trailing divider
@@ -542,13 +563,20 @@ def main() -> int:
 
     # Persist dedup state
     ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    for ev, status in to_post:
-        dedup["events"][ev.get("id")] = {
-            "status": status,
-            "title": (ev.get("summary") or "")[:120],
-            "start": (ev.get("start", {}).get("dateTime") or ev.get("start", {}).get("date")),
-            "lastPosted": ts,
-        }
+    for ev, kind in to_post:
+        ev_id = ev.get("id")
+        entry = dedup["events"].setdefault(ev_id, {})
+        # Drop legacy status field if migrated
+        entry.pop("status", None)
+        entry["title"] = (ev.get("summary") or "")[:120]
+        entry["start"] = (ev.get("start", {}).get("dateTime") or ev.get("start", {}).get("date"))
+        entry["lastPosted"] = ts
+        if kind == "upcoming":
+            entry["upcomingPosted"] = True
+        elif kind == "reminder":
+            entry["reminderPosted"] = True
+        elif kind == "live":
+            entry["livePosted"] = True
     # Garbage-collect old entries: anything whose start date is > 14 days ago
     cutoff = now - timedelta(days=14)
     stale = []

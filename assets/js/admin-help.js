@@ -78,10 +78,6 @@
     catch (err) { console.error('[admin-help] ' + name + ' init failed:', err); }
   }
 
-  try {
-    if (sessionStorage.getItem(SESSION_KEY) === '1') unlock();
-  } catch (e) { /* ignore */ }
-
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (errorEl) errorEl.textContent = '';
@@ -754,4 +750,9 @@
   function escapeRegExp(s) {
     return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
+
+  // Must run AFTER all module let/const declarations above — otherwise unlock() -> initRecoBuilder/loadMermaid hit TDZ.
+  try {
+    if (sessionStorage.getItem(SESSION_KEY) === '1') unlock();
+  } catch (e) { /* ignore */ }
 })();

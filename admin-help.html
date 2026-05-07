@@ -1846,77 +1846,108 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   <h3>Want fully-automated posting (no tap required)?</h3>
   <p>Done — see the next section for how the Telegram bot handles scheduled announcements automatically.</p>
 
-  <h2>🤖 Telegram announcement bot</h2>
-  <p>Our bot auto-posts today's calendar events to the <strong>Announcements</strong> topic in the <code>@seedtheword</code> Telegram group on a schedule. No admin taps needed. The <em>📣 Share Event</em> button on news.html is still available for ad-hoc posts.</p>
+  <h2>🤖 Telegram bots — announcements, Bible, prayer</h2>
+  <p>We run <strong>three separate Telegram bots</strong> so members see clear senders in the chat and each bot can be paused independently. All three post to the <code>@seedtheword</code> supergroup, each into a different topic.</p>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Shared config file</p>
+    <p class="admin-card__title"><code>assets/data/telegram-bot.json</code></p>
+    <p>One file, three sections — <code>"announcements"</code>, <code>"bible"</code>, <code>"prayer"</code>. Each has its own <code>enabled</code>, <code>chatId</code>, <code>messageThreadId</code>, and settings. The bot tokens live only in GitHub Secrets.</p>
+  </div>
+
+  <h3>Bot 1 — Announcement bot</h3>
+  <ul>
+    <li><strong>What it does:</strong> Posts today's calendar events from the ministry Google Calendar.</li>
+    <li><strong>Where:</strong> Announcements topic (thread 553).</li>
+    <li><strong>Schedule:</strong> 07:00 / 12:00 / 17:00 Pacific, Mon–Sat. No Sunday runs.</li>
+    <li><strong>Anti-spam:</strong> Each event is announced at most twice per day (once upcoming, once LIVE). Dedup log at <code>assets/data/telegram-announcement-log.json</code>.</li>
+    <li><strong>Secret:</strong> <code>TELEGRAM_BOT_TOKEN</code></li>
+    <li><strong>Workflow:</strong> <code>.github/workflows/telegram-announcements.yml</code></li>
+    <li><strong>Test it:</strong> Actions → <em>Telegram Announcements</em> → Run workflow → <em>dry_run</em> = <code>true</code>.</li>
+  </ul>
+
+  <h3>Bot 2 — Daily Bible bot</h3>
+  <ul>
+    <li><strong>What it does:</strong> Posts today's NT reading with a clickable link to the Spotify recording.</li>
+    <li><strong>Where:</strong> Encounter the Word topic (thread 13).</li>
+    <li><strong>Schedule:</strong> 08:00 Pacific, Monday–Friday (no weekends).</li>
+    <li><strong>Reading plan:</strong> same one the homepage uses — anchored on Apr 30 2026 = Mark 11, advancing one chapter per weekday.</li>
+    <li><strong>Spotify link:</strong> per-chapter override in <code>assets/data/bible-spotify-map.json</code>; falls back to the show page when a specific episode isn't listed.</li>
+    <li><strong>Message format:</strong> <code>📖 Today's Reading: [Mark Chapter 16](&lt;spotify url&gt;)</code></li>
+    <li><strong>Secret:</strong> <code>TELEGRAM_BIBLE_BOT_TOKEN</code></li>
+    <li><strong>Workflow:</strong> <code>.github/workflows/daily-bible.yml</code></li>
+    <li><strong>Test it:</strong> Actions → <em>Daily Bible Reading</em> → Run workflow → <em>dry_run</em> = <code>true</code>.</li>
+  </ul>
+
+  <h3>Bot 3 — Prayer &amp; Thanksgiving nudge bot</h3>
+  <ul>
+    <li><strong>What it does:</strong> Posts the daily prayer-and-thanksgiving reminder that nudges members to share in the Prayer &amp; Thanksgiving topic.</li>
+    <li><strong>Where:</strong> Main channel (thread 1).</li>
+    <li><strong>Schedule:</strong> 07:00 Pacific, on a <strong>random 3 out of 5 weekdays per week</strong> so it stays fresh. The selection is deterministic per ISO week (same retry = same answer) but varies week to week.</li>
+    <li><strong>Message text:</strong> fixed template with the current date ("Today's Prayer Requests and Thanksgiving Announcements 5/7/2026…"). Includes a clickable link to the Prayer topic.</li>
+    <li><strong>Secret:</strong> <code>TELEGRAM_PRAYER_BOT_TOKEN</code></li>
+    <li><strong>Workflow:</strong> <code>.github/workflows/daily-prayer-nudge.yml</code></li>
+    <li><strong>Test it:</strong> Actions → <em>Daily Prayer Nudge</em> → Run workflow → <em>dry_run</em> = <code>true</code>, or <em>force_post</em> = <code>true</code> to bypass the random-day filter.</li>
+  </ul>
 
   <div class="admin-flowchart">
     <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">Automated posting flow</p>
+    <p class="admin-flowchart__title">How the three bots work together</p>
     <div class="mermaid">
 flowchart LR
-    A([Google Calendar<br/>has events for today]) --> B[Scheduled GitHub Action<br/>runs 3x daily, Mon–Sat]
-    B --> C[Python script reads the<br/>calendar via API]
-    C --> D{Is there anything<br/>new to announce?}
-    D -->|No — already posted| X([Exit cleanly<br/>no Telegram call])
-    D -->|Yes| E[Build MarkdownV2<br/>announcement with<br/>real *bold* + _italic_]
-    E --> F[Post to Announcements<br/>topic via Bot API]
-    F --> G([Dedup log updated &<br/>committed back to repo])
-
-    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
-    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    class A,X,G start
-    class D decision
-    class B,C,E,F action
+    subgraph Sources
+      Cal[(Google Calendar)]
+      Plan[bible-plan<br/>anchored Apr 30]
+      Tpl[Fixed template +<br/>date]
+    end
+    subgraph Schedules
+      S1[Announce bot<br/>7am·12pm·5pm<br/>Mon-Sat]
+      S2[Bible bot<br/>8am<br/>Mon-Fri]
+      S3[Prayer bot<br/>7am<br/>random 3 of 5<br/>weekdays]
+    end
+    subgraph Telegram @seedtheword
+      T553[Topic 553<br/>Announcements]
+      T13[Topic 13<br/>Encounter the Word]
+      T1[Topic 1<br/>Main channel]
+    end
+    Cal --> S1 --> T553
+    Plan --> S2 --> T13
+    Tpl --> S3 --> T1
+    classDef src fill:#fdf8f1,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
+    classDef sched fill:#fff,stroke:#2C5F2E,color:#1a1a1a,stroke-width:2px;
+    classDef dest fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
+    class Cal,Plan,Tpl src
+    class S1,S2,S3 sched
+    class T553,T13,T1 dest
     </div>
   </div>
 
-  <div class="admin-card">
-    <p class="admin-card__label">Config file</p>
-    <p class="admin-card__title"><code>assets/data/telegram-bot.json</code></p>
-    <p>Controls the bot's destination, schedule skips, headers, and footer. The bot token lives only in GitHub Secrets and never appears in the repo.</p>
-  </div>
-
-  <h3>Schedule</h3>
-  <ul>
-    <li><strong>07:00 Pacific</strong> — "☀️ Today at Seed the Word" — morning digest of events happening today</li>
-    <li><strong>12:00 Pacific</strong> — "🌿 Still happening today" — anything left, plus events that just went live</li>
-    <li><strong>17:00 Pacific</strong> — "🔴 Live now &amp; coming up" — evening catch-up</li>
-    <li><strong>Sunday: no runs.</strong> Matches the ministry rhythm's rest day.</li>
-  </ul>
-
-  <h3>Anti-spam rules</h3>
-  <ul>
-    <li>Each event is announced <strong>at most twice</strong> per day — once when it's upcoming, again when it transitions to LIVE.</li>
-    <li>If the 12:00 run has nothing new (everything already announced at 07:00 is still in the same status), the bot <strong>posts nothing</strong> that slot.</li>
-    <li>Dedup tracking lives in <code>assets/data/telegram-announcement-log.json</code> (auto-managed by the bot; don't edit by hand).</li>
-    <li>Events older than 14 days are garbage-collected from the log each run.</li>
-  </ul>
-
-  <h3>Turn the bot off or pause it</h3>
-  <ul>
-    <li><strong>Temporary disable:</strong> edit <code>telegram-bot.json</code>, set <code>"enabled": false</code>, commit. The scheduled Action still runs but exits cleanly without posting.</li>
-    <li><strong>Different chat/topic:</strong> change <code>"chatId"</code> and/or <code>"messageThreadId"</code>, commit.</li>
-    <li><strong>Force re-announcement:</strong> open the announcement log, delete the relevant event entry, commit. The next run will post it again.</li>
-    <li><strong>Change the schedule:</strong> the cron lines live in <code>.github/workflows/telegram-announcements.yml</code>. If you only want morning posts, keep just the first cron line.</li>
-  </ul>
-
-  <h3>Test a post without spamming the chat</h3>
+  <h3>Adding a Spotify episode for a specific chapter</h3>
   <ol>
-    <li>Go to the repo's <strong>Actions</strong> tab → <em>Telegram Announcements</em></li>
-    <li>Click <strong>Run workflow</strong> → set <em>dry_run</em> to <code>true</code> → <strong>Run workflow</strong></li>
-    <li>Open the finished run, expand <em>Run announcement script</em> in the log. You'll see the exact MarkdownV2 body that <em>would</em> have been posted, without anything hitting Telegram.</li>
+    <li>Open <code>assets/data/bible-spotify-map.json</code> in the repo.</li>
+    <li>Inside <code>"chapters"</code>, add an entry keyed by the exact reading label from <code>bible-plan.js</code>. Examples: <code>"Mark 16"</code>, <code>"1 Corinthians 13"</code>, <code>"John 3"</code>.</li>
+    <li>Value is the full Spotify URL (episode preferred, show is fine too).</li>
+    <li>Remove the <code>__example_Mark 16</code> key that's there as a placeholder.</li>
+    <li>Commit. The next Bible post that matches that chapter will use your link; chapters you haven't mapped still post with the default show URL.</li>
   </ol>
 
-  <h3>Secrets (set once in repo Settings)</h3>
+  <h3>Turn a bot off, change its topic, or change a schedule</h3>
   <ul>
-    <li><code>TELEGRAM_BOT_TOKEN</code> — from BotFather. Rotate with BotFather's <code>/revoke</code> if it ever leaks. <strong>This is the only secret the bot needs.</strong></li>
+    <li><strong>Pause a single bot:</strong> set <code>"enabled": false</code> in its section of <code>telegram-bot.json</code>, commit. The scheduled workflow still runs but exits without posting.</li>
+    <li><strong>Change destination:</strong> update <code>chatId</code> or <code>messageThreadId</code> in the relevant section, commit.</li>
+    <li><strong>Change a schedule:</strong> edit the cron line in that bot's workflow YAML. Reminder: cron uses UTC, so PT hours need a +7 (PDT) or +8 (PST) offset.</li>
   </ul>
-  <p>The bot reads the calendar from its public iCal feed, so no Google API key is needed. Make sure the calendar is set to <strong>"Make available to public"</strong> in Google Calendar settings (it already is for our ministry calendar).</p>
+
+  <h3>Adding a new bot to the system</h3>
+  <ol>
+    <li>Create it with <code>@BotFather</code> → <code>/newbot</code>. Save the token.</li>
+    <li>Add the bot to <code>@seedtheword</code> and promote it to admin with "Post Messages" permission.</li>
+    <li>Add the token to repo <strong>Settings → Secrets and variables → Actions</strong> with a new name like <code>TELEGRAM_XYZ_BOT_TOKEN</code>.</li>
+    <li>Ping the dev on duty to add a new section to <code>telegram-bot.json</code> and a new workflow under <code>.github/workflows/</code>.</li>
+  </ol>
 
   <div class="warning">
-    <strong>If the bot goes quiet unexpectedly:</strong> check <strong>Actions → Telegram Announcements</strong> for red runs. 90% of the time it's either (1) an expired token (<code>401 Unauthorized</code> in the log) or (2) the bot lost admin permission in the chat. Fix the permission or regenerate the token via BotFather, then re-run the workflow manually.
+    <strong>If a bot goes quiet unexpectedly:</strong> check its Actions run for red errors. 90% of the time it's (1) an expired token (<code>401 Unauthorized</code>) or (2) the bot lost admin permission. Fix the permission or regenerate the token via BotFather <code>/revoke</code>, then re-run manually.
   </div>
 
   <h2>🔐 Where secrets live (NOT here)</h2>

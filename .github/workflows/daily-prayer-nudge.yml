@@ -1,0 +1,45 @@
+name: Daily Prayer Nudge
+
+on:
+  schedule:
+    # 07:00 Pacific, Monday-Friday. The script filters to a random
+    # subset of weekdays (3 out of 5) using a per-week hash so the
+    # same selection holds across dry-runs and retries.
+    - cron: '0 14 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If 'true', build the post without sending it"
+        required: false
+        default: 'false'
+      force_post:
+        description: "If 'true', post even if today isn't in the random week pattern"
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-prayer-nudge
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Prayer bot
+        env:
+          TELEGRAM_PRAYER_BOT_TOKEN: ${{ secrets.TELEGRAM_PRAYER_BOT_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+          FORCE_POST: ${{ github.event.inputs.force_post == 'true' && '1' || '' }}
+        run: python .github/scripts/post_daily_prayer_nudge_to_telegram.py

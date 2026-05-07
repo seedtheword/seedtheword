@@ -425,10 +425,13 @@ def send_telegram_message(
 
 # ── Main ───────────────────────────────────────────────────────────────
 def main() -> int:
-    cfg = load_json(BOT_CONFIG_PATH, None)
-    if not cfg:
+    full_cfg = load_json(BOT_CONFIG_PATH, None)
+    if not full_cfg:
         log(f"Bot config missing at {BOT_CONFIG_PATH}; aborting.")
         return 1
+    # Accept both the new nested shape (cfg["announcements"]) and the
+    # legacy flat shape.
+    cfg = full_cfg.get("announcements") if isinstance(full_cfg.get("announcements"), dict) else full_cfg
     if cfg.get("enabled") is False:
         log("Bot disabled in config; exiting.")
         return 0

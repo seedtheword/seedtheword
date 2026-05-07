@@ -1,15 +1,35 @@
 {
-  "_help": "Config for the Telegram announcement bot. The bot token lives only in GitHub Secrets (TELEGRAM_BOT_TOKEN) and is never committed here. Edit this file to change where/when/what the bot posts. See admin-help.html for the full walkthrough.",
-  "enabled": true,
-  "chatId": "@seedtheword",
-  "messageThreadId": 553,
-  "timezone": "America/Los_Angeles",
-  "skipDaysOfWeek": ["Sunday"],
-  "lookaheadDays": 1,
-  "header": {
-    "morning":  "☀️ Today at Seed the Word",
-    "midday":   "🌿 Still happening today",
-    "evening":  "🔴 Live now & coming up"
+  "_help": "Config for the three Telegram bots. Each bot's token lives only in GitHub Secrets and is never committed here. Edit this file to change where/when/what each bot posts. See admin-help.html for the full walkthrough.",
+  "announcements": {
+    "enabled": true,
+    "tokenSecret": "TELEGRAM_BOT_TOKEN",
+    "chatId": "@seedtheword",
+    "messageThreadId": 553,
+    "timezone": "America/Los_Angeles",
+    "skipDaysOfWeek": ["Sunday"],
+    "lookaheadDays": 1,
+    "header": {
+      "morning":  "☀️ Today at Seed the Word",
+      "midday":   "🌿 Still happening today",
+      "evening":  "🔴 Live now & coming up"
+    },
+    "footer": "— Posted automatically from our calendar. See the News page for full details."
   },
-  "footer": "— Posted automatically from our calendar. See the News page for full details."
+  "bible": {
+    "enabled": true,
+    "tokenSecret": "TELEGRAM_BIBLE_BOT_TOKEN",
+    "chatId": "@seedtheword",
+    "messageThreadId": 13,
+    "timezone": "America/Los_Angeles",
+    "linkBackUrl": "https://t.me/seedtheword/13/3739",
+    "fallbackShowUrl": "https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK"
+  },
+  "prayer": {
+    "enabled": true,
+    "tokenSecret": "TELEGRAM_PRAYER_BOT_TOKEN",
+    "chatId": "@seedtheword",
+    "messageThreadId": 1,
+    "prayerTopicUrl": "https://t.me/seedtheword/21/3725",
+    "timezone": "America/Los_Angeles"
+  }
 }

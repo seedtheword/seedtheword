@@ -1,0 +1,40 @@
+name: Daily Bible Reading
+
+on:
+  schedule:
+    # 08:00 Pacific, Monday-Friday. UTC is PDT+7 (15:00) for most of
+    # the year; during PST months the post arrives an hour later
+    # locally, which is acceptable.
+    - cron: '0 15 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If 'true', build the post without sending it"
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-bible
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Bible bot
+        env:
+          TELEGRAM_BIBLE_BOT_TOKEN: ${{ secrets.TELEGRAM_BIBLE_BOT_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+        run: python .github/scripts/post_daily_bible_to_telegram.py

@@ -782,9 +782,12 @@ class GoogleCalendarIntegration {
     // 2) Telegram — pre-filled share sheet. Telegram's endpoint REQUIRES
     //    the `url` param (without it, the link just opens telegram.org).
     //    To avoid the URL appearing twice in the post, we hand Telegram
-    //    the real deep link as `url` and send a body that has the
-    //    'More Details' line stripped.
-    const telegramBody = announcement
+    //    the real deep link as `url` and send a body that:
+    //      (a) has the trailing 'More Details' footer stripped, and
+    //      (b) starts with a soft 'Website' divider so the post reads
+    //          cleanly below Telegram's auto-generated URL preview card.
+    const TG_DIVIDER = '━━━━━ 🌐 Website ━━━━━\n\n';
+    const telegramBody = TG_DIVIDER + announcement
       .replace(/\n?More Details \([^)]*\)\s*$/i, '')
       .trimEnd();
     items.push({
@@ -1040,7 +1043,10 @@ class GoogleCalendarIntegration {
     // Telegram's endpoint requires `url=` — without it the share link
     // redirects to telegram.org. We pass the deep link there and strip
     // the 'More Details' footer from the body so it doesn't double-up.
-    const telegramBody = text.replace(/\n?More Details \([^)]*\)\s*$/i, '').trimEnd();
+    // A light 'Website' divider sits at the top so the post reads
+    // cleanly under Telegram's auto-generated URL preview card.
+    const TG_DIVIDER = '━━━━━ 🌐 Website ━━━━━\n\n';
+    const telegramBody = TG_DIVIDER + text.replace(/\n?More Details \([^)]*\)\s*$/i, '').trimEnd();
     return `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(telegramBody)}`;
   }
   

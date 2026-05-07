@@ -61,6 +61,25 @@ function smartTrim(text, max) {
   return base.trim().replace(/[,;:.\-–—\s]+$/, '') + '…';
 }
 
+/** Best-effort extraction of {lat, lng} from a Google Calendar event.
+ *  Looks at extendedProperties.private (the standard place Google stores
+ *  geo data) and falls back to a simple "lat,lng" or "@lat,lng" pattern
+ *  in the location string. Returns null if nothing's found. */
+function getEventCoords(event) {
+  if (!event) return null;
+  const ext = event.extendedProperties && (event.extendedProperties.private || event.extendedProperties.shared);
+  if (ext && ext.geo) {
+    const m = String(ext.geo).match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
+    if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  }
+  if (event.location) {
+    // Match "47.951389,-122.289641" anywhere, optionally prefixed with @
+    const m = String(event.location).match(/@?\s*(-?\d{1,3}(?:\.\d+))\s*,\s*(-?\d{1,3}(?:\.\d+))/);
+    if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  }
+  return null;
+}
+
 class GoogleCalendarIntegration {
   constructor() {
     // Your actual Google Calendar API credentials
@@ -642,6 +661,13 @@ class GoogleCalendarIntegration {
     const value = event.end?.dateTime || event.end?.date;
     return value ? new Date(value) : null;
   }
+
+  /** Returns {lat, lng} if the event carries lat/lng in extendedProperties
+   *  or a parseable "@lat,lng" string, otherwise null. */
+  getEventCoords(event) {
+    // No-op wrapper around the module-level helper so instance code can use `this.`
+    return getEventCoords(event);
+  }
   
   showEventModal(event, date) {
     const modal = document.getElementById('event-modal');
@@ -753,12 +779,14 @@ class GoogleCalendarIntegration {
       });
     }
 
-    // 2) Telegram — pre-filled share sheet, generates a rich preview from OG tags
+    // 2) Telegram — pre-filled share sheet. Pass only `text` so Telegram
+    //    doesn't duplicate the URL on top; the deep link is already in
+    //    the announcement body and will auto-linkify there.
     items.push({
       icon: '📣',
       label: 'Telegram',
       desc: 'Opens Telegram share sheet',
-      href: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(announcement)}`,
+      href: `https://t.me/share/url?text=${encodeURIComponent(announcement)}`,
     });
 
     // 3) WhatsApp — same idea, different endpoint
@@ -957,18 +985,19 @@ class GoogleCalendarIntegration {
       if (firstBit) venueLine = `@ ${firstBit}!`;
     }
 
-    // Maps links (Apple + Google) if we have an address
+    // Address block — prefer the event's Location text; fall back to
+    // lat/lng coordinates if that's all we have. No maps links — the
+    // bare address auto-linkifies in Telegram/IG/most clients, and an
+    // honest coordinate pair is more useful than a stale geocoded URL.
     let addressBlock = null;
     if (event.location) {
-      const rawAddr = String(event.location).trim();
-      const encAddr = encodeURIComponent(rawAddr);
-      const googleMaps = `https://maps.google.com/?q=${encAddr}`;
-      const appleMaps  = `https://maps.apple.com/?q=${encAddr}&address=${encAddr}`;
-      addressBlock = [
-        'Address:',
-        `📍${rawAddr} (${appleMaps})`,
-        `Google maps link (${googleMaps})`,
-      ].join('\n');
+      const rawAddr = String(event.location).replace(/\s+/g, ' ').trim();
+      addressBlock = 'Address:\n\u{1F4CD}' + rawAddr;
+    } else {
+      const geo = getEventCoords(event);
+      if (geo) {
+        addressBlock = 'Coordinates:\n\u{1F4CD}' + geo.lat.toFixed(5) + ', ' + geo.lng.toFixed(5);
+      }
     }
 
     // Body: description passes through verbatim (team adds their own
@@ -1003,8 +1032,9 @@ class GoogleCalendarIntegration {
 
   buildTelegramShareUrl(event, shareUrl) {
     const text = this.buildShareText(event, shareUrl);
-    // Telegram's share endpoint; url is the preview-able URL, text becomes the caption
-    return `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`;
+    // Pass only `text` so Telegram doesn't prepend a duplicate URL line —
+    // the More Details link already lives inside the announcement body.
+    return `https://t.me/share/url?text=${encodeURIComponent(text)}`;
   }
   
   closeModal() {

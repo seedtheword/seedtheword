@@ -9,6 +9,58 @@ function escapeHtml(s) {
   }[c]));
 }
 
+/** Convert a Google Calendar HTML description to a plain-text string.
+ *  Handles <br>, <p>, <div>, <li>, <b>, <i>, <u>, <a>, decodes entities.
+ */
+function stripHtmlToText(html) {
+  if (html == null) return '';
+  let s = String(html);
+  // Treat | as a line separator (legacy admin convention in the repo)
+  s = s.replace(/\|/g, '\n');
+  // Block-level tags become newlines
+  s = s.replace(/<br\s*\/?>/gi, '\n');
+  s = s.replace(/<\/(p|div|li|tr|h[1-6])>/gi, '\n');
+  s = s.replace(/<li[^>]*>/gi, '• ');
+  // Strip every other tag
+  s = s.replace(/<[^>]+>/g, '');
+  // Decode common HTML entities
+  s = s
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&hellip;/g, '…')
+    .replace(/&mdash;/g, '—')
+    .replace(/&ndash;/g, '–');
+  // Numeric entities (e.g. &#8217;)
+  s = s.replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(parseInt(n, 10)));
+  s = s.replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)));
+  // Collapse runs of 3+ newlines to just 2, trim trailing whitespace on lines
+  s = s.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  return s;
+}
+
+/** HTML-safe rendering of a description for the modal — preserves line
+ *  breaks but never re-inserts the raw tags from Google Calendar. */
+function renderDescription(html) {
+  const text = stripHtmlToText(html);
+  return escapeHtml(text).replace(/\n/g, '<br>');
+}
+
+/** Trim a string to ~max chars without cutting mid-word. Adds an
+ *  ellipsis if trimmed. */
+function smartTrim(text, max) {
+  if (!text) return '';
+  if (text.length <= max) return text;
+  // Try to cut on the last space / newline / punctuation before max
+  const hardStop = text.slice(0, max);
+  const softStop = hardStop.replace(/\s+\S*$/, '');
+  const base = softStop.length > max * 0.7 ? softStop : hardStop;
+  return base.trim().replace(/[,;:.\-–—\s]+$/, '') + '…';
+}
+
 class GoogleCalendarIntegration {
   constructor() {
     // Your actual Google Calendar API credentials
@@ -638,7 +690,7 @@ class GoogleCalendarIntegration {
         <li><span aria-hidden="true">⏰</span><span>${niceTime(startDate)} – ${niceTime(endDate)}</span></li>
         ${event.location ? `<li><span aria-hidden="true">📍</span><span>${escapeHtml(event.location)}</span></li>` : ''}
       </ul>
-      ${event.description ? `<div class="event-modal__desc">${escapeHtml(event.description).replace(/\|/g, '<br>').replace(/\n/g, '<br>')}</div>` : ''}
+      ${event.description ? `<div class="event-modal__desc">${renderDescription(event.description)}</div>` : ''}
       <div class="event-modal__actions">
         <div class="event-share" id="event-share-wrap">
           <button type="button" class="btn btn-primary event-share__toggle"
@@ -923,11 +975,9 @@ class GoogleCalendarIntegration {
     // 🙏🏻🤍 wrappers or emojis in Google Calendar when they want them).
     let bodyBlock = null;
     if (event.description) {
-      const cleanDesc = String(event.description)
-        .replace(/<[^>]+>/g, '')
-        .replace(/\|/g, '\n')
-        .trim();
-      const capped = cleanDesc.length > 600 ? cleanDesc.slice(0, 597) + '…' : cleanDesc;
+      const cleanDesc = stripHtmlToText(event.description);
+      // Cap at ~800 chars, but don't slice mid-word or mid-emoji
+      const capped = smartTrim(cleanDesc, 800);
       if (capped) bodyBlock = '🙏🏻🤍' + capped;
     }
 

@@ -472,13 +472,135 @@
     }
     .admin-flowchart .mermaid svg { max-width: 100%; height: auto; }
     .admin-flowchart .mermaid:not([data-processed="true"]) {
-      font-family: 'SFMono-Regular', Consolas, monospace;
-      font-size: 0.82rem;
-      color: var(--ah-muted);
-      padding: 0.5rem 0;
-      text-align: left;
+      /* While Mermaid loads, HIDE the raw graph source so it doesn't
+         flash as unreadable text. A thin skeleton line stands in. */
+      position: relative;
+      min-height: 48px;
+      color: transparent;
+      background: linear-gradient(90deg, var(--ah-off) 0%, #f0f0f0 50%, var(--ah-off) 100%);
+      background-size: 200% 100%;
+      animation: ah-skeleton 1.2s linear infinite;
+      border-radius: 8px;
+      overflow: hidden;
       white-space: pre;
-      overflow-x: auto;
+    }
+    @keyframes ah-skeleton {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Visual stepper — plain-English process cards */
+    .admin-stepper {
+      margin: 1.25rem 0 1.75rem;
+    }
+    .admin-stepper__label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ah-muted);
+      margin: 0 0 0.4rem;
+    }
+    .admin-stepper__title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--ah-ink);
+      margin: 0 0 1rem;
+    }
+    .admin-stepper__steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .admin-step {
+      position: relative;
+      background: #fff;
+      border: 1.5px solid var(--ah-line);
+      border-radius: 14px;
+      padding: 1.25rem 1.15rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .admin-step__num {
+      position: absolute;
+      top: -12px;
+      left: 1.15rem;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--ah-ink);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .admin-step__icon {
+      font-size: 1.8rem;
+      line-height: 1;
+      margin-top: 0.3rem;
+    }
+    .admin-step__title {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: var(--ah-ink);
+      margin: 0.15rem 0 0;
+    }
+    .admin-step__body {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--ah-ink-2);
+      margin: 0;
+    }
+    @media (min-width: 720px) {
+      .admin-step:not(:last-child)::after {
+        content: '›';
+        position: absolute;
+        right: -0.85rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.7rem;
+        font-weight: 900;
+        color: var(--ah-line);
+        pointer-events: none;
+        z-index: 1;
+      }
+    }
+    .admin-step--highlight { background: var(--ah-accent-soft); border-color: var(--ah-accent); }
+    .admin-step--warn      { background: #fff8ea; border-color: var(--ah-warn); }
+    .admin-step--done      { background: #0a0a0a; border-color: #0a0a0a; }
+    .admin-step--done .admin-step__title,
+    .admin-step--done .admin-step__body { color: #fff; }
+    .admin-step--done .admin-step__num  { background: #fff; color: #0a0a0a; }
+
+    .admin-branches {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.75rem;
+    }
+    .admin-branch {
+      padding: 0.7rem 0.95rem;
+      border-radius: 10px;
+      background: var(--ah-off);
+      border: 1px solid var(--ah-line);
+    }
+    .admin-branch__label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ah-accent);
+      margin: 0 0 0.25rem;
+    }
+    .admin-branch__body {
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: var(--ah-ink-2);
+      margin: 0;
     }
 
     /* Recommendations builder tool */
@@ -733,40 +855,30 @@
     use a password manager or a private doc.
   </div>
 
-  <div class="admin-flowchart">
-    <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">"Something needs updating" — where do I go?</p>
-    <div class="mermaid">
-flowchart TD
-    Start([I need to update<br/>something on the site]) --> Q1{What kind of<br/>update?}
-
-    Q1 -->|An event| E1[Open Google Calendar<br/>Add/edit the event]
-    E1 --> E2([Site updates<br/>within 1 minute])
-
-    Q1 -->|A photo or video| P1{Where does it<br/>belong?}
-    P1 -->|Team, Highlights,<br/>Featured, Backgrounds| P2[Upload to matching folder<br/>under assets/images/]
-    P1 -->|Bundle slideshow| P3[Upload to bundle folder<br/>Edit images.json manifest]
-    P1 -->|Outreach card| P4[Create folder under<br/>ministry-outreach/<br/>Add images.json + index entry]
-    P2 --> Commit([Commit on GitHub<br/>Site redeploys in ~60s])
-    P3 --> Commit
-    P4 --> Commit
-
-    Q1 -->|Recommended content<br/>Spotify, YouTube, link| R1[Edit assets/data/<br/>recommendations.json<br/>— use the builder tool]
-    R1 --> Commit
-
-    Q1 -->|Verse of the Day| V1[Edit assets/data/<br/>daily-verses.json]
-    V1 --> Commit
-
-    Q1 -->|Something is<br/>broken| B1[Jump to the<br/>Troubleshooting section below]
-
-    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
-    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    class Start start
-    class Q1,P1 decision
-    class E1,P2,P3,P4,R1,V1,B1 action
-    class E2,Commit done
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">Quick routing</p>
+    <p class="admin-stepper__title">"Something needs updating" — where do I go?</p>
+    <div class="admin-branches">
+      <div class="admin-branch">
+        <p class="admin-branch__label">📅 An event</p>
+        <p class="admin-branch__body">Add or edit it in Google Calendar. Site updates within 1 minute.</p>
+      </div>
+      <div class="admin-branch">
+        <p class="admin-branch__label">🖼️ A photo or video</p>
+        <p class="admin-branch__body">Upload to the matching folder under <code>assets/images/</code>. For bundle slideshows or outreach cards, also edit the folder's <code>images.json</code>.</p>
+      </div>
+      <div class="admin-branch">
+        <p class="admin-branch__label">🎧 Spotify / YouTube / link</p>
+        <p class="admin-branch__body">Edit <code>assets/data/recommendations.json</code>. Use the Recommendations builder below — it generates the JSON for you.</p>
+      </div>
+      <div class="admin-branch">
+        <p class="admin-branch__label">📖 Verse of the Day</p>
+        <p class="admin-branch__body">Add a new entry to <code>assets/data/daily-verses.json</code>.</p>
+      </div>
+      <div class="admin-branch">
+        <p class="admin-branch__label">🧯 Something is broken</p>
+        <p class="admin-branch__body">Jump to the Troubleshooting section below — hard-refresh first, then diagnose by symptom.</p>
+      </div>
     </div>
   </div>
 
@@ -848,32 +960,34 @@ flowchart TD
   <h2>🗓️ Ministry Operations Schedule</h2>
   <p>This is the working rhythm for admin stewardship — who does what, when, and on which platform. It ensures consistency across every channel we serve.</p>
 
-  <div class="admin-flowchart">
-    <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">Weekly rhythm at a glance</p>
-    <div class="mermaid">
-flowchart LR
-    Mon([Mon–Fri<br/>📅 Daily]) --> D1[Encounter the Word<br/>chapter post]
-    Mon --> D2[Daily audio reading<br/>→ Telegram]
-    Mon --> D3[Prayer &amp; Thanksgiving<br/>prompt]
-    Mon --> D4[Monitor #verse tag<br/>share highlights]
-
-    Mid([Every 2–3 days<br/>🔁 Mid-week]) --> M1[Cross-platform<br/>outreach posts]
-    Mid --> M2[Announcements<br/>+ IG Highlights]
-    Mid --> M3[Calendar planning<br/>future events]
-    Mid --> M4[Youth content<br/>curation]
-    Mid --> M5[Inbox triage<br/>IG + Telegram]
-
-    Sat([Saturday<br/>📚 Study Day]) --> S1[Theme of the week]
-    Sat --> S2[Weekly summary<br/>in Discuss Scripture]
-    Sat --> S3[Resource &amp; stewardship<br/>accountability]
-
-    Sun([Sunday<br/>⛪ Fellowship]) --> R1[Rest &amp; rhythm<br/>minimal posting<br/>in-person church]
-
-    classDef day fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    classDef task fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    class Mon,Mid,Sat,Sun day
-    class D1,D2,D3,D4,M1,M2,M3,M4,M5,S1,S2,S3,R1 task
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">Weekly rhythm</p>
+    <p class="admin-stepper__title">What happens each day of the week</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">📅</span>
+        <p class="admin-step__title">Mon–Fri · Daily</p>
+        <p class="admin-step__body">Encounter the Word chapter post, daily audio reading, prayer &amp; thanksgiving prompt, #verse tag highlights.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">🔁</span>
+        <p class="admin-step__title">Mid-week</p>
+        <p class="admin-step__body">Cross-platform outreach, announcements + IG highlights, calendar planning, youth content curation, inbox triage.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">📚</span>
+        <p class="admin-step__title">Saturday · Study Day</p>
+        <p class="admin-step__body">Theme of the week, weekly summary in Discuss Scripture, resource &amp; stewardship accountability.</p>
+      </div>
+      <div class="admin-step admin-step--done">
+        <span class="admin-step__num">4</span>
+        <span class="admin-step__icon">⛪</span>
+        <p class="admin-step__title">Sunday · Rest</p>
+        <p class="admin-step__body">Minimal posting, honor in-person church attendance and the rhythm of rest.</p>
+      </div>
     </div>
   </div>
 
@@ -984,36 +1098,18 @@ flowchart LR
   <h2>🖼️ Updating images on the website</h2>
   <p>Some parts of the site display images that admins manage directly (team photos, ministry highlights, homepage featured slides, hero backgrounds). Replacing these is done through GitHub's web interface — no coding, no terminal. Here's the full walkthrough.</p>
 
-  <div class="admin-flowchart">
-    <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">Replace vs Add — which path am I on?</p>
-    <div class="mermaid">
-flowchart TD
-    Start([I have a photo to<br/>put on the site]) --> Q1{Is this replacing<br/>an existing photo?}
-
-    Q1 -->|Yes — same spot,<br/>new image| R1[Match the OLD filename<br/>exactly, capitalization too]
-    R1 --> R2[Open the file on GitHub<br/>Click 'Replace this file']
-    R2 --> R3[Upload, commit]
-    R3 --> Done([Hard-refresh the site<br/>in 30–60 seconds])
-
-    Q1 -->|No — brand-new photo| A1[Pick a short, descriptive<br/>filename: all lowercase,<br/>dashes, no spaces]
-    A1 --> A2[Navigate to the right folder<br/>in the repo]
-    A2 --> A3[Click 'Add file → Upload files']
-    A3 --> A4[Drag in, commit]
-    A4 --> Q2{Does the site<br/>already reference it?}
-    Q2 -->|Yes — filename matches<br/>a JSON manifest| Done
-    Q2 -->|No — HTML edit needed<br/>to make it appear| Dev([Ping the dev on duty])
-
-    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
-    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    classDef dev fill:#c0392b,stroke:#8a2318,color:#fff,stroke-width:2px;
-    class Start start
-    class Q1,Q2 decision
-    class R1,R2,R3,A1,A2,A3,A4 action
-    class Done done
-    class Dev dev
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">Two paths</p>
+    <p class="admin-stepper__title">Replace vs Add — pick your path</p>
+    <div class="admin-branches">
+      <div class="admin-branch">
+        <p class="admin-branch__label">🔁 Replacing an existing photo</p>
+        <p class="admin-branch__body">Match the old filename exactly (capitalization too). On GitHub, open the file → <em>Replace this file</em> → upload → commit → hard-refresh in ~30–60s.</p>
+      </div>
+      <div class="admin-branch">
+        <p class="admin-branch__label">➕ Adding a brand-new photo</p>
+        <p class="admin-branch__body">Pick a short descriptive filename (lowercase, dashes, no spaces). <em>Add file → Upload files</em> to the matching folder → commit. If the site already references that filename (via a JSON manifest), it appears automatically. If not, ping the dev to wire it in.</p>
+      </div>
     </div>
   </div>
 
@@ -1206,20 +1302,34 @@ flowchart TD
 
   <h3>Add a Spotify episode to "What We're Listening To"</h3>
 
-  <div class="admin-flowchart">
-    <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">Add a Spotify episode in 4 steps</p>
-    <div class="mermaid">
-flowchart LR
-    A([Open Spotify episode<br/>in browser]) --> B[Copy the full URL<br/>from the address bar]
-    B --> C[Paste URL into the Recommendations<br/>builder tool above]
-    C --> D[Copy the generated JSON block<br/>and paste into recommendations.json]
-    D --> E([Commit — card appears<br/>within 60 seconds])
-
-    classDef step fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    class A,E done
-    class B,C,D step
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">4 steps</p>
+    <p class="admin-stepper__title">Add a Spotify episode</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">🎧</span>
+        <p class="admin-step__title">Copy the URL</p>
+        <p class="admin-step__body">Open the Spotify episode or show and copy the full URL from the address bar.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">🪄</span>
+        <p class="admin-step__title">Use the builder</p>
+        <p class="admin-step__body">Scroll up to the Recommendations builder, pick the Spotify tab, paste the URL, fill in title/source/note.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">📋</span>
+        <p class="admin-step__title">Copy + paste JSON</p>
+        <p class="admin-step__body">Click Copy JSON, then paste it into the <code>"listening"</code> array in <code>recommendations.json</code>.</p>
+      </div>
+      <div class="admin-step admin-step--done">
+        <span class="admin-step__num">4</span>
+        <span class="admin-step__icon">✅</span>
+        <p class="admin-step__title">Commit</p>
+        <p class="admin-step__body">The card appears on the Community page within 60 seconds.</p>
+      </div>
     </div>
   </div>
 
@@ -1289,29 +1399,40 @@ flowchart LR
 
   <h3>Add a new photo to a bundle slideshow</h3>
 
-  <div class="admin-flowchart">
-    <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">Add a photo to a bundle card</p>
-    <div class="mermaid">
-flowchart TD
-    A([Photo ready<br/>on your computer]) --> B[Resize to 1600×900<br/>compress under 300 KB<br/>squoosh.app works great]
-    B --> C[Rename with a number prefix:<br/>03-group-study.jpg]
-    C --> D{Which bundle?}
-    D -->|Essentials| D1[essentials/ folder]
-    D -->|Life Group| D2[lifegroup/ folder]
-    D -->|Ministry| D3[ministry/ folder]
-    D1 --> E[Upload to that folder<br/>on GitHub, commit]
-    D2 --> E
-    D3 --> E
-    E --> F[Edit images.json in<br/>same folder, add new block<br/>with file + caption]
-    F --> G([Commit — slide joins<br/>the rotation immediately])
-
-    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
-    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    class A,G start
-    class D decision
-    class B,C,D1,D2,D3,E,F action
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">Step by step</p>
+    <p class="admin-stepper__title">Add a photo to a bundle card</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">📐</span>
+        <p class="admin-step__title">Prep the photo</p>
+        <p class="admin-step__body">Resize to 1600×900, compress to under 300 KB. <a href="https://squoosh.app" target="_blank" rel="noopener">squoosh.app</a> does it in one click.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">🏷️</span>
+        <p class="admin-step__title">Name it with a number prefix</p>
+        <p class="admin-step__body">e.g. <code>03-group-study.jpg</code>. Lowercase, dashes, no spaces or apostrophes.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">📁</span>
+        <p class="admin-step__title">Upload to the right folder</p>
+        <p class="admin-step__body">Pick <code>essentials/</code>, <code>lifegroup/</code>, or <code>ministry/</code> under <code>assets/images/bundles/</code>, drag the file in, commit.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">4</span>
+        <span class="admin-step__icon">📝</span>
+        <p class="admin-step__title">Edit images.json</p>
+        <p class="admin-step__body">Add a new <code>{ "file": "...", "caption": "..." }</code> block to the <code>images</code> array in that folder.</p>
+      </div>
+      <div class="admin-step admin-step--done">
+        <span class="admin-step__num">5</span>
+        <span class="admin-step__icon">✅</span>
+        <p class="admin-step__title">Commit</p>
+        <p class="admin-step__body">Hard-refresh the store page. The new slide joins the rotation right away.</p>
+      </div>
     </div>
   </div>
 
@@ -1366,31 +1487,40 @@ flowchart TD
   <h2>📤 Team media drop (how the team shares photos/videos)</h2>
   <p>We don't have a separate upload page. Instead, we use an <strong>encouragement call-out inside the "Ministry Outreach &amp; Highlights" section on news.html</strong> — the "Your story belongs here too" card. When <code>assets/data/media-drop.json</code> is configured, a 📤 <strong>Share Photos &amp; Videos</strong> button appears next to "Submit a Testimony" and "Share on Telegram", and it opens our Google Form. Every submission lands in our ministry Google account with the uploader's name, caption, and the files themselves — plus a row in a Responses spreadsheet. Admins review from there and push the good stuff to the site.</p>
 
-  <div class="admin-flowchart">
-    <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">From phone → Google Form → our Drive → live site</p>
-    <div class="mermaid">
-flowchart LR
-    T([Team member<br/>captures moment]) --> U[Taps 'Share Photos &amp; Videos'<br/>on news.html call-out]
-    U --> F[Fills Google Form:<br/>name, caption, upload files]
-    F --> D[Files land in our<br/>Google Drive<br/>Response logged to Sheet]
-    D --> A([Admin reviews<br/>Form Responses])
-    A --> Q{Is this a fit<br/>for the site?}
-    Q -->|Yes — outreach photos| O1[Resize / compress<br/>add to outreach folder]
-    Q -->|Yes — highlight-worthy| O2[Add to ministry-highlights<br/>or featured folder]
-    Q -->|Yes — team/member photo| O3[Add to team folder]
-    Q -->|Not this time| O4[Leave in Drive archive<br/>for later use]
-    O1 --> C([Commit to repo<br/>site updates in ~60s])
-    O2 --> C
-    O3 --> C
-
-    classDef team fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    classDef step fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
-    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    class T,A,C team
-    class U,F,D,O1,O2,O3,O4 step
-    class Q decision
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">The pipeline</p>
+    <p class="admin-stepper__title">Phone → Form → Drive → Site</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">📸</span>
+        <p class="admin-step__title">Capture</p>
+        <p class="admin-step__body">Team member takes photos/videos at an outreach or gathering.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">📤</span>
+        <p class="admin-step__title">Share via form</p>
+        <p class="admin-step__body">Taps "Share Photos &amp; Videos" on news.html → fills a short Google Form with name, caption, files.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">📁</span>
+        <p class="admin-step__title">Lands in Drive</p>
+        <p class="admin-step__body">Files auto-upload to our team Google Drive folder. Metadata logged in a linked Sheet.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">4</span>
+        <span class="admin-step__icon">👀</span>
+        <p class="admin-step__title">Admin reviews</p>
+        <p class="admin-step__body">Scans new submissions in Drive or the Sheet. Picks what's site-worthy.</p>
+      </div>
+      <div class="admin-step admin-step--done">
+        <span class="admin-step__num">5</span>
+        <span class="admin-step__icon">✅</span>
+        <p class="admin-step__title">Publish</p>
+        <p class="admin-step__body">Commits good media to the repo's matching folder (outreach, highlights, team). Site updates in ~60s. Rest stays in Drive as an archive.</p>
+      </div>
     </div>
   </div>
 
@@ -1476,28 +1606,40 @@ flowchart LR
 
   <h3>Add a new outreach card</h3>
 
-  <div class="admin-flowchart">
-    <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">Add a new outreach to the News page</p>
-    <div class="mermaid">
-flowchart TD
-    Start([New outreach to feature]) --> F1[Pick a folder name<br/>kebab-case, includes the date<br/>e.g. bellevue-park-july-2026]
-    F1 --> F2[Create the folder under<br/>assets/images/ministry-outreach/]
-    F2 --> F3[Upload photos 01.jpg, 02.jpg...<br/>videos video-01.mp4...<br/>all under ~10MB]
-    F3 --> F4[Create images.json in folder<br/>list media in play order]
-    F4 --> I1[Open ministry-outreach.json<br/>Add event entry at TOP<br/>most recent first]
-    I1 --> I2[Fill in title, date, location,<br/>body — leave testimony blank]
-    I2 --> C([Commit — card appears<br/>on News page &amp; Today's<br/>Latest Outreach])
-    C --> T{Got a testimony<br/>from the field?}
-    T -->|Yes| T1[Edit the 'testimony' field<br/>later, commit]
-    T -->|Not yet| T2[Come back when you do]
-
-    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
-    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    class Start,C start
-    class T decision
-    class F1,F2,F3,F4,I1,I2,T1,T2 action
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">Step by step</p>
+    <p class="admin-stepper__title">Add a new outreach to the News page</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">🗂️</span>
+        <p class="admin-step__title">Name the folder</p>
+        <p class="admin-step__body">Kebab-case with a date, e.g. <code>bellevue-park-july-2026</code>.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">📸</span>
+        <p class="admin-step__title">Upload media</p>
+        <p class="admin-step__body">Under <code>assets/images/ministry-outreach/&lt;folder&gt;/</code> — photos 01.jpg, 02.jpg… and videos under 10 MB.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">📝</span>
+        <p class="admin-step__title">Write images.json</p>
+        <p class="admin-step__body">List media in play order inside the same folder (see the template below).</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">4</span>
+        <span class="admin-step__icon">📋</span>
+        <p class="admin-step__title">Register the event</p>
+        <p class="admin-step__body">Open <code>ministry-outreach.json</code> and add a new entry at the top with title, date, location, body. Leave testimony blank.</p>
+      </div>
+      <div class="admin-step admin-step--done">
+        <span class="admin-step__num">5</span>
+        <span class="admin-step__icon">✅</span>
+        <p class="admin-step__title">Commit</p>
+        <p class="admin-step__body">The card shows on the News page and the homepage's Latest Outreach right away. Add a testimony later when you have one.</p>
+      </div>
     </div>
   </div>
 
@@ -1582,23 +1724,34 @@ flowchart TD
 
   <h2>🌱 Walking the Path of Light (homepage ministry map)</h2>
 
-  <div class="admin-flowchart">
-    <p class="admin-flowchart__label">Ministry framing</p>
-    <p class="admin-flowchart__title">The Seed → Water &amp; Grow → Harvest → Repeat loop</p>
-    <div class="mermaid">
-flowchart LR
-    P1[Phase 1 — SEED<br/>Evangelism &amp; new believers<br/>Grace first, action before theology<br/>Tuesday meetings]
-    P2[Phase 2 — WATER &amp; GROW<br/>Discipleship &amp; deepening<br/>Amen Prayer, Phil 4:6–8<br/>Saturday studies, 5 pillars]
-    P3[Phase 3 — HARVEST<br/>Placement &amp; maturation<br/>Commission into local church<br/>Mentorship, 1 Tim 1:5]
-    R[↻ REPEAT<br/>For the next person<br/>He brings us]
-
-    P1 --> P2 --> P3 --> R
-    R -.next person.-> P1
-
-    classDef phase fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:2px;
-    classDef loop fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    class P1,P2,P3 phase
-    class R loop
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">Ministry framing</p>
+    <p class="admin-stepper__title">Seed → Water &amp; Grow → Harvest → Repeat</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">🌱</span>
+        <p class="admin-step__title">Seed</p>
+        <p class="admin-step__body">Evangelism &amp; new believers. Grace first — action before theology. Tuesday meetings are where this begins.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">💧</span>
+        <p class="admin-step__title">Water &amp; Grow</p>
+        <p class="admin-step__body">Discipleship &amp; deepening. Amen Prayer, Philippians 4:6–8, Saturday studies using the 5 pillars framework.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">🌾</span>
+        <p class="admin-step__title">Harvest</p>
+        <p class="admin-step__body">Placement &amp; maturation. Commission members into a local church body. Mentorship anchored in 1 Timothy 1:5.</p>
+      </div>
+      <div class="admin-step admin-step--done">
+        <span class="admin-step__num">↻</span>
+        <span class="admin-step__icon">🔄</span>
+        <p class="admin-step__title">Repeat</p>
+        <p class="admin-step__body">For the next person He brings us.</p>
+      </div>
     </div>
   </div>
 
@@ -1635,49 +1788,34 @@ flowchart LR
 
   <h2>🧯 Troubleshooting — if the site looks broken</h2>
 
-  <div class="admin-flowchart">
-    <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">Triage — start here when something looks wrong</p>
-    <div class="mermaid">
-flowchart TD
-    S([The site looks broken]) --> HR[Hard-refresh first:<br/>Ctrl+Shift+R / Cmd+Shift+R<br/>Stale cache is the #1 cause]
-    HR --> Q1{Still broken?}
-    Q1 -->|No — fixed!| Done([Phew.])
-    Q1 -->|Yes| Q2{What's wrong?}
-
-    Q2 -->|Calendar empty| C1[Check Google Calendar<br/>has events for this range]
-    C1 --> C2{Still empty on site?}
-    C2 -->|Yes| C3[Open browser console F12<br/>look for 403/401/quota errors]
-    C2 -->|No| Done
-    C3 --> Dev
-
-    Q2 -->|IG images broken| I1[Check GitHub Actions tab<br/>Scrape Instagram Feed run]
-    I1 --> I2{Recent run succeeded?}
-    I2 -->|No| I3[Re-authorize rss.app<br/>or ping dev]
-    I2 -->|Yes| I4[Manually trigger<br/>'Scrape Instagram Feed']
-    I3 --> Dev
-    I4 --> Done
-
-    Q2 -->|Contact form<br/>not sending| F1[Sign in to formspree.io<br/>check message log &amp; quota]
-    F1 --> Dev
-
-    Q2 -->|Livestream wrong| L1[Schedule-based logic<br/>check twitch-integration.js<br/>or ping dev]
-    L1 --> Dev
-
-    Q2 -->|Something else| E1[Check GitHub Actions<br/>for red X deploys]
-    E1 --> E2[Screenshot console errors]
-    E2 --> Dev([Ping the dev on duty<br/>with screenshot + details])
-
-    classDef start fill:#c0392b,stroke:#8a2318,color:#fff,stroke-width:2px;
-    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
-    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    classDef done fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    classDef dev fill:#c0392b,stroke:#8a2318,color:#fff,stroke-width:2px;
-    class S start
-    class Q1,Q2,C2,I2 decision
-    class HR,C1,C3,I1,I3,I4,F1,L1,E1,E2 action
-    class Done done
-    class Dev dev
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">Start here</p>
+    <p class="admin-stepper__title">Something looks wrong — what to check first</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step admin-step--warn">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">🔄</span>
+        <p class="admin-step__title">Hard-refresh</p>
+        <p class="admin-step__body">Ctrl+Shift+R / Cmd+Shift+R. Stale cache is the #1 cause. Fixed? Stop here.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">🔍</span>
+        <p class="admin-step__title">Narrow it down</p>
+        <p class="admin-step__body">Scroll through the specific sections below: calendar, IG images, contact form, podcast, livestream, or something else.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">🛠️</span>
+        <p class="admin-step__title">Try the fix</p>
+        <p class="admin-step__body">Most issues resolve by checking the service's dashboard or re-running the relevant GitHub Action.</p>
+      </div>
+      <div class="admin-step admin-step--done">
+        <span class="admin-step__num">4</span>
+        <span class="admin-step__icon">📣</span>
+        <p class="admin-step__title">Still stuck? Ping the dev</p>
+        <p class="admin-step__body">Screenshot the browser console (F12) + Actions tab + what you tried. Send to the dev on duty.</p>
+      </div>
     </div>
   </div>
 
@@ -1724,27 +1862,28 @@ flowchart TD
   <h2>📣 Announcing events to Telegram, Instagram &amp; beyond</h2>
   <p>Every event on the News page has a single <strong>📣 Share Event</strong> button in its modal. Tapping it opens a dropdown with multiple destinations — Telegram, WhatsApp, Instagram, the device share sheet, or plain clipboard — and pre-fills each one with an announcement following our ministry format. No retyping, no copy-paste dance.</p>
 
-  <div class="admin-flowchart">
-    <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">Announce an event anywhere in under 30 seconds</p>
-    <div class="mermaid">
-flowchart LR
-    A([Add event to<br/>Google Calendar]) --> B[Open news.html<br/>click the event]
-    B --> C[Tap 📣 Share Event<br/>menu opens]
-    C --> D{Pick destination}
-    D -->|Device share…| E[iOS/Android share sheet<br/>every app available]
-    D -->|Telegram| F[Telegram share sheet<br/>pre-filled announcement]
-    D -->|WhatsApp| G[WhatsApp share sheet<br/>pre-filled announcement]
-    D -->|Instagram| H[Caption copied +<br/>IG opens — paste<br/>into post / story / DM]
-    D -->|Copy announcement| I[Clipboard — paste<br/>anywhere]
-    D -->|Copy event link| J[Deep link only<br/>for inline mentions]
-
-    classDef start fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    classDef decision fill:#d4a574,stroke:#8a6a3a,color:#1a1a1a,stroke-width:2px;
-    classDef action fill:#fff,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    class A start
-    class D decision
-    class B,C,E,F,G,H,I,J action
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">3 steps to share</p>
+    <p class="admin-stepper__title">Announce an event anywhere in under 30 seconds</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">📅</span>
+        <p class="admin-step__title">Open the event</p>
+        <p class="admin-step__body">On news.html, click the event on the calendar. The event modal opens.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">📣</span>
+        <p class="admin-step__title">Tap Share Event</p>
+        <p class="admin-step__body">A dropdown appears with destination options.</p>
+      </div>
+      <div class="admin-step admin-step--done">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">🚀</span>
+        <p class="admin-step__title">Pick your destination</p>
+        <p class="admin-step__body">Device share sheet, Telegram, WhatsApp, Instagram (copies caption), plain copy, or event-link-only. Each one is pre-filled with the ministry announcement template.</p>
+      </div>
     </div>
   </div>
 
@@ -1849,35 +1988,28 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
     <li><strong>Test it:</strong> Actions → <em>Daily Prayer Nudge</em> → Run workflow → <em>dry_run</em> = <code>true</code>, or <em>force_post</em> = <code>true</code> to bypass the random-day filter.</li>
   </ul>
 
-  <div class="admin-flowchart">
-    <p class="admin-flowchart__label">Visual guide</p>
-    <p class="admin-flowchart__title">How the three bots work together</p>
-    <div class="mermaid">
-flowchart LR
-    subgraph Sources
-      Cal[(Google Calendar)]
-      Plan[bible-plan<br/>anchored Apr 30]
-      Tpl[Fixed template +<br/>date]
-    end
-    subgraph Schedules
-      S1[Announce bot<br/>7am·12pm·5pm<br/>Mon-Sat]
-      S2[Bible bot<br/>8am<br/>Mon-Fri]
-      S3[Prayer bot<br/>7am<br/>random 3 of 5<br/>weekdays]
-    end
-    subgraph Telegram @seedtheword
-      T553[Topic 553<br/>Announcements]
-      T13[Topic 13<br/>Encounter the Word]
-      T1[Topic 1<br/>Main channel]
-    end
-    Cal --> S1 --> T553
-    Plan --> S2 --> T13
-    Tpl --> S3 --> T1
-    classDef src fill:#fdf8f1,stroke:#d4a574,color:#2b2b2b,stroke-width:1.5px;
-    classDef sched fill:#fff,stroke:#2C5F2E,color:#1a1a1a,stroke-width:2px;
-    classDef dest fill:#2C5F2E,stroke:#1d3f1f,color:#fff,stroke-width:2px;
-    class Cal,Plan,Tpl src
-    class S1,S2,S3 sched
-    class T553,T13,T1 dest
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">The 3-bot system</p>
+    <p class="admin-stepper__title">Each bot handles its own topic, on its own schedule</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">📣</span>
+        <p class="admin-step__title">Announce bot</p>
+        <p class="admin-step__body">Calendar events → Announcements topic (thread 553). Runs 7 AM, 12 PM, 5 PM Mon–Sat.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">📖</span>
+        <p class="admin-step__title">Bible bot</p>
+        <p class="admin-step__body">Daily NT reading + Spotify link → Encounter the Word topic (thread 13). Runs 8 AM Mon–Fri.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">🙏🏻</span>
+        <p class="admin-step__title">Prayer bot</p>
+        <p class="admin-step__body">Fixed template + date → Main channel (thread 1). Runs 7 AM on a random 3 of 5 weekdays.</p>
+      </div>
     </div>
   </div>
 
@@ -1953,7 +2085,7 @@ flowchart LR
   </div>
 </footer>
 
-<script src="assets/js/admin-help.js?v=3" defer></script>
+<script src="assets/js/admin-help.js?v=4" defer></script>
 
 </body>
 </html>

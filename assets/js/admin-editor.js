@@ -108,6 +108,7 @@
       'success': renderSuccess,
       'conflict': renderConflict,
       'workflow-dispatch': renderWorkflowDispatch,
+      'upload': renderUpload,
     }[editor.state] || renderIdle;
     view();
     // If a legacy-builder handoff is waiting and we just landed on the content
@@ -355,6 +356,17 @@
     if (schema.kind === 'workflow-dispatch') {
       goto('workflow-dispatch');
       loadWorkflowInputs(schema);
+      return;
+    }
+    // Upload schemas (image or video) don't parse a JSON file — they show a
+    // folder listing + drop zone.
+    if (schema.kind === 'image-upload' || schema.kind === 'video-upload') {
+      editor.uploadSchema = schema;
+      editor.uploadListing = null;
+      editor.uploadStatus = 'loading';
+      editor.uploadSubfolder = '';
+      goto('upload');
+      loadUploadListing(schema);
       return;
     }
     // Show a "loading" state synchronously; only transition to 'editing'
@@ -902,6 +914,232 @@
     actions.appendChild(more);
     box.appendChild(actions);
     editor.root.appendChild(box);
+  }
+
+  // ── Upload view (image / video) ─────────────────────────────────────────
+  async function loadUploadListing(schema) {
+    editor.uploadStatus = 'loading';
+    render();
+    try {
+      // stwLogo is a single-file schema (path, not folder).
+      if (schema.path && !schema.folder) {
+        // Try to read the file to surface its current state; ok if missing.
+        try {
+          const existing = await editor.client.readFile(schema.path);
+          editor.uploadListing = [{
+            name: schema.path.split('/').pop(),
+            path: schema.path,
+            sha: existing.sha,
+            size: existing.size || null,
+          }];
+        } catch (_) {
+          editor.uploadListing = [];
+        }
+      } else {
+        const folder = (schema.folder + (editor.uploadSubfolder ? editor.uploadSubfolder + '/' : '')).replace(/\/+/g, '/');
+        const url = 'https://api.github.com/repos/seedtheword/seedtheword/contents/' + folder.split('/').map(encodeURIComponent).join('/').replace(/\/$/, '');
+        const resp = await fetch(url, {
+          headers: {
+            Authorization: 'Bearer ' + (editor.client.getPat ? editor.client.getPat() : ''),
+            Accept: 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28',
+          },
+        });
+        if (resp.status === 404) {
+          // Folder doesn't exist yet — allow uploading into a fresh one.
+          editor.uploadListing = [];
+        } else if (!resp.ok) {
+          throw new Error('Folder listing failed: HTTP ' + resp.status);
+        } else {
+          const body = await resp.json();
+          editor.uploadListing = (Array.isArray(body) ? body : [])
+            .filter((e) => e.type === 'file')
+            .map((e) => ({ name: e.name, path: e.path, sha: e.sha, size: e.size, download_url: e.download_url }));
+        }
+      }
+      editor.uploadStatus = 'ready';
+    } catch (err) {
+      editor.uploadStatus = 'error';
+      editor.uploadError = err && err.message || String(err);
+    }
+    render();
+  }
+
+  function renderUpload() {
+    const schema = editor.uploadSchema;
+    const box = el('section', { className: 'ae-panel' });
+    const head = el('div', { className: 'ae-head' });
+    const back = el('button', { className: 'ae-btn ae-btn--ghost', text: '← Back', attrs: { type: 'button' } });
+    back.addEventListener('click', () => { goto('content-picker'); });
+    head.appendChild(back);
+    head.appendChild(el('h2', { text: schema.label }));
+    box.appendChild(head);
+
+    const folderLabel = schema.path || schema.folder + (editor.uploadSubfolder ? editor.uploadSubfolder + '/' : '');
+    box.appendChild(el('p', { className: 'ae-muted', text: 'Target: ' + folderLabel }));
+
+    // Subfolder chooser (outreach folders are per-event).
+    if (schema.allowSubfolderCreate) {
+      const sub = el('div', { className: 'ae-field' });
+      sub.appendChild(el('span', { className: 'ae-field__label', text: 'Event folder (creates if new)' }));
+      const subInput = el('input', { attrs: { type: 'text', placeholder: schema.subfolderHint || 'kebab-case-event-folder' } });
+      subInput.value = editor.uploadSubfolder || '';
+      const subGo = el('button', { className: 'ae-btn ae-btn--ghost', text: 'Load', attrs: { type: 'button' } });
+      subGo.addEventListener('click', () => {
+        const v = (subInput.value || '').trim().toLowerCase().replace(/[^a-z0-9\-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+        if (!v) { alert('Event folder name required.'); return; }
+        editor.uploadSubfolder = v;
+        loadUploadListing(schema);
+      });
+      sub.appendChild(subInput);
+      sub.appendChild(subGo);
+      box.appendChild(sub);
+    }
+
+    if (editor.uploadStatus === 'loading') {
+      box.appendChild(el('p', { className: 'ae-muted', text: 'Loading…' }));
+      editor.root.appendChild(box);
+      return;
+    }
+    if (editor.uploadStatus === 'error') {
+      box.appendChild(el('pre', { className: 'ae-error', text: editor.uploadError || 'Could not load folder.' }));
+    }
+
+    // Drop zone / file picker
+    const dropWrap = el('div', { className: 'ae-dropzone' });
+    const isVideo = schema.kind === 'video-upload';
+    const accept = isVideo ? 'video/mp4,video/webm,video/quicktime' : 'image/*';
+    const picker = el('input', { attrs: { type: 'file', accept: accept } });
+    picker.style.display = 'none';
+    const pickBtn = el('button', { className: 'ae-btn ae-btn--primary', text: isVideo ? '🎞 Choose a video' : '🖼 Choose an image', attrs: { type: 'button' } });
+    pickBtn.addEventListener('click', () => picker.click());
+    dropWrap.appendChild(pickBtn);
+    const hint = isVideo
+      ? 'mp4, webm, or mov. Large files use Git Data API (up to 100 MB). Up to ~60s to commit.'
+      : 'jpg, png, webp, or gif. Over 1 MB uses Git Data API. Drop onto the page or click above.';
+    dropWrap.appendChild(el('p', { className: 'ae-hint', text: hint }));
+    box.appendChild(dropWrap);
+
+    picker.addEventListener('change', () => {
+      if (picker.files && picker.files[0]) handleUpload(schema, picker.files[0]);
+    });
+    // Page-level drag/drop (on the drop zone itself)
+    dropWrap.addEventListener('dragover', (e) => { e.preventDefault(); dropWrap.classList.add('is-hover'); });
+    dropWrap.addEventListener('dragleave', () => dropWrap.classList.remove('is-hover'));
+    dropWrap.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropWrap.classList.remove('is-hover');
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) handleUpload(schema, f);
+    });
+
+    // Status line
+    const statusLine = el('p', { className: 'ae-status', attrs: { id: 'ae-upload-status', 'aria-live': 'polite' } });
+    box.appendChild(statusLine);
+
+    // Existing files
+    box.appendChild(el('h3', { text: 'Current files' }));
+    const listing = editor.uploadListing || [];
+    if (listing.length === 0) {
+      box.appendChild(el('p', { className: 'ae-muted', text: '(empty)' }));
+    } else {
+      const ul = el('ul', { className: 'ae-filelist' });
+      for (const f of listing) {
+        const li = el('li');
+        const name = el('span', { className: 'ae-filelist__name', text: f.name });
+        li.appendChild(name);
+        if (f.size != null) {
+          li.appendChild(el('span', { className: 'ae-filelist__size', text: '  ' + formatBytes(f.size) }));
+        }
+        if (schema.allowDelete !== false) {
+          const rm = el('button', { className: 'ae-btn ae-btn--ghost', text: '🗑 Delete', attrs: { type: 'button' } });
+          rm.addEventListener('click', () => handleDelete(schema, f));
+          li.appendChild(rm);
+        }
+        ul.appendChild(li);
+      }
+      box.appendChild(ul);
+    }
+    editor.root.appendChild(box);
+  }
+
+  function formatBytes(n) {
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+    return (n / (1024 * 1024)).toFixed(2) + ' MB';
+  }
+
+  async function handleUpload(schema, file) {
+    const status = document.getElementById('ae-upload-status');
+    if (!status) return;
+    const statusUpdate = (msg) => { status.textContent = msg; };
+
+    // MIME check
+    const allowed = schema.mimeWhitelist || [];
+    if (allowed.length && allowed.indexOf(file.type) < 0) {
+      statusUpdate('❌ ' + file.type + ' is not accepted. Allowed: ' + allowed.join(', '));
+      return;
+    }
+    // Size check
+    const max = schema.maxBytes || (100 * 1024 * 1024);
+    if (file.size > max) {
+      statusUpdate('❌ File is ' + formatBytes(file.size) + '. Limit is ' + formatBytes(max) + '.');
+      return;
+    }
+
+    // Target path
+    let targetPath;
+    if (schema.path) {
+      targetPath = schema.path;
+    } else {
+      const folder = (schema.folder + (editor.uploadSubfolder ? editor.uploadSubfolder + '/' : '')).replace(/\/+/g, '/');
+      const safeName = file.name.replace(/[^\w\-.]/g, '-').replace(/--+/g, '-');
+      targetPath = folder + safeName;
+    }
+
+    // Collision check (Property 4)
+    const existing = (editor.uploadListing || []).find((f) => f.path === targetPath || f.name === targetPath.split('/').pop());
+    if (existing) {
+      if (!confirm('A file named ' + existing.name + ' already exists. Replace it?')) return;
+    }
+
+    statusUpdate('⬆ Uploading ' + file.name + ' (' + formatBytes(file.size) + ')…');
+
+    try {
+      const message = substituteUploadMessage(schema, { filename: file.name });
+      await editor.client.uploadBinary(targetPath, file, { message: message });
+      statusUpdate('✅ Uploaded. GitHub Pages rebuilds in ~30-60 s.');
+      loadUploadListing(schema);
+    } catch (err) {
+      if (err && err.name === 'ConflictError') {
+        statusUpdate('⚠️ Another admin committed before yours landed. Reload the list and try again.');
+      } else if (err && err.name === 'AuthError') {
+        statusUpdate('❌ Your PAT was rejected. Reconnect from the Editor tab.');
+      } else if (err && err.name === 'ForbiddenError') {
+        statusUpdate('❌ ' + (err.message || 'GitHub refused the upload (403).'));
+      } else {
+        statusUpdate('❌ Upload failed: ' + (err && err.message || err));
+      }
+    }
+  }
+
+  async function handleDelete(schema, file) {
+    const typed = prompt('Type the filename to confirm deletion:\n\n' + file.name);
+    if (typed !== file.name) { alert('Filename did not match; nothing deleted.'); return; }
+    const status = document.getElementById('ae-upload-status');
+    if (status) status.textContent = '⬇ Deleting ' + file.name + '…';
+    try {
+      await editor.client.deleteFile(file.path, file.sha, 'content(' + schema.id + '): remove ' + file.name);
+      if (status) status.textContent = '✅ Deleted.';
+      loadUploadListing(schema);
+    } catch (err) {
+      if (status) status.textContent = '❌ Delete failed: ' + (err && err.message || err);
+    }
+  }
+
+  function substituteUploadMessage(schema, tokens) {
+    const tmpl = schema.commitMessageTemplate || 'content: upload';
+    return String(tmpl).replace(/\{(\w+)\}/g, (m, k) => (tokens[k] != null ? String(tokens[k]) : m));
   }
 
   // ── Workflow dispatch view ──────────────────────────────────────────────

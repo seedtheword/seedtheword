@@ -283,3 +283,45 @@
   .ae-root { padding: 0.5rem; }
   .ae-panel { padding: 1rem; }
 }
+
+/* ── Upload view ────────────────────────────────────────────────────────── */
+.ae-dropzone {
+  border: 2px dashed var(--ah-line, #d4d4d4);
+  border-radius: 12px;
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  margin: 0.85rem 0 0.5rem;
+  background: #fafafa;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ae-dropzone.is-hover {
+  border-color: var(--ah-accent, #1a5c1d);
+  background: rgba(26, 92, 29, 0.06);
+}
+
+.ae-filelist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.ae-filelist li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--ah-line, #d4d4d4);
+  border-radius: 8px;
+  margin-bottom: 0.35rem;
+  background: #fff;
+}
+.ae-filelist__name {
+  flex: 1;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.9rem;
+  color: var(--ah-ink, #0a0a0a);
+  word-break: break-all;
+}
+.ae-filelist__size {
+  color: var(--ah-muted, #595959);
+  font-size: 0.82rem;
+}

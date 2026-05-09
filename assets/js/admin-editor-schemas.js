@@ -292,7 +292,60 @@
       '▶ Workflow: Instagram scraper',
       'instagram-scrape.yml'
     ),
+
+    // Image-only directories (no manifest, pure upload folder). Uploading
+    // here writes a file to the declared folder via Contents_API for ≤1MB
+    // images or Git_Data_API otherwise. Filename comes from the upload.
+    backgrounds: imageFolderSchema('backgrounds',     'Background images',         'assets/images/backgrounds/'),
+    featured:    imageFolderSchema('featured',        'Featured showcase images',  'assets/images/featured/'),
+    team:        imageFolderSchema('team',            'Team headshots',            'assets/images/team/'),
+    seedStitch:  imageFolderSchema('seedStitch',      'Seed Stitch photos',        'assets/images/seed-stitch/'),
+    ministryHighlights: imageFolderSchema('ministryHighlights', 'Ministry highlights', 'assets/images/ministry-highlights/'),
+    calendarTemplate:   imageFolderSchema('calendarTemplate',   'Calendar template graphics', 'assets/images/calendar-template/'),
+    ministryOutreachPhotos: imageFolderSchema('ministryOutreachPhotos', 'Outreach event photos', 'assets/images/ministry-outreach/', { allowSubfolderCreate: true, subfolderHint: 'e.g. slavic-awakening-may-2026' }),
+
+    videos: {
+      id: 'videos',
+      label: 'Videos',
+      category: 'media',
+      kind: 'video-upload',
+      folder: 'assets/videos/',
+      mimeWhitelist: ['video/mp4', 'video/webm', 'video/quicktime'],
+      maxBytes: 100 * 1024 * 1024, // 100 MB per blob (Req 6.9)
+      commitMessageTemplate: 'content(videos): add {filename}',
+    },
+
+    stwLogo: {
+      id: 'stwLogo',
+      label: 'Ministry logo (replace only)',
+      category: 'media',
+      kind: 'image-upload',
+      path: 'assets/images/stw-logo.jpg', // single-file schema, no folder listing
+      allowDelete: false, // Req 3.4
+      mimeWhitelist: ['image/jpeg', 'image/png', 'image/webp'],
+      commitMessageTemplate: 'content(logo): replace ministry logo',
+    },
   };
+
+  // Image-only folder schemas share a shape. Pure file-upload; the editor
+  // lists existing files in the folder (GET /contents/{folder}) and offers
+  // add/replace/delete actions per file.
+  function imageFolderSchema(id, label, folder, options) {
+    options = options || {};
+    return {
+      id: id,
+      label: label,
+      category: 'media',
+      kind: 'image-upload',
+      folder: folder,
+      allowSubfolderCreate: !!options.allowSubfolderCreate,
+      subfolderHint: options.subfolderHint || '',
+      allowDelete: options.allowDelete !== false,
+      mimeWhitelist: options.mimeWhitelist || ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+      maxBytes: options.maxBytes || (100 * 1024 * 1024), // Git Data API 100 MB cap
+      commitMessageTemplate: 'content(' + id + '): add {filename}',
+    };
+  }
 
   // Workflow-dispatch schemas are a distinct kind handled by the editor's
   // WorkflowDispatch view. They do NOT commit — they POST to the workflow
@@ -350,22 +403,11 @@
     };
   }
 
-  // Placeholders for content types scheduled for Phase C (JS-literal + Git
-  // Data API dependent). Each appears in the listing with a "(coming soon)"
-  // label so admins see what's planned without us wiring them up prematurely.
+  // Phase C placeholders (JS-literal-dependent only). The rest of Phase C
+  // is wired up in subsequent commits.
   const WIP_LABELS = {
     showcaseFallback:       'Homepage carousel — fallback slides (coming soon)',
     showcaseDaily:          'Homepage carousel — daily content (coming soon)',
-    backgrounds:            'Background images (coming soon)',
-    featured:               'Featured showcase images (coming soon)',
-    team:                   'Team headshots (coming soon)',
-    seedStitch:             'Seed Stitch photos (coming soon)',
-    ministryHighlights:     'Ministry highlights (coming soon)',
-    calendarTemplate:       'Calendar template graphics (coming soon)',
-    ministryOutreachPhotos: 'Outreach event photos (coming soon)',
-    videos:                 'Videos (coming soon)',
-    stwLogo:                'Ministry logo (coming soon)',
-    // Workflows — enabled below in Phase B as real entries.
   };
   for (const id of Object.keys(WIP_LABELS)) {
     SCHEMAS[id] = { id: id, label: WIP_LABELS[id], wip: true };

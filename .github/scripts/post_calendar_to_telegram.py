@@ -2,24 +2,33 @@
 Post Google Calendar events to our Telegram announcements chat.
 
 Schedule (wired up in .github/workflows/telegram-announcements.yml):
-  07:00 / 12:00 / 17:00 Pacific, every day except Sunday.
+  Every 15 minutes. Each run is idempotent — the dedup log prevents
+  re-posting anything that has already fired for a given trigger kind.
 
-Anti-spam logic:
-  * Each run fetches today's events plus tomorrow's (so 5 PM can tease
-    tomorrow's first thing).
-  * We post an event at most once per status transition. Status is one
-    of 'upcoming' (not started yet) or 'live' (started, not ended).
-    An event can post twice: once when it's upcoming, again when it
-    becomes live.
-  * The dedup log is at assets/data/telegram-announcement-log.json
-    and is committed back to the repo by the workflow.
-  * If there's nothing new to post, the script exits cleanly without
-    touching Telegram.
+Why so often: GitHub's free-tier scheduled actions can be delayed or
+silently skipped. A post that missed its slot used to wait until the
+next fixed-hour tick; with a 15-minute cadence, any single late or
+dropped tick is caught by the next one within 15 minutes. A brand-new
+event added to the calendar mid-day is picked up on the next tick.
 
-Formatting uses Telegram's MarkdownV2 so we can ship real *bold* and
-_italic_. The body is built to match the ministry's existing
-announcement template (banner line, venue line, address, description,
-closer).
+Anti-spam logic (redundancy without duplication):
+  * Three trigger kinds per event: 'upcoming' (first time seen),
+    'reminder' (≤ reminderMinutesBefore of start), 'live' (start has
+    passed, end has not).
+  * The dedup log assets/data/telegram-announcement-log.json tracks
+    which triggers have fired for each event. A trigger fires at most
+    once per event. That means an event can yield up to three posts
+    across its lifetime.
+  * Every run re-evaluates every non-past event against the three
+    triggers. If a previous tick missed its window (e.g. a 5-PM cron
+    was delayed past the reminder window), the next tick still posts
+    the reminder — as long as the reminder window hasn't fully passed.
+  * Quiet-hours guard: non-LIVE posts only fire between
+    quietHoursStart and quietHoursEnd (default 7 AM – 9 PM local).
+    LIVE events bypass the guard because events don't typically run
+    at 3 AM.
+  * skipDaysOfWeek still works (default: Sunday for upcoming/reminder;
+    LIVE events bypass since they're in-progress).
 
 Env vars:
   TELEGRAM_BOT_TOKEN   — bot token (GitHub Secret); only secret required
@@ -442,22 +451,30 @@ def main() -> int:
     now_local = now.astimezone(tz)
     weekday = now_local.strftime("%A")
 
-    skip_days = [d.strip() for d in cfg.get("skipDaysOfWeek", [])]
-    if weekday in skip_days:
-        log(f"Today is {weekday}; in skip list, exiting.")
-        return 0
-
     chat_id = cfg.get("chatId")
     if not chat_id:
         log("No chatId in bot config; exiting.")
         return 1
     thread_id = cfg.get("messageThreadId")
     lookahead = int(cfg.get("lookaheadDays", 1))
+    reminder_minutes = int(cfg.get("reminderMinutesBefore", 180))
 
-    # Window = now - 1h (for events that just started) through end of today+lookahead
-    time_min = now - timedelta(hours=1)
-    end_of_day = now_local.replace(hour=23, minute=59, second=59, microsecond=0)
-    time_max = (end_of_day + timedelta(days=lookahead)).astimezone(timezone.utc)
+    # Quiet-hours guard applies to non-LIVE posts only. Defaults to 7 AM –
+    # 9 PM local. LIVE events bypass (an event started 3 minutes ago is
+    # newsworthy regardless of what time "now" is).
+    quiet_start = int(cfg.get("quietHoursStart", 7))
+    quiet_end = int(cfg.get("quietHoursEnd", 21))
+    in_quiet_hours = not (quiet_start <= now_local.hour < quiet_end)
+
+    skip_days = [d.strip() for d in cfg.get("skipDaysOfWeek", [])]
+    day_skipped = weekday in skip_days
+
+    # Pull a wider time window than before so a single delayed run can
+    # catch up: events starting anywhere in the next `lookahead` days,
+    # plus anything that's live right now.
+    time_min = now - timedelta(hours=6)
+    end_of_lookahead = now_local.replace(hour=23, minute=59, second=59, microsecond=0)
+    time_max = (end_of_lookahead + timedelta(days=lookahead)).astimezone(timezone.utc)
 
     try:
         events = fetch_events(time_min, time_max)
@@ -466,10 +483,12 @@ def main() -> int:
         return 1
     log(f"Fetched {len(events)} events")
 
-    # Filter to today (in local tz) or live-right-now.
-    # Tomorrow's events aren't posted until tomorrow's 7 AM run, so we
-    # don't spam with "events 10+ hours from now".
-    todays: list[dict] = []
+    # Filter to events still in scope: everything currently live, plus
+    # anything starting today (local) or within the reminder_minutes
+    # window. This is broader than "today's events only" because an
+    # event created this morning with a start tomorrow at 8 AM should
+    # first-time-announce as upcoming on today's runs.
+    in_scope: list[dict] = []
     for ev in events:
         status = event_status(ev, now)
         if status == "past":
@@ -477,12 +496,18 @@ def main() -> int:
         start = parse_ev_start(ev)
         if not start:
             continue
-        if start.astimezone(tz).date() != now_local.date() and status != "live":
+        # Keep anything scheduled within the next `lookahead` days or
+        # currently live.
+        if status == "live":
+            in_scope.append(ev)
             continue
-        todays.append(ev)
+        start_local = start.astimezone(tz)
+        days_until = (start_local.date() - now_local.date()).days
+        if days_until <= lookahead:
+            in_scope.append(ev)
 
-    if not todays:
-        log("No events today; nothing to announce.")
+    if not in_scope:
+        log("No in-scope events; nothing to announce.")
         return 0
 
     # Load dedup log
@@ -490,9 +515,15 @@ def main() -> int:
     if "events" not in dedup:
         dedup["events"] = {}
 
+    # Select events needing a post this tick.
+    # Each event can fire three separate kinds in its lifetime:
+    #   - upcoming: first-time we see it, queue it
+    #   - reminder: within reminder_minutes of start, and that
+    #               reminder hasn't been posted yet
+    #   - live: start has passed, end has not, and that live post
+    #           hasn't been sent yet
     to_post: list[tuple[dict, str]] = []
-    reminder_minutes = int(cfg.get("reminderMinutesBefore", 180))
-    for ev in todays:
+    for ev in in_scope:
         ev_id = ev.get("id")
         if not ev_id:
             continue
@@ -506,27 +537,49 @@ def main() -> int:
             entry.setdefault("livePosted", True)
         current = event_status(ev, now)
         start = parse_ev_start(ev)
-        # First time seeing it as upcoming
-        if current == "upcoming" and not entry.get("upcomingPosted"):
-            to_post.append((ev, "upcoming"))
+
+        # LIVE: post once, the moment we first see it as live, even
+        # outside quiet hours and skip-days (the ministry has started,
+        # members want to know).
+        if current == "live" and not entry.get("livePosted"):
+            to_post.append((ev, "live"))
             continue
-        # Reminder: within reminder_minutes of start, haven't reminded yet
+
+        # Upcoming & reminder are gated by quiet hours + skip days.
+        if in_quiet_hours:
+            continue
+        if day_skipped:
+            continue
+
+        # Reminder: prefer it over "upcoming" when both would fire on the
+        # same tick (reminder has more urgency and the explicit timing).
         if current == "upcoming" and not entry.get("reminderPosted") and start:
             mins_to_start = (start - now).total_seconds() / 60.0
             if 0 <= mins_to_start <= reminder_minutes:
                 to_post.append((ev, "reminder"))
                 continue
-        # Live: just started, haven't posted live yet
-        if current == "live" and not entry.get("livePosted"):
-            to_post.append((ev, "live"))
+
+        # First-time upcoming post.
+        if current == "upcoming" and not entry.get("upcomingPosted"):
+            to_post.append((ev, "upcoming"))
 
     if not to_post:
         log("Everything relevant has already been announced; nothing to post.")
         return 0
 
-    slot = day_slot(tz, now)
-    headers = cfg.get("header", {})
-    header_line = headers.get(slot) or headers.get("morning") or "📅 Today"
+    # Pick header based on the dominant kind in this batch. If ANY post
+    # is live, the batch header is "live"; else if ANY is a reminder,
+    # it's "reminder"; else it's the time-of-day slot (morning/midday/
+    # evening) as before.
+    kinds = {kind for _, kind in to_post}
+    headers_cfg = cfg.get("header", {})
+    if "live" in kinds:
+        header_line = headers_cfg.get("evening") or "🔴 Live now at Seed the Word"
+    elif "reminder" in kinds:
+        header_line = headers_cfg.get("reminder") or "⏰ Starting soon"
+    else:
+        slot = day_slot(tz, now)
+        header_line = headers_cfg.get(slot) or headers_cfg.get("morning") or "📅 Today"
 
     log(f"Posting {len(to_post)} event(s) with header: {header_line}")
 

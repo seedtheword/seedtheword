@@ -9,6 +9,8 @@
     "skipDaysOfWeek": ["Sunday"],
     "lookaheadDays": 1,
     "reminderMinutesBefore": 180,
+    "quietHoursStart": 7,
+    "quietHoursEnd": 21,
     "header": {
       "morning":  "☀️ Today at Seed the Word",
       "midday":   "🌿 Still happening today",

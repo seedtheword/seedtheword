@@ -66,6 +66,37 @@
     return Buffer.from(b64, 'base64').toString('utf-8');
   }
 
+  // Binary bytes → base64. Uint8Array input in both environments.
+  function bytesToBase64(bytes) {
+    if (typeof Buffer !== 'undefined' && Buffer.from) {
+      return Buffer.from(bytes).toString('base64');
+    }
+    // Browser fallback: btoa + raw-byte string via String.fromCharCode chunks.
+    let binary = '';
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+  }
+
+  // Read a Blob/File into an ArrayBuffer. Uses FileReader in the browser,
+  // falls back to a tests-friendly .arrayBuffer() method on stub Blobs.
+  function readBlobAsArrayBuffer(blob) {
+    if (!blob) return Promise.resolve(new ArrayBuffer(0));
+    if (typeof blob.arrayBuffer === 'function') return blob.arrayBuffer();
+    return new Promise(function (resolve, reject) {
+      if (typeof FileReader === 'undefined') {
+        reject(new Error('no way to read Blob in this environment'));
+        return;
+      }
+      const fr = new FileReader();
+      fr.onload = function () { resolve(fr.result); };
+      fr.onerror = function () { reject(fr.error || new Error('blob read failed')); };
+      fr.readAsArrayBuffer(blob);
+    });
+  }
+
   // ── Create a client with injected deps ─────────────────────────────────
   function createClient(opts) {
     const _fetch = (opts && opts.fetch) ||
@@ -331,6 +362,199 @@
       throw makeError('RequestError', 'dispatch failed: ' + resp.status, { status: resp.status, message: respBody && respBody.message });
     }
 
+    // ── Git Data API — multi-file and large-file commits ──────────────────
+    //
+    // Commits > 1 MB single-file and > 1 file per commit cannot use the
+    // Contents_API path. The Git Data API flow is documented in design
+    // Section 7 as a six-step sequence:
+    //   1. POST /git/blobs      (per file, returns blob sha)
+    //   2. GET  /git/refs/heads/main          (current head sha)
+    //   3. GET  /git/commits/{headSha}        (tree sha of head commit)
+    //   4. POST /git/trees                    (new tree with base_tree + edits)
+    //   5. POST /git/commits                  (new commit with tree + parent)
+    //   6. PATCH /git/refs/heads/main         (fast-forward main to new commit)
+    //
+    // Step 6 rejection (422 "not a fast-forward") means another commit
+    // landed between steps 2 and 6. We surface that as a ConflictError
+    // with the same UX as the Contents_API conflict path.
+    //
+    // files: array of { path: string, content: Uint8Array | ArrayBuffer | string }
+    //   - binary content: pass Uint8Array / ArrayBuffer. Encoding: 'base64'.
+    //   - text content: pass a string. Encoding: 'utf-8'.
+    async function commitMultipleFiles(files, message) {
+      if (!Array.isArray(files) || files.length === 0) {
+        throw makeError('ValidationError', 'commitMultipleFiles: at least one file required');
+      }
+
+      // Step 1 — create a blob per file.
+      const blobs = [];
+      for (const file of files) {
+        const isBinary = file.content instanceof Uint8Array || file.content instanceof ArrayBuffer;
+        let payload;
+        let encoding;
+        if (isBinary) {
+          const bytes = file.content instanceof ArrayBuffer
+            ? new Uint8Array(file.content)
+            : file.content;
+          payload = bytesToBase64(bytes);
+          encoding = 'base64';
+        } else {
+          payload = b64encode(file.content);
+          encoding = 'base64';
+        }
+        const resp = await request(API_BASE + REPO_PATH + '/git/blobs', {
+          method: 'POST',
+          headers: headers({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ content: payload, encoding: encoding }),
+        });
+        const body = await safeJson(resp);
+        if (!resp.ok || !body || !body.sha) {
+          throw makeError('RequestError', 'blob create failed: ' + resp.status, {
+            status: resp.status,
+            message: body && body.message,
+          });
+        }
+        blobs.push({ path: file.path, sha: body.sha, mode: file.mode || '100644', type: 'blob' });
+      }
+
+      // Step 2 — current head.
+      const refResp = await request(API_BASE + REPO_PATH + '/git/refs/heads/main', {
+        method: 'GET',
+        headers: headers(),
+      });
+      const refBody = await safeJson(refResp);
+      if (!refResp.ok || !refBody || !refBody.object) {
+        throw makeError('RequestError', 'ref/heads/main fetch failed: ' + refResp.status, { status: refResp.status });
+      }
+      const headSha = refBody.object.sha;
+
+      // Step 3 — tree sha of head commit.
+      const commitResp = await request(API_BASE + REPO_PATH + '/git/commits/' + headSha, {
+        method: 'GET',
+        headers: headers(),
+      });
+      const commitBody = await safeJson(commitResp);
+      if (!commitResp.ok || !commitBody || !commitBody.tree) {
+        throw makeError('RequestError', 'head commit fetch failed: ' + commitResp.status, { status: commitResp.status });
+      }
+      const baseTreeSha = commitBody.tree.sha;
+
+      // Step 4 — new tree.
+      const treeResp = await request(API_BASE + REPO_PATH + '/git/trees', {
+        method: 'POST',
+        headers: headers({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ base_tree: baseTreeSha, tree: blobs }),
+      });
+      const treeBody = await safeJson(treeResp);
+      if (!treeResp.ok || !treeBody || !treeBody.sha) {
+        throw makeError('RequestError', 'tree create failed: ' + treeResp.status, {
+          status: treeResp.status,
+          message: treeBody && treeBody.message,
+        });
+      }
+      const newTreeSha = treeBody.sha;
+
+      // Step 5 — new commit.
+      const commitCreateResp = await request(API_BASE + REPO_PATH + '/git/commits', {
+        method: 'POST',
+        headers: headers({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          message: appendAuditSuffix(message),
+          tree: newTreeSha,
+          parents: [headSha],
+        }),
+      });
+      const commitCreateBody = await safeJson(commitCreateResp);
+      if (!commitCreateResp.ok || !commitCreateBody || !commitCreateBody.sha) {
+        throw makeError('RequestError', 'commit create failed: ' + commitCreateResp.status, {
+          status: commitCreateResp.status,
+          message: commitCreateBody && commitCreateBody.message,
+        });
+      }
+      const newCommitSha = commitCreateBody.sha;
+
+      // Step 6 — fast-forward main.
+      const refUpdateResp = await request(API_BASE + REPO_PATH + '/git/refs/heads/main', {
+        method: 'PATCH',
+        headers: headers({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ sha: newCommitSha, force: false }),
+      });
+      const refUpdateBody = await safeJson(refUpdateResp);
+      if (refUpdateResp.status === 422) {
+        const msg = (refUpdateBody && refUpdateBody.message) || 'not a fast-forward';
+        if (/fast-forward|does not match/i.test(msg)) {
+          throw makeError('ConflictError', msg, { status: 422, message: msg });
+        }
+        throw makeError('ValidationError', msg, { status: 422, message: msg });
+      }
+      if (!refUpdateResp.ok) {
+        throw makeError('RequestError', 'ref update failed: ' + refUpdateResp.status, {
+          status: refUpdateResp.status,
+          message: refUpdateBody && refUpdateBody.message,
+        });
+      }
+
+      return {
+        commit: {
+          sha: newCommitSha,
+          html_url: 'https://github.com/seedtheword/seedtheword/commit/' + newCommitSha,
+        },
+      };
+    }
+
+    // Upload a single binary blob (image/video). Routes to Contents_API for
+    // ≤1 MB images and to Git_Data_API for anything bigger OR any video.
+    async function uploadBinary(path, blob, options) {
+      options = options || {};
+      const mime = (blob && blob.type) || '';
+      const size = (blob && blob.size) || 0;
+      const isVideo = mime.indexOf('video/') === 0;
+      const useGitData = isVideo || size > 1024 * 1024 || options.forceGitData === true;
+
+      // Read bytes. ArrayBuffer → Uint8Array.
+      const buf = await readBlobAsArrayBuffer(blob);
+      const bytes = new Uint8Array(buf);
+
+      if (useGitData) {
+        return commitMultipleFiles([{ path: path, content: bytes }], options.message || 'content: upload');
+      }
+
+      // Contents_API path: PUT with base64 body.
+      return writeFileBinary(path, bytes, options);
+    }
+
+    // writeFile variant that takes raw bytes instead of a UTF-8 string. The
+    // existing writeFile() always UTF-8-encodes, which corrupts binary. This
+    // uses the same endpoint but with raw base64 payload.
+    async function writeFileBinary(path, bytes, options) {
+      options = options || {};
+      const url = API_BASE + REPO_PATH + '/contents/' + encodePath(path);
+      const body = {
+        message: appendAuditSuffix(options.message),
+        content: bytesToBase64(bytes),
+        branch: 'main',
+      };
+      if (options.sha) body.sha = options.sha;
+      const resp = await request(url, {
+        method: 'PUT',
+        headers: headers({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(body),
+      });
+      const respBody = await safeJson(resp);
+      if (resp.status === 409) throw makeError('ConflictError', 'File SHA does not match', { status: 409 });
+      if (resp.status === 422) {
+        const msg = (respBody && respBody.message) || '';
+        if (/does not match|sha|not a fast-forward/i.test(msg)) {
+          throw makeError('ConflictError', msg, { status: 422, message: msg });
+        }
+        throw makeError('ValidationError', msg || 'validation failed', { status: 422, message: msg });
+      }
+      if (resp.status === 401) throw makeError('AuthError', 'Unauthorized', { status: 401 });
+      if (resp.status === 403) throw makeError('ForbiddenError', (respBody && respBody.message) || 'Forbidden', { status: 403 });
+      if (!resp.ok) throw makeError('RequestError', 'PUT contents failed: ' + resp.status, { status: resp.status });
+      return respBody;
+    }
+
     // Fetch workflow metadata including declared workflow_dispatch inputs.
     // GitHub does NOT expose the inputs map directly on the workflow GET
     // endpoint — we have to pull the YAML file contents and parse the
@@ -353,6 +577,8 @@
       deleteFile: deleteFile,
       dispatchWorkflow: dispatchWorkflow,
       getWorkflowInputs: getWorkflowInputs,
+      uploadBinary: uploadBinary,
+      commitMultipleFiles: commitMultipleFiles,
       setPat: setPat,
       getPat: function () { return pat; },
       constants: CONSTANTS,

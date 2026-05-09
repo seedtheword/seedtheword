@@ -104,10 +104,15 @@
 
     review.appendChild(passages);
 
-    // Append the review AFTER the actions row so the card reads:
-    // header (pill + title), description, actions (Watch / Follow /
-    // Get Notified), THEN the review block at the bottom.
-    card.appendChild(review);
+    // Insert the review BEFORE the actions row so the card reads:
+    // header (pill + title), description, THEN the review block,
+    // THEN actions (Follow on Twitch / Get Notified) at the bottom.
+    const actions = card.querySelector('.livestream-card__actions');
+    if (actions && actions.parentNode === card) {
+      card.insertBefore(review, actions);
+    } else {
+      card.appendChild(review);
+    }
   }
 
   function pill(label, value) {

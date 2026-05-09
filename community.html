@@ -548,7 +548,7 @@
 <script src="assets/js/instagram-feed.js?v=2"></script>
 <script src="assets/js/telegram-stats.js?v=1"></script>
 <script src="assets/js/recommendations.js?v=1"></script>
-<script src="assets/js/study-saturday.js?v=4" defer></script>
+<script src="assets/js/study-saturday.js?v=5" defer></script>
 
 <style>
 /* Responsive fallback for community feeds grid */
@@ -633,11 +633,13 @@
 }
 
 /* Study Saturday review — sits INSIDE the .livestream-card that
-   twitch-integration.js renders. Styled as an integrated block (same
-   background, same border radius continuation) so the whole card reads
-   as one unit: TONIGHT pill + title + desc + review + action buttons. */
+   twitch-integration.js renders, BETWEEN the description and the
+   actions row. Styled as an integrated block (same background, same
+   border radius continuation) so the whole card reads as one unit:
+   TONIGHT pill + title + desc + review + action buttons. */
 .study-review {
   margin-top: 1rem;
+  margin-bottom: 1rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(44, 95, 46, 0.12);
 }

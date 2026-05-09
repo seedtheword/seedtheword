@@ -482,7 +482,12 @@
   // the site already expects.
   function normalizeFormForCommit(schemaId, form) {
     if (!form) return form;
-    if (schemaId !== 'recommendations') return form;
+    if (schemaId !== 'recommendations') {
+      // Every other Phase B schema writes the form shape as-is. The `_help`
+      // key on each file is preserved because it's part of form (it was
+      // parsed in at readFile and never touched by the form UI).
+      return form;
+    }
     const s = window.AdminEditor.schemas;
     const out = { listening: [], partners: Array.isArray(form.partners) ? form.partners.slice() : [] };
     const listening = Array.isArray(form.listening) ? form.listening : [];
@@ -596,6 +601,37 @@
 
   // ── Form rendering ──────────────────────────────────────────────────────
   function renderForm(container, schema, form, onChange) {
+    // rawJson schemas — skip the schema-driven form, show a single textarea
+    // of formatted JSON. Live validation via JSON.parse; on commit the raw
+    // textarea content is what gets written. Used for schemas whose shape
+    // is too heterogeneous (or too configuration-heavy) to warrant a full
+    // structured form in v1.
+    if (schema.rawJson) {
+      const wrap = el('div', { className: 'ae-field ae-field--rawjson' });
+      wrap.appendChild(el('span', { className: 'ae-field__label', text: 'JSON content (edit directly)' }));
+      const ta = el('textarea', { attrs: { rows: '24', spellcheck: 'false' } });
+      ta.value = JSON.stringify(form, null, 2);
+      ta.style.fontFamily = 'SFMono-Regular, Consolas, monospace';
+      ta.style.fontSize = '0.9rem';
+      ta.addEventListener('input', () => {
+        try {
+          const parsed = JSON.parse(ta.value);
+          // Replace the in-memory form wholesale — the editor's draft autosave
+          // and commit path both re-read editor.form.
+          editor.form = parsed;
+          wrap.classList.remove('ae-field--invalid');
+          onChange();
+        } catch (err) {
+          // Invalid JSON — mark the field, keep the LAST valid form state.
+          wrap.classList.add('ae-field--invalid');
+        }
+      });
+      wrap.appendChild(ta);
+      wrap.appendChild(el('span', { className: 'ae-hint', text: 'Changes are saved locally as you type; commit validates and writes to GitHub.' }));
+      container.appendChild(wrap);
+      return;
+    }
+
     const groups = schema.groups || [];
     for (const group of groups) {
       const block = el('fieldset', { className: 'ae-group' });

@@ -133,21 +133,192 @@
       },
       legacyCopyPaste: true,
     },
+
+    dailyVerses: {
+      id: 'dailyVerses',
+      label: 'Daily verses rotation',
+      category: 'content',
+      kind: 'json',
+      path: 'assets/data/daily-verses.json',
+      rootType: 'object',
+      groups: [
+        {
+          name: 'verses',
+          label: 'Verses',
+          kind: 'repeating-group',
+          fields: [
+            { name: 'text', label: 'Verse text', kind: 'textarea', required: true },
+            { name: 'ref', label: 'Reference (e.g. "John 3:16")', kind: 'text', required: true },
+            { name: 'version', label: 'Translation (KJV, ESV, NIV, ...)', kind: 'text', required: false },
+          ],
+          addLabel: '+ Add verse',
+        },
+      ],
+      validate: function (data) {
+        if (!data || typeof data !== 'object') return 'Root must be an object.';
+        if (!Array.isArray(data.verses)) return 'verses must be an array.';
+        return null;
+      },
+      commitMessageTemplate: 'content(verses): update {summary}',
+      tokens: function (form) {
+        const v = (form && form.verses) || [];
+        if (v.length) {
+          const last = v[v.length - 1];
+          if (last && last.ref) return { summary: 'add ' + last.ref };
+        }
+        return { summary: 'verses update' };
+      },
+    },
+
+    ministryOutreachCards: {
+      id: 'ministryOutreachCards',
+      label: 'Ministry outreach events (cards on news.html)',
+      category: 'content',
+      kind: 'json',
+      path: 'assets/data/ministry-outreach.json',
+      rootType: 'object',
+      groups: [
+        {
+          name: 'events',
+          label: 'Events (newest first)',
+          kind: 'repeating-group',
+          fields: [
+            { name: 'folder', label: 'Folder slug', kind: 'text', required: true,
+              hint: 'Matches a folder under assets/images/ministry-outreach/. Use kebab-case, e.g. "slavic-awakening-may-2026".',
+              validate: (v) => /^[a-z0-9][a-z0-9\-]*$/.test(v) ? null : 'Use lowercase letters, numbers, and dashes only.' },
+            { name: 'title', label: 'Title', kind: 'text', required: true },
+            { name: 'date', label: 'Date (human-readable, e.g. "May 2, 2026")', kind: 'text', required: true },
+            { name: 'location', label: 'Location', kind: 'text', required: true },
+            { name: 'body', label: 'Body / description', kind: 'textarea', required: true },
+            { name: 'testimony', label: 'Testimony (optional)', kind: 'textarea' },
+          ],
+          addLabel: '+ Add event',
+        },
+      ],
+      validate: function (data) {
+        if (!data || typeof data !== 'object') return 'Root must be an object.';
+        if (!Array.isArray(data.events)) return 'events must be an array.';
+        return null;
+      },
+      commitMessageTemplate: 'content(outreach): update {summary}',
+      tokens: function (form) {
+        const e = (form && form.events) || [];
+        if (e.length) {
+          const last = e[e.length - 1];
+          if (last && last.title) return { summary: 'add ' + last.title };
+        }
+        return { summary: 'outreach update' };
+      },
+    },
+
+    mediaDrop: {
+      id: 'mediaDrop',
+      label: 'Media-drop upload button config',
+      category: 'content',
+      kind: 'json',
+      path: 'assets/data/media-drop.json',
+      rootType: 'object',
+      groups: [
+        {
+          name: 'root',
+          label: 'Configuration',
+          fields: [
+            { name: 'enabled', label: 'Show button on news.html', kind: 'toggle' },
+            { name: 'formUrl', label: 'Google Form URL (recommended)', kind: 'url',
+              hint: 'Paste the Google Form "Send" URL here. Leave blank to use uploadUrl instead.' },
+            { name: 'uploadUrl', label: 'Fallback: shared folder upload URL', kind: 'url',
+              hint: 'Used only if formUrl is blank.' },
+            { name: 'adminReviewUrl', label: 'Admin review folder URL', kind: 'url',
+              hint: 'Where submissions land for review (not shown on the public site).' },
+          ],
+        },
+      ],
+      validate: function (data) {
+        if (!data || typeof data !== 'object') return 'Root must be an object.';
+        return null;
+      },
+      commitMessageTemplate: 'content(media-drop): update config',
+    },
+
+    telegramBot: {
+      id: 'telegramBot',
+      label: 'Telegram bot config (announcements / bible / prayer)',
+      category: 'content',
+      kind: 'json',
+      path: 'assets/data/telegram-bot.json',
+      rootType: 'object',
+      // This file has a nested shape with 3 bot configs. Render as JSON-only for v1
+      // (no structured form); admins can still edit the formatted JSON and get
+      // validation + diff. A fully-structured schema is a Phase B+ refinement.
+      rawJson: true,
+      commitMessageTemplate: 'content(telegram-bot): update config',
+    },
+
+    bibleSpotifyMap: {
+      id: 'bibleSpotifyMap',
+      label: 'Bible → Spotify chapter map',
+      category: 'content',
+      kind: 'json',
+      path: 'assets/data/bible-spotify-map.json',
+      rootType: 'object',
+      // Like telegramBot, this has a flat object of arbitrary chapter keys;
+      // admins will mostly want to add/edit key-value pairs, which JSON-only
+      // mode handles fine while structured schema work is deferred.
+      rawJson: true,
+      commitMessageTemplate: 'content(bible-spotify): update map',
+    },
+
+    bundleEssentials: bundleSchema('bundleEssentials', 'Bundle: Essentials slideshow', 'essentials'),
+    bundleLifegroup: bundleSchema('bundleLifegroup', 'Bundle: Life Group slideshow', 'lifegroup'),
+    bundleMinistry:  bundleSchema('bundleMinistry',  'Bundle: Ministry slideshow',  'ministry'),
   };
 
-  // Placeholders for content types scheduled for Phases B and C. They appear
-  // in the listing with a "(coming soon)" label so admins know what's planned
-  // without us wiring them up prematurely. Each gets `wip: true` so the
-  // content picker filters them out until their full schema ships.
+  // Bundle slideshow schemas share the same shape — three copies pointed at
+  // three folders. The factory keeps them in lockstep.
+  function bundleSchema(id, label, folderKey) {
+    return {
+      id: id,
+      label: label,
+      category: 'bundles',
+      kind: 'json',
+      path: 'assets/images/bundles/' + folderKey + '/images.json',
+      rootType: 'object',
+      groups: [
+        {
+          name: 'images',
+          label: 'Slideshow images',
+          kind: 'repeating-group',
+          fields: [
+            { name: 'file', label: 'Filename', kind: 'text', required: true,
+              hint: 'Matches a real file in assets/images/bundles/' + folderKey + '/, e.g. "03-new-photo.jpg".',
+              validate: (v) => /^[\w\-]+\.(jpg|jpeg|png|webp|gif)$/i.test(v) ? null : 'Filename must be e.g. "03-new.jpg" with no spaces.' },
+            { name: 'caption', label: 'Caption', kind: 'text', required: true,
+              hint: 'Short description shown with the image.' },
+          ],
+          addLabel: '+ Add image',
+        },
+      ],
+      validate: function (data) {
+        if (!data || typeof data !== 'object') return 'Root must be an object.';
+        if (!Array.isArray(data.images)) return 'images must be an array.';
+        return null;
+      },
+      commitMessageTemplate: 'content(bundle-' + folderKey + '): update {summary}',
+      tokens: function (form) {
+        const imgs = (form && form.images) || [];
+        if (imgs.length) {
+          const last = imgs[imgs.length - 1];
+          if (last && last.file) return { summary: 'add ' + last.file };
+        }
+        return { summary: folderKey + ' slideshow update' };
+      },
+    };
+  }
+
+  // Placeholders for content types scheduled for Phase C (JS-literal + Git
+  // Data API dependent). Each appears in the listing with a "(coming soon)"
+  // label so admins see what's planned without us wiring them up prematurely.
   const WIP_LABELS = {
-    dailyVerses:            'Daily verses (coming soon)',
-    ministryOutreachCards:  'Ministry outreach cards (coming soon)',
-    mediaDrop:              'Media-drop config (coming soon)',
-    telegramBot:            'Telegram bot config (coming soon)',
-    bibleSpotifyMap:        'Bible → Spotify chapter map (coming soon)',
-    bundleEssentials:       'Bundle: Essentials (coming soon)',
-    bundleLifegroup:        'Bundle: Life Group (coming soon)',
-    bundleMinistry:         'Bundle: Ministry (coming soon)',
     showcaseFallback:       'Homepage carousel — fallback slides (coming soon)',
     showcaseDaily:          'Homepage carousel — daily content (coming soon)',
     backgrounds:            'Background images (coming soon)',
@@ -159,11 +330,7 @@
     ministryOutreachPhotos: 'Outreach event photos (coming soon)',
     videos:                 'Videos (coming soon)',
     stwLogo:                'Ministry logo (coming soon)',
-    // Workflows (Phase B)
-    wfTelegramAnnouncements: 'Workflow: Telegram announcements (coming soon)',
-    wfDailyBible:            'Workflow: Daily Bible (coming soon)',
-    wfDailyPrayerNudge:      'Workflow: Daily prayer nudge (coming soon)',
-    wfInstagramScrape:       'Workflow: Instagram scraper (coming soon)',
+    // Workflows — enabled below in Phase B as real entries.
   };
   for (const id of Object.keys(WIP_LABELS)) {
     SCHEMAS[id] = { id: id, label: WIP_LABELS[id], wip: true };

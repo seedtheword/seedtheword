@@ -718,6 +718,83 @@
         updateAll();
       });
     }
+
+    // ── Shadow-period "Commit to GitHub" handoff ────────────────────────
+    // While the new editor is in its two-week shadow period, the builder
+    // keeps its Copy button AND gets a new primary button that hands the
+    // current entry off to the editor (which commits to GitHub directly).
+    // Req 15 AC 2.
+    wireCommitHandoff();
+
+    function wireCommitHandoff() {
+      // Avoid double-wiring on re-renders.
+      if (copyBtn.parentNode && copyBtn.parentNode.querySelector('.reco-builder__btn--commit')) return;
+
+      const commitBtn = document.createElement('button');
+      commitBtn.type = 'button';
+      commitBtn.className = 'reco-builder__btn reco-builder__btn--primary reco-builder__btn--commit';
+      commitBtn.textContent = '🚀 Commit to GitHub';
+      commitBtn.title = 'Send this entry to the new Editor to commit straight to GitHub (preview first).';
+      // Insert as the new primary action, leaving Copy as a secondary fallback.
+      copyBtn.classList.remove('reco-builder__btn--primary');
+      copyBtn.classList.add('reco-builder__btn--secondary');
+      copyBtn.parentNode.insertBefore(commitBtn, copyBtn);
+
+      commitBtn.addEventListener('click', () => {
+        const obj = buildObject();
+        const state = readiness(obj);
+        if (state !== 'ready') {
+          if (statusEl) {
+            statusEl.textContent = state === 'needs-url'
+              ? '⚠️ Paste a URL first.'
+              : '⚠️ Fill the required fields first.';
+            setTimeout(() => { statusEl.textContent = ''; }, 2500);
+          }
+          return;
+        }
+        if (!window.AdminEditor || typeof window.AdminEditor.openRecommendationsWith !== 'function') {
+          if (statusEl) {
+            statusEl.textContent = '⚠️ Editor not loaded. Hard-refresh the page and try again.';
+            setTimeout(() => { statusEl.textContent = ''; }, 3500);
+          }
+          return;
+        }
+        // Partner entries go into partners[], everything else into listening[].
+        // The legacy builder's obj shape for partner is { name, url, logo?, description? };
+        // the editor's schema expects the same. For listening entries, we pass the
+        // shape the new schema stores (kind + url + title + ...), NOT the auto-
+        // extracted-id shape the old builder emitted — the new editor does its own
+        // id extraction via the schemas helpers.
+        const prefill = (recoKind === 'partner')
+          ? { _bucket: 'partners', name: obj.name, url: obj.url, logo: obj.logo, description: obj.description }
+          : { _bucket: 'listening', kind: recoKind, url: buildListeningUrl(obj, recoKind), title: obj.title, source: obj.source, note: obj.note, image: obj.image };
+
+        // Clean undefined.
+        Object.keys(prefill).forEach((k) => { if (prefill[k] === undefined) delete prefill[k]; });
+
+        // Jump to the Editor tab and hand off.
+        const editorTab = document.querySelector('.admin-tab[data-cat="editor"]');
+        if (editorTab) editorTab.click();
+        window.AdminEditor.openRecommendationsWith(prefill);
+
+        if (statusEl) {
+          statusEl.textContent = '➡️ Opened in Editor — review and commit.';
+          setTimeout(() => { statusEl.textContent = ''; }, 2500);
+        }
+      });
+    }
+
+    function buildListeningUrl(obj, kind) {
+      // The legacy builder stores the original URL as the admin typed it in
+      // a separate form field; `fieldsEl` still has the live inputs.
+      const urlInput = fieldsEl.querySelector('[data-name="url"]');
+      if (urlInput && urlInput.value) return urlInput.value.trim();
+      // Fallback: reconstruct a Spotify URL from obj if the input has been
+      // reset by the time we got here.
+      if (kind === 'spotify' && obj.id) return 'https://open.spotify.com/' + obj.type + '/' + obj.id;
+      if (kind === 'youtube' && obj.id) return 'https://www.youtube.com/watch?v=' + obj.id;
+      return obj.url || '';
+    }
     renderFields();
   }
 

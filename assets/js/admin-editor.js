@@ -92,7 +92,7 @@
     if (editor.dryRun) {
       const banner = el('div', { className: 'ae-banner ae-banner--dry' });
       banner.textContent = '🧪 DRY RUN — edits log to the console and never touch GitHub. ' +
-        'Turn off by running `localStorage.removeItem("stwm-admin-editor-dry-run")` in devtools and reloading.';
+        'Toggle off with the button at the top of the content picker.';
       editor.root.appendChild(banner);
     }
     const view = {
@@ -109,6 +109,11 @@
       'conflict': renderConflict,
     }[editor.state] || renderIdle;
     view();
+    // If a legacy-builder handoff is waiting and we just landed on the content
+    // picker, apply it now.
+    if (editor.state === 'content-picker' && editor.pendingPrefill) {
+      applyPendingPrefillAndOpen();
+    }
   }
 
   function renderIdle() {
@@ -265,6 +270,24 @@
     const head = el('div', { className: 'ae-head' });
     const who = editor.patMeta && editor.patMeta.login ? editor.patMeta.login : 'connected';
     head.appendChild(el('p', { className: 'ae-muted', text: '👋 Connected as @' + who }));
+
+    const headActions = el('div', { className: 'ae-row' });
+    // Friendly dry-run toggle — no devtools required.
+    const dryToggle = el('button', {
+      className: 'ae-btn ae-btn--ghost',
+      text: editor.dryRun ? '🧪 Dry-run ON — click to turn off' : '🧪 Dry-run OFF — click to turn on',
+      attrs: { type: 'button', title: 'Dry-run: commits are simulated only. Toggle via localStorage "stwm-admin-editor-dry-run".' },
+    });
+    dryToggle.addEventListener('click', () => {
+      if (editor.dryRun) {
+        localStorage.removeItem(DRY_RUN_KEY);
+      } else {
+        localStorage.setItem(DRY_RUN_KEY, 'true');
+      }
+      location.reload();
+    });
+    headActions.appendChild(dryToggle);
+
     const logout = el('button', { className: 'ae-btn ae-btn--ghost', text: 'Disconnect', attrs: { type: 'button' } });
     logout.addEventListener('click', () => {
       if (!confirm('Disconnect and clear your PAT from this device?')) return;
@@ -274,7 +297,8 @@
       editor.patMeta = null;
       goto('pat-onboarding');
     });
-    head.appendChild(logout);
+    headActions.appendChild(logout);
+    head.appendChild(headActions);
     box.appendChild(head);
 
     // Rotation warning
@@ -816,7 +840,49 @@
     editor.root.appendChild(box);
   }
 
-  // ── Dry-run client ──────────────────────────────────────────────────────
+  // Public programmatic entry — the shadow-period "Commit to GitHub" button in
+  // the legacy Recommendations builder calls this with a prefilled listening
+  // entry. Ensures the editor is mounted, switches to the recommendations
+  // schema, reads the file, appends the prefilled entry as a new draft row,
+  // and jumps the admin to the Editing view so they can review & commit.
+  async function openRecommendationsWith(prefill) {
+    if (!editor.root) {
+      // Try to find the mount point ourselves so the caller doesn't have to.
+      const root = document.getElementById('admin-editor-root');
+      const shell = document.getElementById('admin-editor-shell');
+      if (!root) {
+        console.warn('[admin-editor] openRecommendationsWith: no #admin-editor-root present.');
+        return;
+      }
+      if (shell) { shell.hidden = false; shell.setAttribute('aria-hidden', 'false'); }
+      mount(root);
+    }
+    // If the user hasn't set up a PAT yet (or dry-run is off), we still want
+    // to walk them through onboarding — but remember the prefill so we can
+    // apply it as soon as they land on the content picker.
+    editor.pendingPrefill = prefill;
+    // If we are already authenticated / dry-run, go straight in.
+    if (editor.state === 'content-picker') {
+      applyPendingPrefillAndOpen();
+    }
+    // If we're still validating, the prefill will be applied when we land on
+    // content-picker (see render() after a state change).
+  }
+
+  function applyPendingPrefillAndOpen() {
+    const prefill = editor.pendingPrefill;
+    if (!prefill) return;
+    editor.pendingPrefill = null;
+    const bucket = (prefill && prefill._bucket === 'partners') ? 'partners' : 'listening';
+    const clean = Object.assign({}, prefill);
+    delete clean._bucket;
+    openContent('recommendations').then(() => {
+      if (editor.state !== 'editing' || !editor.form) return;
+      if (!Array.isArray(editor.form[bucket])) editor.form[bucket] = [];
+      editor.form[bucket].push(clean);
+      render();
+    });
+  }
   function makeDryRunClient() {
     console.info('[admin-editor] DRY RUN active — GitHub writes are logged, not executed.');
     async function fake(op, args) {
@@ -859,11 +925,12 @@
   }
 
   // ── Public API ──────────────────────────────────────────────────────────
-  const api = { mount: mount };
+  const api = { mount: mount, openRecommendationsWith: openRecommendationsWith };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;
   } else {
     global.AdminEditor = global.AdminEditor || {};
     global.AdminEditor.mount = mount;
+    global.AdminEditor.openRecommendationsWith = openRecommendationsWith;
   }
 })(typeof window !== 'undefined' ? window : globalThis);

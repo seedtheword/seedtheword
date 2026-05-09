@@ -381,93 +381,42 @@
       Worship nights, Bible studies, and behind-the-scenes moments from our team.
     </p>
 
-    <!-- Ministry Highlights grid (unchanged from before) -->
+    <!-- Ministry Highlights grid — reduced to 3 focused tiles:
+         Worship/Prayer, Encountering the Word, and a "See More Behind the
+         Scenes" card that opens archive links. A dedicated behind-the-scenes
+         Instagram link will replace the generic IG archive link later. -->
     <div class="highlight-grid">
-      <!-- 1: video -->
-      <article class="highlight-tile highlight-tile--video">
-        <video controls poster="assets/images/ministry-highlights/bible-ministry-1.jpg">
-          <source src="assets/videos/bible-flip.mp4" type="video/mp4">
-        </video>
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">▶ Video</span>
-          <h3 class="highlight-tile__title">Bible Study Sessions</h3>
-        </div>
-      </article>
-
-      <!-- 2: video -->
-      <article class="highlight-tile highlight-tile--video">
-        <video controls poster="assets/images/ministry-highlights/stw-ministry-team.jpg">
-          <source src="assets/videos/ministry-clip.mp4" type="video/mp4">
-        </video>
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">▶ Video</span>
-          <h3 class="highlight-tile__title">Ministry Highlights</h3>
-        </div>
-      </article>
-
-      <!-- 3: photo -->
-      <article class="highlight-tile highlight-tile--photo" style="background-image:url('assets/images/ministry-highlights/bible-ministry-1.jpg')">
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">Bible Ministry in Action</h3>
-        </div>
-      </article>
-
-      <!-- 4: photo -->
-      <article class="highlight-tile highlight-tile--photo" style="background-image:url('assets/images/ministry-highlights/bible-ministry-gift-zander.jpg')">
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">A Bible for Zander</h3>
-        </div>
-      </article>
-
-      <!-- 5: video -->
-      <article class="highlight-tile highlight-tile--video">
-        <video controls poster="assets/images/ministry-highlights/stw-bibles-giveaway.jpg">
-          <source src="assets/videos/pack-ship.mp4" type="video/mp4">
-        </video>
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">▶ Video</span>
-          <h3 class="highlight-tile__title">Pack &amp; Ship</h3>
-        </div>
-      </article>
-
-      <!-- 6: photo -->
-      <article class="highlight-tile highlight-tile--photo" style="background-image:url('assets/images/ministry-highlights/stw-bibles-giveaway.jpg')">
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">Bibles Giveaway</h3>
-        </div>
-      </article>
-
-      <!-- 7: video -->
+      <!-- 1: Worship / Prayer -->
       <article class="highlight-tile highlight-tile--video">
         <video controls poster="assets/images/ministry-highlights/seed-the-word.jpg">
           <source src="assets/videos/worship-composing.mp4" type="video/mp4">
         </video>
         <div class="highlight-tile__overlay">
           <span class="highlight-tile__type">▶ Video</span>
-          <h3 class="highlight-tile__title">Worship &amp; Music</h3>
+          <h3 class="highlight-tile__title">Worship / Prayer</h3>
         </div>
       </article>
 
-      <!-- 8: photo -->
-      <article class="highlight-tile highlight-tile--photo" style="background-image:url('assets/images/ministry-highlights/stw-ministry-team.jpg')">
+      <!-- 2: Encountering the Word -->
+      <article class="highlight-tile highlight-tile--video">
+        <video controls poster="assets/images/ministry-highlights/bible-ministry-1.jpg">
+          <source src="assets/videos/bible-flip.mp4" type="video/mp4">
+        </video>
         <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">Our Ministry Team</h3>
+          <span class="highlight-tile__type">▶ Video</span>
+          <h3 class="highlight-tile__title">Encountering the Word</h3>
         </div>
       </article>
 
-      <!-- 9: See more archive card -->
+      <!-- 3: See More Behind the Scenes archive card -->
       <article class="highlight-tile highlight-tile--more" tabindex="0" role="button"
-               aria-label="See more ministry content on our social channels"
+               aria-label="See more behind-the-scenes content on our social channels"
                onclick="this.classList.toggle('open')"
                onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.classList.toggle('open')}">
         <div class="highlight-more">
           <div class="highlight-more__default">
             <span class="highlight-more__icon" aria-hidden="true">＋</span>
-            <h3 class="highlight-more__title">See More</h3>
+            <h3 class="highlight-more__title">See More Behind the Scenes</h3>
             <p class="highlight-more__desc">View our full archive of photos, videos, and audio.</p>
           </div>
           <div class="highlight-more__choices">

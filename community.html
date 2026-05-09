@@ -87,39 +87,47 @@
     <div class="ministry-feed-grid">
       <!-- Recorded / Spotify side -->
       <div class="ministry-feed-card">
-        <div class="ministry-feed-card__eyebrow">🎧 Recorded &amp; on-demand</div>
-        <div class="podcast-embed">
-          <iframe
-            title="Seed the Word Ministry podcast"
-            src="https://open.spotify.com/embed/show/2rK4fCJuHWp8ji7Cj66EXK?utm_source=generator&theme=0"
-            width="100%"
-            height="352"
-            frameborder="0"
-            allowfullscreen=""
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"></iframe>
-          <p class="podcast-embed__foot">
-            <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener">
-              Open in Spotify →
-            </a>
-          </p>
+        <div class="ministry-feed-card__header">
+          <span class="ministry-feed-card__eyebrow">🎧 Recorded &amp; on-demand</span>
+          <span class="ministry-feed-card__title">Past teachings on Spotify</span>
+        </div>
+        <div class="ministry-feed-card__body">
+          <div class="podcast-embed">
+            <iframe
+              title="Seed the Word Ministry podcast"
+              src="https://open.spotify.com/embed/show/2rK4fCJuHWp8ji7Cj66EXK?utm_source=generator&theme=0"
+              width="100%"
+              height="352"
+              frameborder="0"
+              allowfullscreen=""
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"></iframe>
+            <p class="podcast-embed__foot">
+              <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener">
+                Open in Spotify →
+              </a>
+            </p>
+          </div>
         </div>
       </div>
 
       <!-- Study Saturday (Livestream) — the live companion to the Spotify feed.
-           The livestream card renders itself into #livestream-card-container.
-           Above it, we show an inspirational "This week we're studying"
-           pullquote (styled as a quiet callout, not a loud banner). -->
+           Pullquote sits INSIDE the card, visually above the livestream block,
+           so both columns share the same header height and the bodies
+           bottom-align on desktop. -->
       <div class="ministry-feed-card">
-        <div class="ministry-feed-card__eyebrow">📺 Study Saturday (Livestream)</div>
-
-        <div class="study-pullquote" id="study-saturday-topic" hidden>
-          <span class="study-pullquote__eyebrow" aria-hidden="true">✦ this week we're studying ✦</span>
-          <div class="study-pullquote__passages" id="study-saturday-passages"></div>
-          <p class="study-pullquote__note" id="study-saturday-note" hidden></p>
+        <div class="ministry-feed-card__header">
+          <span class="ministry-feed-card__eyebrow">📺 Study Saturday (Livestream)</span>
+          <span class="ministry-feed-card__title">Join us live Saturdays</span>
         </div>
-
-        <div id="livestream-card-container"></div>
+        <div class="ministry-feed-card__body">
+          <div class="study-pullquote" id="study-saturday-topic" hidden>
+            <span class="study-pullquote__eyebrow" aria-hidden="true">✦ this week we're studying ✦</span>
+            <div class="study-pullquote__passages" id="study-saturday-passages"></div>
+            <p class="study-pullquote__note" id="study-saturday-note" hidden></p>
+          </div>
+          <div id="livestream-card-container"></div>
+        </div>
       </div>
     </div>
 
@@ -133,12 +141,11 @@
   </div>
 </section>
 
-<!-- 3. Friends in Jesus — no subtitle prose, just the heading with a playful
-     "check this out" eyebrow so it reads as a continuation of Our Ministry
-     Feed rather than its own big section. -->
+<!-- 3. Friends in Jesus — a quiet continuation of Our Ministry Feed.
+     No eyebrow pill, no description paragraph. Just the heading and
+     its two sub-sections, centered. -->
 <section class="section section--light featured-elsewhere" id="friends-in-jesus" style="padding: 3.5rem 0;">
   <div class="container">
-    <div class="featured-elsewhere__eyebrow featured-elsewhere__eyebrow--fun">👀 Check this out</div>
     <h2 class="section-title">✨ Friends in Jesus</h2>
 
     <div class="featured-elsewhere__sub">
@@ -210,12 +217,6 @@
 
     <!-- Discussion quick-start cards — pre-filled Telegram deep links -->
     <div class="stay-sub">
-      <h3 class="stay-sub__title">💬 Start a conversation</h3>
-      <p class="stay-sub__desc">
-        Tap a card to open Telegram with your message already started. Our global
-        community is most active here — reading, praying, and growing together.
-      </p>
-
       <div class="discussion">
         <div class="discussion__stats" id="telegram-stats" aria-live="polite">
           <div class="discussion__stat">
@@ -581,13 +582,17 @@
 }
 .bible-day-card__spotify--fallback { opacity: 0.72; }
 
-/* Ministry Feed two-card grid: Spotify (recorded) + Study Saturday (live) */
+/* Ministry Feed two-card grid: Spotify (recorded) + Study Saturday (live).
+   Both cards share the same header row at the top so the eyebrows line up;
+   the body fills the rest of the available card height so the Spotify embed
+   (fixed 352px) and the livestream block bottom-align on desktop. */
 .ministry-feed-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1.75rem;
   align-items: stretch;
-  margin-bottom: 1.5rem;
+  margin: 0 auto 1.5rem;
+  max-width: 960px;
 }
 @media (max-width: 900px) {
   .ministry-feed-grid { grid-template-columns: 1fr; }
@@ -595,7 +600,16 @@
 .ministry-feed-card {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  min-width: 0;
+}
+.ministry-feed-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(44, 95, 46, 0.12);
+  margin-bottom: 1rem;
+  min-height: 3.5rem;
 }
 .ministry-feed-card__eyebrow {
   font-size: 0.78rem;
@@ -604,10 +618,22 @@
   text-transform: uppercase;
   color: var(--accent, #2C5F2E);
 }
+.ministry-feed-card__title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text, #0a0a0a);
+  line-height: 1.4;
+}
+.ministry-feed-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
 /* Study-Saturday "this week we're studying" inspirational pullquote.
-   Sits INSIDE the Ministry Feed card above the livestream card, styled
-   as a gentle scripted callout rather than a loud banner. */
+   Sits INSIDE the right card above the livestream block, styled as a
+   gentle scripted callout. */
 .study-pullquote {
   position: relative;
   text-align: center;
@@ -664,18 +690,28 @@
   line-height: 1.6;
 }
 
-/* Friends in Jesus fun eyebrow */
-.featured-elsewhere__eyebrow--fun {
-  display: inline-block;
-  padding: 0.35rem 0.85rem;
-  background: linear-gradient(135deg, #fff5cc 0%, #ffe8a3 100%);
-  border: 1px solid rgba(212, 175, 55, 0.5);
-  border-radius: 999px;
-  color: #7a5a10;
-  font-weight: 700;
-  font-size: 0.82rem;
-  transform: rotate(-1deg);
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+/* Friends in Jesus centering fix — the .featured-elsewhere container
+   in main.css aligns its children to the start. Override locally so
+   the section title, subheaders, and listening/partners children sit
+   centered consistent with every other section. */
+.featured-elsewhere .container {
+  text-align: center;
+}
+.featured-elsewhere .featured-elsewhere__sub {
+  text-align: center;
+}
+.featured-elsewhere__subtitle {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* Children that themselves render a grid should still align normally;
+   reset inner text-align on the grids so card content sits left as
+   designed. */
+.featured-elsewhere #listening-container,
+.featured-elsewhere #partners-container,
+.featured-elsewhere .friend-message {
+  text-align: left;
 }
 
 /* Small single-paragraph "Inspired to share" CTA */

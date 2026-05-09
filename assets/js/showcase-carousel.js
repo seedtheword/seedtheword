@@ -1,10 +1,17 @@
 /* ============================================================
-   Showcase Carousel — Homepage featured section
-   Rotates between:
-   - Featured Instagram posts (from assets/data/instagram.json when
-     the scraper populates it; falls back to curated content below)
-   - Daily Bible content (verses, tips, fun facts — preserved from
-     the old daily-content-banner)
+   Showcase Carousel — Homepage "Featured Ministry Feed"
+   Rotates through 9 categories, each with live data when available
+   and a curated fallback when not:
+     1. Announcements              — next 3 upcoming events from Google Calendar
+     2. Ministry Outreach          — latest entry from ministry-outreach.json
+     3. Ministry Highlights        — Featured posts (FALLBACK_SLIDES)
+     4. Store                      — "Gift a Bible" promo + link to /store.html
+     5. Ministry Initiatives       — recurring events / ongoing service
+     6. Friends in Jesus           — partner ministries, listening tos, friend messages
+     7. Daily Verse / Today's Chapter — rotates from daily-verses.json
+     8. How We S.E.E.D.            — one of the 5 About-page pillars per visit
+     9. Tips / Reminders / Resources — daily tips, fun facts, encouragement
+   Plus Instagram posts are still layered in when available.
    ============================================================ */
 
 // --- Curated fallback slides shown until Instagram scraping works -----------
@@ -96,57 +103,299 @@ let autoRotateTimer = null;
 const AUTO_ROTATE_MS = 7000;
 
 // --- Build the rotating slide pool -----------------------------------------
+//
+// Builder order matches the "Featured Ministry Feed" outline on the homepage.
+// Each builder is wrapped in try/catch so one missing data file never breaks
+// the whole rotation — we just fall through to the next category.
+//
 async function buildSlides() {
   const slides = [];
 
-  // Try to load Instagram data first
-  let igPosts = [];
+  // 1. Announcements (next 3 upcoming Google Calendar events)
+  try { slides.push(...await buildAnnouncementSlides()); } catch (_) {}
+
+  // 2. Ministry Outreach (latest entry from ministry-outreach.json)
+  try { slides.push(...await buildOutreachSlides()); } catch (_) {}
+
+  // 3. Ministry Highlights (curated FALLBACK_SLIDES)
+  try { slides.push(...buildHighlightSlides()); } catch (_) {}
+
+  // 4. Store ("Gift a Bible" promo)
+  try { slides.push(buildStoreSlide()); } catch (_) {}
+
+  // 5. Ministry Initiatives (recurring / ongoing service)
+  try { slides.push(buildInitiativesSlide()); } catch (_) {}
+
+  // 6. Friends in Jesus (partner ministries / listening tos)
+  try { slides.push(buildFriendsSlide()); } catch (_) {}
+
+  // 7. Today's Verse / chapter (live from daily-verses.json, falls back
+  //    to the embedded DAILY_CONTENT pool)
+  try { slides.push(await buildVerseSlide()); } catch (_) { slides.push(getDailyBibleSlide()); }
+
+  // 8. How We S.E.E.D. (one pillar per visit)
+  try { slides.push(buildHowWeSeedSlide()); } catch (_) {}
+
+  // 9. Tips / Reminders / Resources
+  try { slides.push(buildTipSlide()); } catch (_) {}
+
+  // Layer in Instagram on top when available — user engagement content
+  // should ride alongside curated content, not replace it.
+  try { slides.push(...await buildInstagramSlides()); } catch (_) {}
+
+  return slides.filter(Boolean);
+}
+
+// -----------------------------------------------------------------
+// Per-category builders
+// -----------------------------------------------------------------
+
+async function buildInstagramSlides() {
+  const res = await fetch(`assets/data/instagram.json?t=${Date.now()}`, { cache: 'no-store' });
+  if (!res.ok) return [];
+  const data = await res.json();
+  const posts = Array.isArray(data.posts) ? data.posts : [];
+  if (!posts.length) return [];
+  const cutoff = Date.now() - 60 * 24 * 60 * 60 * 1000;
+  return posts
+    .filter(p => p.date && new Date(p.date).getTime() >= cutoff)
+    .sort((a, b) => {
+      const aLikes = a.likes, bLikes = b.likes;
+      if (aLikes != null && bLikes != null) return bLikes - aLikes;
+      return new Date(b.date) - new Date(a.date);
+    })
+    .slice(0, 2)
+    .map(p => ({
+      kind: 'instagram',
+      eyebrow: 'From Instagram',
+      title: (p.caption || 'New on Instagram').split('\n')[0].slice(0, 80),
+      body: p.caption || '',
+      image: p.thumbnail,
+      ctaLabel: 'View on Instagram',
+      ctaHref: p.url,
+    }));
+}
+
+async function buildAnnouncementSlides() {
+  // Google Calendar feed (public iCal). The news page hits the same
+  // endpoint; we reuse the google-calendar.js script when it's loaded.
+  // Fall back to a single curated announcement when no calendar data
+  // is available so the slot still feels alive.
+  const fallback = [{
+    kind: 'announcement',
+    eyebrow: 'Announcement',
+    title: 'Study Saturday — every week, 7 PM PT',
+    body: 'Join us every Saturday for Bible study, fellowship, and prayer with members around the world. Livestream on Twitch.',
+    image: 'assets/images/backgrounds/stw-ministry-team.jpg',
+    ctaLabel: 'See the calendar',
+    ctaHref: 'news.html#calendar-section',
+  }];
+  if (!window.googleCalendarEvents || !Array.isArray(window.googleCalendarEvents)) {
+    return fallback;
+  }
+  const now = Date.now();
+  const upcoming = window.googleCalendarEvents
+    .filter(e => e && e.startDate && new Date(e.startDate).getTime() > now)
+    .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+    .slice(0, 2);
+  if (!upcoming.length) return fallback;
+  return upcoming.map(e => ({
+    kind: 'announcement',
+    eyebrow: 'Announcement',
+    title: e.summary || 'Upcoming event',
+    body: `${formatEventDate(e.startDate)}${e.location ? ' · ' + e.location : ''}${e.description ? ' — ' + e.description.slice(0, 140) : ''}`,
+    image: 'assets/images/backgrounds/stw-ministry-team.jpg',
+    ctaLabel: 'See the calendar',
+    ctaHref: 'news.html#calendar-section',
+  }));
+}
+
+async function buildOutreachSlides() {
+  const res = await fetch(`assets/data/ministry-outreach.json?t=${Date.now()}`, { cache: 'no-store' });
+  if (!res.ok) return [];
+  const data = await res.json();
+  const events = Array.isArray(data.events) ? data.events : [];
+  if (!events.length) return [];
+  const latest = events[0];
+  // Try to pick a cover image from the event folder manifest. Falls
+  // back to a sensible ministry background if the manifest is missing.
+  let image = 'assets/images/featured/bible-ministry-1.jpg';
+  if (latest.folder) {
+    try {
+      const mr = await fetch(`assets/images/ministry-outreach/${latest.folder}/images.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (mr.ok) {
+        const m = await mr.json();
+        const imgs = Array.isArray(m.images) ? m.images : [];
+        if (imgs.length && imgs[0].file) {
+          image = `assets/images/ministry-outreach/${latest.folder}/${imgs[0].file}`;
+        }
+      }
+    } catch (_) {}
+  }
+  return [{
+    kind: 'outreach',
+    eyebrow: 'Ministry Outreach',
+    title: latest.title || 'Latest outreach',
+    body: `${latest.date || ''}${latest.location ? ' · ' + latest.location : ''} — ${latest.body || ''}`,
+    image: image,
+    ctaLabel: 'Read the story',
+    ctaHref: 'news.html#ministry-outreach',
+  }];
+}
+
+function buildHighlightSlides() {
+  // Rotate through 2 of the curated highlights each visit to keep the
+  // rotation feeling fresh without drowning newer content.
+  const seed = Math.floor(Date.now() / 86400000); // day-granularity seed
+  const offset = seed % FALLBACK_SLIDES.length;
+  const out = [];
+  for (let i = 0; i < 2; i++) {
+    out.push(FALLBACK_SLIDES[(offset + i) % FALLBACK_SLIDES.length]);
+  }
+  return out;
+}
+
+function buildStoreSlide() {
+  return {
+    kind: 'store',
+    eyebrow: 'From the Store',
+    title: 'Gift a Bible — sponsor a bundle',
+    body: "Every bundle you sponsor becomes someone's first Bible. Hand-packed, prayed over, and shipped with a handwritten note.",
+    image: 'assets/images/backgrounds/store.jpg',
+    ctaLabel: 'Visit the Store',
+    ctaHref: 'store.html',
+  };
+}
+
+function buildInitiativesSlide() {
+  // Ministry Initiatives = the ongoing rhythms of the ministry. One
+  // initiative is surfaced per day so it feels like a weekly digest.
+  const initiatives = [
+    {
+      title: 'Tuesdays — welcoming newcomers',
+      body: 'Every Tuesday we make space for newcomers to faith. Gentle, honest conversation. Questions welcome. Bibles on the table.',
+      image: 'assets/images/backgrounds/bible-ministry-1.jpg',
+    },
+    {
+      title: 'Fridays — young adult fellowship',
+      body: 'Fridays we gather as young adults to study, break bread, pray for each other, and encourage one another in Christ.',
+      image: 'assets/images/backgrounds/seed-the-word.jpg',
+    },
+    {
+      title: 'Sundays — in a local church',
+      body: 'We go to church Sundays. Bring a friend, or ask us to come with you to yours — just reach out.',
+      image: 'assets/images/backgrounds/bible-in-background.jpg',
+    },
+    {
+      title: 'Study Saturdays — the weekly review',
+      body: 'Saturdays we recap the week\'s reading and dive deeper as a community — in person and on Twitch.',
+      image: 'assets/images/backgrounds/stw-background.jpg',
+    },
+  ];
+  const pick = initiatives[Math.floor(Date.now() / 86400000) % initiatives.length];
+  return {
+    kind: 'initiative',
+    eyebrow: 'Ministry Initiative',
+    title: pick.title,
+    body: pick.body,
+    image: pick.image,
+    ctaLabel: 'Explore our rhythm',
+    ctaHref: 'about.html#how-we-seed',
+  };
+}
+
+function buildFriendsSlide() {
+  return {
+    kind: 'friends',
+    eyebrow: 'Friends in Jesus',
+    title: 'Voices we walk with',
+    body: "Partner ministries, brothers and sisters we listen to, and friends we share the road with — see who we're walking alongside.",
+    image: 'assets/images/featured/stw-ministry-team.jpg',
+    ctaLabel: 'Meet our friends',
+    ctaHref: 'community.html#friends-in-jesus',
+  };
+}
+
+async function buildVerseSlide() {
+  const res = await fetch(`assets/data/daily-verses.json?t=${Date.now()}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('verses unavailable');
+  const data = await res.json();
+  const verses = Array.isArray(data.verses) ? data.verses : [];
+  if (!verses.length) throw new Error('no verses');
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  const v = verses[dayOfYear % verses.length];
+  return {
+    kind: 'scripture',
+    eyebrow: "Today's Verse",
+    title: v.ref + (v.version ? ` (${v.version})` : ''),
+    body: v.text,
+    image: 'assets/images/backgrounds/john-3-16.jpg',
+    ctaLabel: 'Share',
+    ctaHref: '#',
+    isShare: true,
+  };
+}
+
+function buildHowWeSeedSlide() {
+  const pillars = [
+    {
+      title: 'How We Read Our Bible',
+      body: 'Monday–Friday we read one chapter a day together. Saturdays we review. We began in the New Testament for newcomers; the Old Testament is woven into Study Saturdays.',
+    },
+    {
+      title: 'Embrace Fellowship',
+      body: "Tuesdays for newcomers, Fridays as young adults, Sundays in church. Bring a friend, or ask us to come with you — just reach out.",
+    },
+    {
+      title: 'Encounter Jesus + Study Saturdays',
+      body: 'Tuesdays are for welcoming newcomers. Saturdays are for going deeper — recapping the week and letting the Word shape the next.',
+    },
+    {
+      title: 'Prayer & Worship',
+      body: 'Prayer and worship are woven into everything we do. Philippians 4:6-8. John 4:23-24. Got an idea for how we can do this better?',
+    },
+    {
+      title: 'How We Outreach',
+      body: "We give away Bibles — on the street, to newcomers, to anyone who wants one. Our whole goal is finding creative, faithful ways to put God's Word into people's hands.",
+    },
+  ];
+  const pick = pillars[Math.floor(Date.now() / 86400000) % pillars.length];
+  return {
+    kind: 'howwe',
+    eyebrow: 'How We S.E.E.D.',
+    title: pick.title,
+    body: pick.body,
+    image: 'assets/images/backgrounds/seed-the-word.jpg',
+    ctaLabel: 'Read the full breakdown',
+    ctaHref: 'about.html#how-we-seed',
+  };
+}
+
+function buildTipSlide() {
+  const pool = [
+    ...DAILY_CONTENT.tips.map(t => ({ ...t, cat: 'Daily Tip' })),
+    ...DAILY_CONTENT.facts.map(t => ({ ...t, cat: 'Did You Know?' })),
+    ...DAILY_CONTENT.encouragement.map(t => ({ ...t, cat: 'A Word for You' })),
+  ];
+  const pick = pool[Math.floor(Date.now() / 86400000) % pool.length];
+  return {
+    kind: 'tip',
+    eyebrow: pick.cat,
+    title: pick.ref || pick.cat,
+    body: pick.text,
+    image: 'assets/images/backgrounds/bible-in-background.jpg',
+    ctaLabel: 'More resources',
+    ctaHref: 'community.html#help',
+  };
+}
+
+function formatEventDate(d) {
   try {
-    const res = await fetch(`assets/data/instagram.json?t=${Date.now()}`, { cache: 'no-store' });
-    if (res.ok) {
-      const data = await res.json();
-      igPosts = Array.isArray(data.posts) ? data.posts : [];
-    }
-  } catch (e) {
-    /* ignore; fallback handles it */
+    const dt = new Date(d);
+    return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  } catch (_) {
+    return '';
   }
-
-  // Pick top 3 Instagram posts by likes from the last 60 days
-  if (igPosts.length) {
-    const cutoff = Date.now() - 60 * 24 * 60 * 60 * 1000;
-    const topIg = igPosts
-      .filter(p => p.date && new Date(p.date).getTime() >= cutoff)
-      .sort((a, b) => {
-        // Sort by likes if available, otherwise fall back to date (newest first)
-        const aLikes = a.likes, bLikes = b.likes;
-        if (aLikes != null && bLikes != null) return bLikes - aLikes;
-        return new Date(b.date) - new Date(a.date);
-      })
-      .slice(0, 3)
-      .map(p => ({
-        kind: 'instagram',
-        eyebrow: 'From Instagram',
-        title: (p.caption || 'New on Instagram').split('\n')[0].slice(0, 80),
-        body: p.caption || '',
-        image: p.thumbnail,
-        ctaLabel: 'View on Instagram',
-        ctaHref: p.url,
-        meta: {
-          likes: p.likes,
-          date: p.date,
-        },
-      }));
-    slides.push(...topIg);
-  }
-
-  // Always include ministry highlights (fewer if IG loaded, more if not)
-  const fallbackCount = slides.length ? 2 : FALLBACK_SLIDES.length;
-  slides.push(...FALLBACK_SLIDES.slice(0, fallbackCount));
-
-  // Add one daily Bible verse/tip to keep the rotation interesting
-  slides.push(getDailyBibleSlide());
-
-  return slides;
 }
 
 function getDailyBibleSlide() {

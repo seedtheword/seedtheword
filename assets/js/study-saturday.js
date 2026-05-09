@@ -1,40 +1,51 @@
 /* ============================================================
    study-saturday.js
 
-   Renders the "This week we're studying" block inside the Study
-   Saturday section on community.html. Reads config from
-   assets/data/study-saturday.json, which admins edit through the
-   Editor tab on admin-help.html.
+   Injects a "This Saturday's Review" block INSIDE the Twitch
+   livestream card on community.html, so the live/offline state
+   and the weekly review render as one unified card.
 
-   Selection rule: pick the entry in `weeks` whose weekOf date is
-   today-or-earlier AND closest to today. That way the current
-   week's entry stays up even if the next one hasn't been added yet.
+   Reads weekly config from assets/data/study-saturday.json. Each
+   entry has:
+     weekOf        — YYYY-MM-DD (Monday of the week by convention)
+     oldTestament  — Old Testament passage ("Genesis 15 — Abram's covenant")
+     newTestament  — New Testament passage ("Mark 11 — Jesus enters Jerusalem")
 
-   If no config is available, the block stays hidden — the livestream
-   card below it still renders cleanly.
+   Selection rule: pick the entry whose weekOf date is today-or-earlier
+   AND closest to today. If no entry qualifies or the file is missing,
+   nothing is injected — the livestream card renders untouched.
    ============================================================ */
 
 (function () {
   'use strict';
 
-  const host = document.getElementById('study-saturday-topic');
-  const passagesEl = document.getElementById('study-saturday-passages');
-  const noteEl = document.getElementById('study-saturday-note');
-  if (!host || !passagesEl) return;
+  const DATA_URL = 'assets/data/study-saturday.json';
+  const HOST_ID = 'livestream-card-container';
 
-  (async function () {
+  document.addEventListener('DOMContentLoaded', async () => {
+    const host = document.getElementById(HOST_ID);
+    if (!host) return;
+
+    let entry;
     try {
-      const res = await fetch('assets/data/study-saturday.json?t=' + Date.now(), { cache: 'no-store' });
+      const res = await fetch(DATA_URL + '?t=' + Date.now(), { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       const weeks = Array.isArray(data && data.weeks) ? data.weeks : [];
-      const entry = pickCurrentWeek(weeks);
-      if (!entry) return; // leave hidden
-      render(entry);
+      entry = pickCurrentWeek(weeks);
     } catch (err) {
-      console.warn('[study-saturday] config unavailable:', err.message);
+      console.warn('[study-saturday] config unavailable:', err && err.message);
+      return;
     }
-  })();
+    if (!entry) return;
+
+    // The Twitch card also renders on DOMContentLoaded; wait for its
+    // element to exist before we inject our review block inside it.
+    const card = await waitForLivestreamCard(host, 3000);
+    if (!card) return;
+
+    inject(card, entry);
+  });
 
   function pickCurrentWeek(weeks) {
     const now = Date.now();
@@ -46,49 +57,75 @@
       if (t <= now) candidates.push({ t: t, entry: w });
     }
     if (!candidates.length) return null;
-    // Largest t ≤ now.
     candidates.sort((a, b) => b.t - a.t);
     return candidates[0].entry;
   }
 
-  function render(entry) {
-    const pieces = [];
+  // Polls until the livestream card appears (twitch-integration.js renders
+  // asynchronously inside the same DOMContentLoaded tick). Bails after
+  // `timeoutMs` so a missing card never hangs anything.
+  function waitForLivestreamCard(host, timeoutMs) {
+    return new Promise((resolve) => {
+      const existing = host.querySelector('.livestream-card');
+      if (existing) return resolve(existing);
+      const deadline = Date.now() + timeoutMs;
+      const tick = () => {
+        const found = host.querySelector('.livestream-card');
+        if (found) return resolve(found);
+        if (Date.now() > deadline) return resolve(null);
+        setTimeout(tick, 60);
+      };
+      setTimeout(tick, 60);
+    });
+  }
+
+  function inject(card, entry) {
+    const review = document.createElement('div');
+    review.className = 'study-review';
+
+    const heading = document.createElement('p');
+    heading.className = 'study-review__heading';
+    heading.textContent = "This Saturday's Review";
+    review.appendChild(heading);
+
+    const passages = document.createElement('div');
+    passages.className = 'study-review__passages';
+
     if (entry.oldTestament) {
-      pieces.push(pill('📜 Old Testament', entry.oldTestament));
+      passages.appendChild(pill('📜 Old Testament', entry.oldTestament));
     }
-    if (entry.gospel) {
-      pieces.push(pill('✝️ Gospel', entry.gospel));
+    if (entry.newTestament) {
+      passages.appendChild(pill('✝️ New Testament', entry.newTestament));
     }
-    if (entry.scripture) {
-      pieces.push(pill('📖 Scripture', entry.scripture));
+
+    // If neither field is set, we don't show the review at all — an
+    // empty review block would look broken.
+    if (!passages.childElementCount) return;
+
+    review.appendChild(passages);
+
+    // Insert the review BEFORE the actions row so it reads as part of
+    // the card body: header (pill + title), description, review,
+    // actions (Watch / Follow / Get Notified).
+    const actions = card.querySelector('.livestream-card__actions');
+    if (actions) {
+      card.insertBefore(review, actions);
+    } else {
+      card.appendChild(review);
     }
-    if (!pieces.length) return; // nothing to show
-    passagesEl.innerHTML = pieces.join('');
-    if (noteEl) {
-      if (entry.note) {
-        noteEl.textContent = entry.note;
-        noteEl.hidden = false;
-      } else {
-        noteEl.textContent = '';
-        noteEl.hidden = true;
-      }
-    }
-    host.hidden = false;
   }
 
   function pill(label, value) {
-    return (
-      '<div class="study-pill">' +
-        '<span class="study-pill__label">' + escapeHtml(label) + '</span>' +
-        '<span class="study-pill__value">' + escapeHtml(value) + '</span>' +
-      '</div>'
-    );
-  }
-
-  function escapeHtml(s) {
-    if (s == null) return '';
-    return String(s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
+    const wrap = document.createElement('div');
+    wrap.className = 'study-review__pill';
+    const l = document.createElement('span');
+    l.className = 'study-review__pill-label';
+    l.textContent = label;
+    const v = document.createElement('span');
+    v.className = 'study-review__pill-value';
+    v.textContent = value;
+    wrap.appendChild(l);
+    wrap.appendChild(v);
+    return wrap;
   }
 })();

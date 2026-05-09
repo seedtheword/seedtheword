@@ -270,7 +270,7 @@
 
     studySaturday: {
       id: 'studySaturday',
-      label: 'Study Saturday — weekly study topic',
+      label: 'Study Saturday — weekly review',
       category: 'content',
       kind: 'json',
       path: 'assets/data/study-saturday.json',
@@ -285,11 +285,8 @@
               validate: (v) => /^\d{4}-\d{2}-\d{2}$/.test(v) ? null : 'Must be YYYY-MM-DD.' },
             { name: 'oldTestament', label: 'Old Testament passage', kind: 'text',
               hint: 'e.g. "Genesis 15 — Abram\'s covenant"' },
-            { name: 'gospel',       label: 'Gospel / New Testament passage', kind: 'text',
+            { name: 'newTestament', label: 'New Testament passage', kind: 'text',
               hint: 'e.g. "Mark 11 — Jesus enters Jerusalem"' },
-            { name: 'scripture',    label: 'Anchor scripture (optional)', kind: 'text',
-              hint: 'Specific verses, e.g. "Mark 11:22-24".' },
-            { name: 'note',         label: 'Note / connection (optional)', kind: 'textarea' },
           ],
           addLabel: '+ Add week',
         },

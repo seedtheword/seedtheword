@@ -111,22 +111,23 @@
         </div>
       </div>
 
-      <!-- Study Saturday (Livestream) — the live companion to the Spotify feed.
-           Pullquote sits INSIDE the card, visually above the livestream block,
-           so both columns share the same header height and the bodies
-           bottom-align on desktop. -->
+      <!-- Study Saturday (Livestream) — one unified card: Twitch live/offline
+           state on top, "This Saturday's Review" block at the bottom,
+           visually merged so they read as a single card (no seam, same border,
+           same background). Review is injected by study-saturday.js into the
+           .livestream-card it finds in #livestream-card-container. -->
       <div class="ministry-feed-card">
         <div class="ministry-feed-card__header">
           <span class="ministry-feed-card__eyebrow">📺 Study Saturday (Livestream)</span>
           <span class="ministry-feed-card__title">Join us live Saturdays</span>
         </div>
         <div class="ministry-feed-card__body">
-          <div class="study-pullquote" id="study-saturday-topic" hidden>
-            <span class="study-pullquote__eyebrow" aria-hidden="true">✦ this week we're studying ✦</span>
-            <div class="study-pullquote__passages" id="study-saturday-passages"></div>
-            <p class="study-pullquote__note" id="study-saturday-note" hidden></p>
-          </div>
           <div id="livestream-card-container"></div>
+          <!-- study-saturday.js reads assets/data/study-saturday.json and
+               appends a .study-review block INSIDE the .livestream-card that
+               twitch-integration.js renders above. If the JSON file is missing
+               or unconfigured, nothing is appended and the card renders
+               without the review. -->
         </div>
       </div>
     </div>
@@ -547,7 +548,7 @@
 <script src="assets/js/instagram-feed.js?v=2"></script>
 <script src="assets/js/telegram-stats.js?v=1"></script>
 <script src="assets/js/recommendations.js?v=1"></script>
-<script src="assets/js/study-saturday.js?v=2" defer></script>
+<script src="assets/js/study-saturday.js?v=3" defer></script>
 
 <style>
 /* Responsive fallback for community feeds grid */
@@ -631,63 +632,49 @@
   gap: 1rem;
 }
 
-/* Study-Saturday "this week we're studying" inspirational pullquote.
-   Sits INSIDE the right card above the livestream block, styled as a
-   gentle scripted callout. */
-.study-pullquote {
-  position: relative;
-  text-align: center;
-  padding: 1.1rem 1.25rem 1.2rem;
-  border-left: 3px solid rgba(212, 175, 55, 0.8);
-  border-right: 3px solid rgba(212, 175, 55, 0.8);
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.06) 0%, rgba(44, 95, 46, 0.04) 100%);
-  border-radius: 4px 4px 12px 12px;
+/* Study Saturday review — sits INSIDE the .livestream-card that
+   twitch-integration.js renders. Styled as an integrated block (same
+   background, same border radius continuation) so the whole card reads
+   as one unit: TONIGHT pill + title + desc + review + action buttons. */
+.study-review {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(44, 95, 46, 0.12);
 }
-.study-pullquote__eyebrow {
-  display: block;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  font-size: 0.88rem;
-  letter-spacing: 0.04em;
-  color: #8a6d1a;
-  margin-bottom: 0.65rem;
+.study-review__heading {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--text, #0a0a0a);
+  margin: 0 0 0.6rem;
+  letter-spacing: -0.01em;
 }
-.study-pullquote__passages {
+.study-review__passages {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-bottom: 0.5rem;
+  flex-direction: column;
+  gap: 0.45rem;
 }
-.study-pill {
-  display: inline-flex;
+.study-review__pill {
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.38rem 0.7rem;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(44, 95, 46, 0.25);
+  gap: 0.55rem;
+  padding: 0.55rem 0.8rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(44, 95, 46, 0.2);
   border-radius: 8px;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
+  line-height: 1.4;
 }
-.study-pill__label {
+.study-review__pill-label {
+  flex-shrink: 0;
   font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--accent, #2C5F2E);
 }
-.study-pill__value {
+.study-review__pill-value {
   font-weight: 600;
   color: var(--text, #0a0a0a);
-}
-.study-pullquote__note {
-  margin: 0.4rem auto 0;
-  max-width: 560px;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  font-size: 0.94rem;
-  color: var(--muted, #595959);
-  line-height: 1.6;
 }
 
 /* Friends in Jesus centering fix — the default .section-title uses a

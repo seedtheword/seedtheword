@@ -1013,3 +1013,55 @@ if (document.readyState === 'loading') {
 } else {
   window.communityLiveStream = new CommunityLiveStream();
 }
+
+
+// ── Seed-tile mobile tap toggle ─────────────────────────────
+// The S.E.E.D. story tiles on about.html rely on :hover to reveal the
+// overlay. On touch devices there is no :hover, so a tap on a tile
+// toggles a .seed-tile--open class that triggers the same reveal.
+// Tapping outside closes any open tile. Keyboard users get the same
+// behavior via :focus-within in CSS, plus Escape to close here.
+(function initSeedTileTaps() {
+  const tiles = document.querySelectorAll('.seed-tile');
+  if (!tiles.length) return;
+
+  // Mark tiles as focusable so :focus-within picks them up for keyboard
+  // users who tab into the grid.
+  tiles.forEach((tile) => {
+    if (!tile.hasAttribute('tabindex')) tile.setAttribute('tabindex', '0');
+    if (!tile.hasAttribute('role')) tile.setAttribute('role', 'button');
+    if (!tile.hasAttribute('aria-expanded')) tile.setAttribute('aria-expanded', 'false');
+  });
+
+  const closeAll = (except) => {
+    tiles.forEach((t) => {
+      if (t === except) return;
+      t.classList.remove('seed-tile--open');
+      t.setAttribute('aria-expanded', 'false');
+    });
+  };
+
+  tiles.forEach((tile) => {
+    tile.addEventListener('click', (e) => {
+      // Let links inside the overlay behave normally.
+      if (e.target.closest('a')) return;
+      const willOpen = !tile.classList.contains('seed-tile--open');
+      closeAll(tile);
+      tile.classList.toggle('seed-tile--open', willOpen);
+      tile.setAttribute('aria-expanded', String(willOpen));
+    });
+    tile.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        tile.click();
+      }
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.seed-tile')) closeAll(null);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAll(null);
+  });
+})();

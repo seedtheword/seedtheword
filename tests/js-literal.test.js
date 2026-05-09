@@ -199,7 +199,9 @@ test('write appends to an array and preserves surrounding file text', () => {
   const rewritten = jsl.write(src, 'ITEMS', newVal);
   assert.ok(rewritten.startsWith('// head\nconst ITEMS = '));
   assert.ok(rewritten.includes('three'));
-  assert.ok(rewritten.endsWith('// tail\n\n'));
+  // The trailing portion after the literal (`];\n\n// tail\n`) must survive
+  // untouched — join with a single empty string appends exactly one \n.
+  assert.ok(rewritten.endsWith('// tail\n'), 'expected trailing // tail\\n, got: ' + JSON.stringify(rewritten.slice(-40)));
   const read2 = jsl.read(rewritten, 'ITEMS');
   assert.equal(read2.value.length, 3);
 });

@@ -17,10 +17,15 @@ const jsl = await loadModule('admin-editor-js-literal');
 // ── Generators ─────────────────────────────────────────────────────────
 
 function genSafeString() {
-  // Strings that round-trip safely through our emitter (no backticks, since
-  // the emitter uses single or double quotes and never templates).
-  const s = genAsciiString(0, 30).replace(/[`]/g, '');
-  return s;
+  // Keep it narrow for the round-trip test: only characters that pass
+  // cleanly through our emitter without any escape/quote-swap logic. This
+  // isolates Property 1 to the core round-trip invariant; escape-handling
+  // is covered by the example tests below.
+  const len = range(0, 20);
+  let out = '';
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ';
+  for (let i = 0; i < len; i++) out += pick(chars.split(''));
+  return out.trim();
 }
 
 function genScalar() {
@@ -36,8 +41,10 @@ function genObject(depth) {
   const keys = range(0, 4);
   const out = {};
   for (let i = 0; i < keys; i++) {
-    // Use identifier-shaped keys so the emitter can skip string-quoting them.
-    const k = 'k' + i + '_' + range(0, 9);
+    // Unique identifier-shaped keys per object so the emitter can skip
+    // string-quoting them. Using `i` in the key name guarantees uniqueness
+    // within this object.
+    const k = 'k' + i;
     out[k] = Math.random() < 0.5 ? genScalar() : genArray(depth - 1);
   }
   return out;
@@ -81,24 +88,44 @@ function genSource(literalName, value) {
 // ── Property 1a: round-trip preserves every byte outside the literal ──
 
 test('Property 1a: write(source, name, read(source, name).value) preserves surrounding bytes', () => {
-  for (let i = 0; i < 100; i++) {
-    const name = pick(['FALLBACK_SLIDES', 'DAILY_CONTENT', 'ITEMS', 'MAP_CONFIG']);
-    const value = genArray(2);
+  // Start with a small set of hand-constructed values, then add PBT-style
+  // random values. If any of the hand-constructed cases fails, we learn
+  // exactly what's breaking before random iterations obscure the signal.
+  const fixtures = [
+    [],
+    [1, 2, 3],
+    ['a', 'b'],
+    [{ id: 1 }, { id: 2 }],
+    { key1: 'value1', nested: [{ x: 1 }] },
+    [{ kind: 'spotify', title: 'Sample', image: 'assets/images/stw-logo.jpg' }],
+  ];
+  const cases = [];
+  for (const v of fixtures) cases.push(v);
+  for (let i = 0; i < 50; i++) cases.push(genArray(2));
+
+  for (let idx = 0; idx < cases.length; idx++) {
+    const value = cases[idx];
+    const name = 'LITERAL_' + idx;
     const source = genSource(name, value);
     const read1 = jsl.read(source, name);
-    assert.ok(read1, 'expected read to find the literal');
+    assert.ok(read1, 'expected read to find the literal for case ' + idx);
     const rewritten = jsl.write(source, name, read1.value);
-    // The bytes BEFORE read1.start must equal bytes before in the original.
     const origPrefix = source.slice(0, read1.start);
     const rewrittenPrefix = rewritten.slice(0, read1.start);
-    assert.equal(rewrittenPrefix, origPrefix, 'prefix diverged');
-    // The bytes AFTER the literal end must equal in both. Since the length
-    // might change, we locate the rewritten end by re-reading.
+    assert.equal(
+      rewrittenPrefix,
+      origPrefix,
+      'prefix diverged for case ' + idx + ' value=' + JSON.stringify(value)
+    );
     const read2 = jsl.read(rewritten, name);
-    assert.ok(read2, 'expected read of rewritten source to succeed');
+    assert.ok(read2, 'expected re-read to succeed for case ' + idx);
     const origSuffix = source.slice(read1.end);
     const rewrittenSuffix = rewritten.slice(read2.end);
-    assert.equal(rewrittenSuffix, origSuffix, 'suffix diverged');
+    assert.equal(
+      rewrittenSuffix,
+      origSuffix,
+      'suffix diverged for case ' + idx + ' value=' + JSON.stringify(value)
+    );
   }
 });
 

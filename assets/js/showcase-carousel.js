@@ -274,12 +274,12 @@ function buildInitiativesSlide() {
     {
       title: 'Tuesdays — welcoming newcomers',
       body: 'Every Tuesday we make space for newcomers to faith. Gentle, honest conversation. Questions welcome. Bibles on the table.',
-      image: 'assets/images/backgrounds/bible-ministry-1.jpg',
+      image: 'assets/images/featured/stw-bibles-giveaway.jpg',
     },
     {
       title: 'Fridays — young adult fellowship',
       body: 'Fridays we gather as young adults to study, break bread, pray for each other, and encourage one another in Christ.',
-      image: 'assets/images/backgrounds/seed-the-word.jpg',
+      image: 'assets/images/featured/stw-ministry-team.jpg',
     },
     {
       title: 'Sundays — in a local church',
@@ -310,7 +310,7 @@ function buildFriendsSlide() {
     eyebrow: 'Friends in Jesus',
     title: 'Voices we walk with',
     body: "Partner ministries, brothers and sisters we listen to, and friends we share the road with — see who we're walking alongside.",
-    image: 'assets/images/featured/stw-ministry-team.jpg',
+    image: 'assets/images/featured/bible-ministry-gift-zander.jpg',
     ctaLabel: 'Meet our friends',
     ctaHref: 'community.html#friends-in-jesus',
   };
@@ -341,22 +341,27 @@ function buildHowWeSeedSlide() {
     {
       title: 'How We Read Our Bible',
       body: 'Monday–Friday we read one chapter a day together. Saturdays we review. We began in the New Testament for newcomers; the Old Testament is woven into Study Saturdays.',
+      image: 'assets/images/backgrounds/bible-in-background.jpg',
     },
     {
       title: 'Embrace Fellowship',
       body: "Tuesdays for newcomers, Fridays as young adults, Sundays in church. Bring a friend, or ask us to come with you — just reach out.",
+      image: 'assets/images/backgrounds/stw-ministry-team.jpg',
     },
     {
       title: 'Encounter Jesus + Study Saturdays',
       body: 'Tuesdays are for welcoming newcomers. Saturdays are for going deeper — recapping the week and letting the Word shape the next.',
+      image: 'assets/images/backgrounds/stw-background.jpg',
     },
     {
       title: 'Prayer & Worship',
       body: 'Prayer and worship are woven into everything we do. Philippians 4:6-8. John 4:23-24. Got an idea for how we can do this better?',
+      image: 'assets/images/backgrounds/seed-the-word.jpg',
     },
     {
       title: 'How We Outreach',
       body: "We give away Bibles — on the street, to newcomers, to anyone who wants one. Our whole goal is finding creative, faithful ways to put God's Word into people's hands.",
+      image: 'assets/images/backgrounds/gideon-background-2.jpg',
     },
   ];
   const pick = pillars[Math.floor(Date.now() / 86400000) % pillars.length];
@@ -365,7 +370,7 @@ function buildHowWeSeedSlide() {
     eyebrow: 'How We S.E.E.D.',
     title: pick.title,
     body: pick.body,
-    image: 'assets/images/backgrounds/seed-the-word.jpg',
+    image: pick.image,
     ctaLabel: 'Read the full breakdown',
     ctaHref: 'about.html#how-we-seed',
   };
@@ -373,9 +378,9 @@ function buildHowWeSeedSlide() {
 
 function buildTipSlide() {
   const pool = [
-    ...DAILY_CONTENT.tips.map(t => ({ ...t, cat: 'Daily Tip' })),
-    ...DAILY_CONTENT.facts.map(t => ({ ...t, cat: 'Did You Know?' })),
-    ...DAILY_CONTENT.encouragement.map(t => ({ ...t, cat: 'A Word for You' })),
+    ...DAILY_CONTENT.tips.map(t => ({ ...t, cat: 'Daily Tip', image: 'assets/images/backgrounds/bible-in-background.jpg' })),
+    ...DAILY_CONTENT.facts.map(t => ({ ...t, cat: 'Did You Know?', image: 'assets/images/backgrounds/gideon-background-3.jpg' })),
+    ...DAILY_CONTENT.encouragement.map(t => ({ ...t, cat: 'A Word for You', image: 'assets/images/backgrounds/seed-the-word.jpg' })),
   ];
   const pick = pool[Math.floor(Date.now() / 86400000) % pool.length];
   return {
@@ -383,7 +388,7 @@ function buildTipSlide() {
     eyebrow: pick.cat,
     title: pick.ref || pick.cat,
     body: pick.text,
-    image: 'assets/images/backgrounds/bible-in-background.jpg',
+    image: pick.image,
     ctaLabel: 'More resources',
     ctaHref: 'community.html#help',
   };

@@ -311,25 +311,92 @@
       box.appendChild(warn);
     }
 
-    box.appendChild(el('h2', { text: 'What do you want to edit?' }));
+    // Friendly hero intro
+    const hero = el('div', { className: 'ae-hero' });
+    hero.appendChild(el('p', { className: 'ae-hero__eyebrow', text: 'Browser admin editor' }));
+    hero.appendChild(el('h2', { className: 'ae-hero__title', text: 'What do you want to edit today?' }));
+    hero.appendChild(el('p', { className: 'ae-hero__subtitle', text: 'Pick a content type below. The editor reads the file from GitHub, you make changes with a form + live preview, and it commits back on save.' }));
+    box.appendChild(hero);
 
-    const list = el('div', { className: 'ae-picker' });
+    // Category labels shown above each group of picker cards
+    const CATEGORY_LABELS = {
+      content: '📝 Content & data',
+      media: '🖼️ Images & videos',
+      slides: '🎞️ Homepage carousel slides',
+      workflows: '⚙️ GitHub Actions workflows',
+      bundles: '🎁 Store bundle slideshows',
+    };
+    const CATEGORY_ICONS = {
+      content: '📝',
+      media: '🖼️',
+      slides: '🎞️',
+      workflows: '⚙️',
+      bundles: '🎁',
+    };
+    const CATEGORY_EYEBROWS = {
+      content: 'Content',
+      media: 'Media',
+      slides: 'Slides',
+      workflows: 'Workflow',
+      bundles: 'Bundle',
+    };
+
+    // Group active schemas by category so the picker reads as a tidy
+    // organized list instead of an undifferentiated wall of cards.
     const active = window.AdminEditor.schemas.listActive();
+    const byCategory = {};
     for (const schema of active) {
-      const card = el('button', { className: 'ae-picker__card', attrs: { type: 'button' } });
-      card.appendChild(el('div', { className: 'ae-picker__label', text: schema.label }));
-      card.appendChild(el('div', { className: 'ae-picker__path', text: schema.path || '' }));
-      card.addEventListener('click', () => openContent(schema.id));
-      list.appendChild(card);
+      const cat = schema.category || 'content';
+      (byCategory[cat] = byCategory[cat] || []).push(schema);
     }
-    // Show WIP entries as muted disabled cards so admins see what's planned.
-    for (const s of Object.values(window.AdminEditor.schemas.SCHEMAS)) {
-      if (!s.wip) continue;
-      const card = el('div', { className: 'ae-picker__card ae-picker__card--wip' });
-      card.appendChild(el('div', { className: 'ae-picker__label', text: s.label }));
-      list.appendChild(card);
+
+    const categoryOrder = ['content', 'media', 'slides', 'bundles', 'workflows'];
+    for (const cat of categoryOrder) {
+      const schemas = byCategory[cat];
+      if (!schemas || !schemas.length) continue;
+      const section = el('div', { className: 'ae-picker-section' });
+      section.appendChild(el('h3', { className: 'ae-picker-section__title', text: CATEGORY_LABELS[cat] || cat }));
+      const list = el('div', { className: 'ae-picker' });
+      for (const schema of schemas) {
+        const card = el('button', { className: 'ae-picker__card', attrs: { type: 'button', 'data-category': cat } });
+        const cover = el('div', { className: 'ae-picker__cover' });
+        cover.appendChild(el('div', { className: 'ae-picker__icon', text: CATEGORY_ICONS[cat] || '•' }));
+        cover.appendChild(el('div', { className: 'ae-picker__category-label', text: CATEGORY_EYEBROWS[cat] || cat }));
+        card.appendChild(cover);
+        const body = el('div', { className: 'ae-picker__body' });
+        body.appendChild(el('div', { className: 'ae-picker__label', text: schema.label }));
+        if (schema.path) body.appendChild(el('div', { className: 'ae-picker__path', text: schema.path }));
+        else if (schema.folder) body.appendChild(el('div', { className: 'ae-picker__path', text: schema.folder }));
+        else if (schema.file && schema.literalName) body.appendChild(el('div', { className: 'ae-picker__path', text: schema.file + ' · ' + schema.literalName }));
+        else if (schema.workflowFile) body.appendChild(el('div', { className: 'ae-picker__path', text: '.github/workflows/' + schema.workflowFile }));
+        card.appendChild(body);
+        card.addEventListener('click', () => openContent(schema.id));
+        list.appendChild(card);
+      }
+      section.appendChild(list);
+      box.appendChild(section);
     }
-    box.appendChild(list);
+
+    // WIP entries (planned but not yet implemented) shown muted + grouped last
+    const wipSchemas = Object.values(window.AdminEditor.schemas.SCHEMAS).filter(s => s.wip);
+    if (wipSchemas.length) {
+      const section = el('div', { className: 'ae-picker-section' });
+      section.appendChild(el('h3', { className: 'ae-picker-section__title', text: '🚧 Planned' }));
+      const list = el('div', { className: 'ae-picker' });
+      for (const s of wipSchemas) {
+        const card = el('div', { className: 'ae-picker__card ae-picker__card--wip', attrs: { 'data-category': s.category || 'content' } });
+        const cover = el('div', { className: 'ae-picker__cover' });
+        cover.appendChild(el('div', { className: 'ae-picker__icon', text: '🚧' }));
+        cover.appendChild(el('div', { className: 'ae-picker__category-label', text: 'Coming soon' }));
+        card.appendChild(cover);
+        const body = el('div', { className: 'ae-picker__body' });
+        body.appendChild(el('div', { className: 'ae-picker__label', text: s.label }));
+        card.appendChild(body);
+        list.appendChild(card);
+      }
+      section.appendChild(list);
+      box.appendChild(section);
+    }
     editor.root.appendChild(box);
   }
 

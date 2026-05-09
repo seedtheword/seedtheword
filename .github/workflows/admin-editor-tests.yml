@@ -46,4 +46,20 @@ jobs:
           done
 
       - name: Run tests
-        run: node --test tests/
+        id: tests
+        run: |
+          set -o pipefail
+          # Tee test output to a file AND to stdout; the file gets uploaded
+          # to the job summary below, which is readable via the public API
+          # (no auth needed) even for private-repo observers.
+          node --test tests/ 2>&1 | tee /tmp/test-output.txt
+
+      - name: Attach test output to job summary
+        if: always()
+        run: |
+          if [ -f /tmp/test-output.txt ]; then
+            echo "## Test output" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 200 /tmp/test-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi

@@ -18,6 +18,132 @@
   <meta name="twitter:description" content="Live calendar, ministry outreach, and stories from the field.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/seed-the-word.jpg">
   <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    /* ==== Share-your-story section + modal (news.html reorg) =============
+       Scoped to news.html so main.css stays untouched for this rollout.
+       If these styles graduate out of "new", fold them into main.css. */
+
+    .share-story-section { padding: 3rem 0; }
+    .share-story__lead {
+      max-width: 680px;
+      margin: 0 auto 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+    .share-story__actions {
+      max-width: 520px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .share-story__primary {
+      font-size: 1.05rem;
+      padding: 0.95rem 1.4rem;
+      margin-bottom: 0.85rem;
+    }
+    .share-story__alts {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+    .share-story__privacy {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin: 0.75rem 0 0;
+      font-style: italic;
+    }
+
+    /* Modal shell. Uses flex-center positioning so the form sits nicely
+       on mobile and desktop alike. */
+    .share-story-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .share-story-modal[hidden] { display: none !important; }
+    .share-story-modal__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 10, 10, 0.55);
+      backdrop-filter: blur(4px);
+    }
+    .share-story-modal__content {
+      position: relative;
+      background: #fff;
+      border-radius: 14px;
+      max-width: 760px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    .share-story-modal__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid #ebebeb;
+      background: #fafafa;
+    }
+    .share-story-modal__title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #0a0a0a;
+    }
+    .share-story-modal__close {
+      background: none;
+      border: 0;
+      font-size: 1.8rem;
+      line-height: 1;
+      color: #595959;
+      cursor: pointer;
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      font-family: inherit;
+      min-width: 44px;
+      min-height: 44px;
+    }
+    .share-story-modal__close:hover { color: #0a0a0a; background: #f0f0f0; }
+    .share-story-modal__body {
+      flex: 1;
+      overflow: auto;
+      padding: 0;
+      background: #fff;
+    }
+    .share-story-modal__iframe {
+      width: 100%;
+      height: 70vh;
+      min-height: 420px;
+      border: 0;
+      display: block;
+    }
+    .share-story__fallback {
+      padding: 1.25rem 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* Lock the background scroll while the modal is open. */
+    body.share-story-modal-open { overflow: hidden; }
+
+    /* Highlights section cosmetic tweaks — it was nested inside the
+       combined outreach section before, now it's standalone. */
+    .highlights-section .outreach-subheading {
+      margin-bottom: 1.5rem;
+    }
+  </style>
 </head>
 <body>
 
@@ -69,7 +195,7 @@
   </div>
 </section>
 
-<!-- Announcements & Calendar Section -->
+<!-- 1. Announcements -->
 <section class="section section--light" style="padding: 3rem 0;">
   <div class="container">
     <h2 class="section-title">📢 Announcements</h2>
@@ -116,7 +242,74 @@
   </div>
 </section>
 
-<!-- Ministry Calendar -->
+<!-- 2. Ministry Outreach — event cards + "Your story belongs here too" callout.
+     The historical "Highlights from the field" grid has moved to section 5 below,
+     after the calendar, so members can browse outreach stories without wading
+     through the whole archive first. -->
+<section class="section section--white outreach-section" id="ministry-outreach">
+  <div class="container">
+    <h2 class="section-title">🙌 Ministry Outreach</h2>
+    <p class="outreach-subheading">
+      The field is where the Word takes root. These are stories from outreaches
+      our team has walked together.
+    </p>
+
+    <!-- 3 outreach cards with their own carousels -->
+    <div class="outreach-grid" id="ministry-outreach-cards" aria-live="polite">
+      <!-- Populated by assets/js/ministry-outreach.js -->
+    </div>
+  </div>
+</section>
+
+<!-- 3. Share your story — primary CTA is a modal with a Google Form for
+     photos + caption + testimony; secondary links keep Instagram / Telegram /
+     the about.html contact path available for admins who prefer those. -->
+<section class="section section--light share-story-section" id="share-your-story">
+  <div class="container">
+    <h2 class="section-title">✨ Share your story</h2>
+    <p class="share-story__lead">
+      Has God used our ministry to meet you in your walk with Jesus? Have you
+      watched Him move through an outreach — or captured a moment out in the
+      field? Drop your testimony, photos, or videos. We'd love to feature them
+      to encourage someone else on their way to the cross.
+    </p>
+
+    <div class="share-story__actions">
+      <button type="button" class="btn btn-primary btn-block share-story__primary" id="share-story-open">
+        📤 Share photos, video &amp; testimony
+      </button>
+      <div class="share-story__alts">
+        <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team directly</a>
+        <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a>
+        <a class="btn btn-secondary btn-sm" href="https://t.me/seedtheword" target="_blank" rel="noopener">💬 Share on Telegram</a>
+      </div>
+      <p class="share-story__privacy">
+        Your submission lands in our ministry team's private review inbox.
+        Nothing goes public without your ok.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Share-story modal. Opens when the primary button above is clicked.
+     Body is a sandboxed iframe embedding the Google Form URL from
+     assets/data/media-drop.json. If that URL is not configured, the
+     modal shows a fallback message pointing to the email path. -->
+<div class="share-story-modal" id="share-story-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="share-story-modal-title">
+  <div class="share-story-modal__backdrop" id="share-story-modal-backdrop"></div>
+  <div class="share-story-modal__content">
+    <header class="share-story-modal__head">
+      <h3 class="share-story-modal__title" id="share-story-modal-title">Share your story</h3>
+      <button type="button" class="share-story-modal__close" id="share-story-modal-close" aria-label="Close">&times;</button>
+    </header>
+    <div class="share-story-modal__body" id="share-story-modal-body">
+      <!-- Google Form iframe (or a fallback message) injected by
+           assets/js/share-story.js when the modal opens. -->
+    </div>
+  </div>
+</div>
+
+<!-- 4. Calendar -->
 <section class="section section--white" id="calendar-section">
   <div class="container">
     <h2 class="section-title">📅 Ministry Calendar</h2>
@@ -176,48 +369,17 @@
   </div>
 </section>
 
-<!-- Ministry Outreach & Highlights — combined section -->
-<section class="section section--white outreach-section" id="ministry-outreach">
+<!-- 5. Highlights from ministry — worship nights, Bible studies,
+     behind-the-scenes clips. This was previously merged into the Ministry
+     Outreach section; now it stands on its own below the calendar so the
+     page reads: "what's coming" (announcements + outreach + calendar) then
+     "what's been happening" (highlights). -->
+<section class="section section--white highlights-section" id="ministry-highlights">
   <div class="container">
-    <h2 class="section-title">🙌 Ministry Outreach &amp; Highlights</h2>
+    <h2 class="section-title">📸 Highlights from ministry</h2>
     <p class="outreach-subheading">
-      The field is where the Word takes root. Below are stories from outreaches
-      our team has walked, followed by photos and clips that round out the journey.
+      Worship nights, Bible studies, and behind-the-scenes moments from our team.
     </p>
-
-    <!-- 3 outreach cards with their own carousels -->
-    <div class="outreach-grid" id="ministry-outreach-cards" aria-live="polite">
-      <!-- Populated by assets/js/ministry-outreach.js -->
-    </div>
-
-    <!-- Testimony + media-share call-out below the carousel row -->
-    <div class="outreach-callout glass-morphism">
-      <h3>Your story belongs here too</h3>
-      <p>
-        Has God used our ministry to meet you in your walk with Jesus? Have you watched
-        Him move through an outreach — or captured a moment out in the field? We'd love
-        to feature your testimony, photos, and videos to encourage someone else on their
-        way to the cross.
-      </p>
-      <div class="outreach-callout__actions">
-        <a class="btn btn-primary btn-sm" href="about.html#contact">Submit a Testimony</a>
-        <a class="btn btn-gold btn-sm" id="outreach-upload-link" href="#" target="_blank" rel="noopener" hidden>
-          📤 Share Photos &amp; Videos
-        </a>
-        <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">
-          📷 Tag us on Instagram
-        </a>
-        <a class="btn btn-secondary btn-sm" href="https://t.me/seedtheword" target="_blank" rel="noopener">
-          Share on Telegram
-        </a>
-      </div>
-      <p class="outreach-callout__note" id="outreach-upload-note" hidden>
-        Photos &amp; videos land in our team account for review — sign in with any
-        Google account to upload. Our team curates everything before publishing.
-      </p>
-    </div>
-
-    <div class="outreach-divider"><span>Highlights from the field</span></div>
 
     <!-- Ministry Highlights grid (unchanged from before) -->
     <div class="highlight-grid">
@@ -389,39 +551,6 @@
 <script src="assets/js/google-calendar.js?v=12"></script>
 <script src="assets/js/livestream.js?v=2"></script>
 <script src="assets/js/ministry-outreach.js?v=1"></script>
-<script>
-// Reveal the "Share Photos & Videos" button on the outreach call-out
-// only when assets/data/media-drop.json has a real upload target
-// configured. Google Forms is the preferred path (files land in our
-// account automatically with full metadata) but a direct Drive folder
-// link is supported as a fallback.
-(async function () {
-  const link = document.getElementById('outreach-upload-link');
-  const note = document.getElementById('outreach-upload-note');
-  if (!link) return;
-  try {
-    const res = await fetch('assets/data/media-drop.json?t=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) return;
-    const cfg = await res.json();
-    if (cfg.enabled === false) return;
-
-    const isPlaceholder = (u) =>
-      !u ||
-      u.includes('REPLACE_WITH_YOUR_FORM_ID') ||
-      u.includes('REPLACE_WITH_YOUR_FOLDER_URL');
-
-    // Prefer the Google Form if configured — it's accountable, structured,
-    // and everything lands in our Google account.
-    let target = null;
-    if (!isPlaceholder(cfg.formUrl)) target = cfg.formUrl;
-    else if (!isPlaceholder(cfg.uploadUrl)) target = cfg.uploadUrl;
-    if (!target) return;
-
-    link.href = target;
-    link.hidden = false;
-    if (note) note.hidden = false;
-  } catch (_) { /* leave the upload button hidden */ }
-})();
-</script>
+<script src="assets/js/share-story.js?v=1" defer></script>
 </body>
 </html>

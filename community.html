@@ -690,28 +690,21 @@
   line-height: 1.6;
 }
 
-/* Friends in Jesus centering fix — the .featured-elsewhere container
-   in main.css aligns its children to the start. Override locally so
-   the section title, subheaders, and listening/partners children sit
-   centered consistent with every other section. */
-.featured-elsewhere .container {
-  text-align: center;
-}
-.featured-elsewhere .featured-elsewhere__sub {
-  text-align: center;
-}
-.featured-elsewhere__subtitle {
-  text-align: center;
+/* Friends in Jesus centering fix — the default .section-title uses a
+   position-trick (left:50% + transform:translateX(-50%) on an
+   inline-block) that REQUIRES its parent to be text-align:left/start.
+   If the parent is text-align:center the h2 ends up double-centered
+   and drifts right. So we do NOT set text-align:center on the
+   .featured-elsewhere container — we leave the section-title alone
+   and just make sure its sub-sections are vertically centered with
+   block-level margins. */
+.featured-elsewhere__sub {
+  /* Center the sub-block itself without touching its text-align (so the
+     subtitle's own .featured-elsewhere__subtitle rule, which is already
+     text-align:center, keeps working). */
+  max-width: 880px;
   margin-left: auto;
   margin-right: auto;
-}
-/* Children that themselves render a grid should still align normally;
-   reset inner text-align on the grids so card content sits left as
-   designed. */
-.featured-elsewhere #listening-container,
-.featured-elsewhere #partners-container,
-.featured-elsewhere .friend-message {
-  text-align: left;
 }
 
 /* Small single-paragraph "Inspired to share" CTA */

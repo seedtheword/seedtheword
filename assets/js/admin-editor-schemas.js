@@ -271,7 +271,42 @@
     bundleEssentials: bundleSchema('bundleEssentials', 'Bundle: Essentials slideshow', 'essentials'),
     bundleLifegroup: bundleSchema('bundleLifegroup', 'Bundle: Life Group slideshow', 'lifegroup'),
     bundleMinistry:  bundleSchema('bundleMinistry',  'Bundle: Ministry slideshow',  'ministry'),
+
+    wfTelegramAnnouncements: workflowSchema(
+      'wfTelegramAnnouncements',
+      '▶ Workflow: Telegram announcements',
+      'telegram-announcements.yml'
+    ),
+    wfDailyBible: workflowSchema(
+      'wfDailyBible',
+      '▶ Workflow: Daily Bible',
+      'daily-bible.yml'
+    ),
+    wfDailyPrayerNudge: workflowSchema(
+      'wfDailyPrayerNudge',
+      '▶ Workflow: Daily prayer nudge',
+      'daily-prayer-nudge.yml'
+    ),
+    wfInstagramScrape: workflowSchema(
+      'wfInstagramScrape',
+      '▶ Workflow: Instagram scraper',
+      'instagram-scrape.yml'
+    ),
   };
+
+  // Workflow-dispatch schemas are a distinct kind handled by the editor's
+  // WorkflowDispatch view. They do NOT commit — they POST to the workflow
+  // dispatch endpoint. The editor reads declared inputs on open and renders
+  // a matching form.
+  function workflowSchema(id, label, workflowFile) {
+    return {
+      id: id,
+      label: label,
+      category: 'workflows',
+      kind: 'workflow-dispatch',
+      workflowFile: workflowFile,
+    };
+  }
 
   // Bundle slideshow schemas share the same shape — three copies pointed at
   // three folders. The factory keeps them in lockstep.

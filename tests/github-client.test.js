@@ -261,3 +261,52 @@ test('Property 8: writeFile does not auto-retry on 422 sha-mismatch', async () =
   await assert.rejects(() => client.writeFile('p', 'x', { sha: 's', message: 'm' }));
   assert.equal(putCount, 1);
 });
+
+// ── Workflow dispatch input parser ─────────────────────────────────────────
+
+test('parseWorkflowDispatchInputs extracts declared inputs from a minimal YAML', () => {
+  const yaml = [
+    'name: Telegram',
+    'on:',
+    '  schedule:',
+    "    - cron: '0 14 * * 1-6'",
+    '  workflow_dispatch:',
+    '    inputs:',
+    '      dry_run:',
+    '        description: "If true, log only"',
+    '        required: false',
+    "        default: 'false'",
+    '        type: boolean',
+    '      mode:',
+    '        description: "Run mode"',
+    '        required: true',
+    '        type: choice',
+    '        options: [full, partial, skip]',
+    '',
+    'jobs:',
+    '  post:',
+    '    runs-on: ubuntu-latest',
+  ].join('\n');
+  const inputs = gh.parseWorkflowDispatchInputs(yaml);
+  assert.equal(inputs.length, 2, 'expected two inputs parsed');
+  assert.equal(inputs[0].name, 'dry_run');
+  assert.equal(inputs[0].type, 'boolean');
+  assert.equal(inputs[0].default, 'false');
+  assert.equal(inputs[0].required, false);
+  assert.equal(inputs[1].name, 'mode');
+  assert.equal(inputs[1].type, 'choice');
+  assert.equal(inputs[1].required, true);
+  assert.deepEqual(inputs[1].options, ['full', 'partial', 'skip']);
+});
+
+test('parseWorkflowDispatchInputs returns [] when workflow has no dispatch block', () => {
+  const yaml = "name: cron-only\non:\n  schedule:\n    - cron: '0 14 * * *'\njobs:\n  x:\n    runs-on: ubuntu-latest\n";
+  const inputs = gh.parseWorkflowDispatchInputs(yaml);
+  assert.deepEqual(inputs, []);
+});
+
+test('parseWorkflowDispatchInputs handles workflow_dispatch: {} (no inputs)', () => {
+  const yaml = "name: simple\non:\n  workflow_dispatch:\njobs:\n  x:\n    runs-on: ubuntu-latest\n";
+  const inputs = gh.parseWorkflowDispatchInputs(yaml);
+  assert.deepEqual(inputs, []);
+});

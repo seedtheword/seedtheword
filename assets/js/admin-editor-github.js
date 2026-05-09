@@ -331,12 +331,28 @@
       throw makeError('RequestError', 'dispatch failed: ' + resp.status, { status: resp.status, message: respBody && respBody.message });
     }
 
+    // Fetch workflow metadata including declared workflow_dispatch inputs.
+    // GitHub does NOT expose the inputs map directly on the workflow GET
+    // endpoint — we have to pull the YAML file contents and parse the
+    // `on.workflow_dispatch.inputs` block ourselves. This is kept small
+    // and narrow (supports the subset of YAML our workflows use).
+    async function getWorkflowInputs(workflowFile) {
+      const path = '.github/workflows/' + workflowFile;
+      try {
+        const file = await readFile(path);
+        return parseWorkflowDispatchInputs(file.content);
+      } catch (_) {
+        return [];
+      }
+    }
+
     return {
       validatePat: validatePat,
       readFile: readFile,
       writeFile: writeFile,
       deleteFile: deleteFile,
       dispatchWorkflow: dispatchWorkflow,
+      getWorkflowInputs: getWorkflowInputs,
       setPat: setPat,
       getPat: function () { return pat; },
       constants: CONSTANTS,
@@ -344,7 +360,82 @@
     };
   }
 
-  const api = { createClient: createClient, constants: CONSTANTS };
+  // Tiny YAML subset parser: extracts the workflow_dispatch inputs block so
+  // the editor can render a matching form. We only support the fields we
+  // use in this repo's workflows:
+  //   on:
+  //     workflow_dispatch:
+  //       inputs:
+  //         <name>:
+  //           description: "..."
+  //           required: true|false
+  //           default: "..."
+  //           type: string|boolean|choice
+  //           options: [a, b, c]         # only when type=choice
+  //
+  // Returns an array of { name, description, required, default, type, options }.
+  function parseWorkflowDispatchInputs(yamlSource) {
+    const src = String(yamlSource || '');
+    const lines = src.split(/\r?\n/);
+    // Locate "workflow_dispatch:" anchor and the "inputs:" block nested under it.
+    let inputsIdx = -1;
+    let inputsIndent = -1;
+    for (let i = 0; i < lines.length; i++) {
+      const ln = lines[i];
+      const m = ln.match(/^(\s*)workflow_dispatch:\s*$/);
+      if (!m) continue;
+      const wdIndent = m[1].length;
+      // Walk forward to find a matching inputs: block.
+      for (let j = i + 1; j < lines.length; j++) {
+        const ln2 = lines[j];
+        if (!ln2.trim()) continue;
+        const indent = ln2.match(/^(\s*)/)[1].length;
+        if (indent <= wdIndent) break;
+        const im = ln2.match(/^(\s*)inputs:\s*$/);
+        if (im) { inputsIdx = j; inputsIndent = im[1].length; break; }
+      }
+      if (inputsIdx >= 0) break;
+    }
+    if (inputsIdx < 0) return [];
+
+    const results = [];
+    let current = null;
+    let baseIndent = -1; // indent of a named input key (e.g. dry_run:)
+    for (let i = inputsIdx + 1; i < lines.length; i++) {
+      const ln = lines[i];
+      if (!ln.trim()) continue;
+      const indent = ln.match(/^(\s*)/)[1].length;
+      if (indent <= inputsIndent) break;
+      if (baseIndent < 0) baseIndent = indent;
+      // Named input line: `  <name>:`
+      if (indent === baseIndent && /^\s*[A-Za-z_][A-Za-z0-9_-]*:\s*$/.test(ln)) {
+        if (current) results.push(current);
+        const name = ln.trim().replace(/:$/, '');
+        current = { name: name, description: '', required: false, default: '', type: 'string', options: [] };
+        continue;
+      }
+      if (!current) continue;
+      const kv = ln.match(/^\s+([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/);
+      if (!kv) continue;
+      const key = kv[1];
+      let val = kv[2].trim();
+      // Strip surrounding quotes (single or double).
+      val = val.replace(/^['"]|['"]$/g, '');
+      if (key === 'description') current.description = val;
+      else if (key === 'required') current.required = (val === 'true');
+      else if (key === 'default') current.default = val;
+      else if (key === 'type') current.type = val || 'string';
+      else if (key === 'options') {
+        // YAML flow-style inline list `[a, b, c]`.
+        const m = val.match(/^\[(.*)\]$/);
+        if (m) current.options = m[1].split(',').map((s) => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+      }
+    }
+    if (current) results.push(current);
+    return results;
+  }
+
+  const api = { createClient: createClient, constants: CONSTANTS, parseWorkflowDispatchInputs: parseWorkflowDispatchInputs };
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;

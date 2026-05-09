@@ -107,6 +107,7 @@
       'committing': renderCommitting,
       'success': renderSuccess,
       'conflict': renderConflict,
+      'workflow-dispatch': renderWorkflowDispatch,
     }[editor.state] || renderIdle;
     view();
     // If a legacy-builder handoff is waiting and we just landed on the content
@@ -349,6 +350,13 @@
     editor.form = null;
     editor.baseSha = null;
     editor.origContent = null;
+    // Workflow dispatch schemas don't commit a file — they POST to a
+    // workflow dispatch endpoint. Route them to the dispatch view.
+    if (schema.kind === 'workflow-dispatch') {
+      goto('workflow-dispatch');
+      loadWorkflowInputs(schema);
+      return;
+    }
     // Show a "loading" state synchronously; only transition to 'editing'
     // AFTER readFile resolves so the form renderer has a non-null form.
     goto('loading');
@@ -896,7 +904,147 @@
     editor.root.appendChild(box);
   }
 
-  function renderConflict() {
+  // ── Workflow dispatch view ──────────────────────────────────────────────
+  const DISPATCH_MIN_INTERVAL_MS = 30 * 1000;
+  const lastDispatchAt = Object.create(null);
+
+  async function loadWorkflowInputs(schema) {
+    editor.workflowInputs = null;
+    editor.workflowStatus = 'loading';
+    render();
+    try {
+      const inputs = await editor.client.getWorkflowInputs(schema.workflowFile);
+      editor.workflowInputs = inputs || [];
+      editor.workflowValues = {};
+      for (const inp of editor.workflowInputs) {
+        editor.workflowValues[inp.name] = inp.default || (inp.type === 'boolean' ? 'false' : '');
+      }
+      editor.workflowStatus = 'ready';
+    } catch (err) {
+      editor.workflowInputs = [];
+      editor.workflowStatus = 'error';
+      editor.workflowError = err && err.message || String(err);
+    }
+    render();
+  }
+
+  function renderWorkflowDispatch() {
+    const box = el('section', { className: 'ae-panel' });
+    const head = el('div', { className: 'ae-head' });
+    const back = el('button', { className: 'ae-btn ae-btn--ghost', text: '← Back', attrs: { type: 'button' } });
+    back.addEventListener('click', () => { goto('content-picker'); });
+    head.appendChild(back);
+    head.appendChild(el('h2', { text: editor.schema.label }));
+    box.appendChild(head);
+
+    box.appendChild(el('p', { className: 'ae-muted', text: 'Trigger ' + editor.schema.workflowFile + ' manually. Requires Actions: Read and Write on your PAT.' }));
+
+    if (editor.workflowStatus === 'loading') {
+      box.appendChild(el('p', { className: 'ae-muted', text: 'Loading workflow inputs…' }));
+      editor.root.appendChild(box);
+      return;
+    }
+    if (editor.workflowStatus === 'error') {
+      box.appendChild(el('pre', { className: 'ae-error', text: 'Could not load workflow inputs: ' + editor.workflowError }));
+    }
+
+    const inputs = editor.workflowInputs || [];
+    if (inputs.length === 0) {
+      box.appendChild(el('p', { className: 'ae-muted', text: 'This workflow has no declared inputs — the run will use defaults.' }));
+    } else {
+      const group = el('fieldset', { className: 'ae-group' });
+      group.appendChild(el('legend', { text: 'Inputs' }));
+      for (const inp of inputs) {
+        const field = renderWorkflowField(inp, editor.workflowValues[inp.name] || '', (v) => {
+          editor.workflowValues[inp.name] = v;
+        });
+        group.appendChild(field);
+      }
+      box.appendChild(group);
+    }
+
+    const statusEl = el('p', { className: 'ae-status', attrs: { 'aria-live': 'polite' } });
+    box.appendChild(statusEl);
+
+    const actions = el('div', { className: 'ae-row ae-row--actions' });
+    const runBtn = el('button', { className: 'ae-btn ae-btn--primary', text: '▶ Run workflow now', attrs: { type: 'button' } });
+    runBtn.addEventListener('click', async () => {
+      // 30 s rate limit per workflow per session.
+      const lastAt = lastDispatchAt[editor.schema.workflowFile] || 0;
+      const since = Date.now() - lastAt;
+      if (since < DISPATCH_MIN_INTERVAL_MS) {
+        statusEl.textContent = '⏳ Please wait ' + Math.ceil((DISPATCH_MIN_INTERVAL_MS - since) / 1000) + 's before triggering this workflow again.';
+        return;
+      }
+      runBtn.disabled = true;
+      runBtn.textContent = 'Dispatching…';
+      statusEl.textContent = '';
+      try {
+        // Convert boolean strings ('true'/'false') into the string values
+        // workflow_dispatch expects (GitHub requires strings in the payload).
+        const payload = {};
+        for (const inp of inputs) {
+          const v = editor.workflowValues[inp.name];
+          payload[inp.name] = v == null ? '' : String(v);
+        }
+        await editor.client.dispatchWorkflow(editor.schema.workflowFile, payload);
+        lastDispatchAt[editor.schema.workflowFile] = Date.now();
+        statusEl.textContent = '✅ Workflow dispatched. ';
+        const link = tagA(
+          'https://github.com/seedtheword/seedtheword/actions/workflows/' + encodeURIComponent(editor.schema.workflowFile),
+          'Watch the run on GitHub Actions →'
+        );
+        statusEl.appendChild(link);
+      } catch (err) {
+        if (err && err.name === 'ForbiddenError') {
+          statusEl.textContent = '❌ GitHub refused the dispatch. Your PAT may be missing Actions: Read and Write. Rotate it with that scope.';
+        } else if (err && err.name === 'RateLimitError') {
+          statusEl.textContent = '⏳ GitHub rate limit hit. Try again in a few minutes.';
+        } else {
+          statusEl.textContent = '❌ Dispatch failed: ' + (err && err.message || err);
+        }
+      } finally {
+        runBtn.disabled = false;
+        runBtn.textContent = '▶ Run workflow now';
+      }
+    });
+    actions.appendChild(runBtn);
+    box.appendChild(actions);
+    editor.root.appendChild(box);
+  }
+
+  function renderWorkflowField(inp, value, onChange) {
+    const wrap = el('label', { className: 'ae-field' });
+    const head = el('span', { className: 'ae-field__label' });
+    head.appendChild(el('span', { text: inp.name }));
+    if (inp.required) head.appendChild(el('span', { className: 'ae-required', text: ' *' }));
+    wrap.appendChild(head);
+    let input;
+    if (inp.type === 'boolean') {
+      // Render as a dropdown (true/false) since workflow_dispatch booleans
+      // arrive as strings anyway.
+      input = el('select');
+      ['false', 'true'].forEach((v) => {
+        const opt = el('option', { text: v, attrs: { value: v } });
+        input.appendChild(opt);
+      });
+      input.value = String(value || 'false');
+    } else if (inp.type === 'choice' && Array.isArray(inp.options) && inp.options.length) {
+      input = el('select');
+      for (const opt of inp.options) {
+        input.appendChild(el('option', { text: opt, attrs: { value: opt } }));
+      }
+      input.value = value || inp.options[0];
+    } else {
+      input = el('input', { attrs: { type: 'text', placeholder: inp.default || '' } });
+      input.value = value || '';
+    }
+    input.addEventListener('input', () => onChange(input.value));
+    input.addEventListener('change', () => onChange(input.value));
+    wrap.appendChild(input);
+    if (inp.description) wrap.appendChild(el('span', { className: 'ae-hint', text: inp.description }));
+    return wrap;
+  }
     const box = el('section', { className: 'ae-panel' });
     box.appendChild(el('h2', { text: '⚠️ Someone else committed first' }));
     box.appendChild(el('p', { text: 'The file has changed on GitHub since you loaded it. Your draft is saved.' }));
@@ -994,6 +1142,14 @@
       writeFile: (path, content, opts) => fake('writeFile', { path, bytes: content.length, opts }),
       deleteFile: (path, sha, msg) => fake('deleteFile', { path, sha, msg }),
       dispatchWorkflow: (file, inputs) => fake('dispatchWorkflow', { file, inputs }),
+      getWorkflowInputs: async (file) => {
+        console.info('[dry-run] getWorkflowInputs', { file });
+        // Synthesize a reasonable stub so the UI is testable without GitHub.
+        if (file === 'telegram-announcements.yml') {
+          return [{ name: 'dry_run', description: "If 'true', build and log the message without posting to Telegram", required: false, default: 'false', type: 'boolean', options: [] }];
+        }
+        return [];
+      },
       setPat: () => {}, getPat: () => '',
     };
   }

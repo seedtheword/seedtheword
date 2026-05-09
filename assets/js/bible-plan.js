@@ -119,6 +119,11 @@ function getWeekReadings(referenceDate = new Date()) {
 
 /**
  * Render the current week's plan into the given container.
+ *
+ * Each day card carries an optional Spotify episode link, loaded lazily
+ * from assets/data/bible-spotify-map.json. Keys in that file are the
+ * exact format "Book Chapter" (e.g. "Mark 11"). Missing chapters fall
+ * back to the ministry's Spotify show link so the button always works.
  */
 function renderBiblePlan(containerId) {
   const container = document.getElementById(containerId);
@@ -128,6 +133,20 @@ function renderBiblePlan(containerId) {
   today.setHours(0, 0, 0, 0);
   const readings = getWeekReadings(today);
 
+  // Kick off the Spotify-map fetch in parallel with the initial render.
+  // The first paint uses the show-level fallback URL for every card; when
+  // the map lands we re-render to attach the per-chapter episode links.
+  const spotifyMapPromise = fetchSpotifyMap();
+
+  paint(container, readings, today, {
+    chapters: {},
+    defaultShowUrl: 'https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK',
+  });
+
+  spotifyMapPromise.then((map) => paint(container, readings, today, map));
+}
+
+function paint(container, readings, today, spotifyMap) {
   const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
   const cardsHtml = readings.map((reading, i) => {
@@ -136,11 +155,20 @@ function renderBiblePlan(containerId) {
     const isPast = reading.date < today;
     const dateLabel = reading.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
+    const spotifyUrl = spotifyUrlFor(reading, spotifyMap);
+    const linkClass = 'bible-day-card__spotify' + (spotifyUrl === spotifyMap.defaultShowUrl ? ' bible-day-card__spotify--fallback' : '');
+
     return `
       <div class="bible-day-card ${isToday ? 'today' : ''} ${isPast ? 'past' : ''}">
         <div class="bible-day-card__label">${dayLabels[i]} · ${dateLabel}</div>
         <div class="bible-day-card__reading">${reading.book} ${reading.chapter}</div>
         ${isToday ? '<div class="bible-day-card__badge">Today</div>' : ''}
+        <a class="${linkClass}"
+           href="${spotifyUrl}"
+           target="_blank" rel="noopener"
+           aria-label="Listen to ${reading.book} ${reading.chapter} on Spotify">
+          🎧 Listen
+        </a>
       </div>
     `;
   }).join('');
@@ -159,6 +187,37 @@ function renderBiblePlan(containerId) {
       </p>
     </div>
   `;
+}
+
+function spotifyUrlFor(reading, spotifyMap) {
+  const key = reading.book + ' ' + reading.chapter;
+  const mapped = spotifyMap && spotifyMap.chapters && spotifyMap.chapters[key];
+  if (mapped && !/REPLACE_WITH/i.test(mapped) && !key.startsWith('__')) {
+    return mapped;
+  }
+  return (spotifyMap && spotifyMap.defaultShowUrl)
+    || 'https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK';
+}
+
+async function fetchSpotifyMap() {
+  try {
+    const res = await fetch('assets/data/bible-spotify-map.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    // Strip example keys (those starting with __) so they never render.
+    if (data && data.chapters) {
+      for (const k of Object.keys(data.chapters)) {
+        if (k.startsWith('__')) delete data.chapters[k];
+      }
+    }
+    return data || {};
+  } catch (err) {
+    console.warn('[bible-plan] Spotify map unavailable:', err.message);
+    return {
+      chapters: {},
+      defaultShowUrl: 'https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK',
+    };
+  }
 }
 
 // Auto-render if target container exists on page

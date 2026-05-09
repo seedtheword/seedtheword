@@ -268,6 +268,48 @@
       commitMessageTemplate: 'content(bible-spotify): update map',
     },
 
+    studySaturday: {
+      id: 'studySaturday',
+      label: 'Study Saturday — weekly study topic',
+      category: 'content',
+      kind: 'json',
+      path: 'assets/data/study-saturday.json',
+      rootType: 'object',
+      groups: [
+        {
+          name: 'weeks',
+          label: 'Weeks (most recent first)',
+          kind: 'repeating-group',
+          fields: [
+            { name: 'weekOf', label: 'Week of (YYYY-MM-DD — use Monday)', kind: 'date', required: true,
+              validate: (v) => /^\d{4}-\d{2}-\d{2}$/.test(v) ? null : 'Must be YYYY-MM-DD.' },
+            { name: 'oldTestament', label: 'Old Testament passage', kind: 'text',
+              hint: 'e.g. "Genesis 15 — Abram\'s covenant"' },
+            { name: 'gospel',       label: 'Gospel / New Testament passage', kind: 'text',
+              hint: 'e.g. "Mark 11 — Jesus enters Jerusalem"' },
+            { name: 'scripture',    label: 'Anchor scripture (optional)', kind: 'text',
+              hint: 'Specific verses, e.g. "Mark 11:22-24".' },
+            { name: 'note',         label: 'Note / connection (optional)', kind: 'textarea' },
+          ],
+          addLabel: '+ Add week',
+        },
+      ],
+      validate: function (data) {
+        if (!data || typeof data !== 'object') return 'Root must be an object.';
+        if (!Array.isArray(data.weeks)) return 'weeks must be an array.';
+        return null;
+      },
+      commitMessageTemplate: 'content(study-saturday): update {summary}',
+      tokens: function (form) {
+        const w = (form && form.weeks) || [];
+        if (w.length) {
+          const last = w[w.length - 1];
+          if (last && last.weekOf) return { summary: 'week of ' + last.weekOf };
+        }
+        return { summary: 'study saturday update' };
+      },
+    },
+
     bundleEssentials: bundleSchema('bundleEssentials', 'Bundle: Essentials slideshow', 'essentials'),
     bundleLifegroup: bundleSchema('bundleLifegroup', 'Bundle: Life Group slideshow', 'lifegroup'),
     bundleMinistry:  bundleSchema('bundleMinistry',  'Bundle: Ministry slideshow',  'ministry'),

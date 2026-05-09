@@ -1,14 +1,13 @@
 {
-  "_help": "Drives the 'What We're Listening To' and 'Partner Ministries' sections on community.html. Admins: use the builder on admin-help.html to generate entries, then paste them into the right array below and commit. Each listening item supports one of these kinds: 'spotify' (type: 'episode' or 'show'), 'youtube', or 'link'. Partners just need name + url, with optional logo and description.",
+  "_help": "Drives the 'What We're Listening To' and 'Partner Ministries' sections on community.html. Admins: use the editor on admin-help.html (Editor tab) to add entries and commit straight from the browser. Each listening item supports one of these kinds: 'spotify' (type: 'episode' or 'show'), 'youtube', or 'link'. Partners just need name + url, with optional logo and description.",
   "listening": [
     {
       "kind": "spotify",
       "type": "episode",
-      "id": "1Y4cct2gyvhYJYLIxwuley",
+      "id": "18fvn9d9Wz3fM3iB5NrmLO",
       "title": "Not our way, it's Yahweh",
-      "source": "After the Heart Podcast by Sam Petrov — Episode 21 ",
-      "note": "Sam Petrov is our friend from the One Heart MVMT",
-      "url": "https://open.spotify.com/episode/18fvn9d9Wz3fM3iB5NrmLO?si=nsbBzMc-SUC3TKxwJpSSCg"
+      "source": "After the Heart Podcast by Sam Petrov — Episode 21",
+      "note": "Sam Petrov is our friend from the One Heart MVMT."
     }
   ],
   "partners": []

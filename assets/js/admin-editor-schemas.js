@@ -131,7 +131,7 @@
         } catch (_) {}
         return { summary: 'recommendations update' };
       },
-      legacyCopyPaste: true,
+      legacyCopyPaste: false,
     },
 
     dailyVerses: {
@@ -247,11 +247,102 @@
       kind: 'json',
       path: 'assets/data/telegram-bot.json',
       rootType: 'object',
-      // This file has a nested shape with 3 bot configs. Render as JSON-only for v1
-      // (no structured form); admins can still edit the formatted JSON and get
-      // validation + diff. A fully-structured schema is a Phase B+ refinement.
-      rawJson: true,
-      commitMessageTemplate: 'content(telegram-bot): update config',
+      // Three nested config blocks — one per bot. Rendered as three
+      // grouped forms; admins edit one bot without touching the others.
+      groups: [
+        {
+          name: 'announcements',
+          dataKey: 'announcements',
+          label: 'Announcements bot',
+          hint: 'Posts upcoming / in-progress calendar events to the @seedtheword channel. Runs every 15 minutes.',
+          fields: [
+            { name: 'enabled', label: 'Enabled', kind: 'toggle' },
+            { name: 'tokenSecret', label: 'GitHub Secret name for bot token', kind: 'text', required: true,
+              hint: 'The name of the repo secret that holds the bot token (e.g. TELEGRAM_BOT_TOKEN). Never paste the token itself here.' },
+            { name: 'chatId', label: 'Channel / chat ID', kind: 'text', required: true,
+              placeholder: '@seedtheword' },
+            { name: 'messageThreadId', label: 'Message thread ID (optional)', kind: 'number',
+              hint: 'Topic thread inside a forum-style channel. Leave blank if the channel has no topics.' },
+            { name: 'timezone', label: 'Timezone', kind: 'text', required: true,
+              placeholder: 'America/Los_Angeles' },
+            { name: 'skipDaysOfWeek', label: 'Skip days of the week (comma-separated)', kind: 'text',
+              hint: 'e.g. "Sunday" or "Saturday,Sunday". Empty = post every day. LIVE events always post.',
+              coerce: 'csv-array' },
+            { name: 'lookaheadDays', label: 'Lookahead days', kind: 'number', required: true,
+              hint: 'How far ahead of now to consider events. Usually 1 so announcements stay close to the event.' },
+            { name: 'reminderMinutesBefore', label: 'Reminder minutes before event', kind: 'number',
+              hint: 'Send a "starting soon" reminder this many minutes before an event. 180 = 3 hours.' },
+            { name: 'quietHoursStart', label: 'Quiet hours start (24h)', kind: 'number',
+              hint: 'Earliest hour non-live announcements may post. e.g. 7 = 7am. LIVE events bypass this.' },
+            { name: 'quietHoursEnd', label: 'Quiet hours end (24h)', kind: 'number',
+              hint: 'Latest hour non-live announcements may post. e.g. 21 = 9pm.' },
+            { name: 'header.morning',  label: 'Morning banner',  kind: 'text', placeholder: '☀️ Today at Seed the Word' },
+            { name: 'header.midday',   label: 'Midday banner',   kind: 'text', placeholder: '🌿 Still happening today' },
+            { name: 'header.evening',  label: 'Evening banner',  kind: 'text', placeholder: '🔴 Live now & coming up' },
+            { name: 'header.reminder', label: 'Reminder banner', kind: 'text', placeholder: '⏰ Starting soon' },
+            { name: 'footer', label: 'Footer text', kind: 'textarea',
+              hint: 'Appended to the bottom of every announcement.' },
+          ],
+        },
+        {
+          name: 'bible',
+          dataKey: 'bible',
+          label: 'Daily Bible bot',
+          hint: 'Posts the daily chapter reading + Spotify link to the Bible topic.',
+          fields: [
+            { name: 'enabled', label: 'Enabled', kind: 'toggle' },
+            { name: 'tokenSecret', label: 'GitHub Secret name for bot token', kind: 'text', required: true,
+              placeholder: 'TELEGRAM_BIBLE_BOT_TOKEN' },
+            { name: 'chatId', label: 'Channel / chat ID', kind: 'text', required: true },
+            { name: 'messageThreadId', label: 'Message thread ID', kind: 'number' },
+            { name: 'timezone', label: 'Timezone', kind: 'text', required: true },
+            { name: 'linkBackUrl', label: 'Link-back URL (pinned Bible message)', kind: 'url',
+              validate: (v) => !v || isValidHttpsUrl(v) ? null : 'Must be an https URL.' },
+            { name: 'fallbackShowUrl', label: 'Fallback Spotify show URL', kind: 'url',
+              hint: 'Used when the per-chapter episode link is not in bible-spotify-map.json.',
+              validate: (v) => !v || isValidHttpsUrl(v) ? null : 'Must be an https URL.' },
+          ],
+        },
+        {
+          name: 'prayer',
+          dataKey: 'prayer',
+          label: 'Prayer nudge bot',
+          hint: 'Sends a gentle daily nudge to pray / share thanksgiving.',
+          fields: [
+            { name: 'enabled', label: 'Enabled', kind: 'toggle' },
+            { name: 'tokenSecret', label: 'GitHub Secret name for bot token', kind: 'text', required: true,
+              placeholder: 'TELEGRAM_PRAYER_BOT_TOKEN' },
+            { name: 'chatId', label: 'Channel / chat ID', kind: 'text', required: true },
+            { name: 'messageThreadId', label: 'Message thread ID', kind: 'number' },
+            { name: 'prayerTopicUrl', label: 'Prayer topic URL (pinned)', kind: 'url',
+              validate: (v) => !v || isValidHttpsUrl(v) ? null : 'Must be an https URL.' },
+            { name: 'timezone', label: 'Timezone', kind: 'text', required: true },
+          ],
+        },
+      ],
+      validate: function (data) {
+        if (!data || typeof data !== 'object') return 'Root must be an object.';
+        // Soft validation — we want the form to be forgiving for admins who
+        // are mid-edit. Strict required-field enforcement lives on the
+        // per-field validators.
+        for (const bot of ['announcements', 'bible', 'prayer']) {
+          if (data[bot] && typeof data[bot] !== 'object') return bot + ' must be an object.';
+        }
+        return null;
+      },
+      commitMessageTemplate: 'content(telegram-bot): update {summary}',
+      tokens: function (form) {
+        // Best-effort summary: surface whichever bot the admin just touched.
+        try {
+          for (const bot of ['announcements', 'bible', 'prayer']) {
+            const b = form && form[bot];
+            if (b && typeof b === 'object' && b.enabled !== undefined) {
+              return { summary: bot + ' ' + (b.enabled ? 'enabled' : 'disabled') };
+            }
+          }
+        } catch (_) {}
+        return { summary: 'telegram bot config' };
+      },
     },
 
     bibleSpotifyMap: {

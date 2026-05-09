@@ -875,21 +875,69 @@
       </div>
       <div class="admin-branch">
         <p class="admin-branch__label">🖼️ A photo or video</p>
-        <p class="admin-branch__body">Upload to the matching folder under <code>assets/images/</code>. For bundle slideshows or outreach cards, also edit the folder's <code>images.json</code>.</p>
+        <p class="admin-branch__body">Open the <strong>✏️ Editor</strong> tab and pick the matching image folder or the Videos entry. Direct GitHub uploads to <code>assets/images/</code> still work as a fallback.</p>
       </div>
       <div class="admin-branch">
         <p class="admin-branch__label">🎧 Spotify / YouTube / link</p>
-        <p class="admin-branch__body">Edit <code>assets/data/recommendations.json</code>. Use the Recommendations builder below — it generates the JSON for you.</p>
+        <p class="admin-branch__body">Open the <strong>✏️ Editor</strong> tab, pick <em>Recommendations</em>. Fill the form, preview in place, commit. The legacy copy-paste flow is retired.</p>
       </div>
       <div class="admin-branch">
         <p class="admin-branch__label">📖 Verse of the Day</p>
-        <p class="admin-branch__body">Add a new entry to <code>assets/data/daily-verses.json</code>.</p>
+        <p class="admin-branch__body">Open the <strong>✏️ Editor</strong> tab, pick <em>Daily verses rotation</em>. Add an entry and commit.</p>
+      </div>
+      <div class="admin-branch">
+        <p class="admin-branch__label">📣 Telegram bot schedule / quiet hours</p>
+        <p class="admin-branch__body">Open the <strong>✏️ Editor</strong> tab, pick <em>Telegram bot config</em>. Structured form for all three bots — announcements, Bible, prayer.</p>
       </div>
       <div class="admin-branch">
         <p class="admin-branch__label">🧯 Something is broken</p>
         <p class="admin-branch__body">Jump to the Troubleshooting section below — hard-refresh first, then diagnose by symptom.</p>
       </div>
     </div>
+  </div>
+
+  <div class="admin-card" style="margin-top: 1.25rem;">
+    <p class="admin-card__label">Site map</p>
+    <p class="admin-card__title">🗺️ What's where — page by page</p>
+    <p>A quick reference for which section on the live site is backed by what data file or folder. Sections marked <em>(HTML only)</em> are edited directly in the page's HTML — not yet admin-form-driven.</p>
+    <p><strong>Homepage (<code>index.html</code>)</strong></p>
+    <ul>
+      <li>Hero + "Who is Jesus" CTA — <em>(HTML only)</em></li>
+      <li>Featured Ministry Feed carousel — rotates live data from <code>daily-verses.json</code>, <code>ministry-outreach.json</code>, <code>recommendations.json</code>, <code>instagram.json</code> (scraper), Google Calendar, plus the <strong>FALLBACK_SLIDES</strong> / <strong>DAILY_CONTENT</strong> literals inside <code>assets/js/showcase-carousel.js</code> (editable from <em>Editor → Homepage carousel fallback / daily</em>)</li>
+      <li>Walking the Path of Light — Plant / Water / Gather waypoints — <em>(HTML only)</em></li>
+    </ul>
+    <p><strong>About (<code>about.html</code>)</strong></p>
+    <ul>
+      <li>"Our S.E.E.D Story" — 9 stitch tiles. Images: <em>Editor → Seed Stitch photos</em>. Text: <em>(HTML only)</em>.</li>
+      <li>"Meet our team" — 5 cards. Team photos: <em>Editor → Team headshots</em>. Text: <em>(HTML only)</em>.</li>
+      <li>"How We S.E.E.D." — 5 practice cards. <em>(HTML only)</em></li>
+      <li>"Contact us - @seedtheword" — submissions go to <a href="https://formspree.io/forms" target="_blank" rel="noopener">Formspree</a>.</li>
+    </ul>
+    <p><strong>Community (<code>community.html</code>)</strong></p>
+    <ul>
+      <li>"This Week in God's Word" — reading plan powered by <code>bible-spotify-map.json</code> (<em>Editor → Bible → Spotify chapter map</em>).</li>
+      <li>"Our Ministry Feed" — Spotify show (hardcoded ID) + Study Saturday livestream. Weekly review: <em>Editor → Study Saturday</em>.</li>
+      <li>"Friends in Jesus" — recommendations + partners (<em>Editor → Recommendations</em>).</li>
+      <li>"Learn more about us online" 4-up platform row (Telegram / Spotify / Twitch / Instagram) — <em>(HTML only)</em>.</li>
+      <li>Telegram quick-start cards + Instagram grid — <em>(HTML only)</em>.</li>
+    </ul>
+    <p><strong>News (<code>news.html</code>)</strong></p>
+    <ul>
+      <li>Announcements + Ministry Initiatives — Google Calendar (add/edit events there).</li>
+      <li>Ministry Outreach cards — <em>Editor → Ministry outreach events</em> + photo uploads to <em>Editor → Outreach event photos</em>.</li>
+      <li>Share Your Story popup — Google Form embedded.</li>
+      <li>Highlights video grid — <em>Editor → Videos</em>.</li>
+    </ul>
+    <p><strong>Store (<code>store.html</code>)</strong></p>
+    <ul>
+      <li>Bundle slideshows — <em>Editor → Bundle Essentials / Life Group / Ministry</em>. Photos: <em>Editor → (matching bundle folder)</em>.</li>
+    </ul>
+    <p><strong>Background services</strong></p>
+    <ul>
+      <li>Telegram announcements / Bible / prayer bots — <em>Editor → Telegram bot config</em>. Triggered by the Telegram announcements workflow every 15 min.</li>
+      <li>Media drop button — <em>Editor → Media-drop upload button config</em>.</li>
+      <li>Instagram scraper — runs every 6h via the Instagram scrape workflow.</li>
+    </ul>
   </div>
 
   <h2>📋 Overview — what the site depends on</h2>
@@ -914,6 +962,7 @@
     <p class="admin-card__label">Livestream Status</p>
     <p class="admin-card__title">Twitch</p>
     <p>The "LIVE NOW / OFFLINE" card on <code>community.html</code> is currently schedule-based (Saturday 7–10 PM Pacific). It does not query Twitch directly.</p>
+    <p>The weekly review block at the bottom of that card ("This Saturday's Review" — Old/New Testament passages) reads from <code>assets/data/study-saturday.json</code>. Edit it from <em>Editor → Study Saturday</em>.</p>
     <p><strong>Dashboard:</strong> <a href="https://dashboard.twitch.tv" target="_blank" rel="noopener">dashboard.twitch.tv</a></p>
     <p><strong>Channel:</strong> <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener">twitch.tv/seedtheword</a></p>
   </div>
@@ -2067,7 +2116,8 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   <h2>📝 Recent changes</h2>
   <p>Big-picture history of what's on the site and when it was set up:</p>
   <ul>
-    <li><strong>May 2026 (current)</strong> — Homepage rebuilt as Hero → Featured From Our Ministry → Walking the Path of Light. Dropped the separate "Today at Seed the Word" dashboard section (Showcase Carousel already covers rotating content). News page gained "Ministry Outreach &amp; Highlights" (3 carousel cards + existing 9-tile grid); removed "Ways to Help". Calendar events now have a 📣 Share Event dropdown (Telegram, WhatsApp, Instagram, Device share, Copy) that pre-fills the ministry's announcement template with Apple/Google maps links. News page has Open Graph tags for rich link previews on Telegram. Admin help got a searchable interface, Mermaid flowcharts, and an interactive Recommendations builder with live Spotify/YouTube previews.</li>
+    <li><strong>May 2026 (current)</strong> — Site-wide reorganization. <strong>Homepage</strong> showcase renamed to "Featured Ministry Feed" with a 9-category rotation (announcements, outreach, highlights, store, ministry initiatives, Friends in Jesus, today's verse, How We S.E.E.D., tips/resources) pulling live data from each source. Path of Light waypoints renamed to <em>Plant the Seed / Water to Grow / Gather the Harvest</em>. <strong>About page</strong> restructured: "About S.E.E.D. Ministry" → "Our S.E.E.D Story"; the 9 stitch tiles' bottom row rewritten to the three phases; "How We S.E.E.D." cards rewritten (Bible reading, fellowship schedule, Study Saturdays, Prayer &amp; Worship with Philippians 4:6-8 and John 4:23-24, Outreach); Contact heading renamed to "Contact us - @seedtheword". <strong>Community page</strong> got a 4-up platform CTA row (Telegram / Spotify / Twitch / Instagram) with equal billing, replacing the old Telegram-only big card; "Daily Touchpoints" renamed to "Learn more about us online". Study Saturday livestream card now merges the weekly review (Old/New Testament passages) into one card. <strong>Admin editor</strong> got a structured form for the Telegram bot config (all three bots + quiet hours + reminder minutes), the Recommendations legacy copy-paste flow was retired (<code>legacyCopyPaste</code> flipped to false), and cache busters bumped to v=12. <strong>Mobile</strong>: seed-story tiles now open on tap (or keyboard Enter/Space) — no longer hover-only.</li>
+    <li><strong>May 2026</strong> — Homepage rebuilt as Hero → Featured From Our Ministry → Walking the Path of Light. Dropped the separate "Today at Seed the Word" dashboard section (Showcase Carousel already covers rotating content). News page gained "Ministry Outreach &amp; Highlights" (3 carousel cards + existing 9-tile grid); removed "Ways to Help". Calendar events now have a 📣 Share Event dropdown (Telegram, WhatsApp, Instagram, Device share, Copy) that pre-fills the ministry's announcement template with Apple/Google maps links. News page has Open Graph tags for rich link previews on Telegram. Admin help got a searchable interface, Mermaid flowcharts, and an interactive Recommendations builder with live Spotify/YouTube previews.</li>
     <li><strong>May 2026</strong> — Store page rebuilt around three tone-differentiated bundles (Essentials, Life Group, Ministry calling). Each bundle card has a rotating slideshow powered by per-folder <code>images.json</code> manifests. Store header renamed to "Love. Gift. Repeat — that's Jesus." Added support-the-ministry PayPal quick-give panel. Bundle-builder page rebuilt to match aesthetic.</li>
     <li><strong>May 2026</strong> — "A message from our friend, Ruslan Y." permanent video card added to Community page. Partner Ministries + What We're Listening To migrated from JS arrays to <code>assets/data/recommendations.json</code> (admin-editable via the builder tool). Media drop folded into the News outreach callout with Google Forms integration.</li>
     <li><strong>May 2026</strong> — Added Spotify podcast embed, 4-icon header/footer socials, mobile nav fix, announcement timezone fix, 3-column contact section with Formspree. Fixed livestream "OFFLINE" showing on Saturdays before 7 PM PT.</li>
@@ -2095,15 +2145,15 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   </div>
 </footer>
 
-<script src="assets/js/admin-editor-schemas.js?v=11" defer></script>
-<script src="assets/js/admin-editor-github.js?v=11" defer></script>
-<script src="assets/js/admin-editor-diff.js?v=11" defer></script>
-<script src="assets/js/admin-editor-drafts.js?v=11" defer></script>
-<script src="assets/js/admin-editor-validate.js?v=11" defer></script>
-<script src="assets/js/admin-editor-commit-message.js?v=11" defer></script>
-<script src="assets/js/admin-editor-js-literal.js?v=11" defer></script>
-<script src="assets/js/admin-editor.js?v=11" defer></script>
-<script src="assets/js/admin-help.js?v=16" defer></script>
+<script src="assets/js/admin-editor-schemas.js?v=12" defer></script>
+<script src="assets/js/admin-editor-github.js?v=12" defer></script>
+<script src="assets/js/admin-editor-diff.js?v=12" defer></script>
+<script src="assets/js/admin-editor-drafts.js?v=12" defer></script>
+<script src="assets/js/admin-editor-validate.js?v=12" defer></script>
+<script src="assets/js/admin-editor-commit-message.js?v=12" defer></script>
+<script src="assets/js/admin-editor-js-literal.js?v=12" defer></script>
+<script src="assets/js/admin-editor.js?v=12" defer></script>
+<script src="assets/js/admin-help.js?v=17" defer></script>
 
 </body>
 </html>

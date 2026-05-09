@@ -757,19 +757,70 @@
     for (const group of groups) {
       const block = el('fieldset', { className: 'ae-group' });
       block.appendChild(el('legend', { text: group.label || group.name }));
+      if (group.hint) {
+        block.appendChild(el('p', { className: 'ae-hint', text: group.hint }));
+      }
       if (group.kind === 'repeating-group') {
         renderRepeatingGroup(block, group, form, onChange);
       } else if (Array.isArray(group.fields)) {
+        // If the group has a dataKey, fields write into form[dataKey][fieldName]
+        // instead of form[fieldName]. Used when a single JSON file has
+        // multiple nested object sections (e.g. telegram-bot.json with its
+        // announcements / bible / prayer blocks).
+        const scope = group.dataKey
+          ? (form[group.dataKey] = form[group.dataKey] || {})
+          : form;
         for (const field of group.fields) {
-          const fieldEl = renderField(field, (form && form[field.name]) || '', (val) => {
-            form[field.name] = val;
+          const fieldEl = renderField(field, resolveFieldValue(scope, field), (val) => {
+            setFieldValue(scope, field, val);
             onChange();
-          }, field.name);
+          }, (group.dataKey ? group.dataKey + '.' : '') + field.name);
           block.appendChild(fieldEl);
         }
       }
       container.appendChild(block);
     }
+  }
+
+  // Reads a (possibly dotted) field path out of a scope object. Supports
+  // nested paths like "header.morning" so a group can flatten a shallow
+  // nested object into discrete form fields.
+  function resolveFieldValue(scope, field) {
+    if (!scope) return '';
+    const parts = String(field.name).split('.');
+    let cur = scope;
+    for (const p of parts) {
+      if (cur == null) return '';
+      cur = cur[p];
+    }
+    if (cur === undefined || cur === null) return field.coerce === 'csv-array' && Array.isArray(cur) ? '' : '';
+    if (field.coerce === 'csv-array' && Array.isArray(cur)) return cur.join(', ');
+    return cur;
+  }
+
+  // Writes a value back through a dotted path and applies any coercions
+  // declared on the field (e.g. csv-array turns "a, b" back into ["a","b"]).
+  function setFieldValue(scope, field, val) {
+    let out = val;
+    if (field.coerce === 'csv-array') {
+      out = String(val || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else if (field.kind === 'number') {
+      out = val === '' || val == null ? null : Number(val);
+      if (!Number.isFinite(out)) out = null;
+    } else if (field.kind === 'toggle') {
+      out = !!val;
+    }
+    const parts = String(field.name).split('.');
+    let cur = scope;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const p = parts[i];
+      if (cur[p] == null || typeof cur[p] !== 'object') cur[p] = {};
+      cur = cur[p];
+    }
+    cur[parts[parts.length - 1]] = out;
   }
 
   function renderRepeatingGroup(container, group, form, onChange) {

@@ -1065,3 +1065,81 @@ if (document.readyState === 'loading') {
     if (e.key === 'Escape') closeAll(null);
   });
 })();
+
+
+// ── "See more" collapse for How We S.E.E.D. cards on mobile ─────
+// The .step cards on about.html have richly-formatted descriptions
+// (bulleted lists, blockquotes, multiple paragraphs). On narrow
+// viewports that content outgrows the card and readers can't see
+// where it ends. This collapses anything taller than the clamp height
+// behind a "See more" chevron button. Desktop (> 640px) stays
+// expanded by default. The toggle is always available though, so
+// tighter mobile breakpoints can still collapse a long card.
+(function initStepCollapsibles() {
+  const COLLAPSE_BELOW_WIDTH = 640;       // apply the collapse UX below this
+  const COLLAPSED_MAX_HEIGHT_PX = 200;    // matches CSS max-height: 12.5rem
+
+  const steps = document.querySelectorAll('.step');
+  if (!steps.length) return;
+
+  function prep(step) {
+    const desc = step.querySelector('.step__desc');
+    if (!desc || desc.dataset.stepCollapseReady === '1') return;
+    desc.dataset.stepCollapseReady = '1';
+
+    // Measure the natural height. If it's tall enough to need a toggle,
+    // wire one up. Measurement has to happen without the clamp class,
+    // otherwise we'd always read the clamped height instead of the real one.
+    const naturalHeight = desc.scrollHeight;
+    if (naturalHeight <= COLLAPSED_MAX_HEIGHT_PX + 20) return; // fits fine
+
+    desc.classList.add('step__desc--collapsible');
+
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'step__toggle';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.innerHTML = '<span class="step__toggle-label">See more</span><span class="step__toggle-chevron" aria-hidden="true">▾</span>';
+    desc.parentNode.insertBefore(toggle, desc.nextSibling);
+
+    toggle.addEventListener('click', () => {
+      const collapsed = desc.classList.toggle('step__desc--collapsed');
+      toggle.setAttribute('aria-expanded', String(!collapsed));
+      toggle.querySelector('.step__toggle-label').textContent =
+        collapsed ? 'See more' : 'See less';
+    });
+
+    // Apply initial state based on viewport
+    applyViewportState(step, desc, toggle);
+  }
+
+  function applyViewportState(step, desc, toggle) {
+    const isNarrow = window.innerWidth <= COLLAPSE_BELOW_WIDTH;
+    if (isNarrow) {
+      desc.classList.add('step__desc--collapsed');
+      toggle.hidden = false;
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.querySelector('.step__toggle-label').textContent = 'See more';
+    } else {
+      desc.classList.remove('step__desc--collapsed');
+      toggle.hidden = true;
+    }
+  }
+
+  steps.forEach(prep);
+
+  // Re-apply on resize so rotating the phone or moving between
+  // breakpoints does the right thing without a page refresh.
+  let resizeRaf = 0;
+  window.addEventListener('resize', () => {
+    if (resizeRaf) return;
+    resizeRaf = requestAnimationFrame(() => {
+      resizeRaf = 0;
+      steps.forEach((step) => {
+        const desc = step.querySelector('.step__desc--collapsible');
+        const toggle = step.querySelector('.step__toggle');
+        if (desc && toggle) applyViewportState(step, desc, toggle);
+      });
+    });
+  }, { passive: true });
+})();

@@ -1226,6 +1226,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   overflow-wrap: break-word;
   word-wrap: break-word;
   hyphens: auto;
+  position: relative;
 }
 .step__desc p,
 .step__desc ul,
@@ -1240,6 +1241,51 @@ ul { margin: 0; padding: 0; list-style: none; }
 .step__desc blockquote {
   overflow-wrap: break-word;
   word-wrap: break-word;
+}
+
+/* ── "See more" collapse for long step cards ──
+   JS (main.js) measures each .step__desc on narrow viewports. If it
+   overflows the clamp height it adds .step__desc--collapsible and
+   injects a toggle button. When .step__desc--collapsed is also
+   present we clamp + fade the bottom edge. The toggle removes
+   .step__desc--collapsed to expand, readds it to collapse again. */
+.step__desc--collapsible {
+  transition: max-height 0.35s ease;
+}
+.step__desc--collapsed {
+  max-height: 12.5rem;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+}
+.step__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.85rem;
+  padding: 0.4rem 0.95rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--green, #2C5F2E);
+  background: rgba(44, 95, 46, 0.08);
+  border: 1.5px solid rgba(44, 95, 46, 0.18);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.step__toggle:hover,
+.step__toggle:focus-visible {
+  background: rgba(44, 95, 46, 0.14);
+  border-color: rgba(44, 95, 46, 0.32);
+  outline: none;
+}
+.step__toggle[aria-expanded="true"] .step__toggle-chevron {
+  transform: rotate(180deg);
+}
+.step__toggle-chevron {
+  transition: transform 0.25s ease;
+  font-size: 0.75rem;
 }
 
 /* Tighter padding on narrow phones so content has room to breathe.

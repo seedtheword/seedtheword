@@ -1244,40 +1244,44 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 /* ── "See more" collapse for long step cards ──
-   JS (main.js) measures each .step__desc on narrow viewports. If it
-   overflows the clamp height it adds .step__desc--collapsible and
-   injects a toggle button. When .step__desc--collapsed is also
-   present we clamp + fade the bottom edge. The toggle removes
-   .step__desc--collapsed to expand, readds it to collapse again. */
+   Every .step__desc gets .step__desc--collapsible from JS so we
+   consistently know which descriptions participate. On mobile the
+   description is clamped by default and the toggle is visible. When
+   the admin clicks the toggle, JS adds .step__desc--open which
+   removes the clamp. Desktop skips the whole thing by hiding the
+   toggle and lifting the clamp. */
 .step__desc--collapsible {
+  max-height: 11rem;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 68%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 68%, transparent 100%);
   transition: max-height 0.35s ease;
 }
-.step__desc--collapsed {
-  max-height: 12.5rem;
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
-          mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+.step__desc--collapsible.step__desc--open {
+  max-height: 4000px; /* arbitrarily tall — real height is content-driven */
+  -webkit-mask-image: none;
+          mask-image: none;
 }
 .step__toggle {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
   margin-top: 0.85rem;
-  padding: 0.4rem 0.95rem;
+  padding: 0.5rem 1.05rem;
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--green, #2C5F2E);
-  background: rgba(44, 95, 46, 0.08);
-  border: 1.5px solid rgba(44, 95, 46, 0.18);
+  background: rgba(44, 95, 46, 0.1);
+  border: 1.5px solid rgba(44, 95, 46, 0.22);
   border-radius: 999px;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
 }
 .step__toggle:hover,
 .step__toggle:focus-visible {
-  background: rgba(44, 95, 46, 0.14);
-  border-color: rgba(44, 95, 46, 0.32);
+  background: rgba(44, 95, 46, 0.16);
+  border-color: rgba(44, 95, 46, 0.4);
   outline: none;
 }
 .step__toggle[aria-expanded="true"] .step__toggle-chevron {
@@ -1286,6 +1290,18 @@ ul { margin: 0; padding: 0; list-style: none; }
 .step__toggle-chevron {
   transition: transform 0.25s ease;
   font-size: 0.75rem;
+}
+/* Desktop (wider than 640px) shows the whole card and hides the toggle. */
+@media (min-width: 641px) {
+  .step__desc--collapsible {
+    max-height: none;
+    overflow: visible;
+    -webkit-mask-image: none;
+            mask-image: none;
+  }
+  .step__toggle {
+    display: none;
+  }
 }
 
 /* Tighter padding on narrow phones so content has room to breathe.

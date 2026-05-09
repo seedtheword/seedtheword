@@ -1068,78 +1068,40 @@ if (document.readyState === 'loading') {
 
 
 // ── "See more" collapse for How We S.E.E.D. cards on mobile ─────
-// The .step cards on about.html have richly-formatted descriptions
-// (bulleted lists, blockquotes, multiple paragraphs). On narrow
-// viewports that content outgrows the card and readers can't see
-// where it ends. This collapses anything taller than the clamp height
-// behind a "See more" chevron button. Desktop (> 640px) stays
-// expanded by default. The toggle is always available though, so
-// tighter mobile breakpoints can still collapse a long card.
+// Every .step card on about.html gets a toggle button appended
+// unconditionally. CSS decides when it's visible (mobile) and when
+// it's hidden (desktop), plus whether the content is clamped. JS
+// only handles the click to toggle the .step__desc--open state.
+// No scrollHeight measurement — past attempts at measuring failed
+// because certain browsers returned small values when the parent
+// had overflow:hidden set, so we skip measurement entirely.
 (function initStepCollapsibles() {
-  const COLLAPSE_BELOW_WIDTH = 640;       // apply the collapse UX below this
-  const COLLAPSED_MAX_HEIGHT_PX = 200;    // matches CSS max-height: 12.5rem
+  document.addEventListener('DOMContentLoaded', () => {
+    const steps = document.querySelectorAll('.step');
+    if (!steps.length) return;
 
-  const steps = document.querySelectorAll('.step');
-  if (!steps.length) return;
+    steps.forEach((step) => {
+      const desc = step.querySelector('.step__desc');
+      if (!desc || desc.dataset.stepCollapseReady === '1') return;
+      desc.dataset.stepCollapseReady = '1';
 
-  function prep(step) {
-    const desc = step.querySelector('.step__desc');
-    if (!desc || desc.dataset.stepCollapseReady === '1') return;
-    desc.dataset.stepCollapseReady = '1';
+      desc.classList.add('step__desc--collapsible');
 
-    // Measure the natural height. If it's tall enough to need a toggle,
-    // wire one up. Measurement has to happen without the clamp class,
-    // otherwise we'd always read the clamped height instead of the real one.
-    const naturalHeight = desc.scrollHeight;
-    if (naturalHeight <= COLLAPSED_MAX_HEIGHT_PX + 20) return; // fits fine
-
-    desc.classList.add('step__desc--collapsible');
-
-    const toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.className = 'step__toggle';
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.innerHTML = '<span class="step__toggle-label">See more</span><span class="step__toggle-chevron" aria-hidden="true">▾</span>';
-    desc.parentNode.insertBefore(toggle, desc.nextSibling);
-
-    toggle.addEventListener('click', () => {
-      const collapsed = desc.classList.toggle('step__desc--collapsed');
-      toggle.setAttribute('aria-expanded', String(!collapsed));
-      toggle.querySelector('.step__toggle-label').textContent =
-        collapsed ? 'See more' : 'See less';
-    });
-
-    // Apply initial state based on viewport
-    applyViewportState(step, desc, toggle);
-  }
-
-  function applyViewportState(step, desc, toggle) {
-    const isNarrow = window.innerWidth <= COLLAPSE_BELOW_WIDTH;
-    if (isNarrow) {
-      desc.classList.add('step__desc--collapsed');
-      toggle.hidden = false;
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'step__toggle';
       toggle.setAttribute('aria-expanded', 'false');
-      toggle.querySelector('.step__toggle-label').textContent = 'See more';
-    } else {
-      desc.classList.remove('step__desc--collapsed');
-      toggle.hidden = true;
-    }
-  }
+      toggle.innerHTML =
+        '<span class="step__toggle-label">See more</span>' +
+        '<span class="step__toggle-chevron" aria-hidden="true">▾</span>';
+      desc.parentNode.insertBefore(toggle, desc.nextSibling);
 
-  steps.forEach(prep);
-
-  // Re-apply on resize so rotating the phone or moving between
-  // breakpoints does the right thing without a page refresh.
-  let resizeRaf = 0;
-  window.addEventListener('resize', () => {
-    if (resizeRaf) return;
-    resizeRaf = requestAnimationFrame(() => {
-      resizeRaf = 0;
-      steps.forEach((step) => {
-        const desc = step.querySelector('.step__desc--collapsible');
-        const toggle = step.querySelector('.step__toggle');
-        if (desc && toggle) applyViewportState(step, desc, toggle);
+      toggle.addEventListener('click', () => {
+        const nowOpen = desc.classList.toggle('step__desc--open');
+        toggle.setAttribute('aria-expanded', String(nowOpen));
+        toggle.querySelector('.step__toggle-label').textContent =
+          nowOpen ? 'See less' : 'See more';
       });
     });
-  }, { passive: true });
+  });
 })();

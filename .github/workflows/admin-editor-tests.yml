@@ -37,5 +37,13 @@ jobs:
       - name: Print versions
         run: node --version
 
+      - name: Syntax-check every admin-editor module
+        run: |
+          set -e
+          for f in assets/js/admin-editor*.js; do
+            echo "==> $f"
+            node --check "$f"
+          done
+
       - name: Run tests
         run: node --test tests/

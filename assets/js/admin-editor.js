@@ -364,6 +364,22 @@
         editor.form = { listening: [], partners: [] };
         console.warn('[admin-editor] ' + schema.path + ' contains malformed JSON; starting from an empty shape.');
       }
+      // Legacy rows for recommendations stored the extracted `id`/`type` but
+      // not the original `url`. To keep the editor's single-source-of-truth
+      // the URL field, we synthesize a URL for any existing row that has an
+      // id but no url. The commit step will re-extract id/type from the URL
+      // so the on-disk shape stays consistent.
+      if (schemaId === 'recommendations' && editor.form && Array.isArray(editor.form.listening)) {
+        editor.form.listening.forEach(function (row) {
+          if (!row.url && row.id) {
+            if (row.kind === 'spotify') {
+              row.url = 'https://open.spotify.com/' + (row.type || 'episode') + '/' + row.id;
+            } else if (row.kind === 'youtube') {
+              row.url = 'https://www.youtube.com/watch?v=' + row.id;
+            }
+          }
+        });
+      }
       // Offer draft restore if applicable
       const draft = editor.drafts.restore(schema.path);
       if (draft && draft.schemaId === schemaId) {
@@ -456,6 +472,46 @@
       return JSON.stringify(editor.form) !== editor.origContent &&
              JSON.stringify(editor.form, null, 2) !== editor.origContent;
     } catch (_) { return false; }
+  }
+
+  // Normalize the form state into the shape that should actually be written
+  // to the JSON file on disk. The form carries richer/friendlier shapes
+  // (e.g. a `url` field on each listening row) than what the site's
+  // renderers consume (`id` + `type` for Spotify, `id` for YouTube). We
+  // translate at commit time so the on-disk JSON matches what the rest of
+  // the site already expects.
+  function normalizeFormForCommit(schemaId, form) {
+    if (!form) return form;
+    if (schemaId !== 'recommendations') return form;
+    const s = window.AdminEditor.schemas;
+    const out = { listening: [], partners: Array.isArray(form.partners) ? form.partners.slice() : [] };
+    const listening = Array.isArray(form.listening) ? form.listening : [];
+    for (const raw of listening) {
+      const row = Object.assign({}, raw);
+      if (row.kind === 'spotify') {
+        const parsed = s.extractSpotify(row.url || '') || {};
+        // Drop the URL field — the site stores id + type, not url.
+        delete row.url;
+        row.type = parsed.type || row.type || 'episode';
+        if (parsed.id) row.id = parsed.id;
+      } else if (row.kind === 'youtube') {
+        const id = s.extractYouTube(row.url || '');
+        delete row.url;
+        if (id) row.id = id;
+      } else if (row.kind === 'link') {
+        // Link rows keep their url as-is.
+      }
+      // Strip undefined/empty strings for a tidier on-disk file.
+      for (const k of Object.keys(row)) {
+        if (row[k] == null || row[k] === '') delete row[k];
+      }
+      out.listening.push(row);
+    }
+    // Preserve the _help key and any other top-level fields we don't manage.
+    for (const k of Object.keys(form)) {
+      if (k !== 'listening' && k !== 'partners' && !(k in out)) out[k] = form[k];
+    }
+    return out;
   }
 
   function onFormChange() {
@@ -679,7 +735,7 @@
     const box = el('section', { className: 'ae-panel' });
     box.appendChild(el('h2', { text: 'Review changes' }));
     const before = editor.origContent;
-    const after = JSON.stringify(editor.form, null, 2);
+    const after = JSON.stringify(normalizeFormForCommit(editor.schemaId, editor.form), null, 2);
     const changes = window.AdminEditor.diff.diffLines(before, after);
     const adds = changes.filter((c) => c.kind === 'add').length;
     const removes = changes.filter((c) => c.kind === 'remove').length;
@@ -736,7 +792,7 @@
       // Pre-commit validation (double-check)
       const v = window.AdminEditor.validate.validate(editor.schema, editor.form);
       if (!v.ok) { err.textContent = 'Fix validation errors before committing.'; goto('editing'); return; }
-      const proposed = JSON.stringify(editor.form, null, 2);
+      const proposed = JSON.stringify(normalizeFormForCommit(editor.schemaId, editor.form), null, 2);
       let composed;
       try {
         composed = window.AdminEditor.commitMessage.compose(editor.schema, editor.form, msg);

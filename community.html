@@ -271,53 +271,118 @@
       </div>
     </div>
 
-    <!-- Social feeds: Telegram big CTA + Instagram grid -->
+    <!-- Social feeds: 4-up "Learn more about us online" row (Telegram / Spotify
+         / Twitch / Instagram) gives each platform equal billing with an icon,
+         blurb, bullet points, and CTA. The Instagram photo grid sits below it
+         as a visual preview of what's on the feed. -->
     <div class="stay-sub">
-      <h3 class="stay-sub__title">🌐 Daily Touchpoints</h3>
+      <h3 class="stay-sub__title">🌐 Learn more about us online</h3>
       <p class="stay-sub__desc">Where we post, share, and keep members around the world in the loop.</p>
 
-      <div class="community-feeds-grid" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 2rem; align-items: stretch;">
-        <!-- Telegram CTA Card -->
-        <div class="telegram-cta glass-morphism">
-          <div class="telegram-cta__glow" aria-hidden="true"></div>
-          <div class="telegram-cta__content">
-            <div class="telegram-cta__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="44" height="44" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+      <div class="community-feeds-grid">
+        <!-- Telegram -->
+        <div class="platform-cta platform-cta--telegram glass-morphism">
+          <div class="platform-cta__glow" aria-hidden="true"></div>
+          <div class="platform-cta__content">
+            <div class="platform-cta__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30" height="30" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
             </div>
-            <h3 class="telegram-cta__title">Join us on Telegram</h3>
-            <p class="telegram-cta__blurb">
-              Our most active space — daily Bible discussion, prayer requests, and
-              community chat with members around the world.
+            <h3 class="platform-cta__title">Telegram</h3>
+            <p class="platform-cta__blurb">
+              Our most active space — daily Bible discussion, prayer, and community chat with members worldwide.
             </p>
-
-            <ul class="telegram-cta__points">
-              <li><span class="telegram-cta__dot"></span> Daily chapter-by-chapter reading</li>
-              <li><span class="telegram-cta__dot"></span> Share and pray for each other</li>
-              <li><span class="telegram-cta__dot"></span> Announcements for livestreams &amp; events</li>
-              <li><span class="telegram-cta__dot"></span> Testimonies and verse-of-the-day</li>
+            <ul class="platform-cta__points">
+              <li><span class="platform-cta__dot"></span> Daily chapter-by-chapter reading</li>
+              <li><span class="platform-cta__dot"></span> Share and pray for each other</li>
+              <li><span class="platform-cta__dot"></span> Livestream &amp; event announcements</li>
+              <li><span class="platform-cta__dot"></span> Testimonies and verse-of-the-day</li>
             </ul>
-
-            <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram telegram-cta__btn">
-              Join Telegram
-              <span aria-hidden="true">→</span>
+            <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram platform-cta__btn">
+              Join Telegram <span aria-hidden="true">→</span>
             </a>
-            <p class="telegram-cta__foot">Free · Works on phone, tablet, desktop</p>
+            <p class="platform-cta__foot">Free · Phone, tablet, desktop</p>
           </div>
         </div>
 
-        <!-- Instagram Grid -->
-        <div>
-          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="28" height="28" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-            <h3 style="margin: 0; font-size: 1.2rem; color: var(--text);">Instagram</h3>
-          </div>
-          <div id="instagram-grid-container"></div>
-          <div style="margin-top: 1rem; text-align: center;">
-            <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="btn btn-instagram">
-              Follow @seedtheword
+        <!-- Spotify -->
+        <div class="platform-cta platform-cta--spotify glass-morphism">
+          <div class="platform-cta__glow" aria-hidden="true"></div>
+          <div class="platform-cta__content">
+            <div class="platform-cta__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30" height="30" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
+            </div>
+            <h3 class="platform-cta__title">Spotify</h3>
+            <p class="platform-cta__blurb">
+              Past teachings, studies, and worship sets on demand — revisit a sermon or catch up on an episode you missed.
+            </p>
+            <ul class="platform-cta__points">
+              <li><span class="platform-cta__dot"></span> Weekly podcast episodes</li>
+              <li><span class="platform-cta__dot"></span> Every Bible reading-plan chapter</li>
+              <li><span class="platform-cta__dot"></span> Worship sets &amp; teaching series</li>
+              <li><span class="platform-cta__dot"></span> Works on Apple Podcasts too</li>
+            </ul>
+            <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" class="btn btn-secondary platform-cta__btn">
+              Open Spotify <span aria-hidden="true">→</span>
             </a>
+            <p class="platform-cta__foot">Free · Follow the show for new drops</p>
           </div>
         </div>
+
+        <!-- Twitch -->
+        <div class="platform-cta platform-cta--twitch glass-morphism">
+          <div class="platform-cta__glow" aria-hidden="true"></div>
+          <div class="platform-cta__content">
+            <div class="platform-cta__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30" height="30" aria-hidden="true"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+            </div>
+            <h3 class="platform-cta__title">Twitch</h3>
+            <p class="platform-cta__blurb">
+              Where Study Saturday goes live. Join real-time Bible study, fellowship, and prayer with the community every Saturday.
+            </p>
+            <ul class="platform-cta__points">
+              <li><span class="platform-cta__dot"></span> Live Saturdays, 7–10 PM PT</li>
+              <li><span class="platform-cta__dot"></span> Chat with us during the study</li>
+              <li><span class="platform-cta__dot"></span> Follow to get go-live alerts</li>
+              <li><span class="platform-cta__dot"></span> Watch without an account</li>
+            </ul>
+            <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" class="btn btn-secondary platform-cta__btn">
+              Open Twitch <span aria-hidden="true">→</span>
+            </a>
+            <p class="platform-cta__foot">Free · Account optional to watch</p>
+          </div>
+        </div>
+
+        <!-- Instagram -->
+        <div class="platform-cta platform-cta--instagram glass-morphism">
+          <div class="platform-cta__glow" aria-hidden="true"></div>
+          <div class="platform-cta__content">
+            <div class="platform-cta__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30" height="30" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </div>
+            <h3 class="platform-cta__title">Instagram</h3>
+            <p class="platform-cta__blurb">
+              Photos and short videos from outreach, events, and behind-the-scenes moments from the ministry.
+            </p>
+            <ul class="platform-cta__points">
+              <li><span class="platform-cta__dot"></span> Outreach &amp; event photos</li>
+              <li><span class="platform-cta__dot"></span> Stories and reels</li>
+              <li><span class="platform-cta__dot"></span> Verse cards to save &amp; share</li>
+              <li><span class="platform-cta__dot"></span> Ministry team &amp; community</li>
+            </ul>
+            <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="btn btn-instagram platform-cta__btn">
+              Follow @seedtheword <span aria-hidden="true">→</span>
+            </a>
+            <p class="platform-cta__foot">Free · DM for quick questions</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instagram visual preview grid — lives below the 4-up row so the
+           photo feed still has a home on the page (the CTA card handles the
+           "follow" action; this just shows what's actually being posted). -->
+      <div class="instagram-preview">
+        <p class="instagram-preview__label">📸 Recent on Instagram</p>
+        <div id="instagram-grid-container"></div>
       </div>
     </div>
 
@@ -551,11 +616,20 @@
 <script src="assets/js/study-saturday.js?v=5" defer></script>
 
 <style>
-/* Responsive fallback for community feeds grid */
-@media (max-width: 900px) {
-  .community-feeds-grid {
-    grid-template-columns: 1fr !important;
-  }
+/* Instagram preview grid — visual photo feed below the 4-up platform
+   CTA row. Lightweight wrapper since #instagram-grid-container carries
+   its own styling from instagram-grid.js. */
+.instagram-preview {
+  margin-top: 1.75rem;
+}
+.instagram-preview__label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted, #555);
+  margin: 0 0 0.75rem;
+  text-align: center;
 }
 
 /* ==== Community page reorg (May 2026 — v2) =============================== */

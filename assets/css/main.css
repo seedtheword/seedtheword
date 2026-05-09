@@ -5096,7 +5096,187 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 
 /* ============================================================
-   Telegram CTA Card (community page)
+   Platform CTA Cards (community page — Telegram / Spotify / Twitch / Instagram)
+
+   Four parallel cards in the "Daily Touchpoints" row. Each card has a
+   tinted glow, an icon bubble, title, blurb, bullet list, CTA button,
+   and foot line. Brand color is set per-card via CSS variables.
+   ============================================================ */
+
+.community-feeds-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+}
+@media (max-width: 1024px) {
+  .community-feeds-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .community-feeds-grid { grid-template-columns: 1fr; }
+}
+
+.platform-cta {
+  /* Per-card brand theming — overridden by modifier classes below */
+  --platform-color: #0088cc;
+  --platform-color-2: #00a0e9;
+  --platform-glow: rgba(0, 136, 204, 0.45);
+  --platform-shadow: rgba(0, 136, 204, 0.4);
+  --platform-dot-glow: rgba(0, 136, 204, 0.6);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem 1.5rem 1.5rem;
+  border-radius: 20px;
+  overflow: hidden;
+  min-height: 420px;
+}
+
+.platform-cta__glow {
+  position: absolute;
+  top: -40%;
+  right: -30%;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, var(--platform-glow) 0%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.platform-cta__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.platform-cta__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--platform-color), var(--platform-color-2));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  box-shadow: 0 10px 26px var(--platform-shadow);
+}
+
+.platform-cta__title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0 0 0.4rem;
+  color: var(--text);
+}
+
+.platform-cta__blurb {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0 0 1rem;
+}
+
+.platform-cta__points {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.platform-cta__points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  line-height: 1.4;
+}
+
+.platform-cta__dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: 0.4rem;
+  border-radius: 50%;
+  background: var(--platform-color);
+  box-shadow: 0 0 8px var(--platform-dot-glow);
+}
+
+.platform-cta__btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.25rem;
+  font-size: 0.92rem;
+  margin-top: auto;
+}
+
+.platform-cta__btn span {
+  transition: transform 0.25s ease;
+}
+
+.platform-cta__btn:hover span {
+  transform: translateX(4px);
+}
+
+.platform-cta__foot {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin: 0.6rem 0 0;
+}
+
+/* Brand color theming per platform */
+.platform-cta--telegram {
+  --platform-color: #0088cc;
+  --platform-color-2: #00a0e9;
+  --platform-glow: rgba(0, 136, 204, 0.45);
+  --platform-shadow: rgba(0, 136, 204, 0.4);
+  --platform-dot-glow: rgba(0, 136, 204, 0.6);
+}
+.platform-cta--spotify {
+  --platform-color: #1DB954;
+  --platform-color-2: #1ed760;
+  --platform-glow: rgba(29, 185, 84, 0.45);
+  --platform-shadow: rgba(29, 185, 84, 0.4);
+  --platform-dot-glow: rgba(29, 185, 84, 0.6);
+}
+.platform-cta--twitch {
+  --platform-color: #9146FF;
+  --platform-color-2: #a970ff;
+  --platform-glow: rgba(145, 70, 255, 0.45);
+  --platform-shadow: rgba(145, 70, 255, 0.4);
+  --platform-dot-glow: rgba(145, 70, 255, 0.6);
+}
+.platform-cta--instagram {
+  /* Instagram uses its signature gradient on the icon */
+  --platform-color: #E4405F;
+  --platform-color-2: #fd1d1d;
+  --platform-glow: rgba(228, 64, 95, 0.4);
+  --platform-shadow: rgba(228, 64, 95, 0.4);
+  --platform-dot-glow: rgba(228, 64, 95, 0.6);
+}
+.platform-cta--instagram .platform-cta__icon {
+  background: linear-gradient(135deg, #feda75, #fa7e1e 25%, #d62976 50%, #962fbf 75%, #4f5bd5);
+}
+
+@media (max-width: 600px) {
+  .platform-cta {
+    min-height: auto;
+    padding: 1.5rem 1.25rem;
+  }
+}
+
+
+/* ============================================================
+   Telegram CTA Card (community page — legacy, kept for any
+   callers that still use the old class names)
    ============================================================ */
 
 .telegram-cta {

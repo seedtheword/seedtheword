@@ -1223,6 +1223,39 @@ ul { margin: 0; padding: 0; list-style: none; }
   font-size: 1rem; 
   color: var(--muted);
   line-height: 1.7;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+.step__desc p,
+.step__desc ul,
+.step__desc blockquote {
+  /* Inline content inside a centered .step should read left-aligned
+     (lists and blockquotes look broken when their text centers), and
+     it needs to stay inside the step padding on narrow viewports. */
+  text-align: left;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.step__desc blockquote {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* Tighter padding on narrow phones so content has room to breathe.
+   Targets sub-400px because that's where the 2rem horizontal padding
+   starts eating the Prayer & Worship card's blockquote width. */
+@media (max-width: 400px) {
+  .step {
+    padding: 2rem 1.1rem;
+  }
+  .step__desc blockquote {
+    padding: 0.7rem 0.85rem !important;
+    font-size: 0.9rem !important;
+  }
+  .step__desc ul {
+    padding-left: 1.15rem !important;
+  }
 }
 
 /* ── CTA blocks ── */

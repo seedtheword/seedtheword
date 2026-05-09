@@ -343,6 +343,32 @@
     return left;
   }
 
+  // Synthesize a normal-looking `groups` array for JS-literal schemas so the
+  // validator and form renderer can treat them uniformly. The form state
+  // stashes the edited value under form.__literal; these synthetic groups
+  // point through that property.
+  function synthJsLiteralGroups(schema) {
+    if (schema.kind === 'js-literal-array') {
+      return [{
+        name: '__literal',
+        label: schema.label,
+        kind: 'repeating-group',
+        fields: schema.elementFields || [],
+      }];
+    }
+    if (schema.kind === 'js-literal-object-of-arrays') {
+      return (schema.buckets || []).map(function (bucket) {
+        return {
+          name: '__literal.' + bucket.name, // marker only — validate() will see this
+          label: bucket.label,
+          kind: 'repeating-group',
+          fields: schema.elementFields || [],
+        };
+      });
+    }
+    return [];
+  }
+
   async function openContent(schemaId) {
     const schema = window.AdminEditor.schemas.SCHEMAS[schemaId];
     if (!schema) return;
@@ -367,6 +393,38 @@
       editor.uploadSubfolder = '';
       goto('upload');
       loadUploadListing(schema);
+      return;
+    }
+    // JS-literal schemas read a JavaScript file, extract a named literal,
+    // and present its contents as a structured form. Save path writes
+    // through the JS-literal writer to preserve every byte outside the
+    // literal.
+    if (schema.kind === 'js-literal-array' || schema.kind === 'js-literal-object-of-arrays') {
+      goto('loading');
+      try {
+        const file = await editor.client.readFile(schema.file);
+        editor.baseSha = file.sha;
+        editor.origContent = file.content;
+        // Parse the named literal out of the file.
+        const jsl = window.AdminEditor.jsLiteral;
+        const read = jsl.read(file.content, schema.literalName);
+        if (!read) {
+          throw new Error("Can't find literal " + schema.literalName + ' in ' + schema.file);
+        }
+        editor.jsLiteralStyle = read.style;
+        if (schema.kind === 'js-literal-array') {
+          if (!Array.isArray(read.value)) throw new Error(schema.literalName + ' is not an array');
+          editor.form = { __literal: read.value.slice() };
+        } else {
+          // object-of-arrays: { verses: [...], tips: [...], ... }
+          editor.form = { __literal: JSON.parse(JSON.stringify(read.value)) };
+        }
+        // Synthesize schema.groups so the validator + renderer agree.
+        editor.schema = Object.assign({}, schema, { groups: synthJsLiteralGroups(schema) });
+        goto('editing');
+      } catch (err) {
+        showError(err);
+      }
       return;
     }
     // Show a "loading" state synchronously; only transition to 'editing'
@@ -621,6 +679,49 @@
 
   // ── Form rendering ──────────────────────────────────────────────────────
   function renderForm(container, schema, form, onChange) {
+    // JS-literal-array schemas expose one synthetic repeating-group named
+    // __literal whose rows are the array's elements.
+    if (schema.kind === 'js-literal-array') {
+      const synth = {
+        name: '__literal',
+        label: schema.label,
+        kind: 'repeating-group',
+        fields: schema.elementFields,
+        addLabel: '+ Add slide',
+      };
+      const block = el('fieldset', { className: 'ae-group' });
+      block.appendChild(el('legend', { text: synth.label }));
+      renderRepeatingGroup(block, synth, form, onChange);
+      container.appendChild(block);
+      return;
+    }
+    // JS-literal-object-of-arrays: one repeating-group per bucket, all
+    // editing the same `form.__literal` object.
+    if (schema.kind === 'js-literal-object-of-arrays') {
+      for (const bucket of (schema.buckets || [])) {
+        const synth = {
+          name: bucket.name,
+          label: bucket.label,
+          kind: 'repeating-group',
+          fields: schema.elementFields,
+          addLabel: '+ Add ' + bucket.label.toLowerCase(),
+        };
+        const block = el('fieldset', { className: 'ae-group' });
+        block.appendChild(el('legend', { text: bucket.label }));
+        if (!form.__literal) form.__literal = {};
+        if (!Array.isArray(form.__literal[bucket.name])) form.__literal[bucket.name] = [];
+        // Provide a proxy object that lets renderRepeatingGroup read/write
+        // through form.__literal[bucket.name] using the bucket's name.
+        const proxy = { [bucket.name]: form.__literal[bucket.name] };
+        renderRepeatingGroup(block, synth, proxy, () => {
+          form.__literal[bucket.name] = proxy[bucket.name];
+          onChange();
+        });
+        container.appendChild(block);
+      }
+      return;
+    }
+
     // rawJson schemas — skip the schema-driven form, show a single textarea
     // of formatted JSON. Live validation via JSON.parse; on commit the raw
     // textarea content is what gets written. Used for schemas whose shape
@@ -790,8 +891,23 @@
   function renderDiff() {
     const box = el('section', { className: 'ae-panel' });
     box.appendChild(el('h2', { text: 'Review changes' }));
-    const before = editor.origContent;
-    const after = JSON.stringify(normalizeFormForCommit(editor.schemaId, editor.form), null, 2);
+    // JS-literal schemas: diff the target literal's slice, not the whole file.
+    let before, after;
+    if (editor.schema.kind === 'js-literal-array' || editor.schema.kind === 'js-literal-object-of-arrays') {
+      const jsl = window.AdminEditor.jsLiteral;
+      const readBefore = jsl.read(editor.origContent, editor.schema.literalName);
+      before = readBefore ? readBefore.text.slice(1, -1).replace(/^\s*\n/, '').replace(/\s+$/, '') : '';
+      const newValue = editor.schema.kind === 'js-literal-array'
+        ? editor.form.__literal
+        : editor.form.__literal;
+      const style = editor.jsLiteralStyle || { quote: "'", indent: '  ', trailingComma: true };
+      const serialized = jsl.serialize(newValue, style, 0);
+      // Strip outer delimiters for a cleaner diff.
+      after = serialized.slice(1, -1).replace(/^\s*\n/, '').replace(/\s+$/, '');
+    } else {
+      before = editor.origContent;
+      after = JSON.stringify(normalizeFormForCommit(editor.schemaId, editor.form), null, 2);
+    }
     const changes = window.AdminEditor.diff.diffLines(before, after);
     const adds = changes.filter((c) => c.kind === 'add').length;
     const removes = changes.filter((c) => c.kind === 'remove').length;
@@ -855,16 +971,31 @@
       } catch (e) { err.textContent = e.message; return; }
 
       // Force-flush draft before risking a network error.
-      editor.drafts.flushNow(editor.schemaId, editor.schema.path, editor.baseSha, editor.form);
+      editor.drafts.flushNow(editor.schemaId, editor.schema.path || editor.schema.file, editor.baseSha, editor.form);
       goto('committing');
 
       try {
-        const resp = await editor.client.writeFile(editor.schema.path, proposed, {
-          sha: editor.baseSha,
-          message: composed,
-        });
+        let resp;
+        if (editor.schema.kind === 'js-literal-array' || editor.schema.kind === 'js-literal-object-of-arrays') {
+          const jsl = window.AdminEditor.jsLiteral;
+          const newContent = jsl.write(
+            editor.origContent,
+            editor.schema.literalName,
+            editor.form.__literal
+          );
+          resp = await editor.client.writeFile(editor.schema.file, newContent, {
+            sha: editor.baseSha,
+            message: composed,
+          });
+        } else {
+          const proposed = JSON.stringify(normalizeFormForCommit(editor.schemaId, editor.form), null, 2);
+          resp = await editor.client.writeFile(editor.schema.path, proposed, {
+            sha: editor.baseSha,
+            message: composed,
+          });
+        }
         editor.lastCommit = resp && resp.commit;
-        editor.drafts.discard(editor.schema.path);
+        editor.drafts.discard(editor.schema.path || editor.schema.file);
         goto('success');
       } catch (e) {
         if (e.name === 'ConflictError') {

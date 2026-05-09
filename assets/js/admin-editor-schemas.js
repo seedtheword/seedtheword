@@ -325,6 +325,65 @@
       mimeWhitelist: ['image/jpeg', 'image/png', 'image/webp'],
       commitMessageTemplate: 'content(logo): replace ministry logo',
     },
+
+    // Homepage carousel — JS-literal-editable slide lists inside
+    // assets/js/showcase-carousel.js. Opens as a repeating-group form whose
+    // save path writes back through the JS-literal writer instead of JSON,
+    // preserving every byte of the surrounding JavaScript file.
+    showcaseFallback: {
+      id: 'showcaseFallback',
+      label: 'Homepage carousel — fallback slides',
+      category: 'slides',
+      kind: 'js-literal-array',
+      file: 'assets/js/showcase-carousel.js',
+      literalName: 'FALLBACK_SLIDES',
+      elementKind: 'object',
+      elementFields: [
+        { name: 'kind',    label: 'Slide kind',  kind: 'select', required: true,
+          options: [
+            { value: 'ministry',  label: 'Ministry highlight' },
+            { value: 'scripture', label: 'Scripture' },
+          ],
+        },
+        { name: 'eyebrow', label: 'Eyebrow text', kind: 'text' },
+        { name: 'title',   label: 'Title',        kind: 'text', required: true },
+        { name: 'body',    label: 'Body',         kind: 'textarea' },
+        { name: 'image',   label: 'Image path',   kind: 'text',
+          hint: 'Relative path like assets/images/featured/foo.jpg' },
+        { name: 'ctaLabel',label: 'CTA button label', kind: 'text' },
+        { name: 'ctaHref', label: 'CTA URL or page', kind: 'text' },
+      ],
+      commitMessageTemplate: 'content(carousel-fallback): update slides',
+      tokens: function (form) {
+        const items = (form && form.__literal) || [];
+        if (items.length) {
+          const last = items[items.length - 1];
+          if (last && last.title) return { summary: 'add "' + last.title + '"' };
+        }
+        return { summary: 'update' };
+      },
+    },
+
+    showcaseDaily: {
+      id: 'showcaseDaily',
+      label: 'Homepage carousel — daily Bible content',
+      category: 'slides',
+      kind: 'js-literal-object-of-arrays',
+      file: 'assets/js/showcase-carousel.js',
+      literalName: 'DAILY_CONTENT',
+      // Four named buckets inside the object: verses / tips / facts / encouragement
+      buckets: [
+        { name: 'verses',        label: 'Verses' },
+        { name: 'tips',          label: 'Tips' },
+        { name: 'facts',         label: 'Did-you-know facts' },
+        { name: 'encouragement', label: 'Encouragement' },
+      ],
+      elementFields: [
+        { name: 'text', label: 'Text', kind: 'textarea', required: true },
+        { name: 'ref',  label: 'Reference',  kind: 'text' },
+      ],
+      commitMessageTemplate: 'content(carousel-daily): update rotation',
+    },
   };
 
   // Image-only folder schemas share a shape. Pure file-upload; the editor
@@ -403,12 +462,8 @@
     };
   }
 
-  // Phase C placeholders (JS-literal-dependent only). The rest of Phase C
-  // is wired up in subsequent commits.
-  const WIP_LABELS = {
-    showcaseFallback:       'Homepage carousel — fallback slides (coming soon)',
-    showcaseDaily:          'Homepage carousel — daily content (coming soon)',
-  };
+  // Phase C placeholders — none remaining.
+  const WIP_LABELS = {};
   for (const id of Object.keys(WIP_LABELS)) {
     SCHEMAS[id] = { id: id, label: WIP_LABELS[id], wip: true };
   }

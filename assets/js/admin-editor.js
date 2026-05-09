@@ -1045,6 +1045,8 @@
     if (inp.description) wrap.appendChild(el('span', { className: 'ae-hint', text: inp.description }));
     return wrap;
   }
+
+  function renderConflict() {
     const box = el('section', { className: 'ae-panel' });
     box.appendChild(el('h2', { text: '⚠️ Someone else committed first' }));
     box.appendChild(el('p', { text: 'The file has changed on GitHub since you loaded it. Your draft is saved.' }));

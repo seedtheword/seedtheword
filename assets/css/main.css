@@ -1190,6 +1190,9 @@ ul { margin: 0; padding: 0; list-style: none; }
   background: radial-gradient(circle, rgba(44,95,46,0.1) 0%, transparent 70%);
   opacity: 0;
   transition: opacity .4s ease;
+  /* Purely decorative — must not intercept hover/click on the card's
+     interactive children (See more toggle). */
+  pointer-events: none;
 }
 .step:hover::before {
   opacity: 1;
@@ -1284,6 +1287,10 @@ ul { margin: 0; padding: 0; list-style: none; }
   border-radius: 999px;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
+  /* Lift above any decorative pseudo layers on the parent .step
+     so hover/click actually hit the button. */
+  position: relative;
+  z-index: 2;
 }
 .step__toggle:hover,
 .step__toggle:focus-visible {

@@ -962,7 +962,7 @@
   <div class="admin-card">
     <p class="admin-card__label">Livestream Status</p>
     <p class="admin-card__title">Twitch</p>
-    <p>The "LIVE NOW / OFFLINE" card on <code>community.html</code> is currently schedule-based (Saturday 7–10 PM Pacific). It does not query Twitch directly.</p>
+    <p>The "LIVE NOW / OFFLINE" card on <code>community.html</code> now checks live status in real time via <a href="https://decapi.me/twitch/uptime/seedtheword" target="_blank" rel="noopener">decapi.me</a>, a free community Twitch proxy that requires no credentials. Re-checks every 5 minutes. If decapi ever goes down, the card silently falls back to a schedule-based heuristic (Saturday 7-10 PM Pacific).</p>
     <p>The weekly review block at the bottom of that card ("This Saturday's Review" — Old/New Testament passages) reads from <code>assets/data/study-saturday.json</code>. Edit it from <em>Editor → Study Saturday</em>.</p>
     <p><strong>Dashboard:</strong> <a href="https://dashboard.twitch.tv" target="_blank" rel="noopener">dashboard.twitch.tv</a></p>
     <p><strong>Channel:</strong> <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener">twitch.tv/seedtheword</a></p>

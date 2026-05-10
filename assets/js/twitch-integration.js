@@ -25,9 +25,36 @@ class TwitchLiveCard {
   }
 
   async checkLive() {
-    // Heuristic: use a no-auth public-facing check.
-    // Without Twitch API credentials we can't know for sure. We check by
-    // looking at the schedule-based expectation (Saturday 2-4 PM Pacific).
+    // Primary: ask decapi.me (a free community Twitch-proxy) whether
+    // the channel is live right now. Returns plain text like:
+    //   "2 hours, 14 minutes"        → live, uptime as text
+    //   "seedtheword is offline"     → offline
+    //   "User not found"             → wrong channel name
+    // Free, unauthenticated, rate-limited politely. If it ever goes
+    // down or rate-limits us, we fall back to the schedule heuristic.
+    try {
+      const res = await fetch('https://decapi.me/twitch/uptime/' + TWITCH_CHANNEL, {
+        cache: 'no-store',
+      });
+      if (res.ok) {
+        const text = (await res.text()).trim().toLowerCase();
+        // Decapi returns uptime text when live, or a string containing
+        // "offline" / "not found" otherwise. Treat any explicit negative
+        // as offline; everything else is considered live.
+        const isNegative =
+          text.includes('offline') ||
+          text.includes('not found') ||
+          text.includes('error') ||
+          text === '';
+        this.isLive = !isNegative;
+        return;
+      }
+    } catch (_) {
+      /* fall through to the schedule heuristic */
+    }
+
+    // Fallback heuristic: Saturday 7-10 PM Pacific is when we stream.
+    // Used only when the decapi.me call above fails or rate-limits.
     const now = new Date();
     const dayPT = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
     const day = dayPT.getDay();   // 0 = Sun, 6 = Sat

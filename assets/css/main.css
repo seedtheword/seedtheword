@@ -1247,56 +1247,69 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 /* ── "See more" collapse for long step cards ──
-   Every .step__desc gets .step__desc--collapsible from JS so we
-   consistently know which descriptions participate. On mobile the
-   description is clamped by default and the toggle is visible. When
-   the admin clicks the toggle, JS adds .step__desc--open which
-   removes the clamp. Desktop skips the whole thing by hiding the
-   toggle and lifting the clamp. */
+   Every .step__desc gets .step__desc--collapsible from JS. The
+   description is clamped by default; clicking the toggle adds
+   .step__desc--open which removes the clamp. JS also toggles
+   .step--open on the parent .step so the card's overflow:hidden
+   does not clip the expanded content. Works on mobile and desktop. */
 .step__desc--collapsible {
   max-height: 11rem;
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(to bottom, #000 68%, transparent 100%);
-          mask-image: linear-gradient(to bottom, #000 68%, transparent 100%);
   transition: max-height 0.35s ease;
+  /* Fade the bottom edge to tell readers the text continues — done with
+     a gradient overlay (::after) instead of mask-image so it renders
+     reliably on mobile Safari and older Chrome. */
+  position: relative;
+}
+.step__desc--collapsible::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.95) 100%);
 }
 .step__desc--collapsible.step__desc--open {
-  max-height: 4000px; /* arbitrarily tall — real height is content-driven */
-  -webkit-mask-image: none;
-          mask-image: none;
+  max-height: 4000px;
 }
-/* The parent .step has overflow:hidden for its rounded-corner gradient.
-   JS adds .step--open to the parent when the description expands so
-   the content can flow out of the card. Using a JS-added class (not
-   :has()) keeps this working on older browsers. */
-.step.step--open {
-  overflow: visible;
+.step__desc--collapsible.step__desc--open::after {
+  display: none;
 }
 .step__toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  margin-top: 0.85rem;
-  padding: 0.5rem 1.05rem;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  color: var(--green, #2C5F2E);
-  background: rgba(44, 95, 46, 0.1);
-  border: 1.5px solid rgba(44, 95, 46, 0.22);
+  color: #ffffff;
+  background: var(--green, #2C5F2E);
+  border: 0;
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition: background 0.2s, transform 0.2s;
+  box-shadow: 0 3px 10px rgba(44, 95, 46, 0.3);
   /* Lift above any decorative pseudo layers on the parent .step
      so hover/click actually hit the button. */
   position: relative;
   z-index: 2;
+  /* Unambiguous tap target on mobile */
+  min-height: 44px;
+  -webkit-tap-highlight-color: rgba(44, 95, 46, 0.15);
 }
 .step__toggle:hover,
 .step__toggle:focus-visible {
-  background: rgba(44, 95, 46, 0.16);
-  border-color: rgba(44, 95, 46, 0.4);
+  background: #3a7d3c;
+  transform: translateY(-1px);
   outline: none;
+  box-shadow: 0 5px 14px rgba(44, 95, 46, 0.4);
+}
+.step__toggle:active {
+  transform: translateY(0);
 }
 .step__toggle[aria-expanded="true"] .step__toggle-chevron {
   transform: rotate(180deg);
@@ -1304,6 +1317,12 @@ ul { margin: 0; padding: 0; list-style: none; }
 .step__toggle-chevron {
   transition: transform 0.25s ease;
   font-size: 0.75rem;
+}
+/* The parent .step has overflow:hidden for its rounded-corner gradient.
+   JS adds .step--open to the parent when the description expands so
+   the content can flow out of the card. */
+.step.step--open {
+  overflow: visible;
 }
 
 /* Tighter padding on narrow phones so content has room to breathe.

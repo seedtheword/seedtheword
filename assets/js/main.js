@@ -1067,16 +1067,17 @@ if (document.readyState === 'loading') {
 })();
 
 
-// ── "See more" collapse for How We S.E.E.D. cards on mobile ─────
-// Every .step card on about.html gets a toggle button appended
-// unconditionally. CSS decides when it's visible (mobile) and when
-// it's hidden (desktop), plus whether the content is clamped. JS
-// only handles the click to toggle the .step__desc--open state.
-// No scrollHeight measurement — past attempts at measuring failed
-// because certain browsers returned small values when the parent
-// had overflow:hidden set, so we skip measurement entirely.
+// ── "See more" collapse for How We S.E.E.D. cards ────────────
+// Every .step card gets a toggle appended unconditionally. The
+// description is clamped by default and expands when the button is
+// clicked. Works the same on mobile and desktop.
+//
+// NOTE: this runs synchronously at script load time. main.js is
+// included at the end of <body>, so the DOM is already parsed by
+// the time we get here — a DOMContentLoaded listener would miss
+// because the event has already fired.
 (function initStepCollapsibles() {
-  document.addEventListener('DOMContentLoaded', () => {
+  function run() {
     const steps = document.querySelectorAll('.step');
     if (!steps.length) return;
 
@@ -1103,5 +1104,14 @@ if (document.readyState === 'loading') {
           nowOpen ? 'See less' : 'See more';
       });
     });
-  });
+  }
+
+  // main.js is loaded at end of <body>, so the DOM is usually
+  // already complete. But we still guard for 'loading' state in
+  // case this file is ever moved to the head with defer later.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
 })();

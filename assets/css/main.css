@@ -1291,18 +1291,6 @@ ul { margin: 0; padding: 0; list-style: none; }
   transition: transform 0.25s ease;
   font-size: 0.75rem;
 }
-/* Desktop (wider than 640px) shows the whole card and hides the toggle. */
-@media (min-width: 641px) {
-  .step__desc--collapsible {
-    max-height: none;
-    overflow: visible;
-    -webkit-mask-image: none;
-            mask-image: none;
-  }
-  .step__toggle {
-    display: none;
-  }
-}
 
 /* Tighter padding on narrow phones so content has room to breathe.
    Targets sub-400px because that's where the 2rem horizontal padding

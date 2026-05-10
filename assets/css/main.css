@@ -1262,6 +1262,13 @@ ul { margin: 0; padding: 0; list-style: none; }
   -webkit-mask-image: none;
           mask-image: none;
 }
+/* The parent .step has overflow:hidden for its rounded-corner gradient.
+   JS adds .step--open to the parent when the description expands so
+   the content can flow out of the card. Using a JS-added class (not
+   :has()) keeps this working on older browsers. */
+.step.step--open {
+  overflow: visible;
+}
 .step__toggle {
   display: inline-flex;
   align-items: center;

@@ -1099,6 +1099,7 @@ if (document.readyState === 'loading') {
 
       toggle.addEventListener('click', () => {
         const nowOpen = desc.classList.toggle('step__desc--open');
+        step.classList.toggle('step--open', nowOpen);
         toggle.setAttribute('aria-expanded', String(nowOpen));
         toggle.querySelector('.step__toggle-label').textContent =
           nowOpen ? 'See less' : 'See more';

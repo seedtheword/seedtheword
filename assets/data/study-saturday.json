@@ -2,9 +2,9 @@
   "_help": "Drives the 'This Saturday's Review' block inside the Study Saturday livestream card on community.html. The entry in 'weeks' whose 'weekOf' date is today-or-earlier AND closest to today is rendered. Add a new entry each week. 'weekOf' format: YYYY-MM-DD (Monday of the week by convention). Both oldTestament and newTestament are optional — if neither is set the review block is hidden.",
   "weeks": [
     {
-      "weekOf": "2026-05-04",
-      "oldTestament": "Joshua 8 - 10",
-      "newTestament": "Mark 13 - Luke 1"
+      "weekOf": "2026-05-11",
+      "oldTestament": "Upcoming",
+      "newTestament": "Luke 2 - 6"
     }
   ]
 }

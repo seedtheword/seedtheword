@@ -251,6 +251,17 @@
       // grouped forms; admins edit one bot without touching the others.
       groups: [
         {
+          name: 'shared',
+          dataKey: 'shared',
+          label: 'Shared across bots',
+          hint: 'Settings used by more than one bot or by the admin-help walkthroughs.',
+          fields: [
+            { name: 'calendarPhotosFolderUrl', label: 'Calendar photos Drive folder URL', kind: 'url',
+              hint: 'Public Drive folder admins upload event photos to. Sharing MUST be set to "Anyone with the link: Viewer" on the folder itself — every file dropped inside inherits that access, so admins never have to share per-file. Admin-help surfaces a direct link straight to this folder.',
+              validate: (v) => !v || isValidHttpsUrl(v) ? null : 'Must be an https URL.' },
+          ],
+        },
+        {
           name: 'announcements',
           dataKey: 'announcements',
           label: 'Announcements bot',

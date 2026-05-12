@@ -1,5 +1,9 @@
 {
   "_help": "Config for the three Telegram bots. Each bot's token lives only in GitHub Secrets and is never committed here. Edit this file to change where/when/what each bot posts. See admin-help.html for the full walkthrough.",
+  "shared": {
+    "calendarPhotosFolderUrl": "",
+    "_calendarPhotosFolderUrlNote": "Public Drive folder admins upload event photos to. Set this once, then paste the link into admin-help for a direct jump. Sharing MUST be set to 'Anyone with the link: Viewer' on the folder itself."
+  },
   "announcements": {
     "enabled": true,
     "tokenSecret": "TELEGRAM_BOT_TOKEN",

@@ -42,11 +42,12 @@
     }
   },
   "prayer": {
-    "enabled": true,
+    "enabled": false,
     "tokenSecret": "TELEGRAM_PRAYER_BOT_TOKEN",
     "chatId": "@seedtheword",
     "messageThreadId": 1,
     "prayerTopicUrl": "https://t.me/seedtheword/21/3725",
-    "timezone": "America/Los_Angeles"
+    "timezone": "America/Los_Angeles",
+    "_note": "Disabled May 12 2026 — the Bible bot now includes a Prayer & Thanksgiving block in its daily post to thread 1, so this separate nudge would double up. Re-enable by flipping enabled to true."
   }
 }

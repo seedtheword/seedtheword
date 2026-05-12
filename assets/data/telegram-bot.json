@@ -23,7 +23,7 @@
     "enabled": true,
     "tokenSecret": "TELEGRAM_BIBLE_BOT_TOKEN",
     "chatId": "@seedtheword",
-    "messageThreadId": 13,
+    "messageThreadId": 1,
     "timezone": "America/Los_Angeles",
     "linkBackUrl": "https://t.me/seedtheword/13/3739",
     "fallbackShowUrl": "https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK",

@@ -2016,14 +2016,22 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   <div class="admin-card">
     <p class="admin-card__label">Event photos in Telegram posts</p>
     <p class="admin-card__title">Attach an image URL to a calendar event</p>
-    <p>The announcements bot now scans each Google Calendar event's description for image URLs (<code>.jpg</code>, <code>.jpeg</code>, <code>.png</code>, <code>.webp</code>, <code>.gif</code>). If it finds one, the Telegram post goes out as a <strong>photo with the event text as the caption</strong> instead of plain text. Two or more image URLs become a Telegram <em>album</em> (up to 10 photos per event). The image URLs are automatically stripped from the caption so they don't appear as literal text.</p>
-    <p><strong>To add a photo:</strong> paste a public image URL into the event's description in Google Calendar — anywhere in the description works. Good sources:</p>
+    <p>The announcements bot scans each Google Calendar event's description for image URLs. If it finds one, the Telegram post goes out as a <strong>photo with the event text as the caption</strong> instead of plain text. Two or more image URLs become a Telegram <em>album</em> (up to 10 photos per event). The same images show on the <code>news.html</code> event card and in the event modal. Image URLs are automatically stripped from the visible caption/description so they don't appear as literal text.</p>
+    <p><strong>How to add a photo from Google Drive (recommended):</strong></p>
+    <ol>
+      <li>Upload the image to Google Drive.</li>
+      <li>Right-click the file → <strong>Share</strong> → change access to <strong>"Anyone with the link: Viewer"</strong>. This step is required — if the file stays private, Telegram / browsers will hit a sign-in page and the image won't load.</li>
+      <li>Copy the share URL (looks like <code>https://drive.google.com/file/d/&lt;id&gt;/view</code>).</li>
+      <li>Paste it <em>anywhere</em> in the event's description in Google Calendar.</li>
+      <li>The script auto-rewrites it to the direct-image endpoint, so you don't have to hand-edit anything.</li>
+    </ol>
+    <p><strong>Other supported URL shapes:</strong></p>
     <ul>
-      <li>Upload the image to a folder under <code>assets/images/</code> via the Editor, then use <code>https://seedtheword.github.io/seedtheword/assets/images/...</code></li>
-      <li>Paste an Instagram / Facebook Page cover image URL (right-click → Copy image address)</li>
-      <li>Use a Google Drive direct-view link (right-click on the file in Drive → Share → Anyone with link → then convert to <code>https://drive.google.com/uc?export=view&amp;id=FILE_ID</code>)</li>
+      <li>Repo-hosted image: <code>https://seedtheword.github.io/seedtheword/assets/images/...</code> (upload via the Editor first)</li>
+      <li>Any public <code>.jpg</code>, <code>.jpeg</code>, <code>.png</code>, <code>.webp</code>, or <code>.gif</code> URL</li>
+      <li>Instagram / Facebook Page cover images (right-click → Copy image address)</li>
     </ul>
-    <p>If the event has no image URL, the post falls back to text-only (same as before). Since photo captions are limited by Telegram to 1024 characters, photo posts trim the description more aggressively than text-only posts.</p>
+    <p>Photo captions are limited by Telegram to 1024 characters, so photo posts trim the description more aggressively than text-only posts. If the event has no image URL, the post falls back to text-only (same as before).</p>
   </div>
 
   <h3>Bot 1 — Announcement bot</h3>

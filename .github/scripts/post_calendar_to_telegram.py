@@ -133,6 +133,9 @@ def smart_trim(text: str, max_chars: int) -> str:
 # UI's rich-text editor). We scan for http(s) URLs that look like
 # images and return them in document order. If multiple are found we
 # send them as a Telegram album.
+# Google Drive share links (/file/d/<id>/view) are auto-rewritten to
+# the direct-view endpoint, which serves raw image bytes that
+# Telegram can fetch.
 IMAGE_URL_RE = re.compile(
     r"https?://[^\s\"'<>]+?\.(?:jpg|jpeg|png|webp|gif)(?:\?[^\s\"'<>]*)?",
     re.IGNORECASE,
@@ -142,6 +145,23 @@ IMG_TAG_RE = re.compile(
     r'<img\b[^>]*?\bsrc\s*=\s*["\']([^"\']+)["\']',
     re.IGNORECASE,
 )
+# Google Drive share links — multiple canonical shapes:
+#   drive.google.com/file/d/<ID>/view         (with optional ?usp=sharing)
+#   docs.google.com/file/d/<ID>/view
+#   drive.google.com/open?id=<ID>
+DRIVE_FILE_RE = re.compile(
+    r"https?://(?:drive|docs)\.google\.com/file/d/([A-Za-z0-9_-]+)(?:/[^\s\"'<>]*)?",
+    re.IGNORECASE,
+)
+DRIVE_OPEN_RE = re.compile(
+    r"https?://drive\.google\.com/open\?[^\s\"'<>]*?id=([A-Za-z0-9_-]+)[^\s\"'<>]*",
+    re.IGNORECASE,
+)
+
+
+def _drive_file_to_direct_url(file_id: str) -> str:
+    """Convert a Drive file ID to a URL Telegram can fetch as an image."""
+    return "https://drive.google.com/uc?export=view&id=" + file_id
 
 
 def extract_image_urls(html_or_text: str) -> list[str]:
@@ -149,29 +169,44 @@ def extract_image_urls(html_or_text: str) -> list[str]:
         return []
     seen: set[str] = set()
     urls: list[str] = []
+
+    def add(u: str) -> None:
+        if not u or u in seen:
+            return
+        seen.add(u)
+        urls.append(u)
+
     # Prefer <img src="..."> matches since those are intentional images.
     for m in IMG_TAG_RE.finditer(html_or_text):
         u = m.group(1).strip()
-        if u.startswith("http") and u not in seen:
-            seen.add(u)
-            urls.append(u)
+        if u.startswith("http"):
+            add(u)
+    # Google Drive /file/d/<ID>/...
+    for m in DRIVE_FILE_RE.finditer(html_or_text):
+        add(_drive_file_to_direct_url(m.group(1)))
+    # Google Drive /open?id=<ID>
+    for m in DRIVE_OPEN_RE.finditer(html_or_text):
+        add(_drive_file_to_direct_url(m.group(1)))
     # Then loose URL matches ending in an image extension.
     for m in IMAGE_URL_RE.finditer(html_or_text):
         u = m.group(0).strip().rstrip(").,;")
-        if u not in seen:
-            seen.add(u)
-            urls.append(u)
+        add(u)
     # Telegram's sendMediaGroup accepts 2–10 items per album; sendPhoto
     # handles 1. Cap at 10 to stay within the API limit.
     return urls[:10]
 
 
 def strip_image_urls(text: str, urls: list[str]) -> str:
-    """Remove the image URLs from the caption so they don't appear as
-    literal text. Called on plain text (post strip_html)."""
+    """Remove the image URLs (and their original Drive share-link
+    source) from the caption so they don't appear as literal text."""
     out = text or ""
     for u in urls:
         out = out.replace(u, "")
+    # Also strip the Drive share-link variants admins actually paste
+    # (the /file/d/ID/view and /open?id= forms) since those are the
+    # sources we rewrote to the direct URLs above.
+    out = DRIVE_FILE_RE.sub("", out)
+    out = DRIVE_OPEN_RE.sub("", out)
     # Clean up any empty lines or trailing whitespace left behind.
     out = re.sub(r"\n{3,}", "\n\n", out)
     out = re.sub(r"[ \t]+\n", "\n", out)

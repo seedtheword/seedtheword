@@ -70,40 +70,76 @@ function smartTrim(text, max) {
 // same convention (paste an image URL into a Google Calendar event's
 // description) drives both the website card AND the Telegram photo
 // post. <img src="..."> matches are preferred over loose URL matches.
+// Google Drive "/file/d/ID/view" links are auto-rewritten to the
+// direct-view endpoint that serves the raw image bytes.
 const _IMAGE_URL_RE = /https?:\/\/[^\s"'<>]+?\.(?:jpg|jpeg|png|webp|gif)(?:\?[^\s"'<>]*)?/gi;
 const _IMG_TAG_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/gi;
+// drive.google.com/file/d/<FILE_ID>/view  (or /edit, or with ?usp=sharing)
+// docs.google.com/file/d/<FILE_ID>/...
+// drive.google.com/open?id=<FILE_ID>
+const _DRIVE_FILE_RE = /https?:\/\/(?:drive|docs)\.google\.com\/file\/d\/([A-Za-z0-9_-]+)(?:\/[^\s"'<>]*)?/gi;
+const _DRIVE_OPEN_RE = /https?:\/\/drive\.google\.com\/open\?[^\s"'<>]*?id=([A-Za-z0-9_-]+)[^\s"'<>]*/gi;
+
+/** Rewrite a Google Drive share URL to a direct-image URL that
+ *  Telegram / <img> tags can actually render. Returns the original
+ *  string if it doesn't look like a Drive link. */
+function driveFileToDirectUrl(fileId) {
+  // Use the user-content host — Google redirects `drive.google.com/uc`
+  // through it anyway, and going direct avoids an extra 302 hop that
+  // some clients (older Telegram versions, WhatsApp previews) stumble
+  // on. The export=view variant streams the bytes without forcing a
+  // download-attachment Content-Disposition.
+  return 'https://drive.google.com/uc?export=view&id=' + fileId;
+}
 
 function extractImageUrls(htmlOrText) {
   if (!htmlOrText) return [];
   const seen = new Set();
   const urls = [];
+  const add = (u) => {
+    if (!u || seen.has(u)) return;
+    seen.add(u);
+    urls.push(u);
+  };
   let m;
+  // <img src="..."> always wins — intentional image embeds.
   _IMG_TAG_RE.lastIndex = 0;
   while ((m = _IMG_TAG_RE.exec(htmlOrText)) !== null) {
     const u = m[1].trim();
-    if (u.startsWith('http') && !seen.has(u)) {
-      seen.add(u);
-      urls.push(u);
-    }
+    if (u.startsWith('http')) add(u);
   }
+  // Google Drive /file/d/<ID>/view (and siblings)
+  _DRIVE_FILE_RE.lastIndex = 0;
+  while ((m = _DRIVE_FILE_RE.exec(htmlOrText)) !== null) {
+    add(driveFileToDirectUrl(m[1]));
+  }
+  // Google Drive /open?id=<ID>
+  _DRIVE_OPEN_RE.lastIndex = 0;
+  while ((m = _DRIVE_OPEN_RE.exec(htmlOrText)) !== null) {
+    add(driveFileToDirectUrl(m[1]));
+  }
+  // Loose URL matches ending in an image extension.
   _IMAGE_URL_RE.lastIndex = 0;
   while ((m = _IMAGE_URL_RE.exec(htmlOrText)) !== null) {
-    const u = m[0].trim().replace(/[).,;]+$/, '');
-    if (!seen.has(u)) {
-      seen.add(u);
-      urls.push(u);
-    }
+    add(m[0].trim().replace(/[).,;]+$/, ''));
   }
   return urls.slice(0, 10);
 }
 
-/** Remove known image URLs from plain-text description so the same
- *  URL doesn't appear both as an embedded image and as literal text. */
+/** Remove known image URLs (and their original Drive share-link
+ *  source) from plain-text description so the same image doesn't
+ *  appear as both an embedded thumbnail and a literal URL. */
 function stripImageUrls(text, urls) {
   let out = text || '';
+  // Strip the rewritten direct URLs we emitted...
   for (const u of urls) {
     out = out.split(u).join('');
   }
+  // ...and also the original Drive share links that produced them,
+  // since those are what admins actually paste. Match /file/d/ID/*
+  // and /open?id=ID variants.
+  out = out.replace(_DRIVE_FILE_RE, '');
+  out = out.replace(_DRIVE_OPEN_RE, '');
   return out.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 

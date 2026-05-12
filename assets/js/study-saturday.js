@@ -8,8 +8,14 @@
    Reads weekly config from assets/data/study-saturday.json. Each
    entry has:
      weekOf        — YYYY-MM-DD (Monday of the week by convention)
-     oldTestament  — Old Testament passage ("Genesis 15 — Abram's covenant")
-     newTestament  — New Testament passage ("Mark 11 — Jesus enters Jerusalem")
+     oldTestament  — Rendered as "This week's study focus"
+                     ("Genesis 15 — Abram's covenant")
+     newTestament  — Rendered as "This week's reading"
+                     ("Mark 11 — Jesus enters Jerusalem")
+
+   The JSON keys intentionally keep their biblical-canon names so
+   existing data + the admin editor schema keep working after the
+   display-label rename.
 
    Selection rule: pick the entry whose weekOf date is today-or-earlier
    AND closest to today. If no entry qualifies or the file is missing,
@@ -92,10 +98,10 @@
     passages.className = 'study-review__passages';
 
     if (entry.oldTestament) {
-      passages.appendChild(pill('📜 Old Testament', entry.oldTestament));
+      passages.appendChild(pill("🎯 This week's study focus", entry.oldTestament));
     }
     if (entry.newTestament) {
-      passages.appendChild(pill('✝️ New Testament', entry.newTestament));
+      passages.appendChild(pill("📖 This week's reading", entry.newTestament));
     }
 
     // If neither field is set, we don't show the review at all — an

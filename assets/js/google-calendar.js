@@ -82,14 +82,19 @@ const _DRIVE_OPEN_RE = /https?:\/\/drive\.google\.com\/open\?[^\s"'<>]*?id=([A-Z
 
 /** Rewrite a Google Drive share URL to a direct-image URL that
  *  Telegram / <img> tags can actually render. Returns the original
- *  string if it doesn't look like a Drive link. */
+ *  string if it doesn't look like a Drive link.
+ *
+ *  We use lh3.googleusercontent.com (the host Google itself serves
+ *  Drive previews from) instead of drive.google.com/uc?export=view
+ *  because the /uc endpoint has been unreliable for years — it often
+ *  returns a virus-scan interstitial or HTML redirect page even for
+ *  public files, which browsers and Telegram can't render. The
+ *  lh3 endpoint serves raw image bytes with the correct content-type
+ *  every time, as long as the file is shared "Anyone with the link". */
 function driveFileToDirectUrl(fileId) {
-  // Use the user-content host — Google redirects `drive.google.com/uc`
-  // through it anyway, and going direct avoids an extra 302 hop that
-  // some clients (older Telegram versions, WhatsApp previews) stumble
-  // on. The export=view variant streams the bytes without forcing a
-  // download-attachment Content-Disposition.
-  return 'https://drive.google.com/uc?export=view&id=' + fileId;
+  // =w2000 asks for up to 2000px wide — Google resizes on their end,
+  // which is lighter on bandwidth than the full original.
+  return 'https://lh3.googleusercontent.com/d/' + fileId + '=w2000';
 }
 
 function extractImageUrls(htmlOrText) {
@@ -143,11 +148,11 @@ function stripImageUrls(text, urls) {
   return out.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
-/** Heuristic: is this URL a Google Drive direct-view URL that we
- *  auto-rewrote from a share link? Used to decide whether to show
- *  a privacy-helpful fallback when loading fails. */
+/** Heuristic: is this URL a Google-hosted direct image we auto-rewrote
+ *  from a Drive share link? Used to decide whether to show a
+ *  privacy-helpful fallback when loading fails. */
 function isRewrittenDriveUrl(url) {
-  return /^https:\/\/drive\.google\.com\/uc\?/.test(url || '');
+  return /^https:\/\/(lh3\.googleusercontent\.com\/d\/|drive\.google\.com\/uc\?)/.test(url || '');
 }
 
 /** Global error handler for event images. When a Drive image fails

@@ -160,8 +160,15 @@ DRIVE_OPEN_RE = re.compile(
 
 
 def _drive_file_to_direct_url(file_id: str) -> str:
-    """Convert a Drive file ID to a URL Telegram can fetch as an image."""
-    return "https://drive.google.com/uc?export=view&id=" + file_id
+    """Convert a Drive file ID to a URL Telegram can fetch as an image.
+
+    Uses lh3.googleusercontent.com (the same host Google serves Drive
+    previews from) instead of the unreliable drive.google.com/uc
+    endpoint — /uc has been serving HTML interstitials for years even
+    on public files, and Telegram's sendPhoto rejects non-image bytes.
+    =w2000 caps the preview width at 2000px so albums of large photos
+    don't exceed Telegram's per-photo size limit."""
+    return "https://lh3.googleusercontent.com/d/" + file_id + "=w2000"
 
 
 def extract_image_urls(html_or_text: str) -> list[str]:
@@ -216,15 +223,21 @@ def strip_image_urls(text: str, urls: list[str]) -> str:
 def url_is_public_image(url: str) -> tuple[bool, str]:
     """Best-effort check that a URL actually serves image bytes (and
     not a sign-in HTML page). Returns (ok, reason). Used to pre-flight
-    Google Drive links before handing them to Telegram; if Drive hands
-    us an HTML login page instead of bytes, Telegram's sendPhoto will
-    reject the post outright, so we'd rather know now and fall back to
-    a text-only post than lose the announcement entirely.
+    image URLs before handing them to Telegram; if we get back an
+    HTML login / interstitial page instead of bytes, Telegram's
+    sendPhoto will reject the post outright, so we'd rather know now
+    and fall back to a text-only post than lose the announcement.
+
+    Uses a ranged GET request (first 1KB) instead of HEAD because
+    lh3.googleusercontent.com — our target host for Drive images —
+    returns 405 Method Not Allowed on HEAD requests. The Range header
+    keeps the transfer cheap.
     """
     try:
-        req = Request(url, method="HEAD", headers={
+        req = Request(url, headers={
             "User-Agent": "seedtheword-bot/1.0",
             "Accept": "image/*,*/*;q=0.8",
+            "Range": "bytes=0-1023",
         })
         with urlopen(req, timeout=15) as resp:
             ct = (resp.headers.get("Content-Type") or "").lower()

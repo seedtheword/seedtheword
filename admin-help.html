@@ -2013,6 +2013,19 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
     <p>One file, three sections — <code>"announcements"</code>, <code>"bible"</code>, <code>"prayer"</code>. Each has its own <code>enabled</code>, <code>chatId</code>, <code>messageThreadId</code>, and settings. The bot tokens live only in GitHub Secrets.</p>
   </div>
 
+  <div class="admin-card">
+    <p class="admin-card__label">Event photos in Telegram posts</p>
+    <p class="admin-card__title">Attach an image URL to a calendar event</p>
+    <p>The announcements bot now scans each Google Calendar event's description for image URLs (<code>.jpg</code>, <code>.jpeg</code>, <code>.png</code>, <code>.webp</code>, <code>.gif</code>). If it finds one, the Telegram post goes out as a <strong>photo with the event text as the caption</strong> instead of plain text. Two or more image URLs become a Telegram <em>album</em> (up to 10 photos per event). The image URLs are automatically stripped from the caption so they don't appear as literal text.</p>
+    <p><strong>To add a photo:</strong> paste a public image URL into the event's description in Google Calendar — anywhere in the description works. Good sources:</p>
+    <ul>
+      <li>Upload the image to a folder under <code>assets/images/</code> via the Editor, then use <code>https://seedtheword.github.io/seedtheword/assets/images/...</code></li>
+      <li>Paste an Instagram / Facebook Page cover image URL (right-click → Copy image address)</li>
+      <li>Use a Google Drive direct-view link (right-click on the file in Drive → Share → Anyone with link → then convert to <code>https://drive.google.com/uc?export=view&amp;id=FILE_ID</code>)</li>
+    </ul>
+    <p>If the event has no image URL, the post falls back to text-only (same as before). Since photo captions are limited by Telegram to 1024 characters, photo posts trim the description more aggressively than text-only posts.</p>
+  </div>
+
   <h3>Bot 1 — Announcement bot</h3>
   <ul>
     <li><strong>What it does:</strong> Posts today's calendar events from the ministry Google Calendar.</li>

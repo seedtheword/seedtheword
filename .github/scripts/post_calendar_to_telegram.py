@@ -127,6 +127,57 @@ def smart_trim(text: str, max_chars: int) -> str:
     return base.rstrip(",;:.-–— \n\t") + "…"
 
 
+# ── Image extraction from event description ───────────────────────────
+# Google Calendar iCal does not expose attachment metadata, but admins
+# can paste image URLs into the event description (or via the Calendar
+# UI's rich-text editor). We scan for http(s) URLs that look like
+# images and return them in document order. If multiple are found we
+# send them as a Telegram album.
+IMAGE_URL_RE = re.compile(
+    r"https?://[^\s\"'<>]+?\.(?:jpg|jpeg|png|webp|gif)(?:\?[^\s\"'<>]*)?",
+    re.IGNORECASE,
+)
+# <img src="..."> in sanitized HTML (Google Calendar HTML descriptions).
+IMG_TAG_RE = re.compile(
+    r'<img\b[^>]*?\bsrc\s*=\s*["\']([^"\']+)["\']',
+    re.IGNORECASE,
+)
+
+
+def extract_image_urls(html_or_text: str) -> list[str]:
+    if not html_or_text:
+        return []
+    seen: set[str] = set()
+    urls: list[str] = []
+    # Prefer <img src="..."> matches since those are intentional images.
+    for m in IMG_TAG_RE.finditer(html_or_text):
+        u = m.group(1).strip()
+        if u.startswith("http") and u not in seen:
+            seen.add(u)
+            urls.append(u)
+    # Then loose URL matches ending in an image extension.
+    for m in IMAGE_URL_RE.finditer(html_or_text):
+        u = m.group(0).strip().rstrip(").,;")
+        if u not in seen:
+            seen.add(u)
+            urls.append(u)
+    # Telegram's sendMediaGroup accepts 2–10 items per album; sendPhoto
+    # handles 1. Cap at 10 to stay within the API limit.
+    return urls[:10]
+
+
+def strip_image_urls(text: str, urls: list[str]) -> str:
+    """Remove the image URLs from the caption so they don't appear as
+    literal text. Called on plain text (post strip_html)."""
+    out = text or ""
+    for u in urls:
+        out = out.replace(u, "")
+    # Clean up any empty lines or trailing whitespace left behind.
+    out = re.sub(r"\n{3,}", "\n\n", out)
+    out = re.sub(r"[ \t]+\n", "\n", out)
+    return out.strip()
+
+
 # ── Telegram MarkdownV2 escaping ───────────────────────────────────────
 # These characters are reserved in MarkdownV2 and must be escaped when
 # used as literal text: _ * [ ] ( ) ~ ` > # + - = | { } . !
@@ -216,8 +267,21 @@ def build_venue_line(title: str, location: str) -> Optional[str]:
     return None
 
 
-def build_announcement_markdown(event: dict, tz: ZoneInfo, now: datetime, share_url: str) -> str:
-    """Build a MarkdownV2 announcement string ready to send to Telegram."""
+def build_announcement_markdown(
+    event: dict,
+    tz: ZoneInfo,
+    now: datetime,
+    share_url: str,
+    image_urls: Optional[list[str]] = None,
+    max_description_chars: int = 800,
+) -> str:
+    """Build a MarkdownV2 announcement string ready to send to Telegram.
+
+    When the post will be sent as a photo/album, caller passes
+    max_description_chars=600 or so (Telegram caption limit is 1024
+    total characters including formatting + banner + venue) and the
+    image URLs so they can be stripped from the description.
+    """
     start = parse_ev_start(event)
     if not start:
         return ""
@@ -230,7 +294,9 @@ def build_announcement_markdown(event: dict, tz: ZoneInfo, now: datetime, share_
     venue = build_venue_line(title, event.get("location") or "")
     location = (event.get("location") or "").replace("\n", " ").strip()
     description_plain = strip_html(event.get("description") or "")
-    description_plain = smart_trim(description_plain, 800)
+    if image_urls:
+        description_plain = strip_image_urls(description_plain, image_urls)
+    description_plain = smart_trim(description_plain, max_description_chars)
 
     # Assemble using MarkdownV2 for real bold + italic where it helps.
     lines: list[str] = []
@@ -432,6 +498,84 @@ def send_telegram_message(
         raise
 
 
+def send_telegram_photo(
+    chat_id: str | int,
+    message_thread_id: Optional[int],
+    photo_url: str,
+    caption: str,
+) -> dict:
+    """Send a single photo via URL. Telegram downloads the image itself."""
+    if DRY_RUN:
+        log("[DRY_RUN] Would sendPhoto to %s (thread %s): %s\ncaption:\n%s\n" % (
+            chat_id, message_thread_id, photo_url, caption))
+        return {"ok": True, "dry_run": True}
+    if not TELEGRAM_BOT_TOKEN:
+        raise SystemExit("Missing TELEGRAM_BOT_TOKEN; aborting.")
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
+    payload = {
+        "chat_id": str(chat_id),
+        "photo": photo_url,
+        "caption": caption,
+        "parse_mode": "MarkdownV2",
+    }
+    if message_thread_id:
+        payload["message_thread_id"] = int(message_thread_id)
+    data = json.dumps(payload).encode("utf-8")
+    req = Request(url, data=data, headers={"Content-Type": "application/json"})
+    try:
+        with urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except HTTPError as e:
+        err_body = e.read().decode("utf-8", errors="replace")
+        log(f"Telegram sendPhoto error {e.code}: {err_body}")
+        raise
+    except URLError as e:
+        log(f"Telegram sendPhoto URL error: {e.reason}")
+        raise
+
+
+def send_telegram_media_group(
+    chat_id: str | int,
+    message_thread_id: Optional[int],
+    photo_urls: list[str],
+    caption: str,
+) -> dict:
+    """Send 2–10 photos as an album. Only the first item carries the
+    caption (Telegram API convention)."""
+    if DRY_RUN:
+        log("[DRY_RUN] Would sendMediaGroup to %s (thread %s): %s\ncaption:\n%s\n" % (
+            chat_id, message_thread_id, photo_urls, caption))
+        return {"ok": True, "dry_run": True}
+    if not TELEGRAM_BOT_TOKEN:
+        raise SystemExit("Missing TELEGRAM_BOT_TOKEN; aborting.")
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMediaGroup"
+    media: list[dict] = []
+    for i, u in enumerate(photo_urls[:10]):
+        item = {"type": "photo", "media": u}
+        if i == 0:
+            item["caption"] = caption
+            item["parse_mode"] = "MarkdownV2"
+        media.append(item)
+    payload = {
+        "chat_id": str(chat_id),
+        "media": media,
+    }
+    if message_thread_id:
+        payload["message_thread_id"] = int(message_thread_id)
+    data = json.dumps(payload).encode("utf-8")
+    req = Request(url, data=data, headers={"Content-Type": "application/json"})
+    try:
+        with urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except HTTPError as e:
+        err_body = e.read().decode("utf-8", errors="replace")
+        log(f"Telegram sendMediaGroup error {e.code}: {err_body}")
+        raise
+    except URLError as e:
+        log(f"Telegram sendMediaGroup URL error: {e.reason}")
+        raise
+
+
 # ── Main ───────────────────────────────────────────────────────────────
 def main() -> int:
     full_cfg = load_json(BOT_CONFIG_PATH, None)
@@ -583,35 +727,92 @@ def main() -> int:
 
     log(f"Posting {len(to_post)} event(s) with header: {header_line}")
 
-    # Compose a single combined message so we don't flood the chat
-    parts: list[str] = [f"*{mdv2_escape(header_line)}*"]
+    # Split posts into photo-bearing (sent individually with their
+    # image(s)) vs text-only (batched into one combined message).
+    # Photos take the caption limit of 1024 chars so their description
+    # is trimmed harder.
+    photo_posts: list[tuple[dict, str, list[str]]] = []
+    text_posts: list[tuple[dict, str]] = []
     for ev, kind in to_post:
-        announcement = build_announcement_markdown(ev, tz, now, build_share_url(ev))
+        urls = extract_image_urls(ev.get("description") or "")
+        if urls:
+            photo_posts.append((ev, kind, urls))
+        else:
+            text_posts.append((ev, kind))
+
+    send_errors = 0
+
+    # ── Text-only batch (unchanged behavior) ────────────────────────
+    if text_posts:
+        parts: list[str] = [f"*{mdv2_escape(header_line)}*"]
+        for ev, kind in text_posts:
+            announcement = build_announcement_markdown(ev, tz, now, build_share_url(ev))
+            if kind == "live":
+                parts.append("🔴 *LIVE NOW*")
+            elif kind == "reminder":
+                parts.append("⏰ *Starting in \\~" + str(int(reminder_minutes // 60)) + " hours*" if reminder_minutes >= 120 else "⏰ *Starting soon*")
+            parts.append(announcement)
+            parts.append("—" * 12)
+        if parts and parts[-1].startswith("—"):
+            parts.pop()
+        footer = cfg.get("footer")
+        if footer:
+            parts.append("")
+            parts.append(f"_{mdv2_escape(footer)}_")
+        text = "\n\n".join(p for p in parts if p)
+        try:
+            resp = send_telegram_message(chat_id, thread_id, text)
+            if not resp.get("ok"):
+                log(f"Telegram rejected the text batch: {resp}")
+                send_errors += 1
+        except Exception as exc:
+            log(f"Telegram text batch send failed: {exc}")
+            send_errors += 1
+
+    # ── Photo posts (per event; one or an album per event) ──────────
+    for ev, kind, urls in photo_posts:
+        # Caption budget: Telegram caps photo/media-group captions at
+        # 1024 characters total including formatting. Reserve ~100
+        # chars for banner + venue + header tag + emoji, leaving ~600
+        # for the description itself. smart_trim handles the ellipsis.
+        announcement = build_announcement_markdown(
+            ev, tz, now, build_share_url(ev),
+            image_urls=urls,
+            max_description_chars=600,
+        )
+        tag = ""
         if kind == "live":
-            parts.append("🔴 *LIVE NOW*")
+            tag = "🔴 *LIVE NOW*\n\n"
         elif kind == "reminder":
-            parts.append("⏰ *Starting in \\~" + str(int(reminder_minutes // 60)) + " hours*" if reminder_minutes >= 120 else "⏰ *Starting soon*")
-        parts.append(announcement)
-        parts.append("—" * 12)
-    # Drop the trailing divider
-    if parts and parts[-1].startswith("—"):
-        parts.pop()
-    # Footer
-    footer = cfg.get("footer")
-    if footer:
-        parts.append("")
-        parts.append(f"_{mdv2_escape(footer)}_")
+            if reminder_minutes >= 120:
+                tag = "⏰ *Starting in \\~" + str(int(reminder_minutes // 60)) + " hours*\n\n"
+            else:
+                tag = "⏰ *Starting soon*\n\n"
+        caption = f"*{mdv2_escape(header_line)}*\n\n{tag}{announcement}"
+        # Telegram hard caps at 1024; trim the whole caption as a final
+        # safety net (multi-byte emoji may make the MarkdownV2 wrapper
+        # push us over). Leave 20 chars of slack.
+        if len(caption) > 1000:
+            caption = caption[:997] + "..."
+        try:
+            if len(urls) == 1:
+                resp = send_telegram_photo(chat_id, thread_id, urls[0], caption)
+            else:
+                resp = send_telegram_media_group(chat_id, thread_id, urls, caption)
+            if not resp.get("ok"):
+                log(f"Telegram rejected photo post for {ev.get('id')}: {resp}")
+                send_errors += 1
+        except Exception as exc:
+            log(f"Telegram photo send failed for {ev.get('id')}: {exc}")
+            send_errors += 1
+        # Light throttling between photo posts so Telegram's 30/min
+        # channel limit doesn't throttle us during a catch-up tick.
+        time.sleep(0.6)
 
-    text = "\n\n".join(p for p in parts if p)
-
-    try:
-        resp = send_telegram_message(chat_id, thread_id, text)
-    except Exception as exc:
-        log(f"Telegram send failed: {exc}")
-        return 1
-
-    if not resp.get("ok"):
-        log(f"Telegram rejected the message: {resp}")
+    if send_errors and send_errors == (len(text_posts and [1] or []) + len(photo_posts)):
+        # Every attempted send failed — don't update dedup, let the
+        # next tick retry.
+        log("All sends failed; leaving dedup log unchanged so the next tick retries.")
         return 1
 
     # Persist dedup state

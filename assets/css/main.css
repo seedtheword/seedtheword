@@ -8936,3 +8936,58 @@ a.contact-card:hover .contact-card__cta span {
     text-overflow: ellipsis;
   }
 }
+
+
+/* ============================================================
+   Event modal hero image + card thumbnail
+   When a Google Calendar event description includes image URLs,
+   the calendar renderer extracts them and shows them here. Single
+   image = hero; 2+ images = horizontal gallery strip.
+   ============================================================ */
+
+.event-modal__hero {
+  margin: -0.5rem -0.5rem 1.1rem;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #111;
+}
+.event-modal__hero--single img {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+}
+.event-modal__hero--gallery {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0.25rem;
+  background: transparent;
+}
+.event-modal__hero-item {
+  flex: 0 0 auto;
+  width: 240px;
+  height: 180px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0;
+  scroll-snap-align: start;
+  background: #111;
+}
+.event-modal__hero-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Compact thumbnail for announcement cards on news.html */
+.event-card__thumb {
+  display: block;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}

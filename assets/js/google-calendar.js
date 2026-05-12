@@ -43,10 +43,14 @@ function stripHtmlToText(html) {
 }
 
 /** HTML-safe rendering of a description for the modal — preserves line
- *  breaks but never re-inserts the raw tags from Google Calendar. */
+ *  breaks but never re-inserts the raw tags from Google Calendar.
+ *  Image URLs are stripped so the modal can render them separately
+ *  via the hero/gallery strip and not duplicate them in the text. */
 function renderDescription(html) {
   const text = stripHtmlToText(html);
-  return escapeHtml(text).replace(/\n/g, '<br>');
+  const imageUrls = extractImageUrls(html);
+  const cleaned = imageUrls.length ? stripImageUrls(text, imageUrls) : text;
+  return escapeHtml(cleaned).replace(/\n/g, '<br>');
 }
 
 /** Trim a string to ~max chars without cutting mid-word. Adds an
@@ -59,6 +63,48 @@ function smartTrim(text, max) {
   const softStop = hardStop.replace(/\s+\S*$/, '');
   const base = softStop.length > max * 0.7 ? softStop : hardStop;
   return base.trim().replace(/[,;:.\-–—\s]+$/, '') + '…';
+}
+
+// ── Image extraction from event description ─────────────────────────
+// Mirrors the Python helper in post_calendar_to_telegram.py so the
+// same convention (paste an image URL into a Google Calendar event's
+// description) drives both the website card AND the Telegram photo
+// post. <img src="..."> matches are preferred over loose URL matches.
+const _IMAGE_URL_RE = /https?:\/\/[^\s"'<>]+?\.(?:jpg|jpeg|png|webp|gif)(?:\?[^\s"'<>]*)?/gi;
+const _IMG_TAG_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/gi;
+
+function extractImageUrls(htmlOrText) {
+  if (!htmlOrText) return [];
+  const seen = new Set();
+  const urls = [];
+  let m;
+  _IMG_TAG_RE.lastIndex = 0;
+  while ((m = _IMG_TAG_RE.exec(htmlOrText)) !== null) {
+    const u = m[1].trim();
+    if (u.startsWith('http') && !seen.has(u)) {
+      seen.add(u);
+      urls.push(u);
+    }
+  }
+  _IMAGE_URL_RE.lastIndex = 0;
+  while ((m = _IMAGE_URL_RE.exec(htmlOrText)) !== null) {
+    const u = m[0].trim().replace(/[).,;]+$/, '');
+    if (!seen.has(u)) {
+      seen.add(u);
+      urls.push(u);
+    }
+  }
+  return urls.slice(0, 10);
+}
+
+/** Remove known image URLs from plain-text description so the same
+ *  URL doesn't appear both as an embedded image and as literal text. */
+function stripImageUrls(text, urls) {
+  let out = text || '';
+  for (const u of urls) {
+    out = out.split(u).join('');
+  }
+  return out.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 /** Best-effort extraction of {lat, lng} from a Google Calendar event.
@@ -431,14 +477,22 @@ class GoogleCalendarIntegration {
       const startDate = this.getEventStart(event);
       const eventType = this.getEventType(event);
       const statusText = this.getEventStatusForAnnouncement(startDate);
+      const imageUrls = extractImageUrls(event.description || '');
+      const thumb = imageUrls.length
+        ? `<img src="${escapeHtml(imageUrls[0])}" alt="" class="event-card__thumb" loading="lazy" onerror="this.remove()">`
+        : '';
+      const descText = event.description
+        ? stripImageUrls(stripHtmlToText(event.description), imageUrls)
+        : '';
       
       return `
         <div class="event-card ${eventType} glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;" onclick="googleCalendar.showEventModal(${JSON.stringify(event).replace(/"/g, '&quot;')}, '${startDate.toISOString()}')">
           <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">${statusText}</div>
           <div class="event-card__content">
-            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">${event.summary || event.title}</h4>
+            ${thumb}
+            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">${escapeHtml(event.summary || event.title || 'Event')}</h4>
             <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">${this.formatCompactEventTime(startDate)}</p>
-            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">${this.truncateText(event.description || '', 80)}</p>
+            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">${escapeHtml(this.truncateText(descText, 80))}</p>
           </div>
         </div>
       `;
@@ -476,14 +530,22 @@ class GoogleCalendarIntegration {
     
     container.innerHTML = ongoingEvents.map(event => {
       const startDate = this.getEventStart(event);
+      const imageUrls = extractImageUrls(event.description || '');
+      const thumb = imageUrls.length
+        ? `<img src="${escapeHtml(imageUrls[0])}" alt="" class="event-card__thumb" loading="lazy" onerror="this.remove()">`
+        : '';
+      const descText = event.description
+        ? stripImageUrls(stripHtmlToText(event.description), imageUrls)
+        : '';
       
       return `
         <div class="event-card ongoing glass-morphism" style="padding: 0.75rem; margin-bottom: 0.5rem;" onclick="googleCalendar.showEventModal(${JSON.stringify(event).replace(/"/g, '&quot;')}, '${startDate.toISOString()}')">
           <div class="event-card__status" style="font-size: 0.7rem; margin-bottom: 0.375rem;">🔄 ONGOING</div>
           <div class="event-card__content">
-            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">${event.summary || event.title}</h4>
+            ${thumb}
+            <h4 class="event-card__title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">${escapeHtml(event.summary || event.title || 'Event')}</h4>
             <p class="event-card__time" style="font-size: 0.75rem; margin-bottom: 0.375rem;">${this.getRecurringSchedule(event)}</p>
-            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">${this.truncateText(event.description || '', 80)}</p>
+            <p class="event-card__description" style="font-size: 0.75rem; line-height: 1.3;">${escapeHtml(this.truncateText(descText, 80))}</p>
           </div>
         </div>
       `;
@@ -517,17 +579,27 @@ class GoogleCalendarIntegration {
       return;
     }
     
-    container.innerHTML = liveEvents.map(event => `
+    container.innerHTML = liveEvents.map(event => {
+      const imageUrls = extractImageUrls(event.description || '');
+      const thumb = imageUrls.length
+        ? `<img src="${escapeHtml(imageUrls[0])}" alt="" class="event-card__thumb" loading="lazy" onerror="this.remove()">`
+        : '';
+      const descText = event.description
+        ? stripImageUrls(stripHtmlToText(event.description), imageUrls)
+        : '';
+      return `
       <div class="event-card glass-morphism live">
         <div class="event-card__status">🔴 LIVE NOW</div>
         <div class="event-card__content">
-          <h4 class="event-card__title">${event.summary || event.title}</h4>
+          ${thumb}
+          <h4 class="event-card__title">${escapeHtml(event.summary || event.title || 'Event')}</h4>
           <p class="event-card__time">Started ${this.formatEventTime(this.getEventStart(event))}</p>
-          <p class="event-card__description">${event.description || ''}</p>
+          <p class="event-card__description">${escapeHtml(descText)}</p>
         </div>
         <div class="live-pulse"></div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
   
   // Utility methods
@@ -711,7 +783,37 @@ class GoogleCalendarIntegration {
     // Stash the event on the instance so the Copy / Share handlers have access
     this.currentEvent = event;
 
+    // Hero image(s) — if the event description contains image URLs,
+    // render them at the top of the modal. Single image = hero; 2+
+    // images = horizontal gallery strip.
+    const heroImages = extractImageUrls(event.description || '');
+    let heroBlock = '';
+    if (heroImages.length === 1) {
+      heroBlock = `
+        <figure class="event-modal__hero event-modal__hero--single">
+          <img src="${escapeHtml(heroImages[0])}"
+               alt="${escapeHtml(title)}"
+               loading="lazy"
+               onerror="this.closest('figure').style.display='none'">
+        </figure>
+      `;
+    } else if (heroImages.length > 1) {
+      heroBlock = `
+        <div class="event-modal__hero event-modal__hero--gallery">
+          ${heroImages.map((u, i) => `
+            <figure class="event-modal__hero-item">
+              <img src="${escapeHtml(u)}"
+                   alt="${escapeHtml(title)} (${i + 1}/${heroImages.length})"
+                   loading="lazy"
+                   onerror="this.closest('figure').style.display='none'">
+            </figure>
+          `).join('')}
+        </div>
+      `;
+    }
+
     modalBody.innerHTML = `
+      ${heroBlock}
       <span class="event-modal__badge ${typeInfo.className}">${typeInfo.label}</span>
       <h3 class="event-modal__title">${escapeHtml(title)}</h3>
       <ul class="event-modal__meta">
@@ -1013,9 +1115,13 @@ class GoogleCalendarIntegration {
 
     // Body: description passes through verbatim (team adds their own
     // 🙏🏻🤍 wrappers or emojis in Google Calendar when they want them).
+    // Image URLs are stripped from the body and re-appended at the end
+    // so recipients' clients (Telegram, WhatsApp, IG) can preview them.
+    const imageUrls = extractImageUrls(event.description || '');
     let bodyBlock = null;
     if (event.description) {
-      const cleanDesc = stripHtmlToText(event.description);
+      let cleanDesc = stripHtmlToText(event.description);
+      if (imageUrls.length) cleanDesc = stripImageUrls(cleanDesc, imageUrls);
       // Cap at ~800 chars, but don't slice mid-word or mid-emoji
       const capped = smartTrim(cleanDesc, 800);
       if (capped) bodyBlock = '🙏🏻🤍' + capped;
@@ -1038,6 +1144,12 @@ class GoogleCalendarIntegration {
     parts.push('We can\u2019t wait to see you there! \u2728');
     parts.push('');
     parts.push(`More Details (${shareUrl})`);
+    // Append image URL(s) on their own line so Telegram / WhatsApp /
+    // most messaging clients auto-preview them as attached photos.
+    if (imageUrls.length) {
+      parts.push('');
+      for (const u of imageUrls) parts.push(u);
+    }
     return parts.join('\n');
   }
 

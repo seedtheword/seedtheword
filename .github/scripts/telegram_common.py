@@ -97,10 +97,50 @@ def send_telegram_message(
     except HTTPError as e:
         body = e.read().decode("utf-8", errors="replace")
         log(f"Telegram API error {e.code}: {body}")
+        _explain_telegram_error(e.code, body, chat_id, message_thread_id)
         raise
     except URLError as e:
         log(f"Telegram URL error: {e.reason}")
         raise
+
+
+def _explain_telegram_error(code: int, body: str, chat_id, thread_id) -> None:
+    """Log a plain-English walkthrough for common Telegram API errors so
+    admins don't have to decode raw error strings to fix the problem."""
+    b = (body or "").lower()
+    if code == 403 and "not a member" in b:
+        log("")
+        log(f"FIX: The bot account is not in the chat {chat_id!r}.")
+        log("   1. Open Telegram, go to the target group/channel.")
+        log("   2. Tap the title → Members (or Subscribers) → Add Member.")
+        log("   3. Search for the bot by its @username (from BotFather → /mybots).")
+        log("   4. Add it, then tap the bot → Promote to Admin.")
+        log("   5. Toggle 'Post Messages' ON. If the chat has topics, also")
+        log("      toggle 'Manage Topics' ON so the bot can post into a thread.")
+        log("   6. Re-run this workflow. The 403 will clear.")
+        log("")
+    elif code == 403 and "blocked" in b:
+        log("")
+        log("FIX: The bot was blocked by the user/chat. Unblock it in Telegram:")
+        log(f"   open the {chat_id!r} chat → tap title → unblock bot, then re-run.")
+        log("")
+    elif code == 400 and thread_id and "message thread not found" in b:
+        log("")
+        log(f"FIX: messageThreadId {thread_id} does not exist in {chat_id!r}.")
+        log("   1. In Telegram, open the target topic — the URL looks like")
+        log("      https://t.me/<chat>/<threadId>/<messageId>. The middle")
+        log("      number is the thread id.")
+        log("   2. Update messageThreadId in assets/data/telegram-bot.json")
+        log("      (Editor → Telegram bot config → the relevant bot section).")
+        log("")
+    elif code == 400 and "can't parse entities" in b:
+        log("")
+        log("FIX: The message has a MarkdownV2 formatting issue. Telegram's")
+        log("   description above says which character it choked on. Usually")
+        log("   this means an unescaped special character inside a link or")
+        log("   italic run. Re-run with dry_run=true to see the raw payload,")
+        log("   then look at the line number Telegram quoted.")
+        log("")
 
 
 def load_json(path, default):

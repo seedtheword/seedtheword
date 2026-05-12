@@ -2121,6 +2121,33 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
     <li>Commit. The next Bible post that matches that chapter will use your link; chapters you haven't mapped still post with the default show URL.</li>
   </ol>
 
+  <h3>Troubleshooting — the Telegram workflow failed, what now?</h3>
+  <div class="admin-card">
+    <p class="admin-card__label">Common error</p>
+    <p class="admin-card__title">403 Forbidden: bot is not a member of the supergroup chat</p>
+    <p>The bot account itself hasn't been added to (or was removed from) the target group yet. The bot token is fine; the bot just doesn't have a seat at the table.</p>
+    <p><strong>Fix:</strong></p>
+    <ol>
+      <li>Find the bot's <code>@username</code>. Open Telegram → BotFather → <code>/mybots</code> → pick the bot → its public handle is listed there.</li>
+      <li>Open the <code>@seedtheword</code> supergroup in Telegram.</li>
+      <li>Tap the group title → <strong>Members</strong> (or <strong>Subscribers</strong>) → <strong>Add Member</strong>.</li>
+      <li>Search for the bot's <code>@username</code> and add it.</li>
+      <li>Tap the bot in the member list → <strong>Promote to Admin</strong>. Toggle <strong>Post Messages</strong> ON, and (for forum-style groups with topics) <strong>Manage Topics</strong> ON.</li>
+      <li>Re-run the workflow. The 403 will clear.</li>
+    </ol>
+    <p>The announcements bot, Bible bot, and Prayer bot are three <em>separate</em> bot accounts with three separate tokens — each one needs to be added to the group on its own. Adding one doesn't cover the others.</p>
+  </div>
+  <div class="admin-card">
+    <p class="admin-card__label">Common error</p>
+    <p class="admin-card__title">400 Bad Request: message thread not found</p>
+    <p>The <code>messageThreadId</code> in <code>telegram-bot.json</code> points to a topic that no longer exists. Find the real id by opening the target topic in Telegram — the URL looks like <code>https://t.me/&lt;chat&gt;/&lt;threadId&gt;/&lt;messageId&gt;</code>. Copy the middle number. Update it from the <strong>✏️ Editor</strong> under <em>Telegram bot config</em>, commit.</p>
+  </div>
+  <div class="admin-card">
+    <p class="admin-card__label">Common error</p>
+    <p class="admin-card__title">400 Bad Request: can't parse entities</p>
+    <p>A MarkdownV2 character got through unescaped — usually inside a link label or italic run. Re-run the workflow with <code>dry_run=true</code> to see the raw payload, then look at the line Telegram's error message points to. If the content came from a calendar event description, the fix is to remove the offending character from the event description.</p>
+  </div>
+
   <h3>Turn a bot off, change its topic, or change a schedule</h3>
   <ul>
     <li><strong>Pause a single bot:</strong> set <code>"enabled": false</code> in its section of <code>telegram-bot.json</code>, commit. The scheduled workflow still runs but exits without posting.</li>
@@ -2193,7 +2220,7 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
 <script src="assets/js/admin-editor-commit-message.js?v=16" defer></script>
 <script src="assets/js/admin-editor-js-literal.js?v=16" defer></script>
 <script src="assets/js/admin-editor.js?v=16" defer></script>
-<script src="assets/js/admin-help.js?v=21" defer></script>
+<script src="assets/js/admin-help.js?v=22" defer></script>
 
 </body>
 </html>

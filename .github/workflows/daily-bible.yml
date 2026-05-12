@@ -2,10 +2,11 @@ name: Daily Bible Reading
 
 on:
   schedule:
-    # 08:00 Pacific, Monday-Friday. UTC is PDT+7 (15:00) for most of
+    # 08:00 Pacific, Monday-Saturday. UTC is PDT+7 (15:00) for most of
     # the year; during PST months the post arrives an hour later
-    # locally, which is acceptable.
-    - cron: '0 15 * * 1-5'
+    # locally, which is acceptable. Saturday reuses Friday's reading
+    # as a review entry — see post_daily_bible_to_telegram.py.
+    - cron: '0 15 * * 1-6'
   workflow_dispatch:
     inputs:
       dry_run:

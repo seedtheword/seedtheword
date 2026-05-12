@@ -26,7 +26,10 @@
     "messageThreadId": 13,
     "timezone": "America/Los_Angeles",
     "linkBackUrl": "https://t.me/seedtheword/13/3739",
-    "fallbackShowUrl": "https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK"
+    "fallbackShowUrl": "https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK",
+    "russianFallbackShowUrl": "",
+    "prayerTopicUrl": "https://t.me/seedtheword/21/3725",
+    "includePrayerBlock": true
   },
   "prayer": {
     "enabled": true,

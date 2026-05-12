@@ -1,17 +1,35 @@
 """
 Post the daily Bible reading to the @seedtheword Telegram group.
 
-Schedule: every Monday-Friday at 08:00 Pacific (wired up in
+Schedule: every Monday-Saturday at 08:00 Pacific (wired up in
 .github/workflows/daily-bible.yml). The reading plan mirrors
 assets/js/bible-plan.js exactly — anchor date Apr 30 2026 (Mark 11)
-advancing one chapter per weekday through the NT.
+advancing one chapter per weekday through the NT. Saturday reuses
+the most recent weekday reading as a "This week's reading" review
+entry so members have a consistent post to reference.
 
-Message format follows the team's convention:
+Message format (team convention):
 
-    Today's Reading: Mark Chapter 16 (<spotify-or-show-url>)
+    📖 Today's Reading: [Mark Chapter 16](<english-spotify-url>)
+    (+ Читаем Слово Божие на Русском (<russian-spotify-url>))  ← if configured
 
-Where the URL prefers a per-chapter Spotify episode from
-assets/data/bible-spotify-map.json and falls back to the main show URL.
+    🙏 *Today's Prayer Requests and Thanksgiving Announcements MM/DD/YYYY:*
+
+    > _You can add your prayer/thanksgiving details either here in
+      this main channel or in the 'Prayer & Thanksgiving' topic._
+    >
+    > _Members are encouraged to pray for one another and feel free
+      to share your needs because we are called to carry each other's
+      burdens._
+    >
+    > _Reminder: If members don't want to share revealing information
+      but have general details for the prayer request and/or
+      thanksgiving, we will encourage full anonymity._
+
+The prayer block is appended to the same message (not a second post)
+so the whole daily brief reads as one unit. Use the `includePrayerBlock`
+flag in telegram-bot.json → "bible" to turn the block off without
+touching code.
 
 Env vars:
   TELEGRAM_BIBLE_BOT_TOKEN   — bot token (GitHub Secret)
@@ -82,13 +100,23 @@ def weekdays_between(from_date: date, to_date: date) -> int:
 
 
 def get_reading_for_date(d: date):
-    if d.weekday() >= 5:  # Sat/Sun: no reading
+    """Return the reading assigned to a specific date. Saturday falls
+    back to the most recent weekday's reading (same as Friday's)
+    so the post on review day points at this week's last chapter.
+    Sunday returns None (no post)."""
+    if d.weekday() == 6:  # Sunday — no post
         return None
-    offset = weekdays_between(ANCHOR_DATE, d)
+    # For Saturday, reuse Friday's reading.
+    lookup_date = d
+    if d.weekday() == 5:  # Saturday
+        lookup_date = d - timedelta(days=1)
+    offset = weekdays_between(ANCHOR_DATE, lookup_date)
     idx = ANCHOR_INDEX + offset
     if idx < 0 or idx >= len(NT_SEQUENCE):
         return None
-    return NT_SEQUENCE[idx]
+    reading = dict(NT_SEQUENCE[idx])
+    reading["is_review"] = (d.weekday() == 5)
+    return reading
 
 
 # ── Main ───────────────────────────────────────────────────────────────
@@ -112,22 +140,103 @@ def main() -> int:
         log(f"No reading scheduled for {today_local} ({today_local.strftime('%A')}); exiting.")
         return 0
 
-    # Resolve URL — prefer per-chapter map, fall back to show URL
+    # Resolve the two Spotify URLs — English primary, Russian optional.
     spotify_cfg = load_json(SPOTIFY_MAP_PATH, {})
     chapters_map = spotify_cfg.get("chapters") or {}
-    key = f"{reading['book']} {reading['chapter']}"
-    url = chapters_map.get(key)
-    if not url:
-        url = cfg.get("fallbackShowUrl") \
-            or spotify_cfg.get("defaultShowUrl") \
-            or "https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK"
+    russian_map = spotify_cfg.get("russianChapters") or {}
 
-    # Build MarkdownV2 message
+    def _resolve_url(primary_map: dict, fallback_keys: list[str]) -> str:
+        """Prefer the per-chapter URL; otherwise walk the fallback key
+        list until we find a non-empty string on either the bible cfg
+        or the spotify map."""
+        key = f"{reading['book']} {reading['chapter']}"
+        mapped = primary_map.get(key)
+        if mapped and not key.startswith("__"):
+            return mapped
+        for fb_key in fallback_keys:
+            candidate = cfg.get(fb_key) or spotify_cfg.get(fb_key)
+            if candidate:
+                return candidate
+        return ""
+
+    english_url = _resolve_url(chapters_map, ["fallbackShowUrl", "defaultShowUrl"])
+    russian_url = _resolve_url(russian_map, ["russianFallbackShowUrl", "russianShowUrl"])
+
     reading_label = f"{reading['book']} Chapter {reading['chapter']}"
-    # Format: "Today's Reading: [Mark Chapter 16](spotify-url)"
-    # MarkdownV2 link syntax, so the title is clickable.
-    lines = []
-    lines.append(f"📖 *Today\\'s Reading:* [{mdv2_escape(reading_label)}]({url})")
+
+    # ── Build the MarkdownV2 message ──────────────────────────────
+    lines: list[str] = []
+    heading = "Today's Reading"
+    if reading.get("is_review"):
+        heading = "This Week's Reading (Review)"
+    # MarkdownV2 link syntax so the title is clickable. Escape the
+    # label (it can contain chars like ':' or '1' that MarkdownV2 is
+    # picky about in link text — though numbers are safe, ':' needs
+    # escape).
+    if english_url:
+        lines.append(
+            f"📖 *{mdv2_escape(heading)}:* [{mdv2_escape(reading_label)}]({english_url})"
+        )
+    else:
+        lines.append(f"📖 *{mdv2_escape(heading)}:* {mdv2_escape(reading_label)}")
+
+    if russian_url:
+        # Keep the Russian text unescaped where it's fine (cyrillic chars
+        # aren't MarkdownV2-special) and escape the '+' sign.
+        lines.append(
+            f"\\+ [Читаем Слово Божие на Русском]({russian_url})"
+        )
+
+    # ── Prayer & Thanksgiving block ───────────────────────────────
+    if cfg.get("includePrayerBlock", True):
+        # Format today's date as MM/DD/YYYY for the header.
+        date_label = today_local.strftime("%m/%d/%Y")
+        prayer_topic_url = (
+            full_cfg.get("prayer", {}).get("prayerTopicUrl")
+            or cfg.get("prayerTopicUrl")
+            or ""
+        )
+
+        lines.append("")
+        prayer_heading = "Today's Prayer Requests and Thanksgiving Announcements"
+        lines.append(
+            f"🙏 *{mdv2_escape(prayer_heading)} {mdv2_escape(date_label)}:*"
+        )
+        lines.append("")
+        # MarkdownV2 blockquote (each line starts with '>') + italic
+        # (entire line wrapped in '_'). We keep 'Prayer & Thanksgiving'
+        # as plain quoted text inside the italic sentence because
+        # MarkdownV2 doesn't reliably allow a link to sit mid-italic
+        # (the parser rejects overlapping entities). If a topic URL is
+        # configured, we add a small non-italic follow-up line with a
+        # direct "Open the Prayer & Thanksgiving topic →" link so the
+        # phrase is still one tap away.
+        lines.append(
+            "> _" + mdv2_escape(
+                "You can add your prayer/thanksgiving details either here in this "
+                "main channel or in the 'Prayer & Thanksgiving' topic."
+            ) + "_"
+        )
+        lines.append(">")
+        lines.append(
+            "> _" + mdv2_escape(
+                "Members are encouraged to pray for one another and feel free to share "
+                "your needs because we are called to carry each other's burdens."
+            ) + "_"
+        )
+        lines.append(">")
+        lines.append(
+            "> _" + mdv2_escape(
+                "Reminder: If members don't want to share revealing information but have "
+                "general details for the prayer request and/or thanksgiving, we will "
+                "encourage full anonymity."
+            ) + "_"
+        )
+        if prayer_topic_url:
+            lines.append("")
+            lines.append(
+                f"[{mdv2_escape('Open the Prayer & Thanksgiving topic →')}]({prayer_topic_url})"
+            )
 
     chat_id = cfg.get("chatId")
     thread_id = cfg.get("messageThreadId")
@@ -151,7 +260,7 @@ def main() -> int:
         log(f"Telegram rejected the message: {resp}")
         return 1
 
-    log(f"Posted daily Bible reading: {reading_label}")
+    log(f"Posted daily Bible reading: {reading_label} (review={reading.get('is_review', False)})")
     return 0
 
 

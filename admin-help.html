@@ -2053,12 +2053,19 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
 
   <h3>Bot 2 — Daily Bible bot</h3>
   <ul>
-    <li><strong>What it does:</strong> Posts today's NT reading with a clickable link to the Spotify recording.</li>
+    <li><strong>What it does:</strong> Posts today's NT reading with a clickable Spotify link, an optional Russian Spotify link, and a full Prayer &amp; Thanksgiving block.</li>
     <li><strong>Where:</strong> Encounter the Word topic (thread 13).</li>
-    <li><strong>Schedule:</strong> 08:00 Pacific, Monday–Friday (no weekends).</li>
-    <li><strong>Reading plan:</strong> same one the homepage uses — anchored on Apr 30 2026 = Mark 11, advancing one chapter per weekday.</li>
-    <li><strong>Spotify link:</strong> per-chapter override in <code>assets/data/bible-spotify-map.json</code>; falls back to the show page when a specific episode isn't listed.</li>
-    <li><strong>Message format:</strong> <code>📖 Today's Reading: [Mark Chapter 16](&lt;spotify url&gt;)</code></li>
+    <li><strong>Schedule:</strong> 08:00 Pacific, <strong>Monday–Saturday</strong> (Saturday reuses Friday's reading as "This Week's Reading (Review)"). No Sunday post.</li>
+    <li><strong>Reading plan:</strong> same one the homepage uses — anchored on Apr 30 2026 = Mark 11, advancing one chapter per weekday Mon–Fri.</li>
+    <li><strong>Spotify links:</strong> per-chapter overrides in <code>assets/data/bible-spotify-map.json</code> — <code>chapters</code> for English, <code>russianChapters</code> for Russian. Fallbacks: <code>fallbackShowUrl</code> + <code>russianFallbackShowUrl</code> inside the <em>bible</em> section of <code>telegram-bot.json</code>. The Russian line is omitted entirely when no Russian URL is configured, so you can roll it out when the recordings are ready.</li>
+    <li><strong>Message format:</strong>
+      <code>📖 **Today's Reading:** [Book Ch N](english-url)</code><br>
+      <code>+ [Читаем Слово Божие на Русском](russian-url)</code><br>
+      <code>🙏 **Today's Prayer Requests and Thanksgiving Announcements MM/DD/YYYY:**</code><br>
+      (three italic blockquote paragraphs explaining how to share requests + anonymity reminder)<br>
+      <code>[Open the Prayer &amp; Thanksgiving topic →](prayer-topic-url)</code>
+    </li>
+    <li><strong>Prayer block toggle:</strong> set <code>"includePrayerBlock": false</code> inside the <em>bible</em> section of <code>telegram-bot.json</code> if you ever want the bot to post the reading alone.</li>
     <li><strong>Secret:</strong> <code>TELEGRAM_BIBLE_BOT_TOKEN</code></li>
     <li><strong>Workflow:</strong> <code>.github/workflows/daily-bible.yml</code></li>
     <li><strong>Test it:</strong> Actions → <em>Daily Bible Reading</em> → Run workflow → <em>dry_run</em> = <code>true</code>.</li>
@@ -2089,7 +2096,7 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
         <span class="admin-step__num">2</span>
         <span class="admin-step__icon">📖</span>
         <p class="admin-step__title">Bible bot</p>
-        <p class="admin-step__body">Daily NT reading + Spotify link → Encounter the Word topic (thread 13). Runs 8 AM Mon–Fri.</p>
+        <p class="admin-step__body">Daily NT reading + optional Russian link + Prayer &amp; Thanksgiving block → Encounter the Word topic (thread 13). Runs 8 AM Mon–Sat (Saturday = Friday's review).</p>
       </div>
       <div class="admin-step">
         <span class="admin-step__num">3</span>
@@ -2173,15 +2180,15 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   </div>
 </footer>
 
-<script src="assets/js/admin-editor-schemas.js?v=14" defer></script>
-<script src="assets/js/admin-editor-github.js?v=14" defer></script>
-<script src="assets/js/admin-editor-diff.js?v=14" defer></script>
-<script src="assets/js/admin-editor-drafts.js?v=14" defer></script>
-<script src="assets/js/admin-editor-validate.js?v=14" defer></script>
-<script src="assets/js/admin-editor-commit-message.js?v=14" defer></script>
-<script src="assets/js/admin-editor-js-literal.js?v=14" defer></script>
-<script src="assets/js/admin-editor.js?v=14" defer></script>
-<script src="assets/js/admin-help.js?v=19" defer></script>
+<script src="assets/js/admin-editor-schemas.js?v=15" defer></script>
+<script src="assets/js/admin-editor-github.js?v=15" defer></script>
+<script src="assets/js/admin-editor-diff.js?v=15" defer></script>
+<script src="assets/js/admin-editor-drafts.js?v=15" defer></script>
+<script src="assets/js/admin-editor-validate.js?v=15" defer></script>
+<script src="assets/js/admin-editor-commit-message.js?v=15" defer></script>
+<script src="assets/js/admin-editor-js-literal.js?v=15" defer></script>
+<script src="assets/js/admin-editor.js?v=15" defer></script>
+<script src="assets/js/admin-help.js?v=20" defer></script>
 
 </body>
 </html>

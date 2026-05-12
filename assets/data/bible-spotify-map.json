@@ -1,7 +1,11 @@
 {
-  "_help": "Optional per-chapter Spotify episode links for the daily Bible bot. Keys are in the exact format 'Book Chapter' (e.g. 'Mark 16', '1 Corinthians 13'). Values are the full Spotify episode or show URL. When today's chapter isn't listed here, the bot falls back to the ministry's Spotify show link, so nothing breaks if you forget to update.",
+  "_help": "Optional per-chapter Spotify episode links for the daily Bible bot. Keys are in the exact format 'Book Chapter' (e.g. 'Mark 16', '1 Corinthians 13'). Values are the full Spotify episode or show URL. When today's chapter isn't listed here, the bot falls back to the ministry's Spotify show link, so nothing breaks if you forget to update. The 'russianChapters' block is parallel — same keys, Russian-language recordings. The russian line is omitted from the post if no chapter-specific URL AND no russianShowUrl fallback is set.",
   "defaultShowUrl": "https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK",
+  "russianShowUrl": "",
   "chapters": {
     "__example_Mark 16": "https://open.spotify.com/episode/REPLACE_WITH_EPISODE_ID"
+  },
+  "russianChapters": {
+    "__example_Mark 16": "https://open.spotify.com/episode/REPLACE_WITH_RUSSIAN_EPISODE_ID"
   }
 }

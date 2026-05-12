@@ -143,6 +143,43 @@ function stripImageUrls(text, urls) {
   return out.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
+/** Heuristic: is this URL a Google Drive direct-view URL that we
+ *  auto-rewrote from a share link? Used to decide whether to show
+ *  a privacy-helpful fallback when loading fails. */
+function isRewrittenDriveUrl(url) {
+  return /^https:\/\/drive\.google\.com\/uc\?/.test(url || '');
+}
+
+/** Global error handler for event images. When a Drive image fails
+ *  to load (usually because the file isn't shared publicly), swap
+ *  the broken <img> out for a compact placeholder that explains what
+ *  happened and links to the original file. Wired via the inline
+ *  `onerror="window.__stwImgFallback(this)"` attribute below. */
+window.__stwImgFallback = function (imgEl) {
+  if (!imgEl || imgEl.dataset.stwFallbackApplied === '1') return;
+  imgEl.dataset.stwFallbackApplied = '1';
+  const src = imgEl.getAttribute('src') || '';
+  const parent = imgEl.parentElement;
+  if (!parent) { imgEl.remove(); return; }
+  const isDrive = isRewrittenDriveUrl(src);
+  const note = document.createElement('div');
+  note.className = 'event-img-fallback' + (isDrive ? ' event-img-fallback--drive' : '');
+  note.innerHTML = isDrive
+    ? '<span class="event-img-fallback__icon" aria-hidden="true">🔒</span>' +
+      '<div class="event-img-fallback__body">' +
+        '<strong>Photo not public</strong>' +
+        '<span>Open the Drive file and set sharing to "Anyone with the link" to show it here.</span>' +
+      '</div>' +
+      '<a class="event-img-fallback__link" href="' + escapeHtml(src) + '" target="_blank" rel="noopener">Open →</a>'
+    : '<span class="event-img-fallback__icon" aria-hidden="true">📎</span>' +
+      '<div class="event-img-fallback__body">' +
+        '<strong>Attached photo</strong>' +
+        '<span>Couldn\u2019t preview here. Open the link below to view.</span>' +
+      '</div>' +
+      '<a class="event-img-fallback__link" href="' + escapeHtml(src) + '" target="_blank" rel="noopener">Open →</a>';
+  parent.replaceChild(note, imgEl);
+};
+
 /** Best-effort extraction of {lat, lng} from a Google Calendar event.
  *  Looks at extendedProperties.private (the standard place Google stores
  *  geo data) and falls back to a simple "lat,lng" or "@lat,lng" pattern
@@ -515,7 +552,7 @@ class GoogleCalendarIntegration {
       const statusText = this.getEventStatusForAnnouncement(startDate);
       const imageUrls = extractImageUrls(event.description || '');
       const thumb = imageUrls.length
-        ? `<img src="${escapeHtml(imageUrls[0])}" alt="" class="event-card__thumb" loading="lazy" onerror="this.remove()">`
+        ? `<img src="${escapeHtml(imageUrls[0])}" alt="" class="event-card__thumb" loading="lazy" onerror="window.__stwImgFallback(this)">`
         : '';
       const descText = event.description
         ? stripImageUrls(stripHtmlToText(event.description), imageUrls)
@@ -568,7 +605,7 @@ class GoogleCalendarIntegration {
       const startDate = this.getEventStart(event);
       const imageUrls = extractImageUrls(event.description || '');
       const thumb = imageUrls.length
-        ? `<img src="${escapeHtml(imageUrls[0])}" alt="" class="event-card__thumb" loading="lazy" onerror="this.remove()">`
+        ? `<img src="${escapeHtml(imageUrls[0])}" alt="" class="event-card__thumb" loading="lazy" onerror="window.__stwImgFallback(this)">`
         : '';
       const descText = event.description
         ? stripImageUrls(stripHtmlToText(event.description), imageUrls)
@@ -618,7 +655,7 @@ class GoogleCalendarIntegration {
     container.innerHTML = liveEvents.map(event => {
       const imageUrls = extractImageUrls(event.description || '');
       const thumb = imageUrls.length
-        ? `<img src="${escapeHtml(imageUrls[0])}" alt="" class="event-card__thumb" loading="lazy" onerror="this.remove()">`
+        ? `<img src="${escapeHtml(imageUrls[0])}" alt="" class="event-card__thumb" loading="lazy" onerror="window.__stwImgFallback(this)">`
         : '';
       const descText = event.description
         ? stripImageUrls(stripHtmlToText(event.description), imageUrls)
@@ -830,7 +867,7 @@ class GoogleCalendarIntegration {
           <img src="${escapeHtml(heroImages[0])}"
                alt="${escapeHtml(title)}"
                loading="lazy"
-               onerror="this.closest('figure').style.display='none'">
+               onerror="window.__stwImgFallback(this)">
         </figure>
       `;
     } else if (heroImages.length > 1) {
@@ -841,7 +878,7 @@ class GoogleCalendarIntegration {
               <img src="${escapeHtml(u)}"
                    alt="${escapeHtml(title)} (${i + 1}/${heroImages.length})"
                    loading="lazy"
-                   onerror="this.closest('figure').style.display='none'">
+                   onerror="window.__stwImgFallback(this)">
             </figure>
           `).join('')}
         </div>

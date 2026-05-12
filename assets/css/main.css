@@ -8991,3 +8991,45 @@ a.contact-card:hover .contact-card__cta span {
   border-radius: 8px;
   margin-bottom: 0.5rem;
 }
+
+
+/* ============================================================
+   Event image fallback — shown when a Google Drive image can't
+   be loaded (usually because the file is shared as "restricted"
+   rather than "anyone with the link"). Gives admins a clear hint
+   about what to fix and keeps the layout from looking broken.
+   ============================================================ */
+.event-img-fallback {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.85rem;
+  background: #fff8ea;
+  border: 1px solid #f0c95b;
+  border-radius: 10px;
+  color: #5a3913;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  margin: 0 0 0.75rem;
+}
+.event-img-fallback--drive {
+  background: #fff0ef;
+  border-color: #f7bdb8;
+  color: #7a2f2b;
+}
+.event-img-fallback__icon { font-size: 1.3rem; flex-shrink: 0; }
+.event-img-fallback__body { flex: 1; display: flex; flex-direction: column; gap: 0.1rem; }
+.event-img-fallback__body strong { font-size: 0.92rem; }
+.event-img-fallback__body span { font-size: 0.82rem; opacity: 0.85; }
+.event-img-fallback__link {
+  font-weight: 700;
+  text-decoration: none;
+  color: inherit;
+  padding: 0.3rem 0.65rem;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.event-img-fallback__link:hover { background: rgba(0, 0, 0, 0.06); }

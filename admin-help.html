@@ -2015,23 +2015,29 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
 
   <div class="admin-card">
     <p class="admin-card__label">Event photos in Telegram posts</p>
-    <p class="admin-card__title">Attach an image URL to a calendar event</p>
+    <p class="admin-card__title">Attach an image to a calendar event</p>
     <p>The announcements bot scans each Google Calendar event's description for image URLs. If it finds one, the Telegram post goes out as a <strong>photo with the event text as the caption</strong> instead of plain text. Two or more image URLs become a Telegram <em>album</em> (up to 10 photos per event). The same images show on the <code>news.html</code> event card and in the event modal. Image URLs are automatically stripped from the visible caption/description so they don't appear as literal text.</p>
-    <p><strong>How to add a photo from Google Drive (recommended):</strong></p>
+
+    <p><strong>Recommended: upload to the repo via the admin editor.</strong> It's the simplest path and you never have to think about sharing permissions:</p>
+    <ol>
+      <li>Open the <strong>✏️ Editor</strong> tab (top of this page).</li>
+      <li>Pick an image folder (<em>Featured showcase images</em>, <em>Ministry highlights</em>, or <em>Ministry outreach photos</em>).</li>
+      <li>Drop the image onto the uploader. Commit when prompted.</li>
+      <li>Right-click the uploaded file in the list → <em>Copy link</em>. The URL looks like <code>https://seedtheword.github.io/seedtheword/assets/images/...</code>.</li>
+      <li>Paste that URL into your event's description in Google Calendar. Done.</li>
+    </ol>
+
+    <p><strong>Alternative: Google Drive link.</strong> This works too, but the Drive file <em>must</em> be shared publicly or the image won't load — and Drive links are slower and sometimes throttled.</p>
     <ol>
       <li>Upload the image to Google Drive.</li>
-      <li>Right-click the file → <strong>Share</strong> → change access to <strong>"Anyone with the link: Viewer"</strong>. This step is required — if the file stays private, Telegram / browsers will hit a sign-in page and the image won't load.</li>
+      <li>Right-click the file → <strong>Share</strong> → change access to <strong>"Anyone with the link: Viewer"</strong>. This step is required — if the file stays restricted, Telegram and browsers will hit a sign-in page and the image won't load.</li>
       <li>Copy the share URL (looks like <code>https://drive.google.com/file/d/&lt;id&gt;/view</code>).</li>
       <li>Paste it <em>anywhere</em> in the event's description in Google Calendar.</li>
-      <li>The script auto-rewrites it to the direct-image endpoint, so you don't have to hand-edit anything.</li>
     </ol>
-    <p><strong>Other supported URL shapes:</strong></p>
-    <ul>
-      <li>Repo-hosted image: <code>https://seedtheword.github.io/seedtheword/assets/images/...</code> (upload via the Editor first)</li>
-      <li>Any public <code>.jpg</code>, <code>.jpeg</code>, <code>.png</code>, <code>.webp</code>, or <code>.gif</code> URL</li>
-      <li>Instagram / Facebook Page cover images (right-click → Copy image address)</li>
-    </ul>
-    <p>Photo captions are limited by Telegram to 1024 characters, so photo posts trim the description more aggressively than text-only posts. If the event has no image URL, the post falls back to text-only (same as before).</p>
+    <p>If a Drive image fails to load (because the file isn't public), the website shows a red "🔒 Photo not public" banner in place of the image with a link to the Drive file, and the Telegram bot automatically degrades that event to a text-only post so the announcement still goes out.</p>
+
+    <p><strong>Also supported:</strong> any public <code>.jpg</code>, <code>.jpeg</code>, <code>.png</code>, <code>.webp</code>, <code>.gif</code> URL, or <code>&lt;img src="..."&gt;</code> tags in the HTML description.</p>
+    <p>Photo captions are limited by Telegram to 1024 characters, so photo posts trim the description more aggressively than text-only posts.</p>
   </div>
 
   <h3>Bot 1 — Announcement bot</h3>

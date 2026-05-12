@@ -213,6 +213,34 @@ def strip_image_urls(text: str, urls: list[str]) -> str:
     return out.strip()
 
 
+def url_is_public_image(url: str) -> tuple[bool, str]:
+    """Best-effort check that a URL actually serves image bytes (and
+    not a sign-in HTML page). Returns (ok, reason). Used to pre-flight
+    Google Drive links before handing them to Telegram; if Drive hands
+    us an HTML login page instead of bytes, Telegram's sendPhoto will
+    reject the post outright, so we'd rather know now and fall back to
+    a text-only post than lose the announcement entirely.
+    """
+    try:
+        req = Request(url, method="HEAD", headers={
+            "User-Agent": "seedtheword-bot/1.0",
+            "Accept": "image/*,*/*;q=0.8",
+        })
+        with urlopen(req, timeout=15) as resp:
+            ct = (resp.headers.get("Content-Type") or "").lower()
+            if ct.startswith("image/"):
+                return True, "ok"
+            # Drive's login/interstitial page is text/html. Return the
+            # content-type so the caller can explain in logs.
+            return False, f"content-type={ct or 'unknown'}"
+    except HTTPError as e:
+        return False, f"http {e.code}"
+    except URLError as e:
+        return False, f"url error: {e.reason}"
+    except Exception as e:
+        return False, f"{type(e).__name__}: {e}"
+
+
 # ── Telegram MarkdownV2 escaping ───────────────────────────────────────
 # These characters are reserved in MarkdownV2 and must be escaped when
 # used as literal text: _ * [ ] ( ) ~ ` > # + - = | { } . !
@@ -774,6 +802,28 @@ def main() -> int:
             photo_posts.append((ev, kind, urls))
         else:
             text_posts.append((ev, kind))
+
+    # Pre-flight each image URL before any sends go out. If a URL
+    # doesn't serve image bytes (typical cause: Drive file not shared
+    # publicly), drop it from the event's URL list. If no URLs remain
+    # for an event, demote it to the text-only batch so the
+    # announcement still fires as plain text. This is what keeps a
+    # missing / private image from silently killing an announcement.
+    degraded_photo_posts: list[tuple[dict, str, list[str]]] = []
+    for ev, kind, urls in photo_posts:
+        good_urls: list[str] = []
+        for u in urls:
+            ok, reason = url_is_public_image(u)
+            if ok:
+                good_urls.append(u)
+            else:
+                log(f"Image URL not usable for event {ev.get('id')}: {u} — {reason}")
+        if good_urls:
+            degraded_photo_posts.append((ev, kind, good_urls))
+        else:
+            text_posts.append((ev, kind))
+            log(f"Event {ev.get('id')} has no reachable images; falling back to text-only.")
+    photo_posts = degraded_photo_posts
 
     send_errors = 0
 

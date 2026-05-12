@@ -29,7 +29,17 @@
     "fallbackShowUrl": "https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK",
     "russianFallbackShowUrl": "",
     "prayerTopicUrl": "https://t.me/seedtheword/21/3725",
-    "includePrayerBlock": true
+    "includePrayerBlock": true,
+    "saturday": {
+      "enabled": true,
+      "twitchUrl": "https://www.twitch.tv/seedtheword",
+      "streamStartTimePT": "7:00 PM",
+      "rulesUrl": "",
+      "bodyIntro": "Join us in the Word, brought to you by Seed the Word Ministry.",
+      "bodyReview": "We'll be reviewing what we have been reading throughout the week, catching up on missed discussions, diving deeper into God's Word.",
+      "bodyGoal": "The goal is to promote critical thinking amongst the body of Jesus Christ, who are capable of discerning what is Scripture based and that of what is from the enemy.",
+      "bodyRulesNote": "Please review the S.E.E.D. Rules for more information on recent changes."
+    }
   },
   "prayer": {
     "enabled": true,

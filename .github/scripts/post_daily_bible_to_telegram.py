@@ -2,39 +2,51 @@
 Post the daily Bible reading to the @seedtheword Telegram group.
 
 Schedule: every Monday-Saturday at 08:00 Pacific (wired up in
-.github/workflows/daily-bible.yml). The reading plan mirrors
-assets/js/bible-plan.js exactly — anchor date Apr 30 2026 (Mark 11)
-advancing one chapter per weekday through the NT. Saturday reuses
-the most recent weekday reading as a "This week's reading" review
-entry so members have a consistent post to reference.
+.github/workflows/daily-bible.yml). The Mon-Fri messages follow the
+reading plan in assets/js/bible-plan.js (anchor date Apr 30 2026 =
+Mark 11, advancing one chapter per weekday). The Saturday message
+uses a dedicated Study Saturday Live template that pulls this week's
+review passages from assets/data/study-saturday.json.
 
-Message format (team convention):
+Mon-Fri format:
 
     📖 Today's Reading: [Mark Chapter 16](<english-spotify-url>)
     (+ Читаем Слово Божие на Русском (<russian-spotify-url>))  ← if configured
 
     🙏 *Today's Prayer Requests and Thanksgiving Announcements MM/DD/YYYY:*
+    > _three italic blockquote paragraphs_
 
-    > _You can add your prayer/thanksgiving details either here in
-      this main channel or in the 'Prayer & Thanksgiving' topic._
-    >
-    > _Members are encouraged to pray for one another and feel free
-      to share your needs because we are called to carry each other's
-      burdens._
-    >
-    > _Reminder: If members don't want to share revealing information
-      but have general details for the prayer request and/or
-      thanksgiving, we will encourage full anonymity._
+Saturday format (Study Saturday Live):
 
-The prayer block is appended to the same message (not a second post)
-so the whole daily brief reads as one unit. Use the `includePrayerBlock`
-flag in telegram-bot.json → "bible" to turn the block off without
-touching code.
+    🎙 *Discuss Scripture: Study Saturday Live*
+    TONIGHT @ 7pm, May 9th, 2026
+    Watch STW on Twitch —> https://www.twitch.tv/seedtheword
+
+    *Study Saturday Live!*
+
+    Join us in the Word, brought to you by Seed the Word Ministry.
+
+    We'll be reviewing what we have been reading throughout the
+    week, catching up on missed discussions, diving deeper into
+    God's Word.
+
+    The goal is to promote critical thinking amongst the body of
+    Jesus Christ, who are capable of discerning what is Scripture
+    based and that of what is from the enemy.
+
+    Please review the S.E.E.D. Rules for more information on
+    recent changes.
+
+    📖 This week's study focus: <oldTestament>
+    📖 This week's reading: <newTestament>
+
+    🙏 Prayer & Thanksgiving block (same as Mon-Fri)
 
 Env vars:
   TELEGRAM_BIBLE_BOT_TOKEN   — bot token (GitHub Secret)
   BOT_CONFIG                 — path to telegram-bot.json (optional)
   SPOTIFY_MAP                — path to bible-spotify-map.json (optional)
+  STUDY_SATURDAY_PATH        — path to study-saturday.json (optional)
   DRY_RUN                    — if set, log the post instead of sending
 """
 from __future__ import annotations
@@ -57,6 +69,7 @@ from telegram_common import (  # type: ignore
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BOT_CONFIG_PATH = Path(os.environ.get("BOT_CONFIG", REPO_ROOT / "assets/data/telegram-bot.json"))
 SPOTIFY_MAP_PATH = Path(os.environ.get("SPOTIFY_MAP", REPO_ROOT / "assets/data/bible-spotify-map.json"))
+STUDY_SATURDAY_PATH = Path(os.environ.get("STUDY_SATURDAY_PATH", REPO_ROOT / "assets/data/study-saturday.json"))
 BOT_TOKEN = os.environ.get("TELEGRAM_BIBLE_BOT_TOKEN", "").strip()
 DRY_RUN = bool(os.environ.get("DRY_RUN", "").strip())
 
@@ -100,23 +113,123 @@ def weekdays_between(from_date: date, to_date: date) -> int:
 
 
 def get_reading_for_date(d: date):
-    """Return the reading assigned to a specific date. Saturday falls
-    back to the most recent weekday's reading (same as Friday's)
-    so the post on review day points at this week's last chapter.
-    Sunday returns None (no post)."""
-    if d.weekday() == 6:  # Sunday — no post
+    """Return the reading assigned to a specific date (Mon-Fri only).
+    Returns None for Saturday + Sunday; Saturday has a dedicated
+    Study Saturday Live post built from study-saturday.json rather
+    than the NT reading plan."""
+    if d.weekday() >= 5:  # Sat + Sun: no NT-reading post
         return None
-    # For Saturday, reuse Friday's reading.
-    lookup_date = d
-    if d.weekday() == 5:  # Saturday
-        lookup_date = d - timedelta(days=1)
-    offset = weekdays_between(ANCHOR_DATE, lookup_date)
+    offset = weekdays_between(ANCHOR_DATE, d)
     idx = ANCHOR_INDEX + offset
     if idx < 0 or idx >= len(NT_SEQUENCE):
         return None
-    reading = dict(NT_SEQUENCE[idx])
-    reading["is_review"] = (d.weekday() == 5)
-    return reading
+    return dict(NT_SEQUENCE[idx])
+
+
+def pick_current_study_week(weeks: list) -> dict:
+    """Pick the study-saturday entry closest to today-or-earlier.
+    Mirrors the website's selection rule in assets/js/study-saturday.js."""
+    if not weeks:
+        return {}
+    today = date.today()
+    candidates = []
+    for w in weeks:
+        if not isinstance(w, dict) or not w.get("weekOf"):
+            continue
+        try:
+            dt = datetime.strptime(str(w["weekOf"]), "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            continue
+        if dt <= today:
+            candidates.append((dt, w))
+    if not candidates:
+        return {}
+    candidates.sort(key=lambda p: p[0], reverse=True)
+    return candidates[0][1]
+
+
+def ordinal_date(d: date) -> str:
+    """Return the date as 'May 9th, 2026' (month full, day with ordinal,
+    year). Used in the Saturday TONIGHT header."""
+    day = d.day
+    if 11 <= day <= 13:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
+    return f"{d.strftime('%B')} {day}{suffix}, {d.year}"
+
+
+def build_prayer_block(full_cfg: dict, cfg: dict, today_local: date) -> list[str]:
+    """Return the lines of the Prayer & Thanksgiving block. Shared by
+    the Mon-Fri reading post and the Saturday Study-Saturday-Live post."""
+    if not cfg.get("includePrayerBlock", True):
+        return []
+    date_label = today_local.strftime("%m/%d/%Y")
+    prayer_topic_url = (
+        full_cfg.get("prayer", {}).get("prayerTopicUrl")
+        or cfg.get("prayerTopicUrl")
+        or ""
+    )
+    lines: list[str] = []
+    prayer_heading = "Today's Prayer Requests and Thanksgiving Announcements"
+    lines.append("")
+    lines.append(
+        f"🙏 *{mdv2_escape(prayer_heading)} {mdv2_escape(date_label)}:*"
+    )
+    lines.append("")
+    # MarkdownV2 blockquote (each line starts with '>') + italic
+    # (wrapped in '_'). 'Prayer & Thanksgiving' stays as plain
+    # quoted text because Telegram rejects overlapping link-inside-
+    # italic entities.
+    lines.append(
+        "> _" + mdv2_escape(
+            "You can add your prayer/thanksgiving details either here in this "
+            "main channel or in the 'Prayer & Thanksgiving' topic."
+        ) + "_"
+    )
+    lines.append(">")
+    lines.append(
+        "> _" + mdv2_escape(
+            "Members are encouraged to pray for one another and feel free to share "
+            "your needs because we are called to carry each other's burdens."
+        ) + "_"
+    )
+    lines.append(">")
+    lines.append(
+        "> _" + mdv2_escape(
+            "Reminder: If members don't want to share revealing information but have "
+            "general details for the prayer request and/or thanksgiving, we will "
+            "encourage full anonymity."
+        ) + "_"
+    )
+    if prayer_topic_url:
+        lines.append("")
+        lines.append(
+            f"[{mdv2_escape('Open the Prayer & Thanksgiving topic →')}]({prayer_topic_url})"
+        )
+    return lines
+
+
+def resolve_spotify_url(
+    reading: dict,
+    cfg: dict,
+    spotify_cfg: dict,
+    primary_map_key: str,
+    fallback_keys: list[str],
+) -> str:
+    """Prefer the per-chapter URL; otherwise walk the fallback key list
+    until we find a non-empty string on either the bible cfg or the
+    spotify map. Returns empty string if nothing is configured."""
+    primary_map = spotify_cfg.get(primary_map_key) or {}
+    key = f"{reading['book']} {reading['chapter']}"
+    mapped = primary_map.get(key)
+    if mapped and not key.startswith("__"):
+        return mapped
+    for fb_key in fallback_keys:
+        candidate = cfg.get(fb_key) or spotify_cfg.get(fb_key)
+        if candidate:
+            return candidate
+    return ""
 
 
 # ── Main ───────────────────────────────────────────────────────────────
@@ -135,44 +248,40 @@ def main() -> int:
 
     tz = ZoneInfo(cfg.get("timezone", "America/Los_Angeles"))
     today_local = datetime.now(tz).date()
+    chat_id = cfg.get("chatId")
+    thread_id = cfg.get("messageThreadId")
+
+    # Saturday = Study Saturday Live post (different template).
+    # Sunday = no post.
+    if today_local.weekday() == 6:
+        log(f"Sunday ({today_local}); no Bible post scheduled. Exiting.")
+        return 0
+
+    if today_local.weekday() == 5:
+        return _post_study_saturday(full_cfg, cfg, tz, today_local, chat_id, thread_id)
+
+    return _post_weekday_reading(full_cfg, cfg, tz, today_local, chat_id, thread_id)
+
+
+def _post_weekday_reading(full_cfg, cfg, tz, today_local, chat_id, thread_id) -> int:
     reading = get_reading_for_date(today_local)
     if not reading:
         log(f"No reading scheduled for {today_local} ({today_local.strftime('%A')}); exiting.")
         return 0
 
-    # Resolve the two Spotify URLs — English primary, Russian optional.
     spotify_cfg = load_json(SPOTIFY_MAP_PATH, {})
-    chapters_map = spotify_cfg.get("chapters") or {}
-    russian_map = spotify_cfg.get("russianChapters") or {}
-
-    def _resolve_url(primary_map: dict, fallback_keys: list[str]) -> str:
-        """Prefer the per-chapter URL; otherwise walk the fallback key
-        list until we find a non-empty string on either the bible cfg
-        or the spotify map."""
-        key = f"{reading['book']} {reading['chapter']}"
-        mapped = primary_map.get(key)
-        if mapped and not key.startswith("__"):
-            return mapped
-        for fb_key in fallback_keys:
-            candidate = cfg.get(fb_key) or spotify_cfg.get(fb_key)
-            if candidate:
-                return candidate
-        return ""
-
-    english_url = _resolve_url(chapters_map, ["fallbackShowUrl", "defaultShowUrl"])
-    russian_url = _resolve_url(russian_map, ["russianFallbackShowUrl", "russianShowUrl"])
+    english_url = resolve_spotify_url(
+        reading, cfg, spotify_cfg,
+        "chapters", ["fallbackShowUrl", "defaultShowUrl"],
+    )
+    russian_url = resolve_spotify_url(
+        reading, cfg, spotify_cfg,
+        "russianChapters", ["russianFallbackShowUrl", "russianShowUrl"],
+    )
 
     reading_label = f"{reading['book']} Chapter {reading['chapter']}"
-
-    # ── Build the MarkdownV2 message ──────────────────────────────
     lines: list[str] = []
     heading = "Today's Reading"
-    if reading.get("is_review"):
-        heading = "This Week's Reading (Review)"
-    # MarkdownV2 link syntax so the title is clickable. Escape the
-    # label (it can contain chars like ':' or '1' that MarkdownV2 is
-    # picky about in link text — though numbers are safe, ':' needs
-    # escape).
     if english_url:
         lines.append(
             f"📖 *{mdv2_escape(heading)}:* [{mdv2_escape(reading_label)}]({english_url})"
@@ -181,67 +290,14 @@ def main() -> int:
         lines.append(f"📖 *{mdv2_escape(heading)}:* {mdv2_escape(reading_label)}")
 
     if russian_url:
-        # Keep the Russian text unescaped where it's fine (cyrillic chars
-        # aren't MarkdownV2-special) and escape the '+' sign.
         lines.append(
             f"\\+ [Читаем Слово Божие на Русском]({russian_url})"
         )
 
-    # ── Prayer & Thanksgiving block ───────────────────────────────
-    if cfg.get("includePrayerBlock", True):
-        # Format today's date as MM/DD/YYYY for the header.
-        date_label = today_local.strftime("%m/%d/%Y")
-        prayer_topic_url = (
-            full_cfg.get("prayer", {}).get("prayerTopicUrl")
-            or cfg.get("prayerTopicUrl")
-            or ""
-        )
+    # Prayer & Thanksgiving block appended to the same message.
+    lines.extend(build_prayer_block(full_cfg, cfg, today_local))
 
-        lines.append("")
-        prayer_heading = "Today's Prayer Requests and Thanksgiving Announcements"
-        lines.append(
-            f"🙏 *{mdv2_escape(prayer_heading)} {mdv2_escape(date_label)}:*"
-        )
-        lines.append("")
-        # MarkdownV2 blockquote (each line starts with '>') + italic
-        # (entire line wrapped in '_'). We keep 'Prayer & Thanksgiving'
-        # as plain quoted text inside the italic sentence because
-        # MarkdownV2 doesn't reliably allow a link to sit mid-italic
-        # (the parser rejects overlapping entities). If a topic URL is
-        # configured, we add a small non-italic follow-up line with a
-        # direct "Open the Prayer & Thanksgiving topic →" link so the
-        # phrase is still one tap away.
-        lines.append(
-            "> _" + mdv2_escape(
-                "You can add your prayer/thanksgiving details either here in this "
-                "main channel or in the 'Prayer & Thanksgiving' topic."
-            ) + "_"
-        )
-        lines.append(">")
-        lines.append(
-            "> _" + mdv2_escape(
-                "Members are encouraged to pray for one another and feel free to share "
-                "your needs because we are called to carry each other's burdens."
-            ) + "_"
-        )
-        lines.append(">")
-        lines.append(
-            "> _" + mdv2_escape(
-                "Reminder: If members don't want to share revealing information but have "
-                "general details for the prayer request and/or thanksgiving, we will "
-                "encourage full anonymity."
-            ) + "_"
-        )
-        if prayer_topic_url:
-            lines.append("")
-            lines.append(
-                f"[{mdv2_escape('Open the Prayer & Thanksgiving topic →')}]({prayer_topic_url})"
-            )
-
-    chat_id = cfg.get("chatId")
-    thread_id = cfg.get("messageThreadId")
     text = "\n".join(lines)
-
     try:
         resp = send_telegram_message(
             token=BOT_TOKEN,
@@ -255,12 +311,116 @@ def main() -> int:
     except Exception as exc:
         log(f"Telegram send failed: {exc}")
         return 1
-
     if not resp.get("ok"):
         log(f"Telegram rejected the message: {resp}")
         return 1
+    log(f"Posted daily Bible reading: {reading_label}")
+    return 0
 
-    log(f"Posted daily Bible reading: {reading_label} (review={reading.get('is_review', False)})")
+
+def _post_study_saturday(full_cfg, cfg, tz, today_local, chat_id, thread_id) -> int:
+    """Saturday morning Study Saturday Live teaser. Includes this
+    week's review passages (Old Testament + New Testament from
+    study-saturday.json) plus the standard Prayer & Thanksgiving block."""
+    sat_cfg = cfg.get("saturday") or {}
+    if sat_cfg.get("enabled") is False:
+        log("Saturday Study Saturday Live post disabled; exiting.")
+        return 0
+
+    study_cfg = load_json(STUDY_SATURDAY_PATH, {}) or {}
+    weeks = study_cfg.get("weeks") if isinstance(study_cfg, dict) else []
+    current = pick_current_study_week(weeks or [])
+    old_testament = (current.get("oldTestament") or "").strip() if current else ""
+    new_testament = (current.get("newTestament") or "").strip() if current else ""
+
+    twitch_url = (sat_cfg.get("twitchUrl") or "https://www.twitch.tv/seedtheword").strip()
+    stream_time = (sat_cfg.get("streamStartTimePT") or "7:00 PM").strip()
+    rules_url = (sat_cfg.get("rulesUrl") or "").strip()
+    body_intro = sat_cfg.get("bodyIntro") or ""
+    body_review = sat_cfg.get("bodyReview") or ""
+    body_goal = sat_cfg.get("bodyGoal") or ""
+    body_rules = sat_cfg.get("bodyRulesNote") or ""
+
+    # Date for TONIGHT header: e.g. "May 9th, 2026"
+    tonight_date = ordinal_date(today_local)
+
+    lines: list[str] = []
+    # Header group
+    lines.append(f"🎙 *{mdv2_escape('Discuss Scripture: Study Saturday Live')}*")
+    lines.append(
+        f"{mdv2_escape('TONIGHT @ ' + stream_time + ', ' + tonight_date)}"
+    )
+    lines.append(
+        f"{mdv2_escape('Watch STW on Twitch —>')} {twitch_url}"
+    )
+    lines.append("")
+
+    # Sub-headline
+    lines.append(f"*{mdv2_escape('Study Saturday Live!')}*")
+    lines.append("")
+
+    # Body paragraphs, each on its own line, blank line between.
+    for paragraph in (body_intro, body_review, body_goal):
+        if paragraph:
+            lines.append(mdv2_escape(paragraph))
+            lines.append("")
+
+    # Rules note — with optional link
+    if body_rules:
+        if rules_url:
+            # Replace 'S.E.E.D. Rules' with a link to rules_url if the
+            # phrase appears in the note; otherwise append a follow-up
+            # link line.
+            target = "S.E.E.D. Rules"
+            if target in body_rules:
+                before, _, after = body_rules.partition(target)
+                lines.append(
+                    mdv2_escape(before)
+                    + f"[{mdv2_escape(target)}]({rules_url})"
+                    + mdv2_escape(after)
+                )
+            else:
+                lines.append(mdv2_escape(body_rules))
+                lines.append(f"[{mdv2_escape('S.E.E.D. Rules →')}]({rules_url})")
+        else:
+            lines.append(mdv2_escape(body_rules))
+        lines.append("")
+
+    # This week's review passages (from study-saturday.json) — only
+    # render the lines that are present so a missing field doesn't
+    # leave an orphaned label.
+    study_focus_label = "This week's study focus:"
+    reading_label = "This week's reading:"
+    if old_testament:
+        lines.append(
+            f"📖 *{mdv2_escape(study_focus_label)}* {mdv2_escape(old_testament)}"
+        )
+    if new_testament:
+        lines.append(
+            f"📖 *{mdv2_escape(reading_label)}* {mdv2_escape(new_testament)}"
+        )
+
+    # Prayer & Thanksgiving block — shared with weekday posts.
+    lines.extend(build_prayer_block(full_cfg, cfg, today_local))
+
+    text = "\n".join(lines)
+    try:
+        resp = send_telegram_message(
+            token=BOT_TOKEN,
+            chat_id=chat_id,
+            text=text,
+            message_thread_id=thread_id,
+            parse_mode="MarkdownV2",
+            disable_web_page_preview=False,
+            dry_run=DRY_RUN,
+        )
+    except Exception as exc:
+        log(f"Telegram send failed: {exc}")
+        return 1
+    if not resp.get("ok"):
+        log(f"Telegram rejected the message: {resp}")
+        return 1
+    log(f"Posted Study Saturday Live teaser (week of {current.get('weekOf', 'unknown')})")
     return 0
 
 

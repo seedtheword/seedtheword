@@ -2053,19 +2053,24 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
 
   <h3>Bot 2 — Daily Bible bot</h3>
   <ul>
-    <li><strong>What it does:</strong> Posts today's NT reading with a clickable Spotify link, an optional Russian Spotify link, and a full Prayer &amp; Thanksgiving block.</li>
+    <li><strong>What it does:</strong> Mon–Fri posts the day's NT reading + optional Russian link + a Prayer &amp; Thanksgiving block. Saturday posts a branded <em>Study Saturday Live</em> teaser with this week's review passages pulled from <code>study-saturday.json</code>.</li>
     <li><strong>Where:</strong> Encounter the Word topic (thread 13).</li>
-    <li><strong>Schedule:</strong> 08:00 Pacific, <strong>Monday–Saturday</strong> (Saturday reuses Friday's reading as "This Week's Reading (Review)"). No Sunday post.</li>
-    <li><strong>Reading plan:</strong> same one the homepage uses — anchored on Apr 30 2026 = Mark 11, advancing one chapter per weekday Mon–Fri.</li>
-    <li><strong>Spotify links:</strong> per-chapter overrides in <code>assets/data/bible-spotify-map.json</code> — <code>chapters</code> for English, <code>russianChapters</code> for Russian. Fallbacks: <code>fallbackShowUrl</code> + <code>russianFallbackShowUrl</code> inside the <em>bible</em> section of <code>telegram-bot.json</code>. The Russian line is omitted entirely when no Russian URL is configured, so you can roll it out when the recordings are ready.</li>
-    <li><strong>Message format:</strong>
-      <code>📖 **Today's Reading:** [Book Ch N](english-url)</code><br>
-      <code>+ [Читаем Слово Божие на Русском](russian-url)</code><br>
-      <code>🙏 **Today's Prayer Requests and Thanksgiving Announcements MM/DD/YYYY:**</code><br>
-      (three italic blockquote paragraphs explaining how to share requests + anonymity reminder)<br>
-      <code>[Open the Prayer &amp; Thanksgiving topic →](prayer-topic-url)</code>
+    <li><strong>Schedule:</strong> 08:00 Pacific, Monday–Saturday. No Sunday post.</li>
+    <li><strong>Reading plan (Mon–Fri):</strong> same one the homepage uses — anchored on Apr 30 2026 = Mark 11, advancing one chapter per weekday.</li>
+    <li><strong>Saturday template:</strong>
+      <code>🎙 **Discuss Scripture: Study Saturday Live**</code><br>
+      <code>TONIGHT @ 7:00 PM, {Month} {day-ordinal}, {year}</code><br>
+      <code>Watch STW on Twitch —&gt; {twitchUrl}</code><br>
+      <code>**Study Saturday Live!**</code><br>
+      (three body paragraphs: intro, review, goal — all editable from the editor)<br>
+      <code>Please review the S.E.E.D. Rules …</code> (S.E.E.D. Rules becomes a link when <em>rulesUrl</em> is set)<br>
+      <code>📖 **This week's study focus:** {oldTestament}</code><br>
+      <code>📖 **This week's reading:** {newTestament}</code><br>
+      Prayer &amp; Thanksgiving block (same as Mon–Fri)
     </li>
-    <li><strong>Prayer block toggle:</strong> set <code>"includePrayerBlock": false</code> inside the <em>bible</em> section of <code>telegram-bot.json</code> if you ever want the bot to post the reading alone.</li>
+    <li><strong>Saturday config knobs</strong> (in <code>telegram-bot.json</code> → <code>bible.saturday</code>, or <em>Editor → Telegram bot config → Daily Bible bot</em>): <code>enabled</code>, <code>twitchUrl</code>, <code>streamStartTimePT</code>, <code>rulesUrl</code>, and four body paragraphs (<code>bodyIntro</code> / <code>bodyReview</code> / <code>bodyGoal</code> / <code>bodyRulesNote</code>).</li>
+    <li><strong>Spotify links (Mon–Fri):</strong> per-chapter overrides in <code>assets/data/bible-spotify-map.json</code> — <code>chapters</code> for English, <code>russianChapters</code> for Russian. Fallbacks: <code>fallbackShowUrl</code> + <code>russianFallbackShowUrl</code> inside the <em>bible</em> section. Russian line is omitted entirely when no Russian URL is configured.</li>
+    <li><strong>Prayer block toggle:</strong> set <code>"includePrayerBlock": false</code> inside the <em>bible</em> section if you ever want posts without it.</li>
     <li><strong>Secret:</strong> <code>TELEGRAM_BIBLE_BOT_TOKEN</code></li>
     <li><strong>Workflow:</strong> <code>.github/workflows/daily-bible.yml</code></li>
     <li><strong>Test it:</strong> Actions → <em>Daily Bible Reading</em> → Run workflow → <em>dry_run</em> = <code>true</code>.</li>
@@ -2180,15 +2185,15 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   </div>
 </footer>
 
-<script src="assets/js/admin-editor-schemas.js?v=15" defer></script>
-<script src="assets/js/admin-editor-github.js?v=15" defer></script>
-<script src="assets/js/admin-editor-diff.js?v=15" defer></script>
-<script src="assets/js/admin-editor-drafts.js?v=15" defer></script>
-<script src="assets/js/admin-editor-validate.js?v=15" defer></script>
-<script src="assets/js/admin-editor-commit-message.js?v=15" defer></script>
-<script src="assets/js/admin-editor-js-literal.js?v=15" defer></script>
-<script src="assets/js/admin-editor.js?v=15" defer></script>
-<script src="assets/js/admin-help.js?v=20" defer></script>
+<script src="assets/js/admin-editor-schemas.js?v=16" defer></script>
+<script src="assets/js/admin-editor-github.js?v=16" defer></script>
+<script src="assets/js/admin-editor-diff.js?v=16" defer></script>
+<script src="assets/js/admin-editor-drafts.js?v=16" defer></script>
+<script src="assets/js/admin-editor-validate.js?v=16" defer></script>
+<script src="assets/js/admin-editor-commit-message.js?v=16" defer></script>
+<script src="assets/js/admin-editor-js-literal.js?v=16" defer></script>
+<script src="assets/js/admin-editor.js?v=16" defer></script>
+<script src="assets/js/admin-help.js?v=21" defer></script>
 
 </body>
 </html>

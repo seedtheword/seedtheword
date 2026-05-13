@@ -1068,51 +1068,83 @@ if (document.readyState === 'loading') {
 
 
 // ── "See more" collapse for How We S.E.E.D. cards ────────────
-// Every .step card gets a toggle appended unconditionally. The
-// description is clamped by default and expands when the button is
-// clicked. Works the same on mobile and desktop.
-//
-// NOTE: this runs synchronously at script load time. main.js is
-// included at the end of <body>, so the DOM is already parsed by
-// the time we get here — a DOMContentLoaded listener would miss
-// because the event has already fired.
-(function initStepCollapsibles() {
-  function run() {
-    const steps = document.querySelectorAll('.step');
-    if (!steps.length) return;
+// Single source of truth. Wraps each .step__desc in a clamp container,
+// measures whether it overflows, and only then injects a green-pill
+// "See more ▾" toggle. Idempotent; safe to call twice.
+(function () {
+  var CLAMP_PX = 11 * 16;        // matches max-height: 11rem in main.css
+  var TOLERANCE = 2;             // sub-pixel rounding slack
+  var debounceTimer = null;
 
-    steps.forEach((step) => {
-      const desc = step.querySelector('.step__desc');
-      if (!desc || desc.dataset.stepCollapseReady === '1') return;
-      desc.dataset.stepCollapseReady = '1';
+  function syncStep(step) {
+    var desc = step.querySelector(':scope > .step__desc');
+    if (!desc) return;
 
-      desc.classList.add('step__desc--collapsible');
+    // Wrap the desc's children in a clampable container the first time we see it.
+    var wrap = desc.querySelector(':scope > .step__desc--clampable');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'step__desc--clampable';
+      while (desc.firstChild) wrap.appendChild(desc.firstChild);
+      desc.appendChild(wrap);
+    }
 
-      const toggle = document.createElement('button');
-      toggle.type = 'button';
-      toggle.className = 'step__toggle';
-      toggle.setAttribute('aria-expanded', 'false');
-      toggle.innerHTML =
-        '<span class="step__toggle-label">See more</span>' +
-        '<span class="step__toggle-chevron" aria-hidden="true">▾</span>';
-      desc.parentNode.insertBefore(toggle, desc.nextSibling);
+    // Measure unclamped height to decide whether a toggle is needed.
+    var prevMaxHeight = wrap.style.maxHeight;
+    wrap.style.maxHeight = 'none';
+    var natural = wrap.scrollHeight;
+    wrap.style.maxHeight = prevMaxHeight;
 
-      toggle.addEventListener('click', () => {
-        const nowOpen = desc.classList.toggle('step__desc--open');
-        step.classList.toggle('step--open', nowOpen);
-        toggle.setAttribute('aria-expanded', String(nowOpen));
-        toggle.querySelector('.step__toggle-label').textContent =
-          nowOpen ? 'See less' : 'See more';
-      });
+    var existingBtn = step.querySelector(':scope > .step__toggle');
+    var needsToggle = natural > CLAMP_PX + TOLERANCE;
+
+    if (!needsToggle) {
+      // Short content: remove any toggle / open state and let the wrapper
+      // grow to its natural size (no clamp visible).
+      if (existingBtn) existingBtn.remove();
+      step.classList.remove('is-step-open');
+      step.classList.add('is-step-fits');
+      return;
+    }
+
+    step.classList.remove('is-step-fits');
+
+    if (existingBtn) return; // already wired
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'step__toggle';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '<span class="step__toggle-label">See more</span>' +
+                    '<span class="step__toggle-chev" aria-hidden="true">▾</span>';
+    desc.insertAdjacentElement('afterend', btn);
+
+    btn.addEventListener('click', function () {
+      var nowOpen = !step.classList.contains('is-step-open');
+      step.classList.toggle('is-step-open', nowOpen);
+      btn.setAttribute('aria-expanded', String(nowOpen));
+      btn.querySelector('.step__toggle-label').textContent = nowOpen ? 'See less' : 'See more';
+      btn.querySelector('.step__toggle-chev').textContent = nowOpen ? '▴' : '▾';
     });
   }
 
-  // main.js is loaded at end of <body>, so the DOM is usually
-  // already complete. But we still guard for 'loading' state in
-  // case this file is ever moved to the head with defer later.
+  function syncAll() {
+    var steps = document.querySelectorAll('.steps > .step');
+    if (!steps.length) return;
+    steps.forEach(syncStep);
+  }
+
+  function init() {
+    syncAll();
+    window.addEventListener('resize', function () {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(syncAll, 150);
+    });
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', run);
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    run();
+    init();
   }
 })();

@@ -7,74 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>About — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=5">
-  <style>
-    /* ── Inline "See more" styles for How We S.E.E.D. cards ──
-       Defined here instead of main.css so cached main.css can't
-       override or omit them. Self-contained; does not rely on any
-       external JS — an inline script at the bottom of the steps
-       section wires the toggles. */
-    .step-inline__toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      margin-top: 1rem;
-      padding: 0.65rem 1.3rem;
-      font-family: inherit;
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: #fff;
-      background: #2C5F2E;
-      border: 0;
-      border-radius: 999px;
-      cursor: pointer;
-      min-height: 44px;
-      box-shadow: 0 4px 14px rgba(44, 95, 46, 0.32);
-      position: relative;
-      z-index: 2;
-      -webkit-tap-highlight-color: rgba(44, 95, 46, 0.2);
-    }
-    .step-inline__toggle:hover,
-    .step-inline__toggle:focus-visible {
-      background: #3a7d3c;
-      outline: none;
-    }
-    .step-inline__toggle[aria-expanded="true"] .step-inline__toggle-chev {
-      transform: rotate(180deg);
-    }
-    .step-inline__toggle-chev {
-      display: inline-block;
-      transition: transform 0.25s ease;
-    }
-    .step-inline__body {
-      overflow: hidden;
-      max-height: 11rem;
-      position: relative;
-      transition: max-height 0.35s ease;
-    }
-    .step-inline__body::after {
-      content: '';
-      position: absolute;
-      left: 0; right: 0; bottom: 0;
-      height: 3rem;
-      pointer-events: none;
-      background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 100%);
-    }
-    .step-inline__body.is-open {
-      max-height: 5000px;
-    }
-    .step-inline__body.is-open::after {
-      display: none;
-    }
-    /* Lift clipping on parent .step when open so expanded content isn't
-       cut off by the card's rounded-corner overflow:hidden. */
-    .step.is-step-open {
-      overflow: visible !important;
-    }
-    /* Kill .step::before gradient hover overlay's click-stealing by making
-       it pointer-transparent (belt-and-suspenders with main.css's fix). */
-    .step::before { pointer-events: none !important; }
-  </style>
+  <link rel="stylesheet" href="assets/css/main.css?v=6">
 </head>
 <body>
 
@@ -494,44 +427,6 @@
   </div>
 </section>
 
-<script>
-  /* Inline "See more" init for How We S.E.E.D. cards.
-     Runs immediately after the markup above is parsed — no waiting for
-     DOMContentLoaded, no dependence on main.js, no cache issues.
-     Every .step__desc gets wrapped in a .step-inline__body div that
-     clamps the height, plus a sibling green button to toggle open. */
-  (function () {
-    var steps = document.querySelectorAll('.steps .step');
-    if (!steps.length) return;
-    Array.prototype.forEach.call(steps, function (step) {
-      var desc = step.querySelector('.step__desc');
-      if (!desc || desc.dataset.inlineReady === '1') return;
-      desc.dataset.inlineReady = '1';
-      // Wrap the existing desc content in a clamp container.
-      var wrap = document.createElement('div');
-      wrap.className = 'step-inline__body';
-      while (desc.firstChild) wrap.appendChild(desc.firstChild);
-      desc.appendChild(wrap);
-      // Inject the toggle button AFTER the description.
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'step-inline__toggle';
-      btn.setAttribute('aria-expanded', 'false');
-      btn.innerHTML = '<span class="step-inline__toggle-label">See more</span>' +
-                      '<span class="step-inline__toggle-chev" aria-hidden="true">▾</span>';
-      desc.parentNode.insertBefore(btn, desc.nextSibling);
-      btn.addEventListener('click', function () {
-        var nowOpen = wrap.classList.toggle('is-open');
-        step.classList.toggle('is-step-open', nowOpen);
-        btn.setAttribute('aria-expanded', String(nowOpen));
-        btn.querySelector('.step-inline__toggle-label').textContent = nowOpen ? 'See less' : 'See more';
-      });
-    });
-  })();
-</script>
-
-
-
 
 
 <!-- Contact -->
@@ -688,6 +583,6 @@
   </div>
 </footer>
 
-<script src="assets/js/main.js?v=13"></script>
+<script src="assets/js/main.js?v=15"></script>
 </body>
 </html>

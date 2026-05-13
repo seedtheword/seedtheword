@@ -2118,6 +2118,56 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
     <li><strong>Test it:</strong> Actions → <em>Daily Bible Reading</em> → Run workflow → <em>dry_run</em> = <code>true</code>.</li>
   </ul>
 
+  <h3>Bot 4 — Weekly playlist digest</h3>
+  <ul>
+    <li><strong>What it does:</strong> Every Sunday at 9 AM Pacific, posts "What's new in the community playlist this week" into the Worship &amp; Music topic, listing each track added in the past week with a one-tap Spotify link.</li>
+    <li><strong>Where:</strong> Worship &amp; Music topic (thread 1064).</li>
+    <li><strong>Schedule:</strong> Sunday 09:00 PT. If nothing was added that week, the post is skipped — we don't send empty digests.</li>
+    <li><strong>Reads from:</strong> the public Spotify playlist whose ID is set at <code>bible.playlist.playlistId</code>.</li>
+    <li><strong>Secret:</strong> posts via <code>TELEGRAM_BIBLE_BOT_TOKEN</code> (same bot as daily Bible posts).</li>
+    <li><strong>Workflow:</strong> <code>.github/workflows/weekly-playlist-digest.yml</code></li>
+    <li><strong>Test it:</strong> Actions → <em>Weekly Playlist Digest</em> → Run workflow → <em>dry_run</em> = <code>true</code>.</li>
+  </ul>
+
+  <div class="admin-card">
+    <p class="admin-card__label">One-time setup</p>
+    <p class="admin-card__title">🔑 Add Spotify API credentials</p>
+    <p>The digest needs a (free) Spotify developer app to read the playlist. Setup takes 5 minutes:</p>
+    <ol>
+      <li>Open <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">developer.spotify.com/dashboard</a> and sign in with the ministry Spotify account.</li>
+      <li>Click <strong>Create app</strong>. Name: <em>Seed the Word Digest</em>. Description: whatever. Redirect URI: <code>http://localhost</code> (required but unused for us). APIs used: <em>Web API</em>. Accept the terms → <strong>Save</strong>.</li>
+      <li>In the app's dashboard, click <strong>Settings</strong>. Copy the <strong>Client ID</strong> and click <strong>View client secret</strong> → copy that too.</li>
+      <li>Open <a href="https://github.com/seedtheword/seedtheword/settings/secrets/actions" target="_blank" rel="noopener">GitHub repo → Settings → Secrets and variables → Actions</a>. Add two secrets:
+        <ul>
+          <li><code>SPOTIFY_CLIENT_ID</code> → paste the Client ID</li>
+          <li><code>SPOTIFY_CLIENT_SECRET</code> → paste the Client Secret</li>
+        </ul>
+      </li>
+      <li>Run the workflow once manually with <em>dry_run=true</em> to verify. When the Sunday run fires, newly-added tracks will post automatically.</li>
+    </ol>
+    <p><strong>Safety note:</strong> App-only credentials can only <em>read</em> public playlist data — they cannot add, remove, or modify tracks. Zero risk of the bot doing something to your playlist.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Paste &amp; pin</p>
+    <p class="admin-card__title">📌 Pinned intro for the Worship &amp; Music topic</p>
+    <p>Copy this message, paste it into the Worship &amp; Music topic (<code>https://t.me/seedtheword/1064</code>), then tap the message → <strong>Pin</strong>. Members see it as the first thing when they open the topic.</p>
+    <pre style="white-space: pre-wrap; background: var(--ah-off); padding: 1rem; border-radius: 8px; font-size: 0.88rem; line-height: 1.5; border: 1px solid var(--ah-line);">🎵 <b>STW Community Playlist</b>
+
+Drop in songs that worship God, minister to your soul, or remind you who He is. We all listen together.
+
+▶️ <b>Listen to the playlist</b>
+https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX
+
+➕ <b>Join as a collaborator (one tap)</b>
+https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp;pt=3cf27aeb2c1ffec6bf48b7345e141c26
+
+<i>How to add:</i> tap the green link above once (Spotify opens, accept the invite). After that, any song you're playing in Spotify has <i>Add to playlist → STW Community Playlist</i> in the three-dot menu — on phone or desktop.
+
+<i>Every Sunday at 9 AM PT, a digest of the week's new additions lands in this topic automatically. 🎧</i></pre>
+    <p>Telegram uses a simpler markup than the bots — just type <code>**bold**</code> and it bolds on send, or use the formatting menu on mobile. The URLs auto-preview the playlist cover so you don't need to attach an image.</p>
+  </div>
+
   <h3>Bot 3 — Prayer &amp; Thanksgiving nudge bot</h3>
   <ul>
     <li><strong>What it does:</strong> Posts the daily prayer-and-thanksgiving reminder that nudges members to share in the Prayer &amp; Thanksgiving topic.</li>
@@ -2254,15 +2304,15 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   </div>
 </footer>
 
-<script src="assets/js/admin-editor-schemas.js?v=18" defer></script>
-<script src="assets/js/admin-editor-github.js?v=18" defer></script>
-<script src="assets/js/admin-editor-diff.js?v=18" defer></script>
-<script src="assets/js/admin-editor-drafts.js?v=18" defer></script>
-<script src="assets/js/admin-editor-validate.js?v=18" defer></script>
-<script src="assets/js/admin-editor-commit-message.js?v=18" defer></script>
-<script src="assets/js/admin-editor-js-literal.js?v=18" defer></script>
-<script src="assets/js/admin-editor.js?v=18" defer></script>
-<script src="assets/js/admin-help.js?v=24" defer></script>
+<script src="assets/js/admin-editor-schemas.js?v=19" defer></script>
+<script src="assets/js/admin-editor-github.js?v=19" defer></script>
+<script src="assets/js/admin-editor-diff.js?v=19" defer></script>
+<script src="assets/js/admin-editor-drafts.js?v=19" defer></script>
+<script src="assets/js/admin-editor-validate.js?v=19" defer></script>
+<script src="assets/js/admin-editor-commit-message.js?v=19" defer></script>
+<script src="assets/js/admin-editor-js-literal.js?v=19" defer></script>
+<script src="assets/js/admin-editor.js?v=19" defer></script>
+<script src="assets/js/admin-help.js?v=25" defer></script>
 
 <script>
   // Populate the "Shared Calendar Photos Drive folder" admin-help card

@@ -44,6 +44,15 @@
       "bodyReview": "We'll be reviewing what we have been reading throughout the week, catching up on missed discussions, diving deeper into God's Word.",
       "bodyGoal": "The goal is to promote critical thinking amongst the body of Jesus Christ, who are capable of discerning what is Scripture based and that of what is from the enemy.",
       "bodyRulesNote": "Please review the S.E.E.D. Rules for more information on recent changes."
+    },
+    "playlist": {
+      "enabled": true,
+      "playlistId": "18QMpMTYrFt2KxW1Q9NsvX",
+      "publicUrl": "https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX",
+      "collaboratorInviteUrl": "https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&pt=3cf27aeb2c1ffec6bf48b7345e141c26",
+      "worshipTopicId": 1064,
+      "worshipTopicUrl": "https://t.me/seedtheword/1064",
+      "_worshipTopicNote": "The Worship & Music topic where weekly digests post. Falls back to the Bible bot's messageThreadId if null."
     }
   },
   "prayer": {

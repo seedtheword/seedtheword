@@ -1,0 +1,55 @@
+name: Weekly Playlist Digest
+
+on:
+  schedule:
+    # 09:00 Pacific on Sundays. UTC is PDT+7 (16:00) for most of the
+    # year; during PST months the post arrives an hour later locally,
+    # which is fine for a weekly digest.
+    - cron: '0 16 * * 0'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If 'true', build the digest without sending it"
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write   # to commit the updated seen-track log
+
+concurrency:
+  group: telegram-playlist-digest
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Playlist Digest
+        env:
+          TELEGRAM_BIBLE_BOT_TOKEN: ${{ secrets.TELEGRAM_BIBLE_BOT_TOKEN }}
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+        run: python .github/scripts/post_playlist_digest_to_telegram.py
+
+      - name: Commit updated seen-track log
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/data/telegram-playlist-log.json || true
+          if git diff --cached --quiet; then
+            echo "No log changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(playlist): update seen-track log [skip ci]"
+          git push

@@ -1,0 +1,61 @@
+name: Keep-alive heartbeat
+
+# Purpose: GitHub Actions free tier deprioritizes scheduled workflows
+# on repos that look "quiet" and eventually stops firing them at all
+# after ~60 days of inactivity. Background bots (Telegram announcements,
+# Bible bot, playlist digest) depend on scheduled triggers firing
+# reliably, so this workflow commits a one-line timestamp every hour
+# to tell GitHub the repo is active.
+#
+# What it does NOT do:
+#   * any content work — bots stay in their own workflows
+#   * change anything user-visible — the heartbeat file lives outside
+#     assets/ and is not referenced by the site
+#
+# Cost: ~15 seconds of compute per run, well inside free tier.
+
+on:
+  schedule:
+    # Every hour at :07 so the heartbeat doesn't collide with the
+    # every-15-min announcement runs (which fire at :00, :15, :30, :45).
+    - cron: '7 * * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: heartbeat
+  cancel-in-progress: true
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Write heartbeat timestamp
+        run: |
+          mkdir -p .github/heartbeat
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/heartbeat/last-tick.txt
+
+      - name: Commit the tick
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/heartbeat/last-tick.txt
+          if git diff --cached --quiet; then
+            # Same minute — nothing to commit. Normal on manual retries
+            # or very fast successive runs. Exit cleanly.
+            echo "No timestamp change this tick."
+            exit 0
+          fi
+          git commit -m "chore: heartbeat tick [skip ci]"
+          # Best-effort push. If someone else pushed during our run
+          # we silently skip — the next tick will catch up.
+          git push || {
+            echo "Push failed (probably a race with another workflow). Next tick will retry."
+            exit 0
+          }

@@ -942,6 +942,7 @@
       <li>Telegram prayer nudge bot — currently <strong>disabled</strong>; the Bible bot carries the Prayer &amp; Thanksgiving block daily. Re-enable under <em>Editor → Telegram bot config → Prayer nudge bot</em>.</li>
       <li>Media drop button — <em>Editor → Media-drop upload button config</em>.</li>
       <li>Instagram scraper — runs every 6h via the Instagram scrape workflow.</li>
+      <li>Keep-alive heartbeat — hourly workflow that writes a timestamp to <code>.github/heartbeat/last-tick.txt</code>. Keeps the repo "active" in GitHub's eyes so scheduled workflows (bots) don't get throttled or paused on the free tier. Zero user-visible effect; skip-ci on its commits.</li>
     </ul>
   </div>
 
@@ -2212,6 +2213,20 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
   </ol>
 
   <h3>Troubleshooting — the Telegram workflow failed, what now?</h3>
+  <div class="admin-card">
+    <p class="admin-card__label">Common situation</p>
+    <p class="admin-card__title">⏰ A scheduled bot didn't fire on time (morning post missing)</p>
+    <p><strong>Most common cause:</strong> GitHub Actions free-tier cron triggers are "best-effort" — GitHub delays or silently drops scheduled runs during peak hours when runner capacity is saturated. Low-activity repos get deprioritized first.</p>
+    <p><strong>Our mitigation:</strong> an hourly <em>heartbeat</em> workflow commits a timestamp to <code>.github/heartbeat/last-tick.txt</code> so the repo looks active. This greatly reduces (but doesn't eliminate) skipped runs.</p>
+    <p><strong>If a post is missing:</strong></p>
+    <ol>
+      <li>Open <a href="https://github.com/seedtheword/seedtheword/actions" target="_blank" rel="noopener">Actions</a>.</li>
+      <li>Pick the workflow that should have run (e.g. <em>Daily Bible Reading</em>).</li>
+      <li>Click <strong>Run workflow</strong> → <em>dry_run: false</em> → Run. The post fires immediately.</li>
+      <li>If the cron has been dropping runs for more than a day, open Actions → Heartbeat workflow and verify recent runs are green.</li>
+    </ol>
+    <p>Manual <em>Run workflow</em> always executes right away — it bypasses the cron scheduler entirely.</p>
+  </div>
   <div class="admin-card">
     <p class="admin-card__label">Common error</p>
     <p class="admin-card__title">403 Forbidden: bot is not a member of the supergroup chat</p>

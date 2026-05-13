@@ -17,15 +17,22 @@
        ============================================================ */
 
     :root {
-      --ah-ink:    #0a0a0a;
-      --ah-ink-2:  #2b2b2b;
-      --ah-muted:  #595959;
-      --ah-line:   #d4d4d4;
-      --ah-line-2: #ebebeb;
-      --ah-paper:  #ffffff;
-      --ah-off:    #f7f7f7;
-      --ah-accent: #1a5c1d;           /* deep green, high contrast on white */
-      --ah-accent-soft: #e6f0e6;
+      /* Palette targets WCAG AA 4.5:1 on body text + 3:1 on UI chrome.
+         Dark text is a true near-black; muted is dark enough to read
+         on white (5.8:1 vs the old 3.9:1). Surface tint is just warm
+         enough to separate cards from the page without losing contrast. */
+      --ah-ink:    #0a0a0a;           /* body + headings on white */
+      --ah-ink-2:  #232323;           /* second-level text */
+      --ah-muted:  #4a4a4a;           /* muted captions, 5.8:1 on white */
+      --ah-muted-2:#6a6a6a;           /* softest text still ≥ 4.5:1 */
+      --ah-line:   #cfcfcf;           /* default borders, ≥ 3:1 on white */
+      --ah-line-2: #e4e4e4;           /* section divider */
+      --ah-paper:  #ffffff;           /* panel / card body */
+      --ah-off:    #f3f3f0;           /* cream surface under nav */
+      --ah-sub:    #eef0ec;           /* slightly darker for alt cards */
+      --ah-accent: #1a5c1d;           /* deep green, 7.9:1 on white */
+      --ah-accent-strong: #154a17;    /* extra-dark green for hover */
+      --ah-accent-soft: #dfecdf;      /* tinted background, text OK */
       --ah-warn:   #b9540d;
       --ah-err:    #a6251f;
     }
@@ -111,10 +118,11 @@
       border-bottom: 1px solid var(--ah-line-2);
     }
     .admin-tab {
+      position: relative;
       display: inline-flex;
       align-items: center;
       gap: 0.45rem;
-      padding: 0.6rem 1.1rem;
+      padding: 0.6rem 1.1rem 0.6rem 1.6rem;
       background: #fff;
       border: 2px solid var(--ah-line);
       border-radius: 999px;
@@ -125,6 +133,28 @@
       font-family: inherit;
       transition: all 0.2s ease;
     }
+    /* Inactive-state category indicator — a small colored dot on the
+       left side so admins can distinguish tabs by color even when none
+       is selected. Hidden when the tab is active (the whole pill fills
+       with the category color instead). */
+    .admin-tab::before {
+      content: '';
+      position: absolute;
+      left: 0.65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ah-line);
+    }
+    .admin-tab[data-cat="overview"]::before     { background: #1c4f70; }
+    .admin-tab[data-cat="howto"]::before        { background: var(--ah-accent); }
+    .admin-tab[data-cat="bots"]::before         { background: #5d3a8a; }
+    .admin-tab[data-cat="troubleshoot"]::before { background: #994d32; }
+    .admin-tab[data-cat="editor"]::before       { background: var(--ah-gold, #C29A3A); }
+    .admin-tab.is-active::before { display: none; }
+    .admin-tab.is-active { padding-left: 1.1rem; }
     .admin-tab:hover {
       border-color: var(--ah-accent);
       color: var(--ah-accent);
@@ -233,24 +263,29 @@
       display: flex;
       align-items: center;
       gap: 0.55rem;
-      padding: 0.65rem 0.85rem;
+      padding: 0.7rem 0.9rem;
       border-radius: 8px;
       cursor: pointer;
       color: var(--ah-ink);
       line-height: 1.35;
-      font-size: 0.93rem;
+      font-size: 0.95rem;
     }
     .admin-search__suggestion:hover,
     .admin-search__suggestion.is-active {
-      background: var(--ah-accent-soft);
-      color: var(--ah-accent);
+      background: var(--ah-accent);
+      color: #fff;
+    }
+    .admin-search__suggestion:hover .admin-search__suggestion-cat,
+    .admin-search__suggestion.is-active .admin-search__suggestion-cat {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
     }
     .admin-search__suggestion-cat {
       font-size: 0.7rem;
       font-weight: 800;
-      padding: 0.12rem 0.5rem;
-      background: var(--ah-line-2);
-      color: var(--ah-muted);
+      padding: 0.18rem 0.55rem;
+      background: var(--ah-accent-soft);
+      color: var(--ah-accent);
       border-radius: 999px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -259,14 +294,15 @@
     .admin-search__suggestion-title {
       flex: 1;
       font-weight: 700;
+      color: inherit;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .admin-search__suggestions-empty {
-      padding: 0.85rem 0.9rem;
+      padding: 0.9rem 1rem;
       color: var(--ah-muted);
-      font-size: 0.88rem;
+      font-size: 0.9rem;
     }
 
     /* ── Alphabet rail ── */
@@ -299,21 +335,22 @@
     .admin-alpha__letter.is-open {
       background: var(--ah-ink);
       color: #fff;
-      border-color: var(--ah-ink);
+      border: 1px solid var(--ah-ink);
       outline: none;
     }
     .admin-alpha__letter:not(.is-empty) {
-      background: var(--ah-accent-soft);
-      border: 1px solid rgba(26, 92, 29, 0.22);
-      color: var(--ah-accent);
+      background: var(--ah-accent);
+      border: 1px solid var(--ah-accent);
+      color: #fff;
     }
     .admin-alpha__letter.is-empty {
-      color: #c8c8c8;
+      color: #9a9a9a;
       background: transparent;
+      border: 1px solid var(--ah-line);
       cursor: default;
-      opacity: 0.5;
+      opacity: 0.9;
     }
-    .admin-alpha__letter.is-empty:hover { background: transparent; color: #c8c8c8; border-color: transparent; }
+    .admin-alpha__letter.is-empty:hover { background: transparent; color: #9a9a9a; border-color: var(--ah-line); }
 
     /* Popup shown when a letter is hovered/opened */
     .admin-alpha__popup {
@@ -511,9 +548,14 @@
     /* Section headings get a colored left-border by category so admins
        can scan and recognize sections by color as they scroll. */
     .admin-content > h2 {
-      border-left: 6px solid var(--ah-line);
-      padding-left: 0.85rem;
+      border-left: 8px solid var(--ah-line);
+      padding-left: 1rem;
       margin-top: 2.5rem;
+      background: var(--ah-sub);
+      padding-top: 0.7rem;
+      padding-bottom: 0.7rem;
+      padding-right: 1rem;
+      border-radius: 0 8px 8px 0;
     }
     .admin-content > h2[data-category="overview"]     { border-left-color: #1c4f70; }
     .admin-content > h2[data-category="howto"]        { border-left-color: var(--ah-accent); }
@@ -2477,7 +2519,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
 <script src="assets/js/admin-editor-commit-message.js?v=19" defer></script>
 <script src="assets/js/admin-editor-js-literal.js?v=19" defer></script>
 <script src="assets/js/admin-editor.js?v=19" defer></script>
-<script src="assets/js/admin-help.js?v=26" defer></script>
+<script src="assets/js/admin-help.js?v=27" defer></script>
 
 <script>
   // Populate the "Shared Calendar Photos Drive folder" admin-help card,

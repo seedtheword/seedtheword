@@ -2120,9 +2120,9 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
 
   <h3>Bot 4 — Weekly playlist digest</h3>
   <ul>
-    <li><strong>What it does:</strong> Every Sunday at 9 AM Pacific, posts "What's new in the community playlist this week" into the Worship &amp; Music topic, listing each track added in the past week with a one-tap Spotify link.</li>
+    <li><strong>What it does:</strong> Every Saturday at 8 AM Pacific, posts "What's new in the community playlist this week" into the Worship &amp; Music topic, listing each track added in the past week with a one-tap Spotify link.</li>
     <li><strong>Where:</strong> Worship &amp; Music topic (thread 1064).</li>
-    <li><strong>Schedule:</strong> Sunday 09:00 PT. If nothing was added that week, the post is skipped — we don't send empty digests.</li>
+    <li><strong>Schedule:</strong> Saturday 08:00 PT. Lands alongside Saturday's Study Saturday Live teaser so members see both Saturday posts as a single weekly rhythm. If nothing was added that week, the post is skipped — we don't send empty digests.</li>
     <li><strong>Reads from:</strong> the public Spotify playlist whose ID is set at <code>bible.playlist.playlistId</code>.</li>
     <li><strong>Secret:</strong> posts via <code>TELEGRAM_BIBLE_BOT_TOKEN</code> (same bot as daily Bible posts).</li>
     <li><strong>Workflow:</strong> <code>.github/workflows/weekly-playlist-digest.yml</code></li>
@@ -2143,7 +2143,7 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
           <li><code>SPOTIFY_CLIENT_SECRET</code> → paste the Client Secret</li>
         </ul>
       </li>
-      <li>Run the workflow once manually with <em>dry_run=true</em> to verify. When the Sunday run fires, newly-added tracks will post automatically.</li>
+      <li>Run the workflow once manually with <em>dry_run=true</em> to verify. When the Saturday run fires, newly-added tracks will post automatically.</li>
     </ol>
     <p><strong>Safety note:</strong> App-only credentials can only <em>read</em> public playlist data — they cannot add, remove, or modify tracks. Zero risk of the bot doing something to your playlist.</p>
   </div>
@@ -2164,7 +2164,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
 
 <i>How to add:</i> tap the green link above once (Spotify opens, accept the invite). After that, any song you're playing in Spotify has <i>Add to playlist → STW Community Playlist</i> in the three-dot menu — on phone or desktop.
 
-<i>Every Sunday at 9 AM PT, a digest of the week's new additions lands in this topic automatically. 🎧</i></pre>
+<i>Every Saturday at 8 AM PT, a digest of the week's new additions lands in this topic automatically. 🎧</i></pre>
     <p>Telegram uses a simpler markup than the bots — just type <code>**bold**</code> and it bolds on send, or use the formatting menu on mobile. The URLs auto-preview the playlist cover so you don't need to attach an image.</p>
   </div>
 

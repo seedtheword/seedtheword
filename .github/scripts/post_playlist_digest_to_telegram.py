@@ -1,7 +1,7 @@
 """
 Post a weekly "what's new in the community playlist" digest to Telegram.
 
-Schedule: Sunday 09:00 Pacific (wired up in
+Schedule: Saturday 08:00 Pacific (wired up in
 .github/workflows/weekly-playlist-digest.yml). Reads the public
 Spotify playlist configured under `bible.playlist` in
 telegram-bot.json, diffs against a dedup log of previously-posted

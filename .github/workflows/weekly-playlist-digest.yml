@@ -2,10 +2,13 @@ name: Weekly Playlist Digest
 
 on:
   schedule:
-    # 09:00 Pacific on Sundays. UTC is PDT+7 (16:00) for most of the
-    # year; during PST months the post arrives an hour later locally,
-    # which is fine for a weekly digest.
-    - cron: '0 16 * * 0'
+    # 08:00 Pacific on Saturdays. UTC is PDT+7 (15:00) for most of
+    # the year; during PST months the post arrives an hour later
+    # locally, which is fine for a weekly digest. Runs at the same
+    # time as the Saturday Bible post (daily-bible.yml) — they post
+    # to different topics (this one → Worship thread 1064; Bible bot
+    # → General thread) so members see both cleanly.
+    - cron: '0 15 * * 6'
   workflow_dispatch:
     inputs:
       dry_run:

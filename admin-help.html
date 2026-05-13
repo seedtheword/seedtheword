@@ -917,6 +917,7 @@
     <ul>
       <li>"This Week in God's Word" — reading plan powered by <code>bible-spotify-map.json</code> (<em>Editor → Bible → Spotify chapter map</em>).</li>
       <li>"Our Ministry Feed" — Spotify show (hardcoded ID) + Study Saturday livestream. Weekly review: <em>Editor → Study Saturday</em>.</li>
+      <li>"Community Playlist" card — collaborative Spotify playlist. Listen/add songs from the page; config under <em>Editor → Telegram bot config → Daily Bible bot → Playlist</em> fields.</li>
       <li>"Friends in Jesus" — recommendations + partners (<em>Editor → Recommendations</em>).</li>
       <li>"Learn more about us online" 4-up platform row (Telegram / Spotify / Twitch / Instagram) — <em>(HTML only)</em>.</li>
       <li>Telegram quick-start cards + Instagram grid — <em>(HTML only)</em>.</li>
@@ -935,7 +936,10 @@
     </ul>
     <p><strong>Background services</strong></p>
     <ul>
-      <li>Telegram announcements / Bible / prayer bots — <em>Editor → Telegram bot config</em>. Triggered by the Telegram announcements workflow every 15 min.</li>
+      <li>Telegram announcements bot — <em>Editor → Telegram bot config → Announcements bot</em>. Runs every 15 minutes, posts upcoming / reminder / live events into the Announcements topic (thread 553).</li>
+      <li>Telegram Bible bot — <em>Editor → Telegram bot config → Daily Bible bot</em>. Runs 08:00 PT Mon–Sat. Daily reading + optional Russian + Prayer &amp; Thanksgiving block → General channel. Saturday posts a dedicated Study Saturday Live teaser.</li>
+      <li>Telegram weekly playlist digest — <em>Editor → Telegram bot config → Daily Bible bot → Playlist</em> fields. Runs 08:00 PT Saturday. Posts new tracks added to the community playlist into the Worship &amp; Music topic (thread 1064).</li>
+      <li>Telegram prayer nudge bot — currently <strong>disabled</strong>; the Bible bot carries the Prayer &amp; Thanksgiving block daily. Re-enable under <em>Editor → Telegram bot config → Prayer nudge bot</em>.</li>
       <li>Media drop button — <em>Editor → Media-drop upload button config</em>.</li>
       <li>Instagram scraper — runs every 6h via the Instagram scrape workflow.</li>
     </ul>
@@ -2086,8 +2090,9 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   <ul>
     <li><strong>What it does:</strong> Posts today's calendar events from the ministry Google Calendar.</li>
     <li><strong>Where:</strong> Announcements topic (thread 553).</li>
-    <li><strong>Schedule:</strong> 07:00 / 12:00 / 17:00 Pacific, Mon–Sat. No Sunday runs.</li>
-    <li><strong>Anti-spam:</strong> Each event is announced at most twice per day (once upcoming, once LIVE). Dedup log at <code>assets/data/telegram-announcement-log.json</code>.</li>
+    <li><strong>Schedule:</strong> runs <strong>every 15 minutes</strong>, Mon–Sat, during quiet-hours window (default 07:00–21:00 PT). LIVE events bypass quiet hours. No Sunday runs.</li>
+    <li><strong>Anti-spam:</strong> Each event fires at most three posts over its lifetime — once as <em>upcoming</em>, once as a <em>reminder</em> (default 3 hours before start), once as <em>live</em>. Dedup log at <code>assets/data/telegram-announcement-log.json</code>.</li>
+    <li><strong>Event photos:</strong> paste any image URL into the event description and the post becomes a Telegram photo / album (up to 10 photos). See the "Attach a photo to a calendar event" section above for the Drive folder walkthrough.</li>
     <li><strong>Secret:</strong> <code>TELEGRAM_BOT_TOKEN</code></li>
     <li><strong>Workflow:</strong> <code>.github/workflows/telegram-announcements.yml</code></li>
     <li><strong>Test it:</strong> Actions → <em>Telegram Announcements</em> → Run workflow → <em>dry_run</em> = <code>true</code>.</li>
@@ -2096,20 +2101,10 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   <h3>Bot 2 — Daily Bible bot</h3>
   <ul>
     <li><strong>What it does:</strong> Mon–Fri posts the day's NT reading + optional Russian link + a Prayer &amp; Thanksgiving block. Saturday posts a branded <em>Study Saturday Live</em> teaser with this week's review passages pulled from <code>study-saturday.json</code>.</li>
-    <li><strong>Where:</strong> Encounter the Word topic (thread 13).</li>
+    <li><strong>Where:</strong> General channel (<code>messageThreadId: null</code>). Update the thread ID under <em>Editor → Telegram bot config → Daily Bible bot</em> if the destination changes.</li>
     <li><strong>Schedule:</strong> 08:00 Pacific, Monday–Saturday. No Sunday post.</li>
     <li><strong>Reading plan (Mon–Fri):</strong> same one the homepage uses — anchored on Apr 30 2026 = Mark 11, advancing one chapter per weekday.</li>
-    <li><strong>Saturday template:</strong>
-      <code>🎙 **Discuss Scripture: Study Saturday Live**</code><br>
-      <code>TONIGHT @ 7:00 PM, {Month} {day-ordinal}, {year}</code><br>
-      <code>Watch STW on Twitch —&gt; {twitchUrl}</code><br>
-      <code>**Study Saturday Live!**</code><br>
-      (three body paragraphs: intro, review, goal — all editable from the editor)<br>
-      <code>Please review the S.E.E.D. Rules …</code> (S.E.E.D. Rules becomes a link when <em>rulesUrl</em> is set)<br>
-      <code>📖 **This week's study focus:** {oldTestament}</code><br>
-      <code>📖 **This week's reading:** {newTestament}</code><br>
-      Prayer &amp; Thanksgiving block (same as Mon–Fri)
-    </li>
+    <li><strong>Saturday template:</strong> dedicated Study Saturday Live teaser with TONIGHT banner, Twitch link, three body paragraphs, "This week's study focus / This week's reading" pulled from <code>study-saturday.json</code>. Fully configurable under <em>Saturday: …</em> fields in the editor.</li>
     <li><strong>Saturday config knobs</strong> (in <code>telegram-bot.json</code> → <code>bible.saturday</code>, or <em>Editor → Telegram bot config → Daily Bible bot</em>): <code>enabled</code>, <code>twitchUrl</code>, <code>streamStartTimePT</code>, <code>rulesUrl</code>, and four body paragraphs (<code>bodyIntro</code> / <code>bodyReview</code> / <code>bodyGoal</code> / <code>bodyRulesNote</code>).</li>
     <li><strong>Spotify links (Mon–Fri):</strong> per-chapter overrides in <code>assets/data/bible-spotify-map.json</code> — <code>chapters</code> for English, <code>russianChapters</code> for Russian. Fallbacks: <code>fallbackShowUrl</code> + <code>russianFallbackShowUrl</code> inside the <em>bible</em> section. Russian line is omitted entirely when no Russian URL is configured.</li>
     <li><strong>Prayer block toggle:</strong> set <code>"includePrayerBlock": false</code> inside the <em>bible</em> section if you ever want posts without it.</li>
@@ -2168,38 +2163,41 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
     <p>Telegram uses a simpler markup than the bots — just type <code>**bold**</code> and it bolds on send, or use the formatting menu on mobile. The URLs auto-preview the playlist cover so you don't need to attach an image.</p>
   </div>
 
-  <h3>Bot 3 — Prayer &amp; Thanksgiving nudge bot</h3>
+  <h3>Bot 3 — Prayer &amp; Thanksgiving nudge bot <span style="opacity: 0.65; font-weight: 600; font-size: 0.85em;">(disabled)</span></h3>
   <ul>
-    <li><strong>What it does:</strong> Posts the daily prayer-and-thanksgiving reminder that nudges members to share in the Prayer &amp; Thanksgiving topic.</li>
-    <li><strong>Where:</strong> Main channel (thread 1).</li>
-    <li><strong>Schedule:</strong> 07:00 Pacific, on a <strong>random 3 out of 5 weekdays per week</strong> so it stays fresh. The selection is deterministic per ISO week (same retry = same answer) but varies week to week.</li>
-    <li><strong>Message text:</strong> fixed template with the current date ("Today's Prayer Requests and Thanksgiving Announcements 5/7/2026…"). Includes a clickable link to the Prayer topic.</li>
-    <li><strong>Secret:</strong> <code>TELEGRAM_PRAYER_BOT_TOKEN</code></li>
-    <li><strong>Workflow:</strong> <code>.github/workflows/daily-prayer-nudge.yml</code></li>
-    <li><strong>Test it:</strong> Actions → <em>Daily Prayer Nudge</em> → Run workflow → <em>dry_run</em> = <code>true</code>, or <em>force_post</em> = <code>true</code> to bypass the random-day filter.</li>
+    <li><strong>Status:</strong> <strong>Disabled</strong> as of May 2026. The Bible bot now posts a full Prayer &amp; Thanksgiving blockquote as part of its daily message (Mon–Sat, 8 AM PT), so this separate nudge would double up. Re-enable under <em>Editor → Telegram bot config → Prayer nudge bot</em> if the day ever comes that we want the second touch again.</li>
+    <li><strong>What it did:</strong> Posted the daily prayer-and-thanksgiving reminder into the main channel.</li>
+    <li><strong>Secret:</strong> <code>TELEGRAM_PRAYER_BOT_TOKEN</code> (still provisioned so flipping <em>enabled: true</em> brings it back without re-adding the bot to the group).</li>
+    <li><strong>Workflow:</strong> <code>.github/workflows/daily-prayer-nudge.yml</code> — still on the cron, but the script exits cleanly when <em>enabled: false</em>.</li>
   </ul>
 
   <div class="admin-stepper">
-    <p class="admin-stepper__label">The 3-bot system</p>
+    <p class="admin-stepper__label">The 4-bot system at a glance</p>
     <p class="admin-stepper__title">Each bot handles its own topic, on its own schedule</p>
     <div class="admin-stepper__steps">
       <div class="admin-step">
         <span class="admin-step__num">1</span>
         <span class="admin-step__icon">📣</span>
         <p class="admin-step__title">Announce bot</p>
-        <p class="admin-step__body">Calendar events → Announcements topic (thread 553). Runs 7 AM, 12 PM, 5 PM Mon–Sat.</p>
+        <p class="admin-step__body">Calendar events → Announcements topic (thread 553). Runs every 15 min Mon–Sat, inside quiet-hours 07:00–21:00 PT. LIVE events bypass quiet hours.</p>
       </div>
       <div class="admin-step">
         <span class="admin-step__num">2</span>
         <span class="admin-step__icon">📖</span>
         <p class="admin-step__title">Bible bot</p>
-        <p class="admin-step__body">Daily NT reading + optional Russian link + Prayer &amp; Thanksgiving block → Encounter the Word topic (thread 13). Runs 8 AM Mon–Sat (Saturday = Friday's review).</p>
+        <p class="admin-step__body">Daily NT reading (Mon–Fri) + Prayer &amp; Thanksgiving block + Saturday Study Saturday Live teaser → General channel. Runs 8 AM Mon–Sat.</p>
       </div>
       <div class="admin-step">
         <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">🎵</span>
+        <p class="admin-step__title">Playlist digest</p>
+        <p class="admin-step__body">Weekly "what's new in the community playlist" → Worship &amp; Music topic (thread 1064). Runs 8 AM Saturday. Skipped when nothing was added that week.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">4</span>
         <span class="admin-step__icon">🙏🏻</span>
-        <p class="admin-step__title">Prayer bot</p>
-        <p class="admin-step__body">Fixed template + date → Main channel (thread 1). Runs 7 AM on a random 3 of 5 weekdays.</p>
+        <p class="admin-step__title">Prayer nudge (disabled)</p>
+        <p class="admin-step__body">Dormant — the Bible bot now carries the daily Prayer &amp; Thanksgiving block. Re-enable anytime from the editor.</p>
       </div>
     </div>
   </div>

@@ -132,6 +132,53 @@
       </div>
     </div>
 
+    <!-- Community-curated Spotify playlist. A collaborative playlist every
+         member can add songs to. Listeners just press play on the embed;
+         contributors click the green "Add your songs →" button which opens
+         Spotify's collaborator-invite link (one-tap add on mobile, needs
+         Spotify app installed). -->
+    <div class="community-playlist">
+      <div class="community-playlist__head">
+        <div>
+          <p class="community-playlist__eyebrow">🎵 Community playlist</p>
+          <h3 class="community-playlist__title">The songs we worship to</h3>
+          <p class="community-playlist__blurb">
+            A growing collection of worship, hymns, and prayer music that our
+            community loves. Drop in songs that have moved you — we all listen
+            together.
+          </p>
+        </div>
+        <a class="btn btn-primary community-playlist__add"
+           href="https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp;pt=3cf27aeb2c1ffec6bf48b7345e141c26"
+           target="_blank" rel="noopener">
+          <span aria-hidden="true">➕</span>
+          Add your songs
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+      <div class="community-playlist__embed">
+        <iframe
+          title="Seed the Word community playlist"
+          src="https://open.spotify.com/embed/playlist/18QMpMTYrFt2KxW1Q9NsvX?utm_source=generator&theme=0"
+          width="100%"
+          height="380"
+          frameborder="0"
+          allowfullscreen=""
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"></iframe>
+      </div>
+      <p class="community-playlist__foot">
+        <a href="https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=ZIa9tOn_SUirjwbWghdPiwh" target="_blank" rel="noopener">
+          Open playlist in Spotify →
+        </a>
+        <span class="community-playlist__foot-hint">
+          · Free to listen. To add songs you'll need a Spotify account + the
+          app on phone or desktop. First time adding? Tap the green button,
+          accept the invite, then drop in songs from anywhere in Spotify.
+        </span>
+      </p>
+    </div>
+
     <!-- Single narrow bridge teaser under the Ministry Feed pair. Points to
          the Friends in Jesus section below. Replaces the two previous
          inline teasers ("More to watch" / "More to hear"). -->
@@ -634,6 +681,111 @@
 
 /* ==== Community page reorg (May 2026 — v2) =============================== */
 
+/* ── Community collaborative Spotify playlist ─────────────────────────
+   Lives directly under the Ministry Feed grid. Full-bleed card with a
+   header strip (eyebrow + title + blurb + green "Add your songs" CTA)
+   above the Spotify embed. On narrow viewports the head stacks vertically
+   and the CTA drops below the text. */
+.community-playlist {
+  max-width: 960px;
+  margin: 1.75rem auto 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.08) 0%, rgba(29, 185, 84, 0.04) 100%);
+  border: 1px solid rgba(29, 185, 84, 0.22);
+  border-radius: 18px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
+}
+.community-playlist__head {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+}
+.community-playlist__eyebrow {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1DB954;
+  margin: 0 0 0.3rem;
+}
+.community-playlist__title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0 0 0.45rem;
+  color: var(--text, #0a0a0a);
+  line-height: 1.25;
+}
+.community-playlist__blurb {
+  font-size: 0.95rem;
+  color: var(--muted, #4a4a4a);
+  margin: 0;
+  line-height: 1.55;
+  max-width: 560px;
+}
+.community-playlist__add {
+  background: #1DB954;
+  color: #fff;
+  border: 0;
+  padding: 0.75rem 1.35rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(29, 185, 84, 0.32);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  text-decoration: none;
+}
+.community-playlist__add:hover {
+  background: #17a449;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(29, 185, 84, 0.42);
+  color: #fff;
+}
+.community-playlist__embed iframe {
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.community-playlist__foot {
+  font-size: 0.85rem;
+  color: var(--muted, #4a4a4a);
+  margin: 0.85rem 0 0;
+  line-height: 1.5;
+}
+.community-playlist__foot a {
+  color: #1DB954;
+  font-weight: 700;
+  text-decoration: none;
+}
+.community-playlist__foot a:hover {
+  text-decoration: underline;
+}
+.community-playlist__foot-hint {
+  display: inline;
+  color: var(--muted, #4a4a4a);
+}
+@media (max-width: 640px) {
+  .community-playlist {
+    padding: 1.2rem 1rem;
+  }
+  .community-playlist__head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .community-playlist__add {
+    justify-content: center;
+    width: 100%;
+  }
+  .community-playlist__title { font-size: 1.15rem; }
+}
 /* Per-chapter "🎧 Listen" pill on each day card in This Week in God's Word */
 .bible-day-card { position: relative; }
 .bible-day-card__spotify {

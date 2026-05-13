@@ -132,7 +132,9 @@
         letter,
       });
 
-      // Tag every section node with its category so we can CSS-filter
+      // Tag every section node with its category so we can CSS-filter.
+      // The h2 itself gets tagged too so the category-color left border
+      // renders on the heading (added to nodes[] as the first entry).
       nodes.forEach((nd) => nd.setAttribute('data-category', cat));
     });
   }
@@ -336,6 +338,7 @@
   function initSearch() {
     const searchEl = document.getElementById('admin-search-input');
     const clearBtn = document.getElementById('admin-search-clear');
+    const suggestionsEl = document.getElementById('admin-search-suggestions');
     if (!searchEl) return;
 
     let debounce;
@@ -344,14 +347,47 @@
       debounce = setTimeout(() => {
         currentQuery = e.target.value.trim();
         applyFilters();
+        renderSuggestions();
       }, 60);
     });
+    searchEl.addEventListener('focus', () => renderSuggestions());
     searchEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') clearSearch();
+      if (e.key === 'Escape') {
+        if (suggestionsEl && !suggestionsEl.hidden) {
+          hideSuggestions();
+          searchEl.focus();
+        } else {
+          clearSearch();
+        }
+        return;
+      }
+      if (!suggestionsEl || suggestionsEl.hidden) return;
+      const items = Array.from(suggestionsEl.querySelectorAll('.admin-search__suggestion'));
+      if (!items.length) return;
+      const activeIdx = items.findIndex((el) => el.classList.contains('is-active'));
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = items[(activeIdx + 1) % items.length];
+        setActiveSuggestion(next);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = items[(activeIdx - 1 + items.length) % items.length];
+        setActiveSuggestion(prev);
+      } else if (e.key === 'Enter' && activeIdx >= 0) {
+        e.preventDefault();
+        jumpToSection(items[activeIdx].dataset.sectionId);
+      }
     });
     if (clearBtn) {
       clearBtn.addEventListener('click', () => { clearSearch(); searchEl.focus(); });
     }
+
+    // Close dropdown on outside click.
+    document.addEventListener('click', (e) => {
+      const wrap = document.getElementById('admin-search-wrap');
+      if (!wrap) return;
+      if (!wrap.contains(e.target)) hideSuggestions();
+    });
 
     // Global "/" shortcut
     document.addEventListener('keydown', (e) => {
@@ -364,10 +400,95 @@
     });
   }
 
+  function renderSuggestions() {
+    const searchEl = document.getElementById('admin-search-input');
+    const suggestionsEl = document.getElementById('admin-search-suggestions');
+    if (!searchEl || !suggestionsEl) return;
+
+    const q = (searchEl.value || '').trim().toLowerCase();
+    // Show dropdown even when query is empty IF input is focused — shows
+    // the current category's sections as a jump-menu. This solves the
+    // "I don't know what's on this page" complaint.
+    const activeCatLabel = getCatLabel(activeCategory);
+    const items = sections.filter((s) => {
+      const catOk = activeCategory === 'all' || s.category === activeCategory;
+      if (!q) return catOk;
+      return catOk && (s.title.toLowerCase().includes(q) || s.haystack.includes(q));
+    }).slice(0, 30);
+
+    if (items.length === 0) {
+      suggestionsEl.innerHTML = '<li class="admin-search__suggestions-empty">No matching sections.</li>';
+      suggestionsEl.hidden = false;
+      searchEl.setAttribute('aria-expanded', 'true');
+      return;
+    }
+
+    suggestionsEl.innerHTML = items.map((s) => {
+      const catShort = s.category === 'all' ? '' : s.category;
+      return (
+        '<li class="admin-search__suggestion" role="option" data-section-id="' + s.id + '">' +
+          (catShort ? '<span class="admin-search__suggestion-cat">' + escapeHtml(catShort) + '</span>' : '') +
+          '<span class="admin-search__suggestion-title">' + escapeHtml(s.title) + '</span>' +
+        '</li>'
+      );
+    }).join('');
+
+    // Wire clicks on each suggestion.
+    suggestionsEl.querySelectorAll('.admin-search__suggestion').forEach((el) => {
+      el.addEventListener('mousedown', (ev) => {
+        // mousedown (not click) so the input blur doesn't hide the
+        // dropdown before the handler fires on some browsers.
+        ev.preventDefault();
+        jumpToSection(el.dataset.sectionId);
+      });
+      el.addEventListener('mouseenter', () => setActiveSuggestion(el));
+    });
+
+    suggestionsEl.hidden = false;
+    searchEl.setAttribute('aria-expanded', 'true');
+    // Auto-highlight the first suggestion so Enter works immediately.
+    const first = suggestionsEl.querySelector('.admin-search__suggestion');
+    if (first) setActiveSuggestion(first);
+  }
+
+  function setActiveSuggestion(el) {
+    const suggestionsEl = document.getElementById('admin-search-suggestions');
+    if (!suggestionsEl) return;
+    suggestionsEl.querySelectorAll('.admin-search__suggestion.is-active')
+      .forEach((n) => n.classList.remove('is-active'));
+    if (el) {
+      el.classList.add('is-active');
+      // Keep highlighted item in view when arrow-navigating.
+      el.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function hideSuggestions() {
+    const searchEl = document.getElementById('admin-search-input');
+    const suggestionsEl = document.getElementById('admin-search-suggestions');
+    if (suggestionsEl) suggestionsEl.hidden = true;
+    if (searchEl) searchEl.setAttribute('aria-expanded', 'false');
+  }
+
+  function jumpToSection(id) {
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    // Reset filters so the target is visible even if current filters
+    // would hide it — the user explicitly asked for this section.
+    clearSearch(true);
+    hideSuggestions();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Brief visual pulse so the user sees where they landed.
+    target.classList.add('admin-jump-flash');
+    setTimeout(() => target.classList.remove('admin-jump-flash'), 1600);
+  }
+
   function clearSearch(silent) {
     const searchEl = document.getElementById('admin-search-input');
     if (searchEl) searchEl.value = '';
     currentQuery = '';
+    hideSuggestions();
     if (!silent) applyFilters();
   }
 

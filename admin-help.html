@@ -106,38 +106,54 @@
     .admin-tabs {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.4rem;
-      padding-bottom: 0.55rem;
+      gap: 0.5rem;
+      padding-bottom: 0.65rem;
       border-bottom: 1px solid var(--ah-line-2);
     }
     .admin-tab {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.5rem 0.95rem;
+      gap: 0.45rem;
+      padding: 0.6rem 1.1rem;
       background: #fff;
-      border: 1.5px solid var(--ah-line);
+      border: 2px solid var(--ah-line);
       border-radius: 999px;
-      font-size: 0.88rem;
-      font-weight: 700;
+      font-size: 0.92rem;
+      font-weight: 800;
       color: var(--ah-ink);
       cursor: pointer;
       font-family: inherit;
-      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      transition: all 0.2s ease;
     }
     .admin-tab:hover {
-      border-color: var(--ah-ink);
+      border-color: var(--ah-accent);
+      color: var(--ah-accent);
+      background: var(--ah-accent-soft);
+      transform: translateY(-1px);
     }
     .admin-tab.is-active {
-      background: var(--ah-ink);
-      border-color: var(--ah-ink);
+      background: var(--ah-accent);
+      border-color: var(--ah-accent);
       color: #fff;
+      box-shadow: 0 4px 14px rgba(26, 92, 29, 0.28);
     }
+    /* Category-specific tab tints so admins can recognize them by color too */
+    .admin-tab[data-cat="overview"].is-active    { background: #1c4f70; border-color: #1c4f70; box-shadow: 0 4px 14px rgba(28, 79, 112, 0.28); }
+    .admin-tab[data-cat="howto"].is-active       { background: var(--ah-accent); border-color: var(--ah-accent); }
+    .admin-tab[data-cat="bots"].is-active        { background: #5d3a8a; border-color: #5d3a8a; box-shadow: 0 4px 14px rgba(93, 58, 138, 0.28); }
+    .admin-tab[data-cat="troubleshoot"].is-active{ background: #994d32; border-color: #994d32; box-shadow: 0 4px 14px rgba(153, 77, 50, 0.28); }
+    .admin-tab[data-cat="editor"]                { background: var(--ah-gold, #C29A3A); border-color: var(--ah-gold, #C29A3A); color: #2b1d05; }
+    .admin-tab[data-cat="editor"]:hover          { background: #d5ad48; border-color: #d5ad48; color: #2b1d05; }
     .admin-tab__count {
       font-size: 0.72rem;
-      opacity: 0.7;
-      font-weight: 600;
+      opacity: 0.85;
+      font-weight: 700;
+      padding: 0.1rem 0.45rem;
+      background: rgba(0, 0, 0, 0.08);
+      border-radius: 999px;
+      line-height: 1.4;
     }
+    .admin-tab.is-active .admin-tab__count { background: rgba(255, 255, 255, 0.2); }
 
     .admin-search {
       display: flex;
@@ -195,6 +211,64 @@
     }
     .admin-search__meta.is-no-results { color: var(--ah-warn); }
 
+    /* ── Autocomplete dropdown ── */
+    .admin-search { position: relative; }
+    .admin-search__suggestions {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      z-index: 90;
+      max-height: 420px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid var(--ah-line);
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+      margin: 0;
+      padding: 0.35rem;
+      list-style: none;
+    }
+    .admin-search__suggestion {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--ah-ink);
+      line-height: 1.35;
+      font-size: 0.93rem;
+    }
+    .admin-search__suggestion:hover,
+    .admin-search__suggestion.is-active {
+      background: var(--ah-accent-soft);
+      color: var(--ah-accent);
+    }
+    .admin-search__suggestion-cat {
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.12rem 0.5rem;
+      background: var(--ah-line-2);
+      color: var(--ah-muted);
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+    .admin-search__suggestion-title {
+      flex: 1;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .admin-search__suggestions-empty {
+      padding: 0.85rem 0.9rem;
+      color: var(--ah-muted);
+      font-size: 0.88rem;
+    }
+
     /* ── Alphabet rail ── */
     .admin-alpha {
       display: flex;
@@ -204,13 +278,13 @@
     }
     .admin-alpha__letter {
       position: relative;
-      min-width: 1.6rem;
-      height: 1.6rem;
+      min-width: 1.85rem;
+      height: 1.85rem;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.82rem;
-      font-weight: 700;
+      font-size: 0.88rem;
+      font-weight: 800;
       color: var(--ah-ink);
       background: var(--ah-off);
       border: 1px solid transparent;
@@ -228,12 +302,18 @@
       border-color: var(--ah-ink);
       outline: none;
     }
+    .admin-alpha__letter:not(.is-empty) {
+      background: var(--ah-accent-soft);
+      border: 1px solid rgba(26, 92, 29, 0.22);
+      color: var(--ah-accent);
+    }
     .admin-alpha__letter.is-empty {
-      color: #bbb;
+      color: #c8c8c8;
       background: transparent;
       cursor: default;
+      opacity: 0.5;
     }
-    .admin-alpha__letter.is-empty:hover { background: transparent; color: #bbb; border-color: transparent; }
+    .admin-alpha__letter.is-empty:hover { background: transparent; color: #c8c8c8; border-color: transparent; }
 
     /* Popup shown when a letter is hovered/opened */
     .admin-alpha__popup {
@@ -406,7 +486,6 @@
       margin: 1rem 0 1.5rem;
       color: #6b1a16;
     }
-
     /* Search hit highlight */
     .admin-content mark.admin-search-hit {
       background: #ffe168;
@@ -414,11 +493,32 @@
       padding: 0 3px;
       border-radius: 3px;
     }
+    /* Brief flash when the user jumps to a section via autocomplete
+       or alphabet rail, so they see where they landed. */
+    .admin-jump-flash {
+      animation: admin-jump-flash 1.4s ease-out;
+    }
+    @keyframes admin-jump-flash {
+      0%   { background: rgba(26, 92, 29, 0.22); border-radius: 8px; }
+      100% { background: transparent; border-radius: 8px; }
+    }
 
     /* Visibility helpers driven by the script */
     .admin-content [data-hidden="true"] { display: none !important; }
     .admin-content.is-hidden-behind-editor { display: none !important; }
     .admin-editor-shell { margin-top: 1.25rem; }
+
+    /* Section headings get a colored left-border by category so admins
+       can scan and recognize sections by color as they scroll. */
+    .admin-content > h2 {
+      border-left: 6px solid var(--ah-line);
+      padding-left: 0.85rem;
+      margin-top: 2.5rem;
+    }
+    .admin-content > h2[data-category="overview"]     { border-left-color: #1c4f70; }
+    .admin-content > h2[data-category="howto"]        { border-left-color: var(--ah-accent); }
+    .admin-content > h2[data-category="bots"]         { border-left-color: #5d3a8a; }
+    .admin-content > h2[data-category="troubleshoot"] { border-left-color: #994d32; }
 
     /* Logout */
     .admin-logout {
@@ -828,7 +928,7 @@
       <!-- Populated by assets/js/admin-help.js after sections load -->
     </div>
 
-    <div class="admin-search">
+    <div class="admin-search" id="admin-search-wrap">
       <span class="admin-search__icon" aria-hidden="true">🔍</span>
       <input
         id="admin-search-input"
@@ -836,9 +936,19 @@
         type="search"
         placeholder="Search tutorials — e.g. 'Instagram', 'calendar', 'telegram', 'verse'"
         aria-label="Search admin help"
+        aria-expanded="false"
+        aria-controls="admin-search-suggestions"
+        aria-autocomplete="list"
         autocomplete="off"
         spellcheck="false">
       <button class="admin-search__clear" id="admin-search-clear" type="button" aria-label="Clear search">&times;</button>
+      <!-- Autocomplete dropdown populated by admin-help.js as the user types.
+           Hidden unless the input has focus AND we have a non-empty query. -->
+      <ul class="admin-search__suggestions"
+          id="admin-search-suggestions"
+          role="listbox"
+          aria-label="Matching sections"
+          hidden></ul>
     </div>
     <p class="admin-search__meta" id="admin-search-meta" role="status" aria-live="polite"></p>
 
@@ -2367,7 +2477,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
 <script src="assets/js/admin-editor-commit-message.js?v=19" defer></script>
 <script src="assets/js/admin-editor-js-literal.js?v=19" defer></script>
 <script src="assets/js/admin-editor.js?v=19" defer></script>
-<script src="assets/js/admin-help.js?v=25" defer></script>
+<script src="assets/js/admin-help.js?v=26" defer></script>
 
 <script>
   // Populate the "Shared Calendar Photos Drive folder" admin-help card,

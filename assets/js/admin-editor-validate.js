@@ -73,8 +73,23 @@
     }
   }
 
+  // Resolve a (possibly dotted) path against a scope object for reading.
+  // Mirror of the resolver in the form renderer so validators agree with
+  // what the form actually displays.
+  function resolvePath(scope, dottedName) {
+    if (scope == null) return undefined;
+    const parts = String(dottedName).split('.');
+    let cur = scope;
+    for (const p of parts) {
+      if (cur == null) return undefined;
+      cur = cur[p];
+    }
+    return cur;
+  }
+
   // Top-level: walks schema.groups (each either a field container or a
   // repeating-group) against `data`, and runs any schema.validate last.
+  // Groups with a `dataKey` scope their fields into data[dataKey][...].
   function validate(schema, data) {
     const errors = {};
     if (!schema) return { ok: true, errors: errors };
@@ -84,12 +99,25 @@
       if (!group) continue;
 
       if (group.kind === 'repeating-group') {
-        const rows = data ? data[group.name] : undefined;
-        validateRepeatingGroup(group, rows || [], group.name || '__group__', errors);
+        // Repeating groups also honor dataKey (though no current schema
+        // needs it) — the row list lives at data[dataKey][group.name].
+        const scopeData = group.dataKey
+          ? (data && data[group.dataKey]) || {}
+          : data;
+        const rows = scopeData ? scopeData[group.name] : undefined;
+        const pathPrefix = (group.dataKey ? group.dataKey + '.' : '') + (group.name || '__group__');
+        validateRepeatingGroup(group, rows || [], pathPrefix, errors);
       } else if (Array.isArray(group.fields)) {
+        // Non-repeating field group. Scope defaults to `data`, but if the
+        // group declares `dataKey`, fields live at data[dataKey][field.name]
+        // (with support for dotted field names like header.morning).
+        const scopeData = group.dataKey
+          ? (data && data[group.dataKey]) || {}
+          : data;
+        const pathPrefix = group.dataKey ? group.dataKey + '.' : '';
         for (const field of group.fields) {
-          const value = data ? data[field.name] : undefined;
-          validateField(field, value, field.name, errors);
+          const value = resolvePath(scopeData, field.name);
+          validateField(field, value, pathPrefix + field.name, errors);
         }
       }
     }

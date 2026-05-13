@@ -405,78 +405,139 @@
 .ae-form .ae-group {
   border: 1.5px solid var(--ae-line);
   border-radius: var(--ae-radius);
-  padding: 1rem 1.2rem 1.1rem;
-  margin-bottom: 1rem;
+  padding: 1.2rem 1.35rem 1.25rem;
+  margin-bottom: 1.25rem;
   background: #fff;
   position: relative;
 }
 .ae-form legend {
   font-weight: 800;
-  padding: 0 0.5rem;
-  color: var(--ae-accent);
-  font-size: 0.95rem;
-  letter-spacing: 0.01em;
+  padding: 0.2rem 0.75rem;
+  color: #fff;
+  background: var(--ae-accent);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(44, 95, 46, 0.25);
 }
 .ae-form .ae-group > .ae-hint:first-of-type {
   background: var(--ae-accent-soft);
-  padding: 0.55rem 0.8rem;
+  padding: 0.65rem 0.9rem;
   border-radius: var(--ae-radius-sm);
-  margin: 0 0 0.75rem;
+  margin: 0 0 1rem;
   color: var(--ae-ink-2);
+  border-left: 3px solid var(--ae-accent);
+  line-height: 1.5;
+  font-size: 0.9rem;
 }
 
 .ae-field {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  margin-bottom: 0.9rem;
+  gap: 0.4rem;
+  margin-bottom: 1.1rem;
+  padding: 0.85rem 0.9rem 0.9rem;
+  border: 1px solid var(--ae-line);
+  border-radius: var(--ae-radius-sm);
+  background: var(--ae-paper);
+  transition: border-color 0.15s, background 0.15s;
+}
+.ae-field:hover {
+  border-color: rgba(44, 95, 46, 0.3);
+}
+.ae-field:focus-within {
+  border-color: var(--ae-accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.1);
 }
 .ae-field__label {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--ae-ink-2);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--ae-ink);
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.45rem;
+  letter-spacing: -0.01em;
 }
+.ae-field__label::before {
+  content: '✏️';
+  font-size: 0.85rem;
+  opacity: 0.72;
+}
+.ae-field[data-kind="toggle"] .ae-field__label::before { content: '🔘'; }
+.ae-field[data-kind="url"] .ae-field__label::before { content: '🔗'; }
+.ae-field[data-kind="textarea"] .ae-field__label::before { content: '📝'; }
+.ae-field[data-kind="number"] .ae-field__label::before { content: '🔢'; }
+.ae-field[data-kind="date"] .ae-field__label::before { content: '📅'; }
+.ae-field[data-kind="select"] .ae-field__label::before { content: '📋'; }
 .ae-required {
-  color: var(--ae-danger);
+  color: #fff;
   font-weight: 800;
-  background: rgba(166, 37, 31, 0.08);
-  padding: 0 0.3rem;
-  border-radius: 4px;
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
+  background: var(--ae-danger);
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  line-height: 1.2;
+  margin-left: 0.15rem;
 }
-.ae-required::before { content: 'req'; }
+.ae-required::before { content: 'required'; }
 .ae-required > * { display: none; }
 .ae-field input,
 .ae-field select,
 .ae-field textarea {
   min-height: 44px;
-  padding: 0.55rem 0.8rem;
-  border: 1.5px solid var(--ae-line);
+  padding: 0.65rem 0.9rem;
+  border: 2px solid var(--ae-line);
   border-radius: var(--ae-radius-sm);
   font-family: inherit;
-  font-size: 0.96rem;
+  font-size: 1rem;
   background: #fff;
   color: var(--ae-ink);
   transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
 }
-.ae-field textarea { resize: vertical; min-height: 84px; }
+.ae-field input::placeholder,
+.ae-field textarea::placeholder {
+  color: #a0a0a0;
+  font-style: italic;
+}
+.ae-field textarea { resize: vertical; min-height: 90px; }
 .ae-field input:focus,
 .ae-field select:focus,
 .ae-field textarea:focus {
   outline: none;
   border-color: var(--ae-accent);
-  box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.15);
+  box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.18);
+}
+.ae-field--invalid {
+  border-color: var(--ae-danger) !important;
+  background: #fff5f4;
 }
 .ae-field--invalid input,
 .ae-field--invalid select,
 .ae-field--invalid textarea {
   border-color: var(--ae-danger);
   box-shadow: 0 0 0 3px rgba(166, 37, 31, 0.12);
+}
+.ae-field__error {
+  color: var(--ae-danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.ae-field__error::before { content: '⚠️'; font-size: 0.9rem; }
+.ae-hint {
+  font-size: 0.86rem;
+  color: var(--ae-muted);
+  line-height: 1.5;
+  margin-top: 0.1rem;
 }
 .ae-field__error {
   color: var(--ae-danger);

@@ -967,7 +967,10 @@
   }
 
   function renderField(field, value, onInput, path) {
-    const wrap = el('label', { className: 'ae-field', attrs: { 'data-path': path } });
+    const wrap = el('label', {
+      className: 'ae-field',
+      attrs: { 'data-path': path, 'data-kind': field.kind || 'text' },
+    });
     const row = el('span', { className: 'ae-field__label' });
     row.appendChild(el('span', { text: field.label || field.name }));
     if (field.required) row.appendChild(el('span', { className: 'ae-required', text: ' *' }));

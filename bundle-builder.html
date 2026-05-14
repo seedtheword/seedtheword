@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bundle Builder — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=4">
+  <title>Review your gift — Seed the Word Ministry</title>
+  <link rel="stylesheet" href="assets/css/main.css?v=5">
 </head>
 <body>
 
@@ -51,8 +51,8 @@
 <section class="hero hero--short hero--builder">
   <div class="hero__overlay"></div>
   <div class="hero__content">
-    <h1 class="hero__title">Build Your Bundle</h1>
-    <p class="hero__tagline">Customize a Bible gift for someone beginning their faith journey.</p>
+    <h1 class="hero__title" id="review-hero-title">Review your gift</h1>
+    <p class="hero__tagline" id="review-hero-tagline">One last look before we get started.</p>
   </div>
 </section>
 
@@ -61,160 +61,57 @@
 <main class="section section--white" style="padding: 3rem 0 4rem;">
   <div class="container">
 
-    <div class="builder-intro glass-morphism">
-      <p class="builder-intro__eyebrow">How This Works</p>
-      <h2 class="builder-intro__title" id="builder-intro-title">Build your gift, together with us</h2>
-      <p class="builder-intro__body" id="builder-intro-body">
-        Starting at <strong>$2 per Bible</strong> (our ministry cost), you can build a
-        warm welcoming gift for someone taking their first step toward the Word.
-        Every dollar above cost pays forward the next bundle — <em>give as you feel led.</em>
-      </p>
-      <div id="builder-intro-contents" style="display:none;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid rgba(0,0,0,0.08);text-align:left;"></div>
+    <div id="review-error" class="review-error-state" hidden>
+      <h2>That link's incomplete</h2>
+      <p>Looks like the configuration didn't carry through. No worries — head back to the store and pick a bundle to start customizing.</p>
+      <p style="margin-top:1.5rem"><a href="store.html" class="btn btn-gold">← Back to the store</a></p>
     </div>
 
-    <div class="builder-layout">
+    <div class="review-layout" id="review-layout">
 
-      <!-- Controls -->
-      <div class="builder-controls">
+      <section class="review-card">
+        <h2>Your gift</h2>
+        <div id="review-summary"></div>
+        <button type="button" class="review-back" id="review-back">← Back to customize</button>
+      </section>
 
-        <!-- Step 1 -->
-        <div class="builder-step glass-morphism">
-          <h2 class="builder-step__head">
-            <span class="builder-step__num">1</span> Choose Your Bundle
-          </h2>
-          <div class="bundle-radios">
-            <label class="bundle-radio">
-              <input type="radio" name="bundle" value="essentials" data-price="2" data-name="Essentials">
-              <div class="bundle-radio__card">
-                <div class="bundle-radio__thumb" style="background-image:url('assets/images/bundles/essentials/01-welcome-bundle.jpg')"></div>
-                <div class="bundle-radio__body">
-                  <span class="bundle-radio__name">📖 Essentials</span>
-                  <span class="bundle-radio__blurb">A warm starter gift — pocket Bible plus hand-picked items for a newcomer.</span>
-                  <span class="bundle-radio__price">From $2 per Bible</span>
-                </div>
-              </div>
-            </label>
+      <section class="review-form-card">
+        <h2 id="review-form-title">Tell us where to send it</h2>
+        <form id="review-form" action="https://formspree.io/f/mykozenk" method="POST" novalidate>
+          <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+          <input type="hidden" name="_subject" id="review-subject" value="STW Bundle Order">
+          <input type="hidden" name="configuration" id="review-config-text" value="">
 
-            <label class="bundle-radio">
-              <input type="radio" name="bundle" value="lifegroup" data-price="2" data-name="Life Group + Friends Starter">
-              <div class="bundle-radio__card">
-                <div class="bundle-radio__thumb" style="background-image:url('assets/images/bundles/lifegroup/01-youth-outreach.jpg')"></div>
-                <div class="bundle-radio__body">
-                  <span class="bundle-radio__name">✝️ Life Group + Friends Starter</span>
-                  <span class="bundle-radio__blurb">Up to 5 Essentials sets for your circle — with optional full-size Bible upgrades.</span>
-                  <span class="bundle-radio__price">From $2 per Bible · up to 5</span>
-                </div>
-              </div>
-            </label>
-
-            <label class="bundle-radio">
-              <input type="radio" name="bundle" value="ministry" data-price="0" data-name="Jesus' Favorite Disciple / Ministry Needs">
-              <div class="bundle-radio__card">
-                <div class="bundle-radio__thumb" style="background-image:url('assets/images/bundles/ministry/01-premium-engraved.jpg')"></div>
-                <div class="bundle-radio__body">
-                  <span class="bundle-radio__name">🕊️ Jesus' Favorite Disciple</span>
-                  <span class="bundle-radio__blurb">A calling, not a purchase. Tell us your story — we'll walk with you.</span>
-                  <span class="bundle-radio__price">Story-led · give as led</span>
-                </div>
-              </div>
-            </label>
+          <div class="form-row">
+            <label for="review-name">Your name *</label>
+            <input type="text" id="review-name" name="name" autocomplete="name" required>
           </div>
-          <p id="bundle-error" style="display:none;color:var(--red);font-size:.875rem;font-weight:600;margin-top:.75rem">Please select a bundle to continue.</p>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="builder-step glass-morphism">
-          <h2 class="builder-step__head">
-            <span class="builder-step__num">2</span> Personalise Your Gift
-          </h2>
-          <p style="font-size:.9rem;color:#6b5744;margin-bottom:1rem">Select any customisations — each one makes the gift more special.</p>
-          <div class="addon-pills">
-            <span class="addon-pill" data-price="5" data-label="Custom Engraving">Custom Engraving <span class="addon-pill__price">+$5.00</span></span>
-            <span class="addon-pill" data-price="2" data-label="Verse Highlighting">Verse Highlighting <span class="addon-pill__price">+$2.00</span></span>
-            <span class="addon-pill" data-price="1" data-label="Personalized Note">Personalized Note <span class="addon-pill__price">+$1.00</span></span>
-            <span class="addon-pill" data-price="8" data-label="Custom Cover">Custom Cover <span class="addon-pill__price">+$8.00</span></span>
-            <span class="addon-pill" data-price="1.5" data-label="Bookmarks &amp; Ribbons">Bookmarks &amp; Ribbons <span class="addon-pill__price">+$1.50</span></span>
-            <span class="addon-pill" data-price="6" data-label="Carrying Case / Gift Box">Carrying Case / Gift Box <span class="addon-pill__price">+$6.00</span></span>
+          <div class="form-row">
+            <label for="review-email">Your email *</label>
+            <input type="email" id="review-email" name="email" autocomplete="email" required>
           </div>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="builder-step glass-morphism">
-          <h2 class="builder-step__head">
-            <span class="builder-step__num">3</span>
-            <button class="accordion-toggle" aria-expanded="false" aria-controls="details-body" id="details-toggle">
-              Additional Details <span class="accordion-icon">▾</span>
-            </button>
-          </h2>
-          <div id="details-body" class="accordion-body" hidden>
-            <div class="form-group">
-              <label>Upload an Image <span style="font-weight:400;color:#8a6a3a">(max 5MB)</span></label>
-              <input type="file" accept="image/*">
-            </div>
-            <div class="form-group">
-              <label>Engraving Text</label>
-              <input type="text" maxlength="100" placeholder="e.g. John 3:16 — For God so loved the world…">
-            </div>
-            <div class="form-group">
-              <label>Verses to Highlight</label>
-              <textarea rows="3" placeholder="e.g. John 3:16, Romans 8:28, Psalm 23"></textarea>
-            </div>
-            <div class="form-group">
-              <label>Additional Notes for the Ministry Team</label>
-              <textarea rows="4" placeholder="Any other details or special requests…"></textarea>
-            </div>
+          <div class="form-row">
+            <label for="review-phone">Phone (optional)</label>
+            <input type="tel" id="review-phone" name="phone" autocomplete="tel">
           </div>
-        </div>
-
-      </div><!-- /controls -->
-
-      <!-- Summary panel -->
-      <aside class="builder-summary">
-        <div class="summary-panel">
-          <h2 class="summary-panel__title">Your Bundle</h2>
-          <p class="summary-panel__bundle" id="summary-bundle-name" style="font-style:italic;color:#aaa">No bundle selected</p>
-          <div class="summary-panel__addons" id="summary-addons-list">
-            <span style="color:#aaa;font-style:italic">No add-ons selected</span>
+          <div class="form-row">
+            <label for="review-delivery">Where should we send it? *</label>
+            <textarea id="review-delivery" name="delivery_details" rows="3" placeholder="Street, city, state, ZIP — or pickup arrangement" required></textarea>
           </div>
-          <div class="summary-panel__total-row">
-            <span class="summary-panel__total-label">Estimated Total</span>
-            <span class="summary-panel__total" id="price-display">$2.00</span>
+          <div class="form-row">
+            <label for="review-dedication" id="review-dedication-label">Dedication (optional)</label>
+            <textarea id="review-dedication" name="dedication" rows="3" placeholder="A line we can include with the gift, or a note to our team."></textarea>
           </div>
 
-          <!-- Quick-give pills for ministry-track supporters -->
-          <p class="support-panel__label" style="margin-bottom:.35rem;">Support the ministry</p>
-          <div class="builder-support-row">
-            <a class="support-pill" href="https://www.paypal.com/paypalme/DAgeyev/25" target="_blank" rel="noopener">$25</a>
-            <a class="support-pill" href="https://www.paypal.com/paypalme/DAgeyev/50" target="_blank" rel="noopener">$50</a>
-            <a class="support-pill" href="https://www.paypal.com/paypalme/DAgeyev/100" target="_blank" rel="noopener">$100</a>
-            <a class="support-pill support-pill--open" href="https://www.paypal.me/DAgeyev" target="_blank" rel="noopener">Custom →</a>
-          </div>
+          <div id="review-form-error" class="journey-notice journey-notice--error" hidden></div>
 
-          <div class="summary-panel__actions" style="margin-top:1.25rem;">
-            <button class="btn btn-gold btn-block" id="btn-complete-gift">Complete My Gift</button>
-            <button class="btn btn-outline-gold btn-block" id="btn-request-donation">Request Ministry to Cover This Gift</button>
-          </div>
-        </div>
-      </aside>
+          <button type="submit" class="btn btn-primary btn-green-call btn-block" id="review-submit-btn">Submit my gift →</button>
+          <p style="margin-top:0.85rem;color:var(--muted);font-size:0.85rem;line-height:1.5">
+            We confirm every order personally before any charge. No automatic billing — we'll reach out by email first.
+          </p>
+        </form>
+      </section>
 
-    </div><!-- /builder-layout -->
-
-    <!-- Donation request panel -->
-    <div class="donation-panel" id="donation-panel" hidden>
-      <div class="donation-panel__inner">
-        <button class="donation-panel__close" id="donation-panel-close" aria-label="Close">&times;</button>
-        <h2 class="donation-panel__title">Request the Ministry to Cover This Gift</h2>
-        <p class="donation-panel__intro">If you are unable to cover the cost of this bundle, our ministry would love to help. Please share your circumstances below and we will review your request personally.</p>
-        <div class="form-group"><label>Your Name <span class="req">*</span></label><input type="text" placeholder="Full name"></div>
-        <div class="form-group"><label>Your Email <span class="req">*</span></label><input type="email" placeholder="your@email.com"></div>
-        <div class="form-group"><label>Phone <span style="font-weight:400;color:#888">(optional)</span></label><input type="tel" placeholder="+1 (555) 000-0000"></div>
-        <div class="form-group"><label>Please describe your circumstances <span class="req">*</span></label><textarea rows="5" placeholder="Tell us about your situation and why you are requesting this gift…"></textarea></div>
-        <div class="form-group" style="display:flex;align-items:flex-start;gap:.5rem">
-          <input type="checkbox" id="consent" style="width:auto;margin-top:.2rem">
-          <label for="consent" style="font-weight:400;cursor:pointer">I agree that the Ministry may contact me to discuss this request</label>
-        </div>
-        <button class="btn btn-gold" onclick="this.closest('.donation-panel').innerHTML='<div style=\'padding:1.25rem 1.5rem;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;color:#2e7d32;font-weight:600\'>Thank you for reaching out. Our team will review your request and follow up with you personally.</div>'">Submit Request</button>
-      </div>
     </div>
 
   </div>
@@ -222,24 +119,9 @@
 
 </div><!-- /.store-page-bg -->
 
-<!-- Order summary modal -->
-<div id="order-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title" style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center">
-  <div class="modal-backdrop" style="position:absolute;inset:0;background:rgba(0,0,0,.55)"></div>
-  <div style="position:relative;z-index:1;background:#fff;border-radius:12px;padding:2rem 1.75rem 1.75rem;max-width:480px;width:calc(100% - 2rem);max-height:calc(100vh - 3rem);overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.22)">
-    <button id="modal-close" style="position:absolute;top:.75rem;right:.85rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#6b5744">&times;</button>
-    <h2 id="modal-title" style="font-size:1.2rem;font-weight:700;color:#2c1a0e;margin:0 0 1.25rem;padding-right:1.5rem">Review Your Order</h2>
-    <div id="modal-content"></div>
-    <div style="display:flex;flex-direction:column;gap:.65rem;margin-top:1.5rem">
-      <button id="modal-confirm" class="btn btn-gold btn-block">Confirm &amp; Go to Checkout</button>
-      <button id="modal-back" class="btn btn-outline-gold btn-block">Back to Builder</button>
-    </div>
-  </div>
-</div>
-
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
-      <!-- Brand -->
       <div class="footer-brand">
         <div class="footer-brand__row">
           <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo">
@@ -247,8 +129,6 @@
         </div>
         <p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p>
       </div>
-
-      <!-- Navigate -->
       <div>
         <h4 class="footer-col__title">Navigate</h4>
         <ul class="footer-nav">
@@ -259,8 +139,6 @@
           <li><a href="community.html">Community</a></li>
         </ul>
       </div>
-
-      <!-- Connect -->
       <div>
         <h4 class="footer-col__title">Connect</h4>
         <div class="footer-connect__icons">
@@ -282,7 +160,6 @@
         </a>
       </div>
     </div>
-
     <div class="footer-bottom">
       <p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
       <ul class="footer-bottom__links">
@@ -295,73 +172,6 @@
 </footer>
 
 <script src="assets/js/main.js?v=9"></script>
-<script>
-  // Preselect bundle from ?bundle= query param, and tailor the intro copy
-  (function () {
-    const params = new URLSearchParams(window.location.search);
-    const key = (params.get('bundle') || '').toLowerCase();
-
-    const INTRO = {
-      essentials: {
-        title: 'Build your Essentials gift',
-        body: 'A warm welcoming gift for a friend or newcomer. Pocket Bible plus hand-picked items starting at <strong>$2 per Bible</strong> — plus shipping and anything you customise below.',
-        contents: `
-          <p style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#8a6a3a;margin:0 0 .6rem;">What's inside</p>
-          <ul style="columns:2;column-gap:1.5rem;padding-left:1rem;margin:0;font-size:.9rem;line-height:1.7;color:var(--text);">
-            <li>Pocket Gideon New Testament</li>
-            <li>Mini notepad &amp; pencil</li>
-            <li>Highlighter &amp; sticky notes</li>
-            <li>3 ministry bookmarks</li>
-            <li>3 stickers (custom or random)</li>
-            <li>Keychain &amp; bracelet</li>
-            <li>Miniature Jesus figurine</li>
-            <li>QR card → "start a life group" guide</li>
-          </ul>`
-      },
-      lifegroup: {
-        title: 'Build a Life Group starter',
-        body: 'Equip up to five people in your circle. Every dollar above the <strong>$2-per-Bible</strong> cost pays forward the next bundle for someone who can\'t afford one. <em>Give as you feel led.</em>',
-        contents: `
-          <p style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#8a6a3a;margin:0 0 .6rem;">What's inside</p>
-          <ul style="padding-left:1rem;margin:0;font-size:.9rem;line-height:1.7;color:var(--text);">
-            <li><strong>Everything in Essentials</strong>, one per person</li>
-            <li>Up to 5 pocket Gideon New Testaments</li>
-            <li>Optional: swap any pocket Bible for a full Bible (+contribution)</li>
-            <li>Group leader guide (printed + QR to online tutorials)</li>
-          </ul>`
-      },
-      ministry: {
-        title: 'Share your story',
-        body: 'This one isn\'t a purchase. Tell us what God is stirring in you, and our team will reach out personally. Contribute toward ministry support below if you feel led.',
-        contents: `
-          <blockquote style="font-style:italic;color:var(--text);margin:0 0 .75rem;padding:.75rem 1rem;border-left:3px solid var(--gold);background:rgba(212,165,116,0.08);font-size:.9rem;line-height:1.55;">
-            "If anyone would come after me, let him deny himself and take up his cross and follow me."
-            <cite style="display:block;font-size:.78rem;font-style:normal;color:var(--muted);margin-top:.35rem;">— Matthew 16:24 KJV</cite>
-          </blockquote>
-          <p style="font-size:.9rem;line-height:1.65;color:var(--text);margin:0;"><strong>Seek God in His Word.</strong> Let the Holy Spirit lead. Fill out the form below with as much of your story as you'd like to share — we read and reply personally.</p>`
-      }
-    };
-
-    const intro = INTRO[key];
-    if (intro) {
-      const t = document.getElementById('builder-intro-title');
-      const b = document.getElementById('builder-intro-body');
-      const c = document.getElementById('builder-intro-contents');
-      if (t) t.textContent = intro.title;
-      if (b) b.innerHTML = intro.body;
-      if (c && intro.contents) {
-        c.innerHTML = intro.contents;
-        c.style.display = 'block';
-      }
-
-      const radio = document.querySelector(`input[name="bundle"][value="${key}"]`);
-      if (radio) {
-        radio.checked = true;
-        // Nudge existing builder logic if it listens for 'change'
-        radio.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    }
-  })();
-</script>
+<script src="assets/js/bundle-review.js?v=1"></script>
 </body>
 </html>

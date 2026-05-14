@@ -9127,3 +9127,524 @@ a.contact-card:hover .contact-card__cta span {
   white-space: nowrap;
 }
 .event-img-fallback__link:hover { background: rgba(0, 0, 0, 0.06); }
+
+
+/* ============================================================
+   Store Bundle Journey — store.html stepwise reveal
+   See .kiro/specs/store-bundle-journey/ for spec.
+   ============================================================ */
+
+#journey-root {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.journey-step {
+  position: relative;
+}
+
+/* Active step — full controls visible */
+.journey-step--active {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  padding: 1.75rem 1.85rem 2rem;
+}
+
+.journey-step__head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0 0 1.25rem;
+}
+
+.journey-step__num {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d4a574 0%, #f4c794 100%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.35);
+}
+
+.journey-step__title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.25;
+}
+.journey-step__title:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.journey-step__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.journey-step__body p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Reveal transition */
+.journey-step--entering {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.journey-step--active {
+  transition: opacity 280ms ease, transform 280ms ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Chip — collapsed prior step */
+.journey-step--chip {
+  padding: 0;
+}
+.journey-chip {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.1rem;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 165, 116, 0.35);
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.journey-chip:hover,
+.journey-chip:focus-visible {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--gold);
+  outline: none;
+  transform: translateY(-1px);
+}
+.journey-chip__num {
+  flex-shrink: 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d4a574 0%, #f4c794 100%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.journey-chip__label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.journey-chip__value {
+  flex: 1;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.journey-chip__edit {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Pickable cards (recipient, quantity, volume tier) */
+.journey-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.85rem;
+}
+.journey-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.1rem 1.2rem;
+  background: rgba(255, 255, 255, 0.65);
+  border: 2px solid rgba(212, 165, 116, 0.35);
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.journey-pick:hover,
+.journey-pick:focus-visible {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--gold);
+  outline: none;
+  transform: translateY(-2px);
+}
+.journey-pick--selected {
+  background: linear-gradient(135deg, rgba(44, 95, 46, 0.95) 0%, rgba(58, 125, 60, 0.95) 100%);
+  color: #fff;
+  border-color: var(--green);
+}
+.journey-pick--selected .journey-pick__sub {
+  color: rgba(255, 255, 255, 0.85);
+}
+.journey-pick__title {
+  font-weight: 800;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+.journey-pick__sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Toggle pills (personalization, items, add-ons) */
+.journey-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.journey-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(212, 165, 116, 0.35);
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: rgba(44, 95, 46, 0.15);
+}
+.journey-pill:hover,
+.journey-pill:focus-visible {
+  background: rgba(255, 255, 255, 1);
+  border-color: var(--gold);
+  outline: none;
+  transform: translateY(-1px);
+}
+.journey-pill--on {
+  background: linear-gradient(135deg, var(--green) 0%, #3a7d3c 100%);
+  color: #fff;
+  border-color: var(--green);
+}
+.journey-pill--on::before {
+  content: '✓';
+  font-weight: 800;
+}
+
+/* Inline text inputs inside steps */
+.journey-input,
+.journey-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border: 2px solid rgba(212, 165, 116, 0.35);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.journey-input:focus,
+.journey-textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.15);
+}
+.journey-textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+.journey-input--inline {
+  max-width: 220px;
+}
+
+.journey-field-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 600px) {
+  .journey-field-grid--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.journey-field-label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text);
+  margin: 0 0 0.4rem;
+}
+.journey-field-hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0.4rem 0 0;
+  line-height: 1.5;
+}
+
+/* Sub-section heading inside a step (e.g. "What's in the box" vs "Personal touches") */
+.journey-subhead {
+  margin: 0.5rem 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Inline notice / warning under controls */
+.journey-notice {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: rgba(212, 165, 116, 0.15);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.journey-notice--error {
+  background: rgba(192, 57, 43, 0.08);
+  border-left-color: var(--red);
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* Step actions row */
+.journey-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+.journey-actions .btn {
+  margin: 0;
+}
+.journey-skip {
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.4rem 0;
+}
+.journey-skip:hover,
+.journey-skip:focus-visible {
+  color: var(--green);
+  outline: none;
+}
+
+/* Review block (final step on store.html) */
+.journey-review {
+  background: linear-gradient(135deg, rgba(44, 95, 46, 0.06) 0%, rgba(212, 165, 116, 0.08) 100%);
+  border: 2px solid var(--gold);
+  border-radius: 18px;
+  padding: 2rem 2rem 2.25rem;
+}
+.journey-review__title {
+  margin: 0 0 1rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.journey-review__verse {
+  background: rgba(44, 95, 46, 0.08);
+  border-left: 3px solid var(--green);
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  margin: 0 0 1.2rem;
+  font-style: italic;
+  color: #2b2b2b;
+}
+.journey-review__verse cite {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-style: normal;
+  color: var(--green);
+}
+.journey-review__list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.journey-review__list dt {
+  font-weight: 700;
+  color: var(--muted);
+}
+.journey-review__list dd {
+  margin: 0;
+  color: var(--text);
+}
+.journey-review__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+/* Per-Bible names list (Life Group) */
+.journey-name-list {
+  display: grid;
+  gap: 0.6rem;
+}
+.journey-name-row {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.7rem;
+  align-items: center;
+}
+.journey-name-row__label {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .journey-step--active {
+    padding: 1.4rem 1.2rem 1.6rem;
+  }
+  .journey-step__title {
+    font-size: 1.2rem;
+  }
+  .journey-review {
+    padding: 1.5rem 1.3rem 1.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey-step--entering {
+    opacity: 1;
+    transform: none;
+  }
+  .journey-step--active {
+    transition: none;
+  }
+}
+
+/* Builder-page review layout (handoff page) */
+.review-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .review-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.review-card,
+.review-form-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 18px;
+  padding: 1.85rem 1.85rem 2rem;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+}
+.review-card h2,
+.review-form-card h2 {
+  margin: 0 0 1rem;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+.review-form-card .form-row {
+  margin-bottom: 1rem;
+}
+.review-form-card label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin: 0 0 0.4rem;
+}
+.review-form-card input,
+.review-form-card textarea {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  background: #fff;
+  border: 2px solid rgba(212, 165, 116, 0.4);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.95rem;
+}
+.review-form-card input:focus,
+.review-form-card textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.15);
+}
+.review-form-card textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+.review-back {
+  margin-top: 1rem;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--green);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.review-thanks {
+  text-align: center;
+  padding: 1rem 0;
+}
+.review-thanks h3 {
+  font-size: 1.3rem;
+  color: var(--green);
+  margin: 0 0 0.75rem;
+}
+.review-error-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+.review-error-state h2 {
+  margin: 0 0 0.85rem;
+}

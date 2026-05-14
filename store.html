@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Love. Gift. Repeat — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=4">
+  <link rel="stylesheet" href="assets/css/main.css?v=5">
 </head>
 <body>
 
@@ -92,9 +92,9 @@
             warmly packed, hand-signed, ready to spark a study anywhere.
           </p>
           <p class="bundle-card-v2__price">From <strong>$2</strong> per Bible · + shipping &amp; items</p>
-          <a href="bundle-builder.html?bundle=essentials" class="bundle-card-v2__see-more">
-            See More <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
-          </a>
+          <button type="button" class="bundle-card-v2__see-more" data-bundle-pick="essentials">
+            Start customizing <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
+          </button>
         </div>
       </article>
 
@@ -110,9 +110,9 @@
             optional full-size upgrades — every dollar above cost funds the next bundle.
           </p>
           <p class="bundle-card-v2__price">From <strong>$2</strong> per Bible · up to 5 Bibles</p>
-          <a href="bundle-builder.html?bundle=lifegroup" class="bundle-card-v2__see-more">
-            See More <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
-          </a>
+          <button type="button" class="bundle-card-v2__see-more" data-bundle-pick="lifegroup">
+            Build your group set <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
+          </button>
         </div>
       </article>
 
@@ -130,13 +130,15 @@
             This one isn't a product. It's a posture. If the Spirit is stirring you
             to go further, tell us your story — we'll walk with you.
           </p>
-          <a href="bundle-builder.html?bundle=ministry" class="bundle-card-v2__see-more">
-            See More <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
-          </a>
+          <button type="button" class="bundle-card-v2__see-more" data-bundle-pick="ministry">
+            Tell us your story <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
+          </button>
         </div>
       </article>
 
     </div>
+
+    <div id="journey-root" aria-live="polite"></div>
   </div>
 </section>
 
@@ -235,5 +237,6 @@
 
 <script src="assets/js/main.js?v=9"></script>
 <script src="assets/js/bundle-slideshow.js?v=1"></script>
+<script src="assets/js/bundle-journey.js?v=1"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Help — Seed the Word</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=4">
+  <link rel="stylesheet" href="assets/css/main.css?v=5">
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
   <style>
     /* ============================================================
@@ -2009,11 +2009,11 @@
   <ol>
     <li>Sign in to <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> as <code>seedthewordministry@gmail.com</code>.</li>
     <li>Click <strong>+ New project</strong>. Rename it to <em>STW Order Handler</em> (top left, click the title).</li>
-    <li>In another tab, open <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new</a>. Rename the spreadsheet to <em>STW Order Ledger</em>. Rename the first tab from <code>Sheet1</code> to <code>Orders</code> (right-click the tab → Rename).</li>
-    <li>Copy the long string from that Sheet's URL between <code>/d/</code> and <code>/edit</code>. That's your <strong>LEDGER_SHEET_ID</strong>.</li>
+    <li>In another tab, open <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new</a>. Rename the spreadsheet to <em>STW Order Ledger</em>. Rename the first tab from <code>Sheet1</code> to <code>Orders</code> (right-click the tab → Rename). <em>(Already done — the existing Sheet ID is baked into <code>order-handler.gs</code>.)</em></li>
+    <li><em>(Skipped — Sheet ID is already in the source.)</em></li>
     <li>Open the repo file <code>docs/apps-script/order-handler.gs</code> in another tab. Copy its full contents.</li>
     <li>Back in the Apps Script editor's <code>Code.gs</code>, select all (<kbd>Ctrl/Cmd+A</kbd>) and paste over.</li>
-    <li>Find the line <code>const LEDGER_SHEET_ID = 'REPLACE_ME_WITH_THE_SHEET_ID';</code> and replace the placeholder with the ID from step 4.</li>
+    <li><em>(Skipped — no placeholder to replace; <code>LEDGER_SHEET_ID</code> is already populated.)</em></li>
     <li>Click <strong>Save</strong> (disk icon, top toolbar). Then click <strong>Deploy</strong> → <strong>New deployment</strong>. Set <strong>Type</strong> = <em>Web app</em>. Set <strong>Description</strong> = <em>v1</em>. Set <strong>Execute as</strong> = <em>Me (seedthewordministry@gmail.com)</em>. Set <strong>Who has access</strong> = <em>Anyone</em>. Click <strong>Deploy</strong>.</li>
     <li>Authorize when prompted — Google will ask for permission to access Sheets and send Gmail. Click <strong>Allow</strong>. (You may see an "unverified app" warning — click <em>Advanced</em> → <em>Go to STW Order Handler (unsafe)</em>. This is expected for personal scripts.)</li>
     <li>Copy the <strong>Web app URL</strong> at the end of the dialog (starts with <code>https://script.google.com/macros/s/…/exec</code>).</li>

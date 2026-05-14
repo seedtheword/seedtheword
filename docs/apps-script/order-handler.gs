@@ -16,13 +16,13 @@
  *   2. Click + New project, rename to "STW Order Handler".
  *   3. Open sheets.new in another tab. Name the new sheet
  *      "STW Order Ledger". Rename its first tab to "Orders".
- *      Copy the long string from the URL between /d/ and /edit —
- *      that is your LEDGER_SHEET_ID below.
+ *      The Sheet ID is already populated in LEDGER_SHEET_ID below;
+ *      you only need to do step 3 if you create a fresh Sheet.
+ *   4. (skip — Sheet ID is already filled in)
  *   4. Open this file (docs/apps-script/order-handler.gs) and copy
  *      its full contents.
  *   5. In the Apps Script editor, select all in Code.gs and paste over.
- *   6. Replace the LEDGER_SHEET_ID placeholder below with the ID
- *      from step 3.
+ *   6. (skip — LEDGER_SHEET_ID is already populated)
  *   7. Save (disk icon), then click Deploy → New deployment → Web app.
  *      Set Description = "v1", Execute as = "Me",
  *      Who has access = "Anyone". Click Deploy.
@@ -34,8 +34,8 @@
  * sends as the script owner via Google's session.
  */
 
-// ── CONFIG (REPLACE these values during deployment) ─────────────
-const LEDGER_SHEET_ID = 'REPLACE_ME_WITH_THE_SHEET_ID';
+// ── CONFIG ──────────────────────────────────────────────────────
+const LEDGER_SHEET_ID = '17j5TDDTZ-58MuZ7VO7c1ohPkyHw2LZ2GCWYMFb-CJ50';
 const TEAM_INBOX = 'seedthewordministry@gmail.com';
 const LEDGER_TAB = 'Orders';
 

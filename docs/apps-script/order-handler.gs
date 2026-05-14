@@ -38,6 +38,8 @@
 const LEDGER_SHEET_ID = '17j5TDDTZ-58MuZ7VO7c1ohPkyHw2LZ2GCWYMFb-CJ50';
 const TEAM_INBOX = 'seedthewordministry@gmail.com';
 const LEDGER_TAB = 'Orders';
+const CONTACT_TAB = 'Contact';
+const STORIES_TAB = 'Stories';
 
 // ── Display labels for human-readable emails / Sheet rows ───────
 const BUNDLE_DISPLAY = {
@@ -52,6 +54,14 @@ const LEDGER_HEADERS = [
   'delivery_details', 'dedication',
   'giftee_opt_in', 'giftee_name', 'giftee_email',
   'configuration', 'emails_sent', 'route',
+];
+
+const CONTACT_HEADERS = [
+  'received_at', 'name', 'email', 'subject', 'message', 'route',
+];
+
+const STORIES_HEADERS = [
+  'received_at', 'name', 'email', 'consent_to_publish', 'story', 'media_url', 'route',
 ];
 
 // ── Entry point ──────────────────────────────────────────────────
@@ -69,9 +79,20 @@ function doPost(e) {
   // moves on; we never see the spam.
   if (payload && payload._gotcha) {
     console.log('Honeypot triggered for payload:', JSON.stringify(payload).slice(0, 200));
-    return jsonResponse({ ok: true, orderId: 'ignored', emailsSent: 0, route: 'honeypot' });
+    return jsonResponse({ ok: true, route: 'honeypot' });
   }
 
+  // Route on `type` discriminator. Default is 'order' for backward-
+  // compat with bundle-builder.html submissions that pre-date the
+  // multi-form support.
+  const type = (payload && payload.type) || 'order';
+  if (type === 'contact') return handleContact(payload);
+  if (type === 'story')   return handleStory(payload);
+  return handleOrder(payload);
+}
+
+// ── Order handler (existing flow, unchanged) ────────────────────
+function handleOrder(payload) {
   const valid = validatePayload(payload);
   if (!valid.ok) {
     console.log('Validation failed:', valid.reason);
@@ -154,29 +175,40 @@ function validatePayload(p) {
 }
 
 // ── Sheet helpers ────────────────────────────────────────────────
-function openLedger() {
+function openTab(tabName, headers) {
   const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
-  let sheet = ss.getSheetByName(LEDGER_TAB);
+  let sheet = ss.getSheetByName(tabName);
   if (!sheet) {
-    sheet = ss.insertSheet(LEDGER_TAB);
+    sheet = ss.insertSheet(tabName);
   }
+  ensureHeadersFor(sheet, headers);
   return sheet;
 }
 
-function ensureHeaderRow(sheet) {
+function openLedger() {
+  // Backward-compat helper for the order handler.
+  return openTab(LEDGER_TAB, LEDGER_HEADERS);
+}
+
+function ensureHeadersFor(sheet, headers) {
   if (sheet.getLastRow() === 0) {
-    sheet.appendRow(LEDGER_HEADERS);
+    sheet.appendRow(headers);
     return;
   }
-  const range = sheet.getRange(1, 1, 1, LEDGER_HEADERS.length);
+  const range = sheet.getRange(1, 1, 1, headers.length);
   const current = range.getValues()[0];
   let mismatch = false;
-  for (let i = 0; i < LEDGER_HEADERS.length; i++) {
-    if (current[i] !== LEDGER_HEADERS[i]) { mismatch = true; break; }
+  for (let i = 0; i < headers.length; i++) {
+    if (current[i] !== headers[i]) { mismatch = true; break; }
   }
   if (mismatch) {
-    range.setValues([LEDGER_HEADERS]);
+    range.setValues([headers]);
   }
+}
+
+function ensureHeaderRow(sheet) {
+  // Backward-compat alias for the order flow.
+  ensureHeadersFor(sheet, LEDGER_HEADERS);
 }
 
 function nextOrderId(sheet) {
@@ -565,6 +597,295 @@ function buildGifteeEmail(p, orderId) {
     html: html,
     replyTo: TEAM_INBOX,
   };
+}
+
+// ── Contact form handler ─────────────────────────────────────────
+function handleContact(payload) {
+  const v = validateContactPayload(payload);
+  if (!v.ok) {
+    console.log('Contact validation failed:', v.reason);
+    return jsonResponse({ ok: false, error: 'invalid-payload' });
+  }
+
+  const name    = String(payload.name || '').trim();
+  const email   = String(payload.email || '').trim();
+  const subject = String(payload.subject || '').trim();
+  const message = String(payload.message || '').trim();
+
+  try {
+    const sheet = openTab(CONTACT_TAB, CONTACT_HEADERS);
+    sheet.appendRow([
+      new Date(), name, email, subject || '(none)', message, 'apps-script',
+    ]);
+  } catch (err) {
+    console.log('Contact sheet append failed:', err);
+    return jsonResponse({ ok: false, error: 'sheet-write-failed' });
+  }
+
+  try {
+    const teamMail = buildContactTeamEmail({ name, email, subject, message });
+    MailApp.sendEmail({
+      to: teamMail.to,
+      subject: teamMail.subject,
+      body: teamMail.body,
+      htmlBody: teamMail.html,
+      replyTo: teamMail.replyTo,
+      name: 'STW Contact Bot',
+    });
+  } catch (err) {
+    console.log('Contact mail failed:', err);
+    return jsonResponse({ ok: false, error: 'mail-send-failed' });
+  }
+
+  return jsonResponse({ ok: true, emailsSent: 1, route: 'apps-script' });
+}
+
+function validateContactPayload(p) {
+  if (!p || typeof p !== 'object') return { ok: false, reason: 'not-object' };
+  if (typeof p.name !== 'string' || !p.name.trim()) return { ok: false, reason: 'no-name' };
+  if (typeof p.email !== 'string' || p.email.indexOf('@') === -1) return { ok: false, reason: 'bad-email' };
+  if (typeof p.message !== 'string' || !p.message.trim()) return { ok: false, reason: 'no-message' };
+  return { ok: true };
+}
+
+function buildContactTeamEmail(c) {
+  const subjectLabel = c.subject || 'General contact';
+  let body = '';
+  body += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px;">' +
+    '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">Contact</span>' +
+    '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">' + escapeHtml(subjectLabel) + '</span>' +
+    '<span style="display:inline-block;background:#f4ece0;color:' + STW_TEXT + ';padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;">' + escapeHtml(new Date().toISOString()) + '</span>' +
+  '</div>';
+
+  body += emailSection('From',
+    emailKeyValueRow([
+      { label: 'Name',    value: '<strong>' + escapeHtml(c.name) + '</strong>' },
+      { label: 'Email',   value: '<a href="mailto:' + escapeHtml(c.email) + '" style="color:' + STW_GREEN + ';">' + escapeHtml(c.email) + '</a>' },
+      { label: 'Subject', value: c.subject ? escapeHtml(c.subject) : '<span style="color:' + STW_MUTED + ';">(none)</span>' },
+    ]),
+    { accent: STW_GREEN });
+
+  body += emailSection('💬 Message',
+    '<div style="white-space:pre-wrap;font-size:14.5px;line-height:1.65;">' + escapeHtml(c.message) + '</div>',
+    { accent: STW_GOLD });
+
+  body += '<p style="margin:18px 0 0;font-size:12.5px;color:' + STW_MUTED + ';font-style:italic;">' +
+    'Reply to this email goes directly to the sender. Logged to the Contact tab in the spreadsheet.' +
+  '</p>';
+
+  // Plain-text body
+  const plainLines = [
+    'New contact-form submission.',
+    '',
+    'From:    ' + c.name + ' <' + c.email + '>',
+    'Subject: ' + (c.subject || '(none)'),
+    'Sent:    ' + new Date().toISOString(),
+    '',
+    'Message',
+    '─────────',
+    c.message,
+    '',
+    '— Logged to the Contact tab.',
+  ];
+
+  const html = emailShell({
+    headerEmoji: '✉️',
+    headerTitle: 'New contact form message',
+    headerSubtitle: 'From ' + c.name + (c.subject ? ' · ' + c.subject : ''),
+    bodyHtml: body,
+    footerHtml: 'Reply directly — this email\'s Reply-To is the sender.',
+    accentColor: STW_GREEN,
+  });
+
+  return {
+    to: TEAM_INBOX,
+    subject: '[STW Contact] ' + subjectLabel + ' — ' + c.name,
+    body: plainLines.join('\n'),
+    html: html,
+    replyTo: c.email,
+  };
+}
+
+// ── Story handler (POST path — used if the site posts directly) ──
+// Note: the Share-Your-Story modal currently iframes a Google Form.
+// For that path we use the onFormSubmit trigger below. This handler
+// is kept for future direct-POST use.
+function handleStory(payload) {
+  const v = validateStoryPayload(payload);
+  if (!v.ok) {
+    console.log('Story validation failed:', v.reason);
+    return jsonResponse({ ok: false, error: 'invalid-payload' });
+  }
+  const name      = String(payload.name || '').trim();
+  const email     = String(payload.email || '').trim();
+  const story     = String(payload.story || '').trim();
+  const consent   = !!payload.consentToPublish;
+  const mediaUrl  = String(payload.mediaUrl || '').trim();
+
+  try {
+    const sheet = openTab(STORIES_TAB, STORIES_HEADERS);
+    sheet.appendRow([
+      new Date(), name, email, consent ? 'yes' : 'no', story, mediaUrl, 'apps-script',
+    ]);
+  } catch (err) {
+    console.log('Story sheet append failed:', err);
+    return jsonResponse({ ok: false, error: 'sheet-write-failed' });
+  }
+
+  try {
+    const teamMail = buildStoryTeamEmail({ name, email, story, consent, mediaUrl });
+    MailApp.sendEmail({
+      to: teamMail.to,
+      subject: teamMail.subject,
+      body: teamMail.body,
+      htmlBody: teamMail.html,
+      replyTo: teamMail.replyTo,
+      name: 'STW Story Bot',
+    });
+  } catch (err) {
+    console.log('Story mail failed:', err);
+    return jsonResponse({ ok: false, error: 'mail-send-failed' });
+  }
+
+  return jsonResponse({ ok: true, emailsSent: 1, route: 'apps-script' });
+}
+
+function validateStoryPayload(p) {
+  if (!p || typeof p !== 'object') return { ok: false, reason: 'not-object' };
+  if (typeof p.name !== 'string' || !p.name.trim()) return { ok: false, reason: 'no-name' };
+  if (typeof p.email !== 'string' || p.email.indexOf('@') === -1) return { ok: false, reason: 'bad-email' };
+  if (typeof p.story !== 'string' || !p.story.trim()) return { ok: false, reason: 'no-story' };
+  return { ok: true };
+}
+
+function buildStoryTeamEmail(s) {
+  let body = '';
+  body += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px;">' +
+    '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">Story submission</span>' +
+    '<span style="display:inline-block;background:' + (s.consent ? STW_GOLD : '#999') + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">' + (s.consent ? '✓ Consent to publish' : 'Private — do not publish') + '</span>' +
+    '<span style="display:inline-block;background:#f4ece0;color:' + STW_TEXT + ';padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;">' + escapeHtml(new Date().toISOString()) + '</span>' +
+  '</div>';
+
+  body += emailSection('From',
+    emailKeyValueRow([
+      { label: 'Name',  value: '<strong>' + escapeHtml(s.name) + '</strong>' },
+      { label: 'Email', value: '<a href="mailto:' + escapeHtml(s.email) + '" style="color:' + STW_GREEN + ';">' + escapeHtml(s.email) + '</a>' },
+    ]),
+    { accent: STW_GREEN });
+
+  body += emailSection('📖 Their story',
+    '<div style="white-space:pre-wrap;font-size:14.5px;line-height:1.65;">' + escapeHtml(s.story) + '</div>',
+    { accent: STW_GOLD });
+
+  if (s.mediaUrl) {
+    body += emailSection('🎞 Media',
+      '<a href="' + escapeHtml(s.mediaUrl) + '" style="color:' + STW_GREEN + ';">' + escapeHtml(s.mediaUrl) + '</a>',
+      { accent: STW_GOLD });
+  }
+
+  body += '<p style="margin:18px 0 0;font-size:12.5px;color:' + STW_MUTED + ';font-style:italic;">' +
+    'Logged to the Stories tab in the spreadsheet.' +
+  '</p>';
+
+  const plainLines = [
+    'New story submission.',
+    '',
+    'From:    ' + s.name + ' <' + s.email + '>',
+    'Consent: ' + (s.consent ? 'yes — OK to publish' : 'no — keep private'),
+    'Sent:    ' + new Date().toISOString(),
+    '',
+    'Story',
+    '─────────',
+    s.story,
+    '',
+  ];
+  if (s.mediaUrl) {
+    plainLines.push('Media: ' + s.mediaUrl);
+    plainLines.push('');
+  }
+  plainLines.push('— Logged to the Stories tab.');
+
+  const html = emailShell({
+    headerEmoji: '📖',
+    headerTitle: 'New story shared with the ministry',
+    headerSubtitle: 'From ' + s.name + (s.consent ? ' · OK to publish' : ' · private'),
+    bodyHtml: body,
+    footerHtml: 'Reply directly — this email\'s Reply-To is the sender.',
+    accentColor: STW_GREEN,
+  });
+
+  return {
+    to: TEAM_INBOX,
+    subject: '[STW Story] ' + s.name + (s.consent ? ' (publish OK)' : ' (private)'),
+    body: plainLines.join('\n'),
+    html: html,
+    replyTo: s.email,
+  };
+}
+
+// ── Google Form trigger (Share Your Story) ──────────────────────
+// Wire this up via Apps Script editor → ⏰ Triggers → + Add Trigger:
+//   Function: onStoryFormSubmit
+//   Event source: From spreadsheet
+//   Event type: On form submit
+// This fires every time someone submits the linked Google Form.
+//
+// The trigger event passes `e.namedValues` keyed by question text.
+// Because the question text is configurable in the Form, we look up
+// fields by best-effort label matching (case-insensitive substring).
+function onStoryFormSubmit(e) {
+  if (!e || !e.namedValues) {
+    console.log('Form trigger fired without namedValues; aborting.');
+    return;
+  }
+
+  const get = function (labelMatch) {
+    const keys = Object.keys(e.namedValues);
+    const want = labelMatch.toLowerCase();
+    for (let i = 0; i < keys.length; i++) {
+      if (keys[i].toLowerCase().indexOf(want) !== -1) {
+        const v = e.namedValues[keys[i]];
+        return Array.isArray(v) ? v.join(', ').trim() : String(v || '').trim();
+      }
+    }
+    return '';
+  };
+
+  const name     = get('name');
+  const email    = get('email');
+  const story    = get('story') || get('share') || get('message');
+  const consent  = (get('consent') || get('publish') || get('share')).toLowerCase().indexOf('yes') !== -1;
+  const mediaUrl = get('media') || get('photo') || get('video') || get('upload');
+
+  if (!name || !email || !story) {
+    console.log('Form trigger missing required fields; namedValues:', JSON.stringify(e.namedValues));
+    return;
+  }
+
+  // Append to our Stories tab so admins have a unified view.
+  try {
+    const sheet = openTab(STORIES_TAB, STORIES_HEADERS);
+    sheet.appendRow([
+      new Date(), name, email, consent ? 'yes' : 'no', story, mediaUrl, 'google-form',
+    ]);
+  } catch (err) {
+    console.log('Story trigger sheet append failed:', err);
+  }
+
+  // Send the team the styled HTML email.
+  try {
+    const teamMail = buildStoryTeamEmail({ name, email, story, consent, mediaUrl });
+    MailApp.sendEmail({
+      to: teamMail.to,
+      subject: teamMail.subject,
+      body: teamMail.body,
+      htmlBody: teamMail.html,
+      replyTo: teamMail.replyTo,
+      name: 'STW Story Bot',
+    });
+  } catch (err) {
+    console.log('Story trigger mail failed:', err);
+  }
 }
 
 // ── HTTP response helper ────────────────────────────────────────

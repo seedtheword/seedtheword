@@ -205,15 +205,33 @@ document.querySelectorAll('.testimony-card__more').forEach(btn => {
   });
 });
 
-// ── Contact form (Formspree-backed) ─────────────────────────
+// ── Contact form (Apps Script primary, Formspree fallback) ────
 const contactForm = document.getElementById('contact-form');
 if (contactForm) {
+  // Cache the site config (orderHandlerUrl is reused for the contact form too).
+  let _siteConfigPromise = null;
+  function loadContactSiteConfig() {
+    if (!_siteConfigPromise) {
+      _siteConfigPromise = fetch('assets/data/site-config.json?v=1', { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : { orderHandlerUrl: '' })
+        .catch(() => ({ orderHandlerUrl: '' }));
+    }
+    return _siteConfigPromise;
+  }
+
+  function isUsableHandlerUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    if (!/^https:\/\//i.test(url)) return false;
+    return /script\.google\.com\/macros\//i.test(url) || /googleusercontent\.com\//i.test(url);
+  }
+
   contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const name  = contactForm.querySelector('[name="name"]').value.trim();
-    const email = contactForm.querySelector('[name="email"]').value.trim();
-    const msg   = contactForm.querySelector('[name="message"]').value.trim();
+    const name    = contactForm.querySelector('[name="name"]').value.trim();
+    const email   = contactForm.querySelector('[name="email"]').value.trim();
+    const subject = (contactForm.querySelector('[name="subject"]')?.value || '').trim();
+    const msg     = contactForm.querySelector('[name="message"]').value.trim();
     const errEl = document.getElementById('contact-errors');
     const successEl = document.getElementById('contact-success');
     const submitBtn = contactForm.querySelector('button[type="submit"]');
@@ -232,30 +250,56 @@ if (contactForm) {
     }
     if (errEl) errEl.style.display = 'none';
 
-    // Check the endpoint is actually configured
-    const endpoint = contactForm.getAttribute('action') || '';
-    if (endpoint.includes('YOUR_FORMSPREE_ENDPOINT') || !endpoint) {
-      if (errEl) {
-        errEl.style.display = 'block';
-        errEl.textContent = "Email isn't set up yet. Please reach us on Telegram or Instagram in the meantime.";
-      }
-      return;
-    }
-
-    // Submit via fetch to Formspree
     const originalLabel = submitBtn ? submitBtn.textContent : '';
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending…';
     }
 
+    const cfg = await loadContactSiteConfig();
+    const handlerUrl = cfg && cfg.orderHandlerUrl;
+
+    // Path A: Apps Script (preferred)
+    if (isUsableHandlerUrl(handlerUrl)) {
+      try {
+        const res = await fetch(handlerUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            type: 'contact',
+            name, email, subject, message: msg,
+            source: 'about-contact',
+            submittedAt: new Date().toISOString(),
+          }),
+        });
+        if (!res.ok) throw new Error('http ' + res.status);
+        const json = await res.json();
+        if (!json || json.ok !== true) throw new Error(json && json.error || 'unknown');
+        contactForm.style.display = 'none';
+        if (successEl) successEl.style.display = 'block';
+        return;
+      } catch (err) {
+        // fall through to Formspree
+        console.log('Apps Script contact path failed, falling back:', err);
+      }
+    }
+
+    // Path B: Formspree fallback
+    const endpoint = contactForm.getAttribute('action') || '';
+    if (!endpoint || endpoint.includes('YOUR_FORMSPREE_ENDPOINT')) {
+      if (errEl) {
+        errEl.style.display = 'block';
+        errEl.textContent = "Couldn't reach our inbox right now. Please try again, or reach us on Telegram or Instagram.";
+      }
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalLabel; }
+      return;
+    }
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { Accept: 'application/json' },
         body: new FormData(contactForm),
       });
-
       if (res.ok) {
         contactForm.style.display = 'none';
         if (successEl) successEl.style.display = 'block';

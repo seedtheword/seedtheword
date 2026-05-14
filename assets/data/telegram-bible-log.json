@@ -1,4 +1,12 @@
 {
   "_help": "Idempotency log written by the Bible bot to prevent duplicate posts on the same local date. The bot reads/writes this on every run.",
-  "posts": []
+  "posts": [
+    {
+      "date": "2026-05-14",
+      "kind": "weekday",
+      "ok": true,
+      "detail": "weekday-reading (manual catch-up — log seeded after first successful post failed to commit due to workflow rebase issue)",
+      "at": "2026-05-14T17:30:00+00:00"
+    }
+  ]
 }

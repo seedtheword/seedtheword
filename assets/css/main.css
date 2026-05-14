@@ -1165,7 +1165,128 @@ ul { margin: 0; padding: 0; list-style: none; }
   box-shadow: 0 4px 12px rgba(44, 95, 46, 0.2);
 }
 
-/* ── Step cards ── */
+/* ── How We S.E.E.D. accordion (about.html) ── */
+.seed-accordion {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.seed-accordion__item {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(44, 95, 46, 0.15);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(31, 38, 135, 0.1);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.seed-accordion__item[open] {
+  box-shadow: 0 8px 28px rgba(31, 38, 135, 0.18);
+  border-color: rgba(44, 95, 46, 0.4);
+}
+.seed-accordion__summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.1rem 1.2rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  -webkit-tap-highlight-color: rgba(44, 95, 46, 0.15);
+  user-select: none;
+}
+.seed-accordion__summary::-webkit-details-marker { display: none; }
+.seed-accordion__summary::marker { content: ''; }
+.seed-accordion__summary:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: -3px;
+}
+.seed-accordion__icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.seed-accordion__title {
+  flex: 1;
+  line-height: 1.35;
+}
+.seed-accordion__plus {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+.seed-accordion__item[open] .seed-accordion__plus {
+  transform: rotate(45deg);
+  background: #3a7d3c;
+}
+.seed-accordion__body {
+  padding: 1.1rem 1.2rem 1.3rem 1.2rem;
+  color: #3a3a3a;
+  font-size: 1rem;
+  line-height: 1.7;
+  border-top: 1px solid rgba(44, 95, 46, 0.12);
+}
+.seed-accordion__body p,
+.seed-accordion__body ul,
+.seed-accordion__body blockquote {
+  text-align: left;
+  margin: 0 0 0.9rem;
+}
+.seed-accordion__body ul {
+  list-style: disc;
+  padding-left: 1.4rem;
+}
+.seed-accordion__body ul li { margin-bottom: 0.35rem; }
+.seed-accordion__body .btn {
+  margin-top: 0.4rem;
+}
+.seed-accordion__quote {
+  background: rgba(44, 95, 46, 0.08);
+  border-left: 3px solid var(--green);
+  padding: 0.85rem 1.1rem;
+  border-radius: 6px;
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.seed-accordion__quote p {
+  margin: 0 0 0.4rem;
+  color: #2b2b2b;
+}
+.seed-accordion__quote cite {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--green);
+  font-style: normal;
+}
+@media (max-width: 480px) {
+  .seed-accordion__summary {
+    padding: 0.95rem 1rem;
+    font-size: 1rem;
+    gap: 0.7rem;
+  }
+  .seed-accordion__icon { font-size: 1.3rem; }
+  .seed-accordion__plus { width: 32px; height: 32px; font-size: 1.25rem; }
+  .seed-accordion__body {
+    padding: 1rem 1rem 1.15rem 1rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* ── Step cards (legacy — kept for any other page that might use them) ── */
 .steps { display: flex; gap: 2.5rem; justify-content: center; flex-wrap: wrap; }
 .step {
   flex: 1 1 280px; max-width: 360px;

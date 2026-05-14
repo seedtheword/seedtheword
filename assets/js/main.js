@@ -1067,50 +1067,5 @@ if (document.readyState === 'loading') {
 })();
 
 
-// ── "See more" collapse for How We S.E.E.D. cards ────────────
-// Single source of truth. Wraps each .step__desc in a clamp container
-// and appends a green-pill toggle. The clamp itself is mobile-only via
-// CSS (@media max-width 768px) — on desktop the content shows in full
-// and the toggle stays hidden. Idempotent; safe to call twice.
-(function () {
-  function wireStep(step) {
-    var desc = step.querySelector(':scope > .step__desc');
-    if (!desc) return;
-    if (step.dataset.stepCollapsible === '1') return;
-    step.dataset.stepCollapsible = '1';
-
-    // Wrap the desc's children in a clampable container.
-    var wrap = document.createElement('div');
-    wrap.className = 'step__desc--clampable';
-    while (desc.firstChild) wrap.appendChild(desc.firstChild);
-    desc.appendChild(wrap);
-
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'step__toggle';
-    btn.setAttribute('aria-expanded', 'false');
-    btn.innerHTML = '<span class="step__toggle-label">See more</span>' +
-                    '<span class="step__toggle-chev" aria-hidden="true">▾</span>';
-    desc.insertAdjacentElement('afterend', btn);
-
-    btn.addEventListener('click', function () {
-      var nowOpen = !step.classList.contains('is-step-open');
-      step.classList.toggle('is-step-open', nowOpen);
-      btn.setAttribute('aria-expanded', String(nowOpen));
-      btn.querySelector('.step__toggle-label').textContent = nowOpen ? 'See less' : 'See more';
-      btn.querySelector('.step__toggle-chev').textContent = nowOpen ? '▴' : '▾';
-    });
-  }
-
-  function init() {
-    var steps = document.querySelectorAll('.steps > .step');
-    if (!steps.length) return;
-    steps.forEach(wireStep);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
+// ── How We S.E.E.D. accordion ────────────────────────────────
+// Uses native <details>/<summary> on about.html — no JS required.

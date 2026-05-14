@@ -1247,40 +1247,14 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 /* ── "See more" collapse for long step cards ──
-   Single source of truth for the How We S.E.E.D. cards on about.html.
-   main.js wraps each .step__desc in a .step__desc--clampable, measures
-   overflow, and only injects a .step__toggle when content overflows. */
+   Single source of truth. main.js wraps each .step__desc in a
+   .step__desc--clampable and appends a .step__toggle. The clamp is
+   mobile-only — desktop shows full content and hides the toggle. */
 .step__desc--clampable {
-  max-height: 11rem;
-  overflow: hidden;
   position: relative;
 }
-.step__desc--clampable::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 3rem;
-  pointer-events: none;
-  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 100%);
-}
-.step.is-step-open {
-  overflow: visible;
-}
-.step.is-step-open .step__desc--clampable {
-  max-height: none;
-}
-.step.is-step-open .step__desc--clampable::after {
-  display: none;
-}
-/* Cards whose content already fits get no clamp and no fade. */
-.step.is-step-fits .step__desc--clampable {
-  max-height: none;
-}
-.step.is-step-fits .step__desc--clampable::after {
-  display: none;
-}
 .step__toggle {
-  display: inline-flex;
+  display: none; /* shown on mobile only via media query below */
   align-items: center;
   gap: 0.4rem;
   margin-top: 0.85rem;
@@ -1309,6 +1283,33 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: inline-block;
   font-size: 0.9em;
   line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .step__desc--clampable {
+    max-height: 11rem;
+    overflow: hidden;
+  }
+  .step__desc--clampable::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 3.5rem;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.98) 100%);
+  }
+  .step.is-step-open {
+    overflow: visible;
+  }
+  .step.is-step-open .step__desc--clampable {
+    max-height: none;
+  }
+  .step.is-step-open .step__desc--clampable::after {
+    display: none;
+  }
+  .step__toggle {
+    display: inline-flex;
+  }
 }
 
 /* Tighter padding on narrow phones so content has room to breathe.

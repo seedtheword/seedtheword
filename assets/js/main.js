@@ -1068,48 +1068,22 @@ if (document.readyState === 'loading') {
 
 
 // ── "See more" collapse for How We S.E.E.D. cards ────────────
-// Single source of truth. Wraps each .step__desc in a clamp container,
-// measures whether it overflows, and only then injects a green-pill
-// "See more ▾" toggle. Idempotent; safe to call twice.
+// Single source of truth. Wraps each .step__desc in a clamp container
+// and appends a green-pill toggle. The clamp itself is mobile-only via
+// CSS (@media max-width 768px) — on desktop the content shows in full
+// and the toggle stays hidden. Idempotent; safe to call twice.
 (function () {
-  var CLAMP_PX = 11 * 16;        // matches max-height: 11rem in main.css
-  var TOLERANCE = 2;             // sub-pixel rounding slack
-  var debounceTimer = null;
-
-  function syncStep(step) {
+  function wireStep(step) {
     var desc = step.querySelector(':scope > .step__desc');
     if (!desc) return;
+    if (step.dataset.stepCollapsible === '1') return;
+    step.dataset.stepCollapsible = '1';
 
-    // Wrap the desc's children in a clampable container the first time we see it.
-    var wrap = desc.querySelector(':scope > .step__desc--clampable');
-    if (!wrap) {
-      wrap = document.createElement('div');
-      wrap.className = 'step__desc--clampable';
-      while (desc.firstChild) wrap.appendChild(desc.firstChild);
-      desc.appendChild(wrap);
-    }
-
-    // Measure unclamped height to decide whether a toggle is needed.
-    var prevMaxHeight = wrap.style.maxHeight;
-    wrap.style.maxHeight = 'none';
-    var natural = wrap.scrollHeight;
-    wrap.style.maxHeight = prevMaxHeight;
-
-    var existingBtn = step.querySelector(':scope > .step__toggle');
-    var needsToggle = natural > CLAMP_PX + TOLERANCE;
-
-    if (!needsToggle) {
-      // Short content: remove any toggle / open state and let the wrapper
-      // grow to its natural size (no clamp visible).
-      if (existingBtn) existingBtn.remove();
-      step.classList.remove('is-step-open');
-      step.classList.add('is-step-fits');
-      return;
-    }
-
-    step.classList.remove('is-step-fits');
-
-    if (existingBtn) return; // already wired
+    // Wrap the desc's children in a clampable container.
+    var wrap = document.createElement('div');
+    wrap.className = 'step__desc--clampable';
+    while (desc.firstChild) wrap.appendChild(desc.firstChild);
+    desc.appendChild(wrap);
 
     var btn = document.createElement('button');
     btn.type = 'button';
@@ -1128,18 +1102,10 @@ if (document.readyState === 'loading') {
     });
   }
 
-  function syncAll() {
+  function init() {
     var steps = document.querySelectorAll('.steps > .step');
     if (!steps.length) return;
-    steps.forEach(syncStep);
-  }
-
-  function init() {
-    syncAll();
-    window.addEventListener('resize', function () {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(syncAll, 150);
-    });
+    steps.forEach(wireStep);
   }
 
   if (document.readyState === 'loading') {

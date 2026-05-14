@@ -1,0 +1,5 @@
+{
+  "_help": "Site-wide configuration. Each field is documented inline. Edit through the admin editor.",
+  "orderHandlerUrl": "",
+  "_orderHandlerUrlNote": "Google Apps Script Web App URL that receives bundle-builder orders. When empty, the form falls back to Formspree. See admin-help.html → How-to → Set up the order email handler."
+}

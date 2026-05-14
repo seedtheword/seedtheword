@@ -414,6 +414,51 @@
       commitMessageTemplate: 'content(bible-spotify): update map',
     },
 
+    siteConfig: {
+      id: 'siteConfig',
+      label: 'Site config (cross-cutting)',
+      category: 'content',
+      kind: 'json',
+      path: 'assets/data/site-config.json',
+      rootType: 'object',
+      groups: [
+        {
+          name: 'root',
+          label: 'Site-wide configuration',
+          fields: [
+            {
+              name: 'orderHandlerUrl',
+              label: 'Order email handler URL (Apps Script Web App)',
+              kind: 'url',
+              hint: "Paste the deployed Apps Script Web App URL here. When empty, bundle-builder.html falls back to Formspree. See admin-help.html → How-to → Set up the order email handler.",
+              validate: (v) => {
+                if (!v) return null; // empty is valid (fallback to Formspree)
+                if (!/^https:\/\//i.test(v)) return 'Must be an https URL or left blank.';
+                if (!/script\.google\.com\/macros\//i.test(v) && !/googleusercontent\.com\//i.test(v)) {
+                  return 'Expected a script.google.com/macros/... or googleusercontent.com URL.';
+                }
+                return null;
+              },
+            },
+          ],
+        },
+      ],
+      validate: function (data) {
+        if (!data || typeof data !== 'object') return 'Root must be an object.';
+        if (data.orderHandlerUrl !== undefined && typeof data.orderHandlerUrl !== 'string') {
+          return 'orderHandlerUrl must be a string.';
+        }
+        return null;
+      },
+      commitMessageTemplate: 'content(site-config): update {summary}',
+      tokens: function (form) {
+        if (form && form.orderHandlerUrl) {
+          return { summary: 'order handler URL' };
+        }
+        return { summary: 'site config' };
+      },
+    },
+
     studySaturday: {
       id: 'studySaturday',
       label: 'Study Saturday — weekly review',

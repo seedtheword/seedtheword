@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Help — Seed the Word</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=3">
+  <link rel="stylesheet" href="assets/css/main.css?v=4">
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
   <style>
     /* ============================================================
@@ -2003,6 +2003,26 @@
     <li>Wait ~1 minute. The site updates within a minute of completion.</li>
   </ol>
 
+  <h3>⚙️ Set up the order email handler (Apps Script Web App)</h3>
+  <p>The bundle-builder review form on <code>bundle-builder.html</code> can either submit to a free Formspree inbox (default) or to a Google Apps Script Web App you own. The Apps Script path adds three things Formspree's free tier can't: an automatic gifter receipt, a permanent Google Sheet ledger of every order, and an optional heads-up email to the giftee. Setup takes about 10 minutes the first time, no installs, no payments.</p>
+  <p><strong>Heads-up:</strong> <code>MailApp.sendEmail</code> sends as the script owner via Google's session — there is no SMTP, no Gmail App Password, no 2FA prerequisite for this script to function. (2FA on the account is generally a good idea, but unrelated.)</p>
+  <ol>
+    <li>Sign in to <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> as <code>seedthewordministry@gmail.com</code>.</li>
+    <li>Click <strong>+ New project</strong>. Rename it to <em>STW Order Handler</em> (top left, click the title).</li>
+    <li>In another tab, open <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new</a>. Rename the spreadsheet to <em>STW Order Ledger</em>. Rename the first tab from <code>Sheet1</code> to <code>Orders</code> (right-click the tab → Rename).</li>
+    <li>Copy the long string from that Sheet's URL between <code>/d/</code> and <code>/edit</code>. That's your <strong>LEDGER_SHEET_ID</strong>.</li>
+    <li>Open the repo file <code>docs/apps-script/order-handler.gs</code> in another tab. Copy its full contents.</li>
+    <li>Back in the Apps Script editor's <code>Code.gs</code>, select all (<kbd>Ctrl/Cmd+A</kbd>) and paste over.</li>
+    <li>Find the line <code>const LEDGER_SHEET_ID = 'REPLACE_ME_WITH_THE_SHEET_ID';</code> and replace the placeholder with the ID from step 4.</li>
+    <li>Click <strong>Save</strong> (disk icon, top toolbar). Then click <strong>Deploy</strong> → <strong>New deployment</strong>. Set <strong>Type</strong> = <em>Web app</em>. Set <strong>Description</strong> = <em>v1</em>. Set <strong>Execute as</strong> = <em>Me (seedthewordministry@gmail.com)</em>. Set <strong>Who has access</strong> = <em>Anyone</em>. Click <strong>Deploy</strong>.</li>
+    <li>Authorize when prompted — Google will ask for permission to access Sheets and send Gmail. Click <strong>Allow</strong>. (You may see an "unverified app" warning — click <em>Advanced</em> → <em>Go to STW Order Handler (unsafe)</em>. This is expected for personal scripts.)</li>
+    <li>Copy the <strong>Web app URL</strong> at the end of the dialog (starts with <code>https://script.google.com/macros/s/…/exec</code>).</li>
+    <li>Open the admin editor → pick <em>Site config (cross-cutting)</em> → paste the URL into <strong>orderHandlerUrl</strong> → <strong>Save &amp; commit</strong>.</li>
+  </ol>
+  <p><strong>Verify it works:</strong> hard-refresh <code>bundle-builder.html</code> in another tab. Place one test Essentials order to your own email, ticking the giftee opt-in box and entering a second email you can read. You should get three emails arrive (gifter receipt, team notification, giftee heads-up) and a new row in the <em>Orders</em> tab of the Sheet. For Ministry Calling you'll get two emails (the giftee path is intentionally never used for outreach orders).</p>
+  <p><strong>If something looks off:</strong> open the Apps Script editor → <em>Executions</em> tab in the left sidebar — every <code>doPost</code> call logs there with full input/output. Most issues are a typo'd <code>LEDGER_SHEET_ID</code> or the deployment access set to <em>Only myself</em> instead of <em>Anyone</em>.</p>
+  <p><strong>Updating the script later:</strong> when <code>docs/apps-script/order-handler.gs</code> changes in the repo, repeat steps 5–6 (paste new contents over <code>Code.gs</code>), then click <strong>Deploy → Manage deployments → ✏️ pencil → New version → Deploy</strong>. The Web app URL stays the same.</p>
+
   <h2>🧯 Troubleshooting — if the site looks broken</h2>
 
   <div class="admin-stepper">
@@ -2511,7 +2531,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
   </div>
 </footer>
 
-<script src="assets/js/admin-editor-schemas.js?v=19" defer></script>
+<script src="assets/js/admin-editor-schemas.js?v=20" defer></script>
 <script src="assets/js/admin-editor-github.js?v=19" defer></script>
 <script src="assets/js/admin-editor-diff.js?v=19" defer></script>
 <script src="assets/js/admin-editor-drafts.js?v=19" defer></script>

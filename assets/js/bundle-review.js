@@ -58,6 +58,28 @@
   var MINISTRY_CUSTOM_MIN = 25;
   var MINISTRY_CUSTOM_MAX = 200;
 
+  // ── Site config (Apps Script handler URL) ────────────────────
+  // Loaded from assets/data/site-config.json on DOMContentLoaded.
+  // Falls back to Formspree when orderHandlerUrl is empty/null/non-https.
+  var siteConfig = { orderHandlerUrl: '' };
+
+  function loadSiteConfig() {
+    return fetch('assets/data/site-config.json?v=1', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(function (data) {
+        if (data && typeof data.orderHandlerUrl === 'string') {
+          siteConfig.orderHandlerUrl = data.orderHandlerUrl;
+        }
+      })
+      .catch(function () { /* non-fatal — keep default empty URL */ });
+  }
+
+  function isUsableHandlerUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    if (!/^https:\/\//i.test(url)) return false;
+    return /script\.google\.com\/macros\//i.test(url) || /googleusercontent\.com\//i.test(url);
+  }
+
   function escapeHtml(s) {
     if (s === null || s === undefined) return '';
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -224,6 +246,9 @@
 
   // ── Bootstrap ────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
+    // Load site config in parallel — if it lands before submit
+    // happens, we use the Apps Script path; otherwise we fall back.
+    loadSiteConfig();
     var params = new URLSearchParams(window.location.search);
     var payload = params.get('c');
     var layout = document.getElementById('review-layout');
@@ -277,6 +302,9 @@
       });
     }
 
+    // Render the conditional giftee section (essentials/lifegroup only).
+    renderGifteeSection(state);
+
     // Form submit.
     var form = document.getElementById('review-form');
     if (form) {
@@ -288,9 +316,20 @@
         var errEl = document.getElementById('review-form-error');
         var firstInvalid = null;
         var msgs = [];
-        if (!name)                          { msgs.push('Your name is required.'); firstInvalid = firstInvalid || form.querySelector('[name="name"]'); }
+        if (!name) { msgs.push('Your name is required.'); firstInvalid = firstInvalid || form.querySelector('[name="name"]'); }
         if (!email || email.indexOf('@') === -1) { msgs.push('A valid email is required.'); firstInvalid = firstInvalid || form.querySelector('[name="email"]'); }
-        if (!del)                           { msgs.push('Delivery details are required.'); firstInvalid = firstInvalid || form.querySelector('[name="delivery_details"]'); }
+        if (!del && state.bundle !== 'ministry') {
+          msgs.push('Delivery details are required.');
+          firstInvalid = firstInvalid || form.querySelector('[name="delivery_details"]');
+        }
+
+        // Giftee opt-in validation (essentials + lifegroup only).
+        var giftee = collectGifteeFromForm(state);
+        if (giftee && giftee.optIn) {
+          if (!giftee.name) { msgs.push("Recipient's name is required when opting in."); firstInvalid = firstInvalid || document.getElementById('giftee-name'); }
+          if (!giftee.email || giftee.email.indexOf('@') === -1) { msgs.push("Recipient's email looks invalid."); firstInvalid = firstInvalid || document.getElementById('giftee-email'); }
+        }
+
         if (msgs.length) {
           errEl.textContent = msgs.join(' ');
           errEl.hidden = false;
@@ -304,27 +343,137 @@
         btn.disabled = true;
         btn.textContent = 'Sending…';
 
-        fetch(form.action, {
-          method: 'POST',
-          headers: { Accept: 'application/json' },
-          body: new FormData(form)
-        }).then(function (res) {
-          if (!res.ok) throw new Error('HTTP ' + res.status);
-          var card = document.querySelector('.review-form-card');
-          if (card) {
-            card.innerHTML = '<div class="review-thanks">' +
-              '<h3>Thank you — we\'ve got it.</h3>' +
-              '<p>Our team reviews every order personally. You\'ll hear back from us by email within a few days.</p>' +
-              '<p style="margin-top:1.25rem"><a href="store.html" class="btn btn-secondary">← Back to the store</a></p>' +
-            '</div>';
-          }
-        }).catch(function () {
-          btn.disabled = false;
-          btn.textContent = origLabel;
-          errEl.innerHTML = 'Couldn\'t reach our inbox. Please try again, or <a href="about.html#contact">email us directly</a> with your details.';
-          errEl.hidden = false;
-        });
+        var jsonPayload = {
+          bundle: state.bundle,
+          gifter: {
+            name: name,
+            email: email,
+            phone: form.querySelector('[name="phone"]').value.trim(),
+            deliveryDetails: del || (state.bundle === 'ministry' ? 'not applicable' : ''),
+            dedication: form.querySelector('[name="dedication"]').value.trim(),
+          },
+          giftee: giftee && giftee.optIn ? { optIn: true, name: giftee.name, email: giftee.email } : null,
+          configuration: state,
+          configText: renderConfigText(state),
+          source: 'bundle-builder',
+          submittedAt: new Date().toISOString(),
+        };
+
+        submitOrder(jsonPayload, form, btn, origLabel, errEl);
       });
     }
   });
+
+  // ── Submit pipeline (Apps Script primary, Formspree fallback) ──
+  function submitOrder(payload, form, btn, origLabel, errEl) {
+    var url = siteConfig.orderHandlerUrl;
+    if (!isUsableHandlerUrl(url)) {
+      // No Apps Script configured — go straight to Formspree.
+      return submitToFormspree(form, btn, origLabel, errEl, /*hint*/ true);
+    }
+    fetch(url, {
+      method: 'POST',
+      // text/plain avoids the CORS preflight (Apps Script returns
+      // permissive Access-Control headers for simple requests only).
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+    }).then(function (res) {
+      if (!res.ok) throw new Error('http ' + res.status);
+      return res.json();
+    }).then(function (json) {
+      if (!json || json.ok !== true) throw new Error(json && json.error || 'unknown');
+      renderThankYou(/*hint*/ false);
+    }).catch(function () {
+      // Apps Script path failed — fall back to Formspree so the
+      // team still hears about the order.
+      submitToFormspree(form, btn, origLabel, errEl, /*hint*/ true);
+    });
+  }
+
+  function submitToFormspree(form, btn, origLabel, errEl, hint) {
+    fetch(form.action, {
+      method: 'POST',
+      headers: { Accept: 'application/json' },
+      body: new FormData(form),
+    }).then(function (res) {
+      if (!res.ok) throw new Error('http ' + res.status);
+      renderThankYou(hint);
+    }).catch(function () {
+      if (btn) { btn.disabled = false; btn.textContent = origLabel; }
+      if (errEl) {
+        errEl.innerHTML = 'Couldn\'t reach our inbox. Please try again, or <a href="about.html#contact">email us directly</a> with your details.';
+        errEl.hidden = false;
+      }
+    });
+  }
+
+  function renderThankYou(showHint) {
+    var card = document.querySelector('.review-form-card');
+    if (!card) return;
+    var hintHtml = showHint
+      ? '<p style="margin-top:0.85rem;color:var(--muted);font-size:0.85rem;line-height:1.5">' +
+        'Heads-up — your automatic email receipt may not arrive. Our team will still see your order and reply manually.' +
+      '</p>'
+      : '';
+    card.innerHTML = '<div class="review-thanks">' +
+      '<h3>Thank you — we\'ve got it.</h3>' +
+      '<p>Our team reviews every order personally. You\'ll hear back from us by email within a few days.</p>' +
+      hintHtml +
+      '<p style="margin-top:1.25rem"><a href="store.html" class="btn btn-secondary">← Back to the store</a></p>' +
+    '</div>';
+  }
+
+  // ── Conditional giftee section ───────────────────────────────
+  function renderGifteeSection(state) {
+    var root = document.getElementById('review-giftee-root');
+    if (!root) return;
+    if (state.bundle === 'ministry') {
+      root.innerHTML = '';
+      root.hidden = true;
+      return;
+    }
+    root.hidden = false;
+    root.innerHTML =
+      '<fieldset class="review-giftee" style="border:1px dashed rgba(212,165,116,0.5);border-radius:10px;padding:0.85rem 1rem 1rem;margin:1rem 0 0">' +
+        '<legend style="padding:0 0.4rem;font-weight:700;font-size:0.92rem;color:var(--text)">Send a heads-up to the recipient?</legend>' +
+        '<label style="display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;font-size:0.92rem;line-height:1.5">' +
+          '<input type="checkbox" id="giftee-opt-in" name="giftee_opt_in" style="width:auto;margin-top:0.25rem">' +
+          '<span>Yes — email them a short note from us so they know it\'s coming. <small style="color:var(--muted);display:block;margin-top:0.2rem">No follow-up emails, no marketing. One short, kind note.</small></span>' +
+        '</label>' +
+        '<div id="giftee-fields" hidden style="margin-top:0.85rem;display:flex;flex-direction:column;gap:0.6rem">' +
+          '<div class="form-row" style="margin:0">' +
+            '<label for="giftee-name">Their name *</label>' +
+            '<input type="text" id="giftee-name" name="giftee_name" autocomplete="name">' +
+          '</div>' +
+          '<div class="form-row" style="margin:0">' +
+            '<label for="giftee-email">Their email *</label>' +
+            '<input type="email" id="giftee-email" name="giftee_email" autocomplete="email">' +
+          '</div>' +
+        '</div>' +
+      '</fieldset>';
+    var optIn = document.getElementById('giftee-opt-in');
+    var fields = document.getElementById('giftee-fields');
+    if (optIn && fields) {
+      optIn.addEventListener('change', function () {
+        fields.hidden = !optIn.checked;
+        var n = document.getElementById('giftee-name');
+        var em = document.getElementById('giftee-email');
+        if (n) n.required = optIn.checked;
+        if (em) em.required = optIn.checked;
+      });
+    }
+  }
+
+  function collectGifteeFromForm(state) {
+    if (state.bundle === 'ministry') return null;
+    var optIn = document.getElementById('giftee-opt-in');
+    if (!optIn || !optIn.checked) return null;
+    var n = document.getElementById('giftee-name');
+    var e = document.getElementById('giftee-email');
+    return {
+      optIn: true,
+      name: (n && n.value || '').trim(),
+      email: (e && e.value || '').trim(),
+    };
+  }
 })();

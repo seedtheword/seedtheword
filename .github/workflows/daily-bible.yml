@@ -50,13 +50,23 @@ jobs:
       - name: Commit dedup log if it changed
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
+          if [ -z "$(git status --porcelain assets/data/telegram-bible-log.json)" ]; then
+            echo "No dedup-log change to commit."
+            exit 0
+          fi
+          git config user.name  "stw-bible-bot"
+          git config user.email "stw-bible-bot@users.noreply.github.com"
+          # Stash the unstaged change so the rebase can run cleanly,
+          # pull anything that landed on main while the bot was working,
+          # then re-apply the stash on top.
+          git stash push -m "bible-bot-dedup" -- assets/data/telegram-bible-log.json
+          git pull --rebase origin main
+          git stash pop || true
+          # If the file is still dirty after the pop, commit it.
           if [ -n "$(git status --porcelain assets/data/telegram-bible-log.json)" ]; then
-            git config user.name  "stw-bible-bot"
-            git config user.email "stw-bible-bot@users.noreply.github.com"
-            git pull --rebase origin main
             git add assets/data/telegram-bible-log.json
             git commit -m "chore(bible-bot): dedup log update"
             git push origin main
           else
-            echo "No dedup-log change to commit."
+            echo "Dedup log already current after rebase; nothing to push."
           fi

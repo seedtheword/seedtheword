@@ -35,6 +35,12 @@
     "russianFallbackShowUrl": "",
     "prayerTopicUrl": "https://t.me/seedtheword/21/3725",
     "includePrayerBlock": true,
+    "todayChapterTopic": {
+      "enabled": true,
+      "messageThreadId": 13,
+      "nameTemplate": "Today's Chapter is {book} {chapter}",
+      "_note": "After each Mon-Fri post the Bible bot renames this topic to match the day's chapter. Bot must be admin with 'Manage Topics' permission."
+    },
     "saturday": {
       "enabled": true,
       "twitchUrl": "https://www.twitch.tv/seedtheword",

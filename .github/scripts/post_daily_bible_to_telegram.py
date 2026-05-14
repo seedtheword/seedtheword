@@ -62,6 +62,7 @@ from telegram_common import (  # type: ignore
     log,
     mdv2_escape,
     send_telegram_message,
+    edit_forum_topic,
     load_json,
 )
 
@@ -315,7 +316,41 @@ def _post_weekday_reading(full_cfg, cfg, tz, today_local, chat_id, thread_id) ->
         log(f"Telegram rejected the message: {resp}")
         return 1
     log(f"Posted daily Bible reading: {reading_label}")
+    _rename_today_chapter_topic(cfg, chat_id, reading)
     return 0
+
+
+def _rename_today_chapter_topic(cfg: dict, chat_id, reading: dict) -> None:
+    """After a successful weekday reading post, rename the
+    'Today's Chapter is ...' forum topic so the topic title matches
+    the day's reading. Best-effort — failures are logged but do not
+    fail the workflow run."""
+    topic_cfg = cfg.get("todayChapterTopic") or {}
+    if not topic_cfg or topic_cfg.get("enabled") is False:
+        return
+    thread_id = topic_cfg.get("messageThreadId")
+    if not thread_id:
+        return
+    template = topic_cfg.get("nameTemplate") or "Today's Chapter is {book} {chapter}"
+    try:
+        new_name = template.format(
+            book=reading.get("book", ""),
+            chapter=reading.get("chapter", ""),
+        )
+    except (KeyError, IndexError) as exc:
+        log(f"Topic rename template error ({template!r}): {exc}")
+        return
+    resp = edit_forum_topic(
+        token=BOT_TOKEN,
+        chat_id=chat_id,
+        message_thread_id=thread_id,
+        name=new_name,
+        dry_run=DRY_RUN,
+    )
+    if resp.get("ok"):
+        log(f"Renamed topic {thread_id} → {new_name!r}")
+    elif not resp.get("skipped"):
+        log(f"Topic rename skipped (non-fatal). Response: {resp}")
 
 
 def _post_study_saturday(full_cfg, cfg, tz, today_local, chat_id, thread_id) -> int:

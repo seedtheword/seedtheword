@@ -66,6 +66,71 @@ def smart_trim(text: str, max_chars: int) -> str:
     return base.rstrip(",;:.-–— \n\t") + "…"
 
 
+def edit_forum_topic(
+    token: str,
+    chat_id,
+    message_thread_id: int,
+    name: Optional[str] = None,
+    icon_custom_emoji_id: Optional[str] = None,
+    dry_run: bool = False,
+) -> dict:
+    """Rename / re-icon a forum topic. Requires the bot to be an admin
+    of the chat with the 'Manage topics' permission. Logs and returns
+    the API response without raising on failure — caller decides
+    whether topic rename failures should fail the whole job."""
+    if dry_run:
+        log(f"[DRY_RUN] Would rename thread {message_thread_id} in {chat_id} to {name!r}")
+        return {"ok": True, "dry_run": True}
+    if not token:
+        log("edit_forum_topic: missing bot token; skipping rename.")
+        return {"ok": False, "skipped": True}
+    if not message_thread_id:
+        log("edit_forum_topic: no message_thread_id; skipping rename.")
+        return {"ok": False, "skipped": True}
+    url = f"https://api.telegram.org/bot{token}/editForumTopic"
+    payload = {
+        "chat_id": str(chat_id),
+        "message_thread_id": int(message_thread_id),
+    }
+    if name is not None:
+        payload["name"] = str(name)[:128]  # Telegram caps topic names at 128 chars
+    if icon_custom_emoji_id is not None:
+        payload["icon_custom_emoji_id"] = str(icon_custom_emoji_id)
+    data = json.dumps(payload).encode("utf-8")
+    req = Request(url, data=data, headers={"Content-Type": "application/json"})
+    try:
+        with urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        log(f"editForumTopic API error {e.code}: {body}")
+        _explain_edit_topic_error(e.code, body, chat_id, message_thread_id)
+        return {"ok": False, "error_code": e.code, "description": body}
+    except URLError as e:
+        log(f"editForumTopic URL error: {e.reason}")
+        return {"ok": False, "error": str(e.reason)}
+
+
+def _explain_edit_topic_error(code: int, body: str, chat_id, thread_id) -> None:
+    b = (body or "").lower()
+    if code == 400 and "topic_not_modified" in b:
+        # The topic already has the requested name. Not an error in any
+        # meaningful sense — just no-op.
+        log("editForumTopic: topic already has the target name (no-op).")
+    elif code == 400 and ("not enough rights" in b or "manage_topics" in b):
+        log("")
+        log(f"FIX: Bot lacks 'Manage topics' admin permission in {chat_id!r}.")
+        log("   1. Open Telegram → group title → Administrators → tap the bot.")
+        log("   2. Toggle 'Manage Topics' ON.")
+        log("   3. Save and re-run.")
+        log("")
+    elif code == 400 and "message thread not found" in b:
+        log("")
+        log(f"FIX: thread {thread_id} doesn't exist in {chat_id!r}. Update")
+        log("   bible.todayChapterTopic.messageThreadId in telegram-bot.json.")
+        log("")
+
+
 def send_telegram_message(
     token: str,
     chat_id,

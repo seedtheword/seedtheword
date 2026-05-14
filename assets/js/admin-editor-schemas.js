@@ -320,6 +320,14 @@
               validate: (v) => !v || isValidHttpsUrl(v) ? null : 'Must be an https URL.' },
             { name: 'includePrayerBlock', label: 'Include Prayer & Thanksgiving block', kind: 'toggle',
               hint: 'When on, every daily post appends the italic blockquote asking members to share prayer requests / thanksgiving. Turn off to post the reading alone.' },
+            // Today's Chapter topic auto-rename (Mon-Fri only)
+            { name: 'todayChapterTopic.enabled', label: "Today's Chapter: auto-rename topic on each post", kind: 'toggle',
+              hint: 'After every Mon-Fri post the Bible bot renames the topic below to match the day\'s reading. Bot must be admin with "Manage Topics" permission.' },
+            { name: 'todayChapterTopic.messageThreadId', label: "Today's Chapter: topic thread ID", kind: 'number',
+              hint: 'Middle number from https://t.me/<chat>/<threadId>/<msgId>. The topic the bot will rename.' },
+            { name: 'todayChapterTopic.nameTemplate', label: "Today's Chapter: name template", kind: 'text',
+              placeholder: "Today's Chapter is {book} {chapter}",
+              hint: '{book} and {chapter} are filled with the day\'s reading (Telegram caps topic names at 128 chars).' },
             // Study Saturday Live (the Saturday-only post uses these)
             { name: 'saturday.enabled', label: 'Saturday: Study Saturday Live post enabled', kind: 'toggle',
               hint: 'Saturday morning posts a dedicated Study Saturday Live teaser pulling "This week\'s study focus" + "This week\'s reading" from study-saturday.json.' },

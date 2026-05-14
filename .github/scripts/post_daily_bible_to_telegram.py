@@ -53,6 +53,7 @@ from __future__ import annotations
 
 import os
 import sys
+import json
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -71,8 +72,57 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 BOT_CONFIG_PATH = Path(os.environ.get("BOT_CONFIG", REPO_ROOT / "assets/data/telegram-bot.json"))
 SPOTIFY_MAP_PATH = Path(os.environ.get("SPOTIFY_MAP", REPO_ROOT / "assets/data/bible-spotify-map.json"))
 STUDY_SATURDAY_PATH = Path(os.environ.get("STUDY_SATURDAY_PATH", REPO_ROOT / "assets/data/study-saturday.json"))
+DEDUP_LOG_PATH = Path(os.environ.get("BIBLE_LOG_PATH", REPO_ROOT / "assets/data/telegram-bible-log.json"))
 BOT_TOKEN = os.environ.get("TELEGRAM_BIBLE_BOT_TOKEN", "").strip()
 DRY_RUN = bool(os.environ.get("DRY_RUN", "").strip())
+FORCE_POST = bool(os.environ.get("FORCE_POST", "").strip())
+
+
+def _load_dedup_log() -> dict:
+    """Read the dedup log; on any error return an empty fresh log."""
+    try:
+        if DEDUP_LOG_PATH.exists():
+            return json.loads(DEDUP_LOG_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        log(f"Could not read dedup log ({exc}); starting fresh.")
+    return {"posts": []}
+
+
+def _save_dedup_log(data: dict) -> None:
+    DEDUP_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    DEDUP_LOG_PATH.write_text(
+        json.dumps(data, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _already_posted_today(today_local: date, post_kind: str) -> bool:
+    """Return True if the dedup log already has a successful entry
+    for this local date and post kind."""
+    log_data = _load_dedup_log()
+    today_str = today_local.isoformat()
+    for entry in log_data.get("posts", []):
+        if entry.get("date") == today_str and entry.get("kind") == post_kind and entry.get("ok"):
+            return True
+    return False
+
+
+def _record_post(today_local: date, post_kind: str, ok: bool, detail: str = "") -> None:
+    """Append a record to the dedup log. Garbage-collects entries
+    older than 30 days so the file doesn't grow forever."""
+    log_data = _load_dedup_log()
+    posts = log_data.get("posts", [])
+    posts.append({
+        "date": today_local.isoformat(),
+        "kind": post_kind,
+        "ok": ok,
+        "detail": detail[:200],
+        "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    })
+    cutoff = (today_local - timedelta(days=30)).isoformat()
+    posts = [p for p in posts if p.get("date", "") >= cutoff]
+    log_data["posts"] = posts
+    _save_dedup_log(log_data)
 
 
 # ── Reading plan, mirrors assets/js/bible-plan.js ──────────────────────
@@ -259,9 +309,21 @@ def main() -> int:
         return 0
 
     if today_local.weekday() == 5:
-        return _post_study_saturday(full_cfg, cfg, tz, today_local, chat_id, thread_id)
+        post_kind = "saturday"
+        if not FORCE_POST and _already_posted_today(today_local, post_kind):
+            log(f"Already posted Saturday Study Saturday Live for {today_local}; skipping (dedup guard).")
+            return 0
+        rc = _post_study_saturday(full_cfg, cfg, tz, today_local, chat_id, thread_id)
+        _record_post(today_local, post_kind, rc == 0, "study-saturday-live")
+        return rc
 
-    return _post_weekday_reading(full_cfg, cfg, tz, today_local, chat_id, thread_id)
+    post_kind = "weekday"
+    if not FORCE_POST and _already_posted_today(today_local, post_kind):
+        log(f"Already posted weekday Bible reading for {today_local}; skipping (dedup guard).")
+        return 0
+    rc = _post_weekday_reading(full_cfg, cfg, tz, today_local, chat_id, thread_id)
+    _record_post(today_local, post_kind, rc == 0, "weekday-reading")
+    return rc
 
 
 def _post_weekday_reading(full_cfg, cfg, tz, today_local, chat_id, thread_id) -> int:

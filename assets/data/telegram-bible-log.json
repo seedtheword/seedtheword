@@ -1,0 +1,4 @@
+{
+  "_help": "Idempotency log written by the Bible bot to prevent duplicate posts on the same local date. The bot reads/writes this on every run.",
+  "posts": []
+}

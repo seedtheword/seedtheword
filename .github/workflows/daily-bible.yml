@@ -2,20 +2,26 @@ name: Daily Bible Reading
 
 on:
   schedule:
-    # 08:00 Pacific, Monday-Saturday. UTC is PDT+7 (15:00) for most of
-    # the year; during PST months the post arrives an hour later
-    # locally, which is acceptable. Saturday reuses Friday's reading
-    # as a review entry — see post_daily_bible_to_telegram.py.
-    - cron: '0 15 * * 1-6'
+    # Run every 30 minutes between 15:00 UTC (8 AM PDT) and 18:00 UTC
+    # (11 AM PDT) Mon-Sat. The bot is idempotent via the dedup log
+    # (assets/data/telegram-bible-log.json) — it posts at most once per
+    # local date, so the second/third tick on the same day is a cheap
+    # no-op. This catches up when GitHub's free-tier cron is delayed
+    # past the original 8 AM slot.
+    - cron: '0,30 15-18 * * 1-6'
   workflow_dispatch:
     inputs:
       dry_run:
         description: "If 'true', build the post without sending it"
         required: false
         default: 'false'
+      force:
+        description: "If 'true', bypass the once-per-day dedup guard"
+        required: false
+        default: 'false'
 
 permissions:
-  contents: read
+  contents: write   # bot commits the dedup log on every successful post
 
 concurrency:
   group: telegram-bible
@@ -38,4 +44,19 @@ jobs:
         env:
           TELEGRAM_BIBLE_BOT_TOKEN: ${{ secrets.TELEGRAM_BIBLE_BOT_TOKEN }}
           DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+          FORCE_POST: ${{ github.event.inputs.force == 'true' && '1' || '' }}
         run: python .github/scripts/post_daily_bible_to_telegram.py
+
+      - name: Commit dedup log if it changed
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          if [ -n "$(git status --porcelain assets/data/telegram-bible-log.json)" ]; then
+            git config user.name  "stw-bible-bot"
+            git config user.email "stw-bible-bot@users.noreply.github.com"
+            git pull --rebase origin main
+            git add assets/data/telegram-bible-log.json
+            git commit -m "chore(bible-bot): dedup log update"
+            git push origin main
+          else
+            echo "No dedup-log change to commit."
+          fi

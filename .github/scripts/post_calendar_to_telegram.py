@@ -220,6 +220,41 @@ def strip_image_urls(text: str, urls: list[str]) -> str:
     return out.strip()
 
 
+# Patterns the bot itself adds — if the event description already
+# contains these (because admins used to hand-write announcements in
+# this format), strip them so we don't duplicate. Run BEFORE the
+# bot wraps the description.
+REDUNDANT_BANNER_RE = re.compile(
+    r"❕\s*!\s*[^!\n❕]+?\s*!\s*❕",
+    re.IGNORECASE,
+)
+REDUNDANT_BRAND_RE = re.compile(
+    r"🌱\s*Seed\s*The\s*Word\s*!?\s*🌱",
+    re.IGNORECASE,
+)
+REDUNDANT_CLOSER_RE = re.compile(
+    r"We\s*can[''’]t\s*wait\s*to\s*see\s*you\s*there\s*!?\s*✨?",
+    re.IGNORECASE,
+)
+
+
+def strip_redundant_lines(text: str) -> str:
+    """Strip lines/phrases the bot adds itself — banner pills,
+    'Seed The Word!' brand lines, and the 'We can't wait to see you'
+    closer. Calendar event descriptions written before the bot
+    existed often include these, which would otherwise duplicate
+    when the bot wraps them."""
+    if not text:
+        return ""
+    out = REDUNDANT_BANNER_RE.sub("", text)
+    out = REDUNDANT_BRAND_RE.sub("", out)
+    out = REDUNDANT_CLOSER_RE.sub("", out)
+    out = re.sub(r"\n{3,}", "\n\n", out)
+    out = re.sub(r"[ \t]+\n", "\n", out)
+    out = re.sub(r"\n[ \t]+", "\n", out)
+    return out.strip()
+
+
 def url_is_public_image(url: str) -> tuple[bool, str]:
     """Best-effort check that a URL actually serves image bytes (and
     not a sign-in HTML page). Returns (ok, reason). Used to pre-flight
@@ -372,6 +407,10 @@ def build_announcement_markdown(
     description_plain = strip_html(event.get("description") or "")
     if image_urls:
         description_plain = strip_image_urls(description_plain, image_urls)
+    # Remove any banner/brand/closer lines the bot adds itself so we
+    # don't duplicate when the calendar description was written in
+    # the old hand-written format.
+    description_plain = strip_redundant_lines(description_plain)
     description_plain = smart_trim(description_plain, max_description_chars)
 
     # Assemble using MarkdownV2 for real bold + italic where it helps.

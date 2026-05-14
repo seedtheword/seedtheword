@@ -7444,27 +7444,11 @@ a.contact-card:hover .contact-card__cta span {
 
 .store-page-bg {
   position: relative;
-  background-image: url('../images/backgrounds/store.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+  background: linear-gradient(135deg, #fff8ef 0%, #fdf3e3 50%, #f5ead8 100%);
 }
 
-/* Very light veil — enough for text legibility over the photo,
-   but the image remains the star. */
 .store-page-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.18) 0%,
-    rgba(255, 255, 255, 0.10) 45%,
-    rgba(255, 255, 255, 0.22) 100%
-  );
-  pointer-events: none;
-  z-index: 0;
+  display: none;
 }
 
 .store-page-bg > * {
@@ -7472,15 +7456,17 @@ a.contact-card:hover .contact-card__cta span {
   z-index: 1;
 }
 
-/* Sections inside the wrapper should not paint their own tint
-   on top of the image — let the background breathe. */
-.store-page-bg .section--light,
+/* Restore section tints — the warm gradient under .section--light /
+   .section--white reads through the wrapper, matching the rest of
+   the site's bright/radiant feel. */
+.store-page-bg .section--light {
+  background: linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(249,246,241,0.45) 100%);
+}
 .store-page-bg .section--white {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.4);
 }
 
-/* On mobile, fixed backgrounds hurt performance and look off.
-   Switch to scroll behavior on smaller screens. */
+/* Drop the heavy attachment trick on smaller screens. */
 @media (max-width: 900px) {
   .store-page-bg {
     background-attachment: scroll;

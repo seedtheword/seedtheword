@@ -1,14 +1,11 @@
 name: Daily Bible Reading
 
 on:
-  schedule:
-    # Run every 30 minutes between 15:00 UTC (8 AM PDT) and 18:00 UTC
-    # (11 AM PDT) Mon-Sat. The bot is idempotent via the dedup log
-    # (assets/data/telegram-bible-log.json) — it posts at most once per
-    # local date, so the second/third tick on the same day is a cheap
-    # no-op. This catches up when GitHub's free-tier cron is delayed
-    # past the original 8 AM slot.
-    - cron: '0,30 15-18 * * 1-6'
+  # Scheduled cron disabled — GitHub free-tier was silently dropping
+  # the schedule, so the Bible bot is now run as a step inside the
+  # hourly heartbeat workflow (.github/workflows/heartbeat.yml). The
+  # bot's once-per-day dedup log makes that safe. workflow_dispatch
+  # is kept for manual catch-up runs.
   workflow_dispatch:
     inputs:
       dry_run:

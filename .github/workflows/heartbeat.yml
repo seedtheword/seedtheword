@@ -31,30 +31,60 @@ concurrency:
 jobs:
   tick:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 5
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - name: Write heartbeat timestamp
         run: |
           mkdir -p .github/heartbeat
           date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/heartbeat/last-tick.txt
 
-      - name: Commit the tick
+      # ── Piggyback the daily Bible bot here so we don't depend on
+      # GitHub's flaky free-tier scheduled workflows. The bot has its
+      # own once-per-day dedup log, so running every hour is safe —
+      # only the FIRST run after 8 AM PT each weekday actually posts.
+      - name: Run Bible bot (idempotent — once per day)
+        env:
+          TELEGRAM_BIBLE_BOT_TOKEN: ${{ secrets.TELEGRAM_BIBLE_BOT_TOKEN }}
+        run: |
+          # Only attempt the post during the bot's local-time window
+          # (8 AM-noon Pacific Mon-Sat). Outside that window the bot
+          # would just exit anyway on Sundays / wrong time-of-day, but
+          # this saves the heartbeat ~5s on most ticks.
+          PT_HOUR=$(TZ=America/Los_Angeles date +%H)
+          PT_DOW=$(TZ=America/Los_Angeles date +%u)  # 1=Mon..7=Sun
+          if [ "$PT_DOW" = "7" ]; then
+            echo "Sunday in PT; skipping Bible bot."
+            exit 0
+          fi
+          if [ "$PT_HOUR" -lt 8 ] || [ "$PT_HOUR" -ge 12 ]; then
+            echo "Outside Bible-bot post window (PT hour=$PT_HOUR); skipping."
+            exit 0
+          fi
+          python .github/scripts/post_daily_bible_to_telegram.py || {
+            echo "Bible bot exited non-zero; continuing heartbeat."
+            exit 0
+          }
+
+      - name: Commit the tick + dedup log
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .github/heartbeat/last-tick.txt
+          git add .github/heartbeat/last-tick.txt assets/data/telegram-bible-log.json 2>/dev/null || true
           if git diff --cached --quiet; then
-            # Same minute — nothing to commit. Normal on manual retries
-            # or very fast successive runs. Exit cleanly.
-            echo "No timestamp change this tick."
+            echo "No timestamp/log change this tick."
             exit 0
           fi
           git commit -m "chore: heartbeat tick [skip ci]"
-          # Best-effort push. If someone else pushed during our run
-          # we silently skip — the next tick will catch up.
+          # Best-effort push with rebase to handle races with other workflows.
+          git pull --rebase origin main || true
           git push || {
             echo "Push failed (probably a race with another workflow). Next tick will retry."
             exit 0

@@ -1005,30 +1005,48 @@ function buildStoryTeamEmail(s) {
 }
 
 // ── Google Form trigger (Share Your Story) ──────────────────────
-// Wire this up via Apps Script editor → ⏰ Triggers → + Add Trigger:
-//   Function:     onStoryFormSubmit
-//   Event source: From spreadsheet  ← REQUIRED for namedValues access
-//   Event type:   On form submit
+// IMPORTANT: this script is a STANDALONE project (created at
+// script.google.com directly), so the trigger UI's "Event source"
+// dropdown does NOT show "From spreadsheet" — only "Time-driven" and
+// "From calendar". To install the spreadsheet-bound on-form-submit
+// trigger we need, run installStoryTrigger() ONCE from the editor:
 //
-// IMPORTANT: this trigger reads `e.namedValues`, which is only present
-// when the trigger is bound to the spreadsheet that the Form is linked
-// to. Steps to set this up correctly:
-//   1. Open the Form (the same one wired into news.html via
-//      assets/data/media-drop.json's formUrl).
-//   2. Responses tab → green Sheets icon → "Select existing
-//      spreadsheet" → pick the STW Order Ledger
-//      (17j5TDDTZ-58MuZ7VO7c1ohPkyHw2LZ2GCWYMFb-CJ50). The form will
-//      add a new tab automatically. (If you'd rather keep the existing
-//      tab, you can rename the auto-tab afterward — we don't read from
-//      it; we write to our own STORIES_TAB.)
-//   3. In Apps Script editor (STW Order Handler), open Triggers
-//      (clock icon, left rail) → + Add Trigger:
-//         Function: onStoryFormSubmit
-//         Deployment: Head
-//         Event source: From spreadsheet
-//         Event type: On form submit
-//   4. Authorize the Forms scope when Google prompts.
+//   1. Open the Apps Script editor for STW Order Handler.
+//   2. In the function dropdown (top toolbar), pick installStoryTrigger.
+//   3. Click ▶ Run. Authorize the Forms + Sheets scopes when prompted.
+//   4. Confirm in the Triggers tab (clock icon, left rail) that a
+//      trigger now exists for onStoryFormSubmit, source "Spreadsheet".
 //
+// To remove later: run removeStoryTriggers() the same way.
+//
+// Once installed, the trigger fires whenever ANY Google Form linked
+// to LEDGER_SHEET_ID receives a submission. If you have multiple
+// forms feeding the same spreadsheet, onStoryFormSubmit's label
+// matchers (below) decide whether the row looks like a story; rows
+// that lack name/email are logged + skipped.
+function installStoryTrigger() {
+  // Idempotent — remove any previous story triggers first so we
+  // don't end up with duplicates that double-email the team.
+  removeStoryTriggers();
+  ScriptApp.newTrigger('onStoryFormSubmit')
+    .forSpreadsheet(SpreadsheetApp.openById(LEDGER_SHEET_ID))
+    .onFormSubmit()
+    .create();
+  console.log('Installed onStoryFormSubmit trigger for sheet ' + LEDGER_SHEET_ID);
+}
+
+function removeStoryTriggers() {
+  const triggers = ScriptApp.getProjectTriggers();
+  let removed = 0;
+  for (let i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'onStoryFormSubmit') {
+      ScriptApp.deleteTrigger(triggers[i]);
+      removed++;
+    }
+  }
+  console.log('Removed ' + removed + ' onStoryFormSubmit trigger(s).');
+}
+
 // The trigger event passes `e.namedValues` keyed by question text.
 // Question labels are configurable in the Form, so we look up fields
 // by best-effort case-insensitive substring matching.

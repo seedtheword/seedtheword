@@ -54,6 +54,26 @@ const LEDGER_HEADERS = [
   'delivery_details', 'dedication',
   'giftee_opt_in', 'giftee_name', 'giftee_email',
   'configuration', 'emails_sent', 'route',
+  'is_special_order',
+];
+
+// Mirror of the catalog's tier='special' labels — server-side
+// defense-in-depth so a forged isSpecialOrder=true can't bypass
+// fulfillment without matching at least one known label, and a
+// forged false can be flipped back to true if we see a label match.
+const SPECIAL_ORDER_LABELS = [
+  'Custom cover material / color',
+  'Foil stamping (gold / silver / copper)',
+  'Edge gilding (gold / silver page edges)',
+  'Ribbon markers (single or multiple, custom colors)',
+  'Hand-tooled / debossed / stamp designs',
+  'Stuffed crochet figurine (custom design)',
+  'Devotional books / 30-day prayer guides',
+  'Custom painted / fabric-wrapped gift box',
+  'Wooden gift crate (premium tier)',
+  'Handwritten address label + stamped wax seal',
+  'Custom tract bundles in matching covers',
+  'Mass-engraved unifying line (event name + date)',
 ];
 
 const CONTACT_HEADERS = [
@@ -99,6 +119,11 @@ function handleOrder(payload) {
     return jsonResponse({ ok: false, error: 'invalid-payload' });
   }
 
+  // Reconcile special-order claim against the server's catalog mirror.
+  const so = reconcileSpecialOrder(payload);
+  payload.isSpecialOrder = so.isSpecialOrder;
+  payload.specialOrderItems = so.items;
+
   let orderId = '';
   try {
     const sheet = openLedger();
@@ -138,7 +163,7 @@ function handleOrder(payload) {
     ok: true,
     orderId: orderId,
     emailsSent: emailsSent.length,
-    route: 'apps-script',
+    route: payload.isSpecialOrder ? 'apps-script-special' : 'apps-script',
   });
 }
 
@@ -171,7 +196,39 @@ function validatePayload(p) {
       if (typeof p.giftee.email !== 'string' || p.giftee.email.indexOf('@') === -1) return { ok: false, reason: 'bad-giftee-email' };
     }
   }
+  // New optional fields — additive, accept missing.
+  if (p.isSpecialOrder !== undefined && typeof p.isSpecialOrder !== 'boolean') {
+    return { ok: false, reason: 'bad-special-order-flag' };
+  }
+  if (p.specialOrderItems !== undefined && !Array.isArray(p.specialOrderItems)) {
+    return { ok: false, reason: 'bad-special-order-items' };
+  }
+  if (p.signOptOut !== undefined && typeof p.signOptOut !== 'boolean') {
+    return { ok: false, reason: 'bad-sign-opt-out' };
+  }
   return { ok: true };
+}
+
+// Server-side defense-in-depth: cross-check every claimed special-
+// order label against our hardcoded list. If the browser claims
+// isSpecialOrder=true but no labels match, log + downgrade. If
+// browser claims false but at least one label matches our catalog's
+// tier=special set, upgrade.
+function reconcileSpecialOrder(p) {
+  var clientFlag = p.isSpecialOrder === true;
+  var labels = Array.isArray(p.specialOrderItems) ? p.specialOrderItems : [];
+  var matched = labels.filter(function (l) {
+    return SPECIAL_ORDER_LABELS.indexOf(l) !== -1;
+  });
+  if (clientFlag && matched.length === 0) {
+    console.log('[reconcile] client flagged special-order but no labels matched server list — treating as standard.');
+    return { isSpecialOrder: false, items: [] };
+  }
+  if (!clientFlag && matched.length > 0) {
+    console.log('[reconcile] client flagged standard but matched server special list — upgrading.');
+    return { isSpecialOrder: true, items: matched };
+  }
+  return { isSpecialOrder: clientFlag, items: matched };
 }
 
 // ── Sheet helpers ────────────────────────────────────────────────
@@ -247,7 +304,8 @@ function appendLedgerRow(sheet, p, orderId, emailsSent) {
     (p.giftee && p.giftee.email) || '',
     p.configText || '',
     emailsSent.join(','),
-    'apps-script',
+    p.isSpecialOrder ? 'apps-script-special' : 'apps-script',
+    p.isSpecialOrder ? 'yes' : 'no',
   ];
   sheet.appendRow(row);
 }
@@ -370,15 +428,28 @@ function emailKeyValueRow(rows) {
 
 function buildGifterEmail(p, orderId) {
   const isMinistry = p.bundle === 'ministry';
-  const subject = isMinistry
-    ? 'STW Ministry Calling — we received your story, ' + p.gifter.name
-    : 'STW Bundle — we got your order, ' + p.gifter.name;
+  const isSpecial = p.isSpecialOrder === true;
+  const subject = isSpecial
+    ? (isMinistry
+        ? 'STW Special Order (Ministry) — we\'ll reach out, ' + p.gifter.name
+        : 'STW Special Order — we\'ll reach out, ' + p.gifter.name)
+    : (isMinistry
+        ? 'STW Ministry Calling — we received your story, ' + p.gifter.name
+        : 'STW Bundle — we got your order, ' + p.gifter.name);
 
   // ── Plain-text body (fallback for clients that don't render HTML) ──
   const lines = [];
   lines.push('Hi ' + p.gifter.name + ',');
   lines.push('');
-  if (isMinistry) {
+  if (isSpecial) {
+    lines.push('Thank you for sharing your special-order request with us. One of us');
+    lines.push('will reach out before any work starts — no rush, no commitment yet.');
+    lines.push('');
+    lines.push('Special-order items flagged:');
+    (p.specialOrderItems || []).forEach(function (l) { lines.push('  • ' + l); });
+    lines.push('');
+    lines.push(isMinistry ? 'Your story' : 'Your gift');
+  } else if (isMinistry) {
     lines.push('Thank you for sharing this with us. This isn\'t a checkout — it\'s an');
     lines.push('invitation, and we read every story personally before walking it');
     lines.push('through with you.');
@@ -403,23 +474,43 @@ function buildGifterEmail(p, orderId) {
     lines.push('─────────');
     lines.push(p.gifter.dedication.trim()); lines.push('');
   }
+  if (p.signOptOut === true) {
+    lines.push('Per your request, we won\'t sign the back cover of the Bible.');
+    lines.push('');
+  }
   if (!isMinistry && p.giftee && p.giftee.optIn === true) {
     lines.push('Heads-up to ' + (p.giftee.name || 'them'));
     lines.push('─────────');
     lines.push('We sent ' + (p.giftee.email || 'them') + ' a short note letting them know a gift is on the way.');
     lines.push('');
   }
-  lines.push(isMinistry
-    ? 'One of us will reach out by email within a few days. No automatic charge, no rush.'
-    : 'Order reference: ' + orderId);
-  if (isMinistry) { lines.push(''); lines.push('Reference: ' + orderId); }
-  lines.push(''); lines.push('Thank you for partnering with us.');
-  lines.push(''); lines.push('— The Seed the Word team');
+  if (isSpecial) {
+    lines.push('One of us will reach out before any work starts — no rush, no commitment yet.');
+    lines.push('');
+    lines.push('Reference: ' + orderId);
+  } else if (isMinistry) {
+    lines.push('One of us will reach out by email within a few days. No automatic charge, no rush.');
+    lines.push('');
+    lines.push('Reference: ' + orderId);
+  } else {
+    lines.push('Order reference: ' + orderId);
+  }
+  lines.push('');
+  lines.push('Thank you for partnering with us.');
+  lines.push('');
+  lines.push('— The Seed the Word team');
 
   // ── HTML body ────────────────────────────────────────────────
   let body = '';
   body += '<p style="margin:0 0 14px;">Hi <strong>' + escapeHtml(p.gifter.name) + '</strong>,</p>';
-  if (isMinistry) {
+  if (isSpecial) {
+    body += '<p style="margin:0 0 14px;">Thank you for sharing your special-order request with us. One of us will reach out before any work starts — no rush, no commitment yet.</p>';
+    body += emailSection('🛎 Special-order items flagged',
+      '<ul style="margin:0;padding-left:1.2rem;">' +
+        (p.specialOrderItems || []).map(function (l) { return '<li>' + escapeHtml(l) + '</li>'; }).join('') +
+      '</ul>',
+      { accent: STW_GOLD });
+  } else if (isMinistry) {
     body += '<p style="margin:0 0 18px;">Thank you for sharing this with us. This isn\'t a checkout — it\'s an invitation, and we read every story personally before walking it through with you.</p>';
   } else {
     body += '<p style="margin:0 0 18px;">We got your order. Below is what you sent us. We confirm every gift personally before any charge — you\'ll hear back from us by email within a few days.</p>';
@@ -432,28 +523,44 @@ function buildGifterEmail(p, orderId) {
     body += emailSection(isMinistry ? "What you'd like us to know" : 'Dedication',
       '<em>' + nl2br(p.gifter.dedication.trim()) + '</em>');
   }
+  if (p.signOptOut === true) {
+    body += emailSection('🖋 Back-cover signing',
+      'Per your request, we won\'t sign the back cover of the Bible.',
+      { accent: STW_MUTED });
+  }
   if (!isMinistry && p.giftee && p.giftee.optIn === true) {
     body += emailSection('Heads-up sent to ' + escapeHtml(p.giftee.name || 'them'),
       'We sent <a href="mailto:' + escapeHtml(p.giftee.email || '') + '" style="color:' + STW_GREEN + ';">' + escapeHtml(p.giftee.email || '') + '</a> a short note letting them know a gift is on the way.',
       { accent: STW_GREEN });
   }
   body += '<p style="margin:18px 0 8px;font-size:13.5px;color:' + STW_MUTED + ';">' +
-    (isMinistry
-      ? 'One of us will reach out by email within a few days. No automatic charge, no rush.'
-      : 'Order reference: <code style="background:#f4ece0;padding:2px 6px;border-radius:4px;color:' + STW_TEXT + ';">' + escapeHtml(orderId) + '</code>') +
+    (isSpecial
+      ? 'Reference: <code style="background:#f4ece0;padding:2px 6px;border-radius:4px;color:' + STW_TEXT + ';">' + escapeHtml(orderId) + '</code>'
+      : isMinistry
+        ? 'One of us will reach out by email within a few days. No automatic charge, no rush.'
+        : 'Order reference: <code style="background:#f4ece0;padding:2px 6px;border-radius:4px;color:' + STW_TEXT + ';">' + escapeHtml(orderId) + '</code>') +
     '</p>';
-  if (isMinistry) {
+  if (isMinistry && !isSpecial) {
     body += '<p style="margin:6px 0 0;font-size:13.5px;color:' + STW_MUTED + ';">Reference: <code style="background:#f4ece0;padding:2px 6px;border-radius:4px;color:' + STW_TEXT + ';">' + escapeHtml(orderId) + '</code></p>';
   }
   body += '<p style="margin:18px 0 0;">Thank you for partnering with us.</p>';
 
+  const accent = isSpecial ? STW_GOLD : STW_GREEN;
+  const headerEmoji = isSpecial ? '🛎' : (isMinistry ? '🌾' : '🌱');
+  const headerTitle = isSpecial
+    ? 'We received your special-order request'
+    : (isMinistry ? 'We received your story' : 'We got your order');
+  const headerSub = isSpecial
+    ? 'We\'ll reach out before any work starts'
+    : (isMinistry ? 'Ministry Calling — invitation received' : BUNDLE_DISPLAY[p.bundle] + ' — gift received');
+
   const html = emailShell({
-    headerEmoji: isMinistry ? '🌾' : '🌱',
-    headerTitle: isMinistry ? 'We received your story' : 'We got your order',
-    headerSubtitle: isMinistry ? 'Ministry Calling — invitation received' : BUNDLE_DISPLAY[p.bundle] + ' — gift received',
+    headerEmoji: headerEmoji,
+    headerTitle: headerTitle,
+    headerSubtitle: headerSub,
     bodyHtml: body,
     footerHtml: '— The Seed the Word team · <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
-    accentColor: STW_GREEN,
+    accentColor: accent,
   });
 
   return {
@@ -467,17 +574,28 @@ function buildGifterEmail(p, orderId) {
 
 function buildTeamEmail(p, orderId) {
   const display = BUNDLE_DISPLAY[p.bundle] || p.bundle;
+  const isSpecial = p.isSpecialOrder === true;
+  const subjectPrefix = isSpecial ? '[STW Special Order]' : '[STW Order]';
 
   // ── Plain-text body ──
   const lines = [];
-  lines.push('New order received.'); lines.push('');
+  lines.push(isSpecial ? 'New SPECIAL-ORDER request received.' : 'New order received.');
+  lines.push('');
   lines.push('Order ID:   ' + orderId);
   lines.push('Bundle:     ' + display);
-  lines.push('Received:   ' + new Date().toISOString()); lines.push('');
-  lines.push('Gifter'); lines.push('─────────');
+  lines.push('Received:   ' + new Date().toISOString());
+  if (isSpecial) {
+    lines.push('');
+    lines.push('🛎 SPECIAL-ORDER ITEMS — confirm before fulfilling:');
+    (p.specialOrderItems || []).forEach(function (l) { lines.push('  • ' + l); });
+  }
+  lines.push('');
+  lines.push('Gifter');
+  lines.push('─────────');
   lines.push('Name:    ' + p.gifter.name);
   lines.push('Email:   ' + p.gifter.email);
-  lines.push('Phone:   ' + (p.gifter.phone || '(none)')); lines.push('');
+  lines.push('Phone:   ' + (p.gifter.phone || '(none)'));
+  lines.push('');
   if (p.gifter.deliveryDetails && p.gifter.deliveryDetails.trim()) {
     lines.push('Delivery'); lines.push('─────────');
     lines.push(p.gifter.deliveryDetails); lines.push('');
@@ -485,6 +603,10 @@ function buildTeamEmail(p, orderId) {
   if (p.gifter.dedication && p.gifter.dedication.trim()) {
     lines.push('Dedication / note to team'); lines.push('─────────');
     lines.push(p.gifter.dedication.trim()); lines.push('');
+  }
+  if (p.signOptOut === true) {
+    lines.push('🖋 Back-cover signing: SKIPPED per gifter request — do not sign.');
+    lines.push('');
   }
   if (p.giftee && p.giftee.optIn === true) {
     lines.push('Giftee (heads-up sent)'); lines.push('─────────');
@@ -499,10 +621,22 @@ function buildTeamEmail(p, orderId) {
   let body = '';
   // At-a-glance summary header
   body += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px;">' +
+    (isSpecial
+      ? '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:0.04em;">🛎 SPECIAL ORDER</span>'
+      : '') +
     '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">' + escapeHtml(display) + '</span>' +
     '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">' + escapeHtml(orderId) + '</span>' +
     '<span style="display:inline-block;background:#f4ece0;color:' + STW_TEXT + ';padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;">Received ' + escapeHtml(new Date().toISOString()) + '</span>' +
   '</div>';
+
+  // Special-order banner — appears ABOVE the gifter card
+  if (isSpecial) {
+    body += emailSection('🛎 Special-order items — confirm before fulfilling',
+      '<ul style="margin:0;padding-left:1.2rem;">' +
+        (p.specialOrderItems || []).map(function (l) { return '<li>' + escapeHtml(l) + '</li>'; }).join('') +
+      '</ul>',
+      { accent: STW_GOLD });
+  }
 
   // Gifter card
   body += emailSection('Gifter',
@@ -525,6 +659,13 @@ function buildTeamEmail(p, orderId) {
       '<em>' + nl2br(p.gifter.dedication.trim()) + '</em>');
   }
 
+  // Sign-opt-out card
+  if (p.signOptOut === true) {
+    body += emailSection('🖋 Back-cover signing',
+      '<strong style="color:#7a5a2a;">SKIPPED per gifter request — do not sign.</strong>',
+      { accent: STW_GOLD });
+  }
+
   // Giftee card
   if (p.giftee && p.giftee.optIn === true) {
     body += emailSection('🎁 Giftee — heads-up sent',
@@ -545,17 +686,17 @@ function buildTeamEmail(p, orderId) {
   '</p>';
 
   const html = emailShell({
-    headerEmoji: '📬',
-    headerTitle: 'New order received',
+    headerEmoji: isSpecial ? '🛎' : '📬',
+    headerTitle: isSpecial ? 'New special-order request' : 'New order received',
     headerSubtitle: display + ' — from ' + p.gifter.name,
     bodyHtml: body,
     footerHtml: 'Reply to this email goes directly to the gifter.',
-    accentColor: STW_GREEN,
+    accentColor: isSpecial ? STW_GOLD : STW_GREEN,
   });
 
   return {
     to: TEAM_INBOX,
-    subject: '[STW Order] ' + display + ' — ' + p.gifter.name + ' (' + orderId + ')',
+    subject: subjectPrefix + ' ' + display + ' — ' + p.gifter.name + ' (' + orderId + ')',
     body: lines.join('\n'),
     html: html,
     replyTo: p.gifter.email,

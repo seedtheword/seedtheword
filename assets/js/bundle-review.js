@@ -114,8 +114,16 @@
     if (BUNDLE_KEYS.indexOf(c.bundle) === -1) return false;
     if (c.bundle === 'essentials') {
       if (c.recipient !== null && ['self','friend','newcomer'].indexOf(c.recipient) === -1) return false;
-      if (!isStringArrayOf(c.essentialsItems, ESSENTIALS_ITEM_KEYS)) return false;
-      if (!isStringArrayOf(c.personalization, PERSONALIZATION_KEYS)) return false;
+      if (!Array.isArray(c.essentialsItems)) return false;
+      if (!Array.isArray(c.personalization)) return false;
+      // New fields are optional.
+      if (c.packaging !== undefined && !Array.isArray(c.packaging)) return false;
+      if (c.guides !== undefined && !Array.isArray(c.guides)) return false;
+      if (c.signOptOut !== undefined && typeof c.signOptOut !== 'boolean') return false;
+      // Coerce missing arrays to [] for downstream rendering.
+      if (!c.packaging) c.packaging = [];
+      if (!c.guides)    c.guides    = [];
+      if (typeof c.signOptOut !== 'boolean') c.signOptOut = false;
       return true;
     }
     if (c.bundle === 'lifegroup') {
@@ -127,7 +135,15 @@
       if (!c.groupIdentity || typeof c.groupIdentity !== 'object') return false;
       if (typeof c.groupIdentity.groupName !== 'string' || c.groupIdentity.groupName.length > 40) return false;
       if (COVER_THEME_KEYS.indexOf(c.groupIdentity.coverTheme) === -1) return false;
-      if (!isStringArrayOf(c.essentialsAddOns, ESSENTIALS_ITEM_KEYS)) return false;
+      if (!Array.isArray(c.essentialsAddOns)) return false;
+      if (c.personalization !== undefined && !Array.isArray(c.personalization)) return false;
+      if (c.packaging !== undefined && !Array.isArray(c.packaging)) return false;
+      if (c.guides !== undefined && !Array.isArray(c.guides)) return false;
+      if (c.signOptOut !== undefined && typeof c.signOptOut !== 'boolean') return false;
+      if (!c.personalization) c.personalization = [];
+      if (!c.packaging)       c.packaging       = [];
+      if (!c.guides)          c.guides          = [];
+      if (typeof c.signOptOut !== 'boolean') c.signOptOut = false;
       return true;
     }
     if (c.bundle === 'ministry') {
@@ -141,7 +157,9 @@
       if (typeof c.outreach.location !== 'string') return false;
       if (typeof c.outreach.eventDate !== 'string') return false;
       if (ANCHOR_VERSE_KEYS.indexOf(c.outreach.anchorVerse) === -1) return false;
-      if (!isStringArrayOf(c.addOns, MINISTRY_ADDON_KEYS)) return false;
+      if (!Array.isArray(c.addOns)) return false;
+      if (c.guides !== undefined && !Array.isArray(c.guides)) return false;
+      if (!c.guides) c.guides = [];
       return true;
     }
     return false;
@@ -157,9 +175,31 @@
     }
   }
 
+  // Walk every chosen-item array across the state and use the
+  // catalog to determine if any chosen item is tier='special'.
+  function detectSpecialOrder(state) {
+    var keys = []
+      .concat(state.essentialsItems || [])
+      .concat(state.personalization || [])
+      .concat(state.essentialsAddOns || [])
+      .concat(state.addOns || [])
+      .concat(state.packaging || [])
+      .concat(state.guides || []);
+    if (window.STW_isSpecialOrder) {
+      return window.STW_isSpecialOrder(keys);
+    }
+    // Fallback: catalog not loaded — treat as not special.
+    return { isSpecialOrder: false, specialOrderItems: [] };
+  }
+
   function labelFor(items, key) {
-    var hit = items.find(function (i) { return i.key === key; });
-    return hit ? hit.label : key;
+    // Backward-compat: try the inline arrays first, then fall back to
+    // the shared catalog (window.STW_findItem) — works when the
+    // catalog has labels the inline array doesn't (new items).
+    var hit = items && items.find(function (i) { return i.key === key; });
+    if (hit) return hit.label;
+    var fromCatalog = window.STW_findItem && window.STW_findItem(key);
+    return fromCatalog ? fromCatalog.label : key;
   }
 
   function recipientLabel(r) {
@@ -174,6 +214,15 @@
     var pers = s.personalization.length
       ? s.personalization.map(function (k) { return labelFor(PERSONALIZATION, k); }).join(', ')
       : 'None';
+    var pkg = (s.packaging && s.packaging.length)
+      ? s.packaging.map(function (k) { return labelFor(null, k); }).join(', ')
+      : 'Standard wrap';
+    var guides = (s.guides && s.guides.length)
+      ? s.guides.map(function (k) { return labelFor(null, k); }).join(', ')
+      : 'None';
+    var signLine = s.signOptOut
+      ? '<dt>Back-cover signing</dt><dd>SKIPPED (per gifter request)</dd>'
+      : '<dt>Back-cover signing</dt><dd>included (default)</dd>';
     var details = renderCustomDetailsHtml(s.customDetails || {});
     return '' +
       '<dl class="journey-review__list">' +
@@ -181,6 +230,9 @@
         '<dt>Recipient</dt><dd>' + escapeHtml(recipientLabel(s.recipient)) + '</dd>' +
         '<dt>What\'s included</dt><dd>' + escapeHtml(items) + '</dd>' +
         '<dt>Personal touches</dt><dd>' + escapeHtml(pers) + '</dd>' +
+        '<dt>Packaging</dt><dd>' + escapeHtml(pkg) + '</dd>' +
+        '<dt>Guides</dt><dd>' + escapeHtml(guides) + '</dd>' +
+        signLine +
       '</dl>' +
       details +
       '<p style="color:var(--muted);font-size:0.9rem;line-height:1.55;margin:0">Bible at our $2 ministry rate · roughly $7 shipping with the full kit · we\'ll confirm the exact total with you. Made-to-order items take 2-3 weeks.</p>';
@@ -204,6 +256,18 @@
     var addons = s.essentialsAddOns.length
       ? s.essentialsAddOns.map(function (k) { return labelFor(ESSENTIALS_ITEMS, k); }).join(', ') + ' × ' + s.quantity
       : 'None';
+    var pers = (s.personalization && s.personalization.length)
+      ? s.personalization.map(function (k) { return labelFor(PERSONALIZATION, k); }).join(', ')
+      : 'None';
+    var pkg = (s.packaging && s.packaging.length)
+      ? s.packaging.map(function (k) { return labelFor(null, k); }).join(', ')
+      : 'Standard wrap';
+    var guides = (s.guides && s.guides.length)
+      ? s.guides.map(function (k) { return labelFor(null, k); }).join(', ')
+      : 'None';
+    var signLine = s.signOptOut
+      ? '<dt>Back-cover signing</dt><dd>SKIPPED (per gifter request)</dd>'
+      : '<dt>Back-cover signing</dt><dd>included (default)</dd>';
     return '' +
       '<dl class="journey-review__list">' +
         '<dt>Bundle</dt><dd>' + escapeHtml(BUNDLE_DISPLAY.lifegroup) + '</dd>' +
@@ -211,7 +275,11 @@
         '<dt>Group name</dt><dd>' + (s.groupIdentity.groupName ? escapeHtml(s.groupIdentity.groupName) : '<em>None</em>') + '</dd>' +
         '<dt>Cover theme</dt><dd>' + escapeHtml(theme ? theme.label : 'No theme') + '</dd>' +
         '<dt>Engraving</dt><dd><ol style="margin:0;padding-left:1.4rem">' + namesItems + '</ol></dd>' +
+        '<dt>Personal touches</dt><dd>' + escapeHtml(pers) + '</dd>' +
         '<dt>Add-ons (per Bible)</dt><dd>' + escapeHtml(addons) + '</dd>' +
+        '<dt>Packaging</dt><dd>' + escapeHtml(pkg) + '</dd>' +
+        '<dt>Guides</dt><dd>' + escapeHtml(guides) + '</dd>' +
+        signLine +
       '</dl>' +
       '<p style="color:var(--muted);font-size:0.9rem;line-height:1.55;margin:0">Bibles at our $2 ministry rate · we\'ll confirm shipping and engraving total with you directly.</p>';
   }
@@ -220,6 +288,9 @@
     var qty = s.volumeTier === 'custom' ? s.customQuantity : s.volumeTier;
     var addons = s.addOns.length
       ? s.addOns.map(function (k) { return labelFor(MINISTRY_ADDONS, k); }).join(', ')
+      : 'None';
+    var guides = (s.guides && s.guides.length)
+      ? s.guides.map(function (k) { return labelFor(null, k); }).join(', ')
       : 'None';
     var anchor = ANCHOR_VERSES.find(function (v) { return v.key === s.outreach.anchorVerse; });
     var anchorHtml = anchor
@@ -233,6 +304,7 @@
         '<dt>Location</dt><dd>' + escapeHtml(s.outreach.location) + '</dd>' +
         '<dt>Event date</dt><dd>' + escapeHtml(s.outreach.eventDate) + '</dd>' +
         '<dt>Add-ons</dt><dd>' + escapeHtml(addons) + '</dd>' +
+        '<dt>Guides</dt><dd>' + escapeHtml(guides) + '</dd>' +
       '</dl>' +
       '<p style="color:var(--muted);font-size:0.9rem;line-height:1.55;margin:0">This is a calling, not a checkout. We\'ll read your story personally and walk it through with you before any commitment is made.</p>';
   }
@@ -340,6 +412,27 @@
     if (subjectField) subjectField.value = 'STW Bundle Order — ' + BUNDLE_DISPLAY[state.bundle];
     if (configField)  configField.value  = renderConfigText(state);
 
+    // Special-order banner + CTA swap. Runs AFTER the ministry copy
+    // tweak so the banner's CTA-flip is the final word.
+    var so = detectSpecialOrder(state);
+    var banner = document.getElementById('review-special-banner');
+    var submitBtn = document.getElementById('review-submit-btn');
+    if (so.isSpecialOrder) {
+      if (banner) {
+        banner.hidden = false;
+        banner.innerHTML =
+          '<strong>🛎 You picked a special-order item.</strong> ' +
+          'One of us will reach out before any work starts — no rush, no commitment yet. ' +
+          'Items flagged: <em>' +
+            so.specialOrderItems.map(function (l) { return escapeHtml(l); }).join(', ') +
+          '</em>.';
+      }
+      if (submitBtn) submitBtn.textContent = 'Continue to share your special-order request →';
+    } else if (banner) {
+      banner.hidden = true;
+      banner.innerHTML = '';
+    }
+
     // Back-to-customize.
     var backBtn = document.getElementById('review-back');
     if (backBtn) {
@@ -390,6 +483,7 @@
         btn.disabled = true;
         btn.textContent = 'Sending…';
 
+        var so = detectSpecialOrder(state);
         var jsonPayload = {
           bundle: state.bundle,
           gifter: {
@@ -402,6 +496,10 @@
           giftee: giftee && giftee.optIn ? { optIn: true, name: giftee.name, email: giftee.email } : null,
           configuration: state,
           configText: renderConfigText(state),
+          isSpecialOrder: so.isSpecialOrder,
+          specialOrderItems: so.specialOrderItems,
+          // signOptOut only meaningful for essentials/lifegroup
+          signOptOut: state.bundle === 'ministry' ? false : !!state.signOptOut,
           source: 'bundle-builder',
           submittedAt: new Date().toISOString(),
         };

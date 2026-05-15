@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Help — Seed the Word</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=5">
+  <link rel="stylesheet" href="assets/css/main.css?v=6">
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
   <style>
     /* ============================================================
@@ -2003,8 +2003,7 @@
     <li>Wait ~1 minute. The site updates within a minute of completion.</li>
   </ol>
 
-  <h3>⚙️ Set up the order email handler (Apps Script Web App)</h3>
-  <p>The bundle-builder review form on <code>bundle-builder.html</code> can either submit to a free Formspree inbox (default) or to a Google Apps Script Web App you own. The Apps Script path adds three things Formspree's free tier can't: an automatic gifter receipt, a permanent Google Sheet ledger of every order, and an optional heads-up email to the giftee. Setup takes about 10 minutes the first time, no installs, no payments.</p>
+  <h3>⚙️ Set up the order email handler (Apps Script Web App)</h3>  <p>The bundle-builder review form on <code>bundle-builder.html</code> can either submit to a free Formspree inbox (default) or to a Google Apps Script Web App you own. The Apps Script path adds three things Formspree's free tier can't: an automatic gifter receipt, a permanent Google Sheet ledger of every order, and an optional heads-up email to the giftee. Setup takes about 10 minutes the first time, no installs, no payments.</p>
   <p><strong>Heads-up:</strong> <code>MailApp.sendEmail</code> sends as the script owner via Google's session — there is no SMTP, no Gmail App Password, no 2FA prerequisite for this script to function. (2FA on the account is generally a good idea, but unrelated.)</p>
   <ol>
     <li>Sign in to <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> as <code>seedthewordministry@gmail.com</code>.</li>
@@ -2022,6 +2021,17 @@
   <p><strong>Verify it works:</strong> hard-refresh <code>bundle-builder.html</code> in another tab. Place one test Essentials order to your own email, ticking the giftee opt-in box and entering a second email you can read. You should get three emails arrive (gifter receipt, team notification, giftee heads-up) and a new row in the <em>Orders</em> tab of the Sheet. For Ministry Calling you'll get two emails (the giftee path is intentionally never used for outreach orders).</p>
   <p><strong>If something looks off:</strong> open the Apps Script editor → <em>Executions</em> tab in the left sidebar — every <code>doPost</code> call logs there with full input/output. Most issues are a typo'd <code>LEDGER_SHEET_ID</code> or the deployment access set to <em>Only myself</em> instead of <em>Anyone</em>.</p>
   <p><strong>Updating the script later:</strong> when <code>docs/apps-script/order-handler.gs</code> changes in the repo, repeat steps 5–6 (paste new contents over <code>Code.gs</code>), then click <strong>Deploy → Manage deployments → ✏️ pencil → New version → Deploy</strong>. The Web app URL stays the same.</p>
+
+  <h3>✅ Verify the bundle customization tiers</h3>
+  <p>The store-page journey now organizes every customization into three tiers: ⭐ <strong>Recommended</strong> (gold-bordered pills with a star prefix), <strong>Standard</strong> (normal pills), and 🛎 <strong>Special-order</strong> (collapsed talk-to-team card). Picking any special-order item changes the order flow: the CTA reads "Continue to share your special-order request →", the team email subject becomes <code>[STW Special Order]</code>, and the Sheet's column O is marked <code>yes</code>. After any catalog edit (<code>assets/js/bundle-item-catalog.js</code>) or Apps Script redeploy, walk this checklist to confirm everything still lines up:</p>
+  <ol>
+    <li><strong>P1 — tiers render correctly.</strong> Hard-refresh <code>store.html</code>, click <em>Essentials → Start customizing → For myself</em>. In step 2's "On the Bible" section, confirm <em>Engraving</em>, <em>Custom painting</em>, and <em>Page-edge spray painting</em> are gold-bordered ★ pills listed first. Confirm a 🛎 <em>Special-order options</em> card exists below — collapsed by default — containing items like <em>Foil stamping</em> and <em>Edge gilding</em>. Repeat for Life Group step 4 and Ministry step 3.</li>
+    <li><strong>P2 — special-order propagation.</strong> On any bundle, expand the special-order card and tick one item (e.g. <em>Edge gilding</em>). Advance to review and confirm: (a) a gold informational banner above the form lists the flagged item, (b) the submit button reads "Continue to share your special-order request →", (c) the team email subject after submit reads <code>[STW Special Order]</code> and the body has a "🛎 Special-order items — confirm before fulfilling" section, (d) the Sheet's column O for that row is <code>yes</code>.</li>
+    <li><strong>P3 — tooltip accessibility.</strong> Tab through any step. Each pill should be followed in tab order by a small (i) icon with a 3px gold focus outline. Press Enter or Space on the icon — a dark tooltip should appear with the item's plain-English description. On mobile (or DevTools 375px width), tap the (i) icon — the tooltip should appear inline below the pill row, not overlap the next pill.</li>
+    <li><strong>Sign-opt-out.</strong> On Essentials step 2 or Life Group step 4, scroll to the bottom and tick <em>Skip the back-cover ministry signing</em>. The review summary on <code>bundle-builder.html</code> should read "Back-cover signing: SKIPPED (per gifter request)" and the team email after submit should include a "🖋 Back-cover signing: SKIPPED per gifter request — do not sign." line.</li>
+    <li><strong>Backward-compat.</strong> Old <code>?c=</code> URLs from before this change should still decode and render — the schema extensions are additive, with missing fields defaulting to <code>[]</code> or <code>false</code>.</li>
+  </ol>
+  <p>If any of those don't behave as described, paste the screen state and we'll trace it from the live system. Most regressions show up in the Apps Script <em>Executions</em> tab — every <code>doPost</code> call logs the full payload + the script's reconciled <code>isSpecialOrder</code> decision.</p>
 
   <h2>🧯 Troubleshooting — if the site looks broken</h2>
 

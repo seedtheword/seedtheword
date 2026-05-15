@@ -9648,3 +9648,308 @@ a.contact-card:hover .contact-card__cta span {
 .review-error-state h2 {
   margin: 0 0 0.85rem;
 }
+
+
+/* ============================================================
+   Bundle Customization Tiers — store + bundle-builder
+   Spec: .kiro/specs/bundle-customization-tiers/
+   ============================================================ */
+
+/* ── Recommended pill (gold ★ badge, larger, gold border) ── */
+.journey-pill[data-tier="recommended"] {
+  padding: 0.6rem 1.05rem 0.6rem 0.85rem;
+  font-size: 0.97rem;
+  border: 2px solid var(--gold);
+  background: linear-gradient(135deg, rgba(255, 250, 240, 0.98) 0%, rgba(253, 243, 227, 0.98) 100%);
+  font-weight: 600;
+}
+.journey-pill[data-tier="recommended"]::before {
+  content: '★';
+  display: inline-block;
+  margin-right: 0.45rem;
+  color: var(--gold);
+  font-size: 1.05em;
+  line-height: 1;
+}
+.journey-pill[data-tier="recommended"].journey-pill--on,
+.journey-pill[data-tier="recommended"][aria-pressed="true"] {
+  background: linear-gradient(135deg, var(--green) 0%, #3a7d3c 100%);
+  color: #fff;
+  border-color: var(--green);
+}
+.journey-pill[data-tier="recommended"].journey-pill--on::before,
+.journey-pill[data-tier="recommended"][aria-pressed="true"]::before {
+  color: var(--gold);
+}
+
+/* ── Special-order pill (inside the <details> card) ── */
+.journey-pill[data-tier="special"] {
+  border-color: rgba(212, 165, 116, 0.65);
+  background: #fffaf0;
+}
+.journey-pill[data-tier="special"]::after {
+  content: 'special-order';
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(212, 165, 116, 0.25);
+  color: #7a5a2a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.journey-pill[data-tier="special"].journey-pill--on,
+.journey-pill[data-tier="special"][aria-pressed="true"] {
+  background: linear-gradient(135deg, #7a5a2a 0%, #a07a3c 100%);
+  color: #fff;
+  border-color: #7a5a2a;
+}
+.journey-pill[data-tier="special"].journey-pill--on::after,
+.journey-pill[data-tier="special"][aria-pressed="true"]::after {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+/* ── Special-order collapsed card (uses native <details>) ── */
+.journey-special-card {
+  border: 1.5px dashed rgba(212, 165, 116, 0.6);
+  border-radius: 12px;
+  background: rgba(255, 250, 240, 0.5);
+  padding: 0;
+  margin: 0.85rem 0 0;
+}
+.journey-special-card[open] {
+  background: rgba(255, 250, 240, 0.85);
+}
+.journey-special-card__summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--text);
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(212, 165, 116, 0.2);
+}
+.journey-special-card__summary::-webkit-details-marker { display: none; }
+.journey-special-card__summary::marker { content: ''; }
+.journey-special-card__summary:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: -3px;
+  border-radius: 12px;
+}
+.journey-special-card__icon {
+  font-size: 1.15em;
+}
+.journey-special-card__title {
+  color: #7a5a2a;
+}
+.journey-special-card__hint {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+.journey-special-card__chevron {
+  margin-left: auto;
+  color: #7a5a2a;
+  transition: transform 200ms ease;
+}
+.journey-special-card[open] .journey-special-card__chevron {
+  transform: rotate(180deg);
+}
+.journey-special-card__body {
+  padding: 0 1rem 1rem;
+}
+.journey-special-card__warn {
+  margin: 0 0 0.7rem;
+  font-size: 0.88rem;
+  color: #7a5a2a;
+  background: rgba(212, 165, 116, 0.18);
+  border-left: 3px solid var(--gold);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey-special-card__chevron { transition: none; }
+}
+
+/* ── Pill row (pill + info icon + tooltip) ── */
+.journey-pill-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  position: relative;
+}
+
+/* ── Info icon (i) ── */
+.info-icon {
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  border: 1.5px solid rgba(44, 95, 46, 0.4);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--green);
+  font-style: italic;
+  font-weight: 700;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  -webkit-tap-highlight-color: rgba(44, 95, 46, 0.15);
+}
+.info-icon:hover,
+.info-icon:focus-visible {
+  background: rgba(44, 95, 46, 0.08);
+  border-color: var(--green);
+}
+.info-icon:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ── Info tooltip ── */
+.info-tooltip {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 0.4rem;
+  padding: 0.55rem 0.75rem;
+  background: #2b2b2b;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.45;
+  border-radius: 6px;
+  max-width: 18rem;
+  z-index: 5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+.info-tooltip[hidden] { display: none; }
+
+/* Desktop hover/focus reveal (no JS click needed) */
+@media (hover: hover) {
+  .journey-pill-row:hover .info-tooltip,
+  .info-icon:focus-visible ~ .info-tooltip,
+  .info-icon[aria-expanded="true"] ~ .info-tooltip {
+    display: block;
+  }
+}
+
+/* Mobile/touch: render inline below the pill row, not absolute. */
+@media (max-width: 600px) {
+  .journey-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .info-tooltip {
+    position: static;
+    margin-top: 0.3rem;
+    width: 100%;
+    max-width: 100%;
+    pointer-events: auto;
+  }
+}
+
+/* ── Back-cover signing opt-out toggle ── */
+.journey-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.85rem;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px solid rgba(212, 165, 116, 0.4);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.journey-toggle input { width: auto; margin: 0; }
+.journey-toggle__hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0.4rem 0 0;
+  line-height: 1.5;
+}
+
+/* ── Guides cards (3 named cards instead of generic pills) ── */
+.journey-guides-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.7rem;
+}
+.journey-guide-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(212, 165, 116, 0.4);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+.journey-guide-card:hover,
+.journey-guide-card:focus-visible {
+  background: #fff;
+  border-color: var(--gold);
+  outline: none;
+  transform: translateY(-1px);
+}
+.journey-guide-card[aria-pressed="true"] {
+  background: linear-gradient(135deg, rgba(44, 95, 46, 0.95) 0%, rgba(58, 125, 60, 0.95) 100%);
+  color: #fff;
+  border-color: var(--green);
+}
+.journey-guide-card[aria-pressed="true"] .journey-guide-card__desc {
+  color: rgba(255, 255, 255, 0.92);
+}
+.journey-guide-card__icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.journey-guide-card__title {
+  font-weight: 700;
+  font-size: 0.97rem;
+  line-height: 1.25;
+}
+.journey-guide-card__desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ── Made-to-order badge inside pills (existing behavior; keep) ── */
+/* (already styled inline in JS via ::after-style mini-badge HTML) */
+
+/* ── Special-order banner on bundle-builder.html review ── */
+.review-special-banner {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1.1rem;
+  background: linear-gradient(135deg, rgba(212, 165, 116, 0.18) 0%, rgba(255, 250, 240, 0.95) 100%);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  color: #5a3f1a;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.review-special-banner strong {
+  color: #7a5a2a;
+  font-weight: 800;
+}
+.review-special-banner em {
+  font-style: italic;
+  color: #5a3f1a;
+}

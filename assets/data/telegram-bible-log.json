@@ -7,6 +7,13 @@
       "ok": true,
       "detail": "weekday-reading (manual catch-up — log seeded after first successful post failed to commit due to workflow rebase issue)",
       "at": "2026-05-14T17:30:00+00:00"
+    },
+    {
+      "date": "2026-05-15",
+      "kind": "weekday",
+      "ok": true,
+      "detail": "weekday-reading",
+      "at": "2026-05-15T15:30:42+00:00"
     }
   ]
 }

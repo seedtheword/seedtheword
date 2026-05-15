@@ -2022,6 +2022,35 @@
   <p><strong>If something looks off:</strong> open the Apps Script editor → <em>Executions</em> tab in the left sidebar — every <code>doPost</code> call logs there with full input/output. Most issues are a typo'd <code>LEDGER_SHEET_ID</code> or the deployment access set to <em>Only myself</em> instead of <em>Anyone</em>.</p>
   <p><strong>Updating the script later:</strong> when <code>docs/apps-script/order-handler.gs</code> changes in the repo, repeat steps 5–6 (paste new contents over <code>Code.gs</code>), then click <strong>Deploy → Manage deployments → ✏️ pencil → New version → Deploy</strong>. The Web app URL stays the same.</p>
 
+  <h3>📖 Wire the Share-Your-Story Google Form to the team email</h3>
+  <p>The "Share your story" modal on <code>news.html</code> iframes the same Google Form configured in <code>assets/data/media-drop.json</code>. Submissions land in that Form's response spreadsheet, but to also get the styled team-notification email and a row in the <em>Stories</em> tab of the STW Order Ledger, we install an <strong>On form submit</strong> trigger on <code>onStoryFormSubmit</code>. One-time setup, ~5 minutes.</p>
+  <p><strong>Why a trigger and not a Web App POST?</strong> The form is an embedded Google Form — there is no JavaScript callback we can hook into from <code>news.html</code>. The trigger fires inside Google's infrastructure every time someone hits Submit, regardless of whether the user came through the modal or a direct form link.</p>
+  <ol>
+    <li>Open the Form (<a href="https://docs.google.com/forms/d/e/1FAIpQLScujGvLDhsovfbUtwj-_W5plU6DcJ454Vy2fIsfWJ3AYFE0Lg/viewform" target="_blank" rel="noopener">Share Photos &amp; Videos — Seed the Word</a>) in the editor (click the pencil icon if you only have the public link, or open it from <a href="https://forms.google.com" target="_blank" rel="noopener">forms.google.com</a> while signed in as the ministry account).</li>
+    <li>Click the <strong>Responses</strong> tab → green Sheets icon → <strong>Select existing spreadsheet</strong> → pick <em>STW Order Ledger</em> (the same sheet your orders write to: <code>17j5TDDTZ-58MuZ7VO7c1ohPkyHw2LZ2GCWYMFb-CJ50</code>). Click <strong>Select</strong>. Google will add a new tab to the spreadsheet automatically — leave it; our trigger writes to its own <em>Stories</em> tab and ignores Google's auto-tab.</li>
+    <li>Open the Apps Script editor (<a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> → <em>STW Order Handler</em>).</li>
+    <li>Click the <strong>⏰ Triggers</strong> icon in the left rail (clock face).</li>
+    <li>Click <strong>+ Add Trigger</strong> bottom-right and set:
+      <ul>
+        <li><strong>Function</strong>: <code>onStoryFormSubmit</code></li>
+        <li><strong>Deployment</strong>: <em>Head</em></li>
+        <li><strong>Event source</strong>: <em>From spreadsheet</em></li>
+        <li><strong>Event type</strong>: <em>On form submit</em></li>
+        <li><strong>Failure notifications</strong>: <em>Notify me immediately</em></li>
+      </ul>
+      Click <strong>Save</strong>.
+    </li>
+    <li>Authorize the Forms scope when Google prompts. (Same "unverified app" → <em>Advanced</em> → <em>Go to STW Order Handler (unsafe)</em> path as the initial deploy.)</li>
+  </ol>
+  <p><strong>Verify it works:</strong> open the live <a href="news.html#share-your-story" target="_blank" rel="noopener">news.html</a>, click <em>📤 Share photos, video &amp; testimony</em>, fill in the form with your own name/email and any caption, and submit. Within ~30 seconds you should see a styled email at <code>seedthewordministry@gmail.com</code> with subject <code>[STW Story] {your name}</code>, and a new row in the <em>Stories</em> tab of the STW Order Ledger.</p>
+  <p><strong>If no email arrives:</strong> open the Apps Script editor → <em>Executions</em> tab. Each form submission should log an <code>onStoryFormSubmit</code> entry with the trigger payload. Common failure modes:</p>
+  <ul>
+    <li><em>"Form trigger fired without namedValues"</em> — the trigger was installed with <strong>Event source: From form</strong> instead of <strong>From spreadsheet</strong>. Delete and recreate the trigger.</li>
+    <li><em>"Form trigger missing name/email"</em> — the form's question labels don't contain "name" or "email". Open the Form editor and confirm the questions are titled <em>Your name</em> and <em>Your email</em>.</li>
+    <li>No execution logged at all — the form's responses aren't linked to a spreadsheet, or they're linked to a spreadsheet other than STW Order Ledger. Repeat step 2.</li>
+  </ul>
+  <p><strong>If you'd rather skip the form entirely</strong> and have the modal POST directly to the same Apps Script Web App (the same path the contact form uses): change the Share-Your-Story modal in <code>news.html</code> from an iframe to a native form, and have it POST <code>{ type: 'story', name, email, story, mediaUrl, consentToPublish }</code> to the URL in <code>orderHandlerUrl</code>. The handler already has a <code>handleStory</code> branch wired up for that path; you just lose the file-upload affordance Google Forms gives you for free.</p>
+
   <h3>✅ Verify the bundle customization tiers</h3>
   <p>The store-page journey now organizes every customization into three tiers: ⭐ <strong>Recommended</strong> (gold-bordered pills with a star prefix), <strong>Standard</strong> (normal pills), and 🛎 <strong>Special-order</strong> (collapsed talk-to-team card). Picking any special-order item changes the order flow: the CTA reads "Continue to share your special-order request →", the team email subject becomes <code>[STW Special Order]</code>, and the Sheet's column O is marked <code>yes</code>. After any catalog edit (<code>assets/js/bundle-item-catalog.js</code>) or Apps Script redeploy, walk this checklist to confirm everything still lines up:</p>
   <ol>

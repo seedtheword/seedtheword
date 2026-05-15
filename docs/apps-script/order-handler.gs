@@ -81,7 +81,7 @@ const CONTACT_HEADERS = [
 ];
 
 const STORIES_HEADERS = [
-  'received_at', 'name', 'email', 'consent_to_publish', 'story', 'media_url', 'route',
+  'received_at', 'name', 'email', 'consent_to_publish', 'location', 'story', 'media_url', 'route',
 ];
 
 // ── Entry point ──────────────────────────────────────────────────
@@ -891,12 +891,13 @@ function handleStory(payload) {
   const email     = String(payload.email || '').trim();
   const story     = String(payload.story || '').trim();
   const consent   = !!payload.consentToPublish;
+  const location  = String(payload.location || '').trim();
   const mediaUrl  = String(payload.mediaUrl || '').trim();
 
   try {
     const sheet = openTab(STORIES_TAB, STORIES_HEADERS);
     sheet.appendRow([
-      new Date(), name, email, consent ? 'yes' : 'no', story, mediaUrl, 'apps-script',
+      new Date(), name, email, consent ? 'yes' : 'no', location, story, mediaUrl, 'apps-script',
     ]);
   } catch (err) {
     console.log('Story sheet append failed:', err);
@@ -904,7 +905,7 @@ function handleStory(payload) {
   }
 
   try {
-    const teamMail = buildStoryTeamEmail({ name, email, story, consent, mediaUrl });
+    const teamMail = buildStoryTeamEmail({ name, email, story, consent, location, mediaUrl });
     MailApp.sendEmail({
       to: teamMail.to,
       subject: teamMail.subject,
@@ -944,6 +945,12 @@ function buildStoryTeamEmail(s) {
     ]),
     { accent: STW_GREEN });
 
+  if (s.location) {
+    body += emailSection('Where it happened',
+      escapeHtml(s.location),
+      { accent: STW_GREEN, dense: true });
+  }
+
   body += emailSection('Their story',
     '<div style="white-space:pre-wrap;font-size:14.5px;line-height:1.65;">' + escapeHtml(s.story) + '</div>',
     { accent: STW_GOLD });
@@ -965,10 +972,15 @@ function buildStoryTeamEmail(s) {
     'Consent: ' + (s.consent ? 'yes — OK to publish' : 'no — keep private'),
     'Sent:    ' + new Date().toISOString(),
     '',
-    'STORY',
-    s.story.split('\n').map(function (l) { return '  ' + l; }).join('\n'),
-    '',
   ];
+  if (s.location) {
+    plainLines.push('LOCATION');
+    plainLines.push('  ' + s.location);
+    plainLines.push('');
+  }
+  plainLines.push('STORY');
+  plainLines.push(s.story.split('\n').map(function (l) { return '  ' + l; }).join('\n'));
+  plainLines.push('');
   if (s.mediaUrl) {
     plainLines.push('Media: ' + s.mediaUrl);
     plainLines.push('');
@@ -994,48 +1006,92 @@ function buildStoryTeamEmail(s) {
 
 // ── Google Form trigger (Share Your Story) ──────────────────────
 // Wire this up via Apps Script editor → ⏰ Triggers → + Add Trigger:
-//   Function: onStoryFormSubmit
-//   Event source: From spreadsheet
-//   Event type: On form submit
-// This fires every time someone submits the linked Google Form.
+//   Function:     onStoryFormSubmit
+//   Event source: From spreadsheet  ← REQUIRED for namedValues access
+//   Event type:   On form submit
+//
+// IMPORTANT: this trigger reads `e.namedValues`, which is only present
+// when the trigger is bound to the spreadsheet that the Form is linked
+// to. Steps to set this up correctly:
+//   1. Open the Form (the same one wired into news.html via
+//      assets/data/media-drop.json's formUrl).
+//   2. Responses tab → green Sheets icon → "Select existing
+//      spreadsheet" → pick the STW Order Ledger
+//      (17j5TDDTZ-58MuZ7VO7c1ohPkyHw2LZ2GCWYMFb-CJ50). The form will
+//      add a new tab automatically. (If you'd rather keep the existing
+//      tab, you can rename the auto-tab afterward — we don't read from
+//      it; we write to our own STORIES_TAB.)
+//   3. In Apps Script editor (STW Order Handler), open Triggers
+//      (clock icon, left rail) → + Add Trigger:
+//         Function: onStoryFormSubmit
+//         Deployment: Head
+//         Event source: From spreadsheet
+//         Event type: On form submit
+//   4. Authorize the Forms scope when Google prompts.
 //
 // The trigger event passes `e.namedValues` keyed by question text.
-// Because the question text is configurable in the Form, we look up
-// fields by best-effort label matching (case-insensitive substring).
+// Question labels are configurable in the Form, so we look up fields
+// by best-effort case-insensitive substring matching.
 function onStoryFormSubmit(e) {
   if (!e || !e.namedValues) {
-    console.log('Form trigger fired without namedValues; aborting.');
+    console.log('Form trigger fired without namedValues — is the trigger bound to the spreadsheet?');
     return;
   }
 
-  const get = function (labelMatch) {
+  // Pick the first namedValues key whose name contains ANY of the
+  // candidate substrings (case-insensitive). Returns the joined string
+  // value (multi-select fields come through as arrays).
+  const get = function (candidates) {
+    const wantList = candidates.map(function (s) { return s.toLowerCase(); });
     const keys = Object.keys(e.namedValues);
-    const want = labelMatch.toLowerCase();
     for (let i = 0; i < keys.length; i++) {
-      if (keys[i].toLowerCase().indexOf(want) !== -1) {
-        const v = e.namedValues[keys[i]];
-        return Array.isArray(v) ? v.join(', ').trim() : String(v || '').trim();
+      const k = keys[i].toLowerCase();
+      for (let j = 0; j < wantList.length; j++) {
+        if (k.indexOf(wantList[j]) !== -1) {
+          const v = e.namedValues[keys[i]];
+          return Array.isArray(v) ? v.join(', ').trim() : String(v || '').trim();
+        }
       }
     }
     return '';
   };
 
-  const name     = get('name');
-  const email    = get('email');
-  const story    = get('story') || get('share') || get('message');
-  const consent  = (get('consent') || get('publish') || get('share')).toLowerCase().indexOf('yes') !== -1;
-  const mediaUrl = get('media') || get('photo') || get('video') || get('upload');
+  const name     = get(['name']);
+  const email    = get(['email']);
+  // The current form (Share Photos & Videos) uses "Tell us about it"
+  // as the freeform question; legacy / future forms might call it
+  // "Your story" or "Share your testimony" — match all of them.
+  const story    = get(['tell us about', 'your story', 'story', 'testimony', 'share', 'message']);
+  const location = get(['where was this', 'where', 'location']);
+  // File-upload questions surface as a comma-separated list of Drive
+  // URLs in namedValues. Some forms use "Upload" or "Photos & videos"
+  // as the question text — match generously.
+  const mediaUrl = get(['upload', 'photos', 'video', 'media', 'file']);
+  // Optional consent question. If the form doesn't include one we
+  // default to false (i.e. private — admins manually flip it to "yes"
+  // in the sheet if the submitter okays publication later).
+  const consentRaw = get(['consent', 'publish', 'ok to share', 'permission']);
+  const consent = consentRaw.toLowerCase().indexOf('yes') !== -1 ||
+                  consentRaw.toLowerCase().indexOf('agree') !== -1;
 
-  if (!name || !email || !story) {
-    console.log('Form trigger missing required fields; namedValues:', JSON.stringify(e.namedValues));
+  // Story is the only truly required signal. If it's missing, fall
+  // back to whatever freeform field we got (location / mediaUrl will
+  // at least give the team something to look at). If even name/email
+  // are missing, log the raw payload and bail — likely a form-spam
+  // submission or a misconfigured trigger.
+  if (!name || !email) {
+    console.log('Form trigger missing name/email; namedValues:', JSON.stringify(e.namedValues));
     return;
   }
+  const effectiveStory = story || ('(no story text provided' +
+    (location ? '; location: ' + location : '') +
+    (mediaUrl ? '; media uploaded' : '') + ')');
 
   // Append to our Stories tab so admins have a unified view.
   try {
     const sheet = openTab(STORIES_TAB, STORIES_HEADERS);
     sheet.appendRow([
-      new Date(), name, email, consent ? 'yes' : 'no', story, mediaUrl, 'google-form',
+      new Date(), name, email, consent ? 'yes' : 'no', location, effectiveStory, mediaUrl, 'google-form',
     ]);
   } catch (err) {
     console.log('Story trigger sheet append failed:', err);
@@ -1043,7 +1099,14 @@ function onStoryFormSubmit(e) {
 
   // Send the team the styled HTML email.
   try {
-    const teamMail = buildStoryTeamEmail({ name, email, story, consent, mediaUrl });
+    const teamMail = buildStoryTeamEmail({
+      name: name,
+      email: email,
+      story: effectiveStory,
+      consent: consent,
+      location: location,
+      mediaUrl: mediaUrl,
+    });
     MailApp.sendEmail({
       to: teamMail.to,
       subject: teamMail.subject,

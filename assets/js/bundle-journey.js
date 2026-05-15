@@ -14,27 +14,59 @@
     ministry:   'Ministry Calling'
   };
 
+  // ── Item catalogs ────────────────────────────────────────────
+  // Bundle / kit items — physical things in the box.
+  // `madeToOrder: true` = handcraft item, ~2-3 weeks.
   var ESSENTIALS_ITEMS = [
-    { key: 'pocket-nt',     label: 'Pocket Gideon NT', note: 'always included' },
-    { key: 'verse-card',    label: 'Highlighted verse card' },
-    { key: 'welcome-note',  label: 'Welcome note' },
-    { key: 'tags-stickers', label: 'Tags & stickers' },
-    { key: 'card-holder',   label: 'Card holder' },
-    { key: 'wrap',          label: 'Decorative wrap' },
-    { key: 'bookmarks',     label: 'Bookmarks' }
+    { key: 'pocket-nt',         label: 'Pocket Gideon NT',                note: 'always included' },
+    { key: 'highlighter-stickies', label: 'Highlighter & sticky notes' },
+    { key: 'mini-notepad',      label: 'Mini pocket notepad' },
+    { key: 'pen',               label: 'Pen' },
+    { key: 'bookmarks',         label: 'Bookmarks (set)' },
+    { key: 'stickers',          label: 'Stickers' },
+    { key: 'welcome-note',      label: 'Welcome note' },
+    { key: 'postcards',         label: 'Postcards (with verses)' },
+    { key: 'tags',              label: 'Gift tags' },
+    { key: 'card-holder',       label: 'Card holder' },
+    { key: 'wrap',              label: 'Decorative wrap' },
+    { key: 'keychain',          label: 'Keychain' },
+    { key: 'bracelet',          label: 'Bracelet' },
+    { key: 'mini-jesus',        label: 'Mini Jesus figurine',             madeToOrder: true },
+    { key: 'stuffed-crochet',   label: 'Stuffed crochet figurine',        madeToOrder: true },
+    { key: 'flip-book',         label: 'Flip book' },
+    { key: 'qr-card',           label: 'QR card → start a life group'    }
   ];
   var ESSENTIALS_ITEM_KEYS = ESSENTIALS_ITEMS.map(function (i) { return i.key; });
+  // All items pre-selected by default for Essentials (full kit). User
+  // toggles off anything they don't want. Pocket NT can't be deselected.
   var ESSENTIALS_ITEM_DEFAULTS = ESSENTIALS_ITEM_KEYS.slice();
 
+  // Personal touches — done to the Bible itself or a single piece.
+  // These are EXTRAS on top of the kit, not pre-selected by default.
   var PERSONALIZATION = [
-    { key: 'engraving',          label: 'Name engraving' },
-    { key: 'verse-highlighting', label: 'Verse highlighting' },
-    { key: 'note',               label: 'Handwritten note' },
-    { key: 'cover',              label: 'Custom cover color' },
-    { key: 'bookmark-set',       label: 'Bookmark set' },
-    { key: 'gift-box',           label: 'Gift box' }
+    { key: 'engraving',           label: 'Custom engraving (name / verse / dedication)' },
+    { key: 'painting-bible',      label: 'Custom painting on Bible cover',  madeToOrder: true },
+    { key: 'painting-separate',   label: 'Custom painting on a separate piece', madeToOrder: true },
+    { key: 'verse-highlighting',  label: 'Verse highlighting (specific verses pre-marked)' },
+    { key: 'custom-cover-color',  label: 'Custom cover color' },
+    { key: 'custom-postcards',    label: 'Custom postcards (handwritten)',  madeToOrder: true },
+    { key: 'custom-stickers',     label: 'Custom stickers',                 madeToOrder: true },
+    { key: 'handwritten-note',    label: 'Handwritten note from our team' },
+    { key: 'gift-box',            label: 'Gift box upgrade' }
   ];
   var PERSONALIZATION_KEYS = PERSONALIZATION.map(function (p) { return p.key; });
+
+  // Subset of personalization that needs a free-text "what would you
+  // like?" prompt. Triggered when the user toggles any of these on.
+  var CUSTOM_DETAIL_KEYS = [
+    'engraving',
+    'painting-bible',
+    'painting-separate',
+    'verse-highlighting',
+    'custom-postcards',
+    'custom-stickers',
+    'handwritten-note'
+  ];
 
   var COVER_THEMES = [
     { key: 'cream', label: 'Cream' },
@@ -44,11 +76,15 @@
   ];
   var COVER_THEME_KEYS = COVER_THEMES.map(function (c) { return c.key; });
 
+  // Ministry Calling — bulk-friendly add-ons. Per-Bible handcraft is
+  // intentionally NOT offered here (impractical at 25-200 volume).
   var MINISTRY_ADDONS = [
-    { key: 'tract-pack',    label: 'Tract pack' },
-    { key: 'carrying-case', label: 'Carrying case' },
-    { key: 'prayer-cards',  label: 'Prayer cards' },
-    { key: 'leader-guide',  label: 'Leader guide' }
+    { key: 'tract-pack',         label: 'Tract pack' },
+    { key: 'carrying-case',      label: 'Carrying case' },
+    { key: 'prayer-cards',       label: 'Prayer cards' },
+    { key: 'leader-guide',       label: 'Leader guide' },
+    { key: 'generic-postcards',  label: 'Generic postcards (with verses)' },
+    { key: 'generic-stickers',   label: 'Generic stickers' }
   ];
   var MINISTRY_ADDON_KEYS = MINISTRY_ADDONS.map(function (a) { return a.key; });
 
@@ -76,10 +112,10 @@
 
   function defaultStateForBundle(key) {
     if (key === 'essentials') {
-      return { bundle: 'essentials', recipient: null, essentialsItems: ESSENTIALS_ITEM_DEFAULTS.slice(), personalization: [] };
+      return { bundle: 'essentials', recipient: null, essentialsItems: ESSENTIALS_ITEM_DEFAULTS.slice(), personalization: [], customDetails: {} };
     }
     if (key === 'lifegroup') {
-      return { bundle: 'lifegroup', quantity: null, perBibleNames: [], groupIdentity: { groupName: '', coverTheme: 'none' }, essentialsAddOns: [] };
+      return { bundle: 'lifegroup', quantity: null, perBibleNames: [], groupIdentity: { groupName: '', coverTheme: 'none' }, essentialsAddOns: [], personalization: [], customDetails: {} };
     }
     if (key === 'ministry') {
       return { bundle: 'ministry', volumeTier: null, customQuantity: null, outreach: { eventName: '', location: '', eventDate: '', anchorVerse: 'none' }, addOns: [] };
@@ -128,6 +164,7 @@
       if (c.recipient !== null && ['self','friend','newcomer'].indexOf(c.recipient) === -1) return false;
       if (!isStringArrayOf(c.essentialsItems, ESSENTIALS_ITEM_KEYS)) return false;
       if (!isStringArrayOf(c.personalization, PERSONALIZATION_KEYS)) return false;
+      if (c.customDetails !== undefined && (c.customDetails === null || typeof c.customDetails !== 'object')) return false;
       return true;
     }
     if (c.bundle === 'lifegroup') {
@@ -142,6 +179,8 @@
       if (typeof c.groupIdentity.groupName !== 'string' || c.groupIdentity.groupName.length > 40) return false;
       if (COVER_THEME_KEYS.indexOf(c.groupIdentity.coverTheme) === -1) return false;
       if (!isStringArrayOf(c.essentialsAddOns, ESSENTIALS_ITEM_KEYS)) return false;
+      if (c.personalization !== undefined && !isStringArrayOf(c.personalization, PERSONALIZATION_KEYS)) return false;
+      if (c.customDetails !== undefined && (c.customDetails === null || typeof c.customDetails !== 'object')) return false;
       return true;
     }
     if (c.bundle === 'ministry') {
@@ -169,12 +208,18 @@
     t.innerHTML = html.trim();
     return t.content.firstElementChild;
   }
-  function makePill(label, isOn, onClick) {
+  function makePill(label, isOn, onClick, opts) {
+    opts = opts || {};
     var b = document.createElement('button');
     b.type = 'button';
     b.className = 'journey-pill' + (isOn ? ' journey-pill--on' : '');
     b.setAttribute('aria-pressed', isOn ? 'true' : 'false');
-    b.textContent = label;
+    if (opts.madeToOrder) {
+      b.innerHTML = escapeHtml(label) +
+        ' <span style="display:inline-block;margin-left:0.4rem;padding:1px 6px;border-radius:999px;background:rgba(212,165,116,0.25);color:#7a5a2a;font-size:0.72rem;font-weight:700;letter-spacing:0.04em;">made-to-order</span>';
+    } else {
+      b.textContent = label;
+    }
     b.addEventListener('click', onClick);
     return b;
   }
@@ -244,20 +289,30 @@
     var itemsRow = document.createElement('div');
     itemsRow.className = 'journey-pills';
     ESSENTIALS_ITEMS.forEach(function (item) {
+      // Pocket NT can't be deselected — it's the gift.
+      if (item.key === 'pocket-nt') {
+        var fixed = document.createElement('span');
+        fixed.className = 'journey-pill journey-pill--on';
+        fixed.style.cursor = 'default';
+        fixed.style.opacity = '0.95';
+        fixed.innerHTML = escapeHtml(item.label) +
+          ' <span style="display:inline-block;margin-left:0.4rem;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,0.25);color:#fff;font-size:0.72rem;font-weight:700;letter-spacing:0.04em;">always included</span>';
+        itemsRow.appendChild(fixed);
+        return;
+      }
       var on = state.essentialsItems.indexOf(item.key) !== -1;
-      var label = item.label + (item.note ? '' : '');
-      var pill = makePill(label, on, function () {
+      var pill = makePill(item.label, on, function () {
         toggle(state.essentialsItems, item.key);
         saveState();
-        // Re-evaluate the warning live
         renderEssentialsItems(body, advanceFn);
-      });
+      }, { madeToOrder: !!item.madeToOrder });
       itemsRow.appendChild(pill);
     });
     body.appendChild(itemsRow);
 
-    if (state.essentialsItems.length === 0) {
-      body.appendChild(el('<p class="journey-notice">Heads up — shipping a single Bible alone is roughly the same $7 as shipping the full set, and we can\'t guarantee bulk rates. Most folks add the items so the gift feels complete.</p>'));
+    if (state.essentialsItems.indexOf('pocket-nt') === -1) state.essentialsItems.unshift('pocket-nt');
+    if (state.essentialsItems.length <= 1) {
+      body.appendChild(el('<p class="journey-notice">Heads up — shipping a single Bible alone is roughly the same $7 as shipping the full kit, and we can\'t guarantee bulk rates. Most folks add the items so the gift feels complete.</p>'));
     }
 
     body.appendChild(el('<h3 class="journey-subhead">Personal touches (optional)</h3>'));
@@ -267,13 +322,68 @@
       var on = state.personalization.indexOf(p.key) !== -1;
       persRow.appendChild(makePill(p.label, on, function () {
         toggle(state.personalization, p.key);
+        // If we just turned OFF a custom item, also clear its detail.
+        if (state.personalization.indexOf(p.key) === -1 && state.customDetails) {
+          delete state.customDetails[p.key];
+        }
         saveState();
         renderEssentialsItems(body, advanceFn);
-      }));
+      }, { madeToOrder: !!p.madeToOrder }));
     });
     body.appendChild(persRow);
 
+    // Inline "describe what you'd like" textareas for each toggled-on
+    // custom item that needs a detail prompt.
+    var needsDetail = state.personalization.filter(function (k) {
+      return CUSTOM_DETAIL_KEYS.indexOf(k) !== -1;
+    });
+    if (needsDetail.length) {
+      var detailWrap = document.createElement('div');
+      detailWrap.style.marginTop = '1rem';
+      detailWrap.style.display = 'flex';
+      detailWrap.style.flexDirection = 'column';
+      detailWrap.style.gap = '0.7rem';
+      needsDetail.forEach(function (key) {
+        var def = PERSONALIZATION.find(function (x) { return x.key === key; });
+        if (!def) return;
+        var row = document.createElement('div');
+        var lbl = document.createElement('label');
+        lbl.className = 'journey-field-label';
+        lbl.htmlFor = 'jrn-detail-' + key;
+        lbl.textContent = def.label + ' — describe what you\'d like';
+        var ta = document.createElement('textarea');
+        ta.id = 'jrn-detail-' + key;
+        ta.className = 'journey-textarea';
+        ta.placeholder = customDetailPlaceholder(key);
+        ta.maxLength = 400;
+        if (!state.customDetails) state.customDetails = {};
+        ta.value = state.customDetails[key] || '';
+        ta.addEventListener('input', function () {
+          if (!state.customDetails) state.customDetails = {};
+          state.customDetails[key] = ta.value;
+          saveState();
+        });
+        row.appendChild(lbl);
+        row.appendChild(ta);
+        detailWrap.appendChild(row);
+      });
+      body.appendChild(detailWrap);
+    }
+
     body.appendChild(makeContinueRow({ primaryLabel: 'Continue to review →', onPrimary: advanceFn }));
+  }
+
+  function customDetailPlaceholder(key) {
+    switch (key) {
+      case 'engraving':           return 'e.g. "Sarah Johnson — John 3:16"';
+      case 'painting-bible':      return 'e.g. "watercolor sunflowers across the cover"';
+      case 'painting-separate':   return 'e.g. "small canvas, Psalm 23 in calligraphy with green hills"';
+      case 'verse-highlighting':  return 'List the verses you\'d like marked, e.g. "John 3:16, Romans 8:28, Psalm 23"';
+      case 'custom-postcards':    return 'e.g. "two postcards: one welcome, one with their favorite verse"';
+      case 'custom-stickers':     return 'e.g. "a few stickers with their name and a small cross"';
+      case 'handwritten-note':    return 'What would you like the note to say?';
+      default: return 'Anything specific you\'d like us to know?';
+    }
   }
 
   // Essentials Step 3: Review
@@ -414,7 +524,7 @@
   // Life Group Step 4: Essentials add-ons (per Bible)
   function renderLifegroupAddons(body, advanceFn) {
     body.innerHTML = '';
-    body.appendChild(el('<p>Want to include any Essentials items for each member? We multiply your selection by your group size.</p>'));
+    body.appendChild(el('<p>Want to include any Essentials items for each member? We multiply your selection by your group size — every Bible gets the same items.</p>'));
     var pills = document.createElement('div');
     pills.className = 'journey-pills';
     ESSENTIALS_ITEMS.forEach(function (item) {
@@ -425,7 +535,7 @@
         toggle(state.essentialsAddOns, item.key);
         saveState();
         renderLifegroupAddons(body, advanceFn);
-      }));
+      }, { madeToOrder: !!item.madeToOrder }));
     });
     body.appendChild(pills);
     body.appendChild(makeContinueRow({

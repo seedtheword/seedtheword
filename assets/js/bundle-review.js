@@ -14,22 +14,35 @@
     ministry:   'Ministry Calling'
   };
   var ESSENTIALS_ITEMS = [
-    { key: 'pocket-nt',     label: 'Pocket Gideon NT' },
-    { key: 'verse-card',    label: 'Highlighted verse card' },
-    { key: 'welcome-note',  label: 'Welcome note' },
-    { key: 'tags-stickers', label: 'Tags & stickers' },
-    { key: 'card-holder',   label: 'Card holder' },
-    { key: 'wrap',          label: 'Decorative wrap' },
-    { key: 'bookmarks',     label: 'Bookmarks' }
+    { key: 'pocket-nt',            label: 'Pocket Gideon NT' },
+    { key: 'highlighter-stickies', label: 'Highlighter & sticky notes' },
+    { key: 'mini-notepad',         label: 'Mini pocket notepad' },
+    { key: 'pen',                  label: 'Pen' },
+    { key: 'bookmarks',            label: 'Bookmarks (set)' },
+    { key: 'stickers',             label: 'Stickers' },
+    { key: 'welcome-note',         label: 'Welcome note' },
+    { key: 'postcards',            label: 'Postcards (with verses)' },
+    { key: 'tags',                 label: 'Gift tags' },
+    { key: 'card-holder',          label: 'Card holder' },
+    { key: 'wrap',                 label: 'Decorative wrap' },
+    { key: 'keychain',             label: 'Keychain' },
+    { key: 'bracelet',             label: 'Bracelet' },
+    { key: 'mini-jesus',           label: 'Mini Jesus figurine' },
+    { key: 'stuffed-crochet',      label: 'Stuffed crochet figurine' },
+    { key: 'flip-book',            label: 'Flip book' },
+    { key: 'qr-card',              label: 'QR card → start a life group' }
   ];
   var ESSENTIALS_ITEM_KEYS = ESSENTIALS_ITEMS.map(function (i) { return i.key; });
   var PERSONALIZATION = [
-    { key: 'engraving',          label: 'Name engraving' },
-    { key: 'verse-highlighting', label: 'Verse highlighting' },
-    { key: 'note',               label: 'Handwritten note' },
-    { key: 'cover',              label: 'Custom cover color' },
-    { key: 'bookmark-set',       label: 'Bookmark set' },
-    { key: 'gift-box',           label: 'Gift box' }
+    { key: 'engraving',           label: 'Custom engraving' },
+    { key: 'painting-bible',      label: 'Custom painting on Bible cover' },
+    { key: 'painting-separate',   label: 'Custom painting on a separate piece' },
+    { key: 'verse-highlighting',  label: 'Verse highlighting' },
+    { key: 'custom-cover-color',  label: 'Custom cover color' },
+    { key: 'custom-postcards',    label: 'Custom postcards' },
+    { key: 'custom-stickers',     label: 'Custom stickers' },
+    { key: 'handwritten-note',    label: 'Handwritten note from our team' },
+    { key: 'gift-box',            label: 'Gift box upgrade' }
   ];
   var PERSONALIZATION_KEYS = PERSONALIZATION.map(function (p) { return p.key; });
   var COVER_THEMES = [
@@ -40,10 +53,12 @@
   ];
   var COVER_THEME_KEYS = COVER_THEMES.map(function (c) { return c.key; });
   var MINISTRY_ADDONS = [
-    { key: 'tract-pack',    label: 'Tract pack' },
-    { key: 'carrying-case', label: 'Carrying case' },
-    { key: 'prayer-cards',  label: 'Prayer cards' },
-    { key: 'leader-guide',  label: 'Leader guide' }
+    { key: 'tract-pack',         label: 'Tract pack' },
+    { key: 'carrying-case',      label: 'Carrying case' },
+    { key: 'prayer-cards',       label: 'Prayer cards' },
+    { key: 'leader-guide',       label: 'Leader guide' },
+    { key: 'generic-postcards',  label: 'Generic postcards (with verses)' },
+    { key: 'generic-stickers',   label: 'Generic stickers' }
   ];
   var MINISTRY_ADDON_KEYS = MINISTRY_ADDONS.map(function (a) { return a.key; });
   var ANCHOR_VERSES = [
@@ -159,6 +174,7 @@
     var pers = s.personalization.length
       ? s.personalization.map(function (k) { return labelFor(PERSONALIZATION, k); }).join(', ')
       : 'None';
+    var details = renderCustomDetailsHtml(s.customDetails || {});
     return '' +
       '<dl class="journey-review__list">' +
         '<dt>Bundle</dt><dd>' + escapeHtml(BUNDLE_DISPLAY.essentials) + '</dd>' +
@@ -166,7 +182,17 @@
         '<dt>What\'s included</dt><dd>' + escapeHtml(items) + '</dd>' +
         '<dt>Personal touches</dt><dd>' + escapeHtml(pers) + '</dd>' +
       '</dl>' +
-      '<p style="color:var(--muted);font-size:0.9rem;line-height:1.55;margin:0">Bible at our $2 ministry rate · roughly $7 shipping with the full kit · we\'ll confirm the exact total with you.</p>';
+      details +
+      '<p style="color:var(--muted);font-size:0.9rem;line-height:1.55;margin:0">Bible at our $2 ministry rate · roughly $7 shipping with the full kit · we\'ll confirm the exact total with you. Made-to-order items take 2-3 weeks.</p>';
+  }
+
+  function renderCustomDetailsHtml(details) {
+    var keys = Object.keys(details || {}).filter(function (k) { return (details[k] || '').trim(); });
+    if (!keys.length) return '';
+    var rows = keys.map(function (k) {
+      return '<dt>' + escapeHtml(labelFor(PERSONALIZATION, k)) + '</dt><dd><em>' + escapeHtml(details[k].trim()) + '</em></dd>';
+    }).join('');
+    return '<dl class="journey-review__list" style="margin-top:0.5rem">' + rows + '</dl>';
   }
 
   function renderLifegroupReview(s) {
@@ -219,6 +245,15 @@
       lines.push('Recipient: ' + recipientLabel(s.recipient));
       lines.push('Items: ' + (s.essentialsItems.length ? s.essentialsItems.map(function (k) { return labelFor(ESSENTIALS_ITEMS, k); }).join(', ') : 'Bible only'));
       lines.push('Personal touches: ' + (s.personalization.length ? s.personalization.map(function (k) { return labelFor(PERSONALIZATION, k); }).join(', ') : 'None'));
+      var det = s.customDetails || {};
+      var keys = Object.keys(det).filter(function (k) { return (det[k] || '').trim(); });
+      if (keys.length) {
+        lines.push('');
+        lines.push('Custom details:');
+        keys.forEach(function (k) {
+          lines.push('  ' + labelFor(PERSONALIZATION, k) + ': ' + det[k].trim());
+        });
+      }
     }
     if (s.bundle === 'lifegroup') {
       lines.push('Quantity: ' + s.quantity);
@@ -230,6 +265,18 @@
         lines.push('  ' + (i + 1) + '. ' + (n.trim() ? n.trim() : '(skipped)'));
       });
       lines.push('Add-ons (per Bible): ' + (s.essentialsAddOns.length ? s.essentialsAddOns.map(function (k) { return labelFor(ESSENTIALS_ITEMS, k); }).join(', ') : 'None'));
+      if (Array.isArray(s.personalization) && s.personalization.length) {
+        lines.push('Personal touches: ' + s.personalization.map(function (k) { return labelFor(PERSONALIZATION, k); }).join(', '));
+      }
+      var lgDet = s.customDetails || {};
+      var lgKeys = Object.keys(lgDet).filter(function (k) { return (lgDet[k] || '').trim(); });
+      if (lgKeys.length) {
+        lines.push('');
+        lines.push('Custom details:');
+        lgKeys.forEach(function (k) {
+          lines.push('  ' + labelFor(PERSONALIZATION, k) + ': ' + lgDet[k].trim());
+        });
+      }
     }
     if (s.bundle === 'ministry') {
       var qty = s.volumeTier === 'custom' ? s.customQuantity : s.volumeTier;

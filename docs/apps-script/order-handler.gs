@@ -376,54 +376,92 @@ const STW_MUTED = '#666';
 const STW_BORDER = '#e8e4de';
 
 function emailShell(opts) {
-  // opts: { headerEmoji, headerTitle, headerSubtitle, bodyHtml, footerHtml, accentColor }
+  // opts: { headerTitle, headerSubtitle, bodyHtml, footerHtml, accentColor }
   const accent = opts.accentColor || STW_GREEN;
   return '' +
-    '<div style="margin:0;padding:24px 12px;background:#f7f3ec;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:' + STW_TEXT + ';line-height:1.55;">' +
-      '<div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid ' + STW_BORDER + ';box-shadow:0 4px 18px rgba(31,38,135,0.10);">' +
-        // Header strip
-        '<div style="background:linear-gradient(135deg,' + accent + ' 0%,' + STW_GOLD + ' 100%);padding:20px 24px;color:#fff;">' +
-          '<div style="font-size:13px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;opacity:0.92;">' + escapeHtml(opts.headerEmoji + ' Seed the Word Ministry') + '</div>' +
-          '<div style="font-size:22px;font-weight:800;margin-top:4px;">' + escapeHtml(opts.headerTitle) + '</div>' +
+    '<div style="margin:0;padding:32px 12px;background:#f7f3ec;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:' + STW_TEXT + ';line-height:1.6;">' +
+      '<div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid ' + STW_BORDER + ';box-shadow:0 2px 12px rgba(31,38,135,0.06);">' +
+        // Header — single accent stripe + brand line + title
+        '<div style="border-top:4px solid ' + accent + ';padding:28px 32px 22px 32px;border-bottom:1px solid ' + STW_BORDER + ';">' +
+          '<div style="font-size:11.5px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;color:' + accent + ';margin-bottom:10px;">Seed the Word Ministry</div>' +
+          '<div style="font-size:22px;font-weight:700;color:' + STW_TEXT + ';line-height:1.3;">' + escapeHtml(opts.headerTitle) + '</div>' +
           (opts.headerSubtitle
-            ? '<div style="font-size:14px;font-weight:500;margin-top:6px;opacity:0.95;">' + escapeHtml(opts.headerSubtitle) + '</div>'
+            ? '<div style="font-size:14px;font-weight:400;margin-top:6px;color:' + STW_MUTED + ';">' + escapeHtml(opts.headerSubtitle) + '</div>'
             : '') +
         '</div>' +
         // Body
-        '<div style="padding:24px 26px 18px 26px;font-size:15px;color:' + STW_TEXT + ';">' +
+        '<div style="padding:28px 32px 8px 32px;font-size:15px;color:' + STW_TEXT + ';">' +
           opts.bodyHtml +
         '</div>' +
         // Footer
-        '<div style="padding:14px 26px 22px 26px;border-top:1px solid ' + STW_BORDER + ';font-size:12.5px;color:' + STW_MUTED + ';">' +
-          (opts.footerHtml || '— The Seed the Word team') +
+        '<div style="padding:18px 32px 24px 32px;border-top:1px solid ' + STW_BORDER + ';font-size:12.5px;color:' + STW_MUTED + ';line-height:1.5;">' +
+          (opts.footerHtml || 'Seed the Word Ministry') +
         '</div>' +
       '</div>' +
     '</div>';
 }
 
 function emailSection(label, valueHtml, opts) {
-  // opts: { accent: color, monospace: bool }
+  // opts: { accent, monospace, dense }
   const accent = (opts && opts.accent) || STW_GOLD;
+  const dense  = !!(opts && opts.dense);
   const valueStyle = (opts && opts.monospace)
-    ? 'font-family:Consolas,Menlo,Monaco,Courier New,monospace;font-size:13.5px;white-space:pre-wrap;'
+    ? 'font-family:Consolas,Menlo,Monaco,Courier New,monospace;font-size:13px;white-space:pre-wrap;'
     : '';
   return '' +
-    '<div style="margin:0 0 16px 0;padding:12px 14px 14px 14px;background:' + STW_CREAM + ';border-left:4px solid ' + accent + ';border-radius:8px;">' +
-      '<div style="font-size:11.5px;letter-spacing:0.10em;text-transform:uppercase;font-weight:800;color:' + STW_GREEN + ';margin-bottom:6px;">' + escapeHtml(label) + '</div>' +
-      '<div style="font-size:14.5px;color:' + STW_TEXT + ';' + valueStyle + '">' + valueHtml + '</div>' +
+    '<div style="margin:0 0 ' + (dense ? '14px' : '20px') + ';">' +
+      '<div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;color:' + accent + ';margin:0 0 8px;border-left:3px solid ' + accent + ';padding-left:10px;">' + escapeHtml(label) + '</div>' +
+      '<div style="font-size:14.5px;color:' + STW_TEXT + ';line-height:1.55;padding-left:13px;' + valueStyle + '">' + valueHtml + '</div>' +
     '</div>';
 }
 
 function emailKeyValueRow(rows) {
-  // rows: [{label, value}, ...]
   return '<table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">' +
     rows.map(function (r) {
       return '<tr>' +
-        '<td style="padding:4px 12px 4px 0;color:' + STW_MUTED + ';font-weight:700;font-size:13px;width:120px;vertical-align:top;">' + escapeHtml(r.label) + '</td>' +
-        '<td style="padding:4px 0;color:' + STW_TEXT + ';font-size:14.5px;vertical-align:top;">' + r.value + '</td>' +
+        '<td style="padding:3px 14px 3px 0;color:' + STW_MUTED + ';font-weight:600;font-size:13px;width:120px;vertical-align:top;">' + escapeHtml(r.label) + '</td>' +
+        '<td style="padding:3px 0;color:' + STW_TEXT + ';font-size:14px;vertical-align:top;">' + r.value + '</td>' +
       '</tr>';
     }).join('') +
   '</table>';
+}
+
+// Render a string of "Label: value" lines OR a multi-line string as a
+// clean HTML <ul> for the email body. Auto-detects "Key: value" vs
+// plain bullet by looking for a colon in the first 60 chars.
+function emailBulletList(text) {
+  if (!text) return '';
+  var lines = String(text).split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+  if (!lines.length) return '';
+  var items = lines.map(function (line) {
+    var colonIdx = line.indexOf(':');
+    // Treat as "Label: value" only if colon is in first 30 chars and
+    // the label half is short (i.e. it's a real key).
+    if (colonIdx > 0 && colonIdx < 30) {
+      var label = line.slice(0, colonIdx).trim();
+      var value = line.slice(colonIdx + 1).trim();
+      if (value) {
+        return '<li style="margin:0 0 5px;"><strong style="color:' + STW_TEXT + ';">' + escapeHtml(label) + ':</strong> ' + escapeHtml(value) + '</li>';
+      }
+      // No value after colon — treat the label as a sub-header.
+      return '<li style="margin:8px 0 4px;list-style:none;font-weight:700;color:' + STW_GREEN + ';font-size:12.5px;letter-spacing:0.04em;text-transform:uppercase;">' + escapeHtml(label) + '</li>';
+    }
+    // Indented sub-line (the script emits 2-space indents under labels)
+    if (/^\s+/.test(String(text).split('\n').find(function (raw) { return raw.trim() === line; }) || '')) {
+      // best-effort: render as a sub-bullet
+      return '<li style="margin:0 0 4px;list-style-type:circle;color:' + STW_TEXT + ';">' + escapeHtml(line) + '</li>';
+    }
+    return '<li style="margin:0 0 5px;">' + escapeHtml(line) + '</li>';
+  }).join('');
+  return '<ul style="margin:0;padding:0 0 0 1.1rem;font-size:14px;color:' + STW_TEXT + ';line-height:1.55;">' + items + '</ul>';
+}
+
+// Render an array of strings as a simple bulleted list.
+function emailSimpleBullets(items) {
+  if (!items || !items.length) return '';
+  return '<ul style="margin:0;padding:0 0 0 1.1rem;font-size:14px;color:' + STW_TEXT + ';line-height:1.6;">' +
+    items.map(function (i) { return '<li style="margin:0 0 5px;">' + escapeHtml(i) + '</li>'; }).join('') +
+    '</ul>';
 }
 
 function buildGifterEmail(p, orderId) {
@@ -431,135 +469,124 @@ function buildGifterEmail(p, orderId) {
   const isSpecial = p.isSpecialOrder === true;
   const subject = isSpecial
     ? (isMinistry
-        ? 'STW Special Order (Ministry) — we\'ll reach out, ' + p.gifter.name
-        : 'STW Special Order — we\'ll reach out, ' + p.gifter.name)
+        ? 'Special order received — Ministry Calling — ' + p.gifter.name
+        : 'Special order received — ' + p.gifter.name)
     : (isMinistry
-        ? 'STW Ministry Calling — we received your story, ' + p.gifter.name
-        : 'STW Bundle — we got your order, ' + p.gifter.name);
+        ? 'Your Ministry Calling story has been received — ' + p.gifter.name
+        : 'Your order has been received — ' + p.gifter.name);
 
   // ── Plain-text body (fallback for clients that don't render HTML) ──
   const lines = [];
-  lines.push('Hi ' + p.gifter.name + ',');
+  lines.push('Dear ' + p.gifter.name + ',');
   lines.push('');
   if (isSpecial) {
-    lines.push('Thank you for sharing your special-order request with us. One of us');
-    lines.push('will reach out before any work starts — no rush, no commitment yet.');
+    lines.push('Thank you for your special-order request. A member of our team will');
+    lines.push('reach out within 2-3 business days to confirm details before any work');
+    lines.push('begins. No commitment is required at this stage.');
     lines.push('');
-    lines.push('Special-order items flagged:');
-    (p.specialOrderItems || []).forEach(function (l) { lines.push('  • ' + l); });
+    lines.push('SPECIAL-ORDER ITEMS');
+    (p.specialOrderItems || []).forEach(function (l) { lines.push('  - ' + l); });
     lines.push('');
-    lines.push(isMinistry ? 'Your story' : 'Your gift');
+    lines.push(isMinistry ? 'YOUR STORY' : 'YOUR ORDER');
   } else if (isMinistry) {
-    lines.push('Thank you for sharing this with us. This isn\'t a checkout — it\'s an');
-    lines.push('invitation, and we read every story personally before walking it');
-    lines.push('through with you.');
+    lines.push('Thank you for sharing your story with our ministry. A member of our');
+    lines.push('team will read your submission personally and reach out within 2-3');
+    lines.push('business days to walk through next steps.');
     lines.push('');
-    lines.push('Your story');
+    lines.push('YOUR STORY');
   } else {
-    lines.push('We got your order. Below is what you sent us. We confirm every gift');
-    lines.push('personally before any charge — you\'ll hear back from us by email');
-    lines.push('within a few days.');
+    lines.push('Your order has been received. A summary appears below. We confirm');
+    lines.push('every order personally and will follow up within 2-3 business days');
+    lines.push('to verify details before any charge.');
     lines.push('');
-    lines.push('Your gift');
+    lines.push('YOUR ORDER');
   }
-  lines.push('─────────');
-  lines.push(p.configText || '');
+  lines.push((p.configText || '').split('\n').map(function (l) { return '  ' + l; }).join('\n'));
   lines.push('');
-  if (!isMinistry && p.gifter.deliveryDetails) {
-    lines.push('Where to send it'); lines.push('─────────');
-    lines.push(p.gifter.deliveryDetails); lines.push('');
+  if (!isMinistry && p.gifter.deliveryDetails && p.gifter.deliveryDetails.trim()) {
+    lines.push('DELIVERY ADDRESS');
+    lines.push('  ' + p.gifter.deliveryDetails);
+    lines.push('');
   }
   if (p.gifter.dedication && p.gifter.dedication.trim()) {
-    lines.push(isMinistry ? "What you'd like us to know" : 'Dedication');
-    lines.push('─────────');
-    lines.push(p.gifter.dedication.trim()); lines.push('');
+    lines.push(isMinistry ? 'NOTES TO OUR TEAM' : 'DEDICATION MESSAGE');
+    lines.push('  ' + p.gifter.dedication.trim());
+    lines.push('');
   }
   if (p.signOptOut === true) {
-    lines.push('Per your request, we won\'t sign the back cover of the Bible.');
+    lines.push('Per your request, we will not sign the back cover of the Bible.');
     lines.push('');
   }
   if (!isMinistry && p.giftee && p.giftee.optIn === true) {
-    lines.push('Heads-up to ' + (p.giftee.name || 'them'));
-    lines.push('─────────');
-    lines.push('We sent ' + (p.giftee.email || 'them') + ' a short note letting them know a gift is on the way.');
+    lines.push('A heads-up message has been sent to ' + (p.giftee.name || 'the recipient') +
+               ' at ' + (p.giftee.email || 'their address') + '.');
     lines.push('');
   }
-  if (isSpecial) {
-    lines.push('One of us will reach out before any work starts — no rush, no commitment yet.');
-    lines.push('');
-    lines.push('Reference: ' + orderId);
-  } else if (isMinistry) {
-    lines.push('One of us will reach out by email within a few days. No automatic charge, no rush.');
-    lines.push('');
-    lines.push('Reference: ' + orderId);
-  } else {
-    lines.push('Order reference: ' + orderId);
-  }
+  lines.push('Reference: ' + orderId);
   lines.push('');
-  lines.push('Thank you for partnering with us.');
+  lines.push('Thank you for partnering with Seed the Word Ministry.');
   lines.push('');
-  lines.push('— The Seed the Word team');
+  lines.push('Sincerely,');
+  lines.push('The Seed the Word team');
+  lines.push(TEAM_INBOX);
 
   // ── HTML body ────────────────────────────────────────────────
   let body = '';
-  body += '<p style="margin:0 0 14px;">Hi <strong>' + escapeHtml(p.gifter.name) + '</strong>,</p>';
+  body += '<p style="margin:0 0 18px;font-size:15px;">Dear <strong>' + escapeHtml(p.gifter.name) + '</strong>,</p>';
+
   if (isSpecial) {
-    body += '<p style="margin:0 0 14px;">Thank you for sharing your special-order request with us. One of us will reach out before any work starts — no rush, no commitment yet.</p>';
-    body += emailSection('🛎 Special-order items flagged',
-      '<ul style="margin:0;padding-left:1.2rem;">' +
-        (p.specialOrderItems || []).map(function (l) { return '<li>' + escapeHtml(l) + '</li>'; }).join('') +
-      '</ul>',
-      { accent: STW_GOLD });
+    body += '<p style="margin:0 0 22px;">Thank you for your special-order request. A member of our team will reach out within 2-3 business days to confirm details before any work begins. No commitment is required at this stage.</p>';
+    body += emailSection('Special-order items', emailSimpleBullets(p.specialOrderItems || []), { accent: STW_GOLD });
   } else if (isMinistry) {
-    body += '<p style="margin:0 0 18px;">Thank you for sharing this with us. This isn\'t a checkout — it\'s an invitation, and we read every story personally before walking it through with you.</p>';
+    body += '<p style="margin:0 0 22px;">Thank you for sharing your story with our ministry. A member of our team will read your submission personally and reach out within 2-3 business days to walk through next steps.</p>';
   } else {
-    body += '<p style="margin:0 0 18px;">We got your order. Below is what you sent us. We confirm every gift personally before any charge — you\'ll hear back from us by email within a few days.</p>';
+    body += '<p style="margin:0 0 22px;">Your order has been received. A summary appears below. We confirm every order personally and will follow up within 2-3 business days to verify details before any charge.</p>';
   }
-  body += emailSection(isMinistry ? 'Your story' : 'Your gift', '<div style="white-space:pre-wrap;font-size:14px;line-height:1.6;">' + escapeHtml(p.configText || '') + '</div>');
-  if (!isMinistry && p.gifter.deliveryDetails) {
-    body += emailSection('Where to send it', '<div style="white-space:pre-wrap;">' + escapeHtml(p.gifter.deliveryDetails) + '</div>');
-  }
-  if (p.gifter.dedication && p.gifter.dedication.trim()) {
-    body += emailSection(isMinistry ? "What you'd like us to know" : 'Dedication',
-      '<em>' + nl2br(p.gifter.dedication.trim()) + '</em>');
-  }
-  if (p.signOptOut === true) {
-    body += emailSection('🖋 Back-cover signing',
-      'Per your request, we won\'t sign the back cover of the Bible.',
-      { accent: STW_MUTED });
-  }
-  if (!isMinistry && p.giftee && p.giftee.optIn === true) {
-    body += emailSection('Heads-up sent to ' + escapeHtml(p.giftee.name || 'them'),
-      'We sent <a href="mailto:' + escapeHtml(p.giftee.email || '') + '" style="color:' + STW_GREEN + ';">' + escapeHtml(p.giftee.email || '') + '</a> a short note letting them know a gift is on the way.',
+
+  body += emailSection(isMinistry ? 'Your story' : 'Your order',
+    emailBulletList(p.configText || ''), { accent: STW_GREEN });
+
+  if (!isMinistry && p.gifter.deliveryDetails && p.gifter.deliveryDetails.trim()) {
+    body += emailSection('Delivery address',
+      '<div style="white-space:pre-wrap;">' + escapeHtml(p.gifter.deliveryDetails) + '</div>',
       { accent: STW_GREEN });
   }
-  body += '<p style="margin:18px 0 8px;font-size:13.5px;color:' + STW_MUTED + ';">' +
-    (isSpecial
-      ? 'Reference: <code style="background:#f4ece0;padding:2px 6px;border-radius:4px;color:' + STW_TEXT + ';">' + escapeHtml(orderId) + '</code>'
-      : isMinistry
-        ? 'One of us will reach out by email within a few days. No automatic charge, no rush.'
-        : 'Order reference: <code style="background:#f4ece0;padding:2px 6px;border-radius:4px;color:' + STW_TEXT + ';">' + escapeHtml(orderId) + '</code>') +
-    '</p>';
-  if (isMinistry && !isSpecial) {
-    body += '<p style="margin:6px 0 0;font-size:13.5px;color:' + STW_MUTED + ';">Reference: <code style="background:#f4ece0;padding:2px 6px;border-radius:4px;color:' + STW_TEXT + ';">' + escapeHtml(orderId) + '</code></p>';
+  if (p.gifter.dedication && p.gifter.dedication.trim()) {
+    body += emailSection(isMinistry ? 'Notes to our team' : 'Dedication message',
+      '<em style="color:' + STW_TEXT + ';">' + nl2br(p.gifter.dedication.trim()) + '</em>',
+      { accent: STW_GOLD });
   }
-  body += '<p style="margin:18px 0 0;">Thank you for partnering with us.</p>';
+  if (p.signOptOut === true) {
+    body += emailSection('Back-cover signing',
+      'Per your request, we will not sign the back cover of the Bible.',
+      { accent: STW_MUTED, dense: true });
+  }
+  if (!isMinistry && p.giftee && p.giftee.optIn === true) {
+    body += emailSection('Recipient notification',
+      'A heads-up message has been sent to <strong>' + escapeHtml(p.giftee.name || 'the recipient') + '</strong> at <a href="mailto:' + escapeHtml(p.giftee.email || '') + '" style="color:' + STW_GREEN + ';">' + escapeHtml(p.giftee.email || '') + '</a>.',
+      { accent: STW_GREEN, dense: true });
+  }
+
+  body += '<div style="margin:24px 0 0;padding:14px 0 0;border-top:1px solid ' + STW_BORDER + ';font-size:13px;color:' + STW_MUTED + ';">' +
+    'Reference: <code style="background:#f4ece0;padding:2px 6px;border-radius:4px;color:' + STW_TEXT + ';font-size:12.5px;">' + escapeHtml(orderId) + '</code>' +
+  '</div>';
+  body += '<p style="margin:18px 0 4px;font-size:14.5px;">Thank you for partnering with Seed the Word Ministry.</p>';
+  body += '<p style="margin:0 0 4px;font-size:14.5px;">Sincerely,</p>';
+  body += '<p style="margin:0;font-size:14.5px;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
 
   const accent = isSpecial ? STW_GOLD : STW_GREEN;
-  const headerEmoji = isSpecial ? '🛎' : (isMinistry ? '🌾' : '🌱');
   const headerTitle = isSpecial
-    ? 'We received your special-order request'
-    : (isMinistry ? 'We received your story' : 'We got your order');
+    ? 'Special-order request received'
+    : (isMinistry ? 'Story received' : 'Order received');
   const headerSub = isSpecial
-    ? 'We\'ll reach out before any work starts'
-    : (isMinistry ? 'Ministry Calling — invitation received' : BUNDLE_DISPLAY[p.bundle] + ' — gift received');
+    ? 'We will reach out within 2-3 business days'
+    : (isMinistry ? 'Ministry Calling — invitation received' : BUNDLE_DISPLAY[p.bundle]);
 
   const html = emailShell({
-    headerEmoji: headerEmoji,
     headerTitle: headerTitle,
     headerSubtitle: headerSub,
     bodyHtml: body,
-    footerHtml: '— The Seed the Word team · <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
+    footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
     accentColor: accent,
   });
 
@@ -579,62 +606,60 @@ function buildTeamEmail(p, orderId) {
 
   // ── Plain-text body ──
   const lines = [];
-  lines.push(isSpecial ? 'New SPECIAL-ORDER request received.' : 'New order received.');
+  lines.push(isSpecial ? 'New special-order request received.' : 'New order received.');
   lines.push('');
   lines.push('Order ID:   ' + orderId);
   lines.push('Bundle:     ' + display);
   lines.push('Received:   ' + new Date().toISOString());
   if (isSpecial) {
     lines.push('');
-    lines.push('🛎 SPECIAL-ORDER ITEMS — confirm before fulfilling:');
-    (p.specialOrderItems || []).forEach(function (l) { lines.push('  • ' + l); });
+    lines.push('SPECIAL-ORDER ITEMS — confirm before fulfilling:');
+    (p.specialOrderItems || []).forEach(function (l) { lines.push('  - ' + l); });
   }
   lines.push('');
-  lines.push('Gifter');
-  lines.push('─────────');
-  lines.push('Name:    ' + p.gifter.name);
-  lines.push('Email:   ' + p.gifter.email);
-  lines.push('Phone:   ' + (p.gifter.phone || '(none)'));
+  lines.push('GIFTER');
+  lines.push('  Name:  ' + p.gifter.name);
+  lines.push('  Email: ' + p.gifter.email);
+  lines.push('  Phone: ' + (p.gifter.phone || '(none)'));
   lines.push('');
   if (p.gifter.deliveryDetails && p.gifter.deliveryDetails.trim()) {
-    lines.push('Delivery'); lines.push('─────────');
-    lines.push(p.gifter.deliveryDetails); lines.push('');
+    lines.push('DELIVERY');
+    lines.push('  ' + p.gifter.deliveryDetails); lines.push('');
   }
   if (p.gifter.dedication && p.gifter.dedication.trim()) {
-    lines.push('Dedication / note to team'); lines.push('─────────');
-    lines.push(p.gifter.dedication.trim()); lines.push('');
+    lines.push('DEDICATION / NOTE TO TEAM');
+    lines.push('  ' + p.gifter.dedication.trim()); lines.push('');
   }
   if (p.signOptOut === true) {
-    lines.push('🖋 Back-cover signing: SKIPPED per gifter request — do not sign.');
+    lines.push('Back-cover signing: SKIPPED per gifter request — do not sign.');
     lines.push('');
   }
   if (p.giftee && p.giftee.optIn === true) {
-    lines.push('Giftee (heads-up sent)'); lines.push('─────────');
-    lines.push('Name:  ' + (p.giftee.name || ''));
-    lines.push('Email: ' + (p.giftee.email || '')); lines.push('');
+    lines.push('GIFTEE (heads-up sent)');
+    lines.push('  Name:  ' + (p.giftee.name || ''));
+    lines.push('  Email: ' + (p.giftee.email || '')); lines.push('');
   }
-  lines.push('Configuration'); lines.push('─────────');
-  lines.push(p.configText || ''); lines.push('');
-  lines.push('— Logged to the Order Ledger sheet, row appended.');
+  lines.push('CONFIGURATION');
+  (p.configText || '').split('\n').forEach(function (l) { lines.push('  ' + l); });
+  lines.push('');
+  lines.push('Logged to the Order Ledger sheet, row appended.');
 
   // ── HTML body ────────────────────────────────────────────────
   let body = '';
-  // At-a-glance summary header
-  body += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px;">' +
+  // At-a-glance summary tags (inline-block — Gmail-safe, no flex)
+  body += '<div style="margin:0 0 22px;line-height:2.2;">' +
     (isSpecial
-      ? '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:0.04em;">🛎 SPECIAL ORDER</span>'
+      ? '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;margin-right:6px;">Special order</span>'
       : '') +
-    '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">' + escapeHtml(display) + '</span>' +
-    '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">' + escapeHtml(orderId) + '</span>' +
-    '<span style="display:inline-block;background:#f4ece0;color:' + STW_TEXT + ';padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;">Received ' + escapeHtml(new Date().toISOString()) + '</span>' +
+    '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0.04em;margin-right:6px;">' + escapeHtml(display) + '</span>' +
+    '<span style="display:inline-block;background:#f4ece0;color:' + STW_TEXT + ';padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:600;font-family:Consolas,Menlo,Monaco,Courier New,monospace;margin-right:6px;">' + escapeHtml(orderId) + '</span>' +
+    '<span style="display:inline-block;color:' + STW_MUTED + ';font-size:12px;">Received ' + escapeHtml(new Date().toISOString()) + '</span>' +
   '</div>';
 
-  // Special-order banner — appears ABOVE the gifter card
+  // Special-order callout — appears ABOVE the gifter card
   if (isSpecial) {
-    body += emailSection('🛎 Special-order items — confirm before fulfilling',
-      '<ul style="margin:0;padding-left:1.2rem;">' +
-        (p.specialOrderItems || []).map(function (l) { return '<li>' + escapeHtml(l) + '</li>'; }).join('') +
-      '</ul>',
+    body += emailSection('Special-order items — confirm before fulfilling',
+      emailSimpleBullets(p.specialOrderItems || []),
       { accent: STW_GOLD });
   }
 
@@ -649,26 +674,28 @@ function buildTeamEmail(p, orderId) {
 
   // Delivery card
   if (p.gifter.deliveryDetails && p.gifter.deliveryDetails.trim()) {
-    body += emailSection('📦 Delivery',
-      '<div style="white-space:pre-wrap;">' + escapeHtml(p.gifter.deliveryDetails) + '</div>');
+    body += emailSection('Delivery',
+      '<div style="white-space:pre-wrap;">' + escapeHtml(p.gifter.deliveryDetails) + '</div>',
+      { accent: STW_GREEN });
   }
 
   // Dedication card
   if (p.gifter.dedication && p.gifter.dedication.trim()) {
-    body += emailSection('💌 Dedication / note to team',
-      '<em>' + nl2br(p.gifter.dedication.trim()) + '</em>');
+    body += emailSection('Dedication / note to team',
+      '<em>' + nl2br(p.gifter.dedication.trim()) + '</em>',
+      { accent: STW_GOLD });
   }
 
   // Sign-opt-out card
   if (p.signOptOut === true) {
-    body += emailSection('🖋 Back-cover signing',
-      '<strong style="color:#7a5a2a;">SKIPPED per gifter request — do not sign.</strong>',
-      { accent: STW_GOLD });
+    body += emailSection('Back-cover signing',
+      '<strong style="color:#7a5a2a;">Skipped per gifter request — do not sign.</strong>',
+      { accent: STW_GOLD, dense: true });
   }
 
   // Giftee card
   if (p.giftee && p.giftee.optIn === true) {
-    body += emailSection('🎁 Giftee — heads-up sent',
+    body += emailSection('Giftee — heads-up sent',
       emailKeyValueRow([
         { label: 'Name',  value: escapeHtml(p.giftee.name || '') },
         { label: 'Email', value: '<a href="mailto:' + escapeHtml(p.giftee.email || '') + '" style="color:' + STW_GREEN + ';">' + escapeHtml(p.giftee.email || '') + '</a>' },
@@ -676,21 +703,20 @@ function buildTeamEmail(p, orderId) {
       { accent: STW_GOLD });
   }
 
-  // Configuration card
-  body += emailSection('🧾 Configuration',
-    '<div style="white-space:pre-wrap;font-family:Consolas,Menlo,Monaco,Courier New,monospace;font-size:13px;color:' + STW_TEXT + ';">' + escapeHtml(p.configText || '') + '</div>',
-    { accent: STW_GOLD, monospace: true });
+  // Configuration — bulleted list (no monospace block)
+  body += emailSection('Configuration',
+    emailBulletList(p.configText || ''),
+    { accent: STW_GREEN });
 
   body += '<p style="margin:18px 0 0;font-size:12.5px;color:' + STW_MUTED + ';font-style:italic;">' +
     'Logged to the Order Ledger sheet · row appended.' +
   '</p>';
 
   const html = emailShell({
-    headerEmoji: isSpecial ? '🛎' : '📬',
     headerTitle: isSpecial ? 'New special-order request' : 'New order received',
-    headerSubtitle: display + ' — from ' + p.gifter.name,
+    headerSubtitle: display + ' · ' + p.gifter.name,
     bodyHtml: body,
-    footerHtml: 'Reply to this email goes directly to the gifter.',
+    footerHtml: 'Reply directly — this email\'s Reply-To is the gifter.',
     accentColor: isSpecial ? STW_GOLD : STW_GREEN,
   });
 
@@ -705,29 +731,35 @@ function buildTeamEmail(p, orderId) {
 
 function buildGifteeEmail(p, orderId) {
   const lines = [];
-  lines.push('Hi ' + (p.giftee.name || 'friend') + ',');
+  const gifteeName = p.giftee.name || 'friend';
+  const gifterName = p.gifter.name || 'A friend';
+  lines.push('Dear ' + gifteeName + ',');
   lines.push('');
-  lines.push((p.gifter.name || 'A friend') + ' asked us to send you a heads-up: a Bible bundle from Seed the Word');
-  lines.push("Ministry is on its way to you. We'll be in touch soon to coordinate delivery.");
+  lines.push(gifterName + ' has arranged for a Bible bundle from Seed the Word');
+  lines.push('Ministry to be sent to you. We will be in touch shortly to coordinate');
+  lines.push('delivery.');
   lines.push('');
-  lines.push("If anything's unclear, just reply to this email — it goes straight to our team.");
-  lines.push(''); lines.push('— The Seed the Word team');
+  lines.push('If anything is unclear, please reply to this email and a member of');
+  lines.push('our team will respond personally.');
+  lines.push('');
+  lines.push('Sincerely,');
+  lines.push('The Seed the Word team');
   lines.push(TEAM_INBOX);
 
   let body = '';
-  body += '<p style="margin:0 0 14px;">Hi <strong>' + escapeHtml(p.giftee.name || 'friend') + '</strong>,</p>';
-  body += '<p style="margin:0 0 14px;font-size:15.5px;line-height:1.6;">' +
-    '<strong>' + escapeHtml(p.gifter.name || 'A friend') + '</strong> asked us to send you a heads-up: a Bible bundle from Seed the Word Ministry is on its way to you. We\'ll be in touch soon to coordinate delivery.</p>';
-  body += '<div style="margin:18px 0;padding:14px 16px;background:' + STW_CREAM + ';border-left:4px solid ' + STW_GOLD + ';border-radius:8px;font-style:italic;color:' + STW_TEXT + ';">' +
-    'If anything\'s unclear, just reply to this email — it goes straight to our team.' +
-  '</div>';
+  body += '<p style="margin:0 0 18px;font-size:15px;">Dear <strong>' + escapeHtml(gifteeName) + '</strong>,</p>';
+  body += '<p style="margin:0 0 18px;font-size:15px;line-height:1.65;">' +
+    '<strong>' + escapeHtml(gifterName) + '</strong> has arranged for a Bible bundle from Seed the Word Ministry to be sent to you. We will be in touch shortly to coordinate delivery.</p>';
+  body += '<p style="margin:0 0 22px;font-size:14.5px;line-height:1.65;color:' + STW_TEXT + ';">' +
+    'If anything is unclear, please reply to this email and a member of our team will respond personally.</p>';
+  body += '<p style="margin:18px 0 4px;font-size:14.5px;">Sincerely,</p>';
+  body += '<p style="margin:0;font-size:14.5px;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
 
   const html = emailShell({
-    headerEmoji: '🎁',
     headerTitle: 'A gift is on its way to you',
-    headerSubtitle: 'From ' + (p.gifter.name || 'a friend') + ' · via Seed the Word Ministry',
+    headerSubtitle: 'From ' + gifterName + ' · via Seed the Word Ministry',
     bodyHtml: body,
-    footerHtml: '— The Seed the Word team · <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
+    footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
     accentColor: STW_GOLD,
   });
 
@@ -792,10 +824,10 @@ function validateContactPayload(p) {
 function buildContactTeamEmail(c) {
   const subjectLabel = c.subject || 'General contact';
   let body = '';
-  body += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px;">' +
-    '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">Contact</span>' +
-    '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">' + escapeHtml(subjectLabel) + '</span>' +
-    '<span style="display:inline-block;background:#f4ece0;color:' + STW_TEXT + ';padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;">' + escapeHtml(new Date().toISOString()) + '</span>' +
+  body += '<div style="margin:0 0 22px;line-height:2.2;">' +
+    '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0.04em;margin-right:6px;">Contact</span>' +
+    '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0.04em;margin-right:6px;">' + escapeHtml(subjectLabel) + '</span>' +
+    '<span style="display:inline-block;color:' + STW_MUTED + ';font-size:12px;">' + escapeHtml(new Date().toISOString()) + '</span>' +
   '</div>';
 
   body += emailSection('From',
@@ -806,33 +838,31 @@ function buildContactTeamEmail(c) {
     ]),
     { accent: STW_GREEN });
 
-  body += emailSection('💬 Message',
+  body += emailSection('Message',
     '<div style="white-space:pre-wrap;font-size:14.5px;line-height:1.65;">' + escapeHtml(c.message) + '</div>',
     { accent: STW_GOLD });
 
   body += '<p style="margin:18px 0 0;font-size:12.5px;color:' + STW_MUTED + ';font-style:italic;">' +
-    'Reply to this email goes directly to the sender. Logged to the Contact tab in the spreadsheet.' +
+    'Reply directly — this email\'s Reply-To is the sender. Logged to the Contact tab.' +
   '</p>';
 
   // Plain-text body
   const plainLines = [
-    'New contact-form submission.',
+    'New contact form message.',
     '',
     'From:    ' + c.name + ' <' + c.email + '>',
     'Subject: ' + (c.subject || '(none)'),
     'Sent:    ' + new Date().toISOString(),
     '',
-    'Message',
-    '─────────',
-    c.message,
+    'MESSAGE',
+    c.message.split('\n').map(function (l) { return '  ' + l; }).join('\n'),
     '',
-    '— Logged to the Contact tab.',
+    'Logged to the Contact tab.',
   ];
 
   const html = emailShell({
-    headerEmoji: '✉️',
     headerTitle: 'New contact form message',
-    headerSubtitle: 'From ' + c.name + (c.subject ? ' · ' + c.subject : ''),
+    headerSubtitle: c.name + (c.subject ? ' · ' + c.subject : ''),
     bodyHtml: body,
     footerHtml: 'Reply directly — this email\'s Reply-To is the sender.',
     accentColor: STW_GREEN,
@@ -901,10 +931,10 @@ function validateStoryPayload(p) {
 
 function buildStoryTeamEmail(s) {
   let body = '';
-  body += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px;">' +
-    '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">Story submission</span>' +
-    '<span style="display:inline-block;background:' + (s.consent ? STW_GOLD : '#999') + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.04em;">' + (s.consent ? '✓ Consent to publish' : 'Private — do not publish') + '</span>' +
-    '<span style="display:inline-block;background:#f4ece0;color:' + STW_TEXT + ';padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;">' + escapeHtml(new Date().toISOString()) + '</span>' +
+  body += '<div style="margin:0 0 22px;line-height:2.2;">' +
+    '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0.04em;margin-right:6px;">Story submission</span>' +
+    '<span style="display:inline-block;background:' + (s.consent ? STW_GOLD : '#999') + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0.04em;margin-right:6px;">' + (s.consent ? 'Consent to publish' : 'Private — do not publish') + '</span>' +
+    '<span style="display:inline-block;color:' + STW_MUTED + ';font-size:12px;">' + escapeHtml(new Date().toISOString()) + '</span>' +
   '</div>';
 
   body += emailSection('From',
@@ -914,18 +944,18 @@ function buildStoryTeamEmail(s) {
     ]),
     { accent: STW_GREEN });
 
-  body += emailSection('📖 Their story',
+  body += emailSection('Their story',
     '<div style="white-space:pre-wrap;font-size:14.5px;line-height:1.65;">' + escapeHtml(s.story) + '</div>',
     { accent: STW_GOLD });
 
   if (s.mediaUrl) {
-    body += emailSection('🎞 Media',
+    body += emailSection('Media',
       '<a href="' + escapeHtml(s.mediaUrl) + '" style="color:' + STW_GREEN + ';">' + escapeHtml(s.mediaUrl) + '</a>',
-      { accent: STW_GOLD });
+      { accent: STW_GOLD, dense: true });
   }
 
   body += '<p style="margin:18px 0 0;font-size:12.5px;color:' + STW_MUTED + ';font-style:italic;">' +
-    'Logged to the Stories tab in the spreadsheet.' +
+    'Logged to the Stories tab.' +
   '</p>';
 
   const plainLines = [
@@ -935,21 +965,19 @@ function buildStoryTeamEmail(s) {
     'Consent: ' + (s.consent ? 'yes — OK to publish' : 'no — keep private'),
     'Sent:    ' + new Date().toISOString(),
     '',
-    'Story',
-    '─────────',
-    s.story,
+    'STORY',
+    s.story.split('\n').map(function (l) { return '  ' + l; }).join('\n'),
     '',
   ];
   if (s.mediaUrl) {
     plainLines.push('Media: ' + s.mediaUrl);
     plainLines.push('');
   }
-  plainLines.push('— Logged to the Stories tab.');
+  plainLines.push('Logged to the Stories tab.');
 
   const html = emailShell({
-    headerEmoji: '📖',
     headerTitle: 'New story shared with the ministry',
-    headerSubtitle: 'From ' + s.name + (s.consent ? ' · OK to publish' : ' · private'),
+    headerSubtitle: s.name + (s.consent ? ' · OK to publish' : ' · private'),
     bodyHtml: body,
     footerHtml: 'Reply directly — this email\'s Reply-To is the sender.',
     accentColor: STW_GREEN,

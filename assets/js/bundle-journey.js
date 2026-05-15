@@ -39,6 +39,25 @@
   var MINISTRY_CUSTOM_MIN = 25;
   var MINISTRY_CUSTOM_MAX = 200;
 
+  // Kit sub-groups — purely a render concern. The catalog stays
+  // flat; this just decides which items render in which named row
+  // inside the "Companion kit" section so a long pill list breaks
+  // into three scannable groups.
+  var KIT_SUBGROUPS = [
+    {
+      heading: 'Bible-time tools',
+      keys: ['highlighter-set', 'sticky-tabs', 'pen-set', 'bookmarks', 'mini-journal']
+    },
+    {
+      heading: 'Keepsakes',
+      keys: ['cross-keychain', 'beaded-bracelet', 'mini-jesus', 'crochet-figurine', 'crochet-figurine-custom', 'flip-book']
+    },
+    {
+      heading: 'Cards & extras',
+      keys: ['welcome-note', 'sticker-sheets', 'kids-coloring-book', 'devotional-book']
+    }
+  ];
+
   // Section heading labels (mirror catalog `groupingSection`).
   var SECTION_HEADING = {
     bible:     'On the Bible itself',
@@ -353,10 +372,11 @@
   // ── Section renderer ────────────────────────────────────────
   // Renders one grouping section: a heading, recommended/standard
   // pills first, then a single collapsed <details> card holding all
-  // special-tier items for that section. Returns the section's
-  // root element so callers can post-process if needed.
+  // special-tier items for that section. For the 'kit' section
+  // specifically, the standard-tier items are split into sub-rows
+  // (Bible-time tools / Keepsakes / Cards & extras) so a long
+  // pill list breaks into scannable groups.
   function renderGroupingSection(opts) {
-    // opts: { section, items, chosenArr, onToggle, body }
     var section = opts.section;
     var items = opts.items;
     var chosenArr = opts.chosenArr;
@@ -371,15 +391,61 @@
     var standard    = items.filter(function (i) { return i.tier === 'standard'; });
     var special     = items.filter(function (i) { return i.tier === 'special'; });
 
-    // Recommended + Standard live in a single .journey-pills row.
-    if (recommended.length || standard.length) {
-      var pills = document.createElement('div');
-      pills.className = 'journey-pills';
-      recommended.concat(standard).forEach(function (item) {
+    // Recommended always renders first as a single .journey-pills row.
+    if (recommended.length) {
+      var recRow = document.createElement('div');
+      recRow.className = 'journey-pills';
+      recommended.forEach(function (item) {
         var on = chosenArr.indexOf(item.key) !== -1;
-        pills.appendChild(makeTieredPillRow(item, on, onToggle));
+        recRow.appendChild(makeTieredPillRow(item, on, onToggle));
       });
-      body.appendChild(pills);
+      body.appendChild(recRow);
+    }
+
+    // Standard items: sub-group by KIT_SUBGROUPS for the 'kit'
+    // section, otherwise render in a single row.
+    if (standard.length) {
+      if (section === 'kit') {
+        var byKey = {};
+        standard.forEach(function (it) { byKey[it.key] = it; });
+        KIT_SUBGROUPS.forEach(function (sub) {
+          var subItems = sub.keys.map(function (k) { return byKey[k]; }).filter(Boolean);
+          if (!subItems.length) return;
+          var subHead = document.createElement('p');
+          subHead.className = 'journey-subgroup';
+          subHead.textContent = sub.heading;
+          body.appendChild(subHead);
+          var subRow = document.createElement('div');
+          subRow.className = 'journey-pills';
+          subItems.forEach(function (item) {
+            var on = chosenArr.indexOf(item.key) !== -1;
+            subRow.appendChild(makeTieredPillRow(item, on, onToggle));
+            // Mark this item as rendered so leftovers don't double-render.
+            byKey[item.key] = null;
+          });
+          body.appendChild(subRow);
+        });
+        // Any standard kit item not matched by a sub-group falls
+        // into a final "More" row so we never silently drop one.
+        var leftovers = Object.keys(byKey).map(function (k) { return byKey[k]; }).filter(Boolean);
+        if (leftovers.length) {
+          var moreRow = document.createElement('div');
+          moreRow.className = 'journey-pills';
+          leftovers.forEach(function (item) {
+            var on = chosenArr.indexOf(item.key) !== -1;
+            moreRow.appendChild(makeTieredPillRow(item, on, onToggle));
+          });
+          body.appendChild(moreRow);
+        }
+      } else {
+        var stdRow = document.createElement('div');
+        stdRow.className = 'journey-pills';
+        standard.forEach(function (item) {
+          var on = chosenArr.indexOf(item.key) !== -1;
+          stdRow.appendChild(makeTieredPillRow(item, on, onToggle));
+        });
+        body.appendChild(stdRow);
+      }
     }
 
     // Special-order items live inside a collapsed <details> card,
@@ -408,10 +474,6 @@
         var on = chosenArr.indexOf(item.key) !== -1;
         spillsRow.appendChild(makeTieredPillRow(item, on, function (key, btn) {
           onToggle(key, btn);
-          // Auto-stay-open: if any special-tier pill is now pressed,
-          // keep the details open. If all are unpressed, leave the
-          // user's current open/closed state as-is (don't slam it
-          // closed when they're mid-deselect).
           var anyOnNow = special.some(function (it) { return chosenArr.indexOf(it.key) !== -1; });
           if (anyOnNow) details.open = true;
         }));

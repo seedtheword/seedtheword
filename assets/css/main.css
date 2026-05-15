@@ -9953,3 +9953,116 @@ a.contact-card:hover .contact-card__cta span {
   font-style: italic;
   color: #5a3f1a;
 }
+
+
+/* ============================================================
+   Bundle Customization Tiers — readability pass
+   Spec: .kiro/specs/bundle-customization-tiers/
+   ============================================================ */
+
+/* More breathing room between section headings on long step pages */
+.journey-step__body > .journey-subhead {
+  margin-top: 1.5rem;
+  margin-bottom: 0.7rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.10em;
+}
+.journey-step__body > .journey-subhead:first-of-type {
+  margin-top: 0.5rem;
+}
+
+/* Sub-group label inside the kit section */
+.journey-subgroup {
+  margin: 0.85rem 0 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.journey-pills + .journey-subgroup {
+  border-top: 1px dashed rgba(212, 165, 116, 0.25);
+  padding-top: 0.85rem;
+}
+
+/* Slightly roomier pills site-wide so a long row reads less dense */
+.journey-pills {
+  gap: 0.6rem;
+  row-gap: 0.7rem;
+}
+.journey-pill {
+  font-size: 0.95rem;
+  padding: 0.55rem 1rem;
+  line-height: 1.35;
+}
+
+/* Smaller, less-shouty info-icon so it doesn't compete with pills */
+.info-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 0.78rem;
+  border-width: 1px;
+  opacity: 0.75;
+}
+.info-icon:hover,
+.info-icon:focus-visible {
+  opacity: 1;
+}
+.journey-pill-row {
+  gap: 0.35rem;
+}
+
+/* On mobile: bigger tap targets, larger pill text, tighter row gap
+   (rows already wrap so the gap is what matters). */
+@media (max-width: 600px) {
+  .journey-pill {
+    font-size: 1rem;
+    padding: 0.7rem 1.05rem;
+    min-height: 44px;
+  }
+  .info-icon {
+    width: 1.6rem;
+    height: 1.6rem;
+    font-size: 0.95rem;
+    opacity: 1; /* mobile users need it more visible since no hover */
+  }
+  .journey-pills {
+    gap: 0.6rem;
+    row-gap: 0.65rem;
+  }
+  .journey-step__body > .journey-subhead {
+    margin-top: 1.25rem;
+  }
+}
+
+/* Special-order card — slightly more padding so it feels distinct */
+.journey-special-card {
+  margin-top: 1.25rem;
+}
+.journey-special-card__summary {
+  padding: 0.85rem 1.1rem;
+  font-size: 0.97rem;
+}
+@media (max-width: 600px) {
+  .journey-special-card__summary {
+    padding: 1rem 1rem;
+    min-height: 48px;
+  }
+}
+
+/* Sign-opt-out toggle — give it more presence so it's findable */
+.journey-toggle {
+  padding: 0.85rem 1.1rem;
+  margin-top: 1rem;
+  font-size: 0.97rem;
+}
+.journey-toggle input {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+@media (max-width: 600px) {
+  .journey-toggle {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

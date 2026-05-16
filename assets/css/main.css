@@ -558,10 +558,20 @@ ul { margin: 0; padding: 0; list-style: none; }
 .section--white { 
   background: rgba(255, 255, 255, 0.3);
 }
+/* The "About / Who is Jesus / Bible says / His Story" surfaces all share
+   the same stw-background-1920x1080.jpg backdrop so the page reads as one
+   continuous narrative section instead of three abruptly different
+   panels. The bible-says block now uses a soft dark scrim (no green
+   wash) and the jesus-background block uses the same backdrop with a
+   slightly stronger scrim for legibility against the gospel-stage cards. */
 .section--bible-says {
-  background: linear-gradient(135deg, rgba(44,95,46,0.95) 0%, rgba(44,95,46,0.9) 100%);
+  background-image: url('../images/backgrounds/stw-background-1920x1080.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-attachment: scroll;
   position: relative;
   overflow: hidden;
+  padding: 4rem 0;
 }
 .section--bible-says::before {
   content: '';
@@ -570,8 +580,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="bible-pattern" width="100" height="100" patternUnits="userSpaceOnUse"><text x="20" y="30" font-size="8" fill="rgba(255,255,255,0.05)" font-family="serif">✝</text><text x="70" y="70" font-size="6" fill="rgba(255,255,255,0.03)" font-family="serif">📖</text></pattern></defs><rect width="100" height="100" fill="url(%23bible-pattern)"/></svg>');
-  opacity: 0.3;
+  background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.55) 100%);
+  z-index: 1;
 }
 .section--bible-says .container {
   position: relative;
@@ -579,17 +589,23 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .section--bible-says .section-title {
   color: #fff;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
 }
 .section--bible-says .section-title::after {
   background: linear-gradient(90deg, var(--gold), rgba(255,255,255,0.8));
 }
 .section--bible-says blockquote {
-  background: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.10) !important;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-left-color: var(--gold) !important;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-left: 4px solid var(--gold);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.3);
 }
+/* Highlighter-pen effect on the verse text — works well against the
+   dark scrim because the highlighter is bright yellow and the text
+   underneath is dark. */
 .section--bible-says .bible-highlight {
   font-size: clamp(1.25rem, 3vw, 1.75rem);
   line-height: 2.2;
@@ -597,7 +613,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   margin: 0 0 1.5rem;
   font-weight: 400;
   color: #1a1a1a;
-  background: linear-gradient(180deg, transparent 0%, transparent 25%, rgba(255, 255, 102, 0.7) 25%, rgba(255, 255, 102, 0.7) 90%, transparent 90%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, transparent 25%, rgba(255, 255, 102, 0.85) 25%, rgba(255, 255, 102, 0.85) 90%, transparent 90%, transparent 100%);
   padding: 0.5rem 1rem;
   display: inline;
   box-decoration-break: clone;
@@ -608,16 +624,16 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: block;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--gold);
   font-style: normal;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
   margin-top: 1rem;
 }
 .section--jesus-background {
-  background-image: url('../images/backgrounds/john-3-16.jpg');
+  background-image: url('../images/backgrounds/stw-background-1920x1080.jpg');
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
+  background-attachment: scroll;
   position: relative;
   padding: 6rem 0;
 }
@@ -625,16 +641,15 @@ ul { margin: 0; padding: 0; list-style: none; }
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(2px);
+  background: linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.50) 100%);
 }
 .section--jesus-background .container {
   position: relative;
   z-index: 2;
 }
 .section--jesus-background .section-title {
-  color: var(--text);
-  text-shadow: 0 2px 8px rgba(255,255,255,0.8);
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
 }
 .jesus-content-box {
   max-width: 780px;
@@ -1009,7 +1024,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   background-image: url('../images/backgrounds/stw-background.jpg'); 
   background-position: center top;
 }
-.hero--about   { background-image: url('../images/backgrounds/bible-in-background.jpg'); }
+.hero--about   { background-image: url('../images/backgrounds/stw-background-1920x1080.jpg'); }
 .hero--bundles { background-image: url('../images/backgrounds/gideon-background.jpg'); }
 .hero--donate  { background-image: url('../images/backgrounds/john-3-16.jpg'); }
 .hero--testimonies { background-image: url('../images/backgrounds/stw-bibles-giveaway.jpg'); }

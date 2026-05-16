@@ -90,11 +90,11 @@ jobs:
 
       - name: Run jesus-storytelling property + integration suite
         id: jesus_storytelling_tests
-        # Failures here are reported separately so they don't muddy
-        # the admin-editor test signal. `continue-on-error` keeps the
-        # job green during the iteration period for this suite — flip
-        # back to `false` (the default) once it's stable.
-        continue-on-error: true
+        # Failures here will fail the workflow. The suite runs in
+        # ~1-2 seconds (10 fast-check properties at 100-200 runs each
+        # plus 5 integration examples). If the runtime climbs above
+        # 30 seconds, suspect an infinite-loop generator and triage
+        # locally with `npm run test:jesus-storytelling`.
         run: |
           set -o pipefail
           npm run test:jesus-storytelling 2>&1 | tee /tmp/jesus-storytelling-output.txt

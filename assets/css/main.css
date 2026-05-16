@@ -558,22 +558,15 @@ ul { margin: 0; padding: 0; list-style: none; }
 .section--white { 
   background: rgba(255, 255, 255, 0.3);
 }
-/* The about-page hero + Matthew 7:7-8 intermezzo are the only two
-   sections that share the stw-background-1920x1080.jpg backdrop —
-   they read as one continuous "invitation" panel. The bible-says
-   block uses negative margin-top so it visually merges with the
-   hero (no horizontal seam between them) and the same image fills
-   the combined region. The gospel narrative section below keeps
-   its own backdrop (john-3-16.jpg). */
+/* .section--bible-says is the original site-wide pattern for verse-
+   centered intermezzo sections. The about-page no longer uses it
+   (the Matthew 7:7-8 verse is folded into .who-is-jesus-hero
+   below), but other pages may still import this style, so it stays
+   in its original green-gradient form here. */
 .section--bible-says {
-  background-image: url('../images/backgrounds/stw-background-1920x1080.jpg');
-  background-size: cover;
-  background-position: center center;
-  background-attachment: scroll;
+  background: linear-gradient(135deg, rgba(44,95,46,0.95) 0%, rgba(44,95,46,0.9) 100%);
   position: relative;
   overflow: hidden;
-  padding: 3rem 0 5rem;
-  margin-top: 0;
 }
 .section--bible-says::before {
   content: '';
@@ -582,8 +575,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.55) 100%);
-  z-index: 1;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="bible-pattern" width="100" height="100" patternUnits="userSpaceOnUse"><text x="20" y="30" font-size="8" fill="rgba(255,255,255,0.05)" font-family="serif">✝</text><text x="70" y="70" font-size="6" fill="rgba(255,255,255,0.03)" font-family="serif">📖</text></pattern></defs><rect width="100" height="100" fill="url(%23bible-pattern)"/></svg>');
+  opacity: 0.3;
 }
 .section--bible-says .container {
   position: relative;
@@ -591,21 +584,17 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .section--bible-says .section-title {
   color: #fff;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 .section--bible-says .section-title::after {
   background: linear-gradient(90deg, var(--gold), rgba(255,255,255,0.8));
 }
 .section--bible-says blockquote {
-  background: rgba(255, 255, 255, 0.10) !important;
+  background: rgba(255, 255, 255, 0.15) !important;
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   border-left-color: var(--gold) !important;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
-/* Highlighter-pen effect on the verse text — works against the
-   dark scrim because the highlighter is bright yellow and the text
-   underneath is dark. */
 .section--bible-says .bible-highlight {
   font-size: clamp(1.25rem, 3vw, 1.75rem);
   line-height: 2.2;
@@ -613,7 +602,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   margin: 0 0 1.5rem;
   font-weight: 400;
   color: #1a1a1a;
-  background: linear-gradient(180deg, transparent 0%, transparent 25%, rgba(255, 255, 102, 0.85) 25%, rgba(255, 255, 102, 0.85) 90%, transparent 90%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, transparent 25%, rgba(255, 255, 102, 0.7) 25%, rgba(255, 255, 102, 0.7) 90%, transparent 90%, transparent 100%);
   padding: 0.5rem 1rem;
   display: inline;
   box-decoration-break: clone;
@@ -624,10 +613,106 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: block;
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--gold);
+  color: #fff;
   font-style: normal;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
   margin-top: 1rem;
+}
+
+/* ── About-page combined "Who is Jesus?" hero + Matthew 7:7-8 verse ──
+   Single full-bleed section on stw-background-1920x1080.jpg with a
+   soft dark scrim. Page title at the top, "The Bible says..." gold
+   eyebrow underneath, Matthew 7:7-8 with a yellow highlighter-pen
+   effect at center, and "— Matthew 7:7-8 NIV" in gold below. No
+   internal seam. */
+.who-is-jesus-hero {
+  position: relative;
+  width: 100%;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 0 6rem;
+  background-image: url('../images/backgrounds/stw-background-1920x1080.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  overflow: hidden;
+}
+.who-is-jesus-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.65) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+.who-is-jesus-hero__inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  text-align: center;
+  color: #fff;
+}
+.who-is-jesus-hero__title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 800;
+  margin: 0 0 1.5rem;
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(0,0,0,0.55);
+  letter-spacing: -0.01em;
+}
+.who-is-jesus-hero__lead {
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--gold);
+  margin: 0 0 1.75rem;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+}
+.who-is-jesus-hero__verse {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+}
+.who-is-jesus-hero__verse p {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.15rem, 2.4vw, 1.6rem);
+  line-height: 2;
+  font-style: italic;
+  color: #1a1a1a;
+  background: linear-gradient(180deg, transparent 0%, transparent 22%, rgba(255, 255, 102, 0.92) 22%, rgba(255, 255, 102, 0.92) 90%, transparent 90%, transparent 100%);
+  padding: 0.4rem 0.8rem;
+  display: inline;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  margin: 0;
+}
+.who-is-jesus-hero__verse cite {
+  display: block;
+  margin-top: 1.5rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  font-style: normal;
+  color: var(--gold);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 767px) {
+  .who-is-jesus-hero {
+    min-height: 70vh;
+    padding: 3.5rem 0 4rem;
+  }
+  .who-is-jesus-hero__verse p {
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    line-height: 1.95;
+  }
 }
 .section--jesus-background {
   background-image: url('../images/backgrounds/john-3-16.jpg');
@@ -1025,7 +1110,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   background-image: url('../images/backgrounds/stw-background.jpg'); 
   background-position: center top;
 }
-.hero--about   { background-image: url('../images/backgrounds/stw-background-1920x1080.jpg'); }
+.hero--about   { background-image: url('../images/backgrounds/bible-in-background.jpg'); }
 .hero--bundles { background-image: url('../images/backgrounds/gideon-background.jpg'); }
 .hero--donate  { background-image: url('../images/backgrounds/john-3-16.jpg'); }
 .hero--testimonies { background-image: url('../images/backgrounds/stw-bibles-giveaway.jpg'); }

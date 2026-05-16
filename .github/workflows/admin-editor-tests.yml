@@ -17,7 +17,6 @@ on:
       - 'assets/images/gospel/**'
       - 'tests/**'
       - 'package.json'
-      - 'package-lock.json'
       - '.github/workflows/admin-editor-tests.yml'
   pull_request:
     paths:
@@ -30,7 +29,6 @@ on:
       - 'assets/images/gospel/**'
       - 'tests/**'
       - 'package.json'
-      - 'package-lock.json'
       - '.github/workflows/admin-editor-tests.yml'
   workflow_dispatch:
 
@@ -53,6 +51,15 @@ jobs:
       - name: Print versions
         run: node --version
 
+      - name: Install devDependencies
+        # Both the admin-editor tests and the jesus-storytelling suite
+        # discover via `node --test tests/`, so all devDeps (fast-check,
+        # parse5, jsdom) must be installed before either test run. We use
+        # `npm install` instead of `npm ci` because the repo doesn't
+        # commit package-lock.json (the only deps are dev-only test
+        # libraries; the deployed site loads zero npm packages).
+        run: npm install --no-audit --no-fund
+
       - name: Syntax-check every admin-editor module
         run: |
           set -e
@@ -68,16 +75,18 @@ jobs:
           # Tee test output to a file AND to stdout; the file gets uploaded
           # to the job summary below, which is readable via the public API
           # (no auth needed) even for private-repo observers.
+          # `node --test tests/` discovers every *.test.js — both the
+          # admin-editor tests and the jesus-storytelling suite — so we
+          # only need this single invocation now that devDeps are
+          # installed. The separate `npm run test:jesus-storytelling`
+          # step below is kept as a safety net for the targeted run.
           node --test tests/ 2>&1 | tee /tmp/test-output.txt
 
-      - name: Install jesus-storytelling devDependencies
-        # The jesus-storytelling test suite uses fast-check, parse5, and jsdom
-        # (devDependencies in package.json). The other admin-editor tests use
-        # only Node's built-ins, so we only run npm ci right before this step.
-        run: npm ci
-
-      - name: Run jesus-storytelling property + integration suite
+      - name: Run jesus-storytelling property + integration suite (targeted)
         id: jesus_storytelling_tests
+        # The full `node --test tests/` step above already runs this
+        # suite; this targeted invocation is kept so failures surface
+        # in their own log artifact when triaging.
         run: |
           set -o pipefail
           npm run test:jesus-storytelling 2>&1 | tee /tmp/jesus-storytelling-output.txt

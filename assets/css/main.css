@@ -786,6 +786,55 @@ ul { margin: 0; padding: 0; list-style: none; }
   }
 }
 
+/* ── Gospel image credits — discreet collapsed disclosure ─────── */
+.gospel-credits {
+  margin: 2rem auto 0;
+  max-width: 760px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  border-top: 1px solid rgba(44, 95, 46, 0.18);
+  padding-top: 1.25rem;
+}
+.gospel-credits > summary {
+  cursor: pointer;
+  padding: 0.5rem 0;
+  font-weight: 600;
+  color: var(--green);
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  user-select: none;
+}
+.gospel-credits > summary::-webkit-details-marker { display: none; }
+.gospel-credits > summary::before {
+  content: '▸';
+  font-size: 0.75rem;
+  transition: transform 0.18s ease-out;
+}
+.gospel-credits[open] > summary::before { transform: rotate(90deg); }
+.gospel-credits ul {
+  margin: 0.75rem 0 0;
+  padding-left: 1.5rem;
+  line-height: 1.7;
+}
+.gospel-credits li {
+  margin-bottom: 0.45rem;
+}
+.gospel-credits a {
+  color: var(--green);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.gospel-credits a:hover { text-decoration-thickness: 2px; }
+
+@media (max-width: 767px) {
+  .gospel-credits {
+    font-size: 0.8125rem;
+  }
+}
+
 .section-title {
   text-align: center;
   font-size: clamp(1.75rem, 4vw, 2.5rem);

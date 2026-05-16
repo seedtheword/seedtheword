@@ -558,12 +558,13 @@ ul { margin: 0; padding: 0; list-style: none; }
 .section--white { 
   background: rgba(255, 255, 255, 0.3);
 }
-/* The "About / Who is Jesus / Bible says / His Story" surfaces all share
-   the same stw-background-1920x1080.jpg backdrop so the page reads as one
-   continuous narrative section instead of three abruptly different
-   panels. The bible-says block now uses a soft dark scrim (no green
-   wash) and the jesus-background block uses the same backdrop with a
-   slightly stronger scrim for legibility against the gospel-stage cards. */
+/* The about-page hero + Matthew 7:7-8 intermezzo are the only two
+   sections that share the stw-background-1920x1080.jpg backdrop —
+   they read as one continuous "invitation" panel. The bible-says
+   block uses negative margin-top so it visually merges with the
+   hero (no horizontal seam between them) and the same image fills
+   the combined region. The gospel narrative section below keeps
+   its own backdrop (john-3-16.jpg). */
 .section--bible-says {
   background-image: url('../images/backgrounds/stw-background-1920x1080.jpg');
   background-size: cover;
@@ -571,7 +572,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   background-attachment: scroll;
   position: relative;
   overflow: hidden;
-  padding: 4rem 0;
+  padding: 3rem 0 5rem;
+  margin-top: 0;
 }
 .section--bible-says::before {
   content: '';
@@ -580,7 +582,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.55) 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.55) 100%);
   z-index: 1;
 }
 .section--bible-says .container {
@@ -599,11 +601,9 @@ ul { margin: 0; padding: 0; list-style: none; }
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-left-color: var(--gold) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-left: 4px solid var(--gold);
   box-shadow: 0 4px 18px rgba(0,0,0,0.3);
 }
-/* Highlighter-pen effect on the verse text — works well against the
+/* Highlighter-pen effect on the verse text — works against the
    dark scrim because the highlighter is bright yellow and the text
    underneath is dark. */
 .section--bible-says .bible-highlight {
@@ -630,10 +630,10 @@ ul { margin: 0; padding: 0; list-style: none; }
   margin-top: 1rem;
 }
 .section--jesus-background {
-  background-image: url('../images/backgrounds/stw-background-1920x1080.jpg');
+  background-image: url('../images/backgrounds/john-3-16.jpg');
   background-size: cover;
   background-position: center;
-  background-attachment: scroll;
+  background-attachment: fixed;
   position: relative;
   padding: 6rem 0;
 }
@@ -641,15 +641,16 @@ ul { margin: 0; padding: 0; list-style: none; }
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.50) 100%);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(2px);
 }
 .section--jesus-background .container {
   position: relative;
   z-index: 2;
 }
 .section--jesus-background .section-title {
-  color: #fff;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  color: var(--text);
+  text-shadow: 0 2px 8px rgba(255,255,255,0.8);
 }
 .jesus-content-box {
   max-width: 780px;

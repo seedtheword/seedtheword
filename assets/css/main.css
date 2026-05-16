@@ -650,6 +650,142 @@ ul { margin: 0; padding: 0; list-style: none; }
   padding: 3rem 3.5rem;
   box-shadow: 0 12px 48px rgba(31, 38, 135, 0.2);
 }
+
+/* ── AboutGospelSection: gospel-stage layout (Requirements 6, 9) ── */
+
+.gospel-stage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: center;
+  margin: 0 0 3rem;
+  padding: 1.5rem 0;
+}
+
+.gospel-stage:last-child {
+  margin-bottom: 0;
+}
+
+/* Alternate the layout: odd stages put the media on the left, even stages
+   put it on the right. CSS source order is always media-then-copy; we flip
+   which column it lives in via `direction` for accessibility. */
+.gospel-stage:nth-child(even) .gospel-stage__media {
+  order: 2;
+}
+
+.gospel-stage__media {
+  margin: 0;
+}
+
+.gospel-stage__media img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.18);
+  display: block;
+}
+
+.gospel-stage__copy h3 {
+  font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+  color: var(--green);
+  margin: 0 0 1rem;
+}
+
+.gospel-stage__copy p {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: #3a3a3a;
+}
+
+/* Reuse the existing about-page blockquote pattern (subtle green-left
+   border, soft green background). Requirement 9.3. */
+.gospel-stage__quote {
+  background: rgba(44, 95, 46, 0.08);
+  border-left: 4px solid var(--green);
+  padding: 1.25rem 1.75rem;
+  border-radius: 8px;
+  margin: 1.25rem 0;
+  font-style: italic;
+}
+
+.gospel-stage__quote p {
+  margin: 0 0 0.5rem;
+  font-weight: 400;
+  color: #2b2b2b;
+  font-style: italic;
+}
+
+.gospel-stage__quote cite {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--green);
+  font-style: normal;
+}
+
+/* Respond stage: full-width invitation card (no media column) */
+.gospel-stage--respond {
+  grid-template-columns: 1fr;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(44, 95, 46, 0.06) 0%, rgba(212, 165, 116, 0.06) 100%);
+  border: 2px solid rgba(44, 95, 46, 0.18);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  margin-top: 2.5rem;
+}
+
+.gospel-stage--respond h3 {
+  color: var(--green);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.gospel-stage--respond .invitation-cta__lead {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: #2b2b2b;
+  max-width: 640px;
+  margin: 0 auto 1.5rem;
+}
+
+.gospel-stage--respond .invitation-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.gospel-stage--respond .invitation-cta__fallback {
+  margin-top: 1.25rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Mobile: single column, image height capped at 50vh (Requirement 6.7, 6.8) */
+@media (max-width: 767px) {
+  .gospel-stage {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin: 0 0 1.5rem;
+  }
+
+  .gospel-stage:nth-child(even) .gospel-stage__media {
+    order: 0; /* on mobile, media always sits above copy regardless of parity */
+  }
+
+  .gospel-stage__media img {
+    max-height: 50vh;
+    object-fit: cover;
+  }
+
+  /* Vertical spacing requirement 6.7 */
+  .gospel-stage + .gospel-stage {
+    margin-top: 1.5rem;
+  }
+}
+
 .section-title {
   text-align: center;
   font-size: clamp(1.75rem, 4vw, 2.5rem);
@@ -703,6 +839,67 @@ ul { margin: 0; padding: 0; list-style: none; }
   inset: 0;
   background: rgba(0,0,0,.35);
 }
+
+/* ── HomeHero decorative video (Requirements 2, 3) ───────────── */
+
+/* The existing .hero--jesus::before pseudo-element renders the dark gradient.
+   We add an explicit .hero__overlay-gradient div with the same gradient so
+   stacking order is unambiguous when the <video> is present. */
+.hero--jesus .hero__overlay-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.30) 50%, rgba(0,0,0,.45) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* The decorative video sits behind the gradient and behind the welcome text.
+   object-fit: cover makes it full-bleed at any aspect ratio between 320 and
+   1920 CSS pixels (Requirement 2.9). */
+.hero--jesus .hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  z-index: 0;
+  /* Safari sometimes paints a pale flash on first frame; this masks it. */
+  background: #1a1a1a;
+  /* aria-hidden video is decorative; remove from tab order in case a UA
+     surfaces it. */
+  pointer-events: none;
+}
+
+/* The welcome text and CTA must sit above both the video and the gradient. */
+.hero--jesus .hero__content--simple {
+  position: relative;
+  z-index: 2;
+}
+
+/* Honour reduced-motion at the CSS layer too — even if JS hasn't run yet,
+   the autoplay attribute remains, but most engines respect this hint to
+   suspend animations. The JS layer (below) is the source of truth and
+   actively pauses the video. */
+@media (prefers-reduced-motion: reduce) {
+  .hero--jesus .hero__video {
+    /* Keep the poster visible; hide the video element so it doesn't consume
+       paint cycles even when paused. */
+    display: none;
+  }
+}
+
+/* iOS Safari fix (Requirement 3.6): background-attachment: fixed thrashes
+   on iOS Safari. The existing .hero--jesus background-image is what shows
+   when the <video> hasn't decoded yet, so we must NOT use a fixed
+   attachment under 768 px. The body-level rule already declares
+   background-attachment: fixed, so we override here for the hero. */
+@media (max-width: 767px) {
+  .hero--jesus {
+    background-attachment: scroll;
+  }
+}
+
 .hero__content--simple {
   position: relative;
   z-index: 2;

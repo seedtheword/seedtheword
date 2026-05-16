@@ -1118,3 +1118,71 @@ if (document.readyState === 'loading') {
 
 // ── How We S.E.E.D. accordion ────────────────────────────────
 // Uses native <details>/<summary> on about.html — no JS required.
+
+
+// ── HomeHero video: graceful degradation (Requirement 3) ────
+(function initHeroVideo() {
+  var video = document.querySelector('.hero--jesus .hero__video');
+  if (!video) return;
+
+  // Always wire the error handler first so we catch decode/source errors
+  // even before degradation logic runs.
+  video.addEventListener('error', function () {
+    // On any media error, hide the broken element so the poster image
+    // (.hero--jesus background-image) stays visible and the overlay text
+    // remains fully readable. Requirement 3.4.
+    video.style.display = 'none';
+  }, { once: true });
+
+  // Also catch source-level errors that don't fire on the <video> itself.
+  Array.prototype.forEach.call(video.querySelectorAll('source'), function (s) {
+    s.addEventListener('error', function () {
+      video.style.display = 'none';
+    });
+  });
+
+  function shouldSuppressMotion() {
+    // Reduced motion (Requirement 3.1)
+    try {
+      if (window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return true;
+      }
+    } catch (_) { /* matchMedia unavailable — ignore */ }
+
+    // Save-Data + slow networks (Requirement 3.2, 3.3)
+    var conn = navigator.connection ||
+               navigator.mozConnection ||
+               navigator.webkitConnection;
+    if (conn) {
+      if (conn.saveData === true) return true;
+      var t = conn.effectiveType;
+      if (t === 'slow-2g' || t === '2g' || t === '3g') return true;
+    }
+
+    return false;
+  }
+
+  if (shouldSuppressMotion()) {
+    // Drop autoplay so the UA doesn't try to start the stream, and pause
+    // defensively in case the UA already started decoding metadata.
+    video.removeAttribute('autoplay');
+    try { video.pause(); } catch (_) { /* noop */ }
+    // Leaving the <video> in the DOM means the poster image still renders.
+    return;
+  }
+
+  // No suppression — let the browser autoplay. The autoplay attribute is
+  // already set in HTML; calling play() explicitly handles UAs that need
+  // a programmatic kick after JS attaches.
+  var playPromise = video.play && video.play();
+  if (playPromise && typeof playPromise.catch === 'function') {
+    playPromise.catch(function () {
+      // Autoplay rejected (e.g. desktop Safari with low power mode). Fall
+      // back to poster — this is functionally identical to the suppressed
+      // path above, so we mirror its behavior.
+      video.removeAttribute('autoplay');
+      try { video.pause(); } catch (_) {}
+    });
+  }
+})();

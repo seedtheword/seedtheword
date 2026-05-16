@@ -9,12 +9,28 @@ on:
     branches: [main]
     paths:
       - 'assets/js/admin-editor*.js'
+      - 'assets/js/main.js'
+      - 'assets/css/main.css'
+      - 'index.html'
+      - 'about.html'
+      - 'assets/videos/**'
+      - 'assets/images/gospel/**'
       - 'tests/**'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/admin-editor-tests.yml'
   pull_request:
     paths:
       - 'assets/js/admin-editor*.js'
+      - 'assets/js/main.js'
+      - 'assets/css/main.css'
+      - 'index.html'
+      - 'about.html'
+      - 'assets/videos/**'
+      - 'assets/images/gospel/**'
       - 'tests/**'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/admin-editor-tests.yml'
   workflow_dispatch:
 
@@ -54,13 +70,31 @@ jobs:
           # (no auth needed) even for private-repo observers.
           node --test tests/ 2>&1 | tee /tmp/test-output.txt
 
+      - name: Install jesus-storytelling devDependencies
+        # The jesus-storytelling test suite uses fast-check, parse5, and jsdom
+        # (devDependencies in package.json). The other admin-editor tests use
+        # only Node's built-ins, so we only run npm ci right before this step.
+        run: npm ci
+
+      - name: Run jesus-storytelling property + integration suite
+        id: jesus_storytelling_tests
+        run: |
+          set -o pipefail
+          npm run test:jesus-storytelling 2>&1 | tee /tmp/jesus-storytelling-output.txt
+
       - name: Attach test output to job summary
         if: always()
         run: |
           if [ -f /tmp/test-output.txt ]; then
-            echo "## Test output" >> $GITHUB_STEP_SUMMARY
+            echo "## Test output (admin-editor)" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
             tail -n 200 /tmp/test-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -f /tmp/jesus-storytelling-output.txt ]; then
+            echo "## Test output (jesus-storytelling)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 200 /tmp/jesus-storytelling-output.txt >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
           fi
 
@@ -69,5 +103,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-output
-          path: /tmp/test-output.txt
+          path: |
+            /tmp/test-output.txt
+            /tmp/jesus-storytelling-output.txt
           retention-days: 7

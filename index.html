@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=3">
+  <link rel="stylesheet" href="assets/css/main.css?v=4">
 </head>
 <body>
 
@@ -49,8 +49,29 @@
   </div>
 </header>
 
-<!-- ── Hero with Jesus Image ── -->
+<!-- ── Hero with Jesus Image (Requirement: looping muted decorative video
+     behind welcome text + dark gradient overlay; falls back to poster
+     image when video is missing/blocked/reduced-motion). See
+     .kiro/specs/jesus-storytelling-homepage-and-about/ for full spec. ── -->
 <section class="hero hero--jesus">
+  <video
+    class="hero__video"
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="metadata"
+    poster="assets/images/backgrounds/stw-background-1920x1080.jpg"
+    aria-hidden="true">
+    <!-- WebM source is reserved for future use. When a WebM file is later
+         committed at assets/videos/hero-jesus.webm, uncomment the line
+         below so it sits ahead of the MP4 source. -->
+    <!-- <source src="assets/videos/hero-jesus.webm" type="video/webm"> -->
+    <source src="assets/videos/hero-jesus.mp4" type="video/mp4">
+  </video>
+
+  <div class="hero__overlay-gradient" aria-hidden="true"></div>
+
   <div class="hero__content hero__content--simple">
     <p class="hero__text hero__text--intro">Welcome to where we</p>
     <h1 class="hero__text hero__text--main">Seed the Word</h1>
@@ -260,7 +281,7 @@
   </div>
 </footer>
 
-<script src="assets/js/main.js?v=9"></script>
+<script src="assets/js/main.js?v=10"></script>
 <script src="assets/js/showcase-carousel.js?v=4"></script>
 </body>
 </html>

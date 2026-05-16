@@ -5,6 +5,12 @@
   "description": "Seed the Word ministry website — static GitHub Pages site with admin editor.",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/"
+    "test": "node --test tests/",
+    "test:jesus-storytelling": "node --test tests/jesus-storytelling.test.js"
+  },
+  "devDependencies": {
+    "fast-check": "3.23.2",
+    "parse5": "7.2.1",
+    "jsdom": "25.0.1"
   }
 }

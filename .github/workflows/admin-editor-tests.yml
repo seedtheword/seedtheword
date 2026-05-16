@@ -90,14 +90,9 @@ jobs:
 
       - name: Run jesus-storytelling property + integration suite
         id: jesus_storytelling_tests
-        # Marked continue-on-error so test failures don't block the
-        # admin-editor signal during the iteration period for this
-        # suite. Yellow warning still appears on failed runs so
-        # regressions are visible. Flip back to the default (false)
-        # after the suite has stabilized — see the spec at
-        # .kiro/specs/jesus-storytelling-homepage-and-about/ for the
-        # status of each property test.
-        continue-on-error: true
+        # All 15 tests in this suite (10 fast-check properties at
+        # 100-200 runs each plus 5 integration examples) must pass.
+        # Failures here will fail the workflow.
         run: |
           set -o pipefail
           npm run test:jesus-storytelling 2>&1 | tee /tmp/jesus-storytelling-output.txt

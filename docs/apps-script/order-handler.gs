@@ -379,73 +379,155 @@ const STW_TEXT  = '#2b2b2b';
 const STW_MUTED = '#666';
 const STW_BORDER = '#e8e4de';
 
-// "Walk with us" callout — inserted above the plain footer in any
-// email destined for a non-team recipient (gifter, giftee, contact
-// sender, story submitter). Anchor verse + 4 quick links to the
-// site's main entry points so every reply doubles as a soft invite
-// back to the ministry. Inline-block + table layout for Gmail.
+// "Walk with us" callout — inserted in the body of any email destined
+// for a non-team recipient (gifter, giftee, contact sender, story
+// submitter). 2x2 grid of branded pill cards instead of a flat link
+// list. Anchor verse + decorative flourishes for a richer feel.
 function emailMinistryFooter() {
+  const card = function (emoji, title, sub, url, accentBg) {
+    return '' +
+      '<td valign="top" width="50%" style="width:50%;padding:6px;">' +
+        '<a href="' + url + '" style="display:block;text-decoration:none;background-color:#ffffff;border:1px solid ' + STW_BORDER + ';border-left:4px solid ' + accentBg + ';border-radius:10px;padding:14px 16px;color:' + STW_TEXT + ';">' +
+          '<div style="font-size:22px;line-height:1;margin-bottom:6px;">' + emoji + '</div>' +
+          '<div style="font-family:Georgia,\'Times New Roman\',serif;font-size:15px;font-weight:600;color:' + STW_GREEN + ';line-height:1.3;margin-bottom:3px;">' + title + ' &rarr;</div>' +
+          '<div style="font-size:12.5px;color:' + STW_MUTED + ';line-height:1.45;">' + sub + '</div>' +
+        '</a>' +
+      '</td>';
+  };
   return '' +
-    '<div style="margin:8px 0 0;padding:18px 22px;background:' + STW_CREAM + ';border-radius:10px;border:1px solid ' + STW_BORDER + ';">' +
-      '<div style="font-size:11.5px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;color:' + STW_GREEN + ';margin-bottom:10px;">Walk with us</div>' +
-      '<p style="margin:0 0 14px;font-size:14px;line-height:1.55;color:' + STW_TEXT + ';">' +
-        '<em>"Your word is a lamp for my feet, a light on my path."</em><br>' +
-        '<span style="color:' + STW_MUTED + ';font-size:13px;">— Psalm 119:105</span>' +
-      '</p>' +
-      '<table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;font-size:13.5px;">' +
-        '<tr>' +
-          '<td style="padding:6px 8px 6px 0;vertical-align:top;width:50%;">' +
-            '<a href="' + SITE_URL + 'community.html" style="color:' + STW_GREEN + ';text-decoration:none;font-weight:600;">Daily Bible reading &rarr;</a>' +
-            '<div style="color:' + STW_MUTED + ';font-size:12.5px;margin-top:2px;">Join our reading plan + Saturday studies.</div>' +
-          '</td>' +
-          '<td style="padding:6px 0 6px 8px;vertical-align:top;width:50%;">' +
-            '<a href="' + SITE_URL + 'news.html" style="color:' + STW_GREEN + ';text-decoration:none;font-weight:600;">This week\'s events &rarr;</a>' +
-            '<div style="color:' + STW_MUTED + ';font-size:12.5px;margin-top:2px;">Worship nights, outreach, fellowship.</div>' +
-          '</td>' +
-        '</tr>' +
-        '<tr>' +
-          '<td style="padding:6px 8px 6px 0;vertical-align:top;width:50%;">' +
-            '<a href="' + SITE_URL + 'store.html" style="color:' + STW_GREEN + ';text-decoration:none;font-weight:600;">Bibles for those you love &rarr;</a>' +
-            '<div style="color:' + STW_MUTED + ';font-size:12.5px;margin-top:2px;">Gift bundles, ministry calling.</div>' +
-          '</td>' +
-          '<td style="padding:6px 0 6px 8px;vertical-align:top;width:50%;">' +
-            '<a href="https://www.instagram.com/seedtheword/" style="color:' + STW_GREEN + ';text-decoration:none;font-weight:600;">Follow along &rarr;</a>' +
-            '<div style="color:' + STW_MUTED + ';font-size:12.5px;margin-top:2px;">Instagram &middot; Telegram &middot; YouTube.</div>' +
-          '</td>' +
-        '</tr>' +
-      '</table>' +
-    '</div>';
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;margin:18px 0 0;">' +
+      '<tr>' +
+        '<td style="text-align:center;padding:0 0 12px;">' +
+          '<div style="display:inline-block;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;font-weight:700;color:' + STW_GOLD + ';">' +
+            '&#10086;&nbsp;&nbsp;Walk with us&nbsp;&nbsp;&#10086;' +
+          '</div>' +
+        '</td>' +
+      '</tr>' +
+      '<tr>' +
+        '<td>' +
+          '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">' +
+            '<tr>' +
+              card('&#128218;', 'Daily Bible reading',  'Reading plan + Saturday studies', SITE_URL + 'community.html', STW_GREEN) +
+              card('&#128197;', 'This week\'s events', 'Worship, outreach, fellowship',  SITE_URL + 'news.html',      STW_GOLD) +
+            '</tr>' +
+            '<tr>' +
+              card('&#127873;', 'Bibles for those you love', 'Gift bundles &amp; ministry calling', SITE_URL + 'store.html', STW_GOLD) +
+              card('&#128247;', 'Follow along',         'Instagram, Telegram, YouTube',     'https://www.instagram.com/seedtheword/', STW_GREEN) +
+            '</tr>' +
+          '</table>' +
+        '</td>' +
+      '</tr>' +
+    '</table>';
+}
+
+// Small social-icon row used in the bottom footer of every email.
+// Circular emoji-style buttons, table-laid out so Gmail keeps the
+// gaps between cells.
+function emailSocialIcons() {
+  const icon = function (label, url, bg) {
+    return '<td style="padding:0 4px;">' +
+      '<a href="' + url + '" style="display:inline-block;width:34px;height:34px;line-height:34px;text-align:center;background-color:' + bg + ';color:#ffffff;border-radius:50%;font-size:15px;text-decoration:none;font-weight:700;" title="' + label + '">' + label.charAt(0) + '</a>' +
+    '</td>';
+  };
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="border-collapse:collapse;margin:0 auto;">' +
+    '<tr>' +
+      icon('Instagram', 'https://www.instagram.com/seedtheword/', '#E1306C') +
+      icon('Telegram',  'https://t.me/seedtheword',                '#0088cc') +
+      icon('YouTube',   'https://www.youtube.com/@seedtheword',    '#cc0000') +
+      icon('Email',     'mailto:' + TEAM_INBOX,                    STW_GREEN) +
+    '</tr>' +
+  '</table>';
 }
 
 function emailShell(opts) {
   // opts: { headerTitle, headerSubtitle, bodyHtml, footerHtml,
-  //         accentColor, includeMinistryFooter (bool) }
-  const accent = opts.accentColor || STW_GREEN;
-  return '' +
-    '<div style="margin:0;padding:32px 12px;background:#f7f3ec;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:' + STW_TEXT + ';line-height:1.6;">' +
-      '<div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid ' + STW_BORDER + ';box-shadow:0 2px 12px rgba(31,38,135,0.06);">' +
-        // Header — single accent stripe + brand line + title
-        '<div style="border-top:4px solid ' + accent + ';padding:28px 32px 22px 32px;border-bottom:1px solid ' + STW_BORDER + ';">' +
-          '<div style="font-size:11.5px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;color:' + accent + ';margin-bottom:10px;">Seed the Word Ministry</div>' +
-          '<div style="font-size:22px;font-weight:700;color:' + STW_TEXT + ';line-height:1.3;">' + escapeHtml(opts.headerTitle) + '</div>' +
-          (opts.headerSubtitle
-            ? '<div style="font-size:14px;font-weight:400;margin-top:6px;color:' + STW_MUTED + ';">' + escapeHtml(opts.headerSubtitle) + '</div>'
-            : '') +
-        '</div>' +
-        // Body
-        '<div style="padding:28px 32px 8px 32px;font-size:15px;color:' + STW_TEXT + ';">' +
-          opts.bodyHtml +
-        '</div>' +
-        // Optional "Walk with us" ministry callout (only on emails to
-        // members of the public — never on team-internal notifications).
-        (opts.includeMinistryFooter
-          ? '<div style="padding:0 32px 18px 32px;">' + emailMinistryFooter() + '</div>'
-          : '') +
-        // Footer
-        '<div style="padding:18px 32px 24px 32px;border-top:1px solid ' + STW_BORDER + ';font-size:12.5px;color:' + STW_MUTED + ';line-height:1.5;">' +
-          (opts.footerHtml || 'Seed the Word Ministry') +
-        '</div>' +
+  //         accentColor (kept for back-compat; current shell uses
+  //         a tri-color top band), includeMinistryFooter (bool) }
+  const hasMinistry = !!opts.includeMinistryFooter;
+
+  // Tri-color top band — three table cells with bgcolor approximate a
+  // gradient stripe across all email clients (no real gradient because
+  // Outlook strips background-image).
+  const topBand =
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;width:100%;">' +
+      '<tr style="height:6px;">' +
+        '<td bgcolor="' + STW_GREEN + '" style="background-color:' + STW_GREEN + ';height:6px;line-height:6px;font-size:0;width:30%;">&nbsp;</td>' +
+        '<td bgcolor="' + STW_GOLD  + '" style="background-color:' + STW_GOLD  + ';height:6px;line-height:6px;font-size:0;width:40%;">&nbsp;</td>' +
+        '<td bgcolor="' + STW_GREEN + '" style="background-color:' + STW_GREEN + ';height:6px;line-height:6px;font-size:0;width:30%;">&nbsp;</td>' +
+      '</tr>' +
+    '</table>';
+
+  // Branded masthead — eyebrow with flourishes, big serif headline,
+  // italic subtitle. Centered to feel like a letter, not a form.
+  const masthead =
+    '<div style="padding:34px 36px 24px 36px;text-align:center;">' +
+      '<div style="font-size:10.5px;letter-spacing:0.34em;text-transform:uppercase;font-weight:700;color:' + STW_GOLD + ';margin-bottom:14px;">' +
+        '&#10086;&nbsp;&nbsp;Seed the Word Ministry&nbsp;&nbsp;&#10086;' +
       '</div>' +
+      '<h1 style="margin:0;font-family:Georgia,\'Times New Roman\',serif;font-size:28px;font-weight:400;color:' + STW_TEXT + ';line-height:1.25;letter-spacing:-0.01em;">' +
+        escapeHtml(opts.headerTitle) +
+      '</h1>' +
+      (opts.headerSubtitle
+        ? '<p style="margin:12px 0 0;font-family:Georgia,\'Times New Roman\',serif;font-size:15px;font-style:italic;color:' + STW_MUTED + ';line-height:1.5;">' + escapeHtml(opts.headerSubtitle) + '</p>'
+        : '') +
+    '</div>';
+
+  // Cream-band anchor verse — only on public-facing emails so team
+  // notifications stay operational-looking.
+  const verseBand = hasMinistry
+    ? '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">' +
+        '<tr>' +
+          '<td bgcolor="' + STW_CREAM + '" style="background-color:' + STW_CREAM + ';padding:18px 32px;text-align:center;border-top:1px solid ' + STW_BORDER + ';border-bottom:1px solid ' + STW_BORDER + ';">' +
+            '<p style="margin:0;font-family:Georgia,\'Times New Roman\',serif;font-size:15.5px;font-style:italic;color:' + STW_GREEN + ';line-height:1.55;">' +
+              '<span style="color:' + STW_GOLD + ';font-style:normal;">&#10086;</span>&nbsp;&nbsp;' +
+              '&ldquo;Your word is a lamp for my feet, a light on my path.&rdquo;' +
+              '&nbsp;&nbsp;<span style="color:' + STW_GOLD + ';font-style:normal;">&#10086;</span>' +
+            '</p>' +
+            '<p style="margin:6px 0 0;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:' + STW_MUTED + ';font-weight:700;">' +
+              'Psalm 119:105' +
+            '</p>' +
+          '</td>' +
+        '</tr>' +
+      '</table>'
+    : '';
+
+  // Body content
+  const body =
+    '<div style="padding:30px 36px 14px 36px;font-size:15px;color:' + STW_TEXT + ';line-height:1.6;">' +
+      opts.bodyHtml +
+    '</div>';
+
+  // Walk-with-us card panel (only on public-facing emails)
+  const walkPanel = hasMinistry
+    ? '<div style="padding:6px 28px 22px 28px;">' + emailMinistryFooter() + '</div>'
+    : '';
+
+  // Bottom footer — social icons + sign-off line
+  const footer =
+    '<div style="padding:20px 32px 26px 32px;border-top:1px solid ' + STW_BORDER + ';background-color:#fcfaf6;text-align:center;">' +
+      (hasMinistry ? '<div style="margin:0 0 14px;">' + emailSocialIcons() + '</div>' : '') +
+      '<div style="font-size:12.5px;color:' + STW_MUTED + ';line-height:1.55;">' +
+        (opts.footerHtml || 'Seed the Word Ministry') +
+      '</div>' +
+      (hasMinistry
+        ? '<div style="margin:10px 0 0;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:' + STW_GOLD + ';font-weight:700;">' +
+            '&#10086;&nbsp;&nbsp;Seed the Word Ministry&nbsp;&nbsp;&#10086;' +
+          '</div>'
+        : '') +
+    '</div>';
+
+  return '' +
+    '<div style="margin:0;padding:32px 12px;background-color:#f7f3ec;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:' + STW_TEXT + ';line-height:1.6;">' +
+      '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" width="640" style="max-width:640px;width:100%;margin:0 auto;background-color:#ffffff;border:1px solid ' + STW_BORDER + ';border-radius:14px;overflow:hidden;box-shadow:0 4px 22px rgba(31,38,135,0.08);">' +
+        '<tr><td style="padding:0;">' +
+          topBand +
+          masthead +
+          verseBand +
+          body +
+          walkPanel +
+          footer +
+        '</td></tr>' +
+      '</table>' +
     '</div>';
 }
 
@@ -457,10 +539,21 @@ function emailSection(label, valueHtml, opts) {
     ? 'font-family:Consolas,Menlo,Monaco,Courier New,monospace;font-size:13px;white-space:pre-wrap;'
     : '';
   return '' +
-    '<div style="margin:0 0 ' + (dense ? '14px' : '20px') + ';">' +
-      '<div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;color:' + accent + ';margin:0 0 8px;border-left:3px solid ' + accent + ';padding-left:10px;">' + escapeHtml(label) + '</div>' +
-      '<div style="font-size:14.5px;color:' + STW_TEXT + ';line-height:1.55;padding-left:13px;' + valueStyle + '">' + valueHtml + '</div>' +
-    '</div>';
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;margin:0 0 ' + (dense ? '16px' : '22px') + ';">' +
+      '<tr>' +
+        '<td style="padding:0 0 9px 0;">' +
+          '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">' +
+            '<tr>' +
+              '<td bgcolor="' + accent + '" style="background-color:' + accent + ';width:24px;height:2px;font-size:0;line-height:2px;">&nbsp;</td>' +
+              '<td style="padding-left:10px;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;font-weight:700;color:' + accent + ';white-space:nowrap;">' + escapeHtml(label) + '</td>' +
+            '</tr>' +
+          '</table>' +
+        '</td>' +
+      '</tr>' +
+      '<tr>' +
+        '<td style="font-size:14.5px;color:' + STW_TEXT + ';line-height:1.6;' + valueStyle + '">' + valueHtml + '</td>' +
+      '</tr>' +
+    '</table>';
 }
 
 function emailKeyValueRow(rows) {
@@ -1004,22 +1097,30 @@ function buildContactSenderEmail(c) {
 
   // HTML body
   let body = '';
-  body += '<p style="margin:0 0 18px;font-size:15px;">Dear <strong>' + escapeHtml(c.name) + '</strong>,</p>';
-  body += '<p style="margin:0 0 18px;font-size:15px;line-height:1.65;">Thank you for reaching out to Seed the Word Ministry. Your message has been received and a member of our team will read it personally. You can expect a reply within 2-3 business days.</p>';
-  body += '<p style="margin:0 0 18px;font-size:14.5px;color:' + STW_MUTED + ';line-height:1.6;">For your records, here is what you sent:</p>';
+  body += '<p style="margin:0 0 18px;font-family:Georgia,\'Times New Roman\',serif;font-size:17px;color:' + STW_TEXT + ';">Dear <strong>' + escapeHtml(c.name) + '</strong>,</p>';
+  body += '<p style="margin:0 0 18px;font-size:15px;line-height:1.7;">Thank you for reaching out to <strong>Seed the Word Ministry</strong>. Your message has been received and a member of our team will read it personally. You can expect a reply within 2&ndash;3 business days.</p>';
+  body += '<p style="margin:0 0 22px;font-size:13.5px;color:' + STW_MUTED + ';line-height:1.55;font-style:italic;">For your records, we&rsquo;ve included a copy of your message below.</p>';
 
   if (c.subject) {
     body += emailSection('Subject',
-      escapeHtml(c.subject),
+      '<span style="font-family:Georgia,\'Times New Roman\',serif;font-size:16px;color:' + STW_TEXT + ';">' + escapeHtml(c.subject) + '</span>',
       { accent: STW_GREEN, dense: true });
   }
 
+  // Pull-quote feel for the message echo — serif italic, with a
+  // decorative gold opening mark on the left.
   body += emailSection('Your message',
-    '<div style="white-space:pre-wrap;font-size:14.5px;line-height:1.65;">' + escapeHtml(c.message) + '</div>',
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">' +
+      '<tr>' +
+        '<td bgcolor="' + STW_CREAM + '" style="background-color:' + STW_CREAM + ';padding:18px 22px;border-radius:8px;">' +
+          '<div style="font-family:Georgia,\'Times New Roman\',serif;font-size:15.5px;color:' + STW_TEXT + ';line-height:1.7;white-space:pre-wrap;">' + escapeHtml(c.message) + '</div>' +
+        '</td>' +
+      '</tr>' +
+    '</table>',
     { accent: STW_GOLD });
 
-  body += '<p style="margin:22px 0 4px;font-size:14.5px;">Sincerely,</p>';
-  body += '<p style="margin:0 0 4px;font-size:14.5px;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
+  body += '<p style="margin:26px 0 4px;font-size:14.5px;">With grace and gratitude,</p>';
+  body += '<p style="margin:0 0 4px;font-family:Georgia,\'Times New Roman\',serif;font-size:18px;font-style:italic;color:' + STW_GREEN + ';">The Seed the Word team</p>';
 
   const html = emailShell({
     headerTitle: 'We received your message',

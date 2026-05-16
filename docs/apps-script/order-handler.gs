@@ -41,6 +41,10 @@ const LEDGER_TAB = 'Orders';
 const CONTACT_TAB = 'Contact';
 const STORIES_TAB = 'Stories';
 
+// Public site URL — used in email footers to link back to ministry
+// pages (community, news, store, etc.). Trailing slash kept.
+const SITE_URL = 'https://seedtheword.github.io/seedtheword/';
+
 // ── Display labels for human-readable emails / Sheet rows ───────
 const BUNDLE_DISPLAY = {
   essentials: 'Essentials Welcome',
@@ -375,8 +379,47 @@ const STW_TEXT  = '#2b2b2b';
 const STW_MUTED = '#666';
 const STW_BORDER = '#e8e4de';
 
+// "Walk with us" callout — inserted above the plain footer in any
+// email destined for a non-team recipient (gifter, giftee, contact
+// sender, story submitter). Anchor verse + 4 quick links to the
+// site's main entry points so every reply doubles as a soft invite
+// back to the ministry. Inline-block + table layout for Gmail.
+function emailMinistryFooter() {
+  return '' +
+    '<div style="margin:8px 0 0;padding:18px 22px;background:' + STW_CREAM + ';border-radius:10px;border:1px solid ' + STW_BORDER + ';">' +
+      '<div style="font-size:11.5px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;color:' + STW_GREEN + ';margin-bottom:10px;">Walk with us</div>' +
+      '<p style="margin:0 0 14px;font-size:14px;line-height:1.55;color:' + STW_TEXT + ';">' +
+        '<em>"Your word is a lamp for my feet, a light on my path."</em><br>' +
+        '<span style="color:' + STW_MUTED + ';font-size:13px;">— Psalm 119:105</span>' +
+      '</p>' +
+      '<table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;font-size:13.5px;">' +
+        '<tr>' +
+          '<td style="padding:6px 8px 6px 0;vertical-align:top;width:50%;">' +
+            '<a href="' + SITE_URL + 'community.html" style="color:' + STW_GREEN + ';text-decoration:none;font-weight:600;">Daily Bible reading &rarr;</a>' +
+            '<div style="color:' + STW_MUTED + ';font-size:12.5px;margin-top:2px;">Join our reading plan + Saturday studies.</div>' +
+          '</td>' +
+          '<td style="padding:6px 0 6px 8px;vertical-align:top;width:50%;">' +
+            '<a href="' + SITE_URL + 'news.html" style="color:' + STW_GREEN + ';text-decoration:none;font-weight:600;">This week\'s events &rarr;</a>' +
+            '<div style="color:' + STW_MUTED + ';font-size:12.5px;margin-top:2px;">Worship nights, outreach, fellowship.</div>' +
+          '</td>' +
+        '</tr>' +
+        '<tr>' +
+          '<td style="padding:6px 8px 6px 0;vertical-align:top;width:50%;">' +
+            '<a href="' + SITE_URL + 'store.html" style="color:' + STW_GREEN + ';text-decoration:none;font-weight:600;">Bibles for those you love &rarr;</a>' +
+            '<div style="color:' + STW_MUTED + ';font-size:12.5px;margin-top:2px;">Gift bundles, ministry calling.</div>' +
+          '</td>' +
+          '<td style="padding:6px 0 6px 8px;vertical-align:top;width:50%;">' +
+            '<a href="https://www.instagram.com/seedtheword/" style="color:' + STW_GREEN + ';text-decoration:none;font-weight:600;">Follow along &rarr;</a>' +
+            '<div style="color:' + STW_MUTED + ';font-size:12.5px;margin-top:2px;">Instagram &middot; Telegram &middot; YouTube.</div>' +
+          '</td>' +
+        '</tr>' +
+      '</table>' +
+    '</div>';
+}
+
 function emailShell(opts) {
-  // opts: { headerTitle, headerSubtitle, bodyHtml, footerHtml, accentColor }
+  // opts: { headerTitle, headerSubtitle, bodyHtml, footerHtml,
+  //         accentColor, includeMinistryFooter (bool) }
   const accent = opts.accentColor || STW_GREEN;
   return '' +
     '<div style="margin:0;padding:32px 12px;background:#f7f3ec;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:' + STW_TEXT + ';line-height:1.6;">' +
@@ -393,6 +436,11 @@ function emailShell(opts) {
         '<div style="padding:28px 32px 8px 32px;font-size:15px;color:' + STW_TEXT + ';">' +
           opts.bodyHtml +
         '</div>' +
+        // Optional "Walk with us" ministry callout (only on emails to
+        // members of the public — never on team-internal notifications).
+        (opts.includeMinistryFooter
+          ? '<div style="padding:0 32px 18px 32px;">' + emailMinistryFooter() + '</div>'
+          : '') +
         // Footer
         '<div style="padding:18px 32px 24px 32px;border-top:1px solid ' + STW_BORDER + ';font-size:12.5px;color:' + STW_MUTED + ';line-height:1.5;">' +
           (opts.footerHtml || 'Seed the Word Ministry') +
@@ -588,6 +636,7 @@ function buildGifterEmail(p, orderId) {
     bodyHtml: body,
     footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
     accentColor: accent,
+    includeMinistryFooter: true,
   });
 
   return {
@@ -761,6 +810,7 @@ function buildGifteeEmail(p, orderId) {
     bodyHtml: body,
     footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
     accentColor: STW_GOLD,
+    includeMinistryFooter: true,
   });
 
   return {
@@ -795,6 +845,10 @@ function handleContact(payload) {
     return jsonResponse({ ok: false, error: 'sheet-write-failed' });
   }
 
+  // Send team notification first — if it fails we still want the
+  // sender confirmation to go out (and vice versa).
+  let teamSent = false;
+  let senderSent = false;
   try {
     const teamMail = buildContactTeamEmail({ name, email, subject, message });
     MailApp.sendEmail({
@@ -805,12 +859,36 @@ function handleContact(payload) {
       replyTo: teamMail.replyTo,
       name: 'STW Contact Bot',
     });
+    teamSent = true;
   } catch (err) {
-    console.log('Contact mail failed:', err);
-    return jsonResponse({ ok: false, error: 'mail-send-failed' });
+    console.log('Contact team mail failed:', err);
   }
 
-  return jsonResponse({ ok: true, emailsSent: 1, route: 'apps-script' });
+  try {
+    const senderMail = buildContactSenderEmail({ name, email, subject, message });
+    MailApp.sendEmail({
+      to: senderMail.to,
+      subject: senderMail.subject,
+      body: senderMail.body,
+      htmlBody: senderMail.html,
+      replyTo: senderMail.replyTo,
+      name: 'Seed the Word Ministry',
+    });
+    senderSent = true;
+  } catch (err) {
+    console.log('Contact sender mail failed:', err);
+  }
+
+  // Surface a partial-failure if exactly one of the two pipes broke
+  // — at least one always logs to the sheet, so the team can recover.
+  if (!teamSent && !senderSent) {
+    return jsonResponse({ ok: false, error: 'mail-send-failed' });
+  }
+  return jsonResponse({
+    ok: true,
+    emailsSent: (teamSent ? 1 : 0) + (senderSent ? 1 : 0),
+    route: 'apps-script',
+  });
 }
 
 function validateContactPayload(p) {
@@ -823,12 +901,21 @@ function validateContactPayload(p) {
 
 function buildContactTeamEmail(c) {
   const subjectLabel = c.subject || 'General contact';
+  const receivedAt = formatHumanTimestamp(new Date());
+
   let body = '';
-  body += '<div style="margin:0 0 22px;line-height:2.2;">' +
-    '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0.04em;margin-right:6px;">Contact</span>' +
-    '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0.04em;margin-right:6px;">' + escapeHtml(subjectLabel) + '</span>' +
-    '<span style="display:inline-block;color:' + STW_MUTED + ';font-size:12px;">' + escapeHtml(new Date().toISOString()) + '</span>' +
-  '</div>';
+  // Pill row — table-cell layout so Gmail doesn't collapse the gaps.
+  body += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin:0 0 22px;">' +
+    '<tr>' +
+      '<td style="padding-right:6px;">' +
+        '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0.04em;">Contact</span>' +
+      '</td>' +
+      '<td style="padding-right:10px;">' +
+        '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0.04em;">' + escapeHtml(subjectLabel) + '</span>' +
+      '</td>' +
+      '<td style="color:' + STW_MUTED + ';font-size:12px;">' + escapeHtml(receivedAt) + '</td>' +
+    '</tr>' +
+  '</table>';
 
   body += emailSection('From',
     emailKeyValueRow([
@@ -843,7 +930,7 @@ function buildContactTeamEmail(c) {
     { accent: STW_GOLD });
 
   body += '<p style="margin:18px 0 0;font-size:12.5px;color:' + STW_MUTED + ';font-style:italic;">' +
-    'Reply directly — this email\'s Reply-To is the sender. Logged to the Contact tab.' +
+    'Reply directly &mdash; this email\'s Reply-To is the sender. A confirmation has also been sent to them.' +
   '</p>';
 
   // Plain-text body
@@ -852,29 +939,116 @@ function buildContactTeamEmail(c) {
     '',
     'From:    ' + c.name + ' <' + c.email + '>',
     'Subject: ' + (c.subject || '(none)'),
-    'Sent:    ' + new Date().toISOString(),
+    'Sent:    ' + receivedAt,
     '',
     'MESSAGE',
     c.message.split('\n').map(function (l) { return '  ' + l; }).join('\n'),
     '',
+    'A confirmation has also been sent to the sender.',
     'Logged to the Contact tab.',
   ];
 
   const html = emailShell({
     headerTitle: 'New contact form message',
-    headerSubtitle: c.name + (c.subject ? ' · ' + c.subject : ''),
+    headerSubtitle: c.name + (c.subject ? ' \u00b7 ' + c.subject : ''),
     bodyHtml: body,
-    footerHtml: 'Reply directly — this email\'s Reply-To is the sender.',
+    footerHtml: 'Reply directly to respond &mdash; or use the Contact tab in the spreadsheet.',
     accentColor: STW_GREEN,
+    includeMinistryFooter: false,
   });
 
   return {
     to: TEAM_INBOX,
-    subject: '[STW Contact] ' + subjectLabel + ' — ' + c.name,
+    subject: '[STW Contact] ' + subjectLabel + ' \u2014 ' + c.name,
     body: plainLines.join('\n'),
     html: html,
     replyTo: c.email,
   };
+}
+
+// Sender confirmation — warm, brief, anchor verse, message echo so
+// they have a record of what they sent. Includes the ministry
+// footer so we double the email as a soft invite back to the site.
+function buildContactSenderEmail(c) {
+  const subject = c.subject
+    ? 'We received your message \u2014 ' + c.subject
+    : 'We received your message';
+
+  // Plain-text fallback
+  const plainLines = [
+    'Dear ' + c.name + ',',
+    '',
+    'Thank you for reaching out to Seed the Word Ministry. Your message',
+    'has been received and a member of our team will read it personally.',
+    'You can expect a reply within 2-3 business days.',
+    '',
+    'For your records, here is what you sent:',
+    '',
+  ];
+  if (c.subject) plainLines.push('Subject: ' + c.subject);
+  plainLines.push('');
+  plainLines.push('YOUR MESSAGE');
+  plainLines.push(c.message.split('\n').map(function (l) { return '  ' + l; }).join('\n'));
+  plainLines.push('');
+  plainLines.push('In the meantime, you are warmly invited to walk with us:');
+  plainLines.push('  Daily Bible reading: ' + SITE_URL + 'community.html');
+  plainLines.push("  This week's events: " + SITE_URL + 'news.html');
+  plainLines.push('  Bible gift bundles: ' + SITE_URL + 'store.html');
+  plainLines.push('  Instagram: https://www.instagram.com/seedtheword/');
+  plainLines.push('');
+  plainLines.push('"Your word is a lamp for my feet, a light on my path." — Psalm 119:105');
+  plainLines.push('');
+  plainLines.push('Sincerely,');
+  plainLines.push('The Seed the Word team');
+  plainLines.push(TEAM_INBOX);
+
+  // HTML body
+  let body = '';
+  body += '<p style="margin:0 0 18px;font-size:15px;">Dear <strong>' + escapeHtml(c.name) + '</strong>,</p>';
+  body += '<p style="margin:0 0 18px;font-size:15px;line-height:1.65;">Thank you for reaching out to Seed the Word Ministry. Your message has been received and a member of our team will read it personally. You can expect a reply within 2-3 business days.</p>';
+  body += '<p style="margin:0 0 18px;font-size:14.5px;color:' + STW_MUTED + ';line-height:1.6;">For your records, here is what you sent:</p>';
+
+  if (c.subject) {
+    body += emailSection('Subject',
+      escapeHtml(c.subject),
+      { accent: STW_GREEN, dense: true });
+  }
+
+  body += emailSection('Your message',
+    '<div style="white-space:pre-wrap;font-size:14.5px;line-height:1.65;">' + escapeHtml(c.message) + '</div>',
+    { accent: STW_GOLD });
+
+  body += '<p style="margin:22px 0 4px;font-size:14.5px;">Sincerely,</p>';
+  body += '<p style="margin:0 0 4px;font-size:14.5px;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
+
+  const html = emailShell({
+    headerTitle: 'We received your message',
+    headerSubtitle: 'A reply will arrive within 2-3 business days',
+    bodyHtml: body,
+    footerHtml: 'Seed the Word Ministry &nbsp;\u00b7&nbsp; <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
+    accentColor: STW_GREEN,
+    includeMinistryFooter: true,
+  });
+
+  return {
+    to: c.email,
+    subject: subject,
+    body: plainLines.join('\n'),
+    html: html,
+    replyTo: TEAM_INBOX,
+  };
+}
+
+// Format a Date in the script's timezone in human-friendly form, e.g.
+// "May 16, 2026 at 7:25 AM PDT". Falls back to ISO if the format
+// helper is unavailable for any reason.
+function formatHumanTimestamp(d) {
+  try {
+    const tz = Session.getScriptTimeZone() || 'America/Los_Angeles';
+    return Utilities.formatDate(d, tz, "MMM d, yyyy 'at' h:mm a z");
+  } catch (_) {
+    return d.toISOString();
+  }
 }
 
 // ── Story handler (POST path — used if the site posts directly) ──

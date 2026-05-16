@@ -261,6 +261,7 @@ if (contactForm) {
 
     // Path A: Apps Script (preferred)
     if (isUsableHandlerUrl(handlerUrl)) {
+      console.log('[contact] Path A — POSTing to Apps Script:', handlerUrl);
       try {
         const res = await fetch(handlerUrl, {
           method: 'POST',
@@ -274,17 +275,21 @@ if (contactForm) {
         });
         if (!res.ok) throw new Error('http ' + res.status);
         const json = await res.json();
+        console.log('[contact] Apps Script response:', json);
         if (!json || json.ok !== true) throw new Error(json && json.error || 'unknown');
         contactForm.style.display = 'none';
         if (successEl) successEl.style.display = 'block';
         return;
       } catch (err) {
         // fall through to Formspree
-        console.log('Apps Script contact path failed, falling back:', err);
+        console.warn('[contact] Apps Script failed, falling back to Formspree:', err);
       }
+    } else {
+      console.warn('[contact] No usable orderHandlerUrl in site-config — going to Formspree.');
     }
 
     // Path B: Formspree fallback
+    console.log('[contact] Path B — POSTing to Formspree.');
     const endpoint = contactForm.getAttribute('action') || '';
     if (!endpoint || endpoint.includes('YOUR_FORMSPREE_ENDPOINT')) {
       if (errEl) {

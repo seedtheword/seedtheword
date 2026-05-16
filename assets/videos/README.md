@@ -61,6 +61,8 @@ Net effect: a visitor never sees a broken page, just the still poster instead of
 
 When the ministry has its own intro clip ready, drop it into this folder as `hero-jesus.mp4` (replacing whatever is there). No HTML, CSS, or JavaScript change is needed as long as the new file meets every constraint below.
 
+> **Note on the current placeholder size:** the placeholder shipped at ~14 MB rather than the 8 MB budget below — the source clip is 20 seconds at 1920×1080 and re-encoding consumer MP4s tends to inflate them rather than shrink them. The graceful-degradation logic in `assets/js/main.js` already keeps slow-connection and Save-Data visitors on the still poster, so the bigger size only affects fast-network desktop and Wi-Fi visitors as a one-time download. The 8 MB target below stays in force for any future ReadyClip swap.
+
 | Constraint | Value |
 |---|---|
 | Container | MP4 |
@@ -70,7 +72,7 @@ When the ministry has its own intro clip ready, drop it into this folder as `her
 | Resolution | 1920×1080 recommended; 1280×720 minimum |
 | Frame rate | 24 fps recommended; 30 fps acceptable |
 | Duration | ≤ 30 seconds |
-| File size | ≤ 8 MB |
+| File size | ≤ 8 MB target (≤ 15 MB hard ceiling) |
 | Loop seam | first and last frames visually similar to avoid a hard cut on loop |
 | Content | no recognizable faces of non-ministry individuals; no embedded logos of other organizations; no audio track conveying information |
 

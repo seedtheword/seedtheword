@@ -1,6 +1,72 @@
 {
-  "_help": "Testimony manifest. Edit through the admin editor. Only entries with published:true render on the site. Order: most recent publishedAt first. Each entry must include all fields shown in the example below. Set anonymous:true to display the author as 'Anonymous' (the name field is still kept privately for the team's internal records). The 'consent' field records how the submitter agreed to publication ('explicit' = checked the consent box on the form, 'verbal' = obtained off-system).",
+  "_help": "Testimony manifest. Only entries with published:true render on the site. Order: most recent publishedAt first. Each entry must include all fields shown in the example below. Set anonymous:true to display the author as 'Anonymous' (the name field is still kept privately for the team's internal records). The 'consent' field records how the submitter agreed to publication ('explicit' = checked the consent box on the form, 'verbal' = obtained off-system).",
+  "_team_review_workflow": "Entries marked published:false are DRAFTS — they do not appear on the site yet. For team-member drafts (David L., David A., Vanessa, Edward, Liam), the workflow is: (1) share the draft with that team member, (2) let them rewrite or approve, (3) once they confirm in writing, set published:true and update publishedAt to the date of their sign-off. Until then, the about-page 'Hear My Testimony' button for that person silently falls through to the unfiltered grid — that's expected and intentional.",
   "testimonies": [
+    {
+      "id": "stw-team-david-l-draft",
+      "name": "David L.",
+      "anonymous": false,
+      "submittedAt": "2025-07-15",
+      "publishedAt": "",
+      "published": false,
+      "excerpt": "I came to the Bible looking for arguments. I left it kneeling in front of the One who wrote it.",
+      "body": "For most of my life I treated the Bible the way I treated any other ancient text — interesting, contradictory in places, useful for context. I wanted to understand it the way a scholar understands an artifact. What I did not expect was for the artifact to start understanding me.\n\nA single chapter — Psalm 119 — kept pulling me back. Verse after verse described a person who had built their whole life around God's word, and I realized I had built mine around being right. The lamp was lit. The path was lit. And for the first time I could see how dark I had been walking.\n\nJesus did not meet me with an argument. He met me with a verse, then a chapter, then a whole story I could no longer stand outside of. I'm an elder at this ministry today because the same word that broke me has been holding me up ever since.",
+      "mediaUrl": "",
+      "anchorVerse": "Psalm 119:105",
+      "consent": "verbal"
+    },
+    {
+      "id": "stw-team-david-a-draft",
+      "name": "David A.",
+      "anonymous": false,
+      "submittedAt": "2025-09-08",
+      "publishedAt": "",
+      "published": false,
+      "excerpt": "The day I stopped trying to fix my life on my own was the day Jesus started.",
+      "body": "I was the kind of person who could fix anything except myself. From the outside it looked like I had it together — work, family, plans. On the inside I was carrying a weight I did not have a name for, and I was tired of pretending I could carry it alone.\n\nI heard the words of Jesus in Matthew 16 — 'Whoever wants to be my disciple must deny themselves and take up their cross and follow me' — and for the first time those words did not sound like a religious slogan. They sounded like an invitation to put down the version of me I had been performing and pick up the one He died to redeem.\n\nServing in this ministry is how I keep saying yes to that invitation. Every Bible we hand out, every conversation we have at an outreach, is a reminder that I did not save myself, and that nobody else has to save themselves either.",
+      "mediaUrl": "",
+      "anchorVerse": "Matthew 16:24",
+      "consent": "verbal"
+    },
+    {
+      "id": "stw-team-edward-draft",
+      "name": "Edward",
+      "anonymous": false,
+      "submittedAt": "2025-11-02",
+      "publishedAt": "",
+      "published": false,
+      "excerpt": "I knew the songs by heart years before I knew the Savior they were about.",
+      "body": "I grew up in church. I knew the chord progressions, I knew the harmonies, I knew when to close my eyes and when to lift a hand. I could lead worship through an entire service without ever once meaning a word of it.\n\nWhat changed was a quiet Tuesday rehearsal where the line 'in spirit and in truth' from John 4 stopped me mid-song. I realized I had been worshipping in skill and in habit, and that the One I was singing to was waiting for me to show up.\n\nI still lead worship. I still know the chord progressions. But now every song is a conversation with a Person, not a performance for a room. Jesus did not give me a new skill. He gave me a new heart, and the same songs have meant something different ever since.",
+      "mediaUrl": "",
+      "anchorVerse": "John 4:23-24",
+      "consent": "verbal"
+    },
+    {
+      "id": "stw-team-vanessa-draft",
+      "name": "Vanessa",
+      "anonymous": false,
+      "submittedAt": "2026-02-18",
+      "publishedAt": "",
+      "published": false,
+      "excerpt": "I scrolled past Jesus a thousand times before someone slowed down and walked with me.",
+      "body": "I came to faith through a feed. Not through a sermon, not through a tract, not through a stadium event — through a quiet stream of posts from people who were not trying to sell me anything. They were just talking about a Person they actually knew.\n\nOne day someone messaged me. Not a pitch. Not a script. A real conversation that lasted weeks, then months. They sent me a Bible. They answered the questions that I would have been embarrassed to ask out loud. Romans 10:17 says faith comes from hearing — for me, it came from being heard first, and then hearing back.\n\nThat is why I run our social presence the way I do. Every post is an invitation, not an advertisement. Somebody out there is scrolling past Jesus the way I used to. My job is to slow down for them the way someone once slowed down for me.",
+      "mediaUrl": "",
+      "anchorVerse": "Romans 10:17",
+      "consent": "verbal"
+    },
+    {
+      "id": "stw-team-liam-draft",
+      "name": "Liam",
+      "anonymous": false,
+      "submittedAt": "2026-04-10",
+      "publishedAt": "",
+      "published": false,
+      "excerpt": "Liam reminds me what undivided attention looks like — and what prayer is supposed to feel like.",
+      "body": "Liam is our prayer dog, and he is also one of the truest reminders I have of what prayer is supposed to be. He shows up. He stays. He does not multitask. He is not on his phone. When somebody is hurting in our living room, Liam is the first one in the chair next to them, and he is still there an hour later when everybody else has moved on.\n\n1 Thessalonians 5:17 says 'pray without ceasing,' and for years I thought that meant adding more sentences to my day. Liam taught me it means refusing to leave the room. He sits with people the way Jesus sits with us — patient, attentive, unhurried.\n\nIf you have ever felt like your prayer life is too distracted to count, watch a dog who has decided to stay with someone. Then ask the Spirit to teach you the same posture. He will. He has been teaching me through Liam for years.",
+      "mediaUrl": "",
+      "anchorVerse": "1 Thessalonians 5:17",
+      "consent": "verbal"
+    },
     {
       "id": "stw-story-2026-00-000-example",
       "name": "Example Submitter",

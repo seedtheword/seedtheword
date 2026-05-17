@@ -498,6 +498,102 @@
       },
     },
 
+    // Testimonies — published stories grid for news.html / testimonies.html
+    // / about.html strip / homepage showcase. Reserved top-level keys
+    // `_help` and `_team_review_workflow` ride through unchanged because
+    // the form is loaded via JSON.parse and re-serialized as-is; the
+    // declared fields all live under form.testimonies[*].
+    testimonies: {
+      id: 'testimonies',
+      label: 'Testimonies (published stories grid)',
+      category: 'content',
+      kind: 'json',
+      path: 'assets/data/testimonies.json',
+      rootType: 'object',
+      groups: [
+        {
+          name: 'testimonies',
+          label: 'Testimonies (most recent publishedAt first)',
+          kind: 'repeating-group',
+          fields: [
+            { name: 'id', label: 'ID (slug)', kind: 'text', required: true,
+              hint: 'Lowercase, dashes only. Suggested: stw-story-{YYYY-MM-DD}-{first-name} or stw-team-{first-last}.',
+              validate: (v) => /^[a-z0-9][a-z0-9-]*$/.test(String(v || ''))
+                ? null
+                : 'Use lowercase letters, numbers, and dashes only.' },
+            { name: 'name', label: 'Name (private record — site shows "Anonymous" when anonymous=on)',
+              kind: 'text', required: true },
+            { name: 'anonymous', label: 'Display as "Anonymous" on the site', kind: 'toggle' },
+            { name: 'submittedAt', label: 'Submitted at (YYYY-MM-DD)', kind: 'date', required: true,
+              validate: (v) => /^\d{4}-\d{2}-\d{2}$/.test(String(v || ''))
+                ? null
+                : 'Must be YYYY-MM-DD.' },
+            { name: 'publishedAt', label: 'Published at (YYYY-MM-DD — set when flipping to published)',
+              kind: 'date',
+              validate: (v) => !v || /^\d{4}-\d{2}-\d{2}$/.test(String(v))
+                ? null
+                : 'Must be YYYY-MM-DD or left blank.' },
+            { name: 'published', label: 'Published (renders on the site)', kind: 'toggle',
+              hint: 'OFF = draft. ON = appears on news/testimonies/about/showcase.' },
+            { name: 'excerpt', label: 'Excerpt (one-sentence pull-quote)', kind: 'textarea',
+              hint: 'Used on the compact strip on about.html. Keep to ~140 chars.' },
+            { name: 'body', label: 'Body (full testimony — blank line for new paragraph)',
+              kind: 'textarea',
+              hint: 'Use a blank line between paragraphs. Single line breaks render as <br>. No HTML.' },
+            { name: 'anchorVerse', label: 'Anchor verse (e.g. "Romans 8:28")', kind: 'text' },
+            { name: 'mediaUrl', label: 'Media URL (optional, https)', kind: 'url',
+              validate: (v) => !v || isValidHttpsUrl(v)
+                ? null
+                : 'Must be an https URL or left blank.' },
+            { name: 'consent', label: 'Consent', kind: 'select', required: true,
+              options: [
+                { value: 'explicit', label: 'explicit (checked the consent box on the form)' },
+                { value: 'verbal',   label: 'verbal (obtained off-system)' },
+              ] },
+          ],
+          addLabel: '+ Add testimony',
+        },
+      ],
+      // Schema-level validator covers cross-record + cross-field rules
+      // the per-field validators can't see (uniqueness, required-when-
+      // published gates, consent enum closure).
+      validate: function (data) {
+        if (!data || typeof data !== 'object') return 'Root must be an object.';
+        if (!Array.isArray(data.testimonies)) return 'testimonies must be an array.';
+        const ids = new Set();
+        for (let i = 0; i < data.testimonies.length; i++) {
+          const t = data.testimonies[i] || {};
+          const idx = '#' + (i + 1);
+          // Unique ids
+          if (t.id && ids.has(t.id)) {
+            return 'Testimony ' + idx + ' has duplicate id "' + t.id + '".';
+          }
+          if (t.id) ids.add(t.id);
+          // Consent must be one of the two enum values
+          if (t.consent && t.consent !== 'explicit' && t.consent !== 'verbal') {
+            return 'Testimony ' + idx + ': consent must be "explicit" or "verbal".';
+          }
+          // When published, the renderer-consumed fields must be present
+          if (t.published === true) {
+            if (!t.publishedAt) return 'Testimony ' + idx + ': set publishedAt before publishing.';
+            if (!t.excerpt)     return 'Testimony ' + idx + ': excerpt is required before publishing.';
+            if (!t.body)        return 'Testimony ' + idx + ': body is required before publishing.';
+            if (!t.anchorVerse) return 'Testimony ' + idx + ': anchorVerse is required before publishing.';
+          }
+        }
+        return null;
+      },
+      commitMessageTemplate: 'content(testimonies): update {summary}',
+      tokens: function (form) {
+        const t = (form && form.testimonies) || [];
+        if (t.length) {
+          const last = t[t.length - 1];
+          if (last && last.id) return { summary: 'edit ' + last.id };
+        }
+        return { summary: 'testimonies update' };
+      },
+    },
+
     bundleEssentials: bundleSchema('bundleEssentials', 'Bundle: Essentials slideshow', 'essentials'),
     bundleLifegroup: bundleSchema('bundleLifegroup', 'Bundle: Life Group slideshow', 'lifegroup'),
     bundleMinistry:  bundleSchema('bundleMinistry',  'Bundle: Ministry slideshow',  'ministry'),

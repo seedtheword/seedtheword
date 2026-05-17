@@ -1755,3 +1755,82 @@ function onOrderStatusEdit(e) {
     console.log('[onOrderStatusEdit] mail send failed for row ' + row + ': ' + err);
   }
 }
+
+// ── One-time setup helpers (run from the Apps Script editor) ────
+//
+// Apply the data-validation dropdown to the entire status column of
+// the Orders tab. This is what makes the cell a typed dropdown so
+// admins can't typo a status that the trigger would reject.
+//
+// Usage:
+//   1. Open the Apps Script editor for STW Order Handler.
+//   2. In the function dropdown (top toolbar), pick installStatusDropdown.
+//   3. Click ▶ Run. Authorize Sheets if prompted.
+//   4. Open the Orders tab — the status column should now show a
+//      dropdown arrow on every cell, with the six STATUS_CHOICES
+//      values as options.
+//
+// Idempotent: re-running just rewrites the same validation rule.
+// Applies the rule to rows 2..1000 by default; raise SETUP_MAX_ROWS
+// below if you ever exceed that.
+const SETUP_MAX_ROWS = 1000;
+
+function installStatusDropdown() {
+  const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  const sheet = ss.getSheetByName(LEDGER_TAB);
+  if (!sheet) {
+    throw new Error('Orders tab not found on sheet ' + LEDGER_SHEET_ID);
+  }
+
+  // Make sure the header row is current (writes 'status' into column N
+  // if the script was redeployed but the sheet hasn't seen a new order
+  // since the header was added).
+  ensureHeadersFor(sheet, LEDGER_HEADERS);
+
+  // Apply the dropdown to rows 2..SETUP_MAX_ROWS of the status column.
+  // Pre-populating empty rows with a validation rule is fine — the
+  // rule lights up the dropdown but does not write any value.
+  const range = sheet.getRange(2, STATUS_INDEX, SETUP_MAX_ROWS - 1, 1);
+  const rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(STATUS_CHOICES, true)  // showDropdown: true
+    .setAllowInvalid(false)                    // reject typos at the cell level
+    .setHelpText('Valid statuses: ' + STATUS_CHOICES.join(', '))
+    .build();
+  range.setDataValidation(rule);
+
+  // Backfill any existing rows whose status cell is empty so they
+  // start at 'new' rather than blank. This catches orders that
+  // pre-date the migration. Rows that already have a value are left
+  // alone (admins may have set them by hand).
+  const lastRow = sheet.getLastRow();
+  if (lastRow >= 2) {
+    const statusRange = sheet.getRange(2, STATUS_INDEX, lastRow - 1, 1);
+    const values = statusRange.getValues();
+    let backfilled = 0;
+    for (let i = 0; i < values.length; i++) {
+      if (!values[i][0] || String(values[i][0]).trim() === '') {
+        values[i][0] = 'new';
+        backfilled++;
+      }
+    }
+    if (backfilled > 0) {
+      statusRange.setValues(values);
+      console.log('[installStatusDropdown] backfilled ' + backfilled + ' empty status cells with "new"');
+    }
+  }
+
+  console.log('[installStatusDropdown] applied dropdown rule to rows 2..' +
+    SETUP_MAX_ROWS + ' of column ' + STATUS_INDEX + ' on tab ' + LEDGER_TAB);
+}
+
+// Removes the validation rule from the status column. Inverse of
+// installStatusDropdown. Useful if you ever want to wipe the rule
+// before re-running.
+function removeStatusDropdown() {
+  const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  const sheet = ss.getSheetByName(LEDGER_TAB);
+  if (!sheet) return;
+  const range = sheet.getRange(2, STATUS_INDEX, SETUP_MAX_ROWS - 1, 1);
+  range.clearDataValidations();
+  console.log('[removeStatusDropdown] cleared validation on column ' + STATUS_INDEX);
+}

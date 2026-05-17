@@ -17,7 +17,7 @@
   <meta name="twitter:title" content="News — Seed the Word Ministry">
   <meta name="twitter:description" content="Live calendar, ministry outreach, and stories from the field.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/seed-the-word.jpg">
-  <link rel="stylesheet" href="assets/css/main.css?v=8">
+  <link rel="stylesheet" href="assets/css/main.css?v=9">
   <style>
     /* ==== Share-your-story section + modal (news.html reorg) =============
        Scoped to news.html so main.css stays untouched for this rollout.
@@ -261,37 +261,36 @@
   </div>
 </section>
 
-<!-- 2.5. Testimonies — published from the Stories tab via
-     assets/data/testimonies.json. The grid renders all entries with
-     published:true, most recent publishedAt first. Empty state shows
-     a soft message. Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
-<section class="section section--light testimonies-section" id="testimonies-section">
+<!-- 3. Stories from our family — combined Testimonies grid + Share-your-story CTA.
+     Top half renders published testimonies from assets/data/testimonies.json
+     (sorted by publishedAt descending). Bottom half is the existing share-your-
+     story CTA with the modal-launching button and the alternate channels.
+     The whole section hides if there are no testimonies AND no CTA — but in
+     practice the CTA always shows, so the section is always present.
+     Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
+<section class="section section--light stories-section" id="share-your-story">
   <div class="container">
-    <h2 class="section-title">✨ Testimonies</h2>
-    <p class="outreach-subheading">
-      Stories the Lord has been writing through this ministry — shared with
-      permission, lightly edited for clarity.
+    <h2 class="section-title">✨ Stories from our family</h2>
+    <p class="outreach-subheading stories-section__lead">
+      Stories the Lord has been writing through this ministry &mdash; shared with
+      permission, lightly edited for clarity. If He has been moving in your walk
+      too, we&rsquo;d love to hear it. Drop your testimony, photos, or video below.
     </p>
+
     <div class="testimonies-grid" id="testimonies-grid" aria-live="polite">
-      <!-- Populated by assets/js/testimonies.js -->
+      <!-- Populated by assets/js/testimonies.js. The whole .testimonies-grid
+           container is hidden by the renderer when no published entries
+           exist (see assets/js/testimonies.js → renderGrid). -->
     </div>
-  </div>
-</section>
 
-<!-- 3. Share your story — primary CTA is a modal with a Google Form for
-     photos + caption + testimony; secondary links keep Instagram / Telegram /
-     the about.html contact path available for admins who prefer those. -->
-<section class="section section--light share-story-section" id="share-your-story">
-  <div class="container">
-    <h2 class="section-title">✨ Share your story</h2>
-    <p class="share-story__lead">
-      Has God used our ministry to meet you in your walk with Jesus? Have you
-      watched Him move through an outreach — or captured a moment out in the
-      field? Drop your testimony, photos, or videos. We'd love to feature them
-      to encourage someone else on their way to the cross.
-    </p>
-
-    <div class="share-story__actions">
+    <div class="share-story__actions stories-section__cta">
+      <h3 class="stories-section__cta-title">Share your story</h3>
+      <p class="stories-section__cta-lead">
+        Has God used our ministry to meet you in your walk with Jesus? Have you
+        watched Him move through an outreach &mdash; or captured a moment out in
+        the field? We&rsquo;d love to feature it to encourage someone else on their
+        way to the cross.
+      </p>
       <button type="button" class="btn btn-primary btn-block share-story__primary" id="share-story-open">
         📤 Share photos, video &amp; testimony
       </button>
@@ -301,7 +300,7 @@
         <a class="btn btn-secondary btn-sm" href="https://t.me/seedtheword" target="_blank" rel="noopener">💬 Share on Telegram</a>
       </div>
       <p class="share-story__privacy">
-        Your submission lands in our ministry team's private review inbox.
+        Your submission lands in our ministry team&rsquo;s private review inbox.
         Nothing goes public without your ok.
       </p>
     </div>
@@ -520,6 +519,6 @@
 <script src="assets/js/livestream.js?v=2"></script>
 <script src="assets/js/ministry-outreach.js?v=1"></script>
 <script src="assets/js/share-story.js?v=1" defer></script>
-<script src="assets/js/testimonies.js?v=2" defer></script>
+<script src="assets/js/testimonies.js?v=3" defer></script>
 </body>
 </html>

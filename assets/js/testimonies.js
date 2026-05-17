@@ -82,22 +82,25 @@
   // ── public API ────────────────────────────────────────────────
 
   // Render full grid (news.html). All published, recent first. When
-  // there are no published entries, hide the whole section (find the
-  // nearest <section> ancestor and remove it from the page) instead
-  // of rendering an empty-state message that looks like a bug.
+  // there are no published entries, hide ONLY the grid container —
+  // not the surrounding section. On the news page the section now
+  // also holds the Share-your-story CTA underneath, so we mustn't
+  // hide the whole section. The strip variant below uses a different
+  // strategy because the about-page strip is a standalone section.
   async function renderGrid(container) {
     const list = sortRecent(await loadManifest());
     if (!list.length) {
-      const section = container.closest('section');
-      if (section) section.remove();
-      else container.remove();
+      container.innerHTML = '';
+      container.style.display = 'none';
       return;
     }
+    container.style.display = '';
     container.innerHTML = list.map(renderGridCard).join('');
   }
 
   // Render compact strip (about.html). 1 or 2 tiles, recent first.
-  // Same hide-the-section behavior on empty state.
+  // The strip lives in its own dedicated section, so on empty state
+  // we hide the whole section to avoid an awkward empty heading.
   async function renderStrip(container, count) {
     const n = (typeof count === 'number' && count > 0) ? count : 2;
     const list = sortRecent(await loadManifest()).slice(0, n);

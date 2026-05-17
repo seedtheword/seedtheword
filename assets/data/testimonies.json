@@ -1,0 +1,18 @@
+{
+  "_help": "Testimony manifest. Edit through the admin editor. Only entries with published:true render on the site. Order: most recent publishedAt first. Each entry must include all fields shown in the example below. Set anonymous:true to display the author as 'Anonymous' (the name field is still kept privately for the team's internal records). The 'consent' field records how the submitter agreed to publication ('explicit' = checked the consent box on the form, 'verbal' = obtained off-system).",
+  "testimonies": [
+    {
+      "id": "stw-story-2026-00-000-example",
+      "name": "Example Submitter",
+      "anonymous": false,
+      "submittedAt": "2026-01-01",
+      "publishedAt": "2026-01-15",
+      "published": false,
+      "excerpt": "One short pull-quote sentence for compact tile rendering.",
+      "body": "Multi-paragraph testimony body, full text. May contain newlines.\n\nUse a blank line to start a new paragraph; single newlines render as <br>.",
+      "mediaUrl": "",
+      "anchorVerse": "Romans 8:28",
+      "consent": "explicit"
+    }
+  ]
+}

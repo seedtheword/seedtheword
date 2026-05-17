@@ -117,6 +117,9 @@ async function buildSlides() {
   // 2. Ministry Outreach (latest entry from ministry-outreach.json)
   try { slides.push(...await buildOutreachSlides()); } catch (_) {}
 
+  // 2.5 Testimonies (one rotating tile when published entries exist)
+  try { slides.push(...await buildTestimonySlides()); } catch (_) {}
+
   // 3. Ministry Highlights (curated FALLBACK_SLIDES)
   try { slides.push(...buildHighlightSlides()); } catch (_) {}
 
@@ -240,6 +243,31 @@ async function buildOutreachSlides() {
     image: image,
     ctaLabel: 'Read the story',
     ctaHref: 'news.html#ministry-outreach',
+  }];
+}
+
+async function buildTestimonySlides() {
+  // Only render a testimony slide when STWTestimonies (testimonies.js)
+  // is present and has at least one published entry. Picks one at
+  // random from the 5 most recently published so repeat visitors see
+  // variety. Never throws — failures are swallowed by the try/catch
+  // in buildSlides() above.
+  if (!window.STWTestimonies || typeof window.STWTestimonies.pickShowcaseTestimony !== 'function') {
+    return [];
+  }
+  const t = await window.STWTestimonies.pickShowcaseTestimony();
+  if (!t) return [];
+  const author = (t.anonymous === true)
+    ? 'Anonymous'
+    : ((t.name && String(t.name).trim()) || 'Anonymous');
+  return [{
+    kind: 'testimony',
+    eyebrow: 'Testimony',
+    title: '"' + (t.excerpt || '') + '"',
+    body: author + ' · ' + (t.anchorVerse || ''),
+    image: 'assets/images/backgrounds/seed-the-word.jpg',
+    ctaLabel: 'Read more testimonies',
+    ctaHref: 'news.html#testimonies-section',
   }];
 }
 
@@ -434,12 +462,13 @@ function render(container) {
   const slidesHtml = SLIDES.map((slide, i) => {
     const isScripture = slide.kind === 'scripture';
     const isInstagram = slide.kind === 'instagram';
+    const isTestimony = slide.kind === 'testimony';
     const ctaAttrs = slide.isShare
       ? `href="javascript:void(0)" onclick="window.shareShowcaseSlide(${i})"`
       : `href="${slide.ctaHref}"${slide.ctaHref?.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}`;
 
     return `
-      <article class="showcase-slide ${i === currentIndex ? 'active' : ''} ${isScripture ? 'is-scripture' : ''} ${isInstagram ? 'is-instagram' : ''}" data-index="${i}">
+      <article class="showcase-slide ${i === currentIndex ? 'active' : ''} ${isScripture ? 'is-scripture' : ''} ${isInstagram ? 'is-instagram' : ''} ${isTestimony ? 'is-testimony' : ''}" data-index="${i}">
         <div class="showcase-slide__image" style="background-image: url('${slide.image}');"></div>
         <div class="showcase-slide__vignette"></div>
         <div class="showcase-slide__content">

@@ -10474,3 +10474,115 @@ a.contact-card:hover .contact-card__cta span {
     box-sizing: border-box;
   }
 }
+
+
+/* ── Testimony cards (Seed the Word Ministry palette) ─────────────
+   Used by assets/js/testimonies.js to render approved entries from
+   assets/data/testimonies.json on three site surfaces:
+     - news.html  → .testimonies-grid (full body cards)
+     - about.html → .testimonies-strip (compact 1-2 tile soft strip)
+     - index.html → showcase-carousel slide with .is-testimony class
+   Spec: .kiro/specs/ministry-ops-and-testimonies/ */
+
+.testimony-card {
+  background: #fff;
+  border: 1px solid var(--border, #e8e4de);
+  border-left: 4px solid var(--green, #2C5F2E);
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 4px 18px rgba(31, 38, 135, 0.06);
+  font-family: inherit;
+  color: #2b2b2b;
+}
+.testimony-card__quote {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: #2b2b2b;
+  margin: 0;
+}
+.testimony-card__quote p { margin: 0 0 0.85rem; }
+.testimony-card__quote p:last-child { margin-bottom: 0; }
+.testimony-card__footer {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border, #e8e4de);
+}
+.testimony-card__author {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+  color: var(--green, #2C5F2E);
+  font-size: 0.95rem;
+}
+.testimony-card__verse {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold, #d4a574);
+}
+
+/* news.html grid — auto-fit, comfortable on desktop, 1-up on mobile */
+.testimonies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0 0;
+}
+@media (max-width: 640px) {
+  .testimonies-grid { grid-template-columns: 1fr; gap: 1rem; }
+}
+
+/* about.html soft strip — horizontal pair under the gospel section */
+.testimonies-strip-section { padding: 2.5rem 0 3rem; }
+.testimonies-strip-section__title {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--green, #2C5F2E);
+  margin: 0 0 0.25rem;
+  letter-spacing: 0.02em;
+}
+.testimonies-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin: 2rem auto 0;
+  max-width: 920px;
+}
+.testimony-card--compact {
+  padding: 1.1rem 1.25rem;
+  border-left-width: 3px;
+}
+.testimony-card--compact .testimony-card__quote {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: 0 0 0.5rem;
+}
+.testimony-card--compact .testimony-card__author {
+  font-size: 0.85rem;
+  margin: 0;
+}
+.testimony-card--compact .testimony-card__verse {
+  font-size: 0.7rem;
+  margin-left: 0.5rem;
+}
+
+/* homepage showcase tile — dressed inside .showcase-slide; the
+   showcase carousel handles the outer slide chrome, we just style
+   the inner pull-quote so it visually matches a testimony rather
+   than a generic slide. */
+.showcase-slide.is-testimony .showcase-slide__title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 1.35rem;
+}
+
+.testimonies-empty {
+  text-align: center;
+  color: var(--muted, #666);
+  font-style: italic;
+  padding: 2rem 1rem;
+}

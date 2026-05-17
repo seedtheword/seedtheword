@@ -261,6 +261,23 @@
   </div>
 </section>
 
+<!-- 2.5. Testimonies — published from the Stories tab via
+     assets/data/testimonies.json. The grid renders all entries with
+     published:true, most recent publishedAt first. Empty state shows
+     a soft message. Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
+<section class="section section--light testimonies-section" id="testimonies-section">
+  <div class="container">
+    <h2 class="section-title">✨ Testimonies</h2>
+    <p class="outreach-subheading">
+      Stories the Lord has been writing through this ministry — shared with
+      permission, lightly edited for clarity.
+    </p>
+    <div class="testimonies-grid" id="testimonies-grid" aria-live="polite">
+      <!-- Populated by assets/js/testimonies.js -->
+    </div>
+  </div>
+</section>
+
 <!-- 3. Share your story — primary CTA is a modal with a Google Form for
      photos + caption + testimony; secondary links keep Instagram / Telegram /
      the about.html contact path available for admins who prefer those. -->
@@ -503,5 +520,6 @@
 <script src="assets/js/livestream.js?v=2"></script>
 <script src="assets/js/ministry-outreach.js?v=1"></script>
 <script src="assets/js/share-story.js?v=1" defer></script>
+<script src="assets/js/testimonies.js?v=1" defer></script>
 </body>
 </html>

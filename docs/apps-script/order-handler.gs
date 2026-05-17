@@ -59,7 +59,23 @@ const LEDGER_HEADERS = [
   'giftee_opt_in', 'giftee_name', 'giftee_email',
   'configuration', 'emails_sent', 'route',
   'is_special_order',
+  'status',          // appended last (Feature 1, ministry-ops-and-testimonies spec)
 ];
+
+// Status workflow vocabulary. The `status` cell in each Orders row drives
+// the per-status auto-reply email. Edits to this cell are caught by the
+// onOrderStatusEdit simple-trigger handler at the bottom of this file.
+// Keep these strings lowercase and in sync with the data-validation
+// dropdown set up on the Sheet's status column.
+const STATUS_CHOICES = [
+  'new',          // default on insert; written automatically by appendLedgerRow
+  'confirming',   // team has reached out to confirm
+  'packing',      // assembled, prayed over, awaiting shipment
+  'shipped',      // physically in transit
+  'delivered',    // recipient confirmed
+  'cancelled',    // gifter cancelled or team cancelled (refund letter)
+];
+const STATUS_INDEX = LEDGER_HEADERS.indexOf('status') + 1; // 1-based for getRange()
 
 // Mirror of the catalog's tier='special' labels — server-side
 // defense-in-depth so a forged isSpecialOrder=true can't bypass
@@ -310,6 +326,7 @@ function appendLedgerRow(sheet, p, orderId, emailsSent) {
     emailsSent.join(','),
     p.isSpecialOrder ? 'apps-script-special' : 'apps-script',
     p.isSpecialOrder ? 'yes' : 'no',
+    'new',  // initial status; admins move this through the dropdown
   ];
   sheet.appendRow(row);
 }
@@ -1418,4 +1435,323 @@ function jsonResponse(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+// ── Order status workflow ────────────────────────────────────────
+//
+// When an admin edits the `status` cell of an order row in the Sheet UI,
+// the simple onEdit trigger below catches the edit and sends the gifter
+// a status-specific letter. Each status in STATUS_CHOICES (above, except
+// 'new') has a builder in STATUS_COPY that returns the per-letter copy.
+// The shared shell (emailShell + emailMinistryFooter) wraps every letter
+// so the warm cream/green/gold branding is consistent.
+//
+// Spec: .kiro/specs/ministry-ops-and-testimonies/
+
+const STATUS_COPY = {
+  // ── confirming ────────────────────────────────────────────────
+  confirming: function (o, name, orderId, bundle, isMinistry) {
+    const subject = 'We\'re confirming your ' + (isMinistry ? 'Ministry Calling story' : 'order') + ' — ' + name;
+    const headerTitle = 'A team member is reaching out';
+    const headerSub = isMinistry ? 'Ministry Calling · ' + name : bundle + ' · ' + name;
+
+    let body = '';
+    body += '<p style="margin:0 0 18px;">Dear <strong>' + escapeHtml(name) + '</strong>,</p>';
+    body += '<p style="margin:0 0 18px;line-height:1.7;">A member of our team is opening your ' +
+      (isMinistry ? 'story' : 'order') +
+      ' now and will reach out personally within the next day or two to confirm the details. We don\'t put anything in motion until you and one of us have actually talked it through &mdash; that way nothing gets shipped or charged on a misunderstanding.</p>';
+    body += '<p style="margin:0 0 22px;line-height:1.7;">If anything has changed on your end since you sent this in, just reply to this email and we\'ll fold it into the conversation. There is no clock running.</p>';
+    body += emailSection('Reference', '<code style="background:#f4ece0;padding:2px 6px;border-radius:4px;">' + escapeHtml(orderId) + '</code>', { accent: STW_MUTED, dense: true });
+    body += '<p style="margin:18px 0 4px;">Sincerely,</p>';
+    body += '<p style="margin:0;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
+
+    const plain = [
+      'Dear ' + name + ',',
+      '',
+      'A member of our team is opening your ' + (isMinistry ? 'story' : 'order') +
+      ' now and will reach out personally within the next day or two to confirm the details.',
+      'We don\'t put anything in motion until you and one of us have actually talked it through.',
+      '',
+      'If anything has changed on your end, just reply to this email.',
+      '',
+      'Reference: ' + orderId,
+      '',
+      'Sincerely,',
+      'The Seed the Word team',
+      TEAM_INBOX,
+    ].join('\n');
+
+    return { subject: subject, headerTitle: headerTitle, headerSubtitle: headerSub, bodyHtml: body, plain: plain };
+  },
+
+  // ── packing ────────────────────────────────────────────────────
+  packing: function (o, name, orderId, bundle, isMinistry) {
+    const subject = 'Your bundle is being packed — ' + name;
+    const headerTitle = 'Your bundle is being packed';
+    const headerSub = bundle + ' · ' + name;
+
+    let body = '';
+    body += '<p style="margin:0 0 18px;">Dear <strong>' + escapeHtml(name) + '</strong>,</p>';
+    body += '<p style="margin:0 0 18px;line-height:1.7;">Your bundle is on the packing table. We pray over each Bible by name before it goes in the box, and we sign the back cover by hand unless you asked us not to. The handwritten note, the highlighted verses, and any dedication you sent us all get folded in here.</p>';
+    body += '<p style="margin:0 0 22px;line-height:1.7;">As soon as the box leaves our hands, we\'ll send a separate note letting you know it has shipped, with delivery details where we have them.</p>';
+    body += emailSection('Reference', '<code style="background:#f4ece0;padding:2px 6px;border-radius:4px;">' + escapeHtml(orderId) + '</code>', { accent: STW_MUTED, dense: true });
+    body += '<p style="margin:18px 0 4px;">With gratitude,</p>';
+    body += '<p style="margin:0;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
+
+    const plain = [
+      'Dear ' + name + ',',
+      '',
+      'Your bundle is on the packing table. We pray over each Bible before',
+      'it goes in the box, and we sign the back cover by hand unless you',
+      'asked us not to. As soon as the box leaves our hands, we\'ll send a',
+      'separate note letting you know it has shipped.',
+      '',
+      'Reference: ' + orderId,
+      '',
+      'With gratitude,',
+      'The Seed the Word team',
+      TEAM_INBOX,
+    ].join('\n');
+
+    return { subject: subject, headerTitle: headerTitle, headerSubtitle: headerSub, bodyHtml: body, plain: plain };
+  },
+
+  // ── shipped ────────────────────────────────────────────────────
+  shipped: function (o, name, orderId, bundle, isMinistry) {
+    const subject = 'Your bundle is on the way — ' + name;
+    const headerTitle = 'Your bundle is on the way';
+    const headerSub = bundle + ' · ' + name;
+    const delivery  = String(o.delivery_details || '').trim();
+
+    let body = '';
+    body += '<p style="margin:0 0 18px;">Dear <strong>' + escapeHtml(name) + '</strong>,</p>';
+    body += '<p style="margin:0 0 18px;line-height:1.7;">Your bundle is on its way. It left our hands today carrying a small piece of our prayer with it &mdash; the Word in someone\'s hands is a quiet, slow seed, and we\'re glad you\'re part of planting it.</p>';
+    if (delivery) {
+      body += emailSection('Sent to', '<div style="white-space:pre-wrap;">' + escapeHtml(delivery) + '</div>', { accent: STW_GREEN });
+    }
+    body += '<p style="margin:0 0 22px;line-height:1.7;">If anything looks off when it arrives, please reply to this email and we will make it right. Once you confirm safe arrival, we will close the loop on our side too.</p>';
+    body += emailSection('Reference', '<code style="background:#f4ece0;padding:2px 6px;border-radius:4px;">' + escapeHtml(orderId) + '</code>', { accent: STW_MUTED, dense: true });
+    body += '<p style="margin:18px 0 4px;">Sincerely,</p>';
+    body += '<p style="margin:0;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
+
+    const plainParts = [
+      'Dear ' + name + ',',
+      '',
+      'Your bundle is on its way. It left our hands today carrying a small',
+      'piece of our prayer with it.',
+      '',
+    ];
+    if (delivery) {
+      plainParts.push('SENT TO');
+      plainParts.push('  ' + delivery);
+      plainParts.push('');
+    }
+    plainParts.push('If anything looks off when it arrives, please reply to this email and');
+    plainParts.push('we will make it right.');
+    plainParts.push('');
+    plainParts.push('Reference: ' + orderId);
+    plainParts.push('');
+    plainParts.push('Sincerely,');
+    plainParts.push('The Seed the Word team');
+    plainParts.push(TEAM_INBOX);
+
+    return { subject: subject, headerTitle: headerTitle, headerSubtitle: headerSub, bodyHtml: body, plain: plainParts.join('\n') };
+  },
+
+  // ── delivered ──────────────────────────────────────────────────
+  delivered: function (o, name, orderId, bundle, isMinistry) {
+    const subject = 'Your bundle has arrived — ' + name;
+    const headerTitle = 'Your bundle has arrived';
+    const headerSub = bundle + ' · ' + name;
+
+    let body = '';
+    body += '<p style="margin:0 0 18px;">Dear <strong>' + escapeHtml(name) + '</strong>,</p>';
+    body += '<p style="margin:0 0 18px;line-height:1.7;">Your bundle has arrived. Thank you for trusting us to carry the Word into someone\'s life through your gift &mdash; it\'s the part of our work that we never get tired of.</p>';
+    body += '<p style="margin:0 0 18px;line-height:1.7;">If a story comes out of this &mdash; a verse that landed, a conversation that opened, a moment you didn\'t expect &mdash; we\'d love to hear it. Many of the testimonies we share started with someone replying to a note like this one.</p>';
+    body += '<p style="margin:0 0 22px;line-height:1.7;"><a href="' + SITE_URL + 'news.html#share-your-story" style="color:' + STW_GREEN + ';font-weight:600;">Share your story &rarr;</a> when you\'re ready. No rush, no pressure.</p>';
+    body += emailSection('Reference', '<code style="background:#f4ece0;padding:2px 6px;border-radius:4px;">' + escapeHtml(orderId) + '</code>', { accent: STW_MUTED, dense: true });
+    body += '<p style="margin:18px 0 4px;">With joy,</p>';
+    body += '<p style="margin:0;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
+
+    const plain = [
+      'Dear ' + name + ',',
+      '',
+      'Your bundle has arrived. Thank you for trusting us to carry the Word',
+      'into someone\'s life through your gift.',
+      '',
+      'If a story comes out of this, we\'d love to hear it. Share your story',
+      'when you\'re ready: ' + SITE_URL + 'news.html#share-your-story',
+      '',
+      'Reference: ' + orderId,
+      '',
+      'With joy,',
+      'The Seed the Word team',
+      TEAM_INBOX,
+    ].join('\n');
+
+    return { subject: subject, headerTitle: headerTitle, headerSubtitle: headerSub, bodyHtml: body, plain: plain };
+  },
+
+  // ── cancelled ──────────────────────────────────────────────────
+  cancelled: function (o, name, orderId, bundle, isMinistry) {
+    const subject = 'Your order has been cancelled — ' + name;
+    const headerTitle = 'Your order has been cancelled';
+    const headerSub = 'No charge has been made';
+
+    let body = '';
+    body += '<p style="margin:0 0 18px;">Dear <strong>' + escapeHtml(name) + '</strong>,</p>';
+    body += '<p style="margin:0 0 18px;line-height:1.7;">We\'ve cancelled this order on our side, and any pending charge has been released. You will not be billed for this submission.</p>';
+    body += '<p style="margin:0 0 18px;line-height:1.7;">If the cancellation came from a change of plans on your end, no further action is needed &mdash; we hope to see you again when the timing is right. If something on our end made this hard, please reply to this email and tell us. We read every reply, and we\'d rather hear it than not.</p>';
+    body += '<p style="margin:0 0 22px;line-height:1.7;">Either way, you\'re welcome here. The door stays open.</p>';
+    body += emailSection('Reference', '<code style="background:#f4ece0;padding:2px 6px;border-radius:4px;">' + escapeHtml(orderId) + '</code>', { accent: STW_MUTED, dense: true });
+    body += '<p style="margin:18px 0 4px;">Sincerely,</p>';
+    body += '<p style="margin:0;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
+
+    const plain = [
+      'Dear ' + name + ',',
+      '',
+      'We\'ve cancelled this order on our side, and any pending charge has',
+      'been released. You will not be billed for this submission.',
+      '',
+      'If something on our end made this hard, please reply to this email',
+      'and tell us. Either way, you\'re welcome here. The door stays open.',
+      '',
+      'Reference: ' + orderId,
+      '',
+      'Sincerely,',
+      'The Seed the Word team',
+      TEAM_INBOX,
+    ].join('\n');
+
+    return { subject: subject, headerTitle: headerTitle, headerSubtitle: headerSub, bodyHtml: body, plain: plain };
+  },
+
+  // 'new' is the initial state set by appendLedgerRow. The trigger never
+  // fires for transitions INTO 'new' in practice (programmatic writes
+  // don't fire the simple onEdit trigger). If somehow it does, we send
+  // no email — the order-confirmation receipt at submit time covered it.
+  new: function () { return null; },
+};
+
+function buildStatusUpdateEmail(order, newStatus, oldStatus) {
+  const builder = STATUS_COPY[newStatus];
+  if (!builder) return null;
+
+  const gifterName = String(order.gifter_name || 'friend').trim();
+  const orderId    = String(order.order_id || '').trim();
+  const bundle     = BUNDLE_DISPLAY[order.bundle] || order.bundle;
+  const isMinistry = order.bundle === 'ministry';
+
+  const copy = builder(order, gifterName, orderId, bundle, isMinistry);
+  if (!copy) return null;  // 'new' returns null
+
+  const html = emailShell({
+    headerTitle: copy.headerTitle,
+    headerSubtitle: copy.headerSubtitle,
+    bodyHtml: copy.bodyHtml,
+    footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
+    accentColor: newStatus === 'cancelled' ? STW_GOLD : STW_GREEN,
+    includeMinistryFooter: true,
+  });
+
+  return {
+    to: order.gifter_email,
+    subject: copy.subject,
+    body: copy.plain,
+    html: html,
+    replyTo: TEAM_INBOX,
+  };
+}
+
+/**
+ * Apps Script auto-binds onEdit to the simple trigger. We delegate to
+ * the named handler so the bridge is obvious in source. If we later
+ * need scopes the simple trigger doesn't grant (e.g. UrlFetch), we
+ * convert to an installable trigger via an installStatusTrigger()
+ * helper mirroring the existing installStoryTrigger() pattern.
+ */
+function onEdit(e) {
+  onOrderStatusEdit(e);
+}
+
+/**
+ * Simple-trigger handler. Fires on any cell edit in the spreadsheet.
+ * We narrow to: Orders tab + status column + value in STATUS_CHOICES +
+ * value actually changed. Anything else short-circuits.
+ */
+function onOrderStatusEdit(e) {
+  if (!e || !e.range) return;
+
+  const sheet = e.range.getSheet();
+  if (sheet.getName() !== LEDGER_TAB) return;                  // only Orders tab
+
+  // Single-cell edits only — bulk paste / range edits skip the trigger
+  // entirely. (Bulk edits in the Sheet UI are rare for status anyway.)
+  if (e.range.getNumRows() !== 1 || e.range.getNumColumns() !== 1) return;
+
+  const col = e.range.getColumn();
+  if (col !== STATUS_INDEX) return;                            // only status column
+
+  const row = e.range.getRow();
+  if (row === 1) return;                                       // skip header
+
+  const newStatus = String(e.value || '').trim().toLowerCase();
+  const oldStatus = String(e.oldValue || '').trim().toLowerCase();
+
+  // Idempotency: re-saving the same value is a no-op. Empty new value
+  // (admin cleared the cell) is also a no-op.
+  if (!newStatus) return;
+  if (newStatus === oldStatus) return;
+
+  // Reject typos / unknown values — log and skip rather than send a
+  // letter for a status the gifter won't recognise.
+  if (STATUS_CHOICES.indexOf(newStatus) === -1) {
+    console.log('[onOrderStatusEdit] unknown status "' + newStatus + '" at row ' + row + ' — skipping.');
+    return;
+  }
+
+  // Reconstruct the order's context from the row in two batched reads
+  // (header row + this row) so trigger time stays fast.
+  let order;
+  try {
+    const headers = sheet.getRange(1, 1, 1, LEDGER_HEADERS.length).getValues()[0];
+    const values  = sheet.getRange(row, 1, 1, LEDGER_HEADERS.length).getValues()[0];
+    order = {};
+    for (let i = 0; i < headers.length; i++) {
+      order[headers[i]] = values[i];
+    }
+  } catch (err) {
+    console.log('[onOrderStatusEdit] failed to read row ' + row + ': ' + err);
+    return;
+  }
+
+  // Defensive: if the row somehow doesn't have a gifter_email, log and
+  // skip. Sheet rows pre-dating this migration may have a gap.
+  if (!order.gifter_email || String(order.gifter_email).indexOf('@') === -1) {
+    console.log('[onOrderStatusEdit] row ' + row + ' has no gifter_email — skipping email.');
+    return;
+  }
+
+  try {
+    const mail = buildStatusUpdateEmail(order, newStatus, oldStatus);
+    if (!mail) {
+      // Builder returned null (currently only the 'new' case).
+      return;
+    }
+    MailApp.sendEmail({
+      to: mail.to,
+      subject: mail.subject,
+      body: mail.body,
+      htmlBody: mail.html,
+      replyTo: mail.replyTo,
+      name: 'Seed the Word Ministry',
+    });
+    console.log('[onOrderStatusEdit] sent ' + newStatus + ' email for ' + order.order_id + ' → ' + order.gifter_email);
+  } catch (err) {
+    // Never re-throw from a Sheet edit — admins shouldn't see an edit
+    // "fail" because Gmail is throttled. Errors surface in the
+    // Executions panel.
+    console.log('[onOrderStatusEdit] mail send failed for row ' + row + ': ' + err);
+  }
 }

@@ -6,6 +6,19 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
+  <meta name="description" content="Who is Jesus? The story of His birth, life, death, resurrection, and promised return — and the ministry that walks people to Him.">
+  <!-- Open Graph (Telegram, WhatsApp, Facebook, LinkedIn link previews) -->
+  <meta property="og:site_name" content="Seed the Word Ministry">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Who is Jesus? — Seed the Word Ministry">
+  <meta property="og:description" content="The Gospel in seven movements, the team that tells it, and the SEED rhythm that keeps us walking.">
+  <meta property="og:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
+  <meta property="og:url" content="https://seedtheword.github.io/seedtheword/about.html">
+  <!-- Twitter card (mirrors OG for some Telegram clients + X) -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Who is Jesus? — Seed the Word Ministry">
+  <meta name="twitter:description" content="The Gospel in seven movements, the team that tells it, and the SEED rhythm that keeps us walking.">
+  <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
   <title>About — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/main.css?v=15">
 </head>
@@ -241,6 +254,19 @@
         </ul>
       </details>
 
+    </div>
+  </div>
+</section>
+
+<!-- See, He's still moving — soft testimony strip. Pulls 1-2 of the
+     most recent published testimonies from assets/data/testimonies.json
+     so visitors who just read the Gospel see modern echoes of it.
+     Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
+<section class="section section--white testimonies-strip-section" id="testimonies-strip-section">
+  <div class="container">
+    <h3 class="testimonies-strip-section__title">He's still moving today</h3>
+    <div class="testimonies-strip" id="testimonies-strip" aria-live="polite">
+      <!-- Populated by assets/js/testimonies.js -->
     </div>
   </div>
 </section>
@@ -708,5 +734,6 @@
 </footer>
 
 <script src="assets/js/main.js?v=20"></script>
+<script src="assets/js/testimonies.js?v=1" defer></script>
 </body>
 </html>

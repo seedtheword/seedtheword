@@ -1834,3 +1834,45 @@ function removeStatusDropdown() {
   range.clearDataValidations();
   console.log('[removeStatusDropdown] cleared validation on column ' + STATUS_INDEX);
 }
+
+// ── Status-column edit trigger installer ────────────────────────
+//
+// The STW Order Handler is a STANDALONE Apps Script project (created at
+// script.google.com directly, not bound to a spreadsheet). Standalone
+// scripts do NOT auto-fire the simple `onEdit(e)` handler — that only
+// works for container-bound scripts. We have to register an
+// installable on-edit trigger via ScriptApp.newTrigger(...) for
+// onOrderStatusEdit to actually fire on Sheet edits.
+//
+// Same pattern as installStoryTrigger above.
+//
+// Usage:
+//   1. Open the Apps Script editor for STW Order Handler.
+//   2. In the function dropdown (top toolbar), pick installStatusEditTrigger.
+//   3. Click ▶ Run. Authorize the Sheets scope when prompted.
+//   4. Open the Triggers tab (clock icon, left rail) and confirm a row
+//      now exists for `onOrderStatusEdit`, source "From spreadsheet",
+//      event type "On edit".
+//
+// Idempotent: re-running first removes any existing onOrderStatusEdit
+// triggers, then creates a fresh one.
+function installStatusEditTrigger() {
+  removeStatusEditTriggers();
+  ScriptApp.newTrigger('onOrderStatusEdit')
+    .forSpreadsheet(SpreadsheetApp.openById(LEDGER_SHEET_ID))
+    .onEdit()
+    .create();
+  console.log('Installed onOrderStatusEdit trigger for sheet ' + LEDGER_SHEET_ID);
+}
+
+function removeStatusEditTriggers() {
+  const triggers = ScriptApp.getProjectTriggers();
+  let removed = 0;
+  for (let i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'onOrderStatusEdit') {
+      ScriptApp.deleteTrigger(triggers[i]);
+      removed++;
+    }
+  }
+  console.log('Removed ' + removed + ' onOrderStatusEdit trigger(s).');
+}

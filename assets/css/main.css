@@ -10588,51 +10588,6 @@ a.contact-card:hover .contact-card__cta span {
 }
 
 
-/* ── Combined "Stories from our family" section on news.html ──────
-   Wraps the testimonies grid and the Share-your-story CTA into one
-   visual unit. The grid sits at the top (when there are published
-   entries to show) and the CTA sits at the bottom — separated by a
-   soft divider so they read as one page area, not two unrelated
-   sections.
-   Spec: .kiro/specs/ministry-ops-and-testimonies/ */
-
-.stories-section .stories-section__lead {
-  text-align: center;
-  max-width: 720px;
-  margin: 0 auto 2rem;
-  font-size: 1rem;
-  line-height: 1.7;
-  color: var(--muted, #666);
-}
-
-.stories-section .testimonies-grid + .stories-section__cta {
-  margin-top: 3rem;
-  padding-top: 2.5rem;
-  border-top: 1px solid var(--border, #e8e4de);
-}
-
-.stories-section .stories-section__cta {
-  max-width: 560px;
-  margin: 2rem auto 0;
-  text-align: center;
-}
-
-.stories-section .stories-section__cta-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--green, #2C5F2E);
-  margin: 0 0 0.75rem;
-  text-align: center;
-}
-
-.stories-section .stories-section__cta-lead {
-  font-size: 0.9875rem;
-  line-height: 1.65;
-  color: var(--muted, #666);
-  margin: 0 0 1.5rem;
-}
-
-
 /* ── Testimonies archive page (testimonies.html) ───────────────
    Full-archive rendering of every published testimony. Reuses the
    .testimony-card styling defined above — only the page-level

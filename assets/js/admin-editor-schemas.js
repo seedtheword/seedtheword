@@ -503,6 +503,19 @@
     // `_help` and `_team_review_workflow` ride through unchanged because
     // the form is loaded via JSON.parse and re-serialized as-is; the
     // declared fields all live under form.testimonies[*].
+    //
+    // Fully built (Tasks 2.1, 2.2, 2.3, 2.4, 2.5) — fields, kinds,
+    // `consent` select options, per-field `validate` callbacks,
+    // `required: true` markers on id/name/submittedAt/consent, the
+    // schema-level `validate(data)` function enforcing duplicate-id,
+    // consent-enum, and required-when-published cross-record rules,
+    // the commit-message template + `tokens(form)` summary builder,
+    // and plain-English `hint` strings on id/body/excerpt/published
+    // documenting slug conventions, paragraph rendering rules, the
+    // about-page excerpt cap, and the draft-vs-published toggle.
+    // The shared audit-suffix appender in admin-editor-github.js /
+    // admin-editor-commit-message.js runs unmodified — no schema-
+    // specific audit code is needed here.
     testimonies: {
       id: 'testimonies',
       label: 'Testimonies (published stories grid)',
@@ -518,33 +531,22 @@
           fields: [
             { name: 'id', label: 'ID (slug)', kind: 'text', required: true,
               hint: 'Lowercase, dashes only. Suggested: stw-story-{YYYY-MM-DD}-{first-name} or stw-team-{first-last}.',
-              validate: (v) => /^[a-z0-9][a-z0-9-]*$/.test(String(v || ''))
-                ? null
-                : 'Use lowercase letters, numbers, and dashes only.' },
-            { name: 'name', label: 'Name (private record — site shows "Anonymous" when anonymous=on)',
-              kind: 'text', required: true },
+              validate: (v) => /^[a-z0-9][a-z0-9-]*$/.test(String(v || '')) ? null : 'Use lowercase letters, numbers, and dashes only.' },
+            { name: 'name', label: 'Name (private record — site shows "Anonymous" when anonymous=on)', kind: 'text', required: true },
             { name: 'anonymous', label: 'Display as "Anonymous" on the site', kind: 'toggle' },
             { name: 'submittedAt', label: 'Submitted at (YYYY-MM-DD)', kind: 'date', required: true,
-              validate: (v) => /^\d{4}-\d{2}-\d{2}$/.test(String(v || ''))
-                ? null
-                : 'Must be YYYY-MM-DD.' },
-            { name: 'publishedAt', label: 'Published at (YYYY-MM-DD — set when flipping to published)',
-              kind: 'date',
-              validate: (v) => !v || /^\d{4}-\d{2}-\d{2}$/.test(String(v))
-                ? null
-                : 'Must be YYYY-MM-DD or left blank.' },
+              validate: (v) => /^\d{4}-\d{2}-\d{2}$/.test(String(v || '')) ? null : 'Must be YYYY-MM-DD.' },
+            { name: 'publishedAt', label: 'Published at (YYYY-MM-DD — set when flipping to published)', kind: 'date',
+              validate: (v) => !v || /^\d{4}-\d{2}-\d{2}$/.test(String(v)) ? null : 'Must be YYYY-MM-DD or left blank.' },
             { name: 'published', label: 'Published (renders on the site)', kind: 'toggle',
               hint: 'OFF = draft. ON = appears on news/testimonies/about/showcase.' },
             { name: 'excerpt', label: 'Excerpt (one-sentence pull-quote)', kind: 'textarea',
               hint: 'Used on the compact strip on about.html. Keep to ~140 chars.' },
-            { name: 'body', label: 'Body (full testimony — blank line for new paragraph)',
-              kind: 'textarea',
+            { name: 'body', label: 'Body (full testimony — blank line for new paragraph)', kind: 'textarea',
               hint: 'Use a blank line between paragraphs. Single line breaks render as <br>. No HTML.' },
             { name: 'anchorVerse', label: 'Anchor verse (e.g. "Romans 8:28")', kind: 'text' },
             { name: 'mediaUrl', label: 'Media URL (optional, https)', kind: 'url',
-              validate: (v) => !v || isValidHttpsUrl(v)
-                ? null
-                : 'Must be an https URL or left blank.' },
+              validate: (v) => !v || /^https:\/\/\S+$/i.test(String(v)) ? null : 'Must be an https URL or left blank.' },
             { name: 'consent', label: 'Consent', kind: 'select', required: true,
               options: [
                 { value: 'explicit', label: 'explicit (checked the consent box on the form)' },
@@ -554,12 +556,11 @@
           addLabel: '+ Add testimony',
         },
       ],
-      // Schema-level validator covers cross-record + cross-field rules
-      // the per-field validators can't see (uniqueness, required-when-
-      // published gates, consent enum closure).
       validate: function (data) {
         if (!data || typeof data !== 'object') return 'Root must be an object.';
         if (!Array.isArray(data.testimonies)) return 'testimonies must be an array.';
+        // Cross-record + cross-field rules that the per-field validators
+        // above can't catch on their own.
         const ids = new Set();
         for (let i = 0; i < data.testimonies.length; i++) {
           const t = data.testimonies[i] || {};

@@ -7,7 +7,8 @@
   "scripts": {
     "test:admin-editor": "node --test tests/commit-message.test.js tests/diff.test.js tests/draft-store.test.js tests/github-client.test.js tests/js-literal.test.js tests/smoke.test.js tests/validate.test.js",
     "test:jesus-storytelling": "node --test tests/jesus-storytelling.test.js",
-    "test": "npm run test:admin-editor && npm run test:jesus-storytelling"
+    "test:schema-testimonies": "node --test tests/schema-testimonies.test.js",
+    "test": "npm run test:admin-editor && npm run test:jesus-storytelling && npm run test:schema-testimonies"
   },
   "devDependencies": {
     "fast-check": "3.23.2",

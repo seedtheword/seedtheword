@@ -97,6 +97,18 @@ jobs:
           set -o pipefail
           npm run test:jesus-storytelling 2>&1 | tee /tmp/jesus-storytelling-output.txt
 
+      - name: Run schema-testimonies property + example + integration suite
+        id: schema_testimonies_tests
+        # Property tests P1–P6 (round-trip identity, validator
+        # monotonicity, renderer compatibility via jsdom, id uniqueness,
+        # body paragraph preservation, consent enum closure) plus
+        # per-field and schema-level example tests plus a live-fixture
+        # integration test against assets/data/testimonies.json.
+        # Spec: .kiro/specs/admin-editor-testimonies-schema/
+        run: |
+          set -o pipefail
+          npm run test:schema-testimonies 2>&1 | tee /tmp/schema-testimonies-output.txt
+
       - name: Attach test output to job summary
         if: always()
         run: |
@@ -112,6 +124,12 @@ jobs:
             tail -n 200 /tmp/jesus-storytelling-output.txt >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
           fi
+          if [ -f /tmp/schema-testimonies-output.txt ]; then
+            echo "## Test output (schema-testimonies)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 200 /tmp/schema-testimonies-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Upload test output as artifact
         if: always()
@@ -121,4 +139,5 @@ jobs:
           path: |
             /tmp/test-output.txt
             /tmp/jesus-storytelling-output.txt
+            /tmp/schema-testimonies-output.txt
           retention-days: 7

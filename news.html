@@ -138,6 +138,21 @@
     /* Lock the background scroll while the modal is open. */
     body.share-story-modal-open { overflow: hidden; }
 
+    /* Inline variant — Share your story tucked under the testimonies grid
+       inside the same section. Adds a soft top divider so the eyebrow
+       reads as a sub-section, not a fresh page area. */
+    .share-story-section--inline {
+      max-width: 720px;
+      margin: 3rem auto 0;
+      padding: 2.5rem 0 0;
+      border-top: 1px solid #e8e4de;
+    }
+    .share-story-section--inline .section-title--sub {
+      font-size: 1.5rem;
+      margin: 0 0 1rem;
+      text-align: center;
+    }
+
     /* Highlights section cosmetic tweaks — it was nested inside the
        combined outreach section before, now it's standalone. */
     .highlights-section .outreach-subheading {
@@ -261,13 +276,15 @@
   </div>
 </section>
 
-<!-- 2.5. Testimonies — published from the Stories tab via
-     assets/data/testimonies.json. The grid renders all entries with
-     published:true, most recent publishedAt first. The renderer hides
-     this whole container on empty state. A "Read every testimony →"
-     archive link sits below the grid and reveals only when there are
-     more than 6 entries. Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
-<section class="section section--light testimonies-section" id="testimonies-section">
+<!-- 2.5. Testimonies + Share your story — combined into one section per
+     user preference. Top half is the testimonies grid (renderer hides it
+     on empty state). A "Read every testimony →" archive link sits below
+     the grid when more than 6 entries are published. Bottom half is the
+     existing Share your story CTA (eyebrow heading + lead + modal launcher
+     + alt channels), wording preserved exactly. The id "share-your-story"
+     stays on this section so email links and admin-help docs keep
+     resolving. Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
+<section class="section section--light testimonies-section" id="share-your-story">
   <div class="container">
     <h2 class="section-title">✝️ My Testimony of How I Met Jesus</h2>
     <p class="outreach-subheading">
@@ -282,37 +299,32 @@
         Read every testimony →
       </a>
     </div>
-  </div>
-</section>
 
-<!-- 3. Share your story — primary CTA is a modal with a Google Form for
-     photos + caption + testimony; secondary links keep Instagram / Telegram /
-     the about.html contact path available for admins who prefer those.
-     The id "share-your-story" is preserved so existing email links and
-     admin-help docs keep resolving. -->
-<section class="section section--light share-story-section" id="share-your-story">
-  <div class="container">
-    <h2 class="section-title">✨ Share your story</h2>
-    <p class="share-story__lead">
-      Has God used our ministry to meet you in your walk with Jesus? Have you
-      watched Him move through an outreach &mdash; or captured a moment out in
-      the field? Drop your testimony, photos, or videos. We&rsquo;d love to
-      feature them to encourage someone else on their way to the cross.
-    </p>
-
-    <div class="share-story__actions">
-      <button type="button" class="btn btn-primary btn-block share-story__primary" id="share-story-open">
-        📤 Share photos, video &amp; testimony
-      </button>
-      <div class="share-story__alts">
-        <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team directly</a>
-        <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a>
-        <a class="btn btn-secondary btn-sm" href="https://t.me/seedtheword" target="_blank" rel="noopener">💬 Share on Telegram</a>
-      </div>
-      <p class="share-story__privacy">
-        Your submission lands in our ministry team&rsquo;s private review inbox.
-        Nothing goes public without your ok.
+    <!-- Share your story — eyebrow + CTA tagged onto the same section.
+         Wording preserved verbatim from the original Share-your-story
+         section. Telegram button removed per user request. -->
+    <div class="share-story-section share-story-section--inline">
+      <h3 class="section-title section-title--sub">✨ Share your story</h3>
+      <p class="share-story__lead">
+        Has God used our ministry to meet you in your walk with Jesus? Have you
+        watched Him move through an outreach &mdash; or captured a moment out in
+        the field? Drop your testimony, photos, or videos. We&rsquo;d love to
+        feature them to encourage someone else on their way to the cross.
       </p>
+
+      <div class="share-story__actions">
+        <button type="button" class="btn btn-primary btn-block share-story__primary" id="share-story-open">
+          📤 Share photos, video &amp; testimony
+        </button>
+        <div class="share-story__alts">
+          <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team directly</a>
+          <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a>
+        </div>
+        <p class="share-story__privacy">
+          Your submission lands in our ministry team&rsquo;s private review inbox.
+          Nothing goes public without your ok.
+        </p>
+      </div>
     </div>
   </div>
 </section>

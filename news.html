@@ -17,7 +17,7 @@
   <meta name="twitter:title" content="News — Seed the Word Ministry">
   <meta name="twitter:description" content="Live calendar, ministry outreach, and stories from the field.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/seed-the-word.jpg">
-  <link rel="stylesheet" href="assets/css/main.css?v=9">
+  <link rel="stylesheet" href="assets/css/main.css?v=10">
   <style>
     /* ==== Share-your-story section + modal (news.html reorg) =============
        Scoped to news.html so main.css stays untouched for this rollout.
@@ -261,38 +261,47 @@
   </div>
 </section>
 
-<!-- 3. Stories from our family — combined Testimonies grid + Share-your-story CTA.
-     Top half renders published testimonies from assets/data/testimonies.json
-     (sorted by publishedAt descending). Bottom half is the existing share-your-
-     story CTA with the modal-launching button and the alternate channels.
-     The whole section hides if there are no testimonies AND no CTA — but in
-     practice the CTA always shows, so the section is always present.
+<!-- 3. My Testimony of How I Met Jesus — combined Testimonies grid +
+     Share-your-testimony CTA. Top half renders published testimonies
+     from assets/data/testimonies.json (sorted by publishedAt
+     descending). Bottom half is the existing share modal launcher
+     plus alternate channels. The id "share-your-story" is kept so
+     existing links (emails, admin-help docs, the Hear-My-Testimony
+     buttons on about.html) keep resolving.
      Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
 <section class="section section--light stories-section" id="share-your-story">
   <div class="container">
-    <h2 class="section-title">✨ Stories from our family</h2>
+    <h2 class="section-title">✝️ My Testimony of How I Met Jesus</h2>
     <p class="outreach-subheading stories-section__lead">
-      Stories the Lord has been writing through this ministry &mdash; shared with
-      permission, lightly edited for clarity. If He has been moving in your walk
-      too, we&rsquo;d love to hear it. Drop your testimony, photos, or video below.
+      Real people. Real encounters with Jesus Christ. The Lord is still
+      meeting His own &mdash; rescuing, healing, calling, restoring &mdash;
+      and what follows are some of those moments, shared with permission.
+      If your eyes are filling up reading these, that&rsquo;s Him too.
+      Scroll, read, and when you&rsquo;re ready, tell us yours.
     </p>
 
     <div class="testimonies-grid" id="testimonies-grid" aria-live="polite">
-      <!-- Populated by assets/js/testimonies.js. The whole .testimonies-grid
-           container is hidden by the renderer when no published entries
-           exist (see assets/js/testimonies.js → renderGrid). -->
+      <!-- Populated by assets/js/testimonies.js. The renderer hides
+           this container when no entries are published; the cards
+           below it (Read all + CTA) stay in place. -->
+    </div>
+
+    <div class="testimonies-archive-link" id="testimonies-archive-link" hidden>
+      <a href="testimonies.html" class="btn btn-secondary">
+        Read every testimony →
+      </a>
     </div>
 
     <div class="share-story__actions stories-section__cta">
-      <h3 class="stories-section__cta-title">Share your story</h3>
+      <h3 class="stories-section__cta-title">Tell us how you met Him</h3>
       <p class="stories-section__cta-lead">
-        Has God used our ministry to meet you in your walk with Jesus? Have you
-        watched Him move through an outreach &mdash; or captured a moment out in
-        the field? We&rsquo;d love to feature it to encourage someone else on their
-        way to the cross.
+        Has Jesus met you in your walk &mdash; through this ministry,
+        through a verse, through a friend, through a moment you can&rsquo;t
+        explain any other way? We&rsquo;d treasure hearing it. Your story
+        could be the very thing that opens another heart to His.
       </p>
       <button type="button" class="btn btn-primary btn-block share-story__primary" id="share-story-open">
-        📤 Share photos, video &amp; testimony
+        ✝️ Share my testimony
       </button>
       <div class="share-story__alts">
         <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team directly</a>
@@ -300,8 +309,8 @@
         <a class="btn btn-secondary btn-sm" href="https://t.me/seedtheword" target="_blank" rel="noopener">💬 Share on Telegram</a>
       </div>
       <p class="share-story__privacy">
-        Your submission lands in our ministry team&rsquo;s private review inbox.
-        Nothing goes public without your ok.
+        Your testimony lands in our ministry team&rsquo;s private review
+        inbox. Nothing goes public without your ok.
       </p>
     </div>
   </div>
@@ -519,6 +528,6 @@
 <script src="assets/js/livestream.js?v=2"></script>
 <script src="assets/js/ministry-outreach.js?v=1"></script>
 <script src="assets/js/share-story.js?v=1" defer></script>
-<script src="assets/js/testimonies.js?v=3" defer></script>
+<script src="assets/js/testimonies.js?v=4" defer></script>
 </body>
 </html>

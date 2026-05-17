@@ -1,16 +1,26 @@
 /* ============================================================
    Testimony renderer — Seed the Word Ministry
    Reads assets/data/testimonies.json and renders into one of:
-     - #testimonies-grid    (news.html — full grid of all published)
-     - #testimonies-strip   (about.html — compact 1-2 tile soft strip)
+     - #testimonies-grid    on news.html         → recent N (default 6)
+     - #testimonies-grid    on testimonies.html  → ALL published
+     - #testimonies-strip   on about.html        → compact 1-2 tile soft strip
      - showcase-carousel.js  uses STWTestimonies.pickShowcaseTestimony
         to pick one rotating tile for the homepage
    Spec: .kiro/specs/ministry-ops-and-testimonies/
+
+   Author filter: when the URL has `?author=Some%20Name` the news-page
+   grid is filtered to entries whose `name` matches (case-insensitive,
+   trimmed). If no entries match, the filter quietly falls through to
+   the default (all published, recent first) so the page never goes
+   blank from a stale filter.
    ============================================================ */
 (function () {
   'use strict';
 
   const MANIFEST_URL = 'assets/data/testimonies.json';
+  // Cap on the news.html homepage section. testimonies.html is
+  // unbounded — it's the archive page.
+  const NEWS_GRID_LIMIT = 6;
   let cache = null;
 
   async function loadManifest() {
@@ -58,6 +68,15 @@
     });
   }
 
+  // Read ?author= from the current URL, normalize for matching.
+  function getAuthorFilter() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const v = (params.get('author') || '').trim().toLowerCase();
+      return v || null;
+    } catch (_) { return null; }
+  }
+
   // ── card builders ─────────────────────────────────────────────
   function renderGridCard(t) {
     return ''
@@ -81,21 +100,56 @@
 
   // ── public API ────────────────────────────────────────────────
 
-  // Render full grid (news.html). All published, recent first. When
-  // there are no published entries, hide ONLY the grid container —
-  // not the surrounding section. On the news page the section now
-  // also holds the Share-your-story CTA underneath, so we mustn't
-  // hide the whole section. The strip variant below uses a different
-  // strategy because the about-page strip is a standalone section.
-  async function renderGrid(container) {
-    const list = sortRecent(await loadManifest());
-    if (!list.length) {
+  // Render a grid of testimonies. By default (no opts) renders all
+  // published, recent first — used by the testimonies.html archive
+  // page. Pass {limit: 6} to cap the news-page section. Hides the
+  // grid container on empty state so surrounding markup (the share
+  // CTA on news.html, the empty-state message on testimonies.html)
+  // is responsible for what shows up in its place.
+  async function renderGrid(container, opts) {
+    opts = opts || {};
+    const limit = opts.limit || 0;
+    const author = opts.respectAuthorFilter ? getAuthorFilter() : null;
+
+    let list = sortRecent(await loadManifest());
+
+    // Author filter — if a match exists, narrow to it. If no entries
+    // match, fall through silently to the unfiltered list so the
+    // page never goes blank from a stale URL parameter.
+    if (author) {
+      const matching = list.filter(function (t) {
+        const n = (t.name || '').trim().toLowerCase();
+        return n === author;
+      });
+      if (matching.length > 0) list = matching;
+    }
+
+    // Apply optional limit (0 = unlimited).
+    const displayed = limit > 0 ? list.slice(0, limit) : list;
+
+    // Companion controls — the news.html section has a "Read every
+    // testimony →" archive link that should reveal only when:
+    //   (a) there are entries to show AND
+    //   (b) the displayed slice is shorter than the full list.
+    const archiveLink = document.getElementById('testimonies-archive-link');
+    if (archiveLink) {
+      archiveLink.hidden = !(displayed.length > 0 && displayed.length < list.length);
+    }
+
+    // The testimonies.html archive has its own empty-state message
+    // that needs to flip on/off based on the published count.
+    const archiveEmpty = document.getElementById('testimonies-archive-empty');
+    if (archiveEmpty) {
+      archiveEmpty.hidden = displayed.length > 0;
+    }
+
+    if (!displayed.length) {
       container.innerHTML = '';
       container.style.display = 'none';
       return;
     }
     container.style.display = '';
-    container.innerHTML = list.map(renderGridCard).join('');
+    container.innerHTML = displayed.map(renderGridCard).join('');
   }
 
   // Render compact strip (about.html). 1 or 2 tiles, recent first.
@@ -129,11 +183,27 @@
     displayName: displayName,
   };
 
-  // Auto-wire on DOMContentLoaded based on which container exists.
+  // Auto-wire on DOMContentLoaded based on which page we're on.
+  // The decision tree:
+  //   - testimonies.html → render the unbounded archive (no limit)
+  //   - news.html        → render up to NEWS_GRID_LIMIT, respect ?author
+  //   - about.html       → render the compact strip (max 2)
+  //   - homepage         → handled by showcase-carousel.js, not here
   function autoWire() {
     const grid  = document.getElementById('testimonies-grid');
     const strip = document.getElementById('testimonies-strip');
-    if (grid)  renderGrid(grid);
+
+    if (grid) {
+      // Detect which page we're on by looking at body URL or by
+      // checking the page-specific empty-state element. testimonies.html
+      // has #testimonies-archive-empty; news.html does not.
+      const isArchive = !!document.getElementById('testimonies-archive-empty');
+      if (isArchive) {
+        renderGrid(grid, { limit: 0 });
+      } else {
+        renderGrid(grid, { limit: NEWS_GRID_LIMIT, respectAuthorFilter: true });
+      }
+    }
     if (strip) renderStrip(strip, 2);
   }
 

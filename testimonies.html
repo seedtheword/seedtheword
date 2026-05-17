@@ -3,25 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Welcoming newcomers to faith — one Bible at a time. The home of Seed the Word Ministry.">
+  <title>My Testimony of How I Met Jesus — Seed the Word Ministry</title>
+  <meta name="description" content="Real people. Real encounters with Jesus Christ. The full archive of testimonies shared with Seed the Word Ministry.">
   <!-- Open Graph (Telegram, WhatsApp, Facebook, LinkedIn link previews) -->
   <meta property="og:site_name" content="Seed the Word Ministry">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Seed the Word Ministry — sharing Jesus, one Bible at a time">
-  <meta property="og:description" content="Plant the seed. Water it to grow. Gather the harvest. Walk the path of light with us.">
+  <meta property="og:title" content="My Testimony of How I Met Jesus — Seed the Word Ministry">
+  <meta property="og:description" content="Countless lives. Countless encounters. The full archive of testimonies of how Jesus has met His own.">
   <meta property="og:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/seed-the-word.jpg">
-  <meta property="og:url" content="https://seedtheword.github.io/seedtheword/index.html">
-  <!-- Twitter card (mirrors OG for some Telegram clients + X) -->
+  <meta property="og:url" content="https://seedtheword.github.io/seedtheword/testimonies.html">
+  <!-- Twitter card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Seed the Word Ministry — sharing Jesus, one Bible at a time">
-  <meta name="twitter:description" content="Plant the seed. Water it to grow. Gather the harvest.">
+  <meta name="twitter:title" content="My Testimony of How I Met Jesus — Seed the Word Ministry">
+  <meta name="twitter:description" content="Countless lives. Countless encounters. The full archive of testimonies.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/seed-the-word.jpg">
-  <title>Home — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=4">
+  <link rel="stylesheet" href="assets/css/main.css?v=10">
 </head>
 <body>
 
-<!-- ── Header ── -->
 <header class="site-header" id="site-header">
   <div class="container">
     <div class="header-left">
@@ -62,184 +61,49 @@
   </div>
 </header>
 
-<!-- ── Hero with Jesus Image (Requirement: looping muted decorative video
-     behind welcome text + dark gradient overlay; falls back to poster
-     image when video is missing/blocked/reduced-motion). See
-     .kiro/specs/jesus-storytelling-homepage-and-about/ for full spec. ── -->
-<section class="hero hero--jesus">
-  <video
-    class="hero__video"
-    autoplay
-    muted
-    loop
-    playsinline
-    preload="metadata"
-    poster="assets/images/backgrounds/stw-background-1920x1080.jpg"
-    aria-hidden="true">
-    <!-- WebM source is reserved for future use. When a WebM file is later
-         committed at assets/videos/hero-jesus.webm, uncomment the line
-         below so it sits ahead of the MP4 source. -->
-    <!-- <source src="assets/videos/hero-jesus.webm" type="video/webm"> -->
-    <source src="assets/videos/hero-jesus.mp4" type="video/mp4">
-  </video>
-
-  <div class="hero__overlay-gradient" aria-hidden="true"></div>
-
-  <div class="hero__content hero__content--simple">
-    <p class="hero__text hero__text--intro">Welcome to where we</p>
-    <h1 class="hero__text hero__text--main">Seed the Word</h1>
-    <p class="hero__text hero__text--intro">that is</p>
-    <h2 class="hero__text hero__text--name">Jesus <span class="hero__cross">✝</span> Christ</h2>
-    <a href="about.html" class="btn btn-jesus">Who is Jesus?</a>
-    <a href="#showcase" class="hero__scroll-indicator">
-      <span>↓</span>
-    </a>
+<section class="hero hero--short hero--testimonies-archive">
+  <div class="hero__overlay"></div>
+  <div class="hero__content">
+    <h1 class="hero__title">My Testimony of How I Met Jesus</h1>
+    <p class="hero__tagline">Real people. Real encounters with Jesus Christ. Countless lives, countless ways the Lord has been making Himself known.</p>
   </div>
 </section>
 
-<!-- ── Homepage Showcase: rotates ministry highlights, featured Instagram
-       posts, and daily Bible content (verses, tips, facts, encouragement) ── -->
-<section class="showcase-section" id="showcase">
+<!-- Full archive grid — every published testimony, sorted by
+     publishedAt descending. Powered by the same assets/js/testimonies.js
+     module that drives news.html and about.html. The container ID
+     'testimonies-grid' is reused so the existing renderGrid path
+     auto-wires on DOMContentLoaded. -->
+<section class="section section--light testimonies-archive-section">
   <div class="container">
-    <h2 class="section-title">📣 Featured Ministry Feed</h2>
-    <p class="showcase-section__intro">
-      A rotating snapshot of what's happening across the ministry — announcements,
-      outreach, highlights, initiatives, verses for today, and tips along the way.
+    <p class="testimonies-archive-section__intro">
+      What follows are testimonies submitted by members of our family,
+      friends in Jesus, and ministry partners. Every one is shared
+      with the submitter&rsquo;s permission. If reading these stirs
+      something in your heart &mdash; that&rsquo;s the Lord too.
+      <a href="news.html#share-your-story">Share yours when you&rsquo;re ready.</a>
     </p>
-    <div id="showcase-container"></div>
+
+    <div class="testimonies-grid" id="testimonies-grid" aria-live="polite">
+      <!-- Populated by assets/js/testimonies.js. The renderer hides
+           this container on empty state; the empty-state message
+           below shows in its place. -->
+    </div>
+
+    <div class="testimonies-archive-empty" id="testimonies-archive-empty" hidden>
+      <p>
+        No testimonies have been published yet. The Lord is moving in
+        ways we haven&rsquo;t had the chance to share here yet.
+        <a href="news.html#share-your-story">Tell us how He met you</a>
+        &mdash; you might be the first.
+      </p>
+    </div>
   </div>
 </section>
 
-<!-- ── The Path of Light — our ministry mapped out ── -->
-<section class="the-path" id="the-path" aria-labelledby="the-path-title">
-  <div class="the-path__atmosphere" aria-hidden="true"></div>
-
-  <div class="container the-path__head">
-    <p class="the-path__eyebrow">Seed the Word</p>
-    <h2 id="the-path-title" class="the-path__title">Walking the Path of Light</h2>
-    <blockquote class="the-path__verse">
-      <p>"Thy word is a lamp unto my feet, and a light unto my path."</p>
-      <cite>— Psalm 119:105 KJV</cite>
-    </blockquote>
-    <p class="the-path__subtitle">
-      This is the ministry of Jesus, mapped out. Plant the seed. Water it to grow.
-      Gather the harvest into the local church body. Then do it again — for the
-      next person He brings us.
-    </p>
-  </div>
-
-  <!-- The road itself: SVG spine with glowing waypoints overlaid -->
-  <div class="the-path__road">
-    <svg class="the-path__road-svg" viewBox="0 0 100 1000" preserveAspectRatio="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="pathGrad" x1="50%" y1="0%" x2="50%" y2="100%">
-          <stop offset="0%"  stop-color="#ffffff" stop-opacity="0.15"/>
-          <stop offset="15%" stop-color="#ffffff" stop-opacity="0.9"/>
-          <stop offset="85%" stop-color="#ffffff" stop-opacity="0.9"/>
-          <stop offset="100%" stop-color="#ffffff" stop-opacity="0.15"/>
-        </linearGradient>
-        <filter id="pathGlow">
-          <feGaussianBlur stdDeviation="2.2" result="blur"/>
-          <feMerge>
-            <feMergeNode in="blur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      <!-- A gently curving S-path drawn top to bottom -->
-      <path
-        d="
-          M 50 0
-          C 35 120, 70 220, 50 340
-          S 30 500, 50 620
-          S 70 780, 50 920
-          L 50 1000
-        "
-        fill="none"
-        stroke="url(#pathGrad)"
-        stroke-width="3"
-        stroke-linecap="round"
-        stroke-dasharray="6 10"
-        filter="url(#pathGlow)"
-      />
-    </svg>
-
-    <ol class="the-path__waypoints">
-      <li class="waypoint waypoint--left">
-        <div class="waypoint__marker" aria-hidden="true">
-          <span class="waypoint__icon">🌱</span>
-        </div>
-        <div class="waypoint__card">
-          <p class="waypoint__phase">Phase 1</p>
-          <h3 class="waypoint__title">Plant the Seed</h3>
-          <p class="waypoint__tag">Evangelism &amp; new believers</p>
-          <p class="waypoint__body">
-            We meet newcomers where they are — on the street, at work, in our homes —
-            and share the Gospel simply and honestly. Grace first: we show Jesus
-            through action before we speak theology. Bibles go out with every seed.
-            Tuesday meetings are where this begins.
-          </p>
-          <a class="waypoint__link" href="store.html">Gift a Bible →</a>
-        </div>
-      </li>
-
-      <li class="waypoint waypoint--right">
-        <div class="waypoint__marker" aria-hidden="true">
-          <span class="waypoint__icon">💧</span>
-        </div>
-        <div class="waypoint__card">
-          <p class="waypoint__phase">Phase 2</p>
-          <h3 class="waypoint__title">Water to Grow</h3>
-          <p class="waypoint__tag">Discipleship &amp; deepening</p>
-          <p class="waypoint__body">
-            Once the seed is planted, we walk alongside newcomers through daily
-            Bible reading, weekly fellowship, prayer, and worship. Saturday studies
-            go deeper using our five-pillar framework: historical, linguistic,
-            interpretive, personal, and external. Non-denominational (John 17:3),
-            anchored in intimacy with Christ — becoming images of Him.
-            As Paul reminds us: we plant and water, but God makes it grow.
-          </p>
-          <a class="waypoint__link" href="community.html">Study with us →</a>
-        </div>
-      </li>
-
-      <li class="waypoint waypoint--left">
-        <div class="waypoint__marker" aria-hidden="true">
-          <span class="waypoint__icon">🌾</span>
-        </div>
-        <div class="waypoint__card">
-          <p class="waypoint__phase">Phase 3</p>
-          <h3 class="waypoint__title">Gather the Harvest</h3>
-          <p class="waypoint__tag">Placement &amp; maturation</p>
-          <p class="waypoint__body">
-            As believers mature, we help place them into the body of Christ —
-            a local church, a life group, a calling to serve. Complex doctrine
-            goes to ordained leadership. We walk alongside, carrying each other
-            through prayer and mentorship (1 Timothy 1:5). The harvest belongs
-            to the Lord, and He calls laborers into it.
-          </p>
-          <a class="waypoint__link" href="about.html#contact">Connect with a mentor →</a>
-        </div>
-      </li>
-
-      <li class="waypoint waypoint--repeat">
-        <div class="waypoint__marker waypoint__marker--repeat" aria-hidden="true">
-          <span class="waypoint__icon">↻</span>
-        </div>
-        <p class="waypoint__repeat-label">Repeat</p>
-        <p class="waypoint__repeat-sub">For the next person He brings us.</p>
-      </li>
-    </ol>
-  </div>
-</section>
-
-
-
-<!-- ── Footer ── -->
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
-      <!-- Brand -->
       <div class="footer-brand">
         <div class="footer-brand__row">
           <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo">
@@ -248,7 +112,6 @@
         <p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p>
       </div>
 
-      <!-- Navigate -->
       <div>
         <h4 class="footer-col__title">Navigate</h4>
         <ul class="footer-nav">
@@ -260,7 +123,6 @@
         </ul>
       </div>
 
-      <!-- Connect -->
       <div>
         <h4 class="footer-col__title">Connect</h4>
         <div class="footer-connect__icons">
@@ -295,7 +157,6 @@
 </footer>
 
 <script src="assets/js/main.js?v=10"></script>
-<script src="assets/js/testimonies.js?v=4"></script>
-<script src="assets/js/showcase-carousel.js?v=5"></script>
+<script src="assets/js/testimonies.js?v=4" defer></script>
 </body>
 </html>

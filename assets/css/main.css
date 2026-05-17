@@ -10631,3 +10631,63 @@ a.contact-card:hover .contact-card__cta span {
   color: var(--muted, #666);
   margin: 0 0 1.5rem;
 }
+
+
+/* ── Testimonies archive page (testimonies.html) ───────────────
+   Full-archive rendering of every published testimony. Reuses the
+   .testimony-card styling defined above — only the page-level
+   intro and empty-state need their own rules.
+   Spec: .kiro/specs/ministry-ops-and-testimonies/ */
+
+.testimonies-archive-section { padding: 3rem 0 5rem; }
+.testimonies-archive-section__intro {
+  max-width: 720px;
+  margin: 0 auto 2.5rem;
+  text-align: center;
+  color: var(--muted, #666);
+  line-height: 1.7;
+  font-size: 1rem;
+}
+.testimonies-archive-section__intro a {
+  color: var(--green, #2C5F2E);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.testimonies-archive-section__intro a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.testimonies-archive-empty {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  color: var(--muted, #666);
+  font-style: italic;
+  line-height: 1.7;
+  font-size: 1rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.testimonies-archive-empty a {
+  color: var(--green, #2C5F2E);
+  font-weight: 600;
+  font-style: normal;
+}
+
+/* "Read every testimony →" link below the news.html grid. The
+   renderer toggles this container's `hidden` attribute based on
+   whether there are more entries than the news-page cap. */
+.testimonies-archive-link {
+  text-align: center;
+  margin: 1.5rem 0 2rem;
+}
+.testimonies-archive-link[hidden] { display: none; }
+
+/* Hero on the archive page — keep it short and warm, matching the
+   .hero--testimonies pattern from news.html. Uses one of our existing
+   ministry backgrounds. */
+.hero--testimonies-archive {
+  background-image: url('../images/backgrounds/seed-the-word.jpg');
+  background-position: center 30%;
+}

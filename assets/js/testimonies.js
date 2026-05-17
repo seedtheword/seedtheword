@@ -81,21 +81,32 @@
 
   // ── public API ────────────────────────────────────────────────
 
-  // Render full grid (news.html). All published, recent first.
+  // Render full grid (news.html). All published, recent first. When
+  // there are no published entries, hide the whole section (find the
+  // nearest <section> ancestor and remove it from the page) instead
+  // of rendering an empty-state message that looks like a bug.
   async function renderGrid(container) {
     const list = sortRecent(await loadManifest());
     if (!list.length) {
-      container.innerHTML = '<p class="testimonies-empty">No testimonies have been published yet. Check back soon.</p>';
+      const section = container.closest('section');
+      if (section) section.remove();
+      else container.remove();
       return;
     }
     container.innerHTML = list.map(renderGridCard).join('');
   }
 
   // Render compact strip (about.html). 1 or 2 tiles, recent first.
+  // Same hide-the-section behavior on empty state.
   async function renderStrip(container, count) {
     const n = (typeof count === 'number' && count > 0) ? count : 2;
     const list = sortRecent(await loadManifest()).slice(0, n);
-    if (!list.length) { container.innerHTML = ''; return; }
+    if (!list.length) {
+      const section = container.closest('section');
+      if (section) section.remove();
+      else container.remove();
+      return;
+    }
     container.innerHTML = list.map(renderStripCard).join('');
   }
 

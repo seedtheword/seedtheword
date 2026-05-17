@@ -59,7 +59,8 @@ const LEDGER_HEADERS = [
   'giftee_opt_in', 'giftee_name', 'giftee_email',
   'configuration', 'emails_sent', 'route',
   'is_special_order',
-  'status',          // appended last (Feature 1, ministry-ops-and-testimonies spec)
+  'status',          // appended (Feature 1, ministry-ops-and-testimonies spec)
+  'tracking_number', // appended; rendered in the 'shipped' email when set
 ];
 
 // Status workflow vocabulary. The `status` cell in each Orders row drives
@@ -327,6 +328,7 @@ function appendLedgerRow(sheet, p, orderId, emailsSent) {
     p.isSpecialOrder ? 'apps-script-special' : 'apps-script',
     p.isSpecialOrder ? 'yes' : 'no',
     'new',  // initial status; admins move this through the dropdown
+    '',     // initial tracking_number; admins fill this in before shipped
   ];
   sheet.appendRow(row);
 }
@@ -1523,10 +1525,14 @@ const STATUS_COPY = {
     const headerTitle = 'Your bundle is on the way';
     const headerSub = bundle + ' · ' + name;
     const delivery  = String(o.delivery_details || '').trim();
+    const tracking  = String(o.tracking_number || '').trim();
 
     let body = '';
     body += '<p style="margin:0 0 18px;">Dear <strong>' + escapeHtml(name) + '</strong>,</p>';
     body += '<p style="margin:0 0 18px;line-height:1.7;">Your bundle is on its way. It left our hands today carrying a small piece of our prayer with it &mdash; the Word in someone\'s hands is a quiet, slow seed, and we\'re glad you\'re part of planting it.</p>';
+    if (tracking) {
+      body += emailSection('Tracking', '<code style="background:#f4ece0;padding:4px 10px;border-radius:4px;font-size:14px;color:' + STW_TEXT + ';">' + escapeHtml(tracking) + '</code>', { accent: STW_GREEN });
+    }
     if (delivery) {
       body += emailSection('Sent to', '<div style="white-space:pre-wrap;">' + escapeHtml(delivery) + '</div>', { accent: STW_GREEN });
     }
@@ -1542,6 +1548,11 @@ const STATUS_COPY = {
       'piece of our prayer with it.',
       '',
     ];
+    if (tracking) {
+      plainParts.push('TRACKING');
+      plainParts.push('  ' + tracking);
+      plainParts.push('');
+    }
     if (delivery) {
       plainParts.push('SENT TO');
       plainParts.push('  ' + delivery);
@@ -1731,6 +1742,18 @@ function onOrderStatusEdit(e) {
   if (!order.gifter_email || String(order.gifter_email).indexOf('@') === -1) {
     console.log('[onOrderStatusEdit] row ' + row + ' has no gifter_email — skipping email.');
     return;
+  }
+
+  // Soft warning when flipping to 'shipped' without a tracking number.
+  // We don't block the send — the letter is still useful even without
+  // tracking (it tells the gifter the package is in transit) — but we
+  // log a clear warning so the admin sees it in Executions if they
+  // forgot. To get a tracking number into the letter, fill in the
+  // tracking_number cell on the same row BEFORE flipping status to
+  // shipped, or roll status back to packing, fill tracking, and
+  // re-flip to shipped.
+  if (newStatus === 'shipped' && !String(order.tracking_number || '').trim()) {
+    console.log('[onOrderStatusEdit] WARNING: row ' + row + ' is being marked shipped without a tracking_number. Letter will be sent without a tracking section. Fill the tracking_number cell and re-flip status to include it.');
   }
 
   try {

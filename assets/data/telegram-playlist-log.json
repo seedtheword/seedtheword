@@ -1,5 +1,98 @@
 {
   "_help": "Dedup log for the weekly playlist digest. The workflow updates this file every Sunday run so previously-posted tracks aren't re-announced. First run back-fills every existing playlist track so only NEW additions get posted going forward.",
-  "updated": null,
-  "seen": {}
+  "updated": "2026-05-18T06:35:21+00:00",
+  "seen": {
+    "21od4Ae35Nvx91Qel9gRiw": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "God I'm Just Grateful"
+    },
+    "0Eux68VieEpos7z4dVWCGD": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Jesus Be The Name (feat. Tiffany Hudson)"
+    },
+    "4f7HKpJheSmV2WeoMjNH2z": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Trust In God (feat. Chris Brown)"
+    },
+    "7Ee6XgP8EHKDhTMYLIndu9": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Praise (feat. Brandon Lake, Chris Brown & Chandler Moore)"
+    },
+    "1lEk3U3MzbDeL5MNHkE9JU": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "O Come to the Altar (Live)"
+    },
+    "40lKptao1hxVqA7fd1OOGp": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Our God"
+    },
+    "4TzpQkanZkYjzGdthyyw7f": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Still Waters (Psalm 23)"
+    },
+    "6BqobW3pEDxEvgznbam8kv": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "The Prodigal"
+    },
+    "5YThCGDk5E1o9rvhm7gIcJ": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Symphony"
+    },
+    "2gqWcdN7CIZpGBnbp17ljJ": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Hosanna"
+    },
+    "6TK9UE4eODGbyimh0qEYoq": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "FREE! - Live"
+    },
+    "3HwgZ9A7lgMdfhp83DLjCz": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Keep My Eyes Up"
+    },
+    "7MaZxIMANrgGbSZ3Bdsmwf": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "What An Awesome God"
+    },
+    "0RW1xWSPxmbXf012RN3yWl": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "This Is Amazing Grace"
+    },
+    "6nVm313QmsPlNllntTart1": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Living Hope"
+    },
+    "3Brdp5PTttyUzIjIdoJQ94": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Homesick For Heaven - Petey Remix"
+    },
+    "1pzjXhhI0DOfjTfxIRUXWW": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Majesty"
+    },
+    "0cmQQu4FwGT5yNWnckGc5Y": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Roses & Oceans"
+    },
+    "4XW6U14kAi5mTD9bhrXj9o": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Blood Bonds"
+    },
+    "5tgyHc2LLF0BI2udBTMFJz": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "The Burning Bush"
+    },
+    "4MkXfB30RpA1BhwkAS1nEq": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Eyes of Love"
+    },
+    "0pNizrRmvu5S16fH6ccm0v": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "Graves Into Gardens (Live)"
+    },
+    "6QSMe2ednCibD3JV9igbzV": {
+      "backfilled": "2026-05-18T06:35:21+00:00",
+      "name": "When I Say Jesus - Live"
+    }
+  }
 }

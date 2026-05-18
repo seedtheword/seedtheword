@@ -8,14 +8,20 @@ telegram-bot.json, diffs against a dedup log of previously-posted
 track IDs, and posts a Markdown list of genuinely-new additions
 from the past week.
 
-Auth model: Spotify Client Credentials (app-only). No user OAuth,
-no refresh-token dance. Works for ANY public playlist with just
-a Spotify dev app's Client ID + Secret.
+Auth model:
+  - If SPOTIFY_REFRESH_TOKEN is set, the script trades it for a
+    short-lived user-authenticated access token via the Authorization
+    Code refresh grant. This is the only path that can read
+    collaborative or private playlists.
+  - Otherwise, falls back to the Client Credentials grant (app-only),
+    which can only read fully public playlists.
 
 Credentials (GitHub Secrets):
   TELEGRAM_BIBLE_BOT_TOKEN   — posts via the Bible bot
   SPOTIFY_CLIENT_ID          — from developer.spotify.com/dashboard
   SPOTIFY_CLIENT_SECRET      — same place
+  SPOTIFY_REFRESH_TOKEN      — optional; mint via
+                               .github/scripts/spotify_get_refresh_token.py
 
 Env vars:
   BOT_CONFIG                 — path to telegram-bot.json
@@ -66,24 +72,58 @@ LOG_PATH = Path(os.environ.get(
 BOT_TOKEN = os.environ.get("TELEGRAM_BIBLE_BOT_TOKEN", "").strip()
 SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID", "").strip()
 SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET", "").strip()
+SPOTIFY_REFRESH_TOKEN = os.environ.get("SPOTIFY_REFRESH_TOKEN", "").strip()
 DRY_RUN = bool(os.environ.get("DRY_RUN", "").strip())
 
 
 # ── Spotify helpers ───────────────────────────────────────────────────
-def get_spotify_app_token() -> str:
-    """Client Credentials grant — returns a short-lived access token
-    scoped to public data only. No user consent required."""
-    if not SPOTIFY_CLIENT_ID or not SPOTIFY_CLIENT_SECRET:
-        raise SystemExit("Missing SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET.")
-    basic = base64.b64encode(
+def _basic_auth_header() -> str:
+    return base64.b64encode(
         (SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET).encode("utf-8")
     ).decode("ascii")
+
+
+def get_spotify_user_token_via_refresh() -> str:
+    """Authorization Code refresh grant — returns a short-lived access
+    token authenticated as the user who originally minted the refresh
+    token. This is the path that can read collaborative or private
+    playlists."""
+    if not SPOTIFY_CLIENT_ID or not SPOTIFY_CLIENT_SECRET:
+        raise SystemExit("Missing SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET.")
+    data = urlencode({
+        "grant_type": "refresh_token",
+        "refresh_token": SPOTIFY_REFRESH_TOKEN,
+    }).encode("utf-8")
+    req = Request(
+        "https://accounts.spotify.com/api/token",
+        data=data,
+        headers={
+            "Authorization": "Basic " + _basic_auth_header(),
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    )
+    with urlopen(req, timeout=30) as resp:
+        body = json.loads(resp.read().decode("utf-8"))
+    token = body.get("access_token")
+    if not token:
+        raise SystemExit(
+            f"Spotify refresh-token response missing access_token: {body}"
+        )
+    return token
+
+
+def get_spotify_app_token() -> str:
+    """Client Credentials grant — returns a short-lived access token
+    scoped to public data only. No user consent required, but cannot
+    read collaborative or private playlists."""
+    if not SPOTIFY_CLIENT_ID or not SPOTIFY_CLIENT_SECRET:
+        raise SystemExit("Missing SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET.")
     data = urlencode({"grant_type": "client_credentials"}).encode("utf-8")
     req = Request(
         "https://accounts.spotify.com/api/token",
         data=data,
         headers={
-            "Authorization": "Basic " + basic,
+            "Authorization": "Basic " + _basic_auth_header(),
             "Content-Type": "application/x-www-form-urlencoded",
         },
     )
@@ -93,6 +133,18 @@ def get_spotify_app_token() -> str:
     if not token:
         raise SystemExit(f"Spotify token response missing access_token: {body}")
     return token
+
+
+def get_spotify_token() -> str:
+    """Prefer the user-authenticated refresh-token path when configured —
+    that's the only way to read collaborative or private playlists.
+    Fall back to the app-only client-credentials path for a fully public
+    playlist."""
+    if SPOTIFY_REFRESH_TOKEN:
+        log("Using user-authenticated Spotify token (refresh-token grant).")
+        return get_spotify_user_token_via_refresh()
+    log("Using app-only Spotify token (client-credentials grant).")
+    return get_spotify_app_token()
 
 
 def fetch_playlist_tracks(playlist_id: str, token: str) -> list[dict]:
@@ -134,7 +186,7 @@ def main() -> int:
         return 0
 
     try:
-        token = get_spotify_app_token()
+        token = get_spotify_token()
         items = fetch_playlist_tracks(playlist_id, token)
     except Exception as exc:
         log(f"Spotify fetch failed: {exc}")

@@ -41,6 +41,7 @@ const LEDGER_TAB = 'Orders';
 const CONTACT_TAB = 'Contact';
 const STORIES_TAB = 'Stories';
 const SUBSCRIBERS_TAB = 'Subscribers';
+const ADMINS_TAB = 'Admins';
 
 // Public site URL — used in email footers to link back to ministry
 // pages (community, news, store, etc.). Trailing slash kept.
@@ -2168,6 +2169,24 @@ function doGet(e) {
     }
   }
 
+  if (action === 'admins') {
+    try {
+      return jsonResponse({ ok: true, admins: listActiveAdmins() });
+    } catch (err) {
+      console.log('listActiveAdmins failed:', err);
+      return jsonResponse({ ok: false, error: 'admins-read-failed' });
+    }
+  }
+
+  if (action === 'admin-digest-data') {
+    try {
+      return jsonResponse({ ok: true, data: getAdminDigestData() });
+    } catch (err) {
+      console.log('getAdminDigestData failed:', err);
+      return jsonResponse({ ok: false, error: 'admin-digest-data-failed' });
+    }
+  }
+
   return jsonResponse({ ok: false, error: 'unknown-action' });
 }
 
@@ -2282,4 +2301,262 @@ function fireTestSmsAnnouncementNow() {
   const body = resp && resp.getContent ? resp.getContent() : String(resp);
   console.log('Simulated announcement SMS-CC returned: ' + body);
   console.log('Sample body sent (' + sampleBody.length + ' chars): ' + sampleBody);
+}
+
+
+// ─────────────────────────────────────────────────────────────────────
+// Admins tab — recipient list for the twice-weekly admin ops digest
+// ─────────────────────────────────────────────────────────────────────
+//
+// Mirrors the Subscribers tab pattern. Apps Script reads the Admins
+// tab on the same spreadsheet so admins manage the recipient list
+// through the Sheet UI rather than editing JSON or rotating GitHub
+// Secrets when the team changes.
+//
+// Schema (Admins tab — must match ADMINS_HEADERS exactly):
+//   id          stable identifier ('stw-admin-001', ...)
+//   name        display name for the digest greeting
+//   email       required; missing rows are skipped
+//   role        free-form ('elder', 'social', 'ministry-leader', etc.)
+//               currently informational only \u2014 every active admin
+//               receives every digest
+//   active      TRUE/FALSE; FALSE rows silently skipped
+//   addedDate   YYYY-MM-DD when they were added to the list
+//   notes       freeform
+//
+// Set up: run installAdminsTab() ONCE from the Apps Script editor's
+// function dropdown to create the tab with header row + sample entry.
+
+const ADMINS_HEADERS = [
+  'id', 'name', 'email', 'role', 'active', 'addedDate', 'notes',
+];
+
+function _openAdminsSheet_() {
+  const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  let sheet = ss.getSheetByName(ADMINS_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(ADMINS_TAB);
+    sheet.appendRow(ADMINS_HEADERS);
+    sheet.getRange(1, 1, 1, ADMINS_HEADERS.length).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function listActiveAdmins() {
+  const sheet = _openAdminsSheet_();
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  const range = sheet.getRange(1, 1, lastRow, ADMINS_HEADERS.length);
+  const values = range.getValues();
+  const headerRow = values[0];
+  const idx = {};
+  for (let i = 0; i < headerRow.length; i++) {
+    idx[String(headerRow[i]).trim()] = i;
+  }
+
+  const out = [];
+  for (let r = 1; r < values.length; r++) {
+    const row = values[r];
+    const email = String(row[idx.email] || '').trim();
+    if (!email || email.indexOf('@') === -1) continue;
+
+    const rawActive = row[idx.active];
+    const isActive =
+      rawActive === true ||
+      rawActive === 1 ||
+      String(rawActive || '').trim().toUpperCase() === 'TRUE';
+    if (!isActive) continue;
+
+    out.push({
+      id: String(row[idx.id] || '').trim(),
+      name: String(row[idx.name] || '').trim(),
+      email: email,
+      role: String(row[idx.role] || '').trim(),
+      addedDate: String(row[idx.addedDate] || '').trim(),
+    });
+  }
+  return out;
+}
+
+function installAdminsTab() {
+  const sheet = _openAdminsSheet_();
+  if (sheet.getLastRow() < 2) {
+    sheet.appendRow([
+      'stw-admin-000-example',
+      'Example Admin',
+      'example@seedtheword.test',
+      'team-lead',
+      false,
+      Utilities.formatDate(new Date(), 'America/Los_Angeles', 'yyyy-MM-dd'),
+      'Example row \u2014 set active to TRUE and edit fields, OR delete this row before going live.',
+    ]);
+  }
+  console.log('Admins tab is ready: ' +
+    SpreadsheetApp.openById(LEDGER_SHEET_ID).getUrl() + '#gid=' + sheet.getSheetId());
+}
+
+
+// ─────────────────────────────────────────────────────────────────────
+// Admin digest data aggregator
+// ─────────────────────────────────────────────────────────────────────
+//
+// Reads the spreadsheet's operational tabs and returns a single shaped
+// object that the twice-weekly admin-digest workflow renders into an
+// email. Bundling the read here means Python only does one round-trip
+// per digest cadence, not 4-5 separate Sheet API calls.
+//
+// Returns:
+//   {
+//     ordersNeedingAction: [{order_id, received_at, gifter_name, ...}],
+//     storiesAwaitingReview: [{received_at, name, email, story (snippet)}],
+//     recentContacts: [{received_at, name, email, subject, message (snippet)}],
+//     newSubscribers: [{name, email, addedDate}],
+//   }
+//
+// "Recent" means the past 7 days. Snippets are first 200 chars to
+// keep email body manageable.
+function getAdminDigestData() {
+  const sevenDaysAgoMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+
+  // ── Orders needing action ───────────────────────────────────────
+  const ordersNeedingAction = [];
+  try {
+    const ordersSheet = ss.getSheetByName(LEDGER_TAB);
+    if (ordersSheet) {
+      const lastRow = ordersSheet.getLastRow();
+      if (lastRow >= 2) {
+        const values = ordersSheet.getRange(1, 1, lastRow, LEDGER_HEADERS.length).getValues();
+        const idx = {};
+        for (let i = 0; i < values[0].length; i++) {
+          idx[String(values[0][i]).trim()] = i;
+        }
+        for (let r = 1; r < values.length; r++) {
+          const row = values[r];
+          const status = String(row[idx.status] || '').trim().toLowerCase();
+          // Active = anything not in a terminal state
+          if (status === 'shipped' || status === 'delivered' || status === 'cancelled') continue;
+          ordersNeedingAction.push({
+            order_id: String(row[idx.order_id] || '').trim(),
+            received_at: String(row[idx.received_at] || '').trim(),
+            bundle: String(row[idx.bundle] || '').trim(),
+            gifter_name: String(row[idx.gifter_name] || '').trim(),
+            gifter_email: String(row[idx.gifter_email] || '').trim(),
+            status: status || 'new',
+            is_special_order: row[idx.is_special_order] === true,
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.log('getAdminDigestData(orders) failed:', err);
+  }
+
+  // ── Stories awaiting review ─────────────────────────────────────
+  // We can't cross-reference testimonies.json from here (it's in the
+  // git repo, not the Sheet), so we surface ALL story submissions
+  // received in the past 14 days. The admin then matches them up
+  // mentally with what's already published. Future improvement:
+  // add a 'reviewed' column to the Stories tab and skip those.
+  const storiesAwaitingReview = [];
+  try {
+    const storiesSheet = ss.getSheetByName(STORIES_TAB);
+    if (storiesSheet) {
+      const lastRow = storiesSheet.getLastRow();
+      if (lastRow >= 2) {
+        const values = storiesSheet.getRange(1, 1, lastRow, STORIES_HEADERS.length).getValues();
+        const idx = {};
+        for (let i = 0; i < values[0].length; i++) {
+          idx[String(values[0][i]).trim()] = i;
+        }
+        const fourteenDaysAgoMs = Date.now() - 14 * 24 * 60 * 60 * 1000;
+        for (let r = 1; r < values.length; r++) {
+          const row = values[r];
+          const receivedRaw = row[idx.received_at];
+          const receivedMs = (receivedRaw instanceof Date)
+            ? receivedRaw.getTime()
+            : Date.parse(String(receivedRaw || ''));
+          if (isNaN(receivedMs) || receivedMs < fourteenDaysAgoMs) continue;
+          const story = String(row[idx.story] || '');
+          storiesAwaitingReview.push({
+            received_at: (receivedRaw instanceof Date)
+              ? receivedRaw.toISOString()
+              : String(receivedRaw || ''),
+            name: String(row[idx.name] || '').trim(),
+            email: String(row[idx.email] || '').trim(),
+            story_snippet: story.length > 200 ? story.slice(0, 200) + '\u2026' : story,
+            consent_to_publish: row[idx.consent_to_publish] === true,
+            location: String(row[idx.location] || '').trim(),
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.log('getAdminDigestData(stories) failed:', err);
+  }
+
+  // ── Recent contact-form messages ────────────────────────────────
+  const recentContacts = [];
+  try {
+    const contactSheet = ss.getSheetByName(CONTACT_TAB);
+    if (contactSheet) {
+      const lastRow = contactSheet.getLastRow();
+      if (lastRow >= 2) {
+        const values = contactSheet.getRange(1, 1, lastRow, CONTACT_HEADERS.length).getValues();
+        const idx = {};
+        for (let i = 0; i < values[0].length; i++) {
+          idx[String(values[0][i]).trim()] = i;
+        }
+        for (let r = 1; r < values.length; r++) {
+          const row = values[r];
+          const receivedRaw = row[idx.received_at];
+          const receivedMs = (receivedRaw instanceof Date)
+            ? receivedRaw.getTime()
+            : Date.parse(String(receivedRaw || ''));
+          if (isNaN(receivedMs) || receivedMs < sevenDaysAgoMs) continue;
+          const message = String(row[idx.message] || '');
+          recentContacts.push({
+            received_at: (receivedRaw instanceof Date)
+              ? receivedRaw.toISOString()
+              : String(receivedRaw || ''),
+            name: String(row[idx.name] || '').trim(),
+            email: String(row[idx.email] || '').trim(),
+            subject: String(row[idx.subject] || '').trim(),
+            message_snippet: message.length > 200 ? message.slice(0, 200) + '\u2026' : message,
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.log('getAdminDigestData(contacts) failed:', err);
+  }
+
+  // ── New subscribers (added in past 7 days) ──────────────────────
+  const newSubscribers = [];
+  try {
+    const subscribers = listActiveSubscribers();
+    for (let i = 0; i < subscribers.length; i++) {
+      const s = subscribers[i];
+      const ms = Date.parse(s.consentDate || '');
+      if (!isNaN(ms) && ms >= sevenDaysAgoMs) {
+        newSubscribers.push({
+          name: s.name,
+          email: s.email,
+          consentDate: s.consentDate,
+        });
+      }
+    }
+  } catch (err) {
+    console.log('getAdminDigestData(subscribers) failed:', err);
+  }
+
+  return {
+    ordersNeedingAction: ordersNeedingAction,
+    storiesAwaitingReview: storiesAwaitingReview,
+    recentContacts: recentContacts,
+    newSubscribers: newSubscribers,
+    generatedAt: new Date().toISOString(),
+  };
 }

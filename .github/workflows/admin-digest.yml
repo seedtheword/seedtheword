@@ -1,0 +1,74 @@
+name: Admin Ops Digest
+
+# Twice a week (Mon and Thu) at 08:00 PT — gives admins an ops snapshot
+# of orders needing action, stories awaiting review, recent contact-form
+# messages, new subscribers, and calendar health.
+#
+# Different audience and content from weekly-digest.yml (member-facing,
+# Saturday). The two pipelines reuse the same Apps Script Mail bridge
+# and the same digest-log.json file.
+
+on:
+  schedule:
+    # Cron is UTC. Mon+Thu 15:00 UTC = 08:00 PT (PDT).
+    - cron: '0 15 * * 1,4'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If 'true', preview without emailing"
+        required: false
+        default: 'false'
+      force:
+        description: "If 'true', re-send even when today's digest already fired"
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write   # to commit digest-log.json
+
+concurrency:
+  group: admin-digest
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Send Admin Digest
+        env:
+          APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+          FORCE: ${{ github.event.inputs.force == 'true' && '1' || '' }}
+        run: python .github/scripts/send_admin_digest.py
+
+      - name: Commit digest log if changed
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/data/digest-log.json || true
+          if git diff --cached --quiet; then
+            echo "No log changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(admin-digest): update log [skip ci]"
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt $attempt..."
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              echo "Push succeeded."
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; retrying in 10s..."
+            sleep 10
+          done
+          echo "Push retries exhausted; next scheduled run will retry."
+          exit 0

@@ -1899,3 +1899,80 @@ function removeStatusEditTriggers() {
   }
   console.log('Removed ' + removed + ' onOrderStatusEdit trigger(s).');
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// SMS gateway delivery test — DIAGNOSTIC ONLY
+// ─────────────────────────────────────────────────────────────────────
+//
+// One-off test function used to determine whether the free email-to-SMS
+// gateway path actually delivers to a specific carrier (Verizon /
+// Visible MVNO) before we wire the digest pipeline to use it.
+//
+// Background:
+//   Verizon shut down their free email-to-SMS gateway (@vtext.com) in
+//   mid-2022. Visible runs on Verizon's network, so the gateway either
+//   doesn't work at all or works inconsistently. We test by firing two
+//   emails — one to the SMS gateway, one to the MMS gateway — and the
+//   admin checks their phone for ~5 minutes.
+//
+// How to run:
+//   1. Open the Apps Script editor (script.google.com).
+//   2. Paste this entire file over Code.gs (standard procedure).
+//   3. Save (Ctrl+S).
+//   4. Pick `testSmsGatewayDelivery` from the function dropdown
+//      (top toolbar, next to ▶ Run).
+//   5. Click ▶ Run. Authorize Gmail send scope when prompted.
+//   6. Wait up to 5 minutes and check the target phone.
+//   7. Report back which (if any) message arrived.
+//
+// Expected outcomes:
+//   - Both arrive: SMS gateway works for this carrier; pipeline can
+//     use either domain. Prefer @vtext.com (smaller, faster).
+//   - Only MMS (@vzwpix.com) arrives: use the MMS gateway. Slightly
+//     bulkier delivery (treated as a picture message) but functional.
+//   - Neither arrives: gateway path is dead for this carrier. Fall
+//     back to email-only delivery (the digest still emails the admin's
+//     normal email address; admin forwards manually if the offline
+//     member needs SMS).
+//
+// Safe to leave in the file long-term — it only fires when manually
+// invoked from the editor. Will be removed once we have a definitive
+// answer.
+function testSmsGatewayDelivery() {
+  // Hardcoded for the one-off test. NOT used by any production path.
+  const TARGET_NUMBER = '2537777383';
+
+  // Test body kept under 140 chars so SMS gateways don't truncate.
+  // The "STOP" hint is standard SMS-marketing convention; carriers
+  // are less likely to filter messages that include opt-out language.
+  const body = 'STW gateway test ' + new Date().toISOString().slice(11, 19)
+    + ' UTC. Reply STOP to opt out.';
+
+  const sends = [
+    {
+      label: 'Verizon SMS gateway (@vtext.com)',
+      to: TARGET_NUMBER + '@vtext.com',
+    },
+    {
+      label: 'Verizon MMS gateway (@vzwpix.com)',
+      to: TARGET_NUMBER + '@vzwpix.com',
+    },
+  ];
+
+  for (let i = 0; i < sends.length; i++) {
+    const s = sends[i];
+    try {
+      MailApp.sendEmail({
+        to: s.to,
+        subject: 'STW',          // Most gateways drop the subject line
+        body: body,              // Keep plain-text only; gateways strip HTML
+        noReply: true,
+      });
+      console.log('Sent: ' + s.label + ' → ' + s.to);
+    } catch (err) {
+      console.log('FAILED: ' + s.label + ' → ' + s.to + ' | ' + err);
+    }
+  }
+
+  console.log('Test fired. Check the target phone for the next ~5 minutes.');
+}

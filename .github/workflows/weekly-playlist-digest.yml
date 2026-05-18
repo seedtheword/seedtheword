@@ -39,9 +39,6 @@ jobs:
       - name: Run Playlist Digest
         env:
           TELEGRAM_BIBLE_BOT_TOKEN: ${{ secrets.TELEGRAM_BIBLE_BOT_TOKEN }}
-          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
-          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
           DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
         run: python .github/scripts/post_playlist_digest_to_telegram.py
 

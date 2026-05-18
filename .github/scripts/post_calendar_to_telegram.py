@@ -72,6 +72,29 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 GOOGLE_CAL_ID = os.environ.get("GOOGLE_CAL_ID", "seedthewordministry@gmail.com").strip()
 DRY_RUN = bool(os.environ.get("DRY_RUN", "").strip())
 
+# Optional SMS-CC: when an announcement posts successfully to Telegram,
+# also fire a 140-char plain-text email to a Verizon-style SMS gateway
+# so the admin (or other phone-only members) gets a text. Two pieces of
+# config drive it:
+#
+#   ADMIN_SMS_GATEWAY_ADDRESS — full email like '2537777383@vtext.com'.
+#                                When unset the SMS-CC step is skipped.
+#   ADMIN_SMS_GATEWAY_FROM    — optional 'from' address shown in the
+#                                MIME envelope (most gateways ignore
+#                                this; defaults to the runner's noreply
+#                                address). If we ever need to use a
+#                                Gmail-authenticated sender, that lives
+#                                here.
+#
+# We deliberately use SMTP through a forwarding email — going through
+# Apps Script's MailApp (which is what handles transactional email
+# elsewhere) would require yet another auth round-trip. The simplest
+# free path is: GitHub Actions doesn't have email-send access, so we
+# POST a small "fire SMS" request to the Apps Script web app, which
+# already has Gmail send scopes. See `_send_admin_sms_via_apps_script`.
+SMS_GATEWAY_ADDRESS = os.environ.get("ADMIN_SMS_GATEWAY_ADDRESS", "").strip()
+APPS_SCRIPT_URL = os.environ.get("APPS_SCRIPT_URL", "").strip()
+
 
 def log(msg: str) -> None:
     print(msg, flush=True)
@@ -691,6 +714,85 @@ def send_telegram_media_group(
         raise
 
 
+def _send_admin_sms_via_apps_script(sms_summary: str) -> None:
+    """Forward a 140-char plain-text summary to the admin's phone via
+    the configured email-to-SMS gateway. Goes through the same Apps
+    Script Web App that handles order/contact emails so MailApp can
+    do the actual send (GitHub Actions doesn't have direct mail-send
+    permissions).
+
+    Best-effort only — failures here never break the announcement
+    pipeline. We log and move on. The Telegram post is the source of
+    truth; SMS is a convenience layer.
+    """
+    if not SMS_GATEWAY_ADDRESS or not APPS_SCRIPT_URL:
+        return  # SMS-CC not configured; quietly skip
+    if DRY_RUN:
+        log(f"[DRY_RUN] Would SMS-CC admin via {SMS_GATEWAY_ADDRESS}: {sms_summary!r}")
+        return
+
+    payload = {
+        "type": "admin-sms-cc",
+        "to": SMS_GATEWAY_ADDRESS,
+        "body": sms_summary[:140],  # hard cap so gateway doesn't truncate mid-word
+    }
+    try:
+        req = Request(
+            APPS_SCRIPT_URL,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+        )
+        with urlopen(req, timeout=20) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
+            log(f"SMS-CC dispatched ({len(payload['body'])} chars). Apps Script reply: {body[:200]}")
+    except (HTTPError, URLError) as e:
+        log(f"SMS-CC failed (non-fatal): {e}")
+    except Exception as e:  # noqa: BLE001 — best-effort path
+        log(f"SMS-CC unexpected error (non-fatal): {e}")
+
+
+def _build_sms_summary(to_post: list[tuple[dict, str]], tz: ZoneInfo, now: datetime) -> str:
+    """Build a plain-text 140-char summary of what just got posted to
+    Telegram, suitable for an SMS gateway (no MarkdownV2, no emoji
+    inside critical content — gateways often strip non-ASCII).
+
+    Shape:
+      'STW: 2 events posted - Bible Study tonight 7PM, Worship Sat 11AM'
+    """
+    if not to_post:
+        return ""
+    parts: list[str] = []
+    for ev, kind in to_post[:3]:  # cap at 3 events to fit the 140-char budget
+        title = (ev.get("summary") or "Event").strip()
+        # Strip trailing '@ Venue' suffix admins use as a venue hint
+        m = re.search(r"\s+@\s+(.+)$", title)
+        if m:
+            title = title[:m.start()].strip()
+        start = parse_ev_start(ev)
+        when_bit = ""
+        if start:
+            local = start.astimezone(tz)
+            today = now.astimezone(tz).date()
+            diff = (local.date() - today).days
+            time_str = local.strftime("%I:%M%p").lstrip("0").replace(":00", "")
+            if diff == 0:
+                when_bit = " " + ("tonight " if local.hour >= 16 else "today ") + time_str
+            elif diff == 1:
+                when_bit = " tomorrow " + time_str
+            else:
+                when_bit = " " + local.strftime("%a %b %-d" if os.name != "nt" else "%a %b %#d") + " " + time_str
+        kind_tag = ""
+        if kind == "live":
+            kind_tag = "LIVE: "
+        elif kind == "reminder":
+            kind_tag = "Soon: "
+        parts.append(f"{kind_tag}{title}{when_bit}")
+    body = "STW: " + " | ".join(parts)
+    if len(to_post) > 3:
+        body += f" (+{len(to_post) - 3})"
+    return body[:140]
+
+
 # ── Main ───────────────────────────────────────────────────────────────
 def main() -> int:
     full_cfg = load_json(BOT_CONFIG_PATH, None)
@@ -986,6 +1088,13 @@ def main() -> int:
         del dedup["events"][eid]
     dedup["updated"] = ts
     save_json(LOG_PATH, dedup)
+
+    # Best-effort SMS-CC to the admin's phone via the email-to-SMS
+    # gateway. Skips silently when the env vars aren't set; never
+    # blocks the dedup log from being saved.
+    sms_summary = _build_sms_summary(to_post, tz, now)
+    if sms_summary:
+        _send_admin_sms_via_apps_script(sms_summary)
 
     log("Announcement posted and dedup log updated.")
     return 0

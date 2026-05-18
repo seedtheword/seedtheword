@@ -57,6 +57,11 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+          # Optional SMS-CC: when both vars are set, every successful
+          # Telegram announcement post fires a 140-char SMS to the
+          # admin via the carrier email-to-SMS gateway.
+          ADMIN_SMS_GATEWAY_ADDRESS: ${{ secrets.ADMIN_SMS_GATEWAY_ADDRESS }}
+          APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
         run: python .github/scripts/post_calendar_to_telegram.py
 
       - name: Commit dedup log if changed

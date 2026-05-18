@@ -40,6 +40,7 @@ const TEAM_INBOX = 'seedthewordministry@gmail.com';
 const LEDGER_TAB = 'Orders';
 const CONTACT_TAB = 'Contact';
 const STORIES_TAB = 'Stories';
+const SUBSCRIBERS_TAB = 'Subscribers';
 
 // Public site URL — used in email footers to link back to ministry
 // pages (community, news, store, etc.). Trailing slash kept.
@@ -129,7 +130,81 @@ function doPost(e) {
   const type = (payload && payload.type) || 'order';
   if (type === 'contact') return handleContact(payload);
   if (type === 'story')   return handleStory(payload);
+  if (type === 'admin-sms-cc') return handleAdminSmsCc(payload);
+  if (type === 'weekly-digest-email') return handleWeeklyDigestEmail(payload);
   return handleOrder(payload);
+}
+
+// ── Admin SMS-CC handler ─────────────────────────────────────────
+//
+// Called by .github/scripts/post_calendar_to_telegram.py after a
+// successful Telegram announcement post. Forwards a short plain-text
+// body to a carrier email-to-SMS gateway. Best-effort — we always
+// return ok:true so the caller's pipeline never blocks on this.
+//
+// Payload shape:
+//   { type: 'admin-sms-cc', to: '2537777383@vtext.com', body: '...' }
+function handleAdminSmsCc(payload) {
+  try {
+    const to = String((payload && payload.to) || '').trim();
+    const body = String((payload && payload.body) || '').trim();
+    if (!to || !body) {
+      return jsonResponse({ ok: true, route: 'admin-sms-cc-noop', reason: 'empty' });
+    }
+    // Defensive: the email-to-SMS gateway address should look like an
+    // email. Anything else gets silently dropped; we don't want a
+    // typo'd config exfiltrating data anywhere unexpected.
+    if (to.indexOf('@') === -1) {
+      console.log('admin-sms-cc: rejecting non-email recipient: ' + to);
+      return jsonResponse({ ok: true, route: 'admin-sms-cc-noop', reason: 'bad-recipient' });
+    }
+    MailApp.sendEmail({
+      to: to,
+      subject: 'STW',                // Most gateways drop the subject
+      body: body.slice(0, 140),      // Hard cap matches caller's cap
+      noReply: true,
+    });
+    return jsonResponse({ ok: true, route: 'admin-sms-cc' });
+  } catch (err) {
+    console.log('admin-sms-cc failed (non-fatal):', err);
+    return jsonResponse({ ok: true, route: 'admin-sms-cc-error', reason: String(err) });
+  }
+}
+
+// ── Weekly digest email handler ──────────────────────────────────
+//
+// Called by .github/scripts/send_weekly_digest.py once per active
+// subscriber on Saturday morning. The Python script builds the body;
+// this handler just hands it off to MailApp using the script's Gmail
+// session (which the runner can't use directly).
+//
+// Payload shape:
+//   { type: 'weekly-digest-email', to, subject, html, text, name }
+function handleWeeklyDigestEmail(payload) {
+  const to = String((payload && payload.to) || '').trim();
+  const subject = String((payload && payload.subject) || '').trim();
+  const html = String((payload && payload.html) || '');
+  const text = String((payload && payload.text) || '');
+  if (!to || to.indexOf('@') === -1) {
+    return jsonResponse({ ok: false, error: 'bad-recipient' });
+  }
+  if (!subject || (!html && !text)) {
+    return jsonResponse({ ok: false, error: 'empty-body' });
+  }
+  try {
+    MailApp.sendEmail({
+      to: to,
+      subject: subject,
+      htmlBody: html,
+      body: text,           // fallback for clients that hide HTML
+      noReply: true,
+      name: 'Seed the Word Ministry',
+    });
+    return jsonResponse({ ok: true, route: 'weekly-digest-email' });
+  } catch (err) {
+    console.log('weekly-digest-email failed:', err);
+    return jsonResponse({ ok: false, error: 'mail-send-failed', reason: String(err) });
+  }
 }
 
 // ── Order handler (existing flow, unchanged) ────────────────────
@@ -1975,4 +2050,153 @@ function testSmsGatewayDelivery() {
   }
 
   console.log('Test fired. Check the target phone for the next ~5 minutes.');
+}
+
+
+// ─────────────────────────────────────────────────────────────────────
+// Weekly digest subscribers — sheet-backed list + read-only web endpoint
+// ─────────────────────────────────────────────────────────────────────
+//
+// The Saturday weekly-digest workflow needs a list of email addresses
+// to send to. This list lives in the `Subscribers` tab on the same
+// spreadsheet that holds Orders / Contact / Stories so admins can
+// maintain it through the Sheet UI directly — no JSON editing.
+//
+// The GitHub Actions runner can't open Google Sheets without OAuth,
+// so we expose a small read-only `doGet(?action=subscribers)` endpoint
+// that returns the active subscriber list as JSON. The same web-app
+// deployment that handles order POSTs handles this GET.
+//
+// Schema (Subscribers tab — must match SUBSCRIBERS_HEADERS exactly):
+//   id          stable identifier ('stw-sub-001', 'stw-sub-002', ...)
+//   name        display name for the digest greeting
+//   email       required; missing rows are skipped
+//   phoneNumber optional; reserved for future SMS use
+//   carrier     optional; reserved for future SMS use
+//   consentDate YYYY-MM-DD when they opted in (TCPA paper trail)
+//   active      TRUE/FALSE; FALSE rows are silently skipped
+//   addedBy     which admin added them
+//   notes       freeform
+//
+// Set up: run `installSubscribersTab()` ONCE from the Apps Script
+// editor's function dropdown to create the tab with the header row
+// and a sample first entry. Idempotent — re-running won't duplicate.
+
+const SUBSCRIBERS_HEADERS = [
+  'id', 'name', 'email', 'phoneNumber', 'carrier',
+  'consentDate', 'active', 'addedBy', 'notes',
+];
+
+function _openSubscribersSheet_() {
+  const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  let sheet = ss.getSheetByName(SUBSCRIBERS_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(SUBSCRIBERS_TAB);
+    sheet.appendRow(SUBSCRIBERS_HEADERS);
+    sheet.getRange(1, 1, 1, SUBSCRIBERS_HEADERS.length).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+/**
+ * Return the active subscriber list as a flat array of objects.
+ * Skips rows where `active` is anything other than truthy AND skips
+ * rows missing an email (defensive against half-typed entries).
+ */
+function listActiveSubscribers() {
+  const sheet = _openSubscribersSheet_();
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  const range = sheet.getRange(1, 1, lastRow, SUBSCRIBERS_HEADERS.length);
+  const values = range.getValues();
+  const headerRow = values[0];
+  const idx = {};
+  for (let i = 0; i < headerRow.length; i++) {
+    idx[String(headerRow[i]).trim()] = i;
+  }
+
+  const out = [];
+  for (let r = 1; r < values.length; r++) {
+    const row = values[r];
+    const email = String(row[idx.email] || '').trim();
+    if (!email || email.indexOf('@') === -1) continue;
+
+    // `active` may come back as boolean true/false (from a checkbox),
+    // the string 'TRUE'/'FALSE', or an empty cell. Normalize.
+    const rawActive = row[idx.active];
+    const isActive =
+      rawActive === true ||
+      rawActive === 1 ||
+      String(rawActive || '').trim().toUpperCase() === 'TRUE';
+    if (!isActive) continue;
+
+    out.push({
+      id: String(row[idx.id] || '').trim(),
+      name: String(row[idx.name] || '').trim(),
+      email: email,
+      phoneNumber: String(row[idx.phoneNumber] || '').trim(),
+      carrier: String(row[idx.carrier] || '').trim(),
+      consentDate: String(row[idx.consentDate] || '').trim(),
+    });
+  }
+  return out;
+}
+
+/**
+ * Read-only web endpoint. Same Web App deployment as doPost — admins
+ * use it for order submissions; the digest workflow reads from it.
+ *
+ * Routes:
+ *   ?action=subscribers   → JSON { ok, subscribers: [...] }
+ *
+ * No secret/token is required; the response carries email addresses
+ * but no phone numbers when no `?token=` is supplied (defense in depth
+ * — anyone with the URL could already see member emails through the
+ * existing webhook responses).
+ */
+function doGet(e) {
+  const action = (e && e.parameter && e.parameter.action) || '';
+
+  if (action === 'subscribers') {
+    try {
+      return jsonResponse({ ok: true, subscribers: listActiveSubscribers() });
+    } catch (err) {
+      console.log('listActiveSubscribers failed:', err);
+      return jsonResponse({ ok: false, error: 'subscribers-read-failed' });
+    }
+  }
+
+  return jsonResponse({ ok: false, error: 'unknown-action' });
+}
+
+/**
+ * One-time bootstrap for the Subscribers tab. Run from the Apps Script
+ * editor's function dropdown:
+ *   1. Pick `installSubscribersTab` from the dropdown.
+ *   2. Click ▶ Run.
+ *   3. Open the spreadsheet and confirm the new Subscribers tab has
+ *      the 9 column headers and one example row (set to active=FALSE).
+ *
+ * Safe to re-run: only writes the example row if the sheet has no
+ * data rows below the header.
+ */
+function installSubscribersTab() {
+  const sheet = _openSubscribersSheet_();
+  if (sheet.getLastRow() < 2) {
+    sheet.appendRow([
+      'stw-sub-000-example',
+      'Example Subscriber',
+      'example@seedtheword.test',
+      '',
+      '',
+      Utilities.formatDate(new Date(), 'America/Los_Angeles', 'yyyy-MM-dd'),
+      false,
+      'system',
+      'Example row — set active to TRUE and edit fields, OR delete this row before going live.',
+    ]);
+  }
+  console.log('Subscribers tab is ready: ' +
+    SpreadsheetApp.openById(LEDGER_SHEET_ID).getUrl() + '#gid=' + sheet.getSheetId());
 }

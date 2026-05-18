@@ -2237,3 +2237,49 @@ function fireTestSmsCcNow() {
   const body = resp && resp.getContent ? resp.getContent() : String(resp);
   console.log('handleAdminSmsCc returned: ' + body);
 }
+
+
+// ─────────────────────────────────────────────────────────────────────
+// SMS-CC realistic-payload test — simulates a real announcement post
+// ─────────────────────────────────────────────────────────────────────
+//
+// Calls handleAdminSmsCc() with a 140-char body shaped like what the
+// announcement bot actually emits after a successful Telegram post.
+// Exercises the same code path that runs in production but bypasses
+// GitHub Actions (no waiting for a calendar event, no waiting for
+// the 15-min cron tick).
+//
+// This is the closest we can get to "what the SMS will look like
+// when a real event fires" without an actual event firing.
+//
+// How to run:
+//   1. From the Apps Script editor function dropdown pick
+//      `fireTestSmsAnnouncementNow`.
+//   2. Click ▶ Run.
+//   3. Watch the Execution log AND your phone.
+//
+// What success looks like:
+//   - Execution log: { ok: true, route: 'admin-sms-cc' }
+//   - Phone receives a text within ~2 minutes that reads like a real
+//     announcement digest, e.g.:
+//       "STW: 2 events posted | Bible Study tonight 7PM | Worship Sat 11AM"
+function fireTestSmsAnnouncementNow() {
+  // Mirror the exact body shape from _build_sms_summary in
+  // .github/scripts/post_calendar_to_telegram.py — what the runner
+  // sends in production.
+  const sampleBody = 'STW: Test event tonight 7PM | Worship Sat 11AM';
+
+  const fakeRequest = {
+    postData: {
+      contents: JSON.stringify({
+        type: 'admin-sms-cc',
+        to: '2537777383@vtext.com',
+        body: sampleBody,
+      }),
+    },
+  };
+  const resp = doPost(fakeRequest);
+  const body = resp && resp.getContent ? resp.getContent() : String(resp);
+  console.log('Simulated announcement SMS-CC returned: ' + body);
+  console.log('Sample body sent (' + sampleBody.length + ' chars): ' + sampleBody);
+}

@@ -2200,3 +2200,40 @@ function installSubscribersTab() {
   console.log('Subscribers tab is ready: ' +
     SpreadsheetApp.openById(LEDGER_SHEET_ID).getUrl() + '#gid=' + sheet.getSheetId());
 }
+
+
+// ─────────────────────────────────────────────────────────────────────
+// SMS-CC manual fire — one-shot test for the announcement-pipeline path
+// ─────────────────────────────────────────────────────────────────────
+//
+// Calls handleAdminSmsCc() with a hardcoded payload to confirm the
+// full Apps Script side of the SMS-CC pipeline works in isolation,
+// without involving the GitHub Actions runner. Use this when you've
+// deployed a new Code.gs version and want to verify the route is
+// wired correctly before relying on the auto-fire path.
+//
+// How to run:
+//   1. From the Apps Script editor function dropdown pick
+//      `fireTestSmsCcNow`.
+//   2. Click ▶ Run.
+//   3. Watch your phone for the next ~5 minutes.
+//
+// What success looks like:
+//   - Execution log shows: { ok: true, route: 'admin-sms-cc' }
+//   - Phone (253-777-7383) receives a text within ~2 minutes.
+function fireTestSmsCcNow() {
+  const fakeRequest = {
+    postData: {
+      contents: JSON.stringify({
+        type: 'admin-sms-cc',
+        to: '2537777383@vtext.com',
+        body: 'STW SMS-CC route test ' + new Date().toISOString().slice(11, 19) + ' UTC. Reply STOP to opt out.',
+      }),
+    },
+  };
+  const resp = doPost(fakeRequest);
+  // doPost returns a TextOutput object — log its content so we see
+  // the JSON shape doPost intended to send back to a real caller.
+  const body = resp && resp.getContent ? resp.getContent() : String(resp);
+  console.log('handleAdminSmsCc returned: ' + body);
+}

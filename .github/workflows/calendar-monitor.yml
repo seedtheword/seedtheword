@@ -1,0 +1,55 @@
+name: Calendar Thin Monitor
+
+# Once a day at 08:30 PT, count upcoming events on the iCal feed.
+# When the count is below the threshold, email the team a heads-up.
+# Read-only relative to the calendar; the only side-effect is the
+# email when the alarm fires.
+
+on:
+  schedule:
+    # 08:30 PT = 15:30 UTC year-round (PDT) / 16:30 UTC during PST.
+    # 15:30 UTC keeps the alert close to the daily-bible-bot's fire
+    # window so admins see both notifications at the same time.
+    - cron: '30 15 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If 'true', log the alert body without emailing"
+        required: false
+        default: 'false'
+      threshold:
+        description: "Override CAL_MONITOR_MIN (default 2). Useful for testing."
+        required: false
+        default: ''
+      days:
+        description: "Override CAL_MONITOR_DAYS (default 7)."
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: calendar-monitor
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run calendar-thin monitor
+        env:
+          APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
+          CAL_MONITOR_DAYS: ${{ github.event.inputs.days || '' }}
+          CAL_MONITOR_MIN: ${{ github.event.inputs.threshold || '' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+        run: python .github/scripts/check_calendar_thin.py

@@ -50,13 +50,29 @@ from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
 
+def _env_int(name: str, default: int) -> int:
+    """Read an int env var; treat empty string as 'not set'.
+
+    Workflow_dispatch inputs default to '' rather than being absent,
+    so plain int(os.environ.get(...)) blows up on a manual run that
+    doesn't override the value. This wrapper lets either case fall
+    back to the default cleanly."""
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
 GOOGLE_CAL_ID = os.environ.get(
     "GOOGLE_CAL_ID", "seedthewordministry@gmail.com"
 ).strip()
 APPS_SCRIPT_URL = os.environ.get("APPS_SCRIPT_URL", "").strip()
 TEAM_INBOX = os.environ.get("TEAM_INBOX", "seedthewordministry@gmail.com").strip()
-LOOKAHEAD_DAYS = int(os.environ.get("CAL_MONITOR_DAYS", "7"))
-MIN_EVENTS = int(os.environ.get("CAL_MONITOR_MIN", "2"))
+LOOKAHEAD_DAYS = _env_int("CAL_MONITOR_DAYS", 7)
+MIN_EVENTS = _env_int("CAL_MONITOR_MIN", 2)
 DRY_RUN = bool(os.environ.get("DRY_RUN", "").strip())
 SITE_BASE_URL = "https://seedtheword.github.io/seedtheword"
 

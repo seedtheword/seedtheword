@@ -10,5 +10,18 @@
       "testimonies": 1,
       "outreach": 0
     }
+  },
+  "adminLastFiredOn": "2026-05-18",
+  "adminLastSummary": {
+    "sent": 1,
+    "failed": 0,
+    "adminCount": 1,
+    "ops": {
+      "orders": 3,
+      "stories": 0,
+      "contacts": 3,
+      "newSubs": 1,
+      "calendar14d": 1
+    }
   }
 }

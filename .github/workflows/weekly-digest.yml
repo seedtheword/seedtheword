@@ -1,0 +1,74 @@
+name: Weekly Digest
+
+on:
+  schedule:
+    # Saturday 08:00 Pacific. UTC is PDT+7 (15:00) for most of the
+    # year; during PST months the post arrives an hour later locally,
+    # which is acceptable for a weekly digest. Runs at the same time
+    # as the playlist digest (weekly-playlist-digest.yml) and the
+    # Saturday Bible post (daily-bible.yml). Each posts to a different
+    # destination so members aren't spammed:
+    #   - This workflow → email subscribers (sheet-driven list)
+    #   - Playlist digest → Telegram Worship topic
+    #   - Bible bot → Telegram General topic
+    - cron: '0 15 * * 6'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If 'true', preview the digest without sending"
+        required: false
+        default: 'false'
+      force:
+        description: "If 'true', re-send even when today's digest already fired"
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write   # to commit digest-log.json
+
+concurrency:
+  group: weekly-digest
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Send Weekly Digest
+        env:
+          APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+          FORCE: ${{ github.event.inputs.force == 'true' && '1' || '' }}
+        run: python .github/scripts/send_weekly_digest.py
+
+      - name: Commit digest log if changed
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/data/digest-log.json || true
+          if git diff --cached --quiet; then
+            echo "No log changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(digest): update weekly-digest log [skip ci]"
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt $attempt..."
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              echo "Push succeeded."
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; retrying in 10s..."
+            sleep 10
+          done
+          echo "Push retries exhausted; next scheduled run will retry."
+          exit 0

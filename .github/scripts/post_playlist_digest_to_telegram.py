@@ -147,9 +147,31 @@ def get_spotify_token() -> str:
     return get_spotify_app_token()
 
 
+def _whoami(token: str) -> dict:
+    """Call /v1/me — purely diagnostic. Returns the auth'd user object
+    or an error dict so we can surface 'logged in as the wrong account'
+    failures clearly in the workflow log."""
+    req = Request(
+        "https://api.spotify.com/v1/me",
+        headers={"Authorization": "Bearer " + token},
+    )
+    try:
+        with urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except HTTPError as e:
+        return {"error": f"HTTP {e.code}", "body": e.read().decode("utf-8", "replace")}
+    except Exception as e:  # noqa: BLE001 — diagnostic-only path
+        return {"error": str(e)}
+
+
 def fetch_playlist_tracks(playlist_id: str, token: str) -> list[dict]:
     """Fetch every track on the playlist with its added_at timestamp.
-    Handles Spotify's 100-items-per-page limit by following `next`."""
+    Handles Spotify's 100-items-per-page limit by following `next`.
+
+    On HTTP errors, surfaces both the status and the response body in
+    the raised exception so workflow logs make the failure mode obvious
+    (403 from Spotify can mean: wrong account, dev-mode allowlist,
+    revoked scopes, or playlist removed)."""
     items: list[dict] = []
     url = (
         "https://api.spotify.com/v1/playlists/"
@@ -159,8 +181,18 @@ def fetch_playlist_tracks(playlist_id: str, token: str) -> list[dict]:
     )
     while url:
         req = Request(url, headers={"Authorization": "Bearer " + token})
-        with urlopen(req, timeout=30) as resp:
-            body = json.loads(resp.read().decode("utf-8"))
+        try:
+            with urlopen(req, timeout=30) as resp:
+                body = json.loads(resp.read().decode("utf-8"))
+        except HTTPError as e:
+            err_body = e.read().decode("utf-8", "replace")
+            who = _whoami(token)
+            user_id = who.get("id") if isinstance(who, dict) else "?"
+            display = who.get("display_name") if isinstance(who, dict) else "?"
+            raise RuntimeError(
+                f"Spotify {e.code} on {url} — body={err_body!r} "
+                f"auth'd_as={user_id!r} display_name={display!r}"
+            ) from e
         for item in body.get("items", []) or []:
             if item and item.get("track") and item["track"].get("id"):
                 items.append(item)

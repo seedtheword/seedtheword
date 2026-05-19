@@ -782,8 +782,31 @@ function _listCleanedFolderEntries(folderId) {
  * 4.3, 4.5, 4.6, 4.7. Properties P1, P3, P4.
  */
 function pollTelegramChapterAudio() {
+  _pollTelegramChapterAudioInternal(false);
+}
+
+/**
+ * Manual-run variant of pollTelegramChapterAudio that bypasses the
+ * 07:00–22:00 PT time-of-day gate. Called by runBibleAudioCleanupNow.
+ * Has a different name from the cron entry point so the time-driven
+ * trigger continues to honor the gate while admins running on
+ * demand can pull recordings any time of day.
+ */
+function pollTelegramChapterAudioForce() {
+  _pollTelegramChapterAudioInternal(true);
+}
+
+/**
+ * Shared body of the two pollers. The time-of-day gate is the only
+ * difference: the cron path bails outside ministry hours so it
+ * doesn't burn execution-cap quota at 03:00 PT, while the manual
+ * path runs whenever an admin asks.
+ *
+ * @param {boolean} ignoreTimeGate
+ */
+function _pollTelegramChapterAudioInternal(ignoreTimeGate) {
   try {
-    Logger.log('bibleaudio: poll start ' + new Date().toISOString());
+    Logger.log('bibleaudio: poll start ' + new Date().toISOString() + (ignoreTimeGate ? ' (manual; time-gate bypassed)' : ''));
 
     // 1. Load config + bail if disabled or unconfigured.
     var cfg = _readAudioConfig();
@@ -792,19 +815,25 @@ function pollTelegramChapterAudio() {
       return;
     }
 
-    // Time-of-day gate. The poller trigger fires every 30 minutes
+    // Time-of-day gate. The cron poller fires every 30 minutes
     // 24/7 (Apps Script's 20-trigger-per-project quota means we
     // can't install one clock trigger per ministry-hour slot), so
     // we short-circuit outside 07:00–22:00 PT in-function. This
     // matches the design's §"Stage 1 schedule" pin: the poller is
     // active during waking hours and silent overnight.
-    var nowPT = new Date(
-      Utilities.formatDate(new Date(), 'America/Los_Angeles', 'yyyy/MM/dd HH:mm:ss')
-    );
-    var hourPT = nowPT.getHours();
-    if (hourPT < 7 || hourPT >= 22) {
-      Logger.log('bibleaudio: outside ministry hours (PT hour=' + hourPT + '); skipping poll');
-      return;
+    //
+    // Manual runs (runBibleAudioCleanupNow → pollTelegramChapterAudioForce)
+    // pass ignoreTimeGate=true so admins can pull recordings any
+    // time of day without waiting for the next cron tick.
+    if (!ignoreTimeGate) {
+      var nowPT = new Date(
+        Utilities.formatDate(new Date(), 'America/Los_Angeles', 'yyyy/MM/dd HH:mm:ss')
+      );
+      var hourPT = nowPT.getHours();
+      if (hourPT < 7 || hourPT >= 22) {
+        Logger.log('bibleaudio: outside ministry hours (PT hour=' + hourPT + '); skipping poll');
+        return;
+      }
     }
 
     if (!cfg.rawDriveFolderId) {
@@ -1084,7 +1113,9 @@ function runBibleAudioCleanupNow() {
     Logger.log('bibleaudio: on-demand run start ' + new Date().toISOString());
 
     // Stage 1 — pull anything new from Telegram into Raw_Folder.
-    pollTelegramChapterAudio();
+    // Use the force variant so this works any time of day, not
+    // just within the cron's 07:00–22:00 PT window.
+    pollTelegramChapterAudioForce();
 
     // Stage 2 — fire the GitHub Actions cleanup workflow. Optional:
     // bail with a clear log if no token is set, but still proceed

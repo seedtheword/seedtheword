@@ -1,9 +1,13 @@
 name: Scrape Instagram Feed
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'   # every 6 hours
-  workflow_dispatch:          # allow manual runs from the Actions tab
+  # Scheduled cron disabled May 2026 — rss.app trial expired and we
+  # switched Instagram to hand-curated via the admin editor (see the
+  # `instagramFeed` schema in assets/js/admin-editor-schemas.js).
+  # Kept as workflow_dispatch in case we ever re-enable an automated
+  # scraper. The script itself is preserved for reference but its
+  # output is no longer the source of truth.
+  workflow_dispatch:
 
 permissions:
   contents: write

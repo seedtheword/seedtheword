@@ -599,6 +599,76 @@
     bundleLifegroup: bundleSchema('bundleLifegroup', 'Bundle: Life Group slideshow', 'lifegroup'),
     bundleMinistry:  bundleSchema('bundleMinistry',  'Bundle: Ministry slideshow',  'ministry'),
 
+    // Instagram tile — hand-curated source of truth as of May 2026.
+    // The auto-scrape pipeline (rss.app trial) expired and we
+    // switched to admin-maintained entries. Same JSON shape as before
+    // (the frontend renderer is unchanged), just edited through the
+    // admin UI now instead of cron-refreshed.
+    //
+    // For thumbnails, paste a path under assets/images/instagram/ —
+    // upload the photo through the "Instagram thumbnails" image-folder
+    // schema first, then reference the resulting filename here.
+    instagramFeed: {
+      id: 'instagramFeed',
+      label: 'Instagram tile (homepage feed)',
+      category: 'content',
+      kind: 'json',
+      path: 'assets/data/instagram.json',
+      rootType: 'object',
+      groups: [
+        {
+          name: 'posts',
+          label: 'Posts (most recent first)',
+          kind: 'repeating-group',
+          fields: [
+            { name: 'id', label: 'ID (any unique slug)', kind: 'text', required: true,
+              hint: 'Free-form unique identifier. Suggested: yyyy-mm-dd-keyword (e.g. 2026-05-26-bible-study).' },
+            { name: 'url', label: 'Instagram post URL', kind: 'url', required: true,
+              hint: 'Full https://www.instagram.com/p/... link.',
+              validate: function (v) {
+                if (!v) return 'URL is required.';
+                if (!/^https:\/\/(www\.)?instagram\.com\/p\//.test(String(v))) {
+                  return 'Must be an instagram.com/p/... URL.';
+                }
+                return null;
+              }
+            },
+            { name: 'thumbnail', label: 'Thumbnail path', kind: 'text', required: true,
+              hint: 'Path like assets/images/instagram/my-post.jpg. Upload the image via the "Instagram thumbnails" schema first.' },
+            { name: 'caption', label: 'Caption', kind: 'textarea',
+              hint: 'Plain text. Newlines are preserved.' },
+            { name: 'date', label: 'Posted date', kind: 'text',
+              hint: 'ISO timestamp like 2026-05-26T17:50:28.000Z, or just 2026-05-26.' },
+            { name: 'is_video', label: 'This post is a video', kind: 'toggle' },
+          ],
+          addLabel: '+ Add Instagram post',
+        },
+      ],
+      validate: function (data) {
+        if (!data || typeof data !== 'object') return 'Root must be an object.';
+        if (!Array.isArray(data.posts)) return 'posts must be an array.';
+        const ids = new Set();
+        for (let i = 0; i < data.posts.length; i++) {
+          const p = data.posts[i] || {};
+          const idx = '#' + (i + 1);
+          if (p.id && ids.has(p.id)) {
+            return 'Post ' + idx + ' has duplicate id "' + p.id + '".';
+          }
+          if (p.id) ids.add(p.id);
+        }
+        return null;
+      },
+      commitMessageTemplate: 'content(instagram): update {summary}',
+      tokens: function (form) {
+        const posts = (form && form.posts) || [];
+        if (posts.length) {
+          const last = posts[posts.length - 1];
+          if (last && last.id) return { summary: 'edit ' + last.id };
+        }
+        return { summary: 'instagram update' };
+      },
+    },
+
     wfTelegramAnnouncements: workflowSchema(
       'wfTelegramAnnouncements',
       '▶ Workflow: Telegram announcements',
@@ -630,6 +700,7 @@
     ministryHighlights: imageFolderSchema('ministryHighlights', 'Ministry highlights', 'assets/images/ministry-highlights/'),
     calendarTemplate:   imageFolderSchema('calendarTemplate',   'Calendar template graphics', 'assets/images/calendar-template/'),
     ministryOutreachPhotos: imageFolderSchema('ministryOutreachPhotos', 'Outreach event photos', 'assets/images/ministry-outreach/', { allowSubfolderCreate: true, subfolderHint: 'e.g. slavic-awakening-may-2026' }),
+    instagramThumbnails: imageFolderSchema('instagramThumbnails', 'Instagram thumbnails', 'assets/images/instagram/'),
 
     videos: {
       id: 'videos',

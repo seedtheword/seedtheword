@@ -2879,6 +2879,7 @@ function dailyBibleBot() {
   // Time-trigger entry point. Idempotent — uses ScriptProperties to
   // prevent double-posts on the same local date if Google fires the
   // trigger twice (rare but possible during Google maintenance).
+  _markAppsScriptRan('dailyBibleBot');
   const fullCfg = _fetchRepoJson('assets/data/telegram-bot.json');
   if (!fullCfg) {
     console.log('dailyBibleBot: telegram-bot.json fetch failed; aborting.');
@@ -3178,6 +3179,7 @@ function _formatEventLine(ev, tzString) {
 // Member weekly digest — Saturday 08:00 PT
 // ─────────────────────────────────────────────────────────────────────
 function weeklyMemberDigest() {
+  _markAppsScriptRan('weeklyMemberDigest');
   const subscribers = listActiveSubscribers();
   if (!subscribers.length) {
     console.log('weeklyMemberDigest: no active subscribers; exiting.');
@@ -3399,6 +3401,7 @@ function weeklyAdminDigestMon() { _runAdminDigest('Monday'); }
 function weeklyAdminDigestThu() { _runAdminDigest('Thursday'); }
 
 function _runAdminDigest(weekday) {
+  _markAppsScriptRan('weeklyAdminDigest_' + weekday);
   const admins = listActiveAdmins();
   if (!admins.length) {
     console.log('admin digest: no active admins; exiting.');
@@ -3576,6 +3579,7 @@ function _buildAdminDigestText(data, name, label, calCount) {
 // Daily calendar-thin monitor — 08:30 PT
 // ─────────────────────────────────────────────────────────────────────
 function dailyCalendarMonitor() {
+  _markAppsScriptRan('dailyCalendarMonitor');
   const upcoming = _fetchIcalEvents(0, 7, null);
   const threshold = 2;
   console.log('dailyCalendarMonitor: ' + upcoming.length + ' events in next 7 days; threshold ' + threshold);
@@ -3629,6 +3633,7 @@ function dailyCalendarMonitor() {
 // SLO, emails the team.
 
 function dailyWorkflowHealth() {
+  _markAppsScriptRan('dailyWorkflowHealth');
   const checks = [
     {
       label: 'announcement bot',
@@ -3640,11 +3645,10 @@ function dailyWorkflowHealth() {
       pattern: 'chore: heartbeat tick',
       maxAgeHours: 6,   // expected hourly
     },
-    {
-      label: 'instagram scrape',
-      pattern: 'chore(instagram): refresh feed',
-      maxAgeHours: 48,  // every 6h, allow up to 2 days
-    },
+    // 'instagram scrape' removed May 2026 — Instagram is now
+    // hand-curated via the admin editor (no scheduled commits to
+    // watch for). Re-add this entry if we ever wire up another
+    // automated scraper.
   ];
 
   const apiUrl = 'https://api.github.com/repos/seedtheword/seedtheword/commits?per_page=100';
@@ -3752,7 +3756,7 @@ function dailyWorkflowHealth() {
 // function dropdown. Idempotent — wipes existing triggers for the
 // six handlers and reinstalls them.
 function installAllTimeTriggers() {
-  // Wipe existing triggers for the six handlers we manage
+  // Wipe existing triggers for the seven handlers we manage
   const handlers = [
     'dailyBibleBot',
     'weeklyMemberDigest',
@@ -3760,6 +3764,7 @@ function installAllTimeTriggers() {
     'weeklyAdminDigestThu',
     'dailyCalendarMonitor',
     'dailyWorkflowHealth',
+    'dailyAppsScriptHealthCheck',
   ];
   const existing = ScriptApp.getProjectTriggers();
   let removed = 0;
@@ -3786,9 +3791,152 @@ function installAllTimeTriggers() {
     .everyDays(1).atHour(8).nearMinute(30).create();
   ScriptApp.newTrigger('dailyWorkflowHealth').timeBased()
     .everyDays(1).atHour(9).create();
+  ScriptApp.newTrigger('dailyAppsScriptHealthCheck').timeBased()
+    .everyDays(1).atHour(9).nearMinute(15).create();
 
-  console.log('installAllTimeTriggers: installed 6 triggers.');
+  console.log('installAllTimeTriggers: installed 7 triggers.');
   console.log('Confirm in: Project Settings → Triggers (left rail icon).');
   console.log('IMPORTANT: ensure script timezone is America/Los_Angeles');
   console.log('  (Project Settings → General → Time zone).');
+}
+
+
+// ─────────────────────────────────────────────────────────────────────
+// Apps Script self-heartbeat — confirms our own time triggers are firing
+// ─────────────────────────────────────────────────────────────────────
+//
+// Every scheduled function calls _markAppsScriptRan(name) at entry,
+// recording an ISO timestamp in ScriptProperties under the key
+// 'asran:<name>'. The dailyAppsScriptHealthCheck function reads each
+// expected trigger's last-ran timestamp and emails the team if any
+// have gone stale beyond their SLO.
+//
+// Symmetric with dailyWorkflowHealth (which watches the GitHub side)
+// — together they give us both halves of the automation alive/dead
+// signal.
+
+function _markAppsScriptRan(name) {
+  try {
+    PropertiesService.getScriptProperties().setProperty(
+      'asran:' + name,
+      new Date().toISOString()
+    );
+  } catch (err) {
+    // Quota or sharing issue — log but don't fail the caller.
+    console.log('_markAppsScriptRan(' + name + ') failed: ' + err);
+  }
+}
+
+function dailyAppsScriptHealthCheck() {
+  _markAppsScriptRan('dailyAppsScriptHealthCheck');
+
+  // Each entry is a trigger we expect to fire on a known cadence,
+  // with an SLO in hours past which we consider it stalled. SLOs are
+  // set generously — Apps Script time triggers fire ±15 min normally,
+  // so a 30-hour SLO on a daily trigger means "we missed at least
+  // one full day."
+  const checks = [
+    { name: 'dailyBibleBot',                  maxAgeHours: 30, label: 'Bible bot (Mon-Sat)' },
+    { name: 'dailyCalendarMonitor',           maxAgeHours: 30, label: 'Calendar monitor' },
+    { name: 'dailyWorkflowHealth',            maxAgeHours: 30, label: 'GitHub workflow health check' },
+    // Weekly checks — SLO is 8 days so a one-day delay doesn't trip the
+    // alarm but a missed week does.
+    { name: 'weeklyMemberDigest',             maxAgeHours: 192, label: 'Weekly member digest (Sat)' },
+    { name: 'weeklyAdminDigest_Monday',       maxAgeHours: 192, label: 'Weekly admin digest (Mon)' },
+    { name: 'weeklyAdminDigest_Thursday',     maxAgeHours: 192, label: 'Weekly admin digest (Thu)' },
+  ];
+
+  const props = PropertiesService.getScriptProperties();
+  const now = Date.now();
+  const stale = [];
+  const fresh = [];
+  for (let i = 0; i < checks.length; i++) {
+    const c = checks[i];
+    const raw = props.getProperty('asran:' + c.name);
+    if (!raw) {
+      stale.push({
+        label: c.label,
+        lastSeen: 'never (no record yet)',
+        ageHours: 99999,
+        maxAgeHours: c.maxAgeHours,
+      });
+      continue;
+    }
+    const lastMs = Date.parse(raw);
+    if (isNaN(lastMs)) {
+      stale.push({
+        label: c.label,
+        lastSeen: raw + ' (unparseable)',
+        ageHours: 99999,
+        maxAgeHours: c.maxAgeHours,
+      });
+      continue;
+    }
+    const ageHours = (now - lastMs) / 3600000;
+    const lastSeen = Utilities.formatDate(
+      new Date(lastMs), 'America/Los_Angeles', 'EEE MMM d HH:mm zzz'
+    );
+    if (ageHours > c.maxAgeHours) {
+      stale.push({ label: c.label, lastSeen: lastSeen, ageHours: ageHours.toFixed(1), maxAgeHours: c.maxAgeHours });
+    } else {
+      fresh.push({ label: c.label, lastSeen: lastSeen, ageHours: ageHours.toFixed(1) });
+    }
+  }
+
+  if (!stale.length) {
+    console.log('dailyAppsScriptHealthCheck: all ' + fresh.length + ' triggers fresh.');
+    return;
+  }
+
+  let staleRows = '';
+  for (let i = 0; i < stale.length; i++) {
+    const s = stale[i];
+    staleRows += '<tr>'
+      + '<td style="padding:0.4rem;border-bottom:1px solid #f0ebe2"><strong>' + _htmlEscape(s.label) + '</strong></td>'
+      + '<td style="padding:0.4rem;border-bottom:1px solid #f0ebe2">' + _htmlEscape(s.lastSeen) + '</td>'
+      + '<td style="padding:0.4rem;border-bottom:1px solid #f0ebe2;color:#b54f2c"><strong>' + _htmlEscape(String(s.ageHours)) + ' h</strong> (SLO ' + s.maxAgeHours + ' h)</td>'
+      + '</tr>';
+  }
+  let freshRows = '';
+  for (let i = 0; i < fresh.length; i++) {
+    const f = fresh[i];
+    freshRows += '<tr>'
+      + '<td style="padding:0.4rem;border-bottom:1px solid #f0ebe2">' + _htmlEscape(f.label) + '</td>'
+      + '<td style="padding:0.4rem;border-bottom:1px solid #f0ebe2">' + _htmlEscape(f.lastSeen) + '</td>'
+      + '<td style="padding:0.4rem;border-bottom:1px solid #f0ebe2;color:#2C5F2E">' + _htmlEscape(String(f.ageHours)) + ' h</td>'
+      + '</tr>';
+  }
+
+  const html = '<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#1a1a1a;line-height:1.6">'
+    + '<div style="max-width:680px;margin:0 auto;padding:1.5rem;background:#fff8f0;border:1px solid #d4a574;border-radius:10px">'
+    + '<h2 style="color:#2C5F2E;margin-top:0">⚠️ Apps Script trigger(s) appear to have stalled</h2>'
+    + '<p>The following Apps Script time-based triggers haven\'t fired within their expected windows:</p>'
+    + '<table style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left">'
+    + '<th style="padding:0.4rem">Trigger</th><th style="padding:0.4rem">Last fired</th><th style="padding:0.4rem">Age</th></tr></thead>'
+    + '<tbody>' + staleRows + '</tbody></table>'
+    + (fresh.length ? ('<h3 style="color:#2C5F2E;margin:1.5rem 0 0.5rem">Triggers still healthy</h3>'
+      + '<table style="width:100%;border-collapse:collapse"><tbody>' + freshRows + '</tbody></table>') : '')
+    + '<h3 style="color:#2C5F2E">What to do</h3>'
+    + '<ol>'
+    + '<li>Open script.google.com → STW project → ⏰ <b>Triggers</b> (clock icon, left rail).</li>'
+    + '<li>Confirm each trigger above is listed and shows a recent <b>Last run</b>.</li>'
+    + '<li>If a trigger is missing, run <code>installAllTimeTriggers</code> from the function dropdown to reinstall.</li>'
+    + '<li>If a trigger is listed but failing, click it for the error log. Most common cause: token expired or external service down.</li>'
+    + '</ol>'
+    + '<p style="color:#666;font-size:0.9rem;font-style:italic;margin-top:2rem">Daily Apps Script self-heartbeat. Symmetric with the GitHub workflow health check.</p>'
+    + '</div></body></html>';
+
+  try {
+    MailApp.sendEmail({
+      to: TEAM_INBOX,
+      subject: '[STW Apps Script] ' + stale.length + ' trigger(s) stalled',
+      htmlBody: html,
+      body: stale.length + ' Apps Script trigger(s) stalled: ' + stale.map(function (s) { return s.label + ' (' + s.ageHours + 'h)'; }).join(', '),
+      name: 'Seed the Word Apps Script Heartbeat',
+      noReply: true,
+    });
+    console.log('dailyAppsScriptHealthCheck: alert dispatched for ' + stale.length + ' stale trigger(s).');
+  } catch (err) {
+    console.log('dailyAppsScriptHealthCheck: send failed: ' + err);
+  }
 }

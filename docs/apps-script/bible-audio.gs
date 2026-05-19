@@ -387,39 +387,44 @@ function _inferFileExtension(mimeType, fileName, kind) {
 function _renderNotificationEmail(entry) {
   var display = _slugToChapterDisplay(entry.slug);
   var subject =
-    '[STW Audio Ready] ' + display + ' \u2014 cleaned recording awaiting upload';
+    '[STW Bible Audio] ' + display + ' \u2014 raw recording archived, ready to clean';
 
   var body =
     'Hi,\n' +
     '\n' +
-    'A cleaned chapter recording is ready to upload to Spotify.\n' +
+    'A raw chapter recording was just archived to Drive.\n' +
     '\n' +
     '  Chapter:    ' + display + '\n' +
     '  Slug:       ' + entry.slug + '\n' +
-    '  Message:    Telegram message ' + entry.messageId + '\n' +
+    '  Source:     Telegram message ' + entry.messageId + '\n' +
     '  Download:   ' + entry.downloadUrl + '\n' +
     '\n' +
     'Walkthrough:  ' + ADMIN_HELP_ANCHOR + '\n' +
     '\n' +
-    '5-step upload checklist (Path A, ~3 minutes):\n' +
+    'Steps to publish (~5 minutes):\n' +
     '\n' +
-    '  1. Click the Download link above. Right-click the file in Drive and\n' +
-    '     pick "Download" to save the MP3 locally.\n' +
+    '  1. Click the Download link above to save the raw .ogg locally.\n' +
     '\n' +
-    '  2. Open https://podcasters.spotify.com in a new tab. Log in with the\n' +
-    '     ministry Spotify account.\n' +
+    '  2. Open your AI audio cleaner of choice (e.g. Vidnoz AI Audio\n' +
+    '     Cleaner). Upload the file. Toggle: Remove Noise, Normalize,\n' +
+    '     Remove Background Audio. Click Enhance, then Download.\n' +
     '\n' +
-    '  3. Click "Add new episode" \u2192 drag-drop the MP3. In the title field,\n' +
-    '     paste the chapter name exactly as shown above (' + display + ').\n' +
-    '     Description is optional. Click Publish.\n' +
+    '  3. Upload the cleaned MP3 back to Drive at:\n' +
+    '     STW Bible Recordings - Cleaned / ' + entry.slug + ' / ' + entry.messageId + '.mp3\n' +
+    '     (Create the slug subfolder if it does not exist yet.)\n' +
     '\n' +
-    '  4. Wait ~5 minutes for Spotify to finish processing. Once the episode\n' +
-    '     page loads, copy the episode URL from the address bar.\n' +
+    '  4. Open https://podcasters.spotify.com. Click "Add new episode"\n' +
+    '     \u2192 drag-drop the cleaned MP3. In the title field, paste\n' +
+    '     "' + display + '". Click Publish. Wait ~5 minutes for\n' +
+    '     processing, then copy the episode URL from the address bar.\n' +
     '\n' +
     '  5. Open the admin editor (Editor \u2192 Bible \u2192 Spotify chapter map).\n' +
-    '     Find the row keyed "' + display + '". Paste the Spotify URL into\n' +
-    '     its value field. Save & commit. The Bible bot\'s next 08:00 PT post\n' +
-    '     will link to the new episode automatically.\n' +
+    '     Find the row keyed "' + display + '". Paste the Spotify URL\n' +
+    '     into its value field. Save & commit. The Bible bot\'s next\n' +
+    '     08:00 PT post will link to the new episode automatically.\n' +
+    '\n' +
+    'The raw recording stays in Drive forever as a permanent archive.\n' +
+    'You only ever need to do this if/when you want a chapter on Spotify.\n' +
     '\n' +
     '\u2014 STW Bible Audio (Apps Script project)\n';
 
@@ -864,6 +869,99 @@ function _listCleanedFolderEntries(folderId) {
   return entries;
 }
 
+/**
+ * Walks the Raw_Folder for the notifier. Same shape as
+ * _listCleanedFolderEntries but more permissive about file
+ * names: accepts both files at the root of the folder (admin
+ * uploads) and files under <slug>/ subfolders (poller writes).
+ *
+ * For poller-written files (basename is all digits = Telegram
+ * message_id), the messageId field is the actual Telegram id —
+ * this is what dedupes the notifier against re-sends.
+ *
+ * For admin-uploaded files (basename is anything else), we
+ * derive a stable 53-bit positive integer from blake2-style
+ * hashing of (slug, name) so each admin upload gets a unique
+ * messageId in the dedup namespace and re-runs of the notifier
+ * don't double-email.
+ *
+ * Returns one entry per file: {fileId, name, slug, messageId,
+ * downloadUrl}.
+ */
+function _listRawFolderEntries(folderId) {
+  var entries = [];
+  var AUDIO_EXT_RE = /\.(mp3|oga|ogg|m4a|wav)$/i;
+
+  function _stableHashId(slug, name) {
+    // Mirrors the Python helper in clean_bible_audio.py — DJB2
+    // variant kept inside 53 bits so JS Number stays exact.
+    // Keeps poller-written numeric ids and admin-derived hash
+    // ids in disjoint ranges (Telegram tops out near 2^32).
+    var s = slug + '\u0000' + name;
+    var h = 5381;
+    for (var i = 0; i < s.length; i++) {
+      h = ((h * 33) + s.charCodeAt(i)) & 0x1fffffffffffff;
+    }
+    // Bias high bit so it can't collide with a real Telegram id.
+    return h | 0x10000000000000;
+  }
+
+  try {
+    var root = DriveApp.getFolderById(folderId);
+
+    // (a) Files at the root level (admin direct uploads).
+    var rootFileIter = root.getFiles();
+    while (rootFileIter.hasNext()) {
+      var rfile = rootFileIter.next();
+      var rname = rfile.getName();
+      if (!AUDIO_EXT_RE.test(rname)) continue;
+      var rid = rfile.getId();
+      entries.push({
+        fileId: rid,
+        name: rname,
+        slug: 'unknown-chapter',
+        messageId: _stableHashId('unknown-chapter', rname),
+        downloadUrl:
+          'https://drive.google.com/uc?export=download&id=' + rid,
+      });
+    }
+
+    // (b) Files under <slug>/ subfolders (poller writes).
+    var slugIter = root.getFolders();
+    while (slugIter.hasNext()) {
+      var slugFolder = slugIter.next();
+      var slug = slugFolder.getName();
+      var fileIter = slugFolder.getFiles();
+      while (fileIter.hasNext()) {
+        var file = fileIter.next();
+        var name = file.getName();
+        if (!AUDIO_EXT_RE.test(name)) continue;
+        var dot = name.lastIndexOf('.');
+        var basename = dot > 0 ? name.substring(0, dot) : name;
+        var messageId;
+        if (/^\d+$/.test(basename)) {
+          messageId = parseInt(basename, 10);
+          if (!Number.isFinite(messageId)) continue;
+        } else {
+          messageId = _stableHashId(slug, name);
+        }
+        var fileId = file.getId();
+        entries.push({
+          fileId: fileId,
+          name: name,
+          slug: slug,
+          messageId: messageId,
+          downloadUrl:
+            'https://drive.google.com/uc?export=download&id=' + fileId,
+        });
+      }
+    }
+  } catch (err) {
+    Logger.log('bibleaudio: list raw threw: ' + err);
+  }
+  return entries;
+}
+
 // ── ENTRY POINTS ────────────────────────────────────────────────
 
 /**
@@ -1094,23 +1192,26 @@ function _pollTelegramChapterAudioInternal(ignoreTimeGate) {
 // notifyCleanedAudio() — Stage 3 entry point.
 
 /**
- * Stage 3 entry point. Lists the cleaned-recordings folder,
- * sends one email per cleaned recording the team has not yet
- * acknowledged, and persists the updated acknowledged-ids set.
+ * Stage 3 entry point. Lists the Raw_Folder snapshot, sends one
+ * email per newly archived recording the team has not yet been
+ * notified about, and persists the updated acknowledged-ids set.
  *
- * Bails on `enabled === false` or empty `cleanedDriveFolderId`
- * (the documented "config not yet pasted" state — Req 1.7).
+ * The function name still says "Cleaned" because the trigger is
+ * already wired under that name in deployed Apps Script projects;
+ * renaming would orphan the trigger. The function semantically
+ * fires on *raw archival* now, not cleaned MP3s — see the email
+ * body for the manual external-cleanup walkthrough that follows.
+ *
+ * Bails on `enabled === false` or empty `rawDriveFolderId`.
  * Per-message MailApp failure is isolated: log + skip, do NOT
  * add to acknowledged_ids so the next run retries the same id
- * (Req 6.6). The acknowledged set is persisted once at the end,
- * regardless of whether any individual send failed.
+ * (Req 6.6). The acknowledged set is persisted once at the end.
  *
  * Wrapped in a top-level try/catch so a thrown error logs but
  * never propagates: an uncaught error from a time-driven trigger
  * suppresses future invocations of that trigger in Apps Script.
  *
  * Maps to: Requirements 1.7, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7.
- * Properties P6, P7.
  */
 function notifyCleanedAudio() {
   try {
@@ -1122,16 +1223,22 @@ function notifyCleanedAudio() {
       Logger.log('bibleaudio: enabled=false; skipping notify');
       return;
     }
-    if (!cfg.cleanedDriveFolderId) {
+    if (!cfg.rawDriveFolderId) {
       Logger.log(
-        'bibleaudio: cleanedDriveFolderId empty; skipping notify'
+        'bibleaudio: rawDriveFolderId empty; skipping notify'
       );
       return;
     }
 
-    // 2. Read state + the cleaned-folder snapshot.
+    // 2. Read state + snapshot the Raw folder. The notifier was
+    // originally wired to the Cleaned folder; we repointed it to
+    // Raw because the production flow is now: poller archives raw
+    // → admin downloads + cleans externally → admin uploads cleaned
+    // mp3 back to Drive. The email is the "your raw archive is
+    // ready, here's how to clean it" prompt, NOT the "cleaned mp3
+    // ready for Spotify" prompt.
     var acked = _readIdSet(PROP_ACKED);
-    var entries = _listCleanedFolderEntries(cfg.cleanedDriveFolderId);
+    var entries = _listRawFolderEntries(cfg.rawDriveFolderId);
 
     // 3. Sort ascending by messageId so emails arrive in posting
     // order (matches design §"Notifier dedup loop").

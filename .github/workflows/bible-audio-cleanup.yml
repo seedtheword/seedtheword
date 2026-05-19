@@ -11,11 +11,12 @@ name: Bible Audio Cleanup
 # the top — the workflow does no work.
 
 on:
-  schedule:
-    # 06:00 UTC = 22:00 PT (PST) / 23:00 PT (PDT) the previous day.
-    # Runs after the day's volunteer recordings are in but well
-    # before the Apps Script Notifier's 07:00 PT email.
-    - cron: '0 6 * * *'
+  # Cron disabled — the production flow archives raw recordings to
+  # Drive and lets admins clean externally (Vidnoz AI Audio Cleaner
+  # or similar), then upload the cleaned MP3 back to Drive by hand.
+  # The ffmpeg-based cleanup in this workflow is kept as an optional
+  # manual fallback only; the email notifier (Stage 3) now fires on
+  # raw arrivals, not cleaned ones.
   workflow_dispatch:
     inputs:
       dry_run:

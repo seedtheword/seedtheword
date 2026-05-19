@@ -3645,11 +3645,10 @@ function dailyCalendarMonitor() {
 function dailyWorkflowHealth() {
   _markAppsScriptRan('dailyWorkflowHealth');
   const checks = [
-    {
-      label: 'announcement bot',
-      pattern: 'chore(telegram): update announcement log',
-      maxAgeHours: 36,  // posts are bursty; allow up to 1.5 days
-    },
+    // 'announcement bot' removed: it's now invoked by the Apps Script
+    // kickAnnouncementBot trigger, which is itself watched by
+    // dailyAppsScriptHealthCheck. Keeping the GitHub-side watcher
+    // here would double-alert on the same root cause.
     {
       label: 'heartbeat',
       pattern: 'chore: heartbeat tick',
@@ -3766,7 +3765,7 @@ function dailyWorkflowHealth() {
 // function dropdown. Idempotent — wipes existing triggers for the
 // six handlers and reinstalls them.
 function installAllTimeTriggers() {
-  // Wipe existing triggers for the seven handlers we manage
+  // Wipe existing triggers for the eight handlers we manage
   const handlers = [
     'dailyBibleBot',
     'weeklyMemberDigest',
@@ -3775,6 +3774,7 @@ function installAllTimeTriggers() {
     'dailyCalendarMonitor',
     'dailyWorkflowHealth',
     'dailyAppsScriptHealthCheck',
+    'kickAnnouncementBot',
   ];
   const existing = ScriptApp.getProjectTriggers();
   let removed = 0;
@@ -3803,8 +3803,13 @@ function installAllTimeTriggers() {
     .everyDays(1).atHour(9).create();
   ScriptApp.newTrigger('dailyAppsScriptHealthCheck').timeBased()
     .everyDays(1).atHour(9).nearMinute(15).create();
+  // Announcement-bot kicker fires every 30 min 24/7. The Python
+  // bot has its own quiet-hours guard (07:00–22:00 PT for non-LIVE
+  // posts), so off-hours kicks just no-op rather than spamming.
+  ScriptApp.newTrigger('kickAnnouncementBot').timeBased()
+    .everyMinutes(30).create();
 
-  console.log('installAllTimeTriggers: installed 7 triggers.');
+  console.log('installAllTimeTriggers: installed 8 triggers.');
   console.log('Confirm in: Project Settings → Triggers (left rail icon).');
   console.log('IMPORTANT: ensure script timezone is America/Los_Angeles');
   console.log('  (Project Settings → General → Time zone).');
@@ -3837,6 +3842,64 @@ function _markAppsScriptRan(name) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Announcement-bot kicker — fires the existing GitHub Actions workflow
+// every 30 minutes from Apps Script, working around the free-tier cron
+// skipping ~75% of runs.
+//
+// Why this and not a full Apps Script port: the announcement bot is
+// ~1100 lines of Python doing iCal parsing, three trigger types, image
+// extraction, MarkdownV2 escaping, a dedup log, quiet hours, SMS-CC,
+// etc. Porting it carries real regression risk for something that
+// already works correctly when actually invoked. The only failure mode
+// is GitHub's cron not firing it. Apps Script time triggers fire
+// reliably, GitHub's workflow_dispatch endpoint is rock-solid, so we
+// combine them.
+//
+// The Python bot is idempotent (dedup log skips already-fired
+// triggers) so duplicate invocations are no-ops.
+//
+// Requires GITHUB_TOKEN script property with actions:write scope on
+// seedtheword/seedtheword (same token dailyWorkflowHealth uses).
+// ─────────────────────────────────────────────────────────────────────
+function kickAnnouncementBot() {
+  _markAppsScriptRan('kickAnnouncementBot');
+
+  var ghToken = PropertiesService.getScriptProperties()
+    .getProperty('GITHUB_TOKEN');
+  if (!ghToken) {
+    console.log('kickAnnouncementBot: GITHUB_TOKEN script property not set; aborting');
+    return;
+  }
+
+  var url = 'https://api.github.com/repos/seedtheword/seedtheword/actions/workflows/telegram-announcements.yml/dispatches';
+  try {
+    var resp = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'Bearer ' + ghToken,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'seedtheword-apps-script/1.0',
+      },
+      payload: JSON.stringify({ ref: 'main' }),
+      muteHttpExceptions: true,
+    });
+    var code = resp.getResponseCode();
+    if (code === 204) {
+      console.log('kickAnnouncementBot: dispatched OK (204)');
+    } else {
+      console.log(
+        'kickAnnouncementBot: HTTP ' + code +
+        ' body=' + resp.getContentText().substring(0, 200)
+      );
+    }
+  } catch (err) {
+    console.log('kickAnnouncementBot: threw: ' + err);
+  }
+}
+
 function dailyAppsScriptHealthCheck() {
   _markAppsScriptRan('dailyAppsScriptHealthCheck');
 
@@ -3849,6 +3912,9 @@ function dailyAppsScriptHealthCheck() {
     { name: 'dailyBibleBot',                  maxAgeHours: 30, label: 'Bible bot (Mon-Sat)' },
     { name: 'dailyCalendarMonitor',           maxAgeHours: 30, label: 'Calendar monitor' },
     { name: 'dailyWorkflowHealth',            maxAgeHours: 30, label: 'GitHub workflow health check' },
+    // Announcement-bot kicker — fires every 30 min, so a 2-hour SLO
+    // is generous. If this goes stale the announcements stop.
+    { name: 'kickAnnouncementBot',            maxAgeHours: 2,  label: 'Announcement bot kicker' },
     // Weekly checks — SLO is 8 days so a one-day delay doesn't trip the
     // alarm but a missed week does.
     { name: 'weeklyMemberDigest',             maxAgeHours: 192, label: 'Weekly member digest (Sat)' },

@@ -95,28 +95,101 @@ def _escape_drive_query(value: str) -> str:
 
 
 def list_two_level(drive, parent_id: str) -> dict[tuple[str, int], str]:
-    """Walk `<parent_id>/<slug>/<file>` and return a dict keyed by
-    `(slug, message_id)` mapping to the Drive file id of the leaf
-    file. Files whose basename (the part before the final `.`) is
-    not all digits are skipped — the layout pins `<message_id>.<ext>`
-    so anything else is debris from a manual edit and must not be
-    indexed.
+    """Walk ``<parent_id>/<slug>/<file>`` AND ``<parent_id>/<file>``
+    and return a dict keyed by ``(slug, message_id)`` mapping to the
+    Drive file id of the leaf file.
 
-    Requirement 5.2/5.3/5.7/5.8: this is the source of truth for the
-    set difference `raw \\ cleaned`. Returning a `(slug, message_id)`
-    key means the cleanup loop's `set(raw_index) - set(cleaned_index)`
-    is the formal P5 statement.
+    Two paths into the index:
+
+    * **Subfolder layout** (``<root>/<slug>/<msgid>.<ext>``): the
+      Apps Script poller writes here. The basename must be all
+      digits — that's the Telegram message_id. The slug subfolder
+      name is the chapter slug.
+    * **Root drop** (``<root>/<anything>.<ext>``): admins or
+      volunteers can drag-drop files directly into the root of
+      the Raw folder. Slug becomes ``"unknown-chapter"`` (folder
+      will be auto-created in the Cleaned side), and the
+      message_id key is a deterministic hash of the filename so
+      re-running the cleanup is idempotent.
+
+    Files whose name doesn't end in a recognised audio extension
+    (``mp3``/``oga``/``ogg``/``m4a``/``wav``) are skipped to keep
+    debris from incidental Drive edits out of the index.
+
+    Requirement 5.2/5.3/5.7/5.8: this is the source of truth for
+    the set difference ``raw \\ cleaned``. Returning a
+    ``(slug, message_id)`` key means the cleanup loop's
+    ``set(raw_index) - set(cleaned_index)`` is the formal P5
+    statement.
     """
     out: dict[tuple[str, int], str] = {}
+    AUDIO_EXTS = {"mp3", "oga", "ogg", "m4a", "wav"}
 
-    # Step 1: list the slug subfolders directly under the parent.
+    def _is_audio(name: str) -> bool:
+        if "." not in name:
+            return False
+        return name.rsplit(".", 1)[1].lower() in AUDIO_EXTS
+
+    def _key_for(name: str, slug: str) -> tuple[str, int] | None:
+        """Compute a deterministic ``(slug, message_id)`` key for
+        a file name. If the basename is all digits, use it as the
+        message_id directly (preserves the canonical layout the
+        poller writes). Otherwise, hash the (slug, name) pair into
+        a stable 53-bit positive integer so the same input always
+        yields the same key — that's what makes idempotence work
+        for manual drops."""
+        if "." in name:
+            basename = name.rsplit(".", 1)[0]
+        else:
+            basename = name
+        if basename and basename.isdigit():
+            return (slug, int(basename))
+        if not name:
+            return None
+        # 53-bit positive integer derived from blake2b — smaller
+        # than a Telegram message_id worst case (Telegram tops out
+        # at 2^32) so the two namespaces never collide.
+        import hashlib
+        h = hashlib.blake2b(
+            (slug + "\0" + name).encode("utf-8"), digest_size=7
+        ).digest()
+        return (slug, int.from_bytes(h, "big"))
+
+    # ── Step 1: list direct (non-folder) children of the parent.
+    #    These are admin drag-drops at the root of Raw.
+    root_files_query = (
+        f"'{_escape_drive_query(parent_id)}' in parents "
+        "and mimeType != 'application/vnd.google-apps.folder' "
+        "and trashed = false"
+    )
+    page_token: str | None = None
+    while True:
+        resp = drive.files().list(
+            q=root_files_query,
+            fields="nextPageToken, files(id, name)",
+            pageSize=1000,
+            pageToken=page_token,
+        ).execute()
+        for f in resp.get("files", []):
+            name = f.get("name", "")
+            if not _is_audio(name):
+                continue
+            key = _key_for(name, "unknown-chapter")
+            if key is None:
+                continue
+            out[key] = f["id"]
+        page_token = resp.get("nextPageToken")
+        if not page_token:
+            break
+
+    # ── Step 2: list slug subfolders directly under the parent.
     subfolder_query = (
         f"'{_escape_drive_query(parent_id)}' in parents "
         "and mimeType = 'application/vnd.google-apps.folder' "
         "and trashed = false"
     )
     subfolders: list[dict] = []
-    page_token: str | None = None
+    page_token = None
     while True:
         resp = drive.files().list(
             q=subfolder_query,
@@ -129,7 +202,7 @@ def list_two_level(drive, parent_id: str) -> dict[tuple[str, int], str]:
         if not page_token:
             break
 
-    # Step 2: for each slug subfolder, list non-folder children.
+    # ── Step 3: for each slug subfolder, list non-folder children.
     for sub in subfolders:
         slug = sub["name"]
         sub_id = sub["id"]
@@ -148,14 +221,12 @@ def list_two_level(drive, parent_id: str) -> dict[tuple[str, int], str]:
             ).execute()
             for f in resp.get("files", []):
                 name = f.get("name", "")
-                # Strip the final extension only.
-                if "." in name:
-                    basename = name.rsplit(".", 1)[0]
-                else:
-                    basename = name
-                if not basename or not basename.isdigit():
+                if not _is_audio(name):
                     continue
-                out[(slug, int(basename))] = f["id"]
+                key = _key_for(name, slug)
+                if key is None:
+                    continue
+                out[key] = f["id"]
             page_token = resp.get("nextPageToken")
             if not page_token:
                 break

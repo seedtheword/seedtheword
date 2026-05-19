@@ -2560,3 +2560,1223 @@ function getAdminDigestData() {
     generatedAt: new Date().toISOString(),
   };
 }
+
+
+// ═════════════════════════════════════════════════════════════════════
+// APPS SCRIPT TIME-TRIGGER MIGRATION (May 2026)
+//
+// Block of functions ported from .github/scripts/* so they fire on
+// Apps Script time-based triggers instead of GitHub Actions cron
+// (which has been dropping ~75% of scheduled runs on the free tier).
+//
+// Trigger setup is one-time:
+//   1. Paste this entire file into the Apps Script editor → Save.
+//   2. Deploy → Manage deployments → ✏️ → New version → Deploy.
+//   3. Run installAllTimeTriggers() ONCE from the function dropdown.
+//      This installs:
+//        - dailyBibleBot         Mon-Sat 08:00 PT
+//        - weeklyMemberDigest    Sat 08:00 PT
+//        - weeklyAdminDigestMon  Mon 08:00 PT
+//        - weeklyAdminDigestThu  Thu 08:00 PT
+//        - dailyCalendarMonitor  Daily 08:30 PT
+//        - dailyWorkflowHealth   Daily 09:00 PT
+//
+// The corresponding GitHub workflows can be disabled (or left running
+// as belt-and-suspenders) once we confirm Apps Script triggers fire
+// reliably for a few cycles.
+//
+// Each ported function is self-contained — pulls config from the
+// repo's raw JSON (via GitHub raw URLs) and uses the existing
+// MailApp / Telegram helpers in this file.
+// ═════════════════════════════════════════════════════════════════════
+
+// Raw-content URL for our public repo. The migrated functions read
+// telegram-bot.json, bible-spotify-map.json, study-saturday.json,
+// testimonies.json, and ministry-outreach.json from here so they
+// stay in sync with whatever's on main without needing a
+// configured-per-script override.
+const REPO_RAW_BASE = 'https://raw.githubusercontent.com/seedtheword/seedtheword/main';
+const SITE_PUBLIC_BASE = 'https://seedtheword.github.io/seedtheword';
+
+// MarkdownV2 reserved characters per Telegram's API docs. When used
+// as literal text (not formatting), each must be backslash-escaped
+// or Telegram will return 400 with a parse-entities error.
+const MDV2_SPECIAL_CHARS = '_*[]()~`>#+-=|{}.!';
+
+function _mdv2Escape(text) {
+  if (text === null || text === undefined || text === '') return '';
+  let out = String(text);
+  // Build the escaped version one char at a time. Tried regex
+  // approaches with character classes; bracket-escaping inside JS
+  // RegExp literals here is fragile, so a per-char loop is clearer.
+  let result = '';
+  for (let i = 0; i < out.length; i++) {
+    const c = out.charAt(i);
+    if (MDV2_SPECIAL_CHARS.indexOf(c) !== -1) {
+      result += '\\' + c;
+    } else {
+      result += c;
+    }
+  }
+  return result;
+}
+
+function _fetchRepoJson(relativePath) {
+  // Cache-bust with a timestamp so editors testing right after a push
+  // see the fresh file. GitHub serves raw files with a short CDN TTL
+  // (~5 min) by default; the timestamp param sidesteps that.
+  const url = REPO_RAW_BASE + '/' + relativePath.replace(/^\//, '')
+            + '?t=' + Date.now();
+  try {
+    const resp = UrlFetchApp.fetch(url, {
+      muteHttpExceptions: true,
+      followRedirects: true,
+    });
+    if (resp.getResponseCode() !== 200) {
+      console.log('repo fetch ' + relativePath + ' got HTTP ' + resp.getResponseCode());
+      return null;
+    }
+    return JSON.parse(resp.getContentText('utf-8'));
+  } catch (err) {
+    console.log('repo fetch ' + relativePath + ' threw: ' + err);
+    return null;
+  }
+}
+
+function _sendTelegram(token, chatId, text, opts) {
+  // opts: { messageThreadId, parseMode, disableWebPagePreview, dryRun }
+  opts = opts || {};
+  if (opts.dryRun) {
+    console.log('[DRY_RUN] Telegram → ' + chatId
+      + (opts.messageThreadId ? ' thread ' + opts.messageThreadId : '')
+      + ':\n' + text);
+    return { ok: true, dry_run: true };
+  }
+  if (!token) {
+    throw new Error('Missing Telegram bot token; aborting send.');
+  }
+  const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
+  const payload = {
+    chat_id: String(chatId),
+    text: text,
+    parse_mode: opts.parseMode || 'MarkdownV2',
+    disable_web_page_preview: !!opts.disableWebPagePreview,
+  };
+  if (opts.messageThreadId) {
+    payload.message_thread_id = parseInt(opts.messageThreadId, 10);
+  }
+  const resp = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true,
+  });
+  const body = resp.getContentText('utf-8');
+  if (resp.getResponseCode() !== 200) {
+    console.log('Telegram API ' + resp.getResponseCode() + ': ' + body);
+    return { ok: false, error_code: resp.getResponseCode(), description: body };
+  }
+  try {
+    return JSON.parse(body);
+  } catch (e) {
+    return { ok: false, parse_error: String(e), raw: body };
+  }
+}
+
+function _editForumTopic(token, chatId, threadId, name) {
+  if (!token || !chatId || !threadId || !name) {
+    return { ok: false, skipped: true };
+  }
+  const url = 'https://api.telegram.org/bot' + token + '/editForumTopic';
+  const payload = {
+    chat_id: String(chatId),
+    message_thread_id: parseInt(threadId, 10),
+    name: String(name).slice(0, 128),
+  };
+  const resp = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true,
+  });
+  const body = resp.getContentText('utf-8');
+  if (resp.getResponseCode() === 200) {
+    try { return JSON.parse(body); } catch (e) { return { ok: true, raw: body }; }
+  }
+  // 400 with "topic_not_modified" is fine — topic already has that name.
+  if (resp.getResponseCode() === 400 && body.indexOf('topic_not_modified') !== -1) {
+    return { ok: true, no_op: true };
+  }
+  console.log('editForumTopic ' + resp.getResponseCode() + ': ' + body);
+  return { ok: false, error_code: resp.getResponseCode(), description: body };
+}
+
+// ScriptProperties-backed dedup log keyed by ('biblebot:' + YYYY-MM-DD).
+// Cheaper than re-fetching the GitHub-side log on every invocation,
+// and Apps Script's PropertiesService is plenty fast for this.
+function _bibleBotAlreadyPostedToday(today, kind) {
+  const key = 'biblebot:' + Utilities.formatDate(today, 'America/Los_Angeles', 'yyyy-MM-dd') + ':' + kind;
+  return PropertiesService.getScriptProperties().getProperty(key) === 'ok';
+}
+
+function _bibleBotMarkPostedToday(today, kind) {
+  const key = 'biblebot:' + Utilities.formatDate(today, 'America/Los_Angeles', 'yyyy-MM-dd') + ':' + kind;
+  PropertiesService.getScriptProperties().setProperty(key, 'ok');
+}
+
+
+// ─────────────────────────────────────────────────────────────────────
+// Bible bot — Mon-Fri reading + Saturday Study Saturday Live teaser
+// ─────────────────────────────────────────────────────────────────────
+//
+// Ported from .github/scripts/post_daily_bible_to_telegram.py.
+// Time-based trigger fires Mon-Sat 08:00 PT via the
+// `dailyBibleBot` entry point. Bot token comes from Script
+// Properties (set BIBLE_BOT_TOKEN once via the editor → Project
+// Settings → Script Properties → Add).
+
+const NT_BOOKS = [
+  ['Matthew', 28], ['Mark', 16], ['Luke', 24], ['John', 21],
+  ['Acts', 28], ['Romans', 16], ['1 Corinthians', 16], ['2 Corinthians', 13],
+  ['Galatians', 6], ['Ephesians', 6], ['Philippians', 4], ['Colossians', 4],
+  ['1 Thessalonians', 5], ['2 Thessalonians', 3], ['1 Timothy', 6],
+  ['2 Timothy', 4], ['Titus', 3], ['Philemon', 1], ['Hebrews', 13],
+  ['James', 5], ['1 Peter', 5], ['2 Peter', 3], ['1 John', 5],
+  ['2 John', 1], ['3 John', 1], ['Jude', 1], ['Revelation', 22],
+];
+function _ntSequence() {
+  const out = [];
+  for (let i = 0; i < NT_BOOKS.length; i++) {
+    const name = NT_BOOKS[i][0];
+    const chapters = NT_BOOKS[i][1];
+    for (let c = 1; c <= chapters; c++) {
+      out.push({ book: name, chapter: c });
+    }
+  }
+  return out;
+}
+// Anchor: Apr 30 2026 = Mark 11. Same as the Python script.
+const BIBLE_ANCHOR_YEAR = 2026;
+const BIBLE_ANCHOR_MONTH = 4;  // 1-indexed
+const BIBLE_ANCHOR_DAY = 30;
+const BIBLE_ANCHOR_BOOK = 'Mark';
+const BIBLE_ANCHOR_CHAPTER = 11;
+
+function _weekdaysBetween(fromY, fromM, fromD, toY, toM, toD) {
+  // Count Mon-Fri days between two YYYY-M-D triples (1-indexed
+  // months). Inclusive of crossing weekends correctly.
+  const from = new Date(fromY, fromM - 1, fromD);
+  const to = new Date(toY, toM - 1, toD);
+  if (to.getTime() === from.getTime()) return 0;
+  const step = (to > from) ? 1 : -1;
+  const cursor = new Date(from);
+  let count = 0;
+  while (cursor.getTime() !== to.getTime()) {
+    cursor.setDate(cursor.getDate() + step);
+    const dow = cursor.getDay(); // 0=Sun..6=Sat
+    if (dow >= 1 && dow <= 5) {
+      count += step;
+    }
+  }
+  return count;
+}
+
+function _readingForLocalDate(localDate) {
+  // localDate is a JS Date in PT.
+  const dow = localDate.getDay(); // 0=Sun..6=Sat
+  if (dow === 0 || dow === 6) return null;  // Sun + Sat handled separately
+  const seq = _ntSequence();
+  let anchorIdx = -1;
+  for (let i = 0; i < seq.length; i++) {
+    if (seq[i].book === BIBLE_ANCHOR_BOOK && seq[i].chapter === BIBLE_ANCHOR_CHAPTER) {
+      anchorIdx = i;
+      break;
+    }
+  }
+  if (anchorIdx < 0) return null;
+  const offset = _weekdaysBetween(
+    BIBLE_ANCHOR_YEAR, BIBLE_ANCHOR_MONTH, BIBLE_ANCHOR_DAY,
+    localDate.getFullYear(), localDate.getMonth() + 1, localDate.getDate()
+  );
+  const idx = anchorIdx + offset;
+  if (idx < 0 || idx >= seq.length) return null;
+  return { book: seq[idx].book, chapter: seq[idx].chapter };
+}
+
+function _resolveSpotifyUrl(reading, biblecfg, spotifycfg, primaryKey, fallbackKeys) {
+  const map = (spotifycfg && spotifycfg[primaryKey]) || {};
+  const key = reading.book + ' ' + reading.chapter;
+  const mapped = map[key];
+  if (mapped && key.indexOf('__') !== 0) return mapped;
+  for (let i = 0; i < fallbackKeys.length; i++) {
+    const k = fallbackKeys[i];
+    const fb = (biblecfg && biblecfg[k]) || (spotifycfg && spotifycfg[k]);
+    if (fb) return fb;
+  }
+  return '';
+}
+
+function _buildPrayerBlock(fullCfg, biblecfg, todayLocal) {
+  if (biblecfg.includePrayerBlock === false) return [];
+  const dateLabel = Utilities.formatDate(todayLocal, 'America/Los_Angeles', 'MM/dd/yyyy');
+  const prayerTopicUrl = (fullCfg.prayer && fullCfg.prayer.prayerTopicUrl)
+    || biblecfg.prayerTopicUrl
+    || '';
+  const lines = [];
+  lines.push('');
+  lines.push('🙏 *' + _mdv2Escape("Today's Prayer Requests and Thanksgiving Announcements") + ' ' + _mdv2Escape(dateLabel) + ':*');
+  lines.push('');
+  lines.push('> _' + _mdv2Escape(
+    "You can add your prayer/thanksgiving details either here in this main channel or in the 'Prayer & Thanksgiving' topic."
+  ) + '_');
+  lines.push('>');
+  lines.push('> _' + _mdv2Escape(
+    "Members are encouraged to pray for one another and feel free to share your needs because we are called to carry each other's burdens."
+  ) + '_');
+  lines.push('>');
+  lines.push('> _' + _mdv2Escape(
+    "Reminder: If members don't want to share revealing information but have general details for the prayer request and/or thanksgiving, we will encourage full anonymity."
+  ) + '_');
+  if (prayerTopicUrl) {
+    lines.push('');
+    lines.push('[' + _mdv2Escape('Open the Prayer & Thanksgiving topic →') + '](' + prayerTopicUrl + ')');
+  }
+  return lines;
+}
+
+function _ordinalDate(d) {
+  const day = d.getDate();
+  let suffix;
+  if (day >= 11 && day <= 13) suffix = 'th';
+  else suffix = ({ 1: 'st', 2: 'nd', 3: 'rd' })[day % 10] || 'th';
+  const monthName = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'][d.getMonth()];
+  return monthName + ' ' + day + suffix + ', ' + d.getFullYear();
+}
+
+function _pickCurrentStudyWeek(weeks) {
+  if (!weeks || !weeks.length) return null;
+  const today = new Date();
+  let best = null;
+  let bestDt = null;
+  for (let i = 0; i < weeks.length; i++) {
+    const w = weeks[i];
+    if (!w || !w.weekOf) continue;
+    const parts = String(w.weekOf).split('-');
+    if (parts.length !== 3) continue;
+    const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    if (isNaN(dt.getTime()) || dt > today) continue;
+    if (!bestDt || dt > bestDt) {
+      bestDt = dt;
+      best = w;
+    }
+  }
+  return best;
+}
+
+
+function dailyBibleBot() {
+  // Time-trigger entry point. Idempotent — uses ScriptProperties to
+  // prevent double-posts on the same local date if Google fires the
+  // trigger twice (rare but possible during Google maintenance).
+  const fullCfg = _fetchRepoJson('assets/data/telegram-bot.json');
+  if (!fullCfg) {
+    console.log('dailyBibleBot: telegram-bot.json fetch failed; aborting.');
+    return;
+  }
+  const biblecfg = fullCfg.bible;
+  if (!biblecfg || biblecfg.enabled === false) {
+    console.log('dailyBibleBot: bible bot disabled; exiting.');
+    return;
+  }
+  const token = PropertiesService.getScriptProperties().getProperty('BIBLE_BOT_TOKEN');
+  if (!token) {
+    console.log('dailyBibleBot: missing BIBLE_BOT_TOKEN script property; aborting.');
+    return;
+  }
+
+  // Today in PT (Apps Script's Date is server-local UTC; we compute
+  // PT components manually).
+  const tzString = biblecfg.timezone || 'America/Los_Angeles';
+  const nowUtc = new Date();
+  const ptString = Utilities.formatDate(nowUtc, tzString, 'yyyy-MM-dd HH:mm:ss EEE');
+  const ptParts = ptString.split(' ');
+  const ymd = ptParts[0].split('-');
+  const dowName = ptParts[2];
+  const todayPT = new Date(parseInt(ymd[0], 10), parseInt(ymd[1], 10) - 1, parseInt(ymd[2], 10));
+
+  console.log('dailyBibleBot: today is ' + ptString);
+
+  if (dowName === 'Sun') {
+    console.log('dailyBibleBot: Sunday — no Bible post scheduled.');
+    return;
+  }
+
+  const chatId = biblecfg.chatId;
+  const threadId = biblecfg.messageThreadId;
+
+  if (dowName === 'Sat') {
+    if (_bibleBotAlreadyPostedToday(todayPT, 'saturday')) {
+      console.log('dailyBibleBot: Saturday post already fired for today.');
+      return;
+    }
+    const ok = _postBibleStudySaturday(fullCfg, biblecfg, todayPT, chatId, threadId, token);
+    if (ok) _bibleBotMarkPostedToday(todayPT, 'saturday');
+    return;
+  }
+
+  // Mon-Fri
+  if (_bibleBotAlreadyPostedToday(todayPT, 'weekday')) {
+    console.log('dailyBibleBot: weekday post already fired for today.');
+    return;
+  }
+  const ok = _postBibleWeekdayReading(fullCfg, biblecfg, todayPT, chatId, threadId, token);
+  if (ok) _bibleBotMarkPostedToday(todayPT, 'weekday');
+}
+
+function _postBibleWeekdayReading(fullCfg, biblecfg, todayPT, chatId, threadId, token) {
+  const reading = _readingForLocalDate(todayPT);
+  if (!reading) {
+    console.log('_postBibleWeekdayReading: no reading scheduled for ' + todayPT);
+    return false;
+  }
+  const spotifyMap = _fetchRepoJson('assets/data/bible-spotify-map.json') || {};
+  const englishUrl = _resolveSpotifyUrl(
+    reading, biblecfg, spotifyMap,
+    'chapters', ['fallbackShowUrl', 'defaultShowUrl']
+  );
+  const russianUrl = _resolveSpotifyUrl(
+    reading, biblecfg, spotifyMap,
+    'russianChapters', ['russianFallbackShowUrl', 'russianShowUrl']
+  );
+  const readingLabel = reading.book + ' Chapter ' + reading.chapter;
+
+  const lines = [];
+  if (englishUrl) {
+    lines.push('📖 *' + _mdv2Escape("Today's Reading") + ':* ['
+      + _mdv2Escape(readingLabel) + '](' + englishUrl + ')');
+  } else {
+    lines.push('📖 *' + _mdv2Escape("Today's Reading") + ':* ' + _mdv2Escape(readingLabel));
+  }
+  if (russianUrl) {
+    lines.push('\\+ [Читаем Слово Божие на Русском](' + russianUrl + ')');
+  }
+  // Append the prayer block.
+  const prayerLines = _buildPrayerBlock(fullCfg, biblecfg, todayPT);
+  for (let i = 0; i < prayerLines.length; i++) lines.push(prayerLines[i]);
+
+  const text = lines.join('\n');
+  const resp = _sendTelegram(token, chatId, text, {
+    messageThreadId: threadId,
+    parseMode: 'MarkdownV2',
+  });
+  if (!resp.ok) {
+    console.log('Bible weekday send rejected: ' + JSON.stringify(resp));
+    return false;
+  }
+  console.log('Posted Bible weekday reading: ' + readingLabel);
+
+  // Best-effort: rename the "Today's Chapter is ..." topic.
+  const topicCfg = biblecfg.todayChapterTopic;
+  if (topicCfg && topicCfg.enabled !== false && topicCfg.messageThreadId) {
+    const template = topicCfg.nameTemplate || "Today's Chapter is {book} {chapter}";
+    const newName = template.replace('{book}', reading.book).replace('{chapter}', String(reading.chapter));
+    const renameResp = _editForumTopic(token, chatId, topicCfg.messageThreadId, newName);
+    console.log('topic rename: ' + JSON.stringify(renameResp));
+  }
+  return true;
+}
+
+function _postBibleStudySaturday(fullCfg, biblecfg, todayPT, chatId, threadId, token) {
+  const sat = biblecfg.saturday || {};
+  if (sat.enabled === false) {
+    console.log('_postBibleStudySaturday: disabled; exiting.');
+    return false;
+  }
+  const studyCfg = _fetchRepoJson('assets/data/study-saturday.json') || {};
+  const current = _pickCurrentStudyWeek((studyCfg && studyCfg.weeks) || []);
+  const oldTestament = (current && current.oldTestament) ? String(current.oldTestament).trim() : '';
+  const newTestament = (current && current.newTestament) ? String(current.newTestament).trim() : '';
+
+  const twitchUrl = (sat.twitchUrl || 'https://www.twitch.tv/seedtheword').trim();
+  const streamTime = (sat.streamStartTimePT || '7:00 PM').trim();
+  const rulesUrl = (sat.rulesUrl || '').trim();
+  const bodyIntro = sat.bodyIntro || '';
+  const bodyReview = sat.bodyReview || '';
+  const bodyGoal = sat.bodyGoal || '';
+  const bodyRules = sat.bodyRulesNote || '';
+
+  const tonightDate = _ordinalDate(todayPT);
+
+  const lines = [];
+  lines.push('🎙 *' + _mdv2Escape('Discuss Scripture: Study Saturday Live') + '*');
+  lines.push(_mdv2Escape('TONIGHT @ ' + streamTime + ', ' + tonightDate));
+  lines.push(_mdv2Escape('Watch STW on Twitch —>') + ' ' + twitchUrl);
+  lines.push('');
+  lines.push('*' + _mdv2Escape('Study Saturday Live!') + '*');
+  lines.push('');
+
+  const bodyParas = [bodyIntro, bodyReview, bodyGoal];
+  for (let i = 0; i < bodyParas.length; i++) {
+    if (bodyParas[i]) {
+      lines.push(_mdv2Escape(bodyParas[i]));
+      lines.push('');
+    }
+  }
+
+  if (bodyRules) {
+    if (rulesUrl) {
+      const target = 'S.E.E.D. Rules';
+      const idx = bodyRules.indexOf(target);
+      if (idx !== -1) {
+        const before = bodyRules.slice(0, idx);
+        const after = bodyRules.slice(idx + target.length);
+        lines.push(_mdv2Escape(before)
+          + '[' + _mdv2Escape(target) + '](' + rulesUrl + ')'
+          + _mdv2Escape(after));
+      } else {
+        lines.push(_mdv2Escape(bodyRules));
+        lines.push('[' + _mdv2Escape('S.E.E.D. Rules →') + '](' + rulesUrl + ')');
+      }
+    } else {
+      lines.push(_mdv2Escape(bodyRules));
+    }
+    lines.push('');
+  }
+
+  if (oldTestament) {
+    lines.push('📖 *' + _mdv2Escape("This week's study focus:") + '* ' + _mdv2Escape(oldTestament));
+  }
+  if (newTestament) {
+    lines.push('📖 *' + _mdv2Escape("This week's reading:") + '* ' + _mdv2Escape(newTestament));
+  }
+
+  const prayerLines = _buildPrayerBlock(fullCfg, biblecfg, todayPT);
+  for (let i = 0; i < prayerLines.length; i++) lines.push(prayerLines[i]);
+
+  const text = lines.join('\n');
+  const resp = _sendTelegram(token, chatId, text, {
+    messageThreadId: threadId,
+    parseMode: 'MarkdownV2',
+  });
+  if (!resp.ok) {
+    console.log('Bible Saturday send rejected: ' + JSON.stringify(resp));
+    return false;
+  }
+  console.log('Posted Saturday Study Saturday Live (week of ' + (current && current.weekOf || 'unknown') + ')');
+  return true;
+}
+
+
+// ─────────────────────────────────────────────────────────────────────
+// Calendar feed reader — shared by digest + monitor functions
+// ─────────────────────────────────────────────────────────────────────
+//
+// Apps Script has CalendarApp built in but it requires the running
+// account to have the calendar in their "Other calendars" list AND
+// to share read access. The simpler path that mirrors the Python
+// scripts is to fetch the public iCal feed and parse it ourselves.
+
+function _fetchIcalEvents(daysFromNowStart, daysFromNowEnd, calendarId) {
+  const calId = calendarId || 'seedthewordministry@gmail.com';
+  const url = 'https://calendar.google.com/calendar/ical/'
+    + encodeURIComponent(calId) + '/public/basic.ics';
+  let raw;
+  try {
+    const resp = UrlFetchApp.fetch(url, {
+      muteHttpExceptions: true,
+      headers: {
+        'Accept': 'text/calendar',
+        'User-Agent': 'seedtheword-apps-script/1.0',
+      },
+    });
+    if (resp.getResponseCode() !== 200) {
+      console.log('iCal fetch HTTP ' + resp.getResponseCode());
+      return [];
+    }
+    raw = resp.getContentText('utf-8');
+  } catch (err) {
+    console.log('iCal fetch threw: ' + err);
+    return [];
+  }
+
+  // RFC 5545 line-unfolding: continuation lines start with space/tab.
+  const linesRaw = raw.replace(/\r\n/g, '\n').split('\n');
+  const lines = [];
+  for (let i = 0; i < linesRaw.length; i++) {
+    const ln = linesRaw[i];
+    if ((ln.charAt(0) === ' ' || ln.charAt(0) === '\t') && lines.length > 0) {
+      lines[lines.length - 1] += ln.substring(1);
+    } else {
+      lines.push(ln);
+    }
+  }
+
+  const events = [];
+  let inEvent = false;
+  let cur = [];
+  for (let i = 0; i < lines.length; i++) {
+    const ln = lines[i].trim();
+    if (ln === 'BEGIN:VEVENT') { inEvent = true; cur = []; continue; }
+    if (ln === 'END:VEVENT') {
+      inEvent = false;
+      const ev = { start: null, summary: '', location: '', description: '', id: '' };
+      for (let j = 0; j < cur.length; j++) {
+        const c = cur[j];
+        const colonIdx = c.indexOf(':');
+        if (colonIdx === -1) continue;
+        const nameRaw = c.substring(0, colonIdx);
+        const value = c.substring(colonIdx + 1).trim();
+        const baseName = nameRaw.split(';')[0].toUpperCase();
+        if (baseName === 'UID') ev.id = value;
+        else if (baseName === 'SUMMARY') ev.summary = value.replace(/\\n/g, '\n').replace(/\\,/g, ',').replace(/\\;/g, ';');
+        else if (baseName === 'DESCRIPTION') ev.description = value.replace(/\\n/g, '\n').replace(/\\,/g, ',').replace(/\\;/g, ';');
+        else if (baseName === 'LOCATION') ev.location = value.replace(/\\n/g, '\n').replace(/\\,/g, ',').replace(/\\;/g, ';');
+        else if (baseName === 'DTSTART') {
+          // YYYYMMDD or YYYYMMDDTHHMMSSZ shapes
+          const v = value.replace(/[^0-9TZ]/g, '');
+          if (v.length >= 8) {
+            const y = parseInt(v.substring(0, 4), 10);
+            const m = parseInt(v.substring(4, 6), 10);
+            const d = parseInt(v.substring(6, 8), 10);
+            let hh = 0, mm = 0;
+            if (v.length >= 13 && v.charAt(8) === 'T') {
+              hh = parseInt(v.substring(9, 11), 10) || 0;
+              mm = parseInt(v.substring(11, 13), 10) || 0;
+            }
+            ev.start = new Date(Date.UTC(y, m - 1, d, hh, mm, 0));
+          }
+        }
+      }
+      if (ev.start) events.push(ev);
+      continue;
+    }
+    if (inEvent) cur.push(lines[i]);
+  }
+
+  // Filter by window
+  const now = new Date();
+  const windowStart = new Date(now.getTime() + daysFromNowStart * 86400000);
+  const windowEnd = new Date(now.getTime() + daysFromNowEnd * 86400000);
+  const filtered = [];
+  for (let i = 0; i < events.length; i++) {
+    const ev = events[i];
+    if (ev.start >= windowStart && ev.start <= windowEnd) filtered.push(ev);
+  }
+  filtered.sort(function (a, b) { return a.start.getTime() - b.start.getTime(); });
+  return filtered;
+}
+
+function _formatEventLine(ev, tzString) {
+  const local = Utilities.formatDate(ev.start, tzString, 'EEE MMM d, h:mm a');
+  const title = (ev.summary || 'Event').trim();
+  const loc = (ev.location || '').split('\n')[0].split(',')[0].trim();
+  return loc ? title + ' — ' + local + ' at ' + loc : title + ' — ' + local;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Member weekly digest — Saturday 08:00 PT
+// ─────────────────────────────────────────────────────────────────────
+function weeklyMemberDigest() {
+  const subscribers = listActiveSubscribers();
+  if (!subscribers.length) {
+    console.log('weeklyMemberDigest: no active subscribers; exiting.');
+    return;
+  }
+
+  const tz = 'America/Los_Angeles';
+  const now = new Date();
+  const weekLabel = Utilities.formatDate(now, tz, 'MMMM d, yyyy');
+  const subject = 'Seed the Word — Weekly Digest (Week of ' + weekLabel + ')';
+
+  // Collect content from the past + next 7 days
+  const eventsPast = _fetchIcalEvents(-7, 0, null);
+  const eventsUpcoming = _fetchIcalEvents(0, 7, null);
+
+  // Past 7 days of published testimonies
+  const testimoniesData = _fetchRepoJson('assets/data/testimonies.json') || { testimonies: [] };
+  const weekAgoMs = now.getTime() - 7 * 86400000;
+  const recentTestimonies = [];
+  const allT = (testimoniesData && testimoniesData.testimonies) || [];
+  for (let i = 0; i < allT.length; i++) {
+    const t = allT[i];
+    if (t.published !== true) continue;
+    if (!t.publishedAt) continue;
+    const pubMs = Date.parse(t.publishedAt + 'T00:00:00Z');
+    if (isNaN(pubMs) || pubMs < weekAgoMs) continue;
+    recentTestimonies.push(t);
+  }
+  recentTestimonies.sort(function (a, b) {
+    return (b.publishedAt || '').localeCompare(a.publishedAt || '');
+  });
+
+  // Past 7 days of outreach events
+  const outreachData = _fetchRepoJson('assets/data/ministry-outreach.json') || { events: [] };
+  const recentOutreach = [];
+  const allO = (outreachData && outreachData.events) || [];
+  for (let i = 0; i < allO.length; i++) {
+    const o = allO[i];
+    const dateStr = (o.eventDate || o.date || '').trim();
+    if (!dateStr) continue;
+    const oMs = Date.parse(dateStr + 'T00:00:00Z');
+    if (isNaN(oMs) || oMs < weekAgoMs || oMs > now.getTime()) continue;
+    recentOutreach.push(o);
+  }
+
+  let sent = 0;
+  let failed = 0;
+  for (let i = 0; i < subscribers.length; i++) {
+    const sub = subscribers[i];
+    const html = _buildMemberDigestHtml({
+      eventsPast: eventsPast,
+      eventsUpcoming: eventsUpcoming,
+      testimonies: recentTestimonies,
+      outreach: recentOutreach,
+    }, sub.name || '', weekLabel, tz);
+    const text = _buildMemberDigestText({
+      eventsPast: eventsPast,
+      eventsUpcoming: eventsUpcoming,
+      testimonies: recentTestimonies,
+      outreach: recentOutreach,
+    }, sub.name || '', weekLabel, tz);
+    try {
+      MailApp.sendEmail({
+        to: sub.email,
+        subject: subject,
+        htmlBody: html,
+        body: text,
+        name: 'Seed the Word Ministry',
+        noReply: true,
+      });
+      sent++;
+    } catch (err) {
+      console.log('weeklyMemberDigest: send failed for ' + sub.email + ': ' + err);
+      failed++;
+    }
+  }
+  console.log('weeklyMemberDigest: sent=' + sent + ' failed=' + failed);
+}
+
+function _buildMemberDigestHtml(content, name, weekLabel, tz) {
+  let body = '';
+  if (content.eventsPast.length) {
+    let rows = '';
+    for (let i = 0; i < content.eventsPast.length; i++) {
+      rows += '<li>' + _htmlEscape(_formatEventLine(content.eventsPast[i], tz)) + '</li>';
+    }
+    body += '<h3 style="font-family:Georgia,serif;color:#2C5F2E;margin:1.5rem 0 0.5rem">What happened this week</h3>'
+      + '<ul style="line-height:1.7">' + rows + '</ul>';
+  }
+  if (content.eventsUpcoming.length) {
+    let rows = '';
+    for (let i = 0; i < content.eventsUpcoming.length; i++) {
+      rows += '<li>' + _htmlEscape(_formatEventLine(content.eventsUpcoming[i], tz)) + '</li>';
+    }
+    body += '<h3 style="font-family:Georgia,serif;color:#2C5F2E;margin:1.5rem 0 0.5rem">Coming up this week</h3>'
+      + '<ul style="line-height:1.7">' + rows + '</ul>';
+  }
+  if (content.testimonies.length) {
+    let cards = '';
+    for (let i = 0; i < Math.min(3, content.testimonies.length); i++) {
+      const t = content.testimonies[i];
+      const tname = t.anonymous ? 'Anonymous' : (t.name || 'A friend');
+      const excerpt = (t.excerpt || t.body || '').slice(0, 280);
+      const verse = (t.anchorVerse || '').trim();
+      const verseBit = verse ? '<br><span style="color:#888;font-style:italic">— ' + _htmlEscape(verse) + '</span>' : '';
+      cards += '<blockquote style="border-left:3px solid #d4a574;padding:0.5rem 1rem;margin:1rem 0;color:#444;line-height:1.7">'
+        + '&ldquo;' + _htmlEscape(excerpt) + '&rdquo;<br>'
+        + '<strong style="color:#2C5F2E">— ' + _htmlEscape(tname) + '</strong>' + verseBit
+        + '</blockquote>';
+    }
+    body += '<h3 style="font-family:Georgia,serif;color:#2C5F2E;margin:1.5rem 0 0.5rem">Testimonies shared this week</h3>'
+      + cards;
+  }
+  if (content.outreach.length) {
+    let rows = '';
+    for (let i = 0; i < Math.min(3, content.outreach.length); i++) {
+      const o = content.outreach[i];
+      const summary = (o.summary || o.description || '').slice(0, 200);
+      rows += '<li><strong>' + _htmlEscape(o.title || 'Outreach') + '</strong>'
+        + (o.location ? ' &middot; ' + _htmlEscape(o.location) : '')
+        + (summary ? '<br>' + _htmlEscape(summary) : '') + '</li>';
+    }
+    body += '<h3 style="font-family:Georgia,serif;color:#2C5F2E;margin:1.5rem 0 0.5rem">From the field</h3>'
+      + '<ul style="line-height:1.7">' + rows + '</ul>';
+  }
+  if (!body) {
+    body = '<p style="color:#555;line-height:1.7">No new events, testimonies, or outreach to share this week — but the Lord is still at work in quieter ways. Keep watching for Him.</p>';
+  }
+  return _wrapDigestHtml('Weekly Digest', weekLabel, name || 'friend',
+    "Here's what the Lord has been doing through our ministry this week. Take a moment, brew some coffee, and read with us.",
+    body);
+}
+
+function _buildMemberDigestText(content, name, weekLabel, tz) {
+  const parts = [];
+  parts.push('Seed the Word — Weekly Digest');
+  parts.push('Week of ' + weekLabel);
+  parts.push('');
+  parts.push('Dear ' + (name || 'friend') + ',');
+  parts.push('');
+  parts.push("Here's what the Lord has been doing through our ministry this week.");
+  parts.push('');
+
+  if (content.eventsPast.length) {
+    parts.push('WHAT HAPPENED THIS WEEK');
+    for (let i = 0; i < content.eventsPast.length; i++) {
+      parts.push('- ' + _formatEventLine(content.eventsPast[i], tz));
+    }
+    parts.push('');
+  }
+  if (content.eventsUpcoming.length) {
+    parts.push('COMING UP THIS WEEK');
+    for (let i = 0; i < content.eventsUpcoming.length; i++) {
+      parts.push('- ' + _formatEventLine(content.eventsUpcoming[i], tz));
+    }
+    parts.push('');
+  }
+  if (content.testimonies.length) {
+    parts.push('TESTIMONIES SHARED THIS WEEK');
+    for (let i = 0; i < Math.min(3, content.testimonies.length); i++) {
+      const t = content.testimonies[i];
+      const tname = t.anonymous ? 'Anonymous' : (t.name || 'A friend');
+      parts.push('  "' + (t.excerpt || t.body || '').slice(0, 280) + '"');
+      parts.push('  — ' + tname + (t.anchorVerse ? ' (' + t.anchorVerse + ')' : ''));
+      parts.push('');
+    }
+  }
+  if (content.outreach.length) {
+    parts.push('FROM THE FIELD');
+    for (let i = 0; i < Math.min(3, content.outreach.length); i++) {
+      const o = content.outreach[i];
+      parts.push('- ' + (o.title || 'Outreach') + (o.location ? ' (' + o.location + ')' : ''));
+      const summary = (o.summary || o.description || '').slice(0, 200);
+      if (summary) parts.push('  ' + summary);
+    }
+    parts.push('');
+  }
+  parts.push('---');
+  parts.push('Find more on the site: ' + SITE_PUBLIC_BASE);
+  parts.push('');
+  parts.push('Sincerely,');
+  parts.push('The Seed the Word team');
+  return parts.join('\n');
+}
+
+function _htmlEscape(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function _wrapDigestHtml(kind, label, greetingName, lead, body) {
+  return '<!DOCTYPE html><html><body style="font-family:Arial,Helvetica,sans-serif;background:#fdf3e3;color:#1a1a1a;margin:0;padding:1rem">'
+    + '<div style="max-width:680px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.05)">'
+    + '<div style="background:linear-gradient(135deg,#2C5F2E,#3a7d3c);padding:1.5rem 1.75rem;color:#fdf3e3">'
+    + '<h1 style="margin:0;font-family:Georgia,serif;font-size:1.4rem">Seed the Word &mdash; ' + _htmlEscape(kind) + '</h1>'
+    + '<p style="margin:0.25rem 0 0;opacity:0.85">' + _htmlEscape(label) + '</p>'
+    + '</div>'
+    + '<div style="padding:1.5rem 1.75rem">'
+    + '<p style="line-height:1.7">Dear ' + _htmlEscape(greetingName) + ',</p>'
+    + (lead ? '<p style="line-height:1.7">' + _htmlEscape(lead) + '</p>' : '')
+    + body
+    + '<hr style="border:0;border-top:1px solid #e8e4de;margin:2rem 0 1rem">'
+    + '<p style="line-height:1.7;color:#666;font-size:0.92rem">'
+    + 'Find every story, the full calendar, and the rest of our community on the site: '
+    + '<a href="' + SITE_PUBLIC_BASE + '" style="color:#2C5F2E">' + SITE_PUBLIC_BASE + '</a></p>'
+    + '<p style="line-height:1.7;color:#666;font-size:0.85rem;font-style:italic">Sincerely,<br>The Seed the Word team</p>'
+    + '</div></div></body></html>';
+}
+
+
+// ─────────────────────────────────────────────────────────────────────
+// Admin ops digest — Mon + Thu 08:00 PT
+// ─────────────────────────────────────────────────────────────────────
+function weeklyAdminDigestMon() { _runAdminDigest('Monday'); }
+function weeklyAdminDigestThu() { _runAdminDigest('Thursday'); }
+
+function _runAdminDigest(weekday) {
+  const admins = listActiveAdmins();
+  if (!admins.length) {
+    console.log('admin digest: no active admins; exiting.');
+    return;
+  }
+  // Reuse the existing aggregator we built for the GitHub-side path.
+  const data = getAdminDigestData();
+  const tz = 'America/Los_Angeles';
+  const now = new Date();
+  const dateLabel = Utilities.formatDate(now, tz, 'EEEE, MMMM d, yyyy');
+  const subject = 'Seed the Word — Admin Ops Digest (' + weekday + ')';
+
+  // Calendar count for next 14d
+  const upcoming = _fetchIcalEvents(0, 14, null);
+  const calCount = upcoming.length;
+
+  let sent = 0, failed = 0;
+  for (let i = 0; i < admins.length; i++) {
+    const a = admins[i];
+    const html = _buildAdminDigestHtml(data, a.name || '', dateLabel, calCount);
+    const text = _buildAdminDigestText(data, a.name || '', dateLabel, calCount);
+    try {
+      MailApp.sendEmail({
+        to: a.email,
+        subject: subject,
+        htmlBody: html,
+        body: text,
+        name: 'Seed the Word Ministry',
+        noReply: true,
+      });
+      sent++;
+    } catch (err) {
+      console.log('admin digest send failed for ' + a.email + ': ' + err);
+      failed++;
+    }
+  }
+  console.log('admin digest: sent=' + sent + ' failed=' + failed);
+}
+
+function _buildAdminDigestHtml(data, name, label, calCount) {
+  let body = '';
+  const orders = data.ordersNeedingAction || [];
+  if (orders.length) {
+    let rows = '';
+    for (let i = 0; i < orders.length; i++) {
+      const o = orders[i];
+      const tagColor = (o.status === 'confirming') ? '#3a7d3c'
+        : (o.status === 'packing') ? '#2C5F2E' : '#d4a574';
+      const special = o.is_special_order
+        ? ' <span style="background:#fff3cd;color:#6c4500;padding:0.1rem 0.5rem;border-radius:4px;font-size:0.8rem">✨ special</span>'
+        : '';
+      rows += '<tr><td style="padding:0.5rem;border-bottom:1px solid #f0ebe2">'
+        + '<strong>' + _htmlEscape(o.order_id || '?') + '</strong>' + special + '<br>'
+        + '<small style="color:#666">' + _htmlEscape(o.bundle || '?') + ' for ' + _htmlEscape(o.gifter_name || '?') + '</small>'
+        + '</td><td style="padding:0.5rem;border-bottom:1px solid #f0ebe2;vertical-align:top">'
+        + '<span style="background:' + tagColor + ';color:#fff;padding:0.15rem 0.6rem;border-radius:4px;font-size:0.85rem;text-transform:uppercase">'
+        + _htmlEscape(o.status || 'new') + '</span></td></tr>';
+    }
+    body += '<h3 style="font-family:Georgia,serif;color:#2C5F2E;margin:1.5rem 0 0.5rem">📦 Orders needing action (' + orders.length + ')</h3>'
+      + '<table style="width:100%;border-collapse:collapse"><tbody>' + rows + '</tbody></table>';
+  }
+  const stories = data.storiesAwaitingReview || [];
+  if (stories.length) {
+    let cards = '';
+    for (let i = 0; i < Math.min(5, stories.length); i++) {
+      const s = stories[i];
+      const recv = (s.received_at || '').slice(0, 10);
+      const consent = s.consent_to_publish ? ' <em style="color:#2C5F2E">(consent given)</em>' : '';
+      cards += '<blockquote style="border-left:3px solid #d4a574;padding:0.5rem 1rem;margin:0.75rem 0;color:#333;line-height:1.6">'
+        + '<strong>' + _htmlEscape(s.name || 'Anonymous') + '</strong> &middot; ' + _htmlEscape(recv) + consent + '<br>'
+        + '<small style="color:#666">' + _htmlEscape(s.email || '') + '</small><br>'
+        + '&ldquo;' + _htmlEscape(s.story_snippet || '') + '&rdquo;</blockquote>';
+    }
+    const more = stories.length > 5
+      ? '<p style="color:#666;font-style:italic;margin-top:0.5rem">… and ' + (stories.length - 5) + ' more in the Stories tab.</p>'
+      : '';
+    body += '<h3 style="font-family:Georgia,serif;color:#2C5F2E;margin:1.5rem 0 0.5rem">✨ Stories awaiting review (' + stories.length + ')</h3>'
+      + cards + more;
+  }
+  const contacts = data.recentContacts || [];
+  if (contacts.length) {
+    let cards = '';
+    for (let i = 0; i < Math.min(5, contacts.length); i++) {
+      const c = contacts[i];
+      const recv = (c.received_at || '').slice(0, 10);
+      cards += '<blockquote style="border-left:3px solid #2C5F2E;padding:0.5rem 1rem;margin:0.75rem 0;color:#333;line-height:1.6">'
+        + '<strong>' + _htmlEscape(c.name || 'Anonymous') + '</strong> &middot; ' + _htmlEscape(recv) + '<br>'
+        + '<small style="color:#666">' + _htmlEscape(c.email || '') + ' &middot; <em>' + _htmlEscape(c.subject || '(no subject)') + '</em></small><br>'
+        + '&ldquo;' + _htmlEscape(c.message_snippet || '') + '&rdquo;</blockquote>';
+    }
+    const more = contacts.length > 5
+      ? '<p style="color:#666;font-style:italic;margin-top:0.5rem">… and ' + (contacts.length - 5) + ' more in the Contact tab.</p>'
+      : '';
+    body += '<h3 style="font-family:Georgia,serif;color:#2C5F2E;margin:1.5rem 0 0.5rem">✉️ Recent contact messages (' + contacts.length + ')</h3>'
+      + cards + more;
+  }
+  const subs = data.newSubscribers || [];
+  if (subs.length) {
+    let rows = '';
+    for (let i = 0; i < subs.length; i++) {
+      rows += '<li>' + _htmlEscape(subs[i].name || '?') + ' — <small style="color:#666">' + _htmlEscape(subs[i].email || '') + '</small></li>';
+    }
+    body += '<h3 style="font-family:Georgia,serif;color:#2C5F2E;margin:1.5rem 0 0.5rem">💌 New subscribers this week (' + subs.length + ')</h3>'
+      + '<ul style="line-height:1.7">' + rows + '</ul>';
+  }
+  if (calCount < 2) {
+    body += '<h3 style="font-family:Georgia,serif;color:#b54f2c;margin:1.5rem 0 0.5rem">⚠️ Calendar is thin (' + calCount + ' events in next 14 days)</h3>'
+      + '<p style="line-height:1.7">The Telegram announcement bot has very little to post this stretch. Add events through Google Calendar or convert past weekly events to recurring.</p>';
+  } else if (calCount < 5) {
+    body += '<h3 style="font-family:Georgia,serif;color:#2C5F2E;margin:1.5rem 0 0.5rem">📅 Calendar status</h3>'
+      + '<p style="line-height:1.7">' + calCount + ' events scheduled in the next 14 days.</p>';
+  }
+  if (!body) {
+    body = '<p style="color:#555;line-height:1.7">Nothing actionable on the ops board right now. All orders in terminal states, no stories awaiting review, no fresh contact messages this past week. The Lord is also at work in the quiet.</p>';
+  }
+  return _wrapDigestHtml('Admin Ops Digest', label, name || 'team',
+    'Quick ops snapshot for the team. Sent every Monday and Thursday morning.',
+    body);
+}
+
+function _buildAdminDigestText(data, name, label, calCount) {
+  const parts = [];
+  parts.push('Seed the Word — Admin Ops Digest');
+  parts.push(label);
+  parts.push('');
+  parts.push('Dear ' + (name || 'team') + ',');
+  parts.push('');
+  parts.push('Quick ops snapshot for the team.');
+  parts.push('');
+
+  const orders = data.ordersNeedingAction || [];
+  if (orders.length) {
+    parts.push('ORDERS NEEDING ACTION (' + orders.length + ')');
+    for (let i = 0; i < orders.length; i++) {
+      const o = orders[i];
+      parts.push('- [' + (o.status || 'new').toUpperCase() + '] ' + (o.order_id || '?')
+        + ' — ' + (o.bundle || '?') + ' for ' + (o.gifter_name || '?')
+        + (o.is_special_order ? ' (SPECIAL)' : ''));
+    }
+    parts.push('');
+  }
+  const stories = data.storiesAwaitingReview || [];
+  if (stories.length) {
+    parts.push('STORIES AWAITING REVIEW (' + stories.length + ')');
+    for (let i = 0; i < Math.min(5, stories.length); i++) {
+      const s = stories[i];
+      parts.push('- ' + (s.name || 'Anonymous') + ' (' + (s.received_at || '').slice(0, 10) + ')');
+      parts.push('  "' + (s.story_snippet || '') + '"');
+    }
+    parts.push('');
+  }
+  const contacts = data.recentContacts || [];
+  if (contacts.length) {
+    parts.push('RECENT CONTACT MESSAGES (' + contacts.length + ')');
+    for (let i = 0; i < Math.min(5, contacts.length); i++) {
+      const c = contacts[i];
+      parts.push('- ' + (c.name || 'Anonymous') + ' (' + (c.received_at || '').slice(0, 10) + ') — ' + (c.subject || ''));
+      parts.push('  "' + (c.message_snippet || '') + '"');
+    }
+    parts.push('');
+  }
+  if (calCount < 2) {
+    parts.push('WARNING: Calendar is thin (' + calCount + ' events in next 14 days).');
+    parts.push('');
+  }
+  parts.push('---');
+  parts.push('Admin help: ' + SITE_PUBLIC_BASE + '/admin-help.html');
+  parts.push('');
+  parts.push('Sincerely,');
+  parts.push('The Seed the Word automation');
+  return parts.join('\n');
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Daily calendar-thin monitor — 08:30 PT
+// ─────────────────────────────────────────────────────────────────────
+function dailyCalendarMonitor() {
+  const upcoming = _fetchIcalEvents(0, 7, null);
+  const threshold = 2;
+  console.log('dailyCalendarMonitor: ' + upcoming.length + ' events in next 7 days; threshold ' + threshold);
+  if (upcoming.length >= threshold) return;
+
+  const tz = 'America/Los_Angeles';
+  let rows = '';
+  for (let i = 0; i < upcoming.length; i++) {
+    rows += '<li>' + _htmlEscape(_formatEventLine(upcoming[i], tz)) + '</li>';
+  }
+  const eventsHtml = upcoming.length
+    ? '<ul style="line-height:1.7">' + rows + '</ul>'
+    : '<p><strong>The calendar is empty for the next 7 days.</strong></p>';
+
+  const html = '<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#1a1a1a;line-height:1.6">'
+    + '<div style="max-width:600px;margin:0 auto;padding:1.5rem;background:#fff8f0;border:1px solid #d4a574;border-radius:10px">'
+    + '<h2 style="color:#2C5F2E;margin-top:0">Heads up: the calendar is running thin</h2>'
+    + '<p>The ministry calendar has only <strong>' + upcoming.length + '</strong> events scheduled in the next 7 days (threshold: ' + threshold + ').</p>'
+    + '<h3 style="color:#2C5F2E">What\'s currently on the calendar:</h3>'
+    + eventsHtml
+    + '<h3 style="color:#2C5F2E">What to do about it:</h3>'
+    + '<ol><li>Open <a href="https://calendar.google.com/" style="color:#2C5F2E">Google Calendar</a> and add events.</li>'
+    + '<li>Convert weekly events to recurring so the calendar fills itself.</li>'
+    + '<li>You\'ll stop getting these emails when count crosses threshold.</li></ol>'
+    + '<p style="color:#666;font-size:0.9rem;font-style:italic;margin-top:2rem">Automated daily monitor.</p>'
+    + '</div></body></html>';
+
+  try {
+    MailApp.sendEmail({
+      to: TEAM_INBOX,
+      subject: '[STW Calendar] Only ' + upcoming.length + ' events scheduled for the next 7 days',
+      htmlBody: html,
+      body: 'Calendar is thin (' + upcoming.length + ' events in next 7 days). Open Google Calendar and add events or convert weekly events to recurring.',
+      name: 'Seed the Word Calendar Monitor',
+      noReply: true,
+    });
+    console.log('dailyCalendarMonitor: alert dispatched.');
+  } catch (err) {
+    console.log('dailyCalendarMonitor: send failed: ' + err);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// GitHub workflow health check — daily 09:00 PT
+// ─────────────────────────────────────────────────────────────────────
+//
+// Watches the bot-authored commits on origin/main to detect when
+// GitHub Actions cron has gone dark for any of the workflows still
+// running there (announcement bot, Instagram scrape, playlist digest,
+// heartbeat). If any expected commit type hasn't appeared within its
+// SLO, emails the team.
+
+function dailyWorkflowHealth() {
+  const checks = [
+    {
+      label: 'announcement bot',
+      pattern: 'chore(telegram): update announcement log',
+      maxAgeHours: 36,  // posts are bursty; allow up to 1.5 days
+    },
+    {
+      label: 'heartbeat',
+      pattern: 'chore: heartbeat tick',
+      maxAgeHours: 6,   // expected hourly
+    },
+    {
+      label: 'instagram scrape',
+      pattern: 'chore(instagram): refresh feed',
+      maxAgeHours: 48,  // every 6h, allow up to 2 days
+    },
+  ];
+
+  const apiUrl = 'https://api.github.com/repos/seedtheword/seedtheword/commits?per_page=100';
+  let commits;
+  try {
+    const resp = UrlFetchApp.fetch(apiUrl, {
+      muteHttpExceptions: true,
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'User-Agent': 'seedtheword-apps-script/1.0',
+      },
+    });
+    if (resp.getResponseCode() !== 200) {
+      console.log('dailyWorkflowHealth: GitHub API ' + resp.getResponseCode());
+      return;
+    }
+    commits = JSON.parse(resp.getContentText('utf-8'));
+  } catch (err) {
+    console.log('dailyWorkflowHealth: fetch threw: ' + err);
+    return;
+  }
+
+  const now = Date.now();
+  const stale = [];
+  for (let i = 0; i < checks.length; i++) {
+    const c = checks[i];
+    let mostRecent = null;
+    for (let j = 0; j < commits.length; j++) {
+      const msg = (commits[j].commit && commits[j].commit.message) || '';
+      if (msg.indexOf(c.pattern) !== -1) {
+        const date = new Date(commits[j].commit.author.date);
+        if (!mostRecent || date > mostRecent) mostRecent = date;
+      }
+    }
+    const ageHours = mostRecent ? (now - mostRecent.getTime()) / 3600000 : 99999;
+    if (ageHours > c.maxAgeHours) {
+      stale.push({
+        label: c.label,
+        ageHours: ageHours.toFixed(1),
+        maxAgeHours: c.maxAgeHours,
+        lastSeen: mostRecent ? Utilities.formatDate(mostRecent, 'America/Los_Angeles', 'EEE MMM d HH:mm zzz') : 'never (in last 100 commits)',
+      });
+    }
+  }
+
+  if (!stale.length) {
+    console.log('dailyWorkflowHealth: all GitHub workflows healthy.');
+    return;
+  }
+
+  let rows = '';
+  for (let i = 0; i < stale.length; i++) {
+    const s = stale[i];
+    rows += '<tr><td style="padding:0.4rem;border-bottom:1px solid #f0ebe2"><strong>' + _htmlEscape(s.label) + '</strong></td>'
+      + '<td style="padding:0.4rem;border-bottom:1px solid #f0ebe2">' + _htmlEscape(s.lastSeen) + '</td>'
+      + '<td style="padding:0.4rem;border-bottom:1px solid #f0ebe2;color:#b54f2c"><strong>' + _htmlEscape(s.ageHours) + ' h</strong> (SLO ' + s.maxAgeHours + ' h)</td></tr>';
+  }
+  const html = '<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#1a1a1a;line-height:1.6">'
+    + '<div style="max-width:680px;margin:0 auto;padding:1.5rem;background:#fff8f0;border:1px solid #d4a574;border-radius:10px">'
+    + '<h2 style="color:#2C5F2E;margin-top:0">⚠️ GitHub workflow(s) appear to have stalled</h2>'
+    + '<p>The following automated workflows haven\'t updated their bot-authored commit logs within their expected windows:</p>'
+    + '<table style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left">'
+    + '<th style="padding:0.4rem">Workflow</th><th style="padding:0.4rem">Last seen</th><th style="padding:0.4rem">Age</th></tr></thead>'
+    + '<tbody>' + rows + '</tbody></table>'
+    + '<h3 style="color:#2C5F2E">What to do</h3>'
+    + '<ol><li>Open <a href="https://github.com/seedtheword/seedtheword/actions">github.com/seedtheword/seedtheword/actions</a></li>'
+    + '<li>Find the workflow listed above and click "Run workflow" to trigger a manual run.</li>'
+    + '<li>If it succeeds, the next scheduled tick will likely also succeed and you\'ll stop getting these alerts.</li>'
+    + '<li>If it fails, the workflow log will show why (most common: a secret expired or a third-party API changed).</li></ol>'
+    + '<p style="color:#666;font-size:0.9rem;font-style:italic;margin-top:2rem">Daily Apps Script health check.</p>'
+    + '</div></body></html>';
+
+  try {
+    MailApp.sendEmail({
+      to: TEAM_INBOX,
+      subject: '[STW Health] ' + stale.length + ' workflow(s) stalled',
+      htmlBody: html,
+      body: stale.length + ' workflow(s) stalled: ' + stale.map(function (s) { return s.label + ' (' + s.ageHours + 'h)'; }).join(', '),
+      name: 'Seed the Word Health Check',
+      noReply: true,
+    });
+    console.log('dailyWorkflowHealth: alert dispatched for ' + stale.length + ' stale workflow(s).');
+  } catch (err) {
+    console.log('dailyWorkflowHealth: send failed: ' + err);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// One-time time-trigger installer
+// ─────────────────────────────────────────────────────────────────────
+//
+// Run installAllTimeTriggers() ONCE from the Apps Script editor's
+// function dropdown. Idempotent — wipes existing triggers for the
+// six handlers and reinstalls them.
+function installAllTimeTriggers() {
+  // Wipe existing triggers for the six handlers we manage
+  const handlers = [
+    'dailyBibleBot',
+    'weeklyMemberDigest',
+    'weeklyAdminDigestMon',
+    'weeklyAdminDigestThu',
+    'dailyCalendarMonitor',
+    'dailyWorkflowHealth',
+  ];
+  const existing = ScriptApp.getProjectTriggers();
+  let removed = 0;
+  for (let i = 0; i < existing.length; i++) {
+    if (handlers.indexOf(existing[i].getHandlerFunction()) !== -1) {
+      ScriptApp.deleteTrigger(existing[i]);
+      removed++;
+    }
+  }
+  console.log('installAllTimeTriggers: removed ' + removed + ' existing triggers.');
+
+  // Reinstall: all triggers fire in PT (Apps Script time-based
+  // triggers honor the script's Project Settings → Time zone, which
+  // should be set to America/Los_Angeles).
+  ScriptApp.newTrigger('dailyBibleBot').timeBased()
+    .everyDays(1).atHour(8).create();
+  ScriptApp.newTrigger('weeklyMemberDigest').timeBased()
+    .onWeekDay(ScriptApp.WeekDay.SATURDAY).atHour(8).create();
+  ScriptApp.newTrigger('weeklyAdminDigestMon').timeBased()
+    .onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).create();
+  ScriptApp.newTrigger('weeklyAdminDigestThu').timeBased()
+    .onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(8).create();
+  ScriptApp.newTrigger('dailyCalendarMonitor').timeBased()
+    .everyDays(1).atHour(8).nearMinute(30).create();
+  ScriptApp.newTrigger('dailyWorkflowHealth').timeBased()
+    .everyDays(1).atHour(9).create();
+
+  console.log('installAllTimeTriggers: installed 6 triggers.');
+  console.log('Confirm in: Project Settings → Triggers (left rail icon).');
+  console.log('IMPORTANT: ensure script timezone is America/Los_Angeles');
+  console.log('  (Project Settings → General → Time zone).');
+}

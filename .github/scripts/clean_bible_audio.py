@@ -11,8 +11,18 @@ Idempotent — runs that find no new files are no-ops. Per-file
 failures are logged and skipped; the workflow exits non-zero only
 when every attempted file failed (Requirement 5.6).
 
+Auth: uses an OAuth user refresh token (not a service account)
+because service accounts can't create files in personal Gmail
+Drive — they have no storage quota of their own, and personal
+accounts don't support OAuth delegation. The refresh token grant
+gets a fresh access token on each run, charges the file's bytes
+against the user's 15 GB quota, and never expires unless the user
+revokes it.
+
 Env vars:
-  GDRIVE_SERVICE_ACCOUNT_JSON  — service-account JSON key (required)
+  GDRIVE_OAUTH_CLIENT_ID       — OAuth client ID (required)
+  GDRIVE_OAUTH_CLIENT_SECRET   — OAuth client secret (required)
+  GDRIVE_OAUTH_REFRESH_TOKEN   — long-lived refresh token (required)
   BOT_CONFIG                   — path to telegram-bot.json (default
                                  'assets/data/telegram-bot.json')
   DRY_RUN                      — if set to any non-empty value, log
@@ -22,8 +32,8 @@ Env vars:
 Exit codes:
   0  — success, OR `enabled=false` (intentional no-op), OR no work
        to do, OR partial success
-  1  — config error (empty cleanedDriveFolderId), OR every attempted
-       file failed
+  1  — config error (empty cleanedDriveFolderId), OR missing OAuth
+       env vars, OR every attempted file failed
 """
 from __future__ import annotations
 
@@ -34,7 +44,7 @@ import subprocess
 import sys
 import tempfile
 
-from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
@@ -77,12 +87,44 @@ def load_audio_config() -> dict:
     return audio
 
 
-def build_drive_service(json_blob: str):
-    """Build a googleapiclient Drive v3 client from a service-account
-    JSON blob (the raw string contents of the JSON key file)."""
-    info = json.loads(json_blob)
-    creds = service_account.Credentials.from_service_account_info(
-        info,
+def build_drive_service():
+    """Build a googleapiclient Drive v3 client from an OAuth user
+    refresh token. The three env vars must all be set:
+
+    * ``GDRIVE_OAUTH_CLIENT_ID`` — from a Desktop OAuth client in
+      the same GCP project.
+    * ``GDRIVE_OAUTH_CLIENT_SECRET`` — paired with the client id.
+    * ``GDRIVE_OAUTH_REFRESH_TOKEN`` — long-lived token from a
+      one-time consent flow run by the admin.
+
+    The Credentials object refreshes itself transparently when the
+    short-lived access token expires (every ~1 hour). Drive writes
+    are charged to the consenting user's 15 GB quota — that's the
+    fix for service-account accounts not having any storage quota
+    on personal Gmail.
+    """
+    client_id = os.environ.get("GDRIVE_OAUTH_CLIENT_ID")
+    client_secret = os.environ.get("GDRIVE_OAUTH_CLIENT_SECRET")
+    refresh_token = os.environ.get("GDRIVE_OAUTH_REFRESH_TOKEN")
+    missing = [
+        name
+        for name, val in (
+            ("GDRIVE_OAUTH_CLIENT_ID", client_id),
+            ("GDRIVE_OAUTH_CLIENT_SECRET", client_secret),
+            ("GDRIVE_OAUTH_REFRESH_TOKEN", refresh_token),
+        )
+        if not val
+    ]
+    if missing:
+        raise RuntimeError(
+            "Missing OAuth env var(s): " + ", ".join(missing)
+        )
+    creds = Credentials(
+        token=None,  # forces a refresh on first use
+        refresh_token=refresh_token,
+        token_uri="https://oauth2.googleapis.com/token",
+        client_id=client_id,
+        client_secret=client_secret,
         scopes=["https://www.googleapis.com/auth/drive"],
     )
     return build("drive", "v3", credentials=creds, cache_discovery=False)
@@ -354,12 +396,7 @@ def main() -> int:
 
     dry_run = bool(os.environ.get("DRY_RUN"))
 
-    sa_json = os.environ.get("GDRIVE_SERVICE_ACCOUNT_JSON")
-    if not sa_json:
-        log("ERROR: GDRIVE_SERVICE_ACCOUNT_JSON env var is not set")
-        return 1
-
-    drive = build_drive_service(sa_json)
+    drive = build_drive_service()
 
     raw_index = list_two_level(drive, cfg["rawDriveFolderId"])
     cleaned_index = list_two_level(drive, cfg["cleanedDriveFolderId"])

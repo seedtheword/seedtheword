@@ -58,6 +58,18 @@ jobs:
       - name: Confirm ffmpeg is present
         run: ffmpeg -version | head -n 1
 
+      - name: Download RNNoise speech model
+        # cb.rnnn is the voice-trained RNNoise model from
+        # GregorR/rnnoise-models. Used by the arnndn ffmpeg filter
+        # for ML-based speech denoising — way more aggressive than
+        # afftdn on background noise without the watery artifacts.
+        # Lands at /tmp/rnnoise-cb.rnnn so the bible.audio.ffmpegFilter
+        # value can reference it as: arnndn=m=/tmp/rnnoise-cb.rnnn
+        run: |
+          curl -fsSL -o /tmp/rnnoise-cb.rnnn \
+            https://raw.githubusercontent.com/GregorR/rnnoise-models/master/conjoined-burgers-2018-08-28/cb.rnnn
+          ls -lh /tmp/rnnoise-cb.rnnn
+
       - name: Run audio cleanup
         env:
           GDRIVE_OAUTH_CLIENT_ID: ${{ secrets.GDRIVE_OAUTH_CLIENT_ID }}

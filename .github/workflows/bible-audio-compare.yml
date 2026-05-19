@@ -16,9 +16,9 @@ on:
         required: true
         default: "experiment"
       filter:
-        description: "Full ffmpeg -af value. Comma-separated chain."
+        description: "Full ffmpeg -af value. Comma-separated chain. RNNoise model lives at /tmp/rnnoise-cb.rnnn"
         required: true
-        default: "afftdn=nf=-40:nt=w:om=o,highpass=f=80,dynaudnorm=f=150:g=15:m=15,loudnorm=I=-16:TP=-1.5:LRA=11"
+        default: "arnndn=m=/tmp/rnnoise-cb.rnnn,highpass=f=80,dynaudnorm=f=200:g=15:m=10,loudnorm=I=-16:TP=-1.5:LRA=11"
       bitrate:
         description: "Output bitrate."
         required: false
@@ -56,6 +56,12 @@ jobs:
 
       - name: Confirm ffmpeg is present
         run: ffmpeg -version | head -n 1
+
+      - name: Download RNNoise speech model
+        run: |
+          curl -fsSL -o /tmp/rnnoise-cb.rnnn \
+            https://raw.githubusercontent.com/GregorR/rnnoise-models/master/conjoined-burgers-2018-08-28/cb.rnnn
+          ls -lh /tmp/rnnoise-cb.rnnn
 
       - name: Run A/B comparison
         env:

@@ -74,6 +74,14 @@ const SITE_URL = 'https://seedtheword.github.io/seedtheword/';
 const ADMIN_HELP_ANCHOR =
   'https://seedtheword.github.io/seedtheword/admin-help.html#publish-a-new-podcast-episode';
 
+// GitHub workflow_dispatch endpoint for the Bible Audio Cleanup
+// workflow. runBibleAudioCleanupNow() POSTs to this URL with a
+// short-lived GITHUB_TOKEN (set in Script Properties — same one
+// the workflow-health checker uses).
+const GITHUB_WORKFLOW_DISPATCH_URL =
+  'https://api.github.com/repos/seedtheword/seedtheword/actions/workflows/bible-audio-cleanup.yml/dispatches';
+const PROP_GITHUB_TOKEN = 'GITHUB_TOKEN';
+
 // ── HELPERS ─────────────────────────────────────────────────────
 
 /**
@@ -1046,6 +1054,107 @@ function notifyCleanedAudio() {
   } catch (err) {
     // Top-level guard — see pollTelegramChapterAudio for rationale.
     Logger.log('bibleaudio: notify threw: ' + err);
+  }
+}
+
+/**
+ * On-demand entry point. Walks the full pipeline end-to-end:
+ *   1. Run the Stage-1 poller once (pulls any new voice memos
+ *      from Telegram into Raw_Folder).
+ *   2. Trigger the Stage-2 GitHub Actions cleanup workflow via
+ *      workflow_dispatch (ffmpegs Raw → Cleaned).
+ *   3. Wait ~90 seconds for the workflow to finish.
+ *   4. Run the Stage-3 notifier to email any newly cleaned files.
+ *
+ * Useful when an admin wants to clean a recording right after it's
+ * posted, without waiting for the nightly cron at 22:00 PT. The
+ * GitHub workflow run is async — we kick it off, sleep, then
+ * notify. If the workflow takes longer than the sleep, the next
+ * scheduled notifier run at 07:00 PT picks up the slack.
+ *
+ * Requires GITHUB_TOKEN in Script Properties with `actions:write`
+ * scope on the seedtheword/seedtheword repo (the same token the
+ * workflow-health checker in order-handler.gs already uses).
+ *
+ * Wrapped in a top-level try/catch so a partial failure (e.g.
+ * GitHub 401) still lets the poller leg's results stand.
+ */
+function runBibleAudioCleanupNow() {
+  try {
+    Logger.log('bibleaudio: on-demand run start ' + new Date().toISOString());
+
+    // Stage 1 — pull anything new from Telegram into Raw_Folder.
+    pollTelegramChapterAudio();
+
+    // Stage 2 — fire the GitHub Actions cleanup workflow. Optional:
+    // bail with a clear log if no token is set, but still proceed
+    // to notify on whatever was already cleaned (e.g. by the cron).
+    var token = PropertiesService.getScriptProperties().getProperty(
+      PROP_GITHUB_TOKEN
+    );
+    if (!token) {
+      Logger.log(
+        'bibleaudio: ' +
+          PROP_GITHUB_TOKEN +
+          ' not set — skipping workflow dispatch; running notifier on existing cleaned files'
+      );
+    } else {
+      var dispatched = _dispatchCleanupWorkflow(token);
+      if (dispatched) {
+        Logger.log('bibleaudio: workflow dispatched; waiting ~90s for it to run');
+        // Apps Script's Utilities.sleep blocks the current
+        // execution; the 6-min cap is the only ceiling we have to
+        // respect. 90s leaves plenty of headroom.
+        Utilities.sleep(90 * 1000);
+      }
+    }
+
+    // Stage 3 — email any newly cleaned files.
+    notifyCleanedAudio();
+
+    Logger.log('bibleaudio: on-demand run complete');
+  } catch (err) {
+    Logger.log('bibleaudio: on-demand run threw: ' + err);
+  }
+}
+
+/**
+ * POSTs to GitHub's workflow_dispatch endpoint to trigger the
+ * Bible Audio Cleanup workflow on the main branch. Returns true
+ * on a 204 response, false otherwise (logs the error). Never
+ * throws.
+ */
+function _dispatchCleanupWorkflow(token) {
+  try {
+    var resp = UrlFetchApp.fetch(GITHUB_WORKFLOW_DISPATCH_URL, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        Authorization: 'Bearer ' + token,
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+      payload: JSON.stringify({
+        ref: 'main',
+        inputs: { dry_run: 'false' },
+      }),
+      muteHttpExceptions: true,
+    });
+    var code = resp.getResponseCode();
+    if (code === 204) {
+      Logger.log('bibleaudio: workflow_dispatch 204 OK');
+      return true;
+    }
+    Logger.log(
+      'bibleaudio: workflow_dispatch HTTP ' +
+        code +
+        ' body=' +
+        resp.getContentText().substring(0, 200)
+    );
+    return false;
+  } catch (err) {
+    Logger.log('bibleaudio: workflow_dispatch threw: ' + err);
+    return false;
   }
 }
 

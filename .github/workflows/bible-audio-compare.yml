@@ -1,0 +1,69 @@
+name: Bible Audio Cleanup — A/B compare
+
+# A/B helper for the bible-audio-pipeline ffmpeg filter chain.
+# Manual-only (workflow_dispatch). Each run takes one filter chain
+# + one short tag, runs every file in Raw_Folder through ffmpeg
+# with that chain, and uploads the result to
+# <Cleaned>/_compare/<tag>/<basename>.mp3 so you can listen
+# side-by-side and pick a winner before promoting the chain to
+# bible.audio.ffmpegFilter.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Short slug naming this experiment (e.g. aggressive, loudnorm). [a-zA-Z0-9_-] only."
+        required: true
+        default: "experiment"
+      filter:
+        description: "Full ffmpeg -af value. Comma-separated chain."
+        required: true
+        default: "afftdn=nf=-40:nt=w:om=o,highpass=f=80,dynaudnorm=f=150:g=15:m=15,loudnorm=I=-16:TP=-1.5:LRA=11"
+      bitrate:
+        description: "Output bitrate."
+        required: false
+        default: "128k"
+
+permissions:
+  contents: read
+
+concurrency:
+  # Allow multiple compare runs in parallel — each uploads to its
+  # own tag-prefixed folder. Cleanup workflow uses a separate group.
+  group: bible-audio-compare-${{ github.event.inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python deps
+        run: pip install google-api-python-client google-auth
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+
+      - name: Confirm ffmpeg is present
+        run: ffmpeg -version | head -n 1
+
+      - name: Run A/B comparison
+        env:
+          GDRIVE_OAUTH_CLIENT_ID: ${{ secrets.GDRIVE_OAUTH_CLIENT_ID }}
+          GDRIVE_OAUTH_CLIENT_SECRET: ${{ secrets.GDRIVE_OAUTH_CLIENT_SECRET }}
+          GDRIVE_OAUTH_REFRESH_TOKEN: ${{ secrets.GDRIVE_OAUTH_REFRESH_TOKEN }}
+          BOT_CONFIG: assets/data/telegram-bot.json
+          COMPARE_TAG: ${{ github.event.inputs.tag }}
+          COMPARE_FILTER: ${{ github.event.inputs.filter }}
+          COMPARE_BITRATE: ${{ github.event.inputs.bitrate }}
+        run: python .github/scripts/compare_bible_audio_filter.py

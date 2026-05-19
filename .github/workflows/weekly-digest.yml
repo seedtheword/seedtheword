@@ -1,17 +1,9 @@
 name: Weekly Digest
 
 on:
-  schedule:
-    # Saturday 08:00 Pacific. UTC is PDT+7 (15:00) for most of the
-    # year; during PST months the post arrives an hour later locally,
-    # which is acceptable for a weekly digest. Runs at the same time
-    # as the playlist digest (weekly-playlist-digest.yml) and the
-    # Saturday Bible post (daily-bible.yml). Each posts to a different
-    # destination so members aren't spammed:
-    #   - This workflow → email subscribers (sheet-driven list)
-    #   - Playlist digest → Telegram Worship topic
-    #   - Bible bot → Telegram General topic
-    - cron: '0 15 * * 6'
+  # Scheduled cron disabled May 2026 — migrated to Apps Script time
+  # trigger (weeklyMemberDigest function in order-handler.gs) for
+  # reliable firing. Kept as workflow_dispatch for manual catch-up.
   workflow_dispatch:
     inputs:
       dry_run:

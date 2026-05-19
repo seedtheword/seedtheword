@@ -1,16 +1,10 @@
 name: Calendar Thin Monitor
 
-# Once a day at 08:30 PT, count upcoming events on the iCal feed.
-# When the count is below the threshold, email the team a heads-up.
-# Read-only relative to the calendar; the only side-effect is the
-# email when the alarm fires.
+# Scheduled cron disabled May 2026 — migrated to Apps Script time
+# trigger (dailyCalendarMonitor function in order-handler.gs).
+# Kept as workflow_dispatch for manual ad-hoc checks.
 
 on:
-  schedule:
-    # 08:30 PT = 15:30 UTC year-round (PDT) / 16:30 UTC during PST.
-    # 15:30 UTC keeps the alert close to the daily-bible-bot's fire
-    # window so admins see both notifications at the same time.
-    - cron: '30 15 * * *'
   workflow_dispatch:
     inputs:
       dry_run:

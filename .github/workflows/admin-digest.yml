@@ -1,17 +1,11 @@
 name: Admin Ops Digest
 
-# Twice a week (Mon and Thu) at 08:00 PT — gives admins an ops snapshot
-# of orders needing action, stories awaiting review, recent contact-form
-# messages, new subscribers, and calendar health.
-#
-# Different audience and content from weekly-digest.yml (member-facing,
-# Saturday). The two pipelines reuse the same Apps Script Mail bridge
-# and the same digest-log.json file.
+# Scheduled cron disabled May 2026 — migrated to Apps Script time
+# triggers (weeklyAdminDigestMon and weeklyAdminDigestThu in
+# order-handler.gs) for reliable firing. Kept as workflow_dispatch
+# for manual catch-up.
 
 on:
-  schedule:
-    # Cron is UTC. Mon+Thu 15:00 UTC = 08:00 PT (PDT).
-    - cron: '0 15 * * 1,4'
   workflow_dispatch:
     inputs:
       dry_run:

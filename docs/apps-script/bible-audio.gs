@@ -253,6 +253,105 @@ function _slugToChapterDisplay(slug) {
 }
 
 /**
+ * Pure function. Fuzzy-matches a book name + chapter number out of
+ * arbitrary free-form text and returns a kebab-case Chapter_Slug,
+ * or "unknown-chapter" if no match.
+ *
+ * Tries each of the 66 canonical books (sorted by descending name
+ * length so "1 Corinthians" wins over a stray "1" prefix) looking
+ * for the book name followed by a chapter number. Tolerant of
+ * separators (space, dash, colon, "chapter", "ch", "ch.") and case.
+ *
+ * Examples:
+ *   "Luke 7"                          → "luke-7"
+ *   "Luke 7 reading by Mary"          → "luke-7"
+ *   "1 Corinthians 13"                → "1-corinthians-13"
+ *   "1Corinthians13"                  → "1-corinthians-13"
+ *   "luke-7-recording.mp3"            → "luke-7"
+ *   "Today's chapter: John 3"         → "john-3"
+ *   "John chapter 3"                  → "john-3"
+ *   "John ch. 3"                      → "john-3"
+ *   "random words"                    → "unknown-chapter"
+ *
+ * @param {string} text
+ * @return {string}
+ */
+function _slugFromFreeText(text) {
+  if (typeof text !== 'string' || !text) return 'unknown-chapter';
+  var normalized = text.toLowerCase();
+
+  var candidates = BIBLE_BOOK_NAMES.map(function (name) {
+    return {
+      name: name,
+      kebab: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      lower: name.toLowerCase(),
+    };
+  });
+  candidates.sort(function (a, b) {
+    return b.lower.length - a.lower.length;
+  });
+
+  for (var i = 0; i < candidates.length; i++) {
+    var c = candidates[i];
+    var idx = normalized.indexOf(c.lower);
+    if (idx === -1) continue;
+    // After the book name, look for a chapter number. Allow optional
+    // separators (space, dash, colon, dot) and an optional "chapter"
+    // / "ch" / "ch." word.
+    var rest = normalized.substring(idx + c.lower.length);
+    var m = rest.match(/^[\s\-:.]*(?:ch(?:apter)?\.?\s*)?(\d+)/);
+    if (m) {
+      return c.kebab + '-' + m[1];
+    }
+  }
+  return 'unknown-chapter';
+}
+
+/**
+ * Pure function. Walks a fallback chain of context sources to
+ * derive a Chapter_Slug for one Telegram audio/voice message:
+ *
+ *   1. Topic name (via _deriveChapterSlug + the configured
+ *      `Today's Chapter is {book} {chapter}` template)
+ *   2. Message caption — what the volunteer typed when posting
+ *   3. audio.file_name (audio payloads only)
+ *   4. audio.title — ID3 tag (audio payloads only)
+ *
+ * Falls back to "unknown-chapter" if every source draws blank.
+ *
+ * @param {object} message     a Telegram message dict
+ * @param {string|null} topicName  the live topic name, or null on lookup failure
+ * @param {string} template    bible.todayChapterTopic.nameTemplate
+ * @return {string}
+ */
+function _resolveSlugForMessage(message, topicName, template) {
+  // 1. Topic name — the bot's auto-rename. Best signal when it works.
+  var slug = _deriveChapterSlug(topicName || '', template);
+  if (slug !== 'unknown-chapter') return slug;
+
+  // 2. Message caption — free-text the volunteer attached.
+  if (message && message.caption) {
+    slug = _slugFromFreeText(message.caption);
+    if (slug !== 'unknown-chapter') return slug;
+  }
+
+  // 3 + 4. audio metadata (voice payloads don't carry these fields).
+  var audio = message && message.audio;
+  if (audio) {
+    if (audio.file_name) {
+      slug = _slugFromFreeText(audio.file_name);
+      if (slug !== 'unknown-chapter') return slug;
+    }
+    if (audio.title) {
+      slug = _slugFromFreeText(audio.title);
+      if (slug !== 'unknown-chapter') return slug;
+    }
+  }
+
+  return 'unknown-chapter';
+}
+
+/**
  * Pure function. Returns one of: "mp3", "oga", "ogg", "m4a", "wav".
  * Inspects (in order): mimeType, fileName extension, payload kind.
  * Defaults to "oga" for voice and "mp3" for audio (req 4.4).
@@ -917,11 +1016,11 @@ function _pollTelegramChapterAudioInternal(ignoreTimeGate) {
       candidates = candidates.slice(0, MAX_AUDIOS_PER_POLL);
     }
 
-    // 6. Resolve fresh topic name once for this batch. The chatId
-    // is not part of bible.audio — the parent supergroup is the
-    // hard-coded ministry handle that all bots use.
+    // 6. Resolve fresh topic name once for this batch — used as
+    // the primary signal in the per-message slug fallback chain.
+    // The chatId is not part of bible.audio — the parent supergroup
+    // is the hard-coded ministry handle that all bots use.
     var topicName = _getFreshTopicName(botToken, '@seedtheword', topicId);
-    var slug = _deriveChapterSlug(topicName || '', nameTemplate);
 
     // 7. Process each candidate. Per-message failure is isolated:
     // log + skip, do NOT add to processed (next poll retries —
@@ -930,6 +1029,9 @@ function _pollTelegramChapterAudioInternal(ignoreTimeGate) {
       var m = candidates[j];
       var payload = m.audio || m.voice;
       var kind = m.audio ? 'audio' : 'voice';
+      // Per-message slug resolution: topic name → caption → audio
+      // file_name → audio title → unknown-chapter.
+      var slug = _resolveSlugForMessage(m, topicName, nameTemplate);
       var ext = _inferFileExtension(
         (payload && payload.mime_type) || null,
         (payload && payload.file_name) || null,

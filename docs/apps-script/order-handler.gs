@@ -3650,15 +3650,27 @@ function dailyWorkflowHealth() {
   const apiUrl = 'https://api.github.com/repos/seedtheword/seedtheword/commits?per_page=100';
   let commits;
   try {
+    // GitHub's unauthenticated API budget (60 requests/hour, shared
+    // across the Apps Script egress IP pool) gets blown well before
+    // our daily call lands. A fine-grained personal access token with
+    // read-only "Contents" scope on this single repo lifts the limit
+    // to 5,000/hour and is a one-time setup. Falls back to
+    // unauthenticated if no token configured \u2014 useful for first-run
+    // smoke tests, then expect 403s for the next hour or so.
+    const ghToken = PropertiesService.getScriptProperties().getProperty('GITHUB_TOKEN');
+    const headers = {
+      'Accept': 'application/vnd.github+json',
+      'User-Agent': 'seedtheword-apps-script/1.0',
+    };
+    if (ghToken) headers['Authorization'] = 'token ' + ghToken;
     const resp = UrlFetchApp.fetch(apiUrl, {
       muteHttpExceptions: true,
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'User-Agent': 'seedtheword-apps-script/1.0',
-      },
+      headers: headers,
     });
     if (resp.getResponseCode() !== 200) {
-      console.log('dailyWorkflowHealth: GitHub API ' + resp.getResponseCode());
+      console.log('dailyWorkflowHealth: GitHub API '
+        + resp.getResponseCode()
+        + (ghToken ? ' (with token \u2014 unexpected)' : ' (no token \u2014 set GITHUB_TOKEN script property)'));
       return;
     }
     commits = JSON.parse(resp.getContentText('utf-8'));

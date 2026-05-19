@@ -46,6 +46,15 @@ jobs:
       - name: Install Python deps
         run: pip install google-api-python-client google-auth
 
+      - name: Install ffmpeg
+        # ffmpeg used to ship preinstalled on ubuntu-latest but was
+        # removed from the ubuntu-24.04 runner image. Install it
+        # explicitly so clean_bible_audio.py's
+        # subprocess.run(['ffmpeg', ...]) succeeds.
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+
       - name: Confirm ffmpeg is present
         run: ffmpeg -version | head -n 1
 

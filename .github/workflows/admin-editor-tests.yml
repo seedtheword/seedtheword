@@ -93,8 +93,12 @@ jobs:
 
       - name: Syntax-check the Bible Audio Apps Script source
         # Apps Script V8 is syntactically a JS subset; node --check
-        # catches typos here without booting Apps Script.
-        run: node --check docs/apps-script/bible-audio.gs
+        # catches typos here without booting Apps Script. Node 20
+        # refuses to parse a file unless its extension is one it
+        # recognizes, so we copy the .gs to a .js tmp first.
+        run: |
+          cp docs/apps-script/bible-audio.gs /tmp/bible-audio.js
+          node --check /tmp/bible-audio.js
 
       - name: Run admin-editor tests
         id: tests

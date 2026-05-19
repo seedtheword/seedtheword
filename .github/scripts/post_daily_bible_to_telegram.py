@@ -66,6 +66,7 @@ from telegram_common import (  # type: ignore
     edit_forum_topic,
     load_json,
 )
+from bible_books import NT_BOOKS  # type: ignore
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -126,15 +127,8 @@ def _record_post(today_local: date, post_kind: str, ok: bool, detail: str = "") 
 
 
 # ── Reading plan, mirrors assets/js/bible-plan.js ──────────────────────
-NT_BOOKS = [
-    ("Matthew", 28), ("Mark", 16), ("Luke", 24), ("John", 21),
-    ("Acts", 28), ("Romans", 16), ("1 Corinthians", 16), ("2 Corinthians", 13),
-    ("Galatians", 6), ("Ephesians", 6), ("Philippians", 4), ("Colossians", 4),
-    ("1 Thessalonians", 5), ("2 Thessalonians", 3), ("1 Timothy", 6),
-    ("2 Timothy", 4), ("Titus", 3), ("Philemon", 1), ("Hebrews", 13),
-    ("James", 5), ("1 Peter", 5), ("2 Peter", 3), ("1 John", 5),
-    ("2 John", 1), ("3 John", 1), ("Jude", 1), ("Revelation", 22),
-]
+# NT_BOOKS is imported from bible_books (single source of truth for the
+# canonical 66-book list); the NT_SEQUENCE builder below is unchanged.
 NT_SEQUENCE = []
 for name, chapters in NT_BOOKS:
     for c in range(1, chapters + 1):

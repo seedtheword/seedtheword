@@ -15,9 +15,14 @@ on:
       - 'about.html'
       - 'assets/videos/**'
       - 'assets/images/gospel/**'
+      - 'assets/data/telegram-bot.json'
       - 'tests/**'
       - 'package.json'
+      - '.github/scripts/bible_books.py'
+      - '.github/scripts/clean_bible_audio.py'
+      - 'docs/apps-script/bible-audio.gs'
       - '.github/workflows/admin-editor-tests.yml'
+      - '.github/workflows/bible-audio-cleanup.yml'
   pull_request:
     paths:
       - 'assets/js/admin-editor*.js'
@@ -27,9 +32,14 @@ on:
       - 'about.html'
       - 'assets/videos/**'
       - 'assets/images/gospel/**'
+      - 'assets/data/telegram-bot.json'
       - 'tests/**'
       - 'package.json'
+      - '.github/scripts/bible_books.py'
+      - '.github/scripts/clean_bible_audio.py'
+      - 'docs/apps-script/bible-audio.gs'
       - '.github/workflows/admin-editor-tests.yml'
+      - '.github/workflows/bible-audio-cleanup.yml'
   workflow_dispatch:
 
 permissions:
@@ -48,8 +58,21 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Set up Python
+        # Stage 2 cleanup script and the bible-audio property/unit
+        # tests both run on Python 3.11. Hypothesis + pytest are
+        # installed in a separate step below.
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Print versions
-        run: node --version
+        run: |
+          node --version
+          python --version
+
+      - name: Install Python deps
+        run: pip install pytest hypothesis
 
       - name: Install devDependencies
         # Both the admin-editor tests and the jesus-storytelling suite
@@ -67,6 +90,11 @@ jobs:
             echo "==> $f"
             node --check "$f"
           done
+
+      - name: Syntax-check the Bible Audio Apps Script source
+        # Apps Script V8 is syntactically a JS subset; node --check
+        # catches typos here without booting Apps Script.
+        run: node --check docs/apps-script/bible-audio.gs
 
       - name: Run admin-editor tests
         id: tests
@@ -109,6 +137,27 @@ jobs:
           set -o pipefail
           npm run test:schema-testimonies 2>&1 | tee /tmp/schema-testimonies-output.txt
 
+      - name: Run bible-audio property + unit tests
+        id: bible_audio_tests
+        # Python-side property tests P1, P3, P4, P5, P6, P7 plus
+        # branch/example tests for clean_bible_audio.py and the
+        # Stage-1 logic mirror. The optional 5.x and 9.x tasks
+        # write into tests/property/ and tests/unit/ respectively;
+        # we invoke pytest against both directories so the suite
+        # is no-op (exit 0, "no tests ran") until those files
+        # land, and turns into a real check the moment they do.
+        # Spec: .kiro/specs/bible-audio-pipeline/
+        run: |
+          set -o pipefail
+          mkdir -p tests/property tests/unit
+          pytest tests/property tests/unit -v 2>&1 | tee /tmp/bible-audio-output.txt || EC=$?
+          # pytest exit 5 == "no tests collected" — that's an
+          # acceptable state while the optional test files are
+          # still being authored. Any other non-zero exit fails.
+          if [ -n "${EC:-}" ] && [ "${EC}" -ne 5 ]; then
+            exit "${EC}"
+          fi
+
       - name: Attach test output to job summary
         if: always()
         run: |
@@ -130,6 +179,12 @@ jobs:
             tail -n 200 /tmp/schema-testimonies-output.txt >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
           fi
+          if [ -f /tmp/bible-audio-output.txt ]; then
+            echo "## Test output (bible-audio)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 200 /tmp/bible-audio-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Upload test output as artifact
         if: always()
@@ -140,4 +195,5 @@ jobs:
             /tmp/test-output.txt
             /tmp/jesus-storytelling-output.txt
             /tmp/schema-testimonies-output.txt
+            /tmp/bible-audio-output.txt
           retention-days: 7

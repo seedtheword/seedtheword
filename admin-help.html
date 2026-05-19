@@ -1984,13 +1984,30 @@
     <li>Save. The event shows on the website within 1 minute.</li>
   </ol>
 
-  <h3>Publish a new podcast episode</h3>
+  <h3 id="publish-a-new-podcast-episode">Publish a new podcast episode</h3>
   <ol>
     <li>Go to <a href="https://podcasters.spotify.com" target="_blank" rel="noopener">podcasters.spotify.com</a> and sign in.</li>
     <li>Click <strong>New Episode</strong> → upload the audio file (MP3 or WAV).</li>
     <li>Add a short title and 1-2 sentence description.</li>
     <li>Click <strong>Publish</strong>. The episode appears in the site's Spotify embed automatically (may take a minute).</li>
   </ol>
+
+  <section id="bible-audio-pipeline-setup">
+    <h3>🎙️ Set up the Bible Audio pipeline</h3>
+    <p>The Bible Audio pipeline captures volunteer-recorded chapter readings posted to the <em>Today's Chapter</em> Telegram topic, runs them through a conservative ffmpeg cleanup, and emails the team a per-chapter checklist for the manual Spotify upload above. Three stages: an Apps Script poller pulls voice memos from Telegram into Drive, a nightly GitHub Actions workflow cleans them with ffmpeg, and a second Apps Script trigger emails the team at 07:00 PT the next morning. The pipeline plugs into the existing <code>bible.todayChapterTopic</code> block in <code>assets/data/telegram-bot.json</code> — same chat, same topic id (13).</p>
+    <p>Until you finish all six steps below, the pipeline is a no-op: the committed config has <code>bible.audio.enabled</code> set to <code>false</code>, the Apps Script entry points bail at the top, and the cleanup workflow exits 0 immediately.</p>
+    <ol>
+      <li><strong>Create the Google Cloud service account.</strong> Go to <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener">Cloud Console → IAM &amp; Admin → Service Accounts</a> while signed in as <code>seedthewordministry@gmail.com</code>. Pick the existing project (or create a new one named <em>stw-ministry-automation</em>). Click <strong>Create Service Account</strong>. Name it <code>stw-bible-audio-cleanup</code>. Skip the optional grant-access steps.</li>
+      <li><strong>Enable the Drive API</strong> in the same project: <a href="https://console.cloud.google.com/apis/library/drive.googleapis.com" target="_blank" rel="noopener">Cloud Console → APIs &amp; Services → Drive API</a> → <strong>Enable</strong>.</li>
+      <li><strong>Generate a JSON key.</strong> On the service account's row, <em>Actions menu → Manage keys → Add key → Create new key → JSON</em>. The browser downloads <code>stw-bible-audio-cleanup-XXXXXXXX.json</code>. Treat this file like a password — don't email it, don't commit it.</li>
+      <li><strong>Share both Drive folders with the service account's email.</strong> Create two folders in your Drive (any names — e.g. <em>STW Bible Recordings - Raw</em> and <em>STW Bible Recordings - Cleaned</em>). The service account has an email like <code>stw-bible-audio-cleanup@&lt;project&gt;.iam.gserviceaccount.com</code>. Open each folder → <em>Share</em> → paste that email → set role to <strong>Editor</strong> → uncheck <em>Notify people</em> (service accounts have no inbox) → <strong>Send</strong>. Copy each folder's ID from its URL (the long string after <code>/folders/</code>) — you'll paste them in step 6.</li>
+      <li><strong>Paste the JSON key into a GitHub Secret.</strong> Open the repo's <em>Settings → Secrets and variables → Actions → New repository secret</em>. Name: <code>GDRIVE_SERVICE_ACCOUNT_JSON</code>. Value: open the downloaded JSON file in a text editor, copy the entire contents (curly brace to curly brace), paste, <strong>Add secret</strong>. Then <strong>delete the local JSON copy</strong> from your downloads folder and empty the trash.</li>
+      <li><strong>Stand up the Apps Script project.</strong> Sign in to <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> as <code>seedthewordministry@gmail.com</code>. Click <strong>+ New project</strong>, rename it to <em>STW Bible Audio</em>. Open the repo file <code>docs/apps-script/bible-audio.gs</code>, copy its full contents, paste over <code>Code.gs</code>, save. Open <em>Project Settings (⚙️) → Script Properties → Add script property</em>: name <code>TELEGRAM_BIBLE_BOT_TOKEN</code>, value the @seedtheword bot's token (same one used by the daily Bible bot). Save. Run <code>registerBibleAudioTriggers</code> once from the function dropdown — it installs 30 half-hourly poller triggers (07:00–21:30 PT) plus one daily 07:00 PT notifier trigger. Authorize when Google prompts (UrlFetch + Drive + Mail scopes).</li>
+    </ol>
+    <p><strong>Then in the editor:</strong> open the admin editor → <em>Bible → Audio config</em>, paste both Drive folder IDs from step 4, flip <code>enabled</code> to <code>true</code>, save &amp; commit.</p>
+    <p><strong>How it runs:</strong> after the morning post on Mon–Fri, the topic auto-renames to today's chapter (<em>"Today's Chapter is Luke 7"</em>); volunteers post voice memos into the topic; cleaned MP3s land in your inbox at 07:00 PT the next morning with a 5-step Path A checklist that mirrors the <a href="#publish-a-new-podcast-episode">podcast publishing</a> walkthrough above.</p>
+    <p><strong>Key rotation</strong> (every 12 months, or any time the JSON key is suspected leaked): in Cloud Console → <em>Manage keys</em> on the service account, <strong>Add key → Create new key → JSON</strong>. Update the <code>GDRIVE_SERVICE_ACCOUNT_JSON</code> secret with the new value. Trigger <em>Bible Audio Cleanup</em> manually (Actions → workflow_dispatch → Run workflow) to confirm the new key works. Then back in Cloud Console <strong>delete the old key</strong> — that's the actual revocation step.</p>
+  </section>
 
   <h3>Change the livestream schedule</h3>
   <p>The "LIVE NOW / OFFLINE" logic is hardcoded in <code>assets/js/twitch-integration.js</code>. If the schedule changes (e.g., moves from Saturday 7 PM), the site needs a code edit. Ping the dev on duty.</p>
@@ -2562,7 +2579,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
   </div>
 </footer>
 
-<script src="assets/js/admin-editor-schemas.js?v=22" defer></script>
+<script src="assets/js/admin-editor-schemas.js?v=23" defer></script>
 <script src="assets/js/admin-editor-github.js?v=19" defer></script>
 <script src="assets/js/admin-editor-diff.js?v=19" defer></script>
 <script src="assets/js/admin-editor-drafts.js?v=19" defer></script>

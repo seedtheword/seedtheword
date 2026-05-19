@@ -1,0 +1,57 @@
+name: Bible Audio Cleanup
+
+# Stage 2 of the Bible Audio Pipeline (spec: bible-audio-pipeline).
+#
+# Reads bible.audio.rawDriveFolderId, runs each unprocessed
+# recording through a conservative ffmpeg filter chain, and
+# uploads the cleaned MP3 to bible.audio.cleanedDriveFolderId.
+#
+# Until an admin flips bible.audio.enabled to true via the editor,
+# the script in .github/scripts/clean_bible_audio.py exits 0 at
+# the top — the workflow does no work.
+
+on:
+  schedule:
+    # 06:00 UTC = 22:00 PT (PST) / 23:00 PT (PDT) the previous day.
+    # Runs after the day's volunteer recordings are in but well
+    # before the Apps Script Notifier's 07:00 PT email.
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If 'true', list work but skip writes"
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bible-audio-cleanup
+  cancel-in-progress: false
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python deps
+        run: pip install google-api-python-client google-auth
+
+      - name: Confirm ffmpeg is present
+        run: ffmpeg -version | head -n 1
+
+      - name: Run audio cleanup
+        env:
+          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          BOT_CONFIG: assets/data/telegram-bot.json
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+        run: python .github/scripts/clean_bible_audio.py

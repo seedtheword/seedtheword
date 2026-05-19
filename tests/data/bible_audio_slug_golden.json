@@ -1,0 +1,16 @@
+{
+  "_help": "Hand-picked (topicName, expectedSlug) golden cases for the bible-audio-pipeline _deriveChapterSlug helper. Used by tests/property/test_bible_audio_slug_golden.py to cross-check the JS copy in docs/apps-script/bible-audio.gs against the Python mirror in tests/lib/bible_audio_logic.py. The template field is the bible.todayChapterTopic.nameTemplate value the bot uses.",
+  "template": "Today's Chapter is {book} {chapter}",
+  "cases": [
+    { "topicName": "Today's Chapter is Luke 7",            "expectedSlug": "luke-7" },
+    { "topicName": "Today's Chapter is 1 Corinthians 13",  "expectedSlug": "1-corinthians-13" },
+    { "topicName": "Today's Chapter is Song of Solomon 2", "expectedSlug": "song-of-solomon-2" },
+    { "topicName": "Today's Chapter is Psalm 119",         "expectedSlug": "psalm-119" },
+    { "topicName": "Today's Chapter is 3 John 1",          "expectedSlug": "3-john-1" },
+    { "topicName": "",                                     "expectedSlug": "unknown-chapter" },
+    { "topicName": "Today's Chapter is",                   "expectedSlug": "unknown-chapter" },
+    { "topicName": "random renamed",                       "expectedSlug": "unknown-chapter" },
+    { "topicName": "Today's Chapter is Luke",              "expectedSlug": "unknown-chapter" },
+    { "topicName": "Today's Chapter is Прайер 1",          "expectedSlug": "unknown-chapter" }
+  ]
+}

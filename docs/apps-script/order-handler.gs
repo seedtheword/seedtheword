@@ -2703,8 +2703,10 @@ function _editForumTopic(token, chatId, threadId, name) {
   if (resp.getResponseCode() === 200) {
     try { return JSON.parse(body); } catch (e) { return { ok: true, raw: body }; }
   }
-  // 400 with "topic_not_modified" is fine — topic already has that name.
-  if (resp.getResponseCode() === 400 && body.indexOf('topic_not_modified') !== -1) {
+  // 400 with "topic_not_modified" (Telegram returns the variant
+  // TOPIC_NOT_MODIFIED, all-caps with underscore) is fine — topic
+  // already has that name. Match case-insensitively.
+  if (resp.getResponseCode() === 400 && body.toLowerCase().indexOf('topic_not_modified') !== -1) {
     return { ok: true, no_op: true };
   }
   console.log('editForumTopic ' + resp.getResponseCode() + ': ' + body);
@@ -2983,7 +2985,15 @@ function _postBibleWeekdayReading(fullCfg, biblecfg, todayPT, chatId, threadId, 
     const template = topicCfg.nameTemplate || "Today's Chapter is {book} {chapter}";
     const newName = template.replace('{book}', reading.book).replace('{chapter}', String(reading.chapter));
     const renameResp = _editForumTopic(token, chatId, topicCfg.messageThreadId, newName);
-    console.log('topic rename: ' + JSON.stringify(renameResp));
+    if (renameResp.ok) {
+      if (renameResp.no_op) {
+        console.log('topic rename: already correct (no-op)');
+      } else {
+        console.log('topic rename: ok');
+      }
+    } else {
+      console.log('topic rename: ' + JSON.stringify(renameResp));
+    }
   }
   return true;
 }

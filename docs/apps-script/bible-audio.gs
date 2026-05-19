@@ -783,6 +783,22 @@ function pollTelegramChapterAudio() {
       Logger.log('bibleaudio: enabled=false; skipping poll');
       return;
     }
+
+    // Time-of-day gate. The poller trigger fires every 30 minutes
+    // 24/7 (Apps Script's 20-trigger-per-project quota means we
+    // can't install one clock trigger per ministry-hour slot), so
+    // we short-circuit outside 07:00–22:00 PT in-function. This
+    // matches the design's §"Stage 1 schedule" pin: the poller is
+    // active during waking hours and silent overnight.
+    var nowPT = new Date(
+      Utilities.formatDate(new Date(), 'America/Los_Angeles', 'yyyy/MM/dd HH:mm:ss')
+    );
+    var hourPT = nowPT.getHours();
+    if (hourPT < 7 || hourPT >= 22) {
+      Logger.log('bibleaudio: outside ministry hours (PT hour=' + hourPT + '); skipping poll');
+      return;
+    }
+
     if (!cfg.rawDriveFolderId) {
       // Req 1.8 — admin-facing log that names the missing field.
       Logger.log(
@@ -1041,12 +1057,13 @@ function notifyCleanedAudio() {
  * pasting the bot token into Script Properties.
  *
  * Installs:
- *   • 30 daily ClockTriggerBuilder triggers for pollTelegramChapterAudio,
- *     one per half-hour slot from 07:00 through 21:30 PT (07:00, 07:30,
- *     08:00, …, 21:00, 21:30). This mirrors the announcement-bot
- *     pattern documented in the design (§"Stage 1 schedule") — Apps
- *     Script does not support arbitrary cron expressions, so a
- *     half-hourly cadence is realised by 30 separate daily triggers.
+ *   • 1 every-30-minutes trigger for pollTelegramChapterAudio. The
+ *     poller itself short-circuits outside 07:00–22:00 PT via an
+ *     in-function time-of-day guard so the cron stays bounded to
+ *     ministry hours. (Apps Script enforces a hard cap of 20
+ *     triggers per user per project, so we cannot install 30
+ *     individual clock-time triggers as the design originally
+ *     suggested.)
  *   • 1 daily ClockTriggerBuilder trigger for notifyCleanedAudio at
  *     07:00 PT (Req 6.1, design §"Stage 3 schedule").
  *
@@ -1064,11 +1081,12 @@ function notifyCleanedAudio() {
  * via the browser admin editor before the triggers do anything.
  * Until then every entry point bails at the top.
  *
- * Total triggers created: 31 (30 poller + 1 notifier).
+ * Total triggers created: 2 (1 poller + 1 notifier).
  */
 function registerBibleAudioTriggers() {
   // 1. Delete any existing triggers for our two entry points so
-  //    re-running this function is safe (no duplicates).
+  //    re-running this function is safe (no duplicates) and so we
+  //    free up trigger-quota slots before creating fresh ones.
   var existing = ScriptApp.getProjectTriggers();
   var deleted = 0;
   for (var i = 0; i < existing.length; i++) {
@@ -1081,22 +1099,13 @@ function registerBibleAudioTriggers() {
   }
   Logger.log('bibleaudio: deleted ' + deleted + ' existing triggers');
 
-  // 2. Create 30 half-hourly poller triggers from 07:00 through 21:30 PT.
-  //    (07:00, 07:30, 08:00, 08:30, … 21:00, 21:30 = 15 hours × 2 = 30 slots.)
-  var pollerCount = 0;
-  for (var hour = 7; hour <= 21; hour++) {
-    for (var minute = 0; minute < 60; minute += 30) {
-      ScriptApp.newTrigger('pollTelegramChapterAudio')
-        .timeBased()
-        .atHour(hour)
-        .nearMinute(minute)
-        .inTimezone('America/Los_Angeles')
-        .everyDays(1)
-        .create();
-      pollerCount++;
-    }
-  }
-  Logger.log('bibleaudio: created ' + pollerCount + ' poller triggers');
+  // 2. One every-30-minutes poller trigger. The function-internal
+  //    time-of-day guard restricts real work to 07:00–22:00 PT.
+  ScriptApp.newTrigger('pollTelegramChapterAudio')
+    .timeBased()
+    .everyMinutes(30)
+    .create();
+  Logger.log('bibleaudio: created poller trigger (every 30 min, gated to 07:00–22:00 PT in-function)');
 
   // 3. One daily 07:00 PT notifier trigger.
   ScriptApp.newTrigger('notifyCleanedAudio')
@@ -1125,9 +1134,5 @@ function registerBibleAudioTriggers() {
     Logger.log('bibleaudio: initialized ' + PROP_OFFSET + ' = 0');
   }
 
-  Logger.log(
-    'bibleaudio: registerBibleAudioTriggers complete (' +
-      (pollerCount + 1) +
-      ' triggers)'
-  );
+  Logger.log('bibleaudio: registerBibleAudioTriggers complete (2 triggers)');
 }

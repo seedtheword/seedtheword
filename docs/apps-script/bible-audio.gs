@@ -1276,3 +1276,25 @@ function registerBibleAudioTriggers() {
 
   Logger.log('bibleaudio: registerBibleAudioTriggers complete (2 triggers)');
 }
+
+/**
+ * Diagnostic / recovery helper. Clears the bibleaudio.processedIds
+ * and bibleaudio.acknowledgedIds sets and resets the Telegram
+ * getUpdates offset to 0 so the next poll picks up everything
+ * Telegram still has in its 24-hour window.
+ *
+ * Use this only when the dedup state has drifted from reality
+ * (e.g. raw files were deleted from Drive, or folder IDs were
+ * reconfigured). After running this, run runBibleAudioCleanupNow
+ * to re-pull and re-clean everything.
+ *
+ * Does NOT delete any Drive files — that's a manual cleanup the
+ * admin does via the Drive UI before running this.
+ */
+function resetBibleAudioState() {
+  var props = PropertiesService.getScriptProperties();
+  props.setProperty(PROP_PROCESSED, '[]');
+  props.setProperty(PROP_ACKED, '[]');
+  props.setProperty(PROP_OFFSET, '0');
+  Logger.log('bibleaudio: reset processedIds=[], acknowledgedIds=[], tgOffset=0');
+}

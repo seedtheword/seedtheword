@@ -97,15 +97,24 @@
     const passages = document.createElement('div');
     passages.className = 'study-review__passages';
 
+    // Optional: study focus from the OT side. Only renders when the
+    // admin explicitly sets `oldTestament` in study-saturday.json — we
+    // don't auto-derive this because the OT pull-quote is editorial.
     if (entry.oldTestament) {
       passages.appendChild(pill("🎯 This week's study focus", entry.oldTestament));
     }
-    if (entry.newTestament) {
-      passages.appendChild(pill("📖 This week's reading", entry.newTestament));
+
+    // Required: this week's reading. Prefer the admin-set
+    // `newTestament` override, otherwise derive from bible-plan.js so
+    // the card stays in sync with the actual Mon-Fri plan without
+    // manual editing every week.
+    const reading = entry.newTestament || deriveWeekReadingLabel();
+    if (reading) {
+      passages.appendChild(pill("📖 This week's reading", reading));
     }
 
-    // If neither field is set, we don't show the review at all — an
-    // empty review block would look broken.
+    // If neither field is set AND the plan can't be derived, we don't
+    // show the review at all — an empty review block would look broken.
     if (!passages.childElementCount) return;
 
     review.appendChild(passages);
@@ -119,6 +128,43 @@
     } else {
       card.appendChild(review);
     }
+  }
+
+  /**
+   * Build an abbreviated label for this week's Mon-Fri readings by
+   * pulling from window.BiblePlan.getWeekReadings(). Output shape:
+   *   - all five days in same book → "Luke 7-11"
+   *   - book transitions mid-week  → "Luke 24, John 1-4"
+   *   - missing data               → returns "" (caller falls back)
+   *
+   * Read-only — never mutates anything.
+   */
+  function deriveWeekReadingLabel() {
+    if (!window.BiblePlan || typeof window.BiblePlan.getWeekReadings !== 'function') {
+      return '';
+    }
+    let readings;
+    try {
+      readings = window.BiblePlan.getWeekReadings();
+    } catch (_) {
+      return '';
+    }
+    const valid = (readings || []).filter(r => r && r.book && r.chapter);
+    if (!valid.length) return '';
+
+    // Group consecutive readings by book, preserving order.
+    const groups = [];
+    for (const r of valid) {
+      const last = groups[groups.length - 1];
+      if (last && last.book === r.book) {
+        last.end = r.chapter;
+      } else {
+        groups.push({ book: r.book, start: r.chapter, end: r.chapter });
+      }
+    }
+    return groups
+      .map(g => g.start === g.end ? g.book + ' ' + g.start : g.book + ' ' + g.start + '-' + g.end)
+      .join(', ');
   }
 
   function pill(label, value) {

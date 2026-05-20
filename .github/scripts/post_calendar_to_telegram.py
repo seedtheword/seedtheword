@@ -883,6 +883,15 @@ def main() -> int:
     #               reminder hasn't been posted yet
     #   - live: start has passed, end has not, and that live post
     #           hasn't been sent yet
+    #
+    # Anti-duplicate guard: if we've already posted ANY announcement
+    # about this event in the last MIN_INTERVAL_HOURS hours, skip the
+    # subsequent NON-LIVE trigger. This stops the "upcoming at 3:37pm,
+    # reminder at 4:07pm for the same 7pm event" spam pattern when an
+    # event is created close to its start time. LIVE bypasses the
+    # guard because it's a meaningfully different post (event has
+    # actually begun).
+    MIN_INTERVAL_HOURS = float(cfg.get("minIntervalHoursBetweenPosts", 4))
     to_post: list[tuple[dict, str]] = []
     for ev in in_scope:
         ev_id = ev.get("id")
@@ -899,17 +908,35 @@ def main() -> int:
         current = event_status(ev, now)
         start = parse_ev_start(ev)
 
+        # How long since the most recent post about this event?
+        last_posted_recent = False
+        last_posted_iso = entry.get("lastPosted")
+        if last_posted_iso:
+            try:
+                last_dt = datetime.fromisoformat(
+                    last_posted_iso.replace("Z", "+00:00")
+                )
+                age_hours = (now - last_dt).total_seconds() / 3600.0
+                if age_hours < MIN_INTERVAL_HOURS:
+                    last_posted_recent = True
+            except (ValueError, AttributeError):
+                pass
+
         # LIVE: post once, the moment we first see it as live, even
         # outside quiet hours and skip-days (the ministry has started,
-        # members want to know).
+        # members want to know). LIVE bypasses the min-interval guard
+        # because the start of the event is the news.
         if current == "live" and not entry.get("livePosted"):
             to_post.append((ev, "live"))
             continue
 
-        # Upcoming & reminder are gated by quiet hours + skip days.
+        # Upcoming & reminder are gated by quiet hours + skip days +
+        # the min-interval anti-duplicate guard.
         if in_quiet_hours:
             continue
         if day_skipped:
+            continue
+        if last_posted_recent:
             continue
 
         # Reminder: prefer it over "upcoming" when both would fire on the

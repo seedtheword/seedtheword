@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="description" content="Want to read the Bible with others? Here's the rhythm we use — five movements, four S.E.E.D. values, anchored in Christ. Start a life group in your home today.">
+  <!-- Open Graph -->
+  <meta property="og:site_name" content="Seed the Word Ministry">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Start a Life Group — Seed the Word Ministry">
+  <meta property="og:description" content="A simple five-movement rhythm anyone can lead. Start reading the Bible with others — at your kitchen table, around a fire, in any room God gives you.">
+  <meta property="og:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
+  <meta property="og:url" content="https://seedtheword.github.io/seedtheword/life-group.html">
+  <!-- Twitter card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Start a Life Group — Seed the Word Ministry">
+  <meta name="twitter:description" content="A simple five-movement rhythm anyone can lead. Start reading the Bible with others.">
+  <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
+  <title>Start a Life Group — Seed the Word Ministry</title>
+  <link rel="stylesheet" href="assets/css/main.css?v=16">
+  <style>
+    /* Life Group page — focused, mobile-first, QR-code-friendly.
+       Lighter weight than the rest of the site because someone holding
+       a brand-new Bible may scan a code on their phone in a coffee shop
+       and need to read it at a glance. */
+    .lg-hero {
+      background: linear-gradient(135deg, var(--green) 0%, #1a4a1c 100%);
+      color: #fff;
+      padding: 4.5rem 1.5rem 4rem;
+      text-align: center;
+    }
+    .lg-hero h1 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 2.5rem;
+      font-weight: 400;
+      margin: 0 0 1rem;
+      line-height: 1.2;
+    }
+    .lg-hero__lead {
+      max-width: 620px;
+      margin: 0 auto 1.5rem;
+      font-size: 1.15rem;
+      line-height: 1.65;
+      opacity: 0.95;
+    }
+    .lg-hero__verse {
+      max-width: 580px;
+      margin: 1.5rem auto 0;
+      font-style: italic;
+      font-size: 1rem;
+      line-height: 1.65;
+      opacity: 0.9;
+      border-left: 3px solid rgba(255, 255, 255, 0.3);
+      padding-left: 1.25rem;
+      text-align: left;
+    }
+    .lg-hero__verse cite {
+      display: block;
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      font-style: normal;
+      letter-spacing: 0.05em;
+      opacity: 0.8;
+    }
+
+    /* The five-movement walk */
+    .lg-rhythm {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 2rem;
+    }
+    .lg-rhythm__intro {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--text);
+      margin: 0 0 2.5rem;
+    }
+    .lg-movement {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .lg-movement__head {
+      display: flex;
+      align-items: baseline;
+      gap: 0.85rem;
+      margin: 0 0 0.4rem;
+      flex-wrap: wrap;
+    }
+    .lg-movement__num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      background: var(--green);
+      color: #fff;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+    .lg-movement__title {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--text);
+      margin: 0;
+      line-height: 1.3;
+    }
+    .lg-movement__seed {
+      display: block;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--green);
+      margin: 0.15rem 0 0.85rem 2.85rem;
+    }
+    .lg-movement__time {
+      display: inline-block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      background: rgba(44, 95, 46, 0.08);
+      padding: 0.25rem 0.65rem;
+      border-radius: 12px;
+      margin-left: 0;
+      margin-bottom: 0.85rem;
+      font-weight: 600;
+    }
+    .lg-movement__body {
+      margin: 0 0 0 2.85rem;
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 0.98rem;
+    }
+    .lg-movement__body p { margin: 0 0 0.85rem; }
+    .lg-movement__body p:last-child { margin-bottom: 0; }
+    .lg-movement__body ul,
+    .lg-movement__body ol {
+      margin: 0.5rem 0 1rem;
+      padding-left: 1.25rem;
+      line-height: 1.65;
+    }
+    .lg-movement__body li { margin-bottom: 0.4rem; }
+    .lg-movement__verse {
+      background: rgba(44, 95, 46, 0.05);
+      border-left: 3px solid var(--green);
+      padding: 0.85rem 1.1rem;
+      margin: 0.85rem 0;
+      border-radius: 4px;
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    .lg-movement__verse cite {
+      display: block;
+      margin-top: 0.4rem;
+      font-size: 0.825rem;
+      font-style: normal;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .lg-movement__tip {
+      background: #fff8ea;
+      border-left: 3px solid #d4a574;
+      padding: 0.65rem 0.9rem;
+      margin: 0.85rem 0 0;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      line-height: 1.55;
+      color: #5a3913;
+    }
+    .lg-movement__tip strong {
+      color: #6b3a0c;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    /* Practical hosting boxes */
+    .lg-hosting {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+    }
+    .lg-hosting h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.75rem;
+      font-weight: 400;
+      color: var(--text);
+      margin: 2rem 0 1.25rem;
+      text-align: center;
+    }
+    .lg-faq {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0;
+      margin: 0 0 1rem;
+      overflow: hidden;
+    }
+    .lg-faq summary {
+      padding: 1rem 1.25rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      list-style: none;
+      position: relative;
+      font-size: 0.98rem;
+    }
+    .lg-faq summary::after {
+      content: '+';
+      position: absolute;
+      right: 1.25rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.4rem;
+      color: var(--green);
+      font-weight: 400;
+    }
+    .lg-faq[open] summary::after { content: '−'; }
+    .lg-faq summary::-webkit-details-marker { display: none; }
+    .lg-faq__body {
+      padding: 0 1.25rem 1.1rem;
+      line-height: 1.7;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .lg-faq__body p { margin: 0 0 0.65rem; }
+    .lg-faq__body p:last-child { margin-bottom: 0; }
+
+    /* Closing call */
+    .lg-closing {
+      background: var(--cream, #fdf3e3);
+      padding: 3rem 1.5rem 4rem;
+      text-align: center;
+    }
+    .lg-closing__inner {
+      max-width: 620px;
+      margin: 0 auto;
+    }
+    .lg-closing h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.85rem;
+      font-weight: 400;
+      color: var(--green);
+      margin: 0 0 1rem;
+      line-height: 1.3;
+    }
+    .lg-closing p {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin: 0 0 1.5rem;
+    }
+    .lg-closing__btn-row {
+      display: flex;
+      gap: 0.85rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .lg-closing__btn-row .btn { min-width: 200px; }
+    .lg-closing__signoff {
+      margin-top: 2rem;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* Hero on mobile */
+    @media (max-width: 600px) {
+      .lg-hero { padding: 3rem 1rem 2.75rem; }
+      .lg-hero h1 { font-size: 2rem; }
+      .lg-hero__lead { font-size: 1.05rem; }
+      .lg-rhythm { padding: 2.5rem 1rem 1.5rem; }
+      .lg-movement { padding: 1.4rem 1.1rem; }
+      .lg-movement__title { font-size: 1.2rem; }
+      .lg-movement__seed { margin-left: 0; margin-top: 0.5rem; }
+      .lg-movement__body { margin-left: 0; margin-top: 0.4rem; }
+      .lg-hosting { padding: 1.5rem 1rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <div class="header-left">
+      <a href="index.html" class="site-logo">
+        <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">
+        Seed the Word
+      </a>
+      <div class="header-verse">
+        <span class="header-verse__text">"He answered and said unto them, He that soweth the good seed is the Son of man;" — Matthew 13:37 KJV</span>
+      </div>
+    </div>
+    <nav id="site-nav">
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="store.html">Store</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="community.html">Community</a></li>
+      </ul>
+    </nav>
+    <div class="header-social">
+      <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="32" height="32"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      </a>
+      <a href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="32" height="32"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+      </a>
+      <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF" width="32" height="32"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+      </a>
+      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954" width="32" height="32"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
+      </a>
+    </div>
+    <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<section class="lg-hero">
+  <h1>Start a Life Group</h1>
+  <p class="lg-hero__lead">Two friends. Open Bibles. A simple rhythm. That's all you need to begin.</p>
+  <p class="lg-hero__lead">No teaching credentials. No script. No pressure to lead like a pastor. Just five movements anyone can hold, anchored to four S.E.E.D. values we live by.</p>
+  <blockquote class="lg-hero__verse">
+    <p>"For where two or three gather in my name, there am I with them."</p>
+    <cite>— Matthew 18:20 NIV</cite>
+  </blockquote>
+</section>
+
+<section class="lg-rhythm">
+  <p class="lg-rhythm__intro">When we gather as a group — Tuesday evenings, a home study, around a fire — we move through five movements together. They aren't a checklist. They're a rhythm. Most groups take about <strong>two hours</strong>, but the movements stretch and breathe based on who's in the room and where the Spirit leads.</p>
+
+  <!-- Movement 1 -->
+  <div class="lg-movement">
+    <div class="lg-movement__head">
+      <span class="lg-movement__num">1</span>
+      <h2 class="lg-movement__title">Worship &amp; Prayer</h2>
+    </div>
+    <span class="lg-movement__seed">Serve with Grace</span>
+    <span class="lg-movement__time">~15–20 min</span>
+    <div class="lg-movement__body">
+      <p>Start with worship. Songs gather the room — even before everyone has fully arrived. Then open in prayer together. We come to God first, before we come to each other.</p>
+      <blockquote class="lg-movement__verse">
+        "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God."
+        <cite>— Philippians 4:6 NIV</cite>
+      </blockquote>
+      <div class="lg-movement__tip">
+        <strong>Hosting tip</strong>
+        Three songs is plenty. If you don't play an instrument, use Spotify or YouTube — or ask whoever's most comfortable singing to lead. Worship doesn't need to be perfect. It needs to be honest.
+      </div>
+    </div>
+  </div>
+
+  <!-- Movement 2 -->
+  <div class="lg-movement">
+    <div class="lg-movement__head">
+      <span class="lg-movement__num">2</span>
+      <h2 class="lg-movement__title">Introduction</h2>
+    </div>
+    <span class="lg-movement__seed">Embrace Fellowship</span>
+    <span class="lg-movement__time">~10–15 min</span>
+    <div class="lg-movement__body">
+      <p>Greet each other. Share what God has been doing this week — a small win, a hard week, an answered prayer, a question that's been sitting with you. The room becomes a body, not a crowd.</p>
+      <div class="lg-movement__tip">
+        <strong>Hosting tip</strong>
+        If someone new is in the room, introduce yourselves first and let them share whenever they're ready. Don't put a stranger on the spot. Grace before depth.
+      </div>
+    </div>
+  </div>
+
+  <!-- Movement 3 -->
+  <div class="lg-movement">
+    <div class="lg-movement__head">
+      <span class="lg-movement__num">3</span>
+      <h2 class="lg-movement__title">Encounter Jesus in the Word</h2>
+    </div>
+    <span class="lg-movement__seed">Encounter the Word</span>
+    <span class="lg-movement__time">~25–35 min</span>
+    <div class="lg-movement__body">
+      <p>Read this week's anchor chapter together — out loud, slowly, all the way through. One person can read the whole chapter, or you can pass it around verse by verse. Sit with it. Take a breath when you need one.</p>
+      <p>This week's chapter: <a href="community.html#bible-plan-container">see this week's plan →</a></p>
+      <div class="lg-movement__tip">
+        <strong>Hosting tip</strong>
+        Have one or two extra Bibles on the table for anyone who didn't bring theirs. We give Bibles away — if someone needs one, we can <a href="store.html">help with that</a>.
+      </div>
+    </div>
+  </div>
+
+  <!-- Movement 4 -->
+  <div class="lg-movement">
+    <div class="lg-movement__head">
+      <span class="lg-movement__num">4</span>
+      <h2 class="lg-movement__title">Reflection</h2>
+    </div>
+    <span class="lg-movement__seed">Embrace Fellowship</span>
+    <span class="lg-movement__time">~30–40 min</span>
+    <div class="lg-movement__body">
+      <p>Walk through four questions together — one for each S.E.E.D. value. Anyone can answer in any order. There are no wrong answers, and you don't always need a clean takeaway. Sometimes a question lingers for a week.</p>
+      <ol>
+        <li><strong>Where did we see grace?</strong> <em>(Serve with Grace)</em></li>
+        <li><strong>What does this say about God and us?</strong> <em>(Encounter the Word)</em></li>
+        <li><strong>What does it call us to as a body?</strong> <em>(Embrace Fellowship)</em></li>
+        <li><strong>Who needs to hear this?</strong> <em>(Disciples of all Nations)</em></li>
+      </ol>
+      <blockquote class="lg-movement__verse">
+        "Do not conform to the pattern of this world, but be transformed by the renewing of your mind."
+        <cite>— Romans 12:2 NIV</cite>
+      </blockquote>
+      <div class="lg-movement__tip">
+        <strong>Hosting tip</strong>
+        Silence is OK. Count to ten in your head before jumping in to fill it. The Spirit often moves in the gap.
+      </div>
+    </div>
+  </div>
+
+  <!-- Movement 5 -->
+  <div class="lg-movement">
+    <div class="lg-movement__head">
+      <span class="lg-movement__num">5</span>
+      <h2 class="lg-movement__title">How We Outreach</h2>
+    </div>
+    <span class="lg-movement__seed">Disciples of all Nations</span>
+    <span class="lg-movement__time">~15–25 min</span>
+    <div class="lg-movement__body">
+      <p>Share what's coming — events, goals, who needs prayer, who you're going to this week. Pray over it together. Then linger over food and drinks. The meeting ends when people walk out the door — and they walk out sent.</p>
+      <blockquote class="lg-movement__verse">
+        "Therefore go and make disciples of all nations… and surely I am with you always, to the very end of the age."
+        <cite>— Matthew 28:19-20 NIV</cite>
+      </blockquote>
+      <div class="lg-movement__tip">
+        <strong>Hosting tip</strong>
+        Tea, coffee, snacks — whatever's on the table is enough. The fellowship after the prayer is where deeper conversations happen. Don't rush people out.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="lg-hosting">
+  <h2>Practical questions</h2>
+
+  <details class="lg-faq">
+    <summary>How many people do I need?</summary>
+    <div class="lg-faq__body">
+      <p>Two is enough. Jesus said "where two or three gather in my name, there am I with them" (Matthew 18:20). A life group is not a church service — it's a small, honest reading of Scripture together. Three to eight people is a good size; beyond ten and the room gets harder for everyone to share.</p>
+    </div>
+  </details>
+
+  <details class="lg-faq">
+    <summary>What if I'm not comfortable leading?</summary>
+    <div class="lg-faq__body">
+      <p>You don't need to be. The questions do the leading — the four S.E.E.D. questions in movement 4 are the same every week, so anyone in the group can guide the conversation. Your job as host is to open the door, set out the chairs, and trust that the Spirit will speak through whoever's there.</p>
+      <p>If you'd like, <a href="about.html#contact">reach out to us</a> and we'll send someone from the team to your first meeting to walk through the rhythm with you.</p>
+    </div>
+  </details>
+
+  <details class="lg-faq">
+    <summary>What chapter do we read?</summary>
+    <div class="lg-faq__body">
+      <p>The same chapter the rest of our community is reading. Our Mon–Fri reading plan walks one chapter a day through the New Testament, and Saturday's livestream reviews the week. <a href="community.html#bible-plan-container">See this week's plan →</a></p>
+      <p>If you want to start somewhere else — Genesis, the Psalms, the Gospels — that's fine too. The rhythm works with any chapter.</p>
+    </div>
+  </details>
+
+  <details class="lg-faq">
+    <summary>Where should we meet?</summary>
+    <div class="lg-faq__body">
+      <p>A living room, a kitchen table, a park bench, around a fire, in a coffee shop after closing. Anywhere people can sit, hear each other, and read out loud. Outdoors changes the rhythm a little — worship at the start gathers people around the fire instead of greetings — but the five movements still work.</p>
+    </div>
+  </details>
+
+  <details class="lg-faq">
+    <summary>How long does it take?</summary>
+    <div class="lg-faq__body">
+      <p>Plan for two hours. Some weeks it's 90 minutes; some weeks the conversation goes long and you stay until midnight. Don't watch a clock. The rhythm tells you when it's time to move on.</p>
+    </div>
+  </details>
+
+  <details class="lg-faq">
+    <summary>What if no one knows the songs for worship?</summary>
+    <div class="lg-faq__body">
+      <p>Pull up a worship playlist on Spotify or YouTube and let it play. Hum along. Read a Psalm out loud as a group instead of singing — Psalm 23, Psalm 121, Psalm 91 are good places to start. Worship doesn't have to be musical to be worship.</p>
+    </div>
+  </details>
+
+  <details class="lg-faq">
+    <summary>Can I get Bibles for newcomers?</summary>
+    <div class="lg-faq__body">
+      <p>Yes. We give Bibles away for free to anyone who needs one. Reach out through <a href="about.html#contact">our contact page</a> and tell us how many you need. The same bundles can also be <a href="store.html">supported through our store</a> — one person's gift becomes another person's first Bible.</p>
+    </div>
+  </details>
+
+  <details class="lg-faq">
+    <summary>How do I let our team know I started a group?</summary>
+    <div class="lg-faq__body">
+      <p>Tell us. We'd love to hear about it, pray for you, and connect you with others doing the same thing. <a href="about.html#contact">Send us a message</a> with where you're meeting and roughly when — we won't share the details publicly, we just want to walk alongside you.</p>
+    </div>
+  </details>
+</section>
+
+<section class="lg-closing">
+  <div class="lg-closing__inner">
+    <h2>Two friends. Open Bibles. The Spirit at work.</h2>
+    <p>That's a life group. The five movements are how we hold the rhythm — they're not the source. The source is Jesus, gathered in the room when His name is on the lips of the people there.</p>
+    <p>If you're ready, you're ready. Send the message. Set the date. Open the door.</p>
+    <div class="lg-closing__btn-row">
+      <a href="about.html#contact" class="btn btn-primary">Tell Us You're Starting</a>
+      <a href="community.html#bible-plan-container" class="btn btn-secondary">See This Week's Chapter</a>
+    </div>
+    <p class="lg-closing__signoff">Sincerely,<br>The Seed the Word team</p>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand -->
+      <div class="footer-brand">
+        <div class="footer-brand__row">
+          <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo">
+          <p class="footer-brand__name">Seed the Word Ministry</p>
+        </div>
+        <p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p>
+      </div>
+
+      <!-- Navigate -->
+      <div>
+        <h4 class="footer-col__title">Navigate</h4>
+        <ul class="footer-nav">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="store.html">Store</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="news.html">News</a></li>
+          <li><a href="community.html">Community</a></li>
+        </ul>
+      </div>
+
+      <!-- Connect -->
+      <div>
+        <h4 class="footer-col__title">Connect</h4>
+        <ul class="footer-nav">
+          <li><a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://t.me/seedtheword" target="_blank" rel="noopener">Telegram</a></li>
+          <li><a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener">Twitch</a></li>
+          <li><a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener">Spotify</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span id="footer-year">2026</span> Seed the Word Ministry. All Scripture quotations from the New International Version unless otherwise noted.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js?v=15" defer></script>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+
+</body>
+</html>

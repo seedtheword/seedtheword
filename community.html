@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="Read with us Monday through Friday. Study live on Saturdays. Connect on Telegram, Spotify, Twitch, and Instagram.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-ministry-1.jpg">
   <title>Community — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=3">
+  <link rel="stylesheet" href="assets/css/main.css?v=16">
 </head>
 <body>
 
@@ -81,6 +81,57 @@
 
     <!-- Bible reading plan (cards carry per-chapter 🎧 Listen buttons) -->
     <div id="bible-plan-container"></div>
+  </div>
+</section>
+
+<!-- 1b. Discovery — anchor chapter + four S.E.E.D. questions for life groups.
+     Reads bible.discovery.anchorChapter from study-saturday.json (admin-editable).
+     The four questions are baked in because they're the canonical S.E.E.D.
+     framework — not a per-week edit. Designed to print clean for life-group
+     hosts who want a paper handout. -->
+<section class="section section--white" id="discovery" style="padding: 4rem 0;">
+  <div class="container">
+    <h2 class="section-title">💭 Discovery — Read Together</h2>
+    <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
+      A simple way for life groups to read this week's chapter together. Four
+      questions, one for each S.E.E.D. value. Print this page or pull it up on
+      your phone before your next gathering.
+    </p>
+
+    <div id="discovery-card" class="discovery-card">
+      <div class="discovery-card__chapter">
+        <span class="discovery-card__eyebrow">This week's chapter</span>
+        <p class="discovery-card__chapter-name" id="discovery-chapter-name">Loading this week's chapter…</p>
+        <p class="discovery-card__chapter-note" id="discovery-chapter-note"></p>
+      </div>
+
+      <div class="discovery-card__questions">
+        <p class="discovery-card__how">Read the chapter aloud together. Then walk through these four questions — one for each S.E.E.D. value. Anyone can answer in any order. There are no wrong answers, and silence is OK.</p>
+        <ol class="discovery-card__list">
+          <li>
+            <span class="discovery-card__seed">S — Serve with Grace</span>
+            <strong>Where did we see grace?</strong>
+          </li>
+          <li>
+            <span class="discovery-card__seed">E — Encounter the Word</span>
+            <strong>What does this say about God and us?</strong>
+          </li>
+          <li>
+            <span class="discovery-card__seed">E — Embrace Fellowship</span>
+            <strong>What does it call us to as a body?</strong>
+          </li>
+          <li>
+            <span class="discovery-card__seed">D — Disciples of all Nations</span>
+            <strong>Who needs to hear this?</strong>
+          </li>
+        </ol>
+      </div>
+
+      <div class="discovery-card__footer">
+        <a href="life-group.html" class="btn btn-primary">→ Start a Life Group</a>
+        <button type="button" class="btn btn-secondary" onclick="window.print()">🖨 Print This Card</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -674,6 +725,7 @@
 <script src="assets/js/telegram-stats.js?v=1"></script>
 <script src="assets/js/recommendations.js?v=1"></script>
 <script src="assets/js/study-saturday.js?v=6" defer></script>
+<script src="assets/js/discovery-card.js?v=1" defer></script>
 
 <style>
 /* Instagram preview grid — visual photo feed below the 4-up platform
@@ -916,6 +968,126 @@
 .study-review__pill-value {
   font-weight: 600;
   color: var(--text, #0a0a0a);
+}
+
+/* Discovery card — anchor chapter + four S.E.E.D. questions for life groups.
+   Designed to print clean (no nav, no footer) so hosts can pull this up
+   on a phone or print it for a paper handout. */
+.discovery-card {
+  max-width: 720px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--border, #e8e4de);
+  border-radius: 14px;
+  padding: 2rem 2rem 1.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+.discovery-card__chapter {
+  text-align: center;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--accent, #2C5F2E);
+}
+.discovery-card__eyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--accent, #2C5F2E);
+  margin: 0 0 0.5rem;
+}
+.discovery-card__chapter-name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--text, #0a0a0a);
+  margin: 0.25rem 0 0.4rem;
+  line-height: 1.2;
+}
+.discovery-card__chapter-note {
+  font-size: 0.95rem;
+  color: var(--muted, #666);
+  margin: 0;
+  font-style: italic;
+  line-height: 1.55;
+}
+.discovery-card__chapter-note:empty { display: none; }
+.discovery-card__how {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text, #0a0a0a);
+  margin: 0 0 1.25rem;
+}
+.discovery-card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: discovery;
+}
+.discovery-card__list li {
+  counter-increment: discovery;
+  padding: 1rem 0 1rem 3rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+.discovery-card__list li:last-child { border-bottom: none; }
+.discovery-card__list li::before {
+  content: counter(discovery);
+  position: absolute;
+  left: 0;
+  top: 1rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  background: var(--accent, #2C5F2E);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.discovery-card__seed {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--accent, #2C5F2E);
+  margin-bottom: 0.25rem;
+}
+.discovery-card__list strong {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text, #0a0a0a);
+  line-height: 1.45;
+}
+.discovery-card__footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+.discovery-card__footer .btn { min-width: 180px; }
+
+@media (max-width: 600px) {
+  .discovery-card { padding: 1.5rem 1.25rem 1.25rem; }
+  .discovery-card__chapter-name { font-size: 1.6rem; }
+  .discovery-card__list li { padding-left: 2.5rem; }
+  .discovery-card__list li::before { width: 1.85rem; height: 1.85rem; font-size: 0.85rem; top: 0.85rem; }
+}
+
+@media print {
+  .site-header, .site-footer, .hamburger,
+  .section:not(#discovery), .discovery-card__footer { display: none !important; }
+  body { background: #fff; }
+  .discovery-card { box-shadow: none; border: 2px solid #000; padding: 1rem 1.25rem; max-width: 100%; }
+  #discovery { padding: 0 !important; }
+  .section-title { font-size: 1.5rem; }
 }
 
 /* Friends in Jesus centering fix — the default .section-title uses a

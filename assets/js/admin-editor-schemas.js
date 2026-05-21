@@ -56,7 +56,11 @@
         hint: 'watch?v=, youtu.be/, and /embed/ URLs all work.',
         validate: (v) => isValidYouTubeUrl(v) ? null : 'Must be a YouTube URL we can extract an ID from.' },
       { name: 'feedType', label: 'Feed type', kind: 'select', required: false,
-        options: [['video','Single video'], ['channel','Channel'], ['playlist','Playlist']],
+        options: [
+          { value: 'video',    label: 'Single video' },
+          { value: 'channel',  label: 'Channel' },
+          { value: 'playlist', label: 'Playlist' },
+        ],
         value: 'video',
         hint: 'Default = single video. Pick Channel or Playlist for ongoing creator feeds.' },
       { name: 'title',  label: 'Title',         kind: 'text',   required: true },

@@ -1,23 +1,28 @@
+// FROZEN SNAPSHOT — do NOT edit. This is the unfixed renderer
+// captured as the byte-baseline for the preservation test in
+// tests/recommendations-render.test.js (Property 2). If you need
+// to update it, you are doing something wrong; the whole point
+// is that it never changes.
+//
+// Documented exceptions to byte-for-byte fidelity (the only edits
+// applied to the original `assets/js/recommendations.js` body):
+//   1. The `window.fetchRecommendationsData = …` /
+//      `window.renderListeningCard = …` / `window.renderPartners = …`
+//      assignments are wrapped in `if (typeof window !== 'undefined')`.
+//   2. The trailing `document.addEventListener('DOMContentLoaded', …)`
+//      block is wrapped in `if (typeof document !== 'undefined')`.
+// Both guards are no-ops in a real browser (where `window` and `document`
+// are defined), so observable behavior is unchanged. The guards exist
+// solely so Node/CI can `import` this fixture without a global crash.
+// A bottom ESM `export { … }` footer is also appended (last addition).
 /* ============================================================
    Recommendations: "What We're Listening To" + "Partner Ministries"
    Both sections read from assets/data/recommendations.json so admins
    can add/remove items via the admin-help builder tool — no JS edits.
    Supported listening 'kind' values:
-     'spotify'   -> { kind, type: 'episode' | 'show', id, title, source, note? }
-                    Renders the Spotify embed (episode or show).
-     'youtube'   -> { kind, feedType?: 'video' | 'channel' | 'playlist',
-                       id, handle?, title, source, note? }
-                    feedType defaults to 'video' (single video — back-compat).
-                    'channel' embeds the channel's auto-uploads playlist when
-                    id starts with UC; otherwise renders a link-only card to
-                    youtube.com/<handle>. 'playlist' embeds videoseries?list=<id>.
-     'instagram' -> { kind, handle, avatar?, title, source?, note? }
-                    Link card (no embed) to instagram.com/<handle>/.
-     'twitch'    -> { kind, channel, title, source?, note? }
-                    Embeds player.twitch.tv with seedtheword parent params;
-                    falls back to link-only chrome on hosts not in parent list.
-     'link'      -> { kind, url, title, source?, note?, image? }
-                    Universal fallback for anything not covered above.
+     'spotify'  -> type: 'episode' | 'show'  — renders a Spotify embed
+     'youtube'  -> renders a YouTube embed
+     'link'     -> renders a plain card with an external link
    ============================================================ */
 
 const RECO_DATA_URL = 'assets/data/recommendations.json';
@@ -46,10 +51,6 @@ function renderListeningCard(item) {
       return renderSpotifyCard(item);
     case 'youtube':
       return renderYouTubeCard(item);
-    case 'instagram':
-      return renderInstagramCard(item);
-    case 'twitch':
-      return renderTwitchCard(item);
     case 'link':
     default:
       return renderLinkCard(item);
@@ -87,11 +88,9 @@ function renderSpotifyCard(item) {
 }
 
 function renderYouTubeCard(item) {
-  const ft = item.feedType || 'video';
-  if (ft === 'video') {
-    const embedSrc = `https://www.youtube.com/embed/${encodeURIComponent(item.id)}`;
-    const openUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(item.id)}`;
-    return `
+  const embedSrc = `https://www.youtube.com/embed/${encodeURIComponent(item.id)}`;
+  const openUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(item.id)}`;
+  return `
     <article class="reco-card glass-morphism reco-card--youtube">
       <header class="reco-card__header">
         <span class="reco-card__badge reco-card__badge--youtube">📺 YouTube</span>
@@ -110,128 +109,6 @@ function renderYouTubeCard(item) {
       </div>
       <a class="reco-card__link" href="${openUrl}" target="_blank" rel="noopener">
         Open on YouTube <span aria-hidden="true">→</span>
-      </a>
-    </article>
-  `;
-  }
-  if (ft === 'channel') {
-    const id = item.id || '';
-    const handle = item.handle || '';
-    if (id.startsWith('UC')) {
-      const playlistId = 'UU' + id.slice(2);
-      const embedSrc = `https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(playlistId)}`;
-      const openUrl = `https://www.youtube.com/channel/${encodeURIComponent(id)}`;
-      return `
-    <article class="reco-card glass-morphism reco-card--youtube reco-card--youtube-channel">
-      <header class="reco-card__header">
-        <span class="reco-card__badge reco-card__badge--youtube-channel">📺 YouTube — Channel</span>
-        <h4 class="reco-card__title">${escapeHtml(item.title || '')}</h4>
-        <p class="reco-card__source">${escapeHtml(item.source || '')}</p>
-      </header>
-      ${item.note ? `<p class="reco-card__note">${escapeHtml(item.note)}</p>` : ''}
-      <div class="reco-card__embed reco-card__embed--video">
-        <iframe
-          title="${escapeHtml(item.title || 'YouTube channel')}"
-          src="${embedSrc}"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-          loading="lazy"></iframe>
-      </div>
-      <a class="reco-card__link" href="${openUrl}" target="_blank" rel="noopener">
-        Open on YouTube <span aria-hidden="true">→</span>
-      </a>
-    </article>
-  `;
-    }
-    // Handle-only entry — no embed (we have no UC… id to drive the UU<id> trick).
-    const openUrl = `https://www.youtube.com/${escapeAttr(handle)}`;
-    return `
-    <article class="reco-card glass-morphism reco-card--youtube reco-card--youtube-channel">
-      <header class="reco-card__header">
-        <span class="reco-card__badge reco-card__badge--youtube-channel">📺 YouTube — Channel</span>
-        <h4 class="reco-card__title">${escapeHtml(item.title || '')}</h4>
-        <p class="reco-card__source">${escapeHtml(item.source || '')}</p>
-      </header>
-      ${item.note ? `<p class="reco-card__note">${escapeHtml(item.note)}</p>` : ''}
-      <a class="reco-card__link" href="${openUrl}" target="_blank" rel="noopener">
-        Open on YouTube <span aria-hidden="true">→</span>
-      </a>
-    </article>
-  `;
-  }
-  if (ft === 'playlist') {
-    const embedSrc = `https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(item.id)}`;
-    const openUrl = `https://www.youtube.com/playlist?list=${encodeURIComponent(item.id)}`;
-    return `
-    <article class="reco-card glass-morphism reco-card--youtube reco-card--youtube-playlist">
-      <header class="reco-card__header">
-        <span class="reco-card__badge reco-card__badge--youtube-playlist">📺 YouTube — Playlist</span>
-        <h4 class="reco-card__title">${escapeHtml(item.title || '')}</h4>
-        <p class="reco-card__source">${escapeHtml(item.source || '')}</p>
-      </header>
-      ${item.note ? `<p class="reco-card__note">${escapeHtml(item.note)}</p>` : ''}
-      <div class="reco-card__embed reco-card__embed--video">
-        <iframe
-          title="${escapeHtml(item.title || 'YouTube playlist')}"
-          src="${embedSrc}"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-          loading="lazy"></iframe>
-      </div>
-      <a class="reco-card__link" href="${openUrl}" target="_blank" rel="noopener">
-        Open on YouTube <span aria-hidden="true">→</span>
-      </a>
-    </article>
-  `;
-  }
-  // Unknown feedType — degrade safely to the generic link card.
-  return renderLinkCard(item);
-}
-
-function renderInstagramCard(item) {
-  const handle = escapeAttr(item.handle || '');
-  const thumb = item.avatar
-    ? `<div class="reco-card__thumb" style="background-image:url('${escapeAttr(item.avatar)}')"></div>`
-    : '';
-  return `
-    <article class="reco-card glass-morphism reco-card--instagram">
-      ${thumb}
-      <header class="reco-card__header">
-        <span class="reco-card__badge reco-card__badge--instagram">📸 Instagram</span>
-        <h4 class="reco-card__title">${escapeHtml(item.title || '')}</h4>
-        <p class="reco-card__source">${escapeHtml(item.source || '')}</p>
-      </header>
-      ${item.note ? `<p class="reco-card__note">${escapeHtml(item.note)}</p>` : ''}
-      <a class="reco-card__link" href="https://www.instagram.com/${handle}/" target="_blank" rel="noopener noreferrer">
-        Open on Instagram <span aria-hidden="true">→</span>
-      </a>
-    </article>
-  `;
-}
-
-function renderTwitchCard(item) {
-  const channel = escapeAttr(item.channel || '');
-  const embedSrc = `https://player.twitch.tv/?channel=${channel}&parent=seedtheword.github.io&parent=seedtheword.com&muted=true`;
-  return `
-    <article class="reco-card glass-morphism reco-card--twitch">
-      <header class="reco-card__header">
-        <span class="reco-card__badge reco-card__badge--twitch">🎮 Twitch</span>
-        <h4 class="reco-card__title">${escapeHtml(item.title || '')}</h4>
-        <p class="reco-card__source">${escapeHtml(item.source || '')}</p>
-      </header>
-      ${item.note ? `<p class="reco-card__note">${escapeHtml(item.note)}</p>` : ''}
-      <div class="reco-card__embed reco-card__embed--video">
-        <iframe
-          title="${escapeHtml(item.title || 'Twitch stream')}"
-          src="${embedSrc}"
-          frameborder="0"
-          allowfullscreen
-          loading="lazy"></iframe>
-      </div>
-      <a class="reco-card__link" href="https://www.twitch.tv/${channel}" target="_blank" rel="noopener noreferrer">
-        Open on Twitch <span aria-hidden="true">→</span>
       </a>
     </article>
   `;
@@ -296,11 +173,13 @@ async function fetchRecommendationsData() {
   }
 }
 // Expose globally so the homepage dashboard and tests can reuse it.
+if (typeof window !== 'undefined') {
 window.fetchRecommendationsData = fetchRecommendationsData;
 // Also expose the card renderers so the admin-help builder tool can
 // preview entries using the exact same markup the site uses.
 window.renderListeningCard = renderListeningCard;
 window.renderPartners = renderPartners;
+}
 
 // -------------------------------------------------------------------------
 // Utility
@@ -316,6 +195,7 @@ function escapeAttr(s) { return escapeHtml(s); }
 // -------------------------------------------------------------------------
 // Init
 // -------------------------------------------------------------------------
+if (typeof document !== 'undefined') {
 document.addEventListener('DOMContentLoaded', async () => {
   const listeningEl = document.getElementById('listening-container');
   const partnersEl  = document.getElementById('partners-container');
@@ -325,3 +205,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (listeningEl) renderListening(listeningEl, data.listening);
   if (partnersEl)  renderPartners(partnersEl, data.partners);
 });
+}
+
+// ── Test fixture export footer (the only addition to the frozen file) ──
+export {
+  renderListeningCard,
+  renderPartners,
+  renderListening,
+  fetchRecommendationsData,
+};

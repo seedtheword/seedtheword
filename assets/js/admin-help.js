@@ -599,7 +599,7 @@
 
   // ── Recommendations builder ─────────────────────────────────
   let recoBuilderInit = false;
-  let recoKind = 'spotify';
+  let recoKind = 'spotify-show';
   let recoRendererLoaded = false;
 
   function ensureRecoRenderer() {
@@ -650,6 +650,52 @@
         { name: 'url',         label: 'Partner website',                 placeholder: 'https://partner-site.com' },
         { name: 'logo',        label: 'Logo path (optional)',            placeholder: 'assets/images/partners/partner-logo.png', hint: 'Upload logo first, then put its path here.' },
         { name: 'description', label: 'One-sentence description (optional)', kind: 'textarea', placeholder: 'One sentence about what they do together with STW.' }
+      ]
+    },
+    'spotify-show': {
+      destination: 'Paste inside the <code>"listening"</code> array in <code>assets/data/recommendations.json</code>.',
+      fields: [
+        { name: 'url',    label: 'Spotify show URL',  placeholder: 'https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK', hint: 'Paste the full SHOW URL — the card auto-refreshes as new episodes drop.' },
+        { name: 'title',  label: 'Show title',        placeholder: 'After the Heart Podcast' },
+        { name: 'source', label: 'Host / creator name', placeholder: 'Sam Petrov' },
+        { name: 'note',   label: 'Why we recommend this (optional)', kind: 'textarea', placeholder: 'Why this stood out.' }
+      ]
+    },
+    'youtube-channel': {
+      destination: 'Paste inside the <code>"listening"</code> array in <code>assets/data/recommendations.json</code>.',
+      fields: [
+        { name: 'url',    label: 'YouTube channel URL', placeholder: 'https://www.youtube.com/@SomeCreator', hint: 'Channel page URL ending in /channel/UC… or /@handle. The card embeds recent uploads when a UC… ID is captured.' },
+        { name: 'title',  label: 'Channel name',        placeholder: 'Some Creator' },
+        { name: 'source', label: 'Creator name',        placeholder: 'Friend from worship night' },
+        { name: 'note',   label: 'Why we recommend this (optional)', kind: 'textarea', placeholder: 'Why this stood out.' }
+      ]
+    },
+    'youtube-playlist': {
+      destination: 'Paste inside the <code>"listening"</code> array in <code>assets/data/recommendations.json</code>.',
+      fields: [
+        { name: 'url',    label: 'YouTube playlist URL', placeholder: 'https://www.youtube.com/playlist?list=PLxxxxxxxxxxxxxxxxxxxx', hint: 'Playlist URL with list=PL… The card embeds the playlist as a series.' },
+        { name: 'title',  label: 'Playlist title',       placeholder: 'Worship together' },
+        { name: 'source', label: 'Creator name',         placeholder: 'Some Creator' },
+        { name: 'note',   label: 'Why we recommend this (optional)', kind: 'textarea', placeholder: 'Why this stood out.' }
+      ]
+    },
+    instagram: {
+      destination: 'Paste inside the <code>"listening"</code> array in <code>assets/data/recommendations.json</code>.',
+      fields: [
+        { name: 'url',    label: 'Instagram profile URL', placeholder: 'https://instagram.com/somecreator', hint: 'Full profile URL or @handle — handle is auto-extracted.' },
+        { name: 'title',  label: 'Display name',          placeholder: 'Some Creator' },
+        { name: 'source', label: 'Source / context',      placeholder: 'Friend from worship night' },
+        { name: 'note',   label: 'Why we recommend this (optional)', kind: 'textarea', placeholder: 'Why this stood out.' },
+        { name: 'avatar', label: 'Avatar path (optional)', placeholder: 'assets/images/featured/somecreator.jpg', hint: 'Optional thumbnail — Instagram blocks third-party loading of profile pictures, so upload one yourself if you want a face on the card.' }
+      ]
+    },
+    twitch: {
+      destination: 'Paste inside the <code>"listening"</code> array in <code>assets/data/recommendations.json</code>.',
+      fields: [
+        { name: 'url',    label: 'Twitch channel URL', placeholder: 'https://twitch.tv/somecreator', hint: 'Channel URL or bare slug — slug is auto-normalized.' },
+        { name: 'title',  label: 'Display name',       placeholder: 'Some Creator' },
+        { name: 'source', label: 'Source / context',   placeholder: 'Friend from Wednesday worship' },
+        { name: 'note',   label: 'Why we recommend this (optional)', kind: 'textarea', placeholder: 'Why this stood out.' }
       ]
     }
   };
@@ -725,6 +771,41 @@
       m = s.match(/\/embed\/([A-Za-z0-9_\-]{6,})/); if (m) return m[1];
       return '';
     }
+    function extractYouTubeChannel(url) {
+      const s = String(url);
+      let m = s.match(/\/channel\/(UC[A-Za-z0-9_\-]{20,})/);
+      if (m) return { id: m[1], handle: '' };
+      m = s.match(/youtube\.com\/(@[A-Za-z0-9._\-]+)/);
+      if (m) return { id: '', handle: m[1] };
+      m = s.match(/\/c\/([A-Za-z0-9._\-]+)/);
+      if (m) return { id: '', handle: m[1] };
+      return { id: '', handle: '' };
+    }
+    function extractYouTubePlaylist(url) {
+      const m = String(url).match(/[?&]list=([A-Za-z0-9_\-]{10,})/);
+      return m ? m[1] : '';
+    }
+    function extractInstagramHandle(url) {
+      let s = String(url || '').trim();
+      if (!s) return '';
+      // URL form: instagram.com/<handle>/?…
+      const m = s.match(/instagram\.com\/([A-Za-z0-9._]{1,30})/);
+      if (m) return m[1];
+      // @handle or bare handle
+      s = s.replace(/^@/, '');
+      if (/^[A-Za-z0-9._]{1,30}$/.test(s)) return s;
+      return '';
+    }
+    function extractTwitchChannel(url) {
+      let s = String(url || '').trim();
+      if (!s) return '';
+      // Strip protocol + optional www. + trailing slash
+      const m = s.match(/twitch\.tv\/([A-Za-z0-9_]{4,25})/);
+      if (m) return m[1];
+      s = s.replace(/\/+$/, '');
+      if (/^[A-Za-z0-9_]{4,25}$/.test(s)) return s;
+      return '';
+    }
 
     function buildObject() {
       const v = getValues();
@@ -750,6 +831,28 @@
         if (v.description) o.description = v.description;
         return o;
       }
+      if (recoKind === 'spotify-show') {
+        const parsed = extractSpotifyId(v.url || '');
+        return { kind: 'spotify', type: 'show', id: parsed.id, title: v.title, source: v.source, note: v.note };
+      }
+      if (recoKind === 'youtube-channel') {
+        const ex = extractYouTubeChannel(v.url || '');
+        const o = { kind: 'youtube', feedType: 'channel', title: v.title, source: v.source, note: v.note };
+        if (ex.id) o.id = ex.id;
+        if (ex.handle) o.handle = ex.handle;
+        return o;
+      }
+      if (recoKind === 'youtube-playlist') {
+        return { kind: 'youtube', feedType: 'playlist', id: extractYouTubePlaylist(v.url || ''), title: v.title, source: v.source, note: v.note };
+      }
+      if (recoKind === 'instagram') {
+        const o = { kind: 'instagram', handle: extractInstagramHandle(v.url || ''), title: v.title, source: v.source, note: v.note };
+        if (v.avatar) o.avatar = v.avatar;
+        return o;
+      }
+      if (recoKind === 'twitch') {
+        return { kind: 'twitch', channel: extractTwitchChannel(v.url || ''), title: v.title, source: v.source, note: v.note };
+      }
       return {};
     }
 
@@ -764,6 +867,21 @@
     function readiness(obj) {
       if (recoKind === 'spotify' || recoKind === 'youtube') {
         if (!obj.id) return 'needs-url';
+      }
+      if (recoKind === 'spotify-show') {
+        if (!obj.id) return 'needs-url';
+      }
+      if (recoKind === 'youtube-channel') {
+        if (!obj.id && !obj.handle) return 'needs-url';
+      }
+      if (recoKind === 'youtube-playlist') {
+        if (!obj.id) return 'needs-url';
+      }
+      if (recoKind === 'instagram') {
+        if (!obj.handle) return 'needs-url';
+      }
+      if (recoKind === 'twitch') {
+        if (!obj.channel) return 'needs-url';
       }
       if (recoKind === 'partner') {
         if (!obj.name || !obj.url) return 'incomplete';
@@ -885,10 +1003,13 @@
         // the editor's schema expects the same. For listening entries, we pass the
         // shape the new schema stores (kind + url + title + ...), NOT the auto-
         // extracted-id shape the old builder emitted — the new editor does its own
-        // id extraction via the schemas helpers.
+        // id extraction via the schemas helpers. The renderer-side `kind` lives on
+        // `obj.kind` (so spotify-show → 'spotify', youtube-channel/-playlist →
+        // 'youtube'), and the builder kind is preserved via additional fields like
+        // `feedType` (youtube channel/playlist) and `avatar` (instagram).
         const prefill = (recoKind === 'partner')
           ? { _bucket: 'partners', name: obj.name, url: obj.url, logo: obj.logo, description: obj.description }
-          : { _bucket: 'listening', kind: recoKind, url: buildListeningUrl(obj, recoKind), title: obj.title, source: obj.source, note: obj.note, image: obj.image };
+          : { _bucket: 'listening', kind: obj.kind, url: buildListeningUrl(obj, recoKind), title: obj.title, source: obj.source, note: obj.note, image: obj.image, feedType: obj.feedType, avatar: obj.avatar };
 
         // Clean undefined.
         Object.keys(prefill).forEach((k) => { if (prefill[k] === undefined) delete prefill[k]; });
@@ -910,10 +1031,18 @@
       // a separate form field; `fieldsEl` still has the live inputs.
       const urlInput = fieldsEl.querySelector('[data-name="url"]');
       if (urlInput && urlInput.value) return urlInput.value.trim();
-      // Fallback: reconstruct a Spotify URL from obj if the input has been
+      // Fallback: reconstruct a canonical URL from obj if the input has been
       // reset by the time we got here.
       if (kind === 'spotify' && obj.id) return 'https://open.spotify.com/' + obj.type + '/' + obj.id;
       if (kind === 'youtube' && obj.id) return 'https://www.youtube.com/watch?v=' + obj.id;
+      if (kind === 'spotify-show' && obj.id) return 'https://open.spotify.com/show/' + obj.id;
+      if (kind === 'youtube-channel') {
+        if (obj.id) return 'https://www.youtube.com/channel/' + obj.id;
+        if (obj.handle) return 'https://www.youtube.com/' + obj.handle;
+      }
+      if (kind === 'youtube-playlist' && obj.id) return 'https://www.youtube.com/playlist?list=' + obj.id;
+      if (kind === 'instagram' && obj.handle) return 'https://www.instagram.com/' + obj.handle + '/';
+      if (kind === 'twitch' && obj.channel) return 'https://www.twitch.tv/' + obj.channel;
       return obj.url || '';
     }
     renderFields();

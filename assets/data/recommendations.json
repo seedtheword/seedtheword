@@ -1,5 +1,5 @@
 {
-  "_help": "Drives the 'What We're Listening To' and 'Partner Ministries' sections on community.html. Admins: use the editor on admin-help.html (Editor tab) to add entries and commit straight from the browser. Each listening item supports one of these kinds: 'spotify' (type: 'episode' or 'show'), 'youtube', or 'link'. Partners just need name + url, with optional logo and description.",
+  "_help": "Drives the 'What We're Listening To' and 'Partner Ministries' sections on community.html. Admins: use the editor on admin-help.html (Editor tab) to add entries and commit straight from the browser. Each listening item is one of these kinds: 'spotify' (type: 'episode' or 'show'), 'youtube' (feedType: 'video' (default) | 'channel' | 'playlist'), 'instagram' (handle + optional avatar), 'twitch' (channel slug), or 'link' (universal fallback for other platforms). Pick a creator-feed kind (spotify show, youtube channel/playlist, instagram, twitch) when featuring a friend so the card stays fresh as they post; pick episode/single-video when pinning a specific piece. Partners just need name + url, with optional logo and description.",
   "listening": [
     {
       "kind": "spotify",

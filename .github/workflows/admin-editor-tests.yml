@@ -118,6 +118,7 @@ jobs:
             tests/js-literal.test.js \
             tests/smoke.test.js \
             tests/validate.test.js \
+            tests/recommendations-render.test.js \
             2>&1 | tee /tmp/test-output.txt
 
       - name: Run jesus-storytelling property + integration suite

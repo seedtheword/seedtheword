@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Help — Seed the Word</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=6">
+  <link rel="stylesheet" href="assets/css/main.css?v=7">
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
   <style>
     /* ============================================================
@@ -1483,8 +1483,13 @@
     </p>
 
     <div class="reco-builder__tabs" role="tablist">
-      <button class="reco-builder__tab is-active" data-kind="spotify" role="tab" type="button">🎙️ Spotify</button>
-      <button class="reco-builder__tab" data-kind="youtube" role="tab" type="button">📺 YouTube</button>
+      <button class="reco-builder__tab is-active" data-kind="spotify-show" role="tab" type="button">🎙️ Spotify show</button>
+      <button class="reco-builder__tab" data-kind="youtube-channel" role="tab" type="button">📺 YouTube channel</button>
+      <button class="reco-builder__tab" data-kind="youtube-playlist" role="tab" type="button">📺 YouTube playlist</button>
+      <button class="reco-builder__tab" data-kind="instagram" role="tab" type="button">📸 Instagram</button>
+      <button class="reco-builder__tab" data-kind="twitch" role="tab" type="button">🎮 Twitch</button>
+      <button class="reco-builder__tab" data-kind="spotify" role="tab" type="button">🎙️ Spotify episode</button>
+      <button class="reco-builder__tab" data-kind="youtube" role="tab" type="button">📺 YouTube video</button>
       <button class="reco-builder__tab" data-kind="link" role="tab" type="button">🔗 Link / Article</button>
       <button class="reco-builder__tab" data-kind="partner" role="tab" type="button">🤝 Partner Ministry</button>
     </div>
@@ -1534,6 +1539,99 @@
         <span class="admin-step__icon">🪄</span>
         <p class="admin-step__title">Use the builder</p>
         <p class="admin-step__body">Scroll up to the Recommendations builder, pick the Spotify tab, paste the URL, fill in title/source/note.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">📋</span>
+        <p class="admin-step__title">Copy + paste JSON</p>
+        <p class="admin-step__body">Click Copy JSON, then paste it into the <code>"listening"</code> array in <code>recommendations.json</code>.</p>
+      </div>
+      <div class="admin-step admin-step--done">
+        <span class="admin-step__num">4</span>
+        <span class="admin-step__icon">✅</span>
+        <p class="admin-step__title">Commit</p>
+        <p class="admin-step__body">The card appears on the Community page within 60 seconds.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">4 steps</p>
+    <p class="admin-stepper__title">Add a YouTube channel</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">📺</span>
+        <p class="admin-step__title">Open the channel page</p>
+        <p class="admin-step__body">Copy the URL from the address bar — it should end in <code>/channel/UC…</code> or <code>/@handle</code>.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">🪄</span>
+        <p class="admin-step__title">Use the builder</p>
+        <p class="admin-step__body">Pick the YouTube channel tab, paste the URL, and fill in the channel name and creator.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">📋</span>
+        <p class="admin-step__title">Copy + paste JSON</p>
+        <p class="admin-step__body">Click Copy JSON, then paste it into the <code>"listening"</code> array in <code>recommendations.json</code>.</p>
+      </div>
+      <div class="admin-step admin-step--done">
+        <span class="admin-step__num">4</span>
+        <span class="admin-step__icon">✅</span>
+        <p class="admin-step__title">Commit</p>
+        <p class="admin-step__body">The card appears on the Community page within 60 seconds.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">4 steps</p>
+    <p class="admin-stepper__title">Add an Instagram profile</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">📸</span>
+        <p class="admin-step__title">Open the profile</p>
+        <p class="admin-step__body">Copy the profile URL — <code>https://instagram.com/&lt;handle&gt;/</code>. Bare handles also work.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">🪄</span>
+        <p class="admin-step__title">Use the builder</p>
+        <p class="admin-step__body">Pick the Instagram tab, paste the URL, and fill in the display name plus the optional avatar path.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">3</span>
+        <span class="admin-step__icon">📋</span>
+        <p class="admin-step__title">Copy + paste JSON</p>
+        <p class="admin-step__body">Click Copy JSON, then paste it into the <code>"listening"</code> array in <code>recommendations.json</code>.</p>
+      </div>
+      <div class="admin-step admin-step--done">
+        <span class="admin-step__num">4</span>
+        <span class="admin-step__icon">✅</span>
+        <p class="admin-step__title">Commit</p>
+        <p class="admin-step__body">The card appears on the Community page within 60 seconds.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-stepper">
+    <p class="admin-stepper__label">4 steps</p>
+    <p class="admin-stepper__title">Add a Twitch channel</p>
+    <div class="admin-stepper__steps">
+      <div class="admin-step">
+        <span class="admin-step__num">1</span>
+        <span class="admin-step__icon">🎮</span>
+        <p class="admin-step__title">Open the channel</p>
+        <p class="admin-step__body">Copy the channel URL — <code>https://twitch.tv/&lt;channel&gt;</code>. Bare slugs also work.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">2</span>
+        <span class="admin-step__icon">🪄</span>
+        <p class="admin-step__title">Use the builder</p>
+        <p class="admin-step__body">Pick the Twitch tab, paste the URL, and fill in the display name.</p>
       </div>
       <div class="admin-step">
         <span class="admin-step__num">3</span>
@@ -2579,7 +2677,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
   </div>
 </footer>
 
-<script src="assets/js/admin-editor-schemas.js?v=24" defer></script>
+<script src="assets/js/admin-editor-schemas.js?v=25" defer></script>
 <script src="assets/js/admin-editor-github.js?v=19" defer></script>
 <script src="assets/js/admin-editor-diff.js?v=19" defer></script>
 <script src="assets/js/admin-editor-drafts.js?v=19" defer></script>
@@ -2587,7 +2685,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
 <script src="assets/js/admin-editor-commit-message.js?v=19" defer></script>
 <script src="assets/js/admin-editor-js-literal.js?v=19" defer></script>
 <script src="assets/js/admin-editor.js?v=19" defer></script>
-<script src="assets/js/admin-help.js?v=27" defer></script>
+<script src="assets/js/admin-help.js?v=28" defer></script>
 
 <script>
   // Populate the "Shared Calendar Photos Drive folder" admin-help card,

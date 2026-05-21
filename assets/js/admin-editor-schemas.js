@@ -55,6 +55,10 @@
       { name: 'url',    label: 'YouTube URL',   kind: 'url',    required: true,
         hint: 'watch?v=, youtu.be/, and /embed/ URLs all work.',
         validate: (v) => isValidYouTubeUrl(v) ? null : 'Must be a YouTube URL we can extract an ID from.' },
+      { name: 'feedType', label: 'Feed type', kind: 'select', required: false,
+        options: [['video','Single video'], ['channel','Channel'], ['playlist','Playlist']],
+        value: 'video',
+        hint: 'Default = single video. Pick Channel or Playlist for ongoing creator feeds.' },
       { name: 'title',  label: 'Title',         kind: 'text',   required: true },
       { name: 'source', label: 'Source / channel', kind: 'text', required: false },
       { name: 'note',   label: 'Why we recommend this', kind: 'textarea', required: false },
@@ -68,6 +72,32 @@
       { name: 'note',   label: 'Why it matters', kind: 'textarea', required: false },
       { name: 'image',  label: 'Thumbnail path', kind: 'text', required: false,
         placeholder: 'assets/images/featured/some-image.jpg' },
+    ],
+    instagram: [
+      { name: 'kind',   label: 'Kind', kind: 'hidden', value: 'instagram' },
+      { name: 'url',    label: 'Instagram profile URL', kind: 'url', required: true,
+        hint: 'Paste the full profile URL. Handle is auto-extracted.',
+        validate: (v) => /^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._]{1,30}\/?(\?.*)?$/.test(String(v || ''))
+                          ? null
+                          : 'Must be an https://instagram.com/<handle> URL.' },
+      { name: 'handle', label: 'Handle', kind: 'hidden' },
+      { name: 'title',  label: 'Display name', kind: 'text', required: true },
+      { name: 'source', label: 'Source / context', kind: 'text', required: false },
+      { name: 'note',   label: 'Why we recommend this', kind: 'textarea', required: false },
+      { name: 'avatar', label: 'Avatar path (optional)', kind: 'text', required: false,
+        placeholder: 'assets/images/featured/somecreator.jpg' },
+    ],
+    twitch: [
+      { name: 'kind',    label: 'Kind', kind: 'hidden', value: 'twitch' },
+      { name: 'url',     label: 'Twitch channel URL', kind: 'url', required: true,
+        hint: 'Paste the full channel URL. Channel slug is auto-extracted.',
+        validate: (v) => /^https:\/\/(www\.)?twitch\.tv\/[A-Za-z0-9_]{4,25}\/?$/.test(String(v || ''))
+                          ? null
+                          : 'Must be an https://twitch.tv/<channel> URL.' },
+      { name: 'channel', label: 'Channel', kind: 'hidden' },
+      { name: 'title',   label: 'Display name', kind: 'text', required: true },
+      { name: 'source',  label: 'Source / context', kind: 'text', required: false },
+      { name: 'note',    label: 'Why we recommend this', kind: 'textarea', required: false },
     ],
   };
 
@@ -84,7 +114,7 @@
           name: 'listening',
           label: 'Listening',
           kind: 'repeating-group',
-          variants: ['spotify', 'youtube', 'link'],
+          variants: ['spotify', 'youtube', 'link', 'instagram', 'twitch'],
           variantFields: LISTENING_VARIANTS,
           variantKey: 'kind',
           renderer: 'renderListeningCard',
@@ -905,6 +935,49 @@
       let m = s.match(/[?&]v=([A-Za-z0-9_\-]{6,})/); if (m) return m[1];
       m = s.match(/youtu\.be\/([A-Za-z0-9_\-]{6,})/); if (m) return m[1];
       m = s.match(/\/embed\/([A-Za-z0-9_\-]{6,})/); if (m) return m[1];
+      return '';
+    },
+    // YouTube channel — accepts /channel/UC…, /@handle, /c/vanity. Returns
+    // { id, handle } where id is the UC… channel id (when present) and
+    // handle is the @-prefixed handle (when present). Either may be ''.
+    extractYouTubeChannel: function (url) {
+      const s = String(url || '');
+      const out = { id: '', handle: '' };
+      let m = s.match(/youtube\.com\/channel\/(UC[A-Za-z0-9_\-]{20,})/);
+      if (m) { out.id = m[1]; return out; }
+      m = s.match(/youtube\.com\/(@[A-Za-z0-9._\-]{1,})(?:\/|$|\?)/);
+      if (m) { out.handle = m[1]; return out; }
+      m = s.match(/youtube\.com\/c\/([A-Za-z0-9._\-]{1,})(?:\/|$|\?)/);
+      if (m) { out.handle = m[1]; return out; }
+      return out;
+    },
+    // YouTube playlist — accepts /playlist?list=PL… and /watch?v=…&list=PL….
+    // Returns the PL… (or other-prefix) playlist id, or '' if none.
+    extractYouTubePlaylist: function (url) {
+      const s = String(url || '');
+      const m = s.match(/[?&]list=([A-Za-z0-9_\-]{10,})/);
+      return m ? m[1] : '';
+    },
+    // Instagram handle — accepts https://instagram.com/<handle>/, plain
+    // @<handle>, or plain <handle>. Strips leading @, trailing slash, and
+    // query string. Returns '' if the input doesn't match the handle charset.
+    extractInstagram: function (url) {
+      let s = String(url || '').trim();
+      const urlMatch = s.match(/^https?:\/\/(?:www\.)?instagram\.com\/([A-Za-z0-9._]{1,30})\/?(?:\?.*)?$/);
+      if (urlMatch) return urlMatch[1];
+      // Plain @handle or bare handle
+      if (s.startsWith('@')) s = s.slice(1);
+      if (/^[A-Za-z0-9._]{1,30}$/.test(s)) return s;
+      return '';
+    },
+    // Twitch channel — accepts https://twitch.tv/<channel>, plain <channel>.
+    // Strips protocol, optional www., and trailing slash. Returns '' if the
+    // input doesn't match the Twitch channel charset.
+    extractTwitch: function (url) {
+      const s = String(url || '').trim();
+      const urlMatch = s.match(/^https?:\/\/(?:www\.)?twitch\.tv\/([A-Za-z0-9_]{4,25})\/?$/);
+      if (urlMatch) return urlMatch[1];
+      if (/^[A-Za-z0-9_]{4,25}$/.test(s)) return s;
       return '';
     },
   };

@@ -6810,6 +6810,26 @@ a.contact-card:hover .contact-card__cta span {
   background: rgba(255, 0, 0, 0.1);
   color: #cc0000;
 }
+/* Friends in Jesus — creator-feed platform badges (added by
+   .kiro/specs/friends-in-jesus-creator-platforms). YouTube channel and
+   playlist reuse the YouTube red palette. Instagram uses the brand
+   gradient (purple → pink → orange). Twitch uses brand purple. */
+.reco-card__badge--youtube-channel,
+.reco-card__badge--youtube-playlist {
+  background: rgba(255, 0, 0, 0.1);
+  color: #cc0000;
+}
+.reco-card__badge--instagram {
+  background: linear-gradient(45deg,
+    rgba(247, 119, 55, 0.18),
+    rgba(220, 39, 67, 0.18) 50%,
+    rgba(188, 24, 136, 0.18));
+  color: #c13584;
+}
+.reco-card__badge--twitch {
+  background: rgba(145, 70, 255, 0.15);
+  color: #6441a5;
+}
 
 .reco-card__title {
   font-size: 1.05rem;

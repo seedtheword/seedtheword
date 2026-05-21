@@ -3,7 +3,7 @@ title: "Youth Outreach"
 status: "upcoming"
 datetime: "2026-05-02T18:00:00Z"
 description: "Connecting with local youth to share the Gospel and build lasting relationships in Christ."
-image: "/assets/images/backgrounds/stw-ministry-team.jpg"
+image: "/assets/images/backgrounds/bible-ministry-1.jpg"
 button_text: "Get Involved"
 button_link: "about.html#contact"
 recurring: true

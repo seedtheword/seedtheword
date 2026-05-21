@@ -42,7 +42,7 @@ const FALLBACK_SLIDES = [
     title: 'Study Saturday Live',
     body:
       'Every Saturday, 7 PM Pacific, we gather on Twitch for Bible study, prayer, and fellowship with members from around the world.',
-    image: 'assets/images/featured/stw-ministry-team.jpg',
+    image: 'assets/images/featured/stw-bibles-giveaway.jpg',
     ctaLabel: 'Join the Community',
     ctaHref: 'community.html',
   },
@@ -52,7 +52,7 @@ const FALLBACK_SLIDES = [
     title: 'Meeting People Where They Are',
     body:
       "We don't wait for people to find us — we bring the Gospel into streets, campuses, and coffee shops. Every seed matters.",
-    image: 'assets/images/backgrounds/gideon-background-2.jpg',
+    image: 'assets/images/backgrounds/gideon-background.jpg',
     ctaLabel: 'Support the Mission',
     ctaHref: 'community.html',
   },
@@ -189,7 +189,7 @@ async function buildAnnouncementSlides() {
     eyebrow: 'Announcement',
     title: 'Study Saturday — every week, 7 PM PT',
     body: 'Join us every Saturday for Bible study, fellowship, and prayer with members around the world. Livestream on Twitch.',
-    image: 'assets/images/backgrounds/stw-ministry-team.jpg',
+    image: 'assets/images/featured/stw-bibles-giveaway.jpg',
     ctaLabel: 'See the calendar',
     ctaHref: 'news.html#calendar-section',
   }];
@@ -207,7 +207,7 @@ async function buildAnnouncementSlides() {
     eyebrow: 'Announcement',
     title: e.summary || 'Upcoming event',
     body: `${formatEventDate(e.startDate)}${e.location ? ' · ' + e.location : ''}${e.description ? ' — ' + e.description.slice(0, 140) : ''}`,
-    image: 'assets/images/backgrounds/stw-ministry-team.jpg',
+    image: 'assets/images/backgrounds/bible-in-background.jpg',
     ctaLabel: 'See the calendar',
     ctaHref: 'news.html#calendar-section',
   }));
@@ -260,15 +260,44 @@ async function buildTestimonySlides() {
   const author = (t.anonymous === true)
     ? 'Anonymous'
     : ((t.name && String(t.name).trim()) || 'Anonymous');
+  // Rotate through the testimony image folder so visitors don't always
+  // see the same backdrop. Falls back to a brand image when the manifest
+  // is empty or unreachable.
+  const image = await pickTestimonyImage();
   return [{
     kind: 'testimony',
     eyebrow: 'Testimony',
     title: '"' + (t.excerpt || '') + '"',
     body: author + ' · ' + (t.anchorVerse || ''),
-    image: 'assets/images/backgrounds/seed-the-word.jpg',
+    image: image,
     ctaLabel: 'Read more testimonies',
     ctaHref: 'news.html#testimonies-section',
   }];
+}
+
+// Lazily fetch + memoize the testimony image manifest. Returns the path
+// to one image picked deterministically by today's date so the same
+// visitor sees the same picture across page loads. Empty manifest =
+// brand-image fallback. Network errors = brand-image fallback.
+let _testimonyImagesPromise = null;
+function loadTestimonyImages() {
+  if (_testimonyImagesPromise) return _testimonyImagesPromise;
+  _testimonyImagesPromise = fetch('assets/images/testimonies/images.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((res) => res.ok ? res.json() : { images: [] })
+    .then((data) => Array.isArray(data && data.images) ? data.images : [])
+    .catch(() => []);
+  return _testimonyImagesPromise;
+}
+async function pickTestimonyImage() {
+  const fallback = 'assets/images/featured/stw-bibles-giveaway.jpg';
+  try {
+    const list = await loadTestimonyImages();
+    if (!list.length) return fallback;
+    const seed = Math.floor(Date.now() / 86400000); // day-granularity
+    const entry = list[seed % list.length];
+    if (entry && entry.file) return 'assets/images/testimonies/' + entry.file;
+  } catch (_) { /* fall through */ }
+  return fallback;
 }
 
 function buildHighlightSlides() {
@@ -374,7 +403,7 @@ function buildHowWeSeedSlide() {
     {
       title: 'Embrace Fellowship',
       body: "Tuesdays for newcomers, Fridays as young adults, Sundays in church. Bring a friend, or ask us to come with you — just reach out.",
-      image: 'assets/images/backgrounds/stw-ministry-team.jpg',
+      image: 'assets/images/featured/stw-bibles-giveaway.jpg',
     },
     {
       title: 'Encounter Jesus + Study Saturdays',
@@ -384,12 +413,12 @@ function buildHowWeSeedSlide() {
     {
       title: 'Prayer & Worship',
       body: 'Prayer and worship are woven into everything we do. Philippians 4:6-8. John 4:23-24. Got an idea for how we can do this better?',
-      image: 'assets/images/backgrounds/seed-the-word.jpg',
+      image: 'assets/images/backgrounds/john-3-16.jpg',
     },
     {
       title: 'How We Outreach',
       body: "We give away Bibles — on the street, to newcomers, to anyone who wants one. Our whole goal is finding creative, faithful ways to put God's Word into people's hands.",
-      image: 'assets/images/backgrounds/gideon-background-2.jpg',
+      image: 'assets/images/backgrounds/gideon-background.jpg',
     },
   ];
   const pick = pillars[Math.floor(Date.now() / 86400000) % pillars.length];
@@ -408,7 +437,7 @@ function buildTipSlide() {
   const pool = [
     ...DAILY_CONTENT.tips.map(t => ({ ...t, cat: 'Daily Tip', image: 'assets/images/backgrounds/bible-in-background.jpg' })),
     ...DAILY_CONTENT.facts.map(t => ({ ...t, cat: 'Did You Know?', image: 'assets/images/backgrounds/gideon-background-3.jpg' })),
-    ...DAILY_CONTENT.encouragement.map(t => ({ ...t, cat: 'A Word for You', image: 'assets/images/backgrounds/seed-the-word.jpg' })),
+    ...DAILY_CONTENT.encouragement.map(t => ({ ...t, cat: 'A Word for You', image: 'assets/images/backgrounds/bible-in-background.jpg' })),
   ];
   const pick = pool[Math.floor(Date.now() / 86400000) % pool.length];
   return {

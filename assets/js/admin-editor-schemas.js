@@ -754,6 +754,7 @@
     calendarTemplate:   imageFolderSchema('calendarTemplate',   'Calendar template graphics', 'assets/images/calendar-template/'),
     ministryOutreachPhotos: imageFolderSchema('ministryOutreachPhotos', 'Outreach event photos', 'assets/images/ministry-outreach/', { allowSubfolderCreate: true, subfolderHint: 'e.g. slavic-awakening-may-2026' }),
     instagramThumbnails: imageFolderSchema('instagramThumbnails', 'Instagram thumbnails', 'assets/images/instagram/'),
+    testimoniesPhotos: imageFolderSchema('testimoniesPhotos', 'Testimony photos (homepage carousel)', 'assets/images/testimonies/'),
 
     videos: {
       id: 'videos',

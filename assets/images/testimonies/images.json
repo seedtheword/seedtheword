@@ -1,0 +1,4 @@
+{
+  "_help": "Photos that rotate behind testimony slides on the homepage Featured Ministry carousel. Admins: upload a JPG/PNG/WEBP into assets/images/testimonies/ via the editor, then add a row here with the filename and a one-line caption. The carousel picks one per testimony slide deterministically from this list (with a brand-image fallback when the list is empty).",
+  "images": []
+}

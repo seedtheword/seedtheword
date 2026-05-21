@@ -11,13 +11,16 @@
     {
       "kind": "spotify",
       "title": "After the Heart Podcast",
-      "source": "Sam Petrov",
+      "source": "by Sam Petrov",
       "type": "show",
       "id": "0D88O8K0Yx3pDFBqbnoDX8"
     },
     {
       "kind": "youtube",
-      "feedType": "undefined"
+      "feedType": "channel",
+      "source": "Vlad Savchuk",
+      "title": "HungryGen",
+      "handle": "@vladhungrygen"
     }
   ],
   "partners": [],

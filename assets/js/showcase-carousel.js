@@ -120,8 +120,8 @@ async function buildSlides() {
   // 2.5 Testimonies (one rotating tile when published entries exist)
   try { slides.push(...await buildTestimonySlides()); } catch (_) {}
 
-  // 3. Ministry Highlights (curated FALLBACK_SLIDES)
-  try { slides.push(...buildHighlightSlides()); } catch (_) {}
+  // 3. Ministry Highlights (curated FALLBACK_SLIDES + manifest-driven photos)
+  try { slides.push(...await buildHighlightSlides()); } catch (_) {}
 
   // 4. Store ("Gift a Bible" promo)
   try { slides.push(buildStoreSlide()); } catch (_) {}
@@ -300,16 +300,51 @@ async function pickTestimonyImage() {
   return fallback;
 }
 
-function buildHighlightSlides() {
-  // Rotate through 2 of the curated highlights each visit to keep the
-  // rotation feeling fresh without drowning newer content.
+async function buildHighlightSlides() {
+  // Rotate through 2 highlights each visit. The pool combines:
+  //   (a) curated FALLBACK_SLIDES at the top of this file (always available)
+  //   (b) admin-managed slides from assets/images/ministry-highlights/images.json
+  //       (loaded once and cached for the page lifetime)
+  // We await the manifest here so the very first paint includes the
+  // admin-uploaded photos. If the manifest fails to load we fall through
+  // to the curated pool — the section never goes empty.
   const seed = Math.floor(Date.now() / 86400000); // day-granularity seed
-  const offset = seed % FALLBACK_SLIDES.length;
+  const manifest = await loadHighlightManifest();
+  const pool = FALLBACK_SLIDES.concat(manifest);
+  if (!pool.length) return [];
+  const offset = seed % pool.length;
   const out = [];
   for (let i = 0; i < 2; i++) {
-    out.push(FALLBACK_SLIDES[(offset + i) % FALLBACK_SLIDES.length]);
+    out.push(pool[(offset + i) % pool.length]);
   }
   return out;
+}
+
+// Manifest-driven highlight slides — loaded once and cached. Each row in
+// assets/images/ministry-highlights/images.json becomes one slide with the
+// shape FALLBACK_SLIDES uses. Empty manifest / fetch failure = empty list,
+// which falls back gracefully to the curated FALLBACK_SLIDES.
+let _highlightManifestPromise = null;
+function loadHighlightManifest() {
+  if (_highlightManifestPromise) return _highlightManifestPromise;
+  _highlightManifestPromise = fetch('assets/images/ministry-highlights/images.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((res) => res.ok ? res.json() : { images: [] })
+    .then((data) => {
+      const list = Array.isArray(data && data.images) ? data.images : [];
+      return list
+        .filter((item) => item && item.file)
+        .map((item) => ({
+          kind: 'ministry',
+          eyebrow: item.eyebrow || 'Ministry Highlight',
+          title: item.title || '',
+          body: item.body || '',
+          image: 'assets/images/ministry-highlights/' + item.file,
+          ctaLabel: item.ctaLabel,
+          ctaHref: item.ctaHref,
+        }));
+    })
+    .catch(() => []);
+  return _highlightManifestPromise;
 }
 
 function buildStoreSlide() {

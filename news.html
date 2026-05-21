@@ -17,7 +17,7 @@
   <meta name="twitter:title" content="News — Seed the Word Ministry">
   <meta name="twitter:description" content="Live calendar, ministry outreach, and stories from the field.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
-  <link rel="stylesheet" href="assets/css/main.css?v=12">
+  <link rel="stylesheet" href="assets/css/main.css?v=13">
   <style>
     /* ==== Share-your-story section + modal (news.html reorg) =============
        Scoped to news.html so main.css stays untouched for this rollout.
@@ -359,12 +359,12 @@
       Worship nights, Bible studies, and behind-the-scenes moments from our team.
     </p>
 
-    <!-- Ministry Highlights grid — reduced to 3 focused tiles:
-         Worship/Prayer, Encountering the Word, and a "See More Behind the
-         Scenes" card that opens archive links. A dedicated behind-the-scenes
-         Instagram link will replace the generic IG archive link later. -->
+    <!-- Ministry Highlights grid — 6 image/video tiles plus the "See More
+         Behind the Scenes" archive card (7 total). Image tiles auto-rotate
+         their photos via assets/images/ministry-highlights/images.json so
+         admins can swap photos without touching this markup. -->
     <div class="highlight-grid">
-      <!-- 1: Worship / Prayer -->
+      <!-- 1: Worship / Prayer (video) -->
       <article class="highlight-tile highlight-tile--video">
         <video controls poster="assets/images/ministry-highlights/stw-ministry-team.jpg">
           <source src="assets/videos/worship-composing.mp4" type="video/mp4">
@@ -375,7 +375,7 @@
         </div>
       </article>
 
-      <!-- 2: Encountering the Word -->
+      <!-- 2: Encountering the Word (video) -->
       <article class="highlight-tile highlight-tile--video">
         <video controls poster="assets/images/ministry-highlights/bible-ministry-1.jpg">
           <source src="assets/videos/bible-flip.mp4" type="video/mp4">
@@ -386,7 +386,43 @@
         </div>
       </article>
 
-      <!-- 3: See More Behind the Scenes archive card -->
+      <!-- 3: Bible giveaway photo tile -->
+      <article class="highlight-tile highlight-tile--photo">
+        <img src="assets/images/ministry-highlights/stw-bibles-giveaway.jpg" alt="Volunteers handing personalized Bibles to newcomers">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">Bibles Going Out</h3>
+        </div>
+      </article>
+
+      <!-- 4: Personal hand-off photo tile -->
+      <article class="highlight-tile highlight-tile--photo">
+        <img src="assets/images/ministry-highlights/bible-ministry-gift-zander.jpg" alt="A personalized Bible handed to a friend">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">One Life, One Bible</h3>
+        </div>
+      </article>
+
+      <!-- 5: Outreach photo tile -->
+      <article class="highlight-tile highlight-tile--photo">
+        <img src="assets/images/ministry-highlights/photo_4909333866749823932_w.jpg" alt="Outreach moment from a recent ministry day">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">Outreach in Action</h3>
+        </div>
+      </article>
+
+      <!-- 6: Fellowship photo tile -->
+      <article class="highlight-tile highlight-tile--photo">
+        <img src="assets/images/ministry-highlights/photo_5172494948291513310_w.jpg" alt="Friends gathered around the Word">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">Friends in the Word</h3>
+        </div>
+      </article>
+
+      <!-- 7: See More Behind the Scenes archive card -->
       <article class="highlight-tile highlight-tile--more" tabindex="0" role="button"
                aria-label="See more behind-the-scenes content on our social channels"
                onclick="this.classList.toggle('open')"

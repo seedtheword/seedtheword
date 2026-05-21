@@ -1,0 +1,103 @@
+{
+  "_help": "Photos that rotate through the Ministry Highlights slot of the Featured Ministry carousel on the homepage. Admins: upload a JPG/PNG/WEBP into assets/images/ministry-highlights/ via the editor, then add a row here with the filename, an eyebrow, a short title, and an optional body. Each row becomes a candidate slide; the carousel picks 2 per visit, mixed with the curated FALLBACK_SLIDES inside showcase-carousel.js. Empty list = curated slides only.",
+  "images": [
+    {
+      "file": "stw-bibles-giveaway.jpg",
+      "eyebrow": "Ministry Highlight",
+      "title": "Bibles Going Out",
+      "body": "Hundreds of personalized Bibles have made their way into newcomer hands — each with a handwritten note, highlighted verses, and prayer.",
+      "ctaLabel": "See Our Bundles",
+      "ctaHref": "store.html"
+    },
+    {
+      "file": "bible-ministry-1.jpg",
+      "eyebrow": "Behind the Scenes",
+      "title": "Pack & Ship Nights",
+      "body": "Our volunteers pray over every Bible before it ships. Each package leaves with a blessing, a verse, and the love of our community behind it.",
+      "ctaLabel": "Meet the Team",
+      "ctaHref": "about.html"
+    },
+    {
+      "file": "bible-ministry-gift-zander.jpg",
+      "eyebrow": "Story",
+      "title": "One Life, One Bible",
+      "body": "A simple hand-off. A personalized Bible. A story that keeps unfolding. This is what Seed the Word is about — one life, one verse, one seed at a time.",
+      "ctaLabel": "Read More Stories",
+      "ctaHref": "news.html"
+    },
+    {
+      "file": "stw-ministry-team.jpg",
+      "eyebrow": "Community",
+      "title": "Study Saturday Live",
+      "body": "Every Saturday, 7 PM Pacific, we gather on Twitch for Bible study, prayer, and fellowship with members from around the world.",
+      "ctaLabel": "Join the Community",
+      "ctaHref": "community.html"
+    },
+    {
+      "file": "photo_4909333866749823921_w.jpg",
+      "eyebrow": "Outreach",
+      "title": "Out in the Field",
+      "body": "We don't wait for people to find us — we bring the Gospel into streets, campuses, and coffee shops. Every seed matters."
+    },
+    {
+      "file": "photo_4909333866749823922_w.jpg",
+      "eyebrow": "Outreach",
+      "title": "Hands That Receive",
+      "body": "Every Bible placed is a prayer answered — a seed sown in soil only the Lord can name."
+    },
+    {
+      "file": "photo_4909333866749823924_w.jpg",
+      "eyebrow": "Outreach",
+      "title": "Stories Becoming Pages",
+      "body": "Today's hand-off, tomorrow's testimony. The Word keeps walking forward in the lives of the people who receive it."
+    },
+    {
+      "file": "photo_4909333866749823932_w.jpg",
+      "eyebrow": "Outreach",
+      "title": "Outreach in Action",
+      "body": "Sidewalks, parking lots, the steps of campus libraries — wherever someone is willing to talk, we want to be there with the Word."
+    },
+    {
+      "file": "photo_5122846595228568623_y.jpg",
+      "eyebrow": "Fellowship",
+      "title": "A Body, Not a Crowd",
+      "body": "We greet each other. We share what God has been doing this week. The room becomes a body."
+    },
+    {
+      "file": "photo_5165816471714728915_w.jpg",
+      "eyebrow": "Outreach",
+      "title": "Walking the Path of Light",
+      "body": "Plant the seed. Water it to grow. Gather the harvest. Every step is the work of the Lord."
+    },
+    {
+      "file": "photo_5172494948291513310_w.jpg",
+      "eyebrow": "Fellowship",
+      "title": "Friends in the Word",
+      "body": "Tuesdays for newcomers. Fridays as young adults. Every gathering is one more chance to come back to the Bible together."
+    },
+    {
+      "file": "photo_5172494948291513318_w.jpg",
+      "eyebrow": "Fellowship",
+      "title": "Reflection Together",
+      "body": "We sit with what we just read. Where did we see grace? What does this say about God? What does it call us to as a body?"
+    },
+    {
+      "file": "photo_5177167151155055801_w.jpg",
+      "eyebrow": "Worship",
+      "title": "Coming Before Him First",
+      "body": "Singing and prayer gather the room. Before we greet one another, we lift our hearts to Him."
+    },
+    {
+      "file": "photo_5177167151155055809_w.jpg",
+      "eyebrow": "Worship",
+      "title": "Lifted Voices",
+      "body": "Prayer and worship are woven into everything we do. Philippians 4:6-8."
+    },
+    {
+      "file": "photo_5179284359578586182_w.jpg",
+      "eyebrow": "Story",
+      "title": "From the Streets to the Word",
+      "body": "Every initiative we run started as someone speaking up at the end of a meeting. Got an idea for who we should reach next?"
+    }
+  ]
+}

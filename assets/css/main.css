@@ -6291,10 +6291,21 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* Video tiles: native video fills the tile */
 .highlight-tile--video video {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  background: #000;
+}
+
+/* Photo tiles: image fills the tile, mirrors the video tile shape so they
+   sit on the same grid without visual jumps. */
+.highlight-tile--photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   background: #000;
 }
 

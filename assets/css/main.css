@@ -8342,6 +8342,16 @@ a.contact-card:hover .contact-card__cta span {
   display: block;
 }
 
+/* Drive / iframe-based friend-message embeds — iframes don't support
+   object-fit, so size it explicitly with a 16:9 aspect ratio. The wrapper
+   already has overflow:hidden + the same border-radius. */
+.friend-message__video iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+
 .friend-message__body {
   display: flex;
   flex-direction: column;

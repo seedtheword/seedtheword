@@ -2,11 +2,11 @@
   "_help": "Drives the 'This Saturday's Review' block inside the Study Saturday livestream card on community.html, AND the 'Discovery — Read Together' card just above it. The entry in 'weeks' whose 'weekOf' date is today-or-earlier AND closest to today is rendered. Add a new entry each week. 'weekOf' format: YYYY-MM-DD (Monday of the week by convention). Fields: oldTestament + newTestament (Saturday review block — optional, if neither is set the review block is hidden); anchorChapter (the chapter life groups read together that week — used by the Discovery card on community.html, optional, falls back to a generic prompt if unset); anchorNote (optional one-line italic note shown under the chapter name — context, theme, why this chapter matters this week).",
   "weeks": [
     {
-      "weekOf": "2026-05-11",
-      "oldTestament": "Matthew 21",
-      "newTestament": "Luke 2 - 6",
+      "weekOf": "2026-05-18",
+      "oldTestament": "",
+      "newTestament": "",
       "anchorChapter": "Luke 7",
-      "anchorNote": "Jesus heals, forgives, and calls — meet the Christ who sees both centurion and sinner."
+      "anchorNote": ""
     }
   ]
 }

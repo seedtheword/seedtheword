@@ -1174,8 +1174,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 .hero--about   { background-image: url('../images/backgrounds/bible-in-background.jpg'); }
 .hero--bundles { background-image: url('../images/backgrounds/gideon-background.jpg'); }
 .hero--donate  { background-image: url('../images/backgrounds/john-3-16.jpg'); }
-.hero--testimonies { background-image: url('../images/backgrounds/stw-bibles-giveaway.jpg'); }
-.hero--contact { background-image: url('../images/backgrounds/seed-the-word.jpg'); background-position: center top; }
+.hero--testimonies { background-image: url('../images/backgrounds/bible-in-background.jpg'); }
+.hero--contact { background-image: url('../images/backgrounds/john-3-16.jpg'); background-position: center top; }
 .hero--builder { background-image: url('../images/backgrounds/bible-ministry-1.jpg'); }
 .hero__overlay { 
   position: absolute; inset: 0; 
@@ -10674,6 +10674,6 @@ a.contact-card:hover .contact-card__cta span {
    .hero--testimonies pattern from news.html. Uses one of our existing
    ministry backgrounds. */
 .hero--testimonies-archive {
-  background-image: url('../images/backgrounds/seed-the-word.jpg');
+  background-image: url('../images/backgrounds/bible-in-background.jpg');
   background-position: center 30%;
 }

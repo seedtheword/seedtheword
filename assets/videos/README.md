@@ -1,6 +1,6 @@
 # `assets/videos/` — Hero clip and ReadyClip swap notes
 
-This folder holds the short, muted, looping decorative video that plays behind the welcome text on the homepage hero (`index.html` → `<section class="hero hero--jesus">`). The active file is `hero-jesus.mp4`. Other clips in this folder (`bible-flip.mp4`, `ministry-clip.mp4`, etc.) belong to other sections of the site and are not used by the hero.
+This folder holds the short, muted, looping decorative video that plays behind the welcome text on the homepage hero (`index.html` → `<section class="hero hero--jesus">`). The active file is `hero-jesus.mp4`. Other clips in this folder (`bible-flip.mp4`, `worship-composing.mp4`) belong to other sections of the site and are not used by the hero.
 
 The page is designed to look correct even when `hero-jesus.mp4` is missing, so it is safe to ship the site before the file lands. See "What happens if `hero-jesus.mp4` is missing" below.
 

@@ -645,9 +645,38 @@
         row.type = parsed.type || row.type || 'episode';
         if (parsed.id) row.id = parsed.id;
       } else if (row.kind === 'youtube') {
-        const id = s.extractYouTube(row.url || '');
+        const ft = row.feedType || 'video';
+        if (ft === 'channel') {
+          // YouTube channel feed — extract { id, handle } from URL.
+          const ex = s.extractYouTubeChannel(row.url || '') || {};
+          delete row.url;
+          row.feedType = 'channel';
+          if (ex.id) row.id = ex.id;
+          if (ex.handle) row.handle = ex.handle;
+        } else if (ft === 'playlist') {
+          // YouTube playlist — extract PL… id.
+          const id = s.extractYouTubePlaylist(row.url || '');
+          delete row.url;
+          row.feedType = 'playlist';
+          if (id) row.id = id;
+        } else {
+          // Single-video — back-compat path. Extract video id, drop feedType
+          // when default so the on-disk JSON stays minimal.
+          const id = s.extractYouTube(row.url || '');
+          delete row.url;
+          if (id) row.id = id;
+          if (row.feedType === 'video') delete row.feedType;
+        }
+      } else if (row.kind === 'instagram') {
+        // Instagram profile — handle is derived from the URL field.
+        const handle = s.extractInstagram(row.url || '');
         delete row.url;
-        if (id) row.id = id;
+        if (handle) row.handle = handle;
+      } else if (row.kind === 'twitch') {
+        // Twitch channel — channel slug is derived from the URL field.
+        const channel = s.extractTwitch(row.url || '');
+        delete row.url;
+        if (channel) row.channel = channel;
       } else if (row.kind === 'link') {
         // Link rows keep their url as-is.
       }
@@ -725,7 +754,21 @@
       return { kind: 'spotify', type: parsed.type || 'episode', id: parsed.id || '', title: item.title, source: item.source, note: item.note };
     }
     if (item.kind === 'youtube') {
+      const ft = item.feedType || 'video';
+      if (ft === 'channel') {
+        const ex = s.extractYouTubeChannel(item.url || '') || {};
+        return { kind: 'youtube', feedType: 'channel', id: ex.id || '', handle: ex.handle || '', title: item.title, source: item.source, note: item.note };
+      }
+      if (ft === 'playlist') {
+        return { kind: 'youtube', feedType: 'playlist', id: s.extractYouTubePlaylist(item.url || ''), title: item.title, source: item.source, note: item.note };
+      }
       return { kind: 'youtube', id: s.extractYouTube(item.url || ''), title: item.title, source: item.source, note: item.note };
+    }
+    if (item.kind === 'instagram') {
+      return { kind: 'instagram', handle: s.extractInstagram(item.url || ''), avatar: item.avatar, title: item.title, source: item.source, note: item.note };
+    }
+    if (item.kind === 'twitch') {
+      return { kind: 'twitch', channel: s.extractTwitch(item.url || ''), title: item.title, source: item.source, note: item.note };
     }
     // link
     return { kind: 'link', url: item.url, title: item.title, source: item.source, note: item.note, image: item.image };

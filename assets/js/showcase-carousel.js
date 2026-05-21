@@ -189,7 +189,7 @@ async function buildAnnouncementSlides() {
     eyebrow: 'Announcement',
     title: 'Study Saturday — every week, 7 PM PT',
     body: 'Join us every Saturday for Bible study, fellowship, and prayer with members around the world. Livestream on Twitch.',
-    image: 'assets/images/featured/stw-bibles-giveaway.jpg',
+    image: pickEvergreenImage('announce-fallback', 'assets/images/featured/stw-bibles-giveaway.jpg'),
     ctaLabel: 'See the calendar',
     ctaHref: 'news.html#calendar-section',
   }];
@@ -207,7 +207,7 @@ async function buildAnnouncementSlides() {
     eyebrow: 'Announcement',
     title: e.summary || 'Upcoming event',
     body: `${formatEventDate(e.startDate)}${e.location ? ' · ' + e.location : ''}${e.description ? ' — ' + e.description.slice(0, 140) : ''}`,
-    image: 'assets/images/backgrounds/bible-in-background.jpg',
+    image: pickEvergreenImage('announce-event', 'assets/images/backgrounds/bible-in-background.jpg'),
     ctaLabel: 'See the calendar',
     ctaHref: 'news.html#calendar-section',
   }));
@@ -301,7 +301,9 @@ async function pickTestimonyImage() {
 }
 
 async function buildHighlightSlides() {
-  // Rotate through 2 highlights each visit. The pool combines:
+  // Rotate through 6 highlights each visit (was 2 — we have 20 photos in
+  // the pool now, surface enough of them per page-load that the rotation
+  // is visible). The pool combines:
   //   (a) curated FALLBACK_SLIDES at the top of this file (always available)
   //   (b) admin-managed slides from assets/images/ministry-highlights/images.json
   //       (loaded once and cached for the page lifetime)
@@ -313,8 +315,9 @@ async function buildHighlightSlides() {
   const pool = FALLBACK_SLIDES.concat(manifest);
   if (!pool.length) return [];
   const offset = seed % pool.length;
+  const count = Math.min(6, pool.length);
   const out = [];
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < count; i++) {
     out.push(pool[(offset + i) % pool.length]);
   }
   return out;
@@ -347,6 +350,29 @@ function loadHighlightManifest() {
   return _highlightManifestPromise;
 }
 
+// Evergreen image rotation helper — used by slide-builders that don't have
+// their own manifest. Pulls a photo from the loaded ministry-highlights
+// pool (which has 15 photos) so each builder gets a different backdrop on
+// the same page-load instead of all hardcoding the same 4-5 paths.
+//
+// `slot` is a stable per-builder string (e.g. 'verse', 'tip', 'initiatives')
+// so the same slot picks the same photo on a given day, and different slots
+// pick different photos. Falls back to the supplied fallback path if the
+// manifest hasn't loaded yet (first paint) or if the pool is empty.
+let _highlightManifestSyncCache = [];
+loadHighlightManifest().then((list) => { _highlightManifestSyncCache = list; });
+function pickEvergreenImage(slot, fallbackPath) {
+  const pool = _highlightManifestSyncCache;
+  if (!pool.length) return fallbackPath;
+  // Hash the slot string into a stable index, mixed with today's day so
+  // the rotation refreshes daily.
+  let h = 0;
+  for (let i = 0; i < slot.length; i++) h = ((h << 5) - h + slot.charCodeAt(i)) | 0;
+  const day = Math.floor(Date.now() / 86400000);
+  const idx = ((h ^ day) >>> 0) % pool.length;
+  return pool[idx].image || fallbackPath;
+}
+
 function buildStoreSlide() {
   return {
     kind: 'store',
@@ -366,22 +392,22 @@ function buildInitiativesSlide() {
     {
       title: 'Tuesdays — welcoming newcomers',
       body: 'Every Tuesday we make space for newcomers to faith. Gentle, honest conversation. Questions welcome. Bibles on the table.',
-      image: 'assets/images/featured/stw-bibles-giveaway.jpg',
+      image: pickEvergreenImage('initiatives-tue', 'assets/images/featured/stw-bibles-giveaway.jpg'),
     },
     {
       title: 'Fridays — young adult fellowship',
       body: 'Fridays we gather as young adults to study, break bread, pray for each other, and encourage one another in Christ.',
-      image: 'assets/images/featured/stw-ministry-team.jpg',
+      image: pickEvergreenImage('initiatives-fri', 'assets/images/featured/stw-ministry-team.jpg'),
     },
     {
       title: 'Sundays — in a local church',
       body: 'We go to church Sundays. Bring a friend, or ask us to come with you to yours — just reach out.',
-      image: 'assets/images/backgrounds/bible-in-background.jpg',
+      image: pickEvergreenImage('initiatives-sun', 'assets/images/backgrounds/bible-in-background.jpg'),
     },
     {
       title: 'Study Saturdays — the weekly review',
       body: 'Saturdays we recap the week\'s reading and dive deeper as a community — in person and on Twitch.',
-      image: 'assets/images/backgrounds/stw-background.jpg',
+      image: pickEvergreenImage('initiatives-sat', 'assets/images/backgrounds/stw-background.jpg'),
     },
   ];
   const pick = initiatives[Math.floor(Date.now() / 86400000) % initiatives.length];
@@ -402,7 +428,7 @@ function buildFriendsSlide() {
     eyebrow: 'Friends in Jesus',
     title: 'Voices we walk with',
     body: "Partner ministries, brothers and sisters we listen to, and friends we share the road with — see who we're walking alongside.",
-    image: 'assets/images/featured/bible-ministry-gift-zander.jpg',
+    image: pickEvergreenImage('friends', 'assets/images/featured/bible-ministry-gift-zander.jpg'),
     ctaLabel: 'Meet our friends',
     ctaHref: 'community.html#friends-in-jesus',
   };
@@ -421,7 +447,7 @@ async function buildVerseSlide() {
     eyebrow: "Today's Verse",
     title: v.ref + (v.version ? ` (${v.version})` : ''),
     body: v.text,
-    image: 'assets/images/backgrounds/john-3-16.jpg',
+    image: pickEvergreenImage('verse', 'assets/images/backgrounds/john-3-16.jpg'),
     ctaLabel: 'Share',
     ctaHref: '#',
     isShare: true,
@@ -433,27 +459,27 @@ function buildHowWeSeedSlide() {
     {
       title: 'How We Read Our Bible',
       body: 'Monday–Friday we read one chapter a day together. Saturdays we review. We began in the New Testament for newcomers; the Old Testament is woven into Study Saturdays.',
-      image: 'assets/images/backgrounds/bible-in-background.jpg',
+      image: pickEvergreenImage('seed-read', 'assets/images/backgrounds/bible-in-background.jpg'),
     },
     {
       title: 'Embrace Fellowship',
       body: "Tuesdays for newcomers, Fridays as young adults, Sundays in church. Bring a friend, or ask us to come with you — just reach out.",
-      image: 'assets/images/featured/stw-bibles-giveaway.jpg',
+      image: pickEvergreenImage('seed-fellowship', 'assets/images/featured/stw-bibles-giveaway.jpg'),
     },
     {
       title: 'Encounter Jesus + Study Saturdays',
       body: 'Tuesdays are for welcoming newcomers. Saturdays are for going deeper — recapping the week and letting the Word shape the next.',
-      image: 'assets/images/backgrounds/stw-background.jpg',
+      image: pickEvergreenImage('seed-encounter', 'assets/images/backgrounds/stw-background.jpg'),
     },
     {
       title: 'Prayer & Worship',
       body: 'Prayer and worship are woven into everything we do. Philippians 4:6-8. John 4:23-24. Got an idea for how we can do this better?',
-      image: 'assets/images/backgrounds/john-3-16.jpg',
+      image: pickEvergreenImage('seed-prayer', 'assets/images/backgrounds/john-3-16.jpg'),
     },
     {
       title: 'How We Outreach',
       body: "We give away Bibles — on the street, to newcomers, to anyone who wants one. Our whole goal is finding creative, faithful ways to put God's Word into people's hands.",
-      image: 'assets/images/backgrounds/gideon-background.jpg',
+      image: pickEvergreenImage('seed-outreach', 'assets/images/backgrounds/gideon-background.jpg'),
     },
   ];
   const pick = pillars[Math.floor(Date.now() / 86400000) % pillars.length];
@@ -470,9 +496,9 @@ function buildHowWeSeedSlide() {
 
 function buildTipSlide() {
   const pool = [
-    ...DAILY_CONTENT.tips.map(t => ({ ...t, cat: 'Daily Tip', image: 'assets/images/backgrounds/bible-in-background.jpg' })),
-    ...DAILY_CONTENT.facts.map(t => ({ ...t, cat: 'Did You Know?', image: 'assets/images/backgrounds/gideon-background-3.jpg' })),
-    ...DAILY_CONTENT.encouragement.map(t => ({ ...t, cat: 'A Word for You', image: 'assets/images/backgrounds/bible-in-background.jpg' })),
+    ...DAILY_CONTENT.tips.map(t => ({ ...t, cat: 'Daily Tip', image: pickEvergreenImage('tip-tip', 'assets/images/backgrounds/bible-in-background.jpg') })),
+    ...DAILY_CONTENT.facts.map(t => ({ ...t, cat: 'Did You Know?', image: pickEvergreenImage('tip-fact', 'assets/images/backgrounds/gideon-background-3.jpg') })),
+    ...DAILY_CONTENT.encouragement.map(t => ({ ...t, cat: 'A Word for You', image: pickEvergreenImage('tip-enc', 'assets/images/backgrounds/bible-in-background.jpg') })),
   ];
   const pick = pool[Math.floor(Date.now() / 86400000) % pool.length];
   return {
@@ -514,7 +540,7 @@ function getDailyBibleSlide() {
     eyebrow: eyebrowMap[category] || "Today's Word",
     title: item.ref,
     body: item.text,
-    image: 'assets/images/backgrounds/john-3-16.jpg',
+    image: pickEvergreenImage('daily-bible', 'assets/images/backgrounds/john-3-16.jpg'),
     ctaLabel: 'Share',
     ctaHref: '#',
     isShare: true,

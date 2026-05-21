@@ -50,6 +50,8 @@ function renderListeningCard(item) {
       return renderInstagramCard(item);
     case 'twitch':
       return renderTwitchCard(item);
+    case 'drive':
+      return renderDriveCard(item);
     case 'link':
     default:
       return renderLinkCard(item);
@@ -232,6 +234,38 @@ function renderTwitchCard(item) {
       </div>
       <a class="reco-card__link" href="https://www.twitch.tv/${channel}" target="_blank" rel="noopener noreferrer">
         Open on Twitch <span aria-hidden="true">→</span>
+      </a>
+    </article>
+  `;
+}
+
+// Google Drive video embed — Drive's /preview iframe gives a clean inline
+// player. Files must be shared "Anyone with the link" for the iframe to
+// load. The fileId is the long string between /file/d/ and the next slash
+// in the share URL.
+function renderDriveCard(item) {
+  const fileId = escapeAttr(item.fileId || '');
+  const embedSrc = `https://drive.google.com/file/d/${fileId}/preview`;
+  const openUrl = `https://drive.google.com/file/d/${fileId}/view`;
+  return `
+    <article class="reco-card glass-morphism reco-card--drive">
+      <header class="reco-card__header">
+        <span class="reco-card__badge reco-card__badge--drive">🎬 Video</span>
+        <h4 class="reco-card__title">${escapeHtml(item.title || '')}</h4>
+        <p class="reco-card__source">${escapeHtml(item.source || '')}</p>
+      </header>
+      ${item.note ? `<p class="reco-card__note">${escapeHtml(item.note)}</p>` : ''}
+      <div class="reco-card__embed reco-card__embed--video">
+        <iframe
+          title="${escapeHtml(item.title || 'Video')}"
+          src="${embedSrc}"
+          frameborder="0"
+          allowfullscreen
+          allow="autoplay; encrypted-media; picture-in-picture"
+          loading="lazy"></iframe>
+      </div>
+      <a class="reco-card__link" href="${openUrl}" target="_blank" rel="noopener noreferrer">
+        Open on Drive <span aria-hidden="true">→</span>
       </a>
     </article>
   `;

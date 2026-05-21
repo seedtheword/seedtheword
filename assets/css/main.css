@@ -6841,6 +6841,10 @@ a.contact-card:hover .contact-card__cta span {
   background: rgba(145, 70, 255, 0.15);
   color: #6441a5;
 }
+.reco-card__badge--drive {
+  background: rgba(15, 157, 88, 0.12);
+  color: #0a8f4d;
+}
 
 .reco-card__title {
   font-size: 1.05rem;

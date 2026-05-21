@@ -21,3 +21,8 @@ desktop.ini
 node_modules/
 __pycache__/
 *.pyc
+
+# Large local-only video files (host these on Drive / YouTube and embed
+# instead — anything over a few MB shouldn't be committed). Add specific
+# filenames here as they come up.
+assets/videos/cant-be-neutral.mp4

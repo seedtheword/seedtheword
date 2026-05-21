@@ -301,23 +301,19 @@ async function pickTestimonyImage() {
 }
 
 async function buildHighlightSlides() {
-  // Rotate through 6 highlights each visit (was 2 — we have 20 photos in
-  // the pool now, surface enough of them per page-load that the rotation
-  // is visible). The pool combines:
+  // Surface every photo from the merged pool on each visit. The pool combines:
   //   (a) curated FALLBACK_SLIDES at the top of this file (always available)
   //   (b) admin-managed slides from assets/images/ministry-highlights/images.json
   //       (loaded once and cached for the page lifetime)
-  // We await the manifest here so the very first paint includes the
-  // admin-uploaded photos. If the manifest fails to load we fall through
-  // to the curated pool — the section never goes empty.
+  // Day-seeded offset so the order rotates daily but every photo is in
+  // the carousel on a given visit.
   const seed = Math.floor(Date.now() / 86400000); // day-granularity seed
   const manifest = await loadHighlightManifest();
   const pool = FALLBACK_SLIDES.concat(manifest);
   if (!pool.length) return [];
   const offset = seed % pool.length;
-  const count = Math.min(6, pool.length);
   const out = [];
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < pool.length; i++) {
     out.push(pool[(offset + i) % pool.length]);
   }
   return out;

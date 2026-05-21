@@ -20,7 +20,7 @@
   <meta name="twitter:description" content="A simple five-movement rhythm anyone can lead. Start reading the Bible with others.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
   <title>Start a Life Group — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=20">
+  <link rel="stylesheet" href="assets/css/main.css?v=21">
   <style>
     /* Life Group page — focused, mobile-first, QR-code-friendly.
        Lighter weight than the rest of the site because someone holding
@@ -277,6 +277,93 @@
       font-size: 0.95rem;
     }
 
+    /* Take-a-Bible-home callout — sits between movement 5 and the FAQ.
+       Soft cream-and-gold treatment so it feels like a warm aside, not
+       another section header. */
+    .lg-bible-seed {
+      background: var(--cream, #fdf3e3);
+      padding: 2.75rem 1.5rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .lg-bible-seed__inner {
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .lg-bible-seed__eyebrow {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--gold, #c79a3a);
+      margin: 0 0 0.6rem;
+    }
+    .lg-bible-seed__title {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin: 0 0 1rem;
+    }
+    .lg-bible-seed__lead {
+      font-size: 1rem;
+      line-height: 1.7;
+      margin: 0 0 1rem;
+    }
+    .lg-bible-seed__quote {
+      font-style: italic;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      max-width: 560px;
+      margin: 0 auto 1.25rem;
+      padding: 0.5rem 1.25rem;
+      border-left: 3px solid var(--gold, #c79a3a);
+      text-align: left;
+    }
+    .lg-bible-seed__why {
+      list-style: none;
+      padding: 0;
+      margin: 1.25rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      text-align: left;
+      max-width: 540px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .lg-bible-seed__why li {
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .lg-bible-seed__why li::before {
+      content: '·';
+      position: absolute;
+      left: 0.4rem;
+      color: var(--gold, #c79a3a);
+      font-weight: 700;
+    }
+    .lg-bible-seed__verse {
+      margin: 1.5rem auto 0;
+      max-width: 560px;
+      font-style: italic;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--muted);
+      text-align: left;
+      padding: 0 1rem;
+    }
+    .lg-bible-seed__verse cite {
+      display: block;
+      margin-top: 0.4rem;
+      font-style: normal;
+      font-size: 0.85rem;
+    }
+
     /* Hero on mobile */
     @media (max-width: 600px) {
       .lg-hero { padding: 3rem 1rem 2.75rem; }
@@ -448,6 +535,31 @@
         Tea, coffee, snacks — whatever's on the table is enough. The fellowship after the prayer is where deeper conversations happen. Don't rush people out.
       </div>
     </div>
+  </div>
+</section>
+
+<!-- Take a Bible home — only if you'd like to. A quiet, no-pressure
+     invitation that turns a week of personal prayer into the actual
+     ministry. The work is the Lord's; the Bible is just the seed in
+     the reader's hand while they listen. -->
+<section class="lg-bible-seed">
+  <div class="lg-bible-seed__inner">
+    <p class="lg-bible-seed__eyebrow">A quiet invitation</p>
+    <h2 class="lg-bible-seed__title">Take a Bible home — only if you'd like to.</h2>
+    <p class="lg-bible-seed__lead">If you join us for a life group, you're welcome to take a Bible home for the week. We'd ask one thing of you:</p>
+    <blockquote class="lg-bible-seed__quote">
+      In your prayer time, ask the Lord who this Bible is for. Don't force it. If someone comes to mind, give it. If no one comes to mind, bring it back next week. There's no pressure either way.
+    </blockquote>
+    <p class="lg-bible-seed__lead"><strong>The work is the Lord's. The Bible is the seed.</strong></p>
+    <ul class="lg-bible-seed__why">
+      <li>It removes the awkward "I have to evangelize someone."</li>
+      <li>It turns a quiet week of prayer into the actual ministry.</li>
+      <li>It honors the Spirit's pace, not ours.</li>
+    </ul>
+    <blockquote class="lg-bible-seed__verse">
+      "Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver."
+      <cite>— 2 Corinthians 9:7 NIV</cite>
+    </blockquote>
   </div>
 </section>
 

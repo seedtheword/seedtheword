@@ -20,7 +20,7 @@
   <meta name="twitter:description" content="How we seed the Word — the life-group rhythm plus the quiet Bible-as-seed practice.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
   <title>How to Seed — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=23">
+  <link rel="stylesheet" href="assets/css/main.css?v=24">
   <style>
     /* Life Group page — focused, mobile-first, QR-code-friendly.
        Lighter weight than the rest of the site because someone holding
@@ -396,6 +396,33 @@
       font-size: 0.85rem;
     }
 
+    /* QR code at the bottom of the How to Seed block — sized so it
+       reliably scans from ~30-60 cm without being so big it dominates
+       the section. The .svg keeps crisp edges at any DPI. */
+    .lg-bible-seed__qr {
+      margin: 2rem auto 0;
+      padding: 0.75rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .lg-bible-seed__qr img {
+      display: block;
+      width: 160px;
+      height: 160px;
+    }
+    .lg-bible-seed__qr figcaption {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
     /* Hero on mobile */
     @media (max-width: 600px) {
       .lg-hero { padding: 3rem 1rem 2.75rem; }
@@ -597,6 +624,14 @@
       "Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver."
       <cite>— 2 Corinthians 9:7 NIV</cite>
     </blockquote>
+
+    <!-- QR code — points anyone with a phone camera straight at this
+         page so a friend can scan it from someone else's screen or a
+         printed sheet without typing the URL. -->
+    <figure class="lg-bible-seed__qr">
+      <img src="assets/images/qr-how-to-seed.svg" alt="QR code linking to seedtheword.github.io/how-to-seed" width="160" height="160">
+      <figcaption>Scan to share this page</figcaption>
+    </figure>
   </div>
 </section>
 

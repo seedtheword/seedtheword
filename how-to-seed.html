@@ -20,7 +20,7 @@
   <meta name="twitter:description" content="How we seed the Word — the life-group rhythm plus the quiet Bible-as-seed practice.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
   <title>How to Seed — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=25">
+  <link rel="stylesheet" href="assets/css/main.css?v=26">
   <style>
     /* Life Group page — focused, mobile-first, QR-code-friendly.
        Lighter weight than the rest of the site because someone holding
@@ -438,13 +438,31 @@
     .lg-bible-seed__followup summary {
       cursor: pointer;
       list-style: none;
-      font-size: 0.82rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      display: inline-block;
+      margin: 0 auto;
+      padding: 0.65rem 1.4rem;
+      background: #fff;
+      border: 1px solid var(--gold, #c79a3a);
+      border-radius: 999px;
+      font-size: 0.9rem;
       font-weight: 700;
-      color: var(--muted);
+      color: var(--green, #2c5f2e);
       text-align: center;
-      padding: 0.5rem 0.75rem;
+      box-shadow: 0 2px 8px rgba(199, 154, 58, 0.18);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .lg-bible-seed__followup summary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(199, 154, 58, 0.28);
+    }
+    .lg-bible-seed__followup {
+      text-align: center;
+    }
+    .lg-bible-seed__followup[open] {
+      text-align: left;
+    }
+    .lg-bible-seed__followup[open] summary {
+      margin-bottom: 0.5rem;
     }
     .lg-bible-seed__followup summary::-webkit-details-marker { display: none; }
     .lg-bible-seed__followup summary::before { content: '▸ '; color: var(--gold, #c79a3a); }
@@ -739,7 +757,7 @@
          buttons, a native share-this-page button, and a tiny anchor
          to the next gathering. -->
     <details class="lg-bible-seed__followup">
-      <summary>Want to follow along this week?</summary>
+      <summary>👉 Want to follow along this week?</summary>
       <div class="lg-bible-seed__followup-body">
 
         <!-- 1. The 7-day map. Smallest possible scaffold so the rhythm is visible. -->

@@ -1,14 +1,7 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-05-21T23:37:28+00:00",
+  "updated": "2026-05-22T02:37:30+00:00",
   "events": {
-    "3e65p5k6nppptt6vbvhji54nt7@google.com": {
-      "title": "Interest Meeting with Sam Petrov!",
-      "start": "2026-05-08T01:30:00+00:00",
-      "lastPosted": "2026-05-07T22:40:55+00:00",
-      "upcomingPosted": true,
-      "reminderPosted": true
-    },
     "b816gemsum33pbnoh3v16e4rr8@google.com": {
       "title": "Study Saturday Live",
       "start": "2026-05-10T02:00:00+00:00",
@@ -66,9 +59,10 @@
     "vdntrcnf3crk0jonvm2ii00ql8@google.com": {
       "title": "Canyon Hills YA",
       "start": "2026-05-22T02:30:00+00:00",
-      "lastPosted": "2026-05-21T23:37:28+00:00",
+      "lastPosted": "2026-05-22T02:37:30+00:00",
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "livePosted": true
     }
   }
 }

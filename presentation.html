@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Seed the Word Ministry — a 10-slide presentation deck for admins to take to their church leadership.">
+  <title>Seed the Word Ministry Presentation</title>
+  <link rel="stylesheet" href="assets/css/main.css?v=24">
+  <style>
+    /* ============================================================
+       Presentation deck — designed for two views in one page:
+         (a) On-screen slideshow: each .pres-slide is sized 16:9
+             and steps through with arrow keys / space.
+         (b) Long-form scroll for review or copy-paste to Google Slides.
+       Each slide has a "Copy slide" button that puts a clean plain-text
+       version on the clipboard. The header has a "Copy entire deck"
+       button that dumps every slide back-to-back.
+       ============================================================ */
+
+    body {
+      background: #f5f1e8;
+      color: var(--text, #2b2b2b);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Top toolbar — sticky so the "Copy entire deck" button is always
+       reachable and admins can navigate with the slide counter. */
+    .pres-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: linear-gradient(135deg, #1a4a1c, #2c5f2e);
+      color: #fff;
+      padding: 0.85rem 1.5rem;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .pres-toolbar__title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: Georgia, 'Times New Roman', serif;
+      letter-spacing: 0.01em;
+    }
+    .pres-toolbar__title span { opacity: 0.75; font-weight: 400; }
+    .pres-toolbar__actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .pres-btn {
+      background: #fff;
+      color: var(--green, #2c5f2e);
+      border: 0;
+      padding: 0.5rem 0.95rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .pres-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2); }
+    .pres-btn--ghost {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .pres-btn--ghost:hover { background: rgba(255, 255, 255, 0.1); }
+
+    /* The deck itself — slides are 16:9 cards with brand chrome. */
+    .pres-deck {
+      max-width: 980px;
+      margin: 2rem auto 4rem;
+      padding: 0 1.25rem;
+    }
+    .pres-slide {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2rem;
+      overflow: hidden;
+      position: relative;
+    }
+    .pres-slide__chrome {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      background: #fafaf6;
+      border-bottom: 1px solid var(--border, #e8e4de);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted, #666);
+      font-weight: 600;
+    }
+    .pres-slide__num { color: var(--green, #2c5f2e); }
+    .pres-slide__copy {
+      background: var(--green, #2c5f2e);
+      color: #fff;
+      border: 0;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    .pres-slide__copy:hover { background: #1a4a1c; }
+    .pres-slide__copy.copied {
+      background: var(--gold, #d4a574);
+      color: #1a1a1a;
+    }
+    .pres-slide__body {
+      padding: 3rem 3rem;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .pres-slide__eyebrow {
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--gold, #c79a3a);
+      margin: 0 0 0.85rem;
+    }
+    .pres-slide__title {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1.18;
+      margin: 0 0 1.25rem;
+      color: var(--text);
+    }
+    .pres-slide__lead {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      margin: 0 0 1rem;
+    }
+    .pres-slide__bullets {
+      margin: 0.5rem 0 1.25rem;
+      padding: 0;
+      list-style: none;
+    }
+    .pres-slide__bullets li {
+      position: relative;
+      padding: 0.4rem 0 0.4rem 1.6rem;
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+    .pres-slide__bullets li::before {
+      content: '·';
+      position: absolute;
+      left: 0.65rem;
+      color: var(--gold, #c79a3a);
+      font-weight: 800;
+      font-size: 1.4rem;
+      line-height: 1;
+      top: 0.5rem;
+    }
+    .pres-slide__verse {
+      margin: 1.5rem 0 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: #fdf3e3;
+      border-left: 4px solid var(--gold, #c79a3a);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      font-size: 0.98rem;
+      line-height: 1.7;
+    }
+    .pres-slide__verse cite {
+      display: block;
+      margin-top: 0.4rem;
+      font-style: normal;
+      font-size: 0.85rem;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+    .pres-slide__notes {
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border, #e8e4de);
+    }
+    .pres-slide__notes summary {
+      cursor: pointer;
+      font-size: 0.82rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+      list-style: none;
+    }
+    .pres-slide__notes summary::-webkit-details-marker { display: none; }
+    .pres-slide__notes summary::before { content: '▸ '; color: var(--green); }
+    .pres-slide__notes[open] summary::before { content: '▾ '; }
+    .pres-slide__notes-body {
+      margin-top: 0.85rem;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #555;
+      background: #fafaf6;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+    }
+
+    /* Title slide — the cover. Brand-green background, big serif title. */
+    .pres-slide--title { background: linear-gradient(135deg, #1a4a1c, #2c5f2e); color: #fff; }
+    .pres-slide--title .pres-slide__chrome {
+      background: rgba(0, 0, 0, 0.2);
+      color: rgba(255, 255, 255, 0.85);
+      border-bottom-color: rgba(255, 255, 255, 0.15);
+    }
+    .pres-slide--title .pres-slide__num { color: var(--gold, #d4a574); }
+    .pres-slide--title .pres-slide__title { color: #fff; font-size: 2.8rem; }
+    .pres-slide--title .pres-slide__lead { color: rgba(255, 255, 255, 0.9); }
+    .pres-slide--title .pres-slide__eyebrow { color: var(--gold, #d4a574); }
+
+    /* The closing slide — same green chrome as the cover for symmetry. */
+    .pres-slide--closing { background: linear-gradient(135deg, #2c5f2e, #1a4a1c); color: #fff; }
+    .pres-slide--closing .pres-slide__chrome {
+      background: rgba(0, 0, 0, 0.2);
+      color: rgba(255, 255, 255, 0.85);
+      border-bottom-color: rgba(255, 255, 255, 0.15);
+    }
+    .pres-slide--closing .pres-slide__num { color: var(--gold, #d4a574); }
+    .pres-slide--closing .pres-slide__title { color: #fff; }
+    .pres-slide--closing .pres-slide__lead { color: rgba(255, 255, 255, 0.9); }
+    .pres-slide--closing .pres-slide__eyebrow { color: var(--gold, #d4a574); }
+    .pres-slide--closing .pres-slide__verse {
+      background: rgba(0, 0, 0, 0.25);
+      border-left-color: var(--gold, #d4a574);
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .pres-slide--closing .pres-slide__verse cite { color: rgba(255, 255, 255, 0.7); }
+
+    /* Toast feedback for the copy button. */
+    .pres-toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(2rem);
+      background: var(--text, #2b2b2b);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 100;
+    }
+    .pres-toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Mobile */
+    @media (max-width: 720px) {
+      .pres-slide__body { padding: 2rem 1.5rem; min-height: 280px; }
+      .pres-slide__title { font-size: 1.65rem; }
+      .pres-slide--title .pres-slide__title { font-size: 2rem; }
+      .pres-slide__lead { font-size: 1rem; }
+      .pres-toolbar__title { font-size: 0.9rem; }
+    }
+
+    /* Print — one slide per A4/Letter page when admins want a handout. */
+    @media print {
+      body { background: #fff; }
+      .pres-toolbar, .pres-slide__copy, .pres-slide__notes { display: none; }
+      .pres-deck { max-width: none; margin: 0; padding: 0; }
+      .pres-slide { page-break-after: always; box-shadow: none; border: 1px solid #ccc; margin: 0; border-radius: 0; }
+      .pres-slide__body { padding: 1.5rem 1.75rem; min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="pres-toolbar">
+  <h1 class="pres-toolbar__title">📊 Seed the Word Ministry <span>· Presentation</span></h1>
+  <div class="pres-toolbar__actions">
+    <button type="button" class="pres-btn pres-btn--ghost" id="pres-copy-deck">📋 Copy entire deck</button>
+    <button type="button" class="pres-btn pres-btn--ghost" onclick="window.print()">🖨️ Print</button>
+    <a href="admin-help.html" class="pres-btn pres-btn--ghost" style="text-decoration: none;">← Back to admin help</a>
+  </div>
+</header>
+
+<main class="pres-deck" id="pres-deck">
+
+<!-- ─── Slide 1 ─── Title -->
+<article class="pres-slide pres-slide--title" data-slide="1">
+  <div class="pres-slide__chrome">
+    <span class="pres-slide__num">Slide 1 of 10</span>
+    <button type="button" class="pres-slide__copy" data-copy-slide="1">📋 Copy slide</button>
+  </div>
+  <div class="pres-slide__body">
+    <p class="pres-slide__eyebrow">A proposal to Maple Park</p>
+    <h2 class="pres-slide__title">Seed the Word</h2>
+    <p class="pres-slide__lead">Bringing back young adults ministry and formal evangelism to Maple Park — led by the Holy Spirit, planted through the Word.</p>
+    <p class="pres-slide__lead" style="opacity: 0.85; font-size: 0.95rem; margin-top: 1.5rem;">Presented by Edward and David</p>
+  </div>
+</article>
+
+<!-- ─── Slide 2 ─── The hunger -->
+<article class="pres-slide" data-slide="2">
+  <div class="pres-slide__chrome">
+    <span class="pres-slide__num">Slide 2 of 10</span>
+    <button type="button" class="pres-slide__copy" data-copy-slide="2">📋 Copy slide</button>
+  </div>
+  <div class="pres-slide__body">
+    <p class="pres-slide__eyebrow">The need</p>
+    <h2 class="pres-slide__title">Maple Park is hungry for the Gospel.</h2>
+    <p class="pres-slide__lead">Edward has spent more than half his life in this neighborhood. The community needs the reviving power of Jesus — and the harvest is plentiful.</p>
+    <ul class="pres-slide__bullets">
+      <li>Young adults across the area without a meeting place</li>
+      <li>Newcomers to faith with no one to disciple them</li>
+      <li>Streets, restaurants, and homes ready for the Word</li>
+    </ul>
+    <blockquote class="pres-slide__verse">
+      "The harvest is plentiful but the workers are few. Ask the Lord of the harvest, therefore, to send out workers into his harvest field."
+      <cite>— Matthew 9:37-38 NIV</cite>
+    </blockquote>
+  </div>
+</article>
+
+<!-- ─── Slide 3 ─── Who we are -->
+<article class="pres-slide" data-slide="3">
+  <div class="pres-slide__chrome">
+    <span class="pres-slide__num">Slide 3 of 10</span>
+    <button type="button" class="pres-slide__copy" data-copy-slide="3">📋 Copy slide</button>
+  </div>
+  <div class="pres-slide__body">
+    <p class="pres-slide__eyebrow">Who we are</p>
+    <h2 class="pres-slide__title">Two friends, called by the Spirit, met through evangelism.</h2>
+    <p class="pres-slide__lead">Edward and David came together on the streets, sharing Christ. From that meeting, the Lord built Seed the Word — a young-adult ministry committed to Scripture, fellowship, and giving away Bibles.</p>
+    <ul class="pres-slide__bullets">
+      <li>30+ members across the region</li>
+      <li>5–10 attending each meeting and outreach event</li>
+      <li>Reading Scripture, fellowship, and worship together</li>
+    </ul>
+  </div>
+</article>
+
+<!-- ─── Slide 4 ─── David's call -->
+<article class="pres-slide" data-slide="4">
+  <div class="pres-slide__chrome">
+    <span class="pres-slide__num">Slide 4 of 10</span>
+    <button type="button" class="pres-slide__copy" data-copy-slide="4">📋 Copy slide</button>
+  </div>
+  <div class="pres-slide__body">
+    <p class="pres-slide__eyebrow">A prophetic word</p>
+    <h2 class="pres-slide__title">"You will be one of the few in this state to give out Bibles."</h2>
+    <p class="pres-slide__lead">After David's water baptism, in earnest prayer for a way to bear fruit for the Kingdom, a minister from Gideons International approached him with a word from the Holy Spirit. That word became our calling. Seed the Word is now part of the Gideons mission to spread God's Word wherever we can.</p>
+    <blockquote class="pres-slide__verse">
+      "I am the vine; you are the branches. If you remain in me and I in you, you will bear much fruit; apart from me you can do nothing."
+      <cite>— John 15:5 NIV</cite>
+    </blockquote>
+    <details class="pres-slide__notes">
+      <summary>Speaker notes</summary>
+      <div class="pres-slide__notes-body">
+        Pause here. Tell the room David's testimony in his own words if he is present. If not, read the John 15 verse aloud and let it land. Mention that the Gideons minister is available as a reference if leadership wants to verify.
+      </div>
+    </details>
+  </div>
+</article>
+
+<!-- ─── Slide 5 ─── The fruit so far -->
+<article class="pres-slide" data-slide="5">
+  <div class="pres-slide__chrome">
+    <span class="pres-slide__num">Slide 5 of 10</span>
+    <button type="button" class="pres-slide__copy" data-copy-slide="5">📋 Copy slide</button>
+  </div>
+  <div class="pres-slide__body">
+    <p class="pres-slide__eyebrow">What God has already done</p>
+    <h2 class="pres-slide__title">The Lord has been faithful in this work.</h2>
+    <ul class="pres-slide__bullets">
+      <li>Evangelized, prayed, and handed out Bibles in multiple cities</li>
+      <li>Played worship music for guests in a restaurant</li>
+      <li>Wrote new songs to worship the Lord</li>
+      <li>Built a digital home for the ministry — testimonies, daily readings, and a global community of newcomers</li>
+    </ul>
+    <p class="pres-slide__lead" style="margin-top: 1rem;">Every Bible placed has been a seed the Spirit watered. Every new face has been God answering the prayer for laborers.</p>
+  </div>
+</article>
+
+<!-- ─── Slide 6 ─── How we'd gather -->
+<article class="pres-slide" data-slide="6">
+  <div class="pres-slide__chrome">
+    <span class="pres-slide__num">Slide 6 of 10</span>
+    <button type="button" class="pres-slide__copy" data-copy-slide="6">📋 Copy slide</button>
+  </div>
+  <div class="pres-slide__body">
+    <p class="pres-slide__eyebrow">How we gather</p>
+    <h2 class="pres-slide__title">A simple rhythm anyone can hold.</h2>
+    <p class="pres-slide__lead">Every life group walks through five movements. They aren't a checklist — they're a rhythm the Spirit fills.</p>
+    <ul class="pres-slide__bullets">
+      <li><strong>Worship &amp; Prayer</strong> — we come to God first</li>
+      <li><strong>Embrace Fellowship</strong> — the room becomes a body, not a crowd</li>
+      <li><strong>Encounter Jesus in the Word</strong> — one chapter, sat with together</li>
+      <li><strong>Reflection</strong> — four S.E.E.D. questions in plain language</li>
+      <li><strong>How We Outreach</strong> — pray, eat, walk out sent</li>
+    </ul>
+  </div>
+</article>
+
+<!-- ─── Slide 7 ─── How to Seed -->
+<article class="pres-slide" data-slide="7">
+  <div class="pres-slide__chrome">
+    <span class="pres-slide__num">Slide 7 of 10</span>
+    <button type="button" class="pres-slide__copy" data-copy-slide="7">📋 Copy slide</button>
+  </div>
+  <div class="pres-slide__body">
+    <p class="pres-slide__eyebrow">How we seed</p>
+    <h2 class="pres-slide__title">Take a Bible home — only if you'd like to.</h2>
+    <p class="pres-slide__lead">If you join us, you're welcome to take a Bible home for the week. We ask one thing:</p>
+    <p class="pres-slide__lead" style="font-style: italic; padding-left: 1.25rem; border-left: 3px solid var(--gold);">
+      In your prayer time, ask the Lord who this Bible is for. If someone comes to mind, give it. If no one comes to mind, bring it back next week. There's no pressure either way.
+    </p>
+    <p class="pres-slide__lead"><strong>The work is the Lord's. The Bible is the seed.</strong></p>
+    <blockquote class="pres-slide__verse">
+      "Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver."
+      <cite>— 2 Corinthians 9:7 NIV</cite>
+    </blockquote>
+  </div>
+</article>
+
+<!-- ─── Slide 8 ─── The ask -->
+<article class="pres-slide" data-slide="8">
+  <div class="pres-slide__chrome">
+    <span class="pres-slide__num">Slide 8 of 10</span>
+    <button type="button" class="pres-slide__copy" data-copy-slide="8">📋 Copy slide</button>
+  </div>
+  <div class="pres-slide__body">
+    <p class="pres-slide__eyebrow">What we're asking</p>
+    <h2 class="pres-slide__title">Three things, in plain words.</h2>
+    <ul class="pres-slide__bullets">
+      <li><strong>A venue</strong> — Maple Park Church as our gathering place at least once a week</li>
+      <li><strong>An allotted budget</strong> — to help draw church and community participation, and to keep Bibles in members' hands</li>
+      <li><strong>Your prayers and spiritual guidance</strong> — we cede to the leadership of Maple Park in any matter for the sake of sponsorship</li>
+    </ul>
+    <p class="pres-slide__lead" style="margin-top: 1.25rem;">We are not asking the church to start something new. We're asking the church to host what the Lord has already begun.</p>
+  </div>
+</article>
+
+<!-- ─── Slide 9 ─── Why now -->
+<article class="pres-slide" data-slide="9">
+  <div class="pres-slide__chrome">
+    <span class="pres-slide__num">Slide 9 of 10</span>
+    <button type="button" class="pres-slide__copy" data-copy-slide="9">📋 Copy slide</button>
+  </div>
+  <div class="pres-slide__body">
+    <p class="pres-slide__eyebrow">Why now</p>
+    <h2 class="pres-slide__title">A door is opening. The harvest is waiting.</h2>
+    <p class="pres-slide__lead">Young adults are leaving churches at the rate the Lord is calling them. Newcomers to faith are finding their way to Maple Park because the Word has been planted there for years. With the church's blessing, we can disciple them in the very neighborhood where Edward grew up.</p>
+    <blockquote class="pres-slide__verse">
+      "How beautiful are the feet of those who bring good news!"
+      <cite>— Romans 10:15 NIV</cite>
+    </blockquote>
+  </div>
+</article>
+
+<!-- ─── Slide 10 ─── Closing -->
+<article class="pres-slide pres-slide--closing" data-slide="10">
+  <div class="pres-slide__chrome">
+    <span class="pres-slide__num">Slide 10 of 10</span>
+    <button type="button" class="pres-slide__copy" data-copy-slide="10">📋 Copy slide</button>
+  </div>
+  <div class="pres-slide__body">
+    <p class="pres-slide__eyebrow">The closing</p>
+    <h2 class="pres-slide__title">Send us. Lead us. Pray over us.</h2>
+    <p class="pres-slide__lead">We are honored to serve Jesus with the zeal of servitude. With Maple Park behind us, we believe the Lord will multiply this work beyond what any of us can plan.</p>
+    <blockquote class="pres-slide__verse">
+      "Therefore go and make disciples of all nations… and surely I am with you always, to the very end of the age."
+      <cite>— Matthew 28:19-20 NIV</cite>
+    </blockquote>
+    <p class="pres-slide__lead" style="margin-top: 1.5rem; opacity: 0.92;">
+      <strong>Sincerely,</strong><br>
+      Edward and David — and the team of Seed the Word
+    </p>
+  </div>
+</article>
+
+</main>
+
+<div class="pres-toast" id="pres-toast" role="status" aria-live="polite">Copied!</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const toast = document.getElementById('pres-toast');
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('visible');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('visible'), 1800);
+  }
+
+  // Build the plain-text representation of one slide. Format optimized
+  // for pasting into Google Slides as a new slide — the slide title
+  // becomes the slide title, the lead and bullets become the body.
+  function slideToPlainText(slideEl) {
+    const num = slideEl.dataset.slide || '?';
+    const eyebrow = (slideEl.querySelector('.pres-slide__eyebrow') || {}).textContent || '';
+    const title = (slideEl.querySelector('.pres-slide__title') || {}).textContent || '';
+    const leads = Array.from(slideEl.querySelectorAll('.pres-slide__lead'));
+    const bullets = Array.from(slideEl.querySelectorAll('.pres-slide__bullets li'));
+    const verse = slideEl.querySelector('.pres-slide__verse');
+    const out = [];
+    out.push('Slide ' + num + ' — ' + (eyebrow ? eyebrow.toUpperCase() : ''));
+    out.push('');
+    out.push(title.trim());
+    out.push('');
+    leads.forEach((p) => { out.push(p.textContent.trim()); out.push(''); });
+    if (bullets.length) {
+      bullets.forEach((li) => {
+        // Strip the leading '·' visual marker if present.
+        out.push('• ' + li.textContent.trim());
+      });
+      out.push('');
+    }
+    if (verse) {
+      const cite = verse.querySelector('cite');
+      const verseText = verse.textContent.replace(cite ? cite.textContent : '', '').trim();
+      out.push('"' + verseText.replace(/^"|"$/g, '') + '"');
+      if (cite) out.push(cite.textContent.trim());
+      out.push('');
+    }
+    return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_) {
+      // Fallback for older browsers — drop into a hidden textarea.
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (_) {}
+      document.body.removeChild(ta);
+      return ok;
+    }
+  }
+
+  // Wire individual "Copy slide" buttons.
+  document.querySelectorAll('[data-copy-slide]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const slide = btn.closest('.pres-slide');
+      if (!slide) return;
+      const text = slideToPlainText(slide);
+      const ok = await copyText(text);
+      if (ok) {
+        btn.classList.add('copied');
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied';
+        showToast('Slide ' + slide.dataset.slide + ' copied — paste into Google Slides');
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.textContent = original;
+        }, 2200);
+      } else {
+        showToast('Copy failed — select text manually');
+      }
+    });
+  });
+
+  // Wire the "Copy entire deck" button.
+  const copyAllBtn = document.getElementById('pres-copy-deck');
+  if (copyAllBtn) {
+    copyAllBtn.addEventListener('click', async () => {
+      const slides = document.querySelectorAll('.pres-slide');
+      const blocks = [];
+      slides.forEach((s) => blocks.push(slideToPlainText(s)));
+      const text = blocks.join('\n\n──────────────────────────────\n\n');
+      const ok = await copyText(text);
+      showToast(ok ? 'Entire deck copied — paste into Google Slides' : 'Copy failed — try slide-by-slide');
+    });
+  }
+
+  // Keyboard navigation — arrow keys / space scroll one slide at a time.
+  let currentSlide = 0;
+  const slides = Array.from(document.querySelectorAll('.pres-slide'));
+  function scrollToSlide(idx) {
+    if (idx < 0) idx = 0;
+    if (idx >= slides.length) idx = slides.length - 1;
+    currentSlide = idx;
+    slides[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault();
+      scrollToSlide(currentSlide + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault();
+      scrollToSlide(currentSlide - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      scrollToSlide(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      scrollToSlide(slides.length - 1);
+    }
+  });
+
+  // Update currentSlide as the user scrolls naturally so arrow keys
+  // resume from the right position.
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+          const idx = slides.indexOf(entry.target);
+          if (idx >= 0) currentSlide = idx;
+        }
+      });
+    }, { threshold: [0.5] });
+    slides.forEach((s) => io.observe(s));
+  }
+})();
+</script>
+
+</body>
+</html>

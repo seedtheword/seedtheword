@@ -20,7 +20,7 @@
   <meta name="twitter:description" content="How we seed the Word — the life-group rhythm plus the quiet Bible-as-seed practice.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
   <title>How to Seed — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=22">
+  <link rel="stylesheet" href="assets/css/main.css?v=23">
   <style>
     /* Life Group page — focused, mobile-first, QR-code-friendly.
        Lighter weight than the rest of the site because someone holding
@@ -291,6 +291,24 @@
     }
     .lg-section-heading--on-cream { color: var(--text); }
 
+    /* Segue between movement 5 (How We Outreach) and the cream "How to
+       Seed" block. Three centered dots above a thin gold rule give the
+       page a pause without adding another section header. */
+    .lg-segue {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.75rem 1rem 0.5rem;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .lg-segue__dots {
+      letter-spacing: 0.6em;
+      color: var(--gold, #c79a3a);
+      font-size: 0.95rem;
+      opacity: 0.7;
+    }
+
     /* Take-a-Bible-home callout — sits between movement 5 and the FAQ.
        Soft cream-and-gold treatment so it feels like a warm aside, not
        another section header. */
@@ -436,8 +454,7 @@
 
 <section class="lg-hero">
   <h1>How to Seed</h1>
-  <p class="lg-hero__lead">Two practices we live by. The first is gathering — the rhythm we use to read the Bible together. The second is sending — handing a Bible to a friend and asking the Lord who it's really for.</p>
-  <p class="lg-hero__lead">No teaching credentials. No script. No pressure to lead like a pastor. The Spirit moves at His pace.</p>
+  <p class="lg-hero__lead">Two practices we live by — gathering and sending. The rhythm we use to read the Bible together, and the quiet way we hand a Bible forward when the Lord shows us who.</p>
   <blockquote class="lg-hero__verse">
     <p>"For where two or three gather in my name, there am I with them."</p>
     <cite>— Matthew 18:20 NIV</cite>
@@ -553,6 +570,13 @@
   </div>
 </section>
 
+<!-- Visual segue from movement 5 (How We Outreach) into the cream
+     "How to Seed" block. Three centered dots over a thin gold rule give
+     the page a pause without adding another section header. -->
+<div class="lg-segue" aria-hidden="true">
+  <span class="lg-segue__dots">· · ·</span>
+</div>
+
 <!-- 2. How to Seed — the quiet Bible-as-seed practice. -->
 <section class="lg-bible-seed">
   <div class="lg-bible-seed__inner">
@@ -576,6 +600,19 @@
   </div>
 </section>
 
+<section class="lg-closing">
+  <div class="lg-closing__inner">
+    <h2>Two friends. Open Bibles. The Spirit at work.</h2>
+    <p>That's a life group. The five movements are how we hold the rhythm — they're not the source. The source is Jesus.</p>
+    <p>If you're ready, send the message. Set the date. Open the door.</p>
+    <div class="lg-closing__btn-row">
+      <a href="about.html#contact" class="btn btn-primary">Tell Us You're Starting</a>
+      <a href="community.html#bible-plan-container" class="btn btn-secondary">See This Week's Chapter</a>
+    </div>
+    <p class="lg-closing__signoff">Sincerely,<br>The Seed the Word team</p>
+  </div>
+</section>
+
 <section class="lg-hosting">
   <h2>Practical questions</h2>
 
@@ -589,16 +626,14 @@
   <details class="lg-faq">
     <summary>What if I'm not comfortable leading?</summary>
     <div class="lg-faq__body">
-      <p>You don't need to be. The questions do the leading — the four S.E.E.D. questions in movement 4 are the same every week, so anyone in the group can guide the conversation. Your job as host is to open the door, set out the chairs, and trust that the Spirit will speak through whoever's there.</p>
-      <p>If you'd like, <a href="about.html#contact">reach out to us</a> and we'll send someone from the team to your first meeting to walk through the rhythm with you.</p>
+      <p>You don't need to be. The four S.E.E.D. questions in movement 4 do the leading — anyone in the group can guide the conversation. Your job is to open the door and trust the Spirit. <a href="about.html#contact">Reach out</a> and we'll send someone from the team to your first meeting if you'd like.</p>
     </div>
   </details>
 
   <details class="lg-faq">
     <summary>What chapter do we read?</summary>
     <div class="lg-faq__body">
-      <p>The same chapter the rest of our community is reading. Our Mon–Fri reading plan walks one chapter a day through the New Testament, and Saturday's livestream reviews the week. <a href="community.html#bible-plan-container">See this week's plan →</a></p>
-      <p>If you want to start somewhere else — Genesis, the Psalms, the Gospels — that's fine too. The rhythm works with any chapter.</p>
+      <p>The same chapter the rest of our community is reading. Our Mon–Fri plan walks one chapter a day through the New Testament; Saturday's livestream reviews the week. <a href="community.html#bible-plan-container">See this week's plan →</a> Anywhere you want to start works — Genesis, Psalms, the Gospels — the rhythm holds.</p>
     </div>
   </details>
 
@@ -636,19 +671,6 @@
       <p>Tell us. We'd love to hear about it, pray for you, and connect you with others doing the same thing. <a href="about.html#contact">Send us a message</a> with where you're meeting and roughly when — we won't share the details publicly, we just want to walk alongside you.</p>
     </div>
   </details>
-</section>
-
-<section class="lg-closing">
-  <div class="lg-closing__inner">
-    <h2>Two friends. Open Bibles. The Spirit at work.</h2>
-    <p>That's a life group. The five movements are how we hold the rhythm — they're not the source. The source is Jesus, gathered in the room when His name is on the lips of the people there.</p>
-    <p>If you're ready, you're ready. Send the message. Set the date. Open the door.</p>
-    <div class="lg-closing__btn-row">
-      <a href="about.html#contact" class="btn btn-primary">Tell Us You're Starting</a>
-      <a href="community.html#bible-plan-container" class="btn btn-secondary">See This Week's Chapter</a>
-    </div>
-    <p class="lg-closing__signoff">Sincerely,<br>The Seed the Word team</p>
-  </div>
 </section>
 
 <footer class="site-footer">

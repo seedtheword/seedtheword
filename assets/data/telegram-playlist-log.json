@@ -1,6 +1,6 @@
 {
   "_help": "Dedup log for the weekly playlist digest. The workflow updates this file every Sunday run so previously-posted tracks aren't re-announced. First run back-fills every existing playlist track so only NEW additions get posted going forward.",
-  "updated": "2026-05-18T06:35:21+00:00",
+  "updated": "2026-05-23T18:13:14+00:00",
   "seen": {
     "21od4Ae35Nvx91Qel9gRiw": {
       "backfilled": "2026-05-18T06:35:21+00:00",
@@ -93,6 +93,314 @@
     "6QSMe2ednCibD3JV9igbzV": {
       "backfilled": "2026-05-18T06:35:21+00:00",
       "name": "When I Say Jesus - Live"
+    },
+    "76NFX7R3TnrI4XbVg2VhIu": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Everyday Hallelujah - Hidden Track"
+    },
+    "14oxvS6Dn8tRl5uy2rENUj": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "GOD FIX ME"
+    },
+    "2fQuO5cr8WReUmsJAqUcek": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "GET BACK UP"
+    },
+    "0NnNmXqlSodTnA9euyfhUb": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Terrify the Dark - Reimagined"
+    },
+    "1nUdEThzDu1vNG9SWNh5aZ": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Show Me Thy Ways, O Lord"
+    },
+    "0vC82BouGPXm6X2K60RfQw": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "GOOD DAY"
+    },
+    "6N0KWnsfAVDzpekAVwMaOM": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Dusty Bibles"
+    },
+    "2iSfSJrho5XkU2NmAnZ9ZV": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Amen"
+    },
+    "3LX2uqBFuAJqwt0LWcgHQp": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Gomorrah"
+    },
+    "1lTiHN3I0KQDJq3AsfosmR": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Come Back And Live (Amos 5:21-24)"
+    },
+    "4mpFwsRw9tgzDYId0k2Oxn": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "7 Golden Lampstands"
+    },
+    "3k2gERloVFV358vqNN91iS": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Body of Death (Romans 7:19, 24-25)"
+    },
+    "25fLMkaCuV8ccfl5PGePtT": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Peter do you love me?"
+    },
+    "3j49ucXxMlapQZZ57iSgm6": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "To be Forgiven."
+    },
+    "2pIrpz3vOPn4Ct8FNClVlg": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Holy Yours"
+    },
+    "1AnsLLgCGEa3ezOUwlIDtI": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Armor of God"
+    },
+    "0kimlTTsiDlIg97Z8OKMKg": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Armor of God (War Cry Version)"
+    },
+    "0qdqaCGVj82r17US2egxMe": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Full Armor"
+    },
+    "0Lx79AWrLIOQqFwM0ILWSs": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Full Armor"
+    },
+    "1SgfM6xsP5DEmwzi0Q0elr": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Battle Forged"
+    },
+    "4dlsvtwAYGYVOPXOtAZ1Cx": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Hoist The Flag"
+    },
+    "3BPS023TbDniJ4hwk6WH4v": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "O' Lord My Foes (Psalm 3)"
+    },
+    "5o1VHBFu5nzJVCvO4iRSjQ": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Starve Your Demons (Hebrews 2)"
+    },
+    "1GsU9UOiyfavihpw8PZ3ZJ": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Warrior (feat. John Cooper)"
+    },
+    "1HF22pcEZ0Jvzqy1Xx7r68": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Warrior of the Lamb - Acoustic"
+    },
+    "23ln8RrPacItamz4D0AdXm": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Warrior of the Lamb"
+    },
+    "00DSCL6Ypos0ekYZ1cj5Dm": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Warrior of The Lamb V2"
+    },
+    "6NkguUSgwrthhxv8JpYvNY": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Send Me - Rock Version"
+    },
+    "5nJoUAJguzzcNQlCRETdmR": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Lion of Judah - Live"
+    },
+    "0HUt1SaN9kEnmxrvDFpGc3": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "It Is Finished"
+    },
+    "4HxztCuuFoq8FZNeH6jxTX": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Through Christ (Philippians 4:13)"
+    },
+    "6qRXUoeH8EJMsS86G21R1F": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "This Little Light"
+    },
+    "7dafl2L2hWajFApaUhg5eL": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Deliver Us"
+    },
+    "12RTGqfxUnijbreO1omMCZ": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Awake My Bride"
+    },
+    "1HJM1b93hpbyHzN45gsvZn": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Walk on Water"
+    },
+    "0Lw1rySFoSxGXhnZPzUqZX": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Vine to Branches"
+    },
+    "2c7vJqpVWSIqUBBbOGNshd": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Back to Life"
+    },
+    "4gvEG1MrU1OkgYjFvkB9U5": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Narrow way"
+    },
+    "6XmnXIq9bGQqRi8vEsDcMr": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Save Me Again"
+    },
+    "2lOdpwE7mqKAVt9scsK3uR": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Contentment"
+    },
+    "0L2qopze6Fy2cxq1FtBAp2": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Bow Down"
+    },
+    "6sfKFBstnFGgBqr8qm7q50": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "The Word Made Flesh (John 1:14)"
+    },
+    "0MUJAtj4u18Ds6F5IoAYci": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Enter into rest."
+    },
+    "4plYL5hGASHIryC0Fpkk8G": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "I Am With You Always (Matthew 28:20)"
+    },
+    "1f3Kr33RuWOd1iInE6PT0M": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Passover"
+    },
+    "3WYsOGquIosUIcESQAR5vd": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Send Your Spirit Down"
+    },
+    "3pPb2GMBgYf1RGEUSNRh9F": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "A-quiet-place"
+    },
+    "3PKxfYlIJEfH9TmWnICqTx": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Take Up Your Cross"
+    },
+    "0Q8yfUGoz0e2srdPhJYp7z": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Waymaker"
+    },
+    "1GlyyguaWCSPwHC5cu2ikA": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "What A Beautiful Name"
+    },
+    "0Hn5FVa9c0jLYo2UX9FGBB": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Hands of God"
+    },
+    "35ZZLUSjE2y6UB8B4JFZBq": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Oceans"
+    },
+    "4nZ7jjrKy9Uavmz67sfNab": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Back from the Dead"
+    },
+    "0AN6mh9gZ3OD6UhryCxhQ0": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Lion And The Lamb"
+    },
+    "2Rlu2tpMML0EZJ1MEKkTFS": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Commanded"
+    },
+    "3DKhJAdyjssQhYVjJUJUqt": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Holy Forever"
+    },
+    "715GtnrjDMWUtrp2GNErCq": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Gratitude"
+    },
+    "556IBi4qXR9xblUF1XpsFH": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Communion"
+    },
+    "3waxT0g6xgI4RYVGRCjeUQ": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "I Loved You to Life"
+    },
+    "5NRDftJlgZO7q3Ce7fY9Le": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "OCEANS (PUNK VERSION)"
+    },
+    "0vdsEnKEjx0mA1AHV8mwvM": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "See A Victory"
+    },
+    "0hGv5kj8BNZGEfGWY6J5ME": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "The Exodus"
+    },
+    "2Uc3saH2XNLenmyOgSGGgw": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "New Creation"
+    },
+    "6aajcTaftLmUkBv9wN5dft": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Jesus Loves Me - Version 1"
+    },
+    "1AXhmfQwstfzPQPmx8uKB0": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Forth To War"
+    },
+    "1n34OCVvCr0B9ghI9xVMzj": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Jesus Loves Me (version 2) - Demo"
+    },
+    "0DmBtYCFTw4pjv8241ISPM": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Contend O' Lord (Psalm 35)"
+    },
+    "1N0kqHvsMyS1w5tUyAV4AF": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Heavy Praise"
+    },
+    "0a5ecbwi5na0yP5dhF1VVJ": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Acts of Piety"
+    },
+    "5thCCA5y2tsh50F4NF2SIg": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "The day of the Lord"
+    },
+    "5wVk04H5TAoceuiCUOdeGk": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Glory to the King Most High"
+    },
+    "2unbzhtWU5NfMUlbEfnQWl": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Goliath Falls"
+    },
+    "2Znz7Sxewqs6OvKP6lO9lG": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "You Were There for Me"
+    },
+    "4JrHVRxAsFy6SDsN90hVld": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Send Your Mercy Like Rain"
+    },
+    "00FG1N3Cpsk7ek3bJ7A3Ek": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Holy Spirit Come!"
+    },
+    "4yOqBkLdRRaGkwtrZmRIL2": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Amazing Grace"
+    },
+    "0krtvDIwyoXFEDb94gjSJM": {
+      "posted": "2026-05-23T18:13:14+00:00",
+      "name": "Holy War"
     }
   }
 }

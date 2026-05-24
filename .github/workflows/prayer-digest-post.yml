@@ -1,0 +1,69 @@
+name: Weekly Prayer Digest
+
+# Posts the triweekly prayer & thanksgiving digest into the
+# @seedtheword Telegram supergroup's "Prayer & Thanksgiving" topic
+# (thread 21). Runs Mon / Thu / Sat at 15:00 UTC — that's 08:00 PT
+# during PDT (most of the year) and 07:00 PT during PST, which is
+# acceptable drift for a digest. The Saturday slot deliberately
+# aligns with weekly-playlist-digest.yml's '0 15 * * 6' so members
+# see "this week's worship + this week's prayer" as a paired moment.
+#
+# This workflow only RENDERS the digest from data the Poller has
+# already captured (see prayer-digest-poll.yml). On First_Run or an
+# empty Capture_Window it marks the slot complete and exits without
+# posting (Requirements 6.8, 6.9).
+
+on:
+  schedule:
+    - cron: '0 15 * * 1'   # Monday   08:00 PT (PDT) / 07:00 PT (PST)
+    - cron: '0 15 * * 4'   # Thursday 08:00 PT
+    - cron: '0 15 * * 6'   # Saturday 08:00 PT — paired with playlist digest
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If 'true', log the digest without posting"
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write   # to commit completedSlots back to the Prayer_Log
+
+concurrency:
+  group: telegram-prayer-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Prayer Digest Poster
+        env:
+          TELEGRAM_PRAYER_BOT_TOKEN: ${{ secrets.TELEGRAM_PRAYER_BOT_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+        run: python .github/scripts/post_prayer_digest_to_telegram.py
+
+      - name: Commit updated Prayer_Log (completedSlots)
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Rebase first to serialize with any concurrent Poller
+          # commit (the Poller and Digest_Poster both write to
+          # assets/data/telegram-prayer-log.json).
+          git pull --rebase origin main || true
+          git add assets/data/telegram-prayer-log.json || true
+          if git diff --cached --quiet; then
+            echo "No log changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(prayer): record digest slot [skip ci]"
+          git push

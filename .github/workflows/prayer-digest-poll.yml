@@ -1,0 +1,64 @@
+name: Prayer Digest Poller
+
+# Captures prayer & thanksgiving messages from the @seedtheword
+# Telegram supergroup's "Prayer & Thanksgiving" topic (thread 21)
+# into assets/data/telegram-prayer-log.json so the triweekly
+# Digest_Poster has data to render. Runs every 15 minutes — well
+# below the 30-minute cadence floor pinned in Requirement 2.1, with
+# margin for GitHub Actions scheduler jitter. Telegram bots cannot
+# read history retroactively, so this MUST run continuously through
+# the week — only the digest-posting step runs on the Mon/Thu/Sat
+# triweekly cadence (see prayer-digest-post.yml).
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'   # every 15 minutes, UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If 'true', log DM replies instead of sending"
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write   # to commit the updated Prayer_Log
+
+concurrency:
+  group: telegram-prayer-poll
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Prayer Topic Poller
+        env:
+          TELEGRAM_PRAYER_BOT_TOKEN: ${{ secrets.TELEGRAM_PRAYER_BOT_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+        run: python .github/scripts/poll_prayer_topic.py
+
+      - name: Commit updated Prayer_Log
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Pull --rebase first so we serialize cleanly with any
+          # other workflow that may have committed to main since
+          # checkout (e.g. the digest-post or playlist-digest jobs).
+          git pull --rebase origin main || true
+          git add assets/data/telegram-prayer-log.json || true
+          if git diff --cached --quiet; then
+            echo "No log changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(prayer): update prayer log [skip ci]"
+          git push

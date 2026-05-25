@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Help — Seed the Word</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=10">
+  <link rel="stylesheet" href="assets/css/main.css?v=11">
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
   <style>
     /* ============================================================
@@ -2631,8 +2631,91 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
     <p><strong>Don't edit by hand</strong> unless recovering from a stuck slot — the file is committed back by both workflows on every successful run, and any concurrent edit will lose to whichever workflow runs next.</p>
   </div>
 
+  <h3>Bot 6 — Prayer Request Intake <span style="opacity: 0.65; font-weight: 600; font-size: 0.85em;">(disabled by default)</span></h3>
+  <ul>
+    <li><strong>What it does:</strong> Two cards on <code>community.html</code> (under the live Telegram dashboard) open a quiet modal where members can submit a prayer request or a thanksgiving announcement. Each Submission is appended to a private <code>Prayers</code> Sheet tab (audit-only — admin eyes only), then relayed into the <em>Prayer &amp; Thanksgiving</em> Telegram topic (thread 21) using the same <code>(via the website)</code> marker the Bot 5 digest already recognizes. Submitters who shared an email get a four-step encouragement drip (Day 0 confirmation, Days 3, 7, 14) with one-click unsubscribe baked into every message.</li>
+    <li><strong>Where:</strong> Form on <code>community.html</code>. Telegram relay → Prayer topic (thread 21). Drip → email via <code>MailApp</code>. Unsubscribe → web app GET handler.</li>
+    <li><strong>Schedule:</strong> Form is event-driven (POST per submission). Drip cron fires every 30 minutes via Apps Script time trigger.</li>
+    <li><strong>Producer ↔ consumer contract:</strong> This intake is the producer half whose consumer is Bot 5. The two are wired together by the literal <code>(via the website)</code> substring set at <code>prayer.intake.marker</code> here AND at <code>prayer.digest.websiteSubmissionMarker</code> in the digest spec. <strong>Editing one without editing the other to the identical value breaks recognition</strong> — the digest will silently skip every website submission. The <code>_help</code> note in <code>telegram-bot.json</code> repeats this warning at the top of the <code>prayer.intake</code> block.</li>
+    <li><strong>Audit-first ordering:</strong> The handler always appends the <code>Prayers</code> row BEFORE calling Telegram. If Telegram fails, the row stays with <code>telegram_status='failed'</code> and the form shows a soft "received but not yet visible" message. A Submission can never produce a Telegram message without a corresponding audit row.</li>
+    <li><strong>Secret:</strong> <code>TELEGRAM_PRAYER_BOT_TOKEN</code> (reused — same bot as Bot 5; no new bot needed). Plus a new HMAC signing key, <code>PRAYER_INTAKE_UNSUBSCRIBE_SECRET</code>, used to sign the per-Submission unsubscribe tokens.</li>
+    <li><strong>Lives in:</strong> <code>docs/apps-script/order-handler.gs</code> (extends the existing web app) + <code>assets/js/prayer-intake.js</code> + <code>docs/apps-script/prayer-drip-templates.json</code>.</li>
+  </ul>
+
+  <div class="admin-card">
+    <p class="admin-card__label">One-time setup</p>
+    <p class="admin-card__title">🚀 Deploy the prayer-intake action</p>
+    <p>Six steps; mostly Sheet + Apps Script work. Do these in order:</p>
+    <ol>
+      <li><strong>Paste the updated <code>order-handler.gs</code> into Apps Script.</strong> Open <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> as <code>seedthewordministry@gmail.com</code> → open the existing STW Order Handler project → copy the full contents of <code>docs/apps-script/order-handler.gs</code> from the repo, paste over <code>Code.gs</code>, save. Click <em>Deploy → Manage deployments → Edit</em> on the existing web-app deployment, then <em>Deploy</em>. The web-app URL stays the same — no need to re-paste it anywhere.</li>
+      <li><strong>Create the two new Sheet tabs.</strong> Open the existing ministry Sheet (the one already used by orders / contact / stories). Add a tab named <code>Prayers</code> with these 14 column headers in this exact order: <code>submission_id, received_at, kind, submitter_name, submitter_email, anonymous, body, telegram_status, telegram_message_id, telegram_error, drip_status, unsubscribe_token, client_ip_hash, verses_json</code>. Add a second tab named <code>PrayerDrip</code> with these 6 column headers in this exact order: <code>submission_id, drip_day, status, timestamp, error, unsubscribed</code>. Both tabs inherit the Sheet's admin-only ACL.</li>
+      <li><strong>Generate and store the unsubscribe HMAC secret.</strong> In a terminal: <code>openssl rand -base64 32</code>. Copy the output. In Apps Script: <em>Project Settings → Script Properties → Add property</em> → name <code>PRAYER_INTAKE_UNSUBSCRIBE_SECRET</code>, value the random string. Save. Rotating this later invalidates every previously-issued unsubscribe link, so do not rotate without intent.</li>
+      <li><strong>Install the drip cron trigger.</strong> In the Apps Script editor's function dropdown, pick <code>installPrayerDripTrigger_</code> and click ▶ Run. The function creates an every-30-minutes time-based trigger pointing at <code>processPrayerDrip_</code>. Verify under the clock icon (Triggers) that the trigger is listed. With <code>prayer.intake.dripEnabled</code> still <code>false</code>, the cron fires every 30 minutes but exits immediately at the early-return.</li>
+      <li><strong>Set <code>prayer.intake.endpointUrl</code>.</strong> Copy the deployed web-app URL from step 1. Open the in-browser admin editor → <em>Telegram bot config → Prayer → Intake</em> → paste it into <code>endpointUrl</code>. Save → Commit &amp; push. <em>Leave <code>enabled</code> at <code>false</code> for now</em> — flipping that on is the next step.</li>
+      <li><strong>Block on Bot 5 being live.</strong> Confirm Bot 5 (Weekly prayer digest) is fully deployed and that <code>prayer.digest.enabled</code> is <code>true</code>. Without the consumer half running, website submissions will sit in the Telegram topic indefinitely with no digest picking them up. Once Bot 5 is verified live, proceed.</li>
+    </ol>
+    <p><strong>Then to enable the form:</strong> in the editor, flip <code>prayer.intake.enabled</code> to <code>true</code>. Save → Commit &amp; push. The two cards appear on <code>community.html</code> within a minute of GitHub Pages picking up the commit. Submit one test prayer end-to-end and verify the message lands cleanly in thread 21 with the <code>💌 New prayer request from … (via the website): …</code> shape.</p>
+    <p><strong>To enable the drip independently:</strong> the form and the drip have separate flags on purpose. Flip <code>prayer.intake.dripEnabled</code> to <code>true</code> only after you have reviewed <code>docs/apps-script/prayer-drip-templates.json</code> and you are happy with the rotation pools. Submissions made while <code>dripEnabled</code> was <code>false</code> do <strong>not</strong> retroactively get a drip; they record <code>drip_status='disabled-by-config'</code> and that is final. Flipping the flag on later only affects new Submissions.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">The marker contract</p>
+    <p class="admin-card__title">🔗 <code>prayer.intake.marker</code> ⇔ <code>prayer.digest.websiteSubmissionMarker</code></p>
+    <p>These two values form one contract. The intake produces messages containing the literal substring; the digest's regex matches it. <strong>Editing one without editing the other to the identical value breaks recognition.</strong> Always edit them together and commit in the same change. The default <code>(via the website)</code> works as-is; only change it if you have a reason to and you are touching both files.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Where the audit lives</p>
+    <p class="admin-card__title">📓 The <code>Prayers</code> Sheet tab</p>
+    <p>On the existing ministry Sheet (same one orders / contact / stories use). Append-only and admin-only — never surfaced on the website, never in Telegram, never in any drip email. The real <code>submitter_name</code> and <code>submitter_email</code> are recorded <em>even when</em> the submitter checked the anonymous box (per Requirement 5.5 — admins reviewing pastoral follow-up need this backstop). The <code>anonymous</code> column is <code>TRUE</code> in those rows so an admin can see the submitter chose the public-anonymity path.</p>
+    <p>No admin dashboard is built — pivot tables and filters live in the Sheet itself.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Recovery</p>
+    <p class="admin-card__title">🛟 An audit row shows <code>telegram_status: failed</code> — what now?</p>
+    <ol>
+      <li>Open the <code>Prayers</code> tab. Find the row.</li>
+      <li>Copy the <code>body</code> and <code>submitter_name</code> values. (If <code>anonymous=TRUE</code>, attribute the manual repost as <code>Anonymous</code> rather than the real name.)</li>
+      <li>From the prayer bot's account, post into the Prayer &amp; Thanksgiving topic (thread 21) using one of the four marker shapes:
+        <ul>
+          <li><code>💌 New prayer request from &lt;name&gt; (via the website): &lt;body&gt;</code></li>
+          <li><code>💌 New prayer request from Anonymous (via the website): &lt;body&gt;</code></li>
+          <li><code>💌 New thanksgiving announcement from &lt;name&gt; (via the website): &lt;body&gt;</code></li>
+          <li><code>💌 New thanksgiving announcement from Anonymous (via the website): &lt;body&gt;</code></li>
+        </ul>
+      </li>
+      <li>Leave the audit row alone — keep it as the historical record of what happened. Do <strong>not</strong> edit <code>telegram_status</code> manually; the next failure would look like the same row.</li>
+    </ol>
+    <p><strong>If a <code>PrayerDrip</code> row is stuck in <code>pending</code> past its <code>timestamp</code>:</strong> check the Apps Script execution log for <code>processPrayerDrip_</code>. The row will retry on the next 30-min run. If it consistently fails, fix the underlying cause (template fetch error, mail quota, etc.) and the row will catch up on its own.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Privacy contract</p>
+    <p class="admin-card__title">🔒 What unsubscribe does and does not do</p>
+    <p>Every drip email carries a one-click unsubscribe link of the shape <code>&lt;web-app-url&gt;?action=prayer-unsubscribe&amp;token=&lt;hmac&gt;</code>. The <code>token</code> is an HMAC of the Submission's UUID signed with <code>PRAYER_INTAKE_UNSUBSCRIBE_SECRET</code>, so a leaked link cannot be forged into a different Submission's unsubscribe.</p>
+    <ul>
+      <li><strong>It DOES:</strong> flip every <code>PrayerDrip</code> row for that <code>submission_id</code> to <code>unsubscribed=TRUE</code>. Pending rows additionally have <code>status</code> changed to <code>unsubscribed</code> so the cron skips them. Future drip cron runs observe the flag and skip the row.</li>
+      <li><strong>It DOES NOT:</strong> remove or rescind the Telegram message that was already posted to the prayer topic at submission time. The Telegram post is irreversible from the intake side; an admin can manually delete the message via the prayer bot for pastoral reasons.</li>
+      <li><strong>It DOES NOT:</strong> auto-unsubscribe future Submissions from the same email address. Each Submission has its own token. A submitter who returns later with a new prayer can choose their privacy posture again.</li>
+    </ul>
+    <p>The unsubscribe handler is idempotent — clicking the same link twice is a no-op the second time, and forged tokens render the "invalid or expired" page without modifying any row.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">The drip cron</p>
+    <p class="admin-card__title">⏰ <code>processPrayerDrip_</code> runs every 30 minutes</p>
+    <p>The Day 0 confirmation email fires inline at submission time (not via the cron). Days 3, 7, 14 are written as <code>pending</code> rows in the <code>PrayerDrip</code> tab with their scheduled fire times (<code>received_at + N days</code>). The cron is a one-pass scan of the tab:</p>
+    <ol>
+      <li>If <code>prayer.intake.dripEnabled</code> is <code>false</code>, exit immediately.</li>
+      <li>For each row where <code>status='pending'</code> AND <code>unsubscribed!=TRUE</code> AND <code>timestamp&lt;=now</code>: take a per-row script lock (15-second wait), re-read the row inside the lock to confirm still pending, render the email, send via <code>MailApp</code>, mark <code>sent</code> (or <code>failed</code> with the error).</li>
+      <li>Always release the lock in a <code>finally</code>.</li>
+    </ol>
+    <p>The lock prevents two overlapping trigger invocations from double-sending a row. <code>MailApp.sendEmail</code> shares the existing daily-quota budget with order emails, contact replies, and the weekly digest — at the four-emails-per-Submission rate this is fine.</p>
+  </div>
+
   <div class="admin-stepper">
-    <p class="admin-stepper__label">The 5-bot system at a glance</p>
+    <p class="admin-stepper__label">The 6-bot system at a glance</p>
     <p class="admin-stepper__title">Each bot handles its own topic, on its own schedule</p>
     <div class="admin-stepper__steps">
       <div class="admin-step">
@@ -2664,6 +2747,12 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
         <span class="admin-step__icon">🙏</span>
         <p class="admin-step__title">Prayer digest</p>
         <p class="admin-step__body">Mon / Thu / Sat 8 AM PT, posts a short summary of recent prayers &amp; thanksgivings into the Prayer topic (thread 21). Disabled by default; flip on after the BotFather privacy step.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">6</span>
+        <span class="admin-step__icon">💌</span>
+        <p class="admin-step__title">Prayer Request Intake</p>
+        <p class="admin-step__body">Two cards on community.html → quiet modal → audit Sheet → relay to Prayer topic + four-step encouragement drip with one-click unsubscribe. Disabled by default; flip on after Bot 5 is live and the Prayers + PrayerDrip tabs exist.</p>
       </div>
     </div>
   </div>

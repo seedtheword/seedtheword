@@ -8,7 +8,8 @@
     "test:admin-editor": "node --test tests/commit-message.test.js tests/diff.test.js tests/draft-store.test.js tests/github-client.test.js tests/js-literal.test.js tests/smoke.test.js tests/validate.test.js",
     "test:jesus-storytelling": "node --test tests/jesus-storytelling.test.js",
     "test:schema-testimonies": "node --test tests/schema-testimonies.test.js",
-    "test": "npm run test:admin-editor && npm run test:jesus-storytelling && npm run test:schema-testimonies"
+    "test:prayer-intake": "node --test tests/prayer_intake_relay.test.mjs tests/prayer_intake_drip.test.mjs tests/prayer_intake_audit.test.mjs tests/prayer_intake_form.test.mjs tests/prayer_intake_smoke.test.mjs",
+    "test": "npm run test:admin-editor && npm run test:jesus-storytelling && npm run test:schema-testimonies && npm run test:prayer-intake"
   },
   "devDependencies": {
     "fast-check": "3.23.2",

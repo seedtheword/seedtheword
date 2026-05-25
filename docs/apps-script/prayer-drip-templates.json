@@ -1,0 +1,43 @@
+{
+  "_help": "Rotation pools the prayer drip pulls from. Edit warmly. STW is not a 501c3 — never use 'donation' framing. Every entry is a complete plain-text paragraph (no HTML, no markdown, no <br> tags) — renderDripEmail_ wraps each item in a <p>. Voice: warm, second-person, 1-3 sentences each. Selection per Submission is deterministic (see design §8.4): day3_reflection = pool[(seed+1) % len], day3_tip = pool[(seed+1) % len], day7_reflection = pool[(seed+2) % len], day14 picks invitation_a or invitation_b based on (seed+3) % 2.",
+  "day3_reflections": [
+    "It is okay if today still feels heavy. Heaviness shared with God is not the same as heaviness carried alone.",
+    "When we pray, we are not informing God of news. We are joining a conversation God has already been holding for us.",
+    "There is no prayer too small for the One who counts the hairs on your head.",
+    "God is not embarrassed by our half-formed words. He hears the unspoken parts as clearly as the rest.",
+    "Three days in, what felt urgent on day one may feel quieter now — that is not God going silent. That is the slow, steady work of prayer.",
+    "If your prayer today is the same as the prayer you wrote into the form, that is not a failure of faith. Persistence is one of the names love wears.",
+    "You do not have to feel the answer yet to know God is at work. The seed is doing things underground long before anything shows above the soil.",
+    "Some prayers are answered with a yes, some with a no, some with a wait, and a few with a deeper question. All four are answers.",
+    "God is not in a hurry, and neither is He distracted. Whatever has shifted since you wrote in, He has been with you for every minute of it.",
+    "It is a gift that you do not have to pray well to be heard. Honest is enough. Honest is more than enough.",
+    "The fact that you reached out matters. The reaching itself is already a kind of prayer.",
+    "When prayer feels small or repetitive, remember Jesus prayed the same prayer three times in the garden. The repetition was not weakness — it was love."
+  ],
+  "day3_tips": [
+    "Try this today: name the one thing you would most like to hand back to God right now, even if you do not know how it should be answered.",
+    "If words feel hard, breathe slowly and read your verse out loud. Hearing yourself say it is its own kind of prayer.",
+    "Find one minute of quiet and ask: 'Lord, what would you have me notice today?'",
+    "Write the prayer down somewhere you will see it tomorrow. A sticky note, the lock screen, the back of a receipt. Let it surface unbidden during the day.",
+    "If you are not sure what to pray, try praying the verse above back to God in your own words. Scripture-as-script is one of the oldest prayer practices.",
+    "Set a phone alarm for one moment in your day — say 3:00 PM — and let it be your reminder to pause and pray for thirty seconds. That is enough.",
+    "Tell one trusted person about what you wrote in. Not for advice. For company. Prayer carried by two travels lighter than prayer carried alone.",
+    "Walk somewhere quiet for five minutes. Do not pray with words. Just walk and notice. Sometimes attention is the prayer.",
+    "If gratitude feels far away, start with one specific thing — the taste of water, a window, a person who showed up. Specific gratitude builds bigger gratitude.",
+    "Re-read the verse from your last email and underline one word that catches you. Sit with that single word for a few breaths.",
+    "Try praying the Lord's Prayer slowly, one line at a time, and pause where a line becomes your line today.",
+    "If today is hard, try this prayer: 'Lord, I am here. You are here. That is enough for now.'"
+  ],
+  "day7_reflections": [
+    "A week is a long time to hold something. Whatever has happened since you wrote in, the team is still praying with you.",
+    "God is not in a hurry, and that is good news for us. The same patience that holds the universe together is holding you this week.",
+    "If your prayer feels different now than it did a week ago, that is not failure. That is what faith looks like in motion.",
+    "One week in, you have already done the hardest part — you reached out instead of going silent. The rest is God's to carry, and ours to walk with you in.",
+    "The Psalms are full of week-old prayers. 'How long, O Lord?' is not unbelief — it is the language faith speaks when the wait is real.",
+    "Sometimes God answers a prayer by changing the situation. Sometimes by changing us. Sometimes by giving us friends who walk into the room. All three count.",
+    "If you cannot trace God's hand this week, you can still trust His heart. The two are not always given to us at the same time.",
+    "A week of prayer is not wasted, even when nothing visible shifts. The unseen work — in you, around you, ahead of you — is real work."
+  ],
+  "day14_invitation_a": "If you are not yet rooted in a local church, would you consider walking into one this Sunday? Even quietly, in the back row. There are people there who would be glad you came, even if you say nothing all morning. Two weeks of being prayed for is a tender thing to carry alone — God designed it to be carried in company.",
+  "day14_invitation_b": "We keep a steady weekly rhythm — daily Bible reading Mon-Fri, a live Saturday study, prayer and thanksgiving threads, and a community on Telegram — at seedtheword.github.io. You would be welcome to drop in at whatever pace fits. There is no ladder to climb, no level to reach. Just an open seat and a quiet table."
+}

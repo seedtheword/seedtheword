@@ -89,7 +89,18 @@
       "anonTags": ["[anon]"],
       "excludeUserIds": [],
       "websiteSubmissionMarker": "(via the website)",
-      "_help": "Two-half pipeline: Poller every 15 min, Digest_Poster Mon/Thu/Sat 08:00 PT. The websiteSubmissionMarker MUST match prayer.intake.marker in the prayer-request-intake spec — these are one contract, edited together."
+      "_help": "Two-half pipeline: Poller every 15 min, Digest_Poster Mon/Thu/Sat 08:00 PT. The websiteSubmissionMarker MUST match prayer.intake.marker — these are one contract, edited together."
+    },
+    "intake": {
+      "enabled": false,
+      "endpointUrl": "",
+      "marker": "(via the website)",
+      "bodyMinChars": 10,
+      "bodyMaxChars": 2000,
+      "dripDays": [0, 3, 7, 14],
+      "dripEnabled": false,
+      "auditSheetTabName": "Prayers",
+      "_help": "marker MUST equal prayer.digest.websiteSubmissionMarker — these are one contract. Set endpointUrl to the deployed Apps Script web app URL after deploying the prayer-intake action handler."
     }
   }
 }

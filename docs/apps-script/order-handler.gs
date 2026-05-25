@@ -107,6 +107,49 @@ const STORIES_HEADERS = [
   'received_at', 'name', 'email', 'consent_to_publish', 'location', 'story', 'media_url', 'route',
 ];
 
+// ── Prayer Request Intake — constants (spec: prayer-request-intake) ──
+//
+// The prayer-intake action lives on this same web app. It appends
+// audit rows to the Prayers tab on the existing ministry Sheet,
+// relays each Submission into the @seedtheword Prayer & Thanksgiving
+// topic (thread 21) using the website-submission marker recognized
+// by the weekly-prayer-digest spec, and (when the submitter shared
+// an email and dripEnabled is true) sends a Day 0 confirmation
+// inline + enqueues Days 3, 7, 14 in the PrayerDrip tab. A separate
+// every-30-min time-based trigger fires the pending drip rows.
+//
+// See .kiro/specs/prayer-request-intake/design.md §3, §4.
+const MINISTRY_SHEET_ID = LEDGER_SHEET_ID;
+const PRAYERS_TAB = 'Prayers';
+const DRIP_LOG_TAB = 'PrayerDrip';
+const PRAYER_TOPIC_THREAD_ID = 21;
+
+// Script Property keys (the secrets themselves live in Script Properties).
+const TELEGRAM_PRAYER_BOT_TOKEN_KEY = 'TELEGRAM_PRAYER_BOT_TOKEN';
+const PRAYER_INTAKE_UNSUBSCRIBE_SECRET_KEY = 'PRAYER_INTAKE_UNSUBSCRIBE_SECRET';
+
+// CacheService keys for the JSON files we fetch from the deployed site.
+const VERSES_CACHE_KEY = 'prayer-intake:verses-v1';
+const TEMPLATES_CACHE_KEY = 'prayer-intake:templates-v1';
+const CACHE_SECONDS = 6 * 60 * 60; // 6 hours
+
+// Telegram absolute message-length cap (Telegram's own is 4096; we leave
+// 6 chars of headroom for the trailing ellipsis insertion path).
+const TELEGRAM_MAX_CHARS = 4090;
+
+// Prayers tab column order — also the schema for the operator who creates
+// the tab manually (see admin-help.html "Prayer Request Intake" → setup).
+const PRAYERS_HEADERS = [
+  'submission_id', 'received_at', 'kind', 'submitter_name', 'submitter_email', 'anonymous',
+  'body', 'telegram_status', 'telegram_message_id', 'telegram_error',
+  'drip_status', 'unsubscribe_token', 'client_ip_hash', 'verses_json',
+];
+
+// PrayerDrip tab column order.
+const PRAYER_DRIP_HEADERS = [
+  'submission_id', 'drip_day', 'status', 'timestamp', 'error', 'unsubscribed',
+];
+
 // ── Entry point ──────────────────────────────────────────────────
 function doPost(e) {
   let payload;
@@ -133,6 +176,9 @@ function doPost(e) {
   if (type === 'story')   return handleStory(payload);
   if (type === 'admin-sms-cc') return handleAdminSmsCc(payload);
   if (type === 'weekly-digest-email') return handleWeeklyDigestEmail(payload);
+  if ((payload && payload.action) === 'prayer-intake') {
+    return handlePrayerIntake_(payload, e && e.parameter);
+  }
   return handleOrder(payload);
 }
 
@@ -206,6 +252,111 @@ function handleWeeklyDigestEmail(payload) {
     console.log('weekly-digest-email failed:', err);
     return jsonResponse({ ok: false, error: 'mail-send-failed', reason: String(err) });
   }
+}
+
+// ── Prayer Intake — pure helpers (mechanically pasted from
+//    docs/apps-script/prayer-intake-helpers.js — keep in sync).
+//    None of these touch UrlFetchApp / SpreadsheetApp / MailApp;
+//    anything I/O-bound lives further down in this file.
+//
+//    Spec: .kiro/specs/prayer-request-intake/design.md §4.7,
+//          §4.8, §4.9, §8.3, §8.4, §10.3, §4.13.
+
+function isLikelyEmail_(s) {
+  if (typeof s !== 'string') return false;
+  var t = s.trim();
+  if (!t) return false;
+  if (t.length > 200) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t);
+}
+
+function stripHtmlAndNormalize_(s) {
+  return String(s == null ? '' : s)
+    .replace(/<[^>]*>/g, '')
+    .replace(/[\u2028\u2029]/g, ' ')
+    .replace(/\r\n/g, '\n')
+    .trim();
+}
+
+function mdv2Escape_(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[_*\[\]()~`>#+\-=|{}.!]/g, '\\$&');
+}
+
+function buildTelegramMessage_(args) {
+  var verb = (args.kind === 'thanksgiving')
+    ? 'New thanksgiving announcement'
+    : 'New prayer request';
+
+  var nameSegment = args.anonymous
+    ? 'Anonymous'
+    : mdv2Escape_(args.submitterName);
+  var bodySegment = mdv2Escape_(args.body);
+  var marker = args.marker;
+
+  var message = '\uD83D\uDC8C ' + verb + ' from ' + nameSegment + ' ' + marker + ': ' + bodySegment;
+  if (message.length <= TELEGRAM_MAX_CHARS) {
+    return { text: message, truncated: false };
+  }
+  var prefix = '\uD83D\uDC8C ' + verb + ' from ' + nameSegment + ' ' + marker + ': ';
+  var allowedBody = TELEGRAM_MAX_CHARS - prefix.length - 1;
+  var truncatedBody = bodySegment.slice(0, Math.max(0, allowedBody)) + '\u2026';
+  return { text: prefix + truncatedBody, truncated: true };
+}
+
+function computeDripStatus_(v, cfg) {
+  if (!cfg || cfg.dripEnabled !== true) return 'disabled-by-config';
+  if (!v || !v.email)                   return 'suppressed-no-email';
+  return 'enabled';
+}
+
+function salutation(row) {
+  if (row && row.anonymous === true) return 'Friend';
+  var name = String((row && row.submitter_name) || '').trim();
+  if (!name) return 'Friend';
+  return name.split(/\s+/)[0];
+}
+
+function hashCodeFromString_(s) {
+  var h = 0;
+  var str = String(s == null ? '' : s);
+  for (var i = 0; i < str.length; i++) {
+    h = (h * 31 + str.charCodeAt(i)) | 0;
+  }
+  return h >>> 0;
+}
+
+function pickVersesForSubmission_(submissionId, dripDays, verses) {
+  if (!Array.isArray(verses) || verses.length === 0) return [];
+  var days = Array.isArray(dripDays) ? dripDays : [];
+  var seed = hashCodeFromString_(submissionId);
+  return days.map(function (_day, idx) {
+    return verses[(seed + idx) % verses.length];
+  });
+}
+
+function parseDripTemplatesPicks_(submissionId, templates) {
+  var t = templates || {};
+  var seed = hashCodeFromString_(submissionId);
+
+  var pick = function (pool, offset) {
+    if (!Array.isArray(pool) || pool.length === 0) return '';
+    return String(pool[(seed + offset) % pool.length] || '');
+  };
+
+  var inviteA = String(t.day14_invitation_a || '');
+  var inviteB = String(t.day14_invitation_b || '');
+  var inviteVariant = (seed + 3) % 2;
+  var day14_invitation = inviteVariant === 0
+    ? (inviteA || inviteB)
+    : (inviteB || inviteA);
+
+  return {
+    day3_reflection: pick(t.day3_reflections, 1),
+    day3_tip:        pick(t.day3_tips, 1),
+    day7_reflection: pick(t.day7_reflections, 2),
+    day14_invitation: day14_invitation,
+  };
 }
 
 // ── Order handler (existing flow, unchanged) ────────────────────
@@ -2160,6 +2311,10 @@ function listActiveSubscribers() {
 function doGet(e) {
   const action = (e && e.parameter && e.parameter.action) || '';
 
+  if (action === 'prayer-unsubscribe') {
+    return handlePrayerUnsubscribe_(e && e.parameter && e.parameter.token || '');
+  }
+
   if (action === 'subscribers') {
     try {
       return jsonResponse({ ok: true, subscribers: listActiveSubscribers() });
@@ -4015,4 +4170,744 @@ function dailyAppsScriptHealthCheck() {
   } catch (err) {
     console.log('dailyAppsScriptHealthCheck: send failed: ' + err);
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Prayer Request Intake — handler, drip cron, unsubscribe.
+// Spec: .kiro/specs/prayer-request-intake/design.md
+// ─────────────────────────────────────────────────────────────────────
+
+// ── Config loader ───────────────────────────────────────────────
+//
+// Reads `prayer.intake` from the deployed assets/data/telegram-bot.json.
+// Returns sensible defaults so a missing field never throws. No
+// caching — the file is small and Apps Script executions are short.
+function loadIntakeConfig_() {
+  var url = SITE_URL + 'assets/data/telegram-bot.json';
+  var raw = {};
+  try {
+    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    if (resp.getResponseCode() >= 200 && resp.getResponseCode() < 300) {
+      raw = JSON.parse(resp.getContentText());
+    }
+  } catch (err) {
+    console.log('loadIntakeConfig_: fetch failed: ' + err);
+    raw = {};
+  }
+  var p = (raw && raw.prayer && raw.prayer.intake) || {};
+  return {
+    enabled:           p.enabled === true,
+    endpointUrl:       String(p.endpointUrl || ''),
+    marker:            String(p.marker || '(via the website)'),
+    bodyMinChars:      Number(p.bodyMinChars) || 10,
+    bodyMaxChars:      Number(p.bodyMaxChars) || 2000,
+    dripDays:          Array.isArray(p.dripDays) ? p.dripDays : [0, 3, 7, 14],
+    dripEnabled:       p.dripEnabled === true,
+    auditSheetTabName: String(p.auditSheetTabName || 'Prayers'),
+  };
+}
+
+// ── Client IP hash (best-effort) ────────────────────────────────
+function clientIpHash_(payload) {
+  var raw = (payload && payload.__client_ip) || '';
+  raw = String(raw).trim();
+  if (!raw) return '';
+  var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw);
+  return bytes.map(function (b) {
+    var v = (b < 0 ? b + 256 : b).toString(16);
+    return v.length === 1 ? '0' + v : v;
+  }).join('');
+}
+
+// ── Rate limit ───────────────────────────────────────────────────
+//
+// Per Requirement 10.6 the response is generic regardless of which
+// bucket fires. An empty source short-circuits to true (e.g. no
+// IP header behind GitHub Pages → IP buckets always pass; per-email
+// bucket still enforces).
+function checkRateLimits_(ipHash, emailKey) {
+  var cache = CacheService.getScriptCache();
+  return checkBucket_(cache, 'ip:1h:'    + ipHash,    ipHash,   3,  60 * 60)
+      && checkBucket_(cache, 'ip:1d:'    + ipHash,    ipHash,   10, 24 * 60 * 60)
+      && checkBucket_(cache, 'email:1h:' + emailKey,  emailKey, 3,  60 * 60)
+      && checkBucket_(cache, 'email:1d:' + emailKey,  emailKey, 5,  24 * 60 * 60);
+}
+
+function checkBucket_(cache, key, source, limit, ttlSeconds) {
+  if (!source) return true;            // empty source skips this bucket
+  var raw = cache.get(key);
+  var n = raw ? Number(raw) : 0;
+  if (n >= limit) return false;
+  cache.put(key, String(n + 1), ttlSeconds);
+  return true;
+}
+
+// ── Validation ───────────────────────────────────────────────────
+function validatePrayerIntake_(p, cfg) {
+  if (!p || typeof p !== 'object') return { ok: false, reason: 'not-object' };
+  if (p.kind !== 'prayer' && p.kind !== 'thanksgiving') {
+    return { ok: false, reason: 'bad-kind' };
+  }
+  var anon  = p.anonymous === true;
+  var name  = String(p.name || '').trim();
+  var email = String(p.email || '').trim();
+  var body  = stripHtmlAndNormalize_(String(p.body || ''));
+
+  if (!anon && !name) return { ok: false, reason: 'name-required' };
+  if (email && !isLikelyEmail_(email)) return { ok: false, reason: 'bad-email' };
+  if (body.length < cfg.bodyMinChars) return { ok: false, reason: 'body-too-short' };
+  if (body.length > cfg.bodyMaxChars) return { ok: false, reason: 'body-too-long' };
+
+  return {
+    ok: true,
+    kind: p.kind,
+    anonymous: anon,
+    name: name,
+    email: email,
+    body: body,
+  };
+}
+
+// ── Telegram relay ───────────────────────────────────────────────
+function relayToTelegram_(text) {
+  var token = PropertiesService.getScriptProperties()
+    .getProperty(TELEGRAM_PRAYER_BOT_TOKEN_KEY);
+  if (!token) return { ok: false, error: 'no-token-configured' };
+  try {
+    var resp = UrlFetchApp.fetch(
+      'https://api.telegram.org/bot' + token + '/sendMessage',
+      {
+        method: 'post',
+        contentType: 'application/json',
+        muteHttpExceptions: true,
+        payload: JSON.stringify({
+          chat_id: '@seedtheword',
+          message_thread_id: PRAYER_TOPIC_THREAD_ID,
+          text: text,
+          parse_mode: 'MarkdownV2',
+          disable_web_page_preview: true,
+        }),
+      });
+    var code = resp.getResponseCode();
+    var bodyText = resp.getContentText();
+    if (code < 200 || code >= 300) {
+      return { ok: false, error: 'http-' + code + ': ' + bodyText.slice(0, 400) };
+    }
+    var parsed = JSON.parse(bodyText);
+    if (!parsed.ok) {
+      return { ok: false, error: 'telegram-not-ok: ' + bodyText.slice(0, 400) };
+    }
+    return { ok: true, messageId: (parsed.result && parsed.result.message_id) || '' };
+  } catch (err) {
+    return { ok: false, error: String(err).slice(0, 500) };
+  }
+}
+
+// ── Prayers tab — audit-first phase 1 (append) and phase 2 (update) ──
+//
+// Phase 1: append a row with telegram_status='failed' placeholders.
+// Phase 2: locate by submission_id and overwrite cols 8/9/10.
+// PI1 (design §12) asserts: a Submission either appears as one row
+// + one Telegram message (status='sent'), or one row alone
+// (status='failed'); never a Telegram message without a row.
+function appendPrayersRow_(fields) {
+  var sheet = openTab(PRAYERS_TAB, PRAYERS_HEADERS);
+  var row = [
+    String(fields.submissionId || ''),
+    fields.receivedAt instanceof Date ? fields.receivedAt.toISOString()
+                                      : String(fields.receivedAt || ''),
+    String(fields.kind || ''),
+    String(fields.submitterName || ''),
+    String(fields.submitterEmail || ''),
+    fields.anonymous === true ? 'TRUE' : 'FALSE',
+    String(fields.body || ''),
+    String(fields.telegramStatus || 'failed'),
+    fields.telegramMessageId === '' || fields.telegramMessageId == null
+      ? '' : String(fields.telegramMessageId),
+    String(fields.telegramError || ''),
+    String(fields.dripStatus || ''),
+    String(fields.unsubscribeToken || ''),
+    String(fields.clientIpHash || ''),
+    String(fields.versesJson || ''),
+  ];
+  sheet.appendRow(row);
+}
+
+function updatePrayersRowTelegramStatus_(submissionId, status, msgId, errText) {
+  var sheet = openTab(PRAYERS_TAB, PRAYERS_HEADERS);
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) return false;
+  var idx = headerIndex_(values[0]);
+  for (var i = 1; i < values.length; i++) {
+    if (String(values[i][idx.submission_id]) === String(submissionId)) {
+      // 1-based row, 1-based column for getRange.
+      sheet.getRange(i + 1, idx.telegram_status + 1).setValue(String(status || ''));
+      sheet.getRange(i + 1, idx.telegram_message_id + 1).setValue(msgId === '' || msgId == null ? '' : String(msgId));
+      sheet.getRange(i + 1, idx.telegram_error + 1).setValue(String(errText || ''));
+      return true;
+    }
+  }
+  return false;
+}
+
+// ── Header → index map (used by both Prayers and PrayerDrip) ────
+function headerIndex_(headerRow) {
+  var idx = {};
+  for (var i = 0; i < headerRow.length; i++) {
+    idx[String(headerRow[i]).trim()] = i;
+  }
+  return idx;
+}
+
+// ── HMAC unsubscribe token ──────────────────────────────────────
+function computeUnsubscribeToken_(submissionId) {
+  var secret = PropertiesService.getScriptProperties()
+    .getProperty(PRAYER_INTAKE_UNSUBSCRIBE_SECRET_KEY);
+  if (!secret) throw new Error('PRAYER_INTAKE_UNSUBSCRIBE_SECRET not set');
+  var sig = Utilities.computeHmacSha256Signature(String(submissionId), secret);
+  return Utilities.base64EncodeWebSafe(sig).replace(/=+$/, '');
+}
+
+function resolveUnsubscribeToken_(token) {
+  if (!token || typeof token !== 'string') return { ok: false };
+  var sheet = openTab(PRAYERS_TAB, PRAYERS_HEADERS);
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) return { ok: false };
+  var idx = headerIndex_(values[0]);
+  for (var i = 1; i < values.length; i++) {
+    if (values[i][idx.unsubscribe_token] === token) {
+      return { ok: true, submissionId: String(values[i][idx.submission_id]) };
+    }
+  }
+  return { ok: false };
+}
+
+function flipDripRowsToUnsubscribed_(submissionId) {
+  var sheet = openTab(DRIP_LOG_TAB, PRAYER_DRIP_HEADERS);
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) return;
+  var idx = headerIndex_(values[0]);
+  for (var i = 1; i < values.length; i++) {
+    if (String(values[i][idx.submission_id]) === String(submissionId)) {
+      sheet.getRange(i + 1, idx.unsubscribed + 1).setValue(true);
+      // Flip pending → unsubscribed so the cron does not need to recheck.
+      if (values[i][idx.status] === 'pending') {
+        sheet.getRange(i + 1, idx.status + 1).setValue('unsubscribed');
+        sheet.getRange(i + 1, idx.timestamp + 1).setValue(new Date().toISOString());
+      }
+    }
+  }
+}
+
+// ── doGet handler for prayer-unsubscribe ────────────────────────
+function handlePrayerUnsubscribe_(token) {
+  var resolved;
+  try {
+    resolved = resolveUnsubscribeToken_(token);
+  } catch (err) {
+    console.log('handlePrayerUnsubscribe_: resolve failed: ' + err);
+    resolved = { ok: false };
+  }
+  if (!resolved.ok) {
+    return htmlPage_(
+      'Unsubscribe link is not valid',
+      '<p>This unsubscribe link is invalid or expired. ' +
+      'If you would like to stop receiving the encouragement emails, please email ' +
+      '<a href="mailto:' + TEAM_INBOX + '">' + TEAM_INBOX + '</a>.</p>'
+    );
+  }
+  try {
+    flipDripRowsToUnsubscribed_(resolved.submissionId);
+  } catch (err) {
+    console.log('handlePrayerUnsubscribe_: flip failed: ' + err);
+  }
+  return htmlPage_(
+    'You have been unsubscribed',
+    '<p>You will not receive any further encouragement emails from this submission. ' +
+    'Your prayer is still with the team. Thank you for letting us walk a few steps with you.</p>'
+  );
+}
+
+function htmlPage_(title, bodyHtml) {
+  var html =
+    '<!doctype html><html lang="en"><head>' +
+      '<meta charset="utf-8">' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+      '<title>' + escapeHtml(title) + '</title>' +
+      '<style>' +
+        'body{background:#f7f3ec;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;padding:48px 16px;color:#2b2b2b;line-height:1.6;}' +
+        '.card{max-width:560px;margin:0 auto;background:#fff;border:1px solid #e8e4de;border-radius:14px;overflow:hidden;}' +
+        '.band{height:6px;background:linear-gradient(to right,#2C5F2E 0 30%,#d4a574 30% 70%,#2C5F2E 70%);}' +
+        'h1{font-family:Georgia,serif;font-size:24px;font-weight:400;color:#2C5F2E;margin:24px 32px 12px;}' +
+        'p{margin:0 32px 16px;}' +
+        '.foot{font-size:12px;color:#666;padding:16px 32px;border-top:1px solid #e8e4de;background:#fcfaf6;}' +
+      '</style>' +
+    '</head><body>' +
+      '<div class="card">' +
+        '<div class="band"></div>' +
+        '<h1>' + escapeHtml(title) + '</h1>' +
+        bodyHtml +
+        '<div class="foot">Seed the Word Ministry</div>' +
+      '</div>' +
+    '</body></html>';
+  return HtmlService.createHtmlOutput(html);
+}
+
+// ── Verse + template loaders (cache-fronted) ────────────────────
+function loadDailyVerses_() {
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get(VERSES_CACHE_KEY);
+  if (hit) {
+    try { return JSON.parse(hit); } catch (_) {}
+  }
+  try {
+    var resp = UrlFetchApp.fetch(SITE_URL + 'assets/data/daily-verses.json',
+      { muteHttpExceptions: true });
+    if (resp.getResponseCode() >= 200 && resp.getResponseCode() < 300) {
+      var json = JSON.parse(resp.getContentText());
+      var verses = (json && Array.isArray(json.verses)) ? json.verses : [];
+      cache.put(VERSES_CACHE_KEY, JSON.stringify(verses), CACHE_SECONDS);
+      return verses;
+    }
+  } catch (err) {
+    console.log('loadDailyVerses_: ' + err);
+  }
+  // No fresh fetch + nothing cached → throw so caller surfaces error.
+  throw new Error('daily-verses.json unavailable');
+}
+
+function loadDripTemplates_() {
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get(TEMPLATES_CACHE_KEY);
+  if (hit) {
+    try { return JSON.parse(hit); } catch (_) {}
+  }
+  try {
+    // The drip templates JSON ships in the repo at
+    // docs/apps-script/prayer-drip-templates.json. Fetched via the
+    // GitHub Pages URL because that path is publicly readable.
+    var resp = UrlFetchApp.fetch(
+      SITE_URL + 'docs/apps-script/prayer-drip-templates.json',
+      { muteHttpExceptions: true });
+    if (resp.getResponseCode() >= 200 && resp.getResponseCode() < 300) {
+      var json = JSON.parse(resp.getContentText());
+      cache.put(TEMPLATES_CACHE_KEY, JSON.stringify(json), CACHE_SECONDS);
+      return json;
+    }
+  } catch (err) {
+    console.log('loadDripTemplates_: ' + err);
+  }
+  throw new Error('prayer-drip-templates.json unavailable');
+}
+
+// ── Drip email rendering ────────────────────────────────────────
+//
+// `prayer` is the Prayers row already projected as an object (see
+// loadPrayersById_). `dripDay` is one of 0/3/7/14. Returns
+// { subject, html, text }.
+function renderDripEmail_(prayer, dripDay, cfg) {
+  var sal = salutation(prayer);
+  var verses = [];
+  try { verses = JSON.parse(prayer.verses_json || '[]'); } catch (_) { verses = []; }
+  var dayIdx = (cfg.dripDays || [0, 3, 7, 14]).indexOf(dripDay);
+  if (dayIdx < 0) dayIdx = 0;
+  var verse = verses[dayIdx] || verses[0] || { text: '', ref: '', version: '' };
+
+  var templates = {};
+  try { templates = loadDripTemplates_(); } catch (_) { templates = {}; }
+  var picks = parseDripTemplatesPicks_(prayer.submission_id, templates);
+
+  var endpoint = String(cfg.endpointUrl || '');
+  var unsubUrl = endpoint
+    ? endpoint + (endpoint.indexOf('?') === -1 ? '?' : '&')
+        + 'action=prayer-unsubscribe&token=' + encodeURIComponent(prayer.unsubscribe_token || '')
+    : '';
+
+  var kindIsPrayer = prayer.kind === 'prayer';
+  var subject;
+  var bodyParas = [];
+
+  if (dripDay === 0) {
+    subject = kindIsPrayer ? "We're praying for you 💌" : "Thanksgiving received 🙏";
+    bodyParas.push('Hi ' + sal + ',');
+    bodyParas.push('We received your ' + (kindIsPrayer ? 'prayer request' : 'thanksgiving') +
+      ' and the team is ' + (kindIsPrayer ? 'praying with you' : 'praising God with you') + '.');
+    bodyParas.push(verseHtml_(verse));
+    bodyParas.push('We will send a short note in three days with a verse to hold onto. In the meantime, you are not alone in this.');
+  } else if (dripDay === 3) {
+    subject = 'Three days in — a verse to hold onto';
+    bodyParas.push(sal + ',');
+    bodyParas.push(verseHtml_(verse));
+    if (picks.day3_reflection) bodyParas.push(escapeHtml(picks.day3_reflection));
+    if (picks.day3_tip) bodyParas.push(escapeHtml(picks.day3_tip));
+  } else if (dripDay === 7) {
+    subject = 'One week — a longer Scripture for you';
+    bodyParas.push(sal + ',');
+    bodyParas.push(verseHtml_(verse));
+    if (picks.day7_reflection) bodyParas.push(escapeHtml(picks.day7_reflection));
+  } else if (dripDay === 14) {
+    subject = 'Two weeks — an invitation';
+    bodyParas.push(sal + ',');
+    bodyParas.push(verseHtml_(verse));
+    if (picks.day14_invitation) bodyParas.push(escapeHtml(picks.day14_invitation));
+  } else {
+    subject = 'A note from Seed the Word';
+    bodyParas.push(sal + ',');
+    bodyParas.push(verseHtml_(verse));
+  }
+
+  bodyParas.push('— Seed the Word Ministry');
+
+  var bodyHtml = bodyParas.map(function (p) {
+    return '<p style="margin:0 0 1rem;">' + p + '</p>';
+  }).join('');
+
+  if (unsubUrl) {
+    bodyHtml += '<p style="margin:1.5rem 0 0;font-size:12px;color:#666;">' +
+      '<a href="' + escapeHtml(unsubUrl) + '" style="color:#666;">' +
+      'Unsubscribe from these encouragement emails' +
+      '</a></p>';
+  }
+
+  var html = emailShell({
+    headerTitle: subject,
+    headerSubtitle: '',
+    bodyHtml: bodyHtml,
+    footerHtml: 'Seed the Word Ministry',
+    includeMinistryFooter: false,
+  });
+
+  // Plain-text fallback — strip tags, collapse whitespace, append unsub URL.
+  var text = stripHtmlAndNormalize_(bodyHtml).replace(/\s+/g, ' ').trim();
+  if (unsubUrl) {
+    text += '\n\nUnsubscribe: ' + unsubUrl;
+  }
+
+  return { subject: subject, html: html, text: text };
+}
+
+function verseHtml_(v) {
+  if (!v || !v.text) return '';
+  return '<em style="font-family:Georgia,serif;color:#2C5F2E;">' + escapeHtml(v.text) + '</em>' +
+    '<br><span style="color:#666;font-size:0.9em;">— ' +
+    escapeHtml(String(v.ref || '')) +
+    (v.version ? ' (' + escapeHtml(String(v.version)) + ')' : '') +
+    '</span>';
+}
+
+// ── Day 0 inline send + Days 3/7/14 enqueue ──────────────────────
+function enqueueAndSendDay0_(args) {
+  // Build the prayer-row projection used by renderDripEmail_.
+  var prayerRow = {
+    submission_id: args.submissionId,
+    submitter_name: args.submitterName,
+    submitter_email: args.submitterEmail,
+    anonymous: args.anonymous,
+    kind: args.kind,
+    body: args.body,
+    verses_json: JSON.stringify(args.verses || []),
+    unsubscribe_token: args.unsubscribeToken || '',
+  };
+
+  // Day 0 fires inline.
+  var day0Status = 'failed';
+  var day0Error = '';
+  try {
+    var rendered = renderDripEmail_(prayerRow, 0, args.cfg);
+    MailApp.sendEmail({
+      to: args.submitterEmail,
+      subject: rendered.subject,
+      htmlBody: rendered.html,
+      body: rendered.text,
+      replyTo: TEAM_INBOX,
+      name: 'Seed the Word Ministry',
+      noReply: true,
+    });
+    day0Status = 'sent';
+  } catch (err) {
+    day0Error = String(err).slice(0, 500);
+    console.log('Day 0 send failed: ' + err);
+  }
+
+  // Write Day 0 row in its terminal state.
+  try {
+    var sheet = openTab(DRIP_LOG_TAB, PRAYER_DRIP_HEADERS);
+    sheet.appendRow([
+      args.submissionId, 0, day0Status, new Date().toISOString(),
+      day0Error, false,
+    ]);
+  } catch (err) {
+    console.log('PrayerDrip Day 0 append failed: ' + err);
+  }
+
+  // Days 3/7/14 are written as 'pending' with scheduled fire times.
+  enqueueDripRows_(args.submissionId, args.receivedAt, args.cfg.dripDays);
+}
+
+function enqueueDripRows_(submissionId, receivedAt, dripDays) {
+  if (!Array.isArray(dripDays) || !dripDays.length) return;
+  var sheet = openTab(DRIP_LOG_TAB, PRAYER_DRIP_HEADERS);
+  var rows = [];
+  for (var i = 0; i < dripDays.length; i++) {
+    var day = Number(dripDays[i]);
+    if (day === 0) continue;            // Day 0 is written terminally elsewhere
+    if (!isFinite(day) || day < 0) continue;
+    var fireAt = new Date(receivedAt.getTime() + day * 24 * 60 * 60 * 1000);
+    rows.push([submissionId, day, 'pending', fireAt.toISOString(), '', false]);
+  }
+  if (rows.length) {
+    sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, PRAYER_DRIP_HEADERS.length)
+         .setValues(rows);
+  }
+}
+
+// ── Drip cron — every 30 minutes ────────────────────────────────
+function processPrayerDrip_() {
+  _markAppsScriptRan('processPrayerDrip_');
+  var cfg = loadIntakeConfig_();
+  if (!cfg.dripEnabled) {
+    console.log('processPrayerDrip_: dripEnabled=false; exiting.');
+    return;
+  }
+  var sheet = openTab(DRIP_LOG_TAB, PRAYER_DRIP_HEADERS);
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) return;
+  var header = values[0];
+  var idx = headerIndex_(header);
+  var now = new Date();
+  var prayersById = loadPrayersById_();
+
+  for (var i = 1; i < values.length; i++) {
+    var row = values[i];
+    if (row[idx.status] !== 'pending') continue;
+    if (row[idx.unsubscribed] === true || row[idx.unsubscribed] === 'TRUE') continue;
+    var fireAt = new Date(row[idx.timestamp]);
+    if (isNaN(fireAt.getTime()) || fireAt > now) continue;
+
+    var submissionId = String(row[idx.submission_id]);
+    var dripDay = Number(row[idx.drip_day]);
+    var prayer = prayersById[submissionId];
+    if (!prayer) {
+      writeDripRowStatus_(sheet, i + 1, idx, 'failed', new Date(),
+        'no matching prayers row');
+      continue;
+    }
+
+    var lock = LockService.getScriptLock();
+    var locked = false;
+    try {
+      lock.waitLock(15000);
+      locked = true;
+      // Re-read the row inside the lock to confirm still pending.
+      var fresh = sheet.getRange(i + 1, 1, 1, header.length).getValues()[0];
+      if (fresh[idx.status] !== 'pending') continue;
+      if (fresh[idx.unsubscribed] === true || fresh[idx.unsubscribed] === 'TRUE') continue;
+
+      var rendered = renderDripEmail_(prayer, dripDay, cfg);
+      MailApp.sendEmail({
+        to: prayer.submitter_email,
+        subject: rendered.subject,
+        htmlBody: rendered.html,
+        body: rendered.text,
+        replyTo: TEAM_INBOX,
+        name: 'Seed the Word Ministry',
+        noReply: true,
+      });
+      writeDripRowStatus_(sheet, i + 1, idx, 'sent', new Date(), '');
+    } catch (err) {
+      console.log('processPrayerDrip_ row ' + (i + 1) + ': ' + err);
+      writeDripRowStatus_(sheet, i + 1, idx, 'failed', new Date(),
+        String(err).slice(0, 500));
+    } finally {
+      if (locked) {
+        try { lock.releaseLock(); } catch (_) {}
+      }
+    }
+  }
+}
+
+function writeDripRowStatus_(sheet, rowNumber, idx, status, ts, errText) {
+  sheet.getRange(rowNumber, idx.status + 1).setValue(String(status || ''));
+  sheet.getRange(rowNumber, idx.timestamp + 1).setValue(
+    ts instanceof Date ? ts.toISOString() : String(ts || ''));
+  sheet.getRange(rowNumber, idx.error + 1).setValue(String(errText || ''));
+}
+
+function loadPrayersById_() {
+  var sheet = openTab(PRAYERS_TAB, PRAYERS_HEADERS);
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) return {};
+  var idx = headerIndex_(values[0]);
+  var out = {};
+  for (var i = 1; i < values.length; i++) {
+    var row = values[i];
+    var id = String(row[idx.submission_id] || '');
+    if (!id) continue;
+    out[id] = {
+      submission_id: id,
+      received_at: String(row[idx.received_at] || ''),
+      kind: String(row[idx.kind] || ''),
+      submitter_name: String(row[idx.submitter_name] || ''),
+      submitter_email: String(row[idx.submitter_email] || ''),
+      anonymous: row[idx.anonymous] === true ||
+                 String(row[idx.anonymous] || '').toUpperCase() === 'TRUE',
+      body: String(row[idx.body] || ''),
+      drip_status: String(row[idx.drip_status] || ''),
+      unsubscribe_token: String(row[idx.unsubscribe_token] || ''),
+      verses_json: String(row[idx.verses_json] || ''),
+    };
+  }
+  return out;
+}
+
+// ── One-shot trigger installer ──────────────────────────────────
+//
+// Run this ONCE from the Apps Script editor's function dropdown to
+// create the every-30-minute time trigger that fires processPrayerDrip_.
+function installPrayerDripTrigger_() {
+  // Idempotent — remove any previously installed trigger first.
+  var existing = ScriptApp.getProjectTriggers();
+  var removed = 0;
+  for (var i = 0; i < existing.length; i++) {
+    if (existing[i].getHandlerFunction() === 'processPrayerDrip_') {
+      ScriptApp.deleteTrigger(existing[i]);
+      removed++;
+    }
+  }
+  ScriptApp.newTrigger('processPrayerDrip_')
+    .timeBased()
+    .everyMinutes(30)
+    .create();
+  console.log('installPrayerDripTrigger_: removed ' + removed + ', created 1.');
+}
+
+// ── Orchestrator ────────────────────────────────────────────────
+//
+// Audit-first sequence (PI1, design §4.3). Steps 7→8→9 are the
+// contract:
+//   7. appendPrayersRow_ (pessimistic placeholder)
+//   8. relayToTelegram_
+//   9. updatePrayersRowTelegramStatus_
+function handlePrayerIntake_(payload, _route) {
+  // 1. Honeypot — silent accept-and-discard.
+  if (payload && payload.extra_field_2) {
+    console.log('Prayer intake honeypot triggered.');
+    return jsonResponse({ ok: true, route: 'honeypot' });
+  }
+
+  // 2. Config + disabled gate.
+  var cfg = loadIntakeConfig_();
+  if (!cfg.enabled) {
+    return jsonResponse({ ok: false, error: 'disabled' });
+  }
+
+  // 3. Validate.
+  var v = validatePrayerIntake_(payload, cfg);
+  if (!v.ok) {
+    return jsonResponse({ ok: false, error: v.reason });
+  }
+
+  // 4. Rate-limit (generic error per Requirement 10.6).
+  var ipHash = clientIpHash_(payload);
+  var emailKey = (v.email || '').toLowerCase();
+  if (!checkRateLimits_(ipHash, emailKey)) {
+    return jsonResponse({ ok: false, error: 'rate-limit' });
+  }
+
+  // 5. Build the Submission record.
+  var submissionId = Utilities.getUuid();
+  var receivedAt = new Date();
+
+  // Pre-pick the four verses (deterministic per submissionId).
+  var verses = [];
+  try {
+    verses = pickVersesForSubmission_(submissionId, cfg.dripDays, loadDailyVerses_());
+  } catch (err) {
+    console.log('pickVerses failed (non-fatal): ' + err);
+    verses = [];
+  }
+
+  // 6. Telegram message assembly (no I/O yet).
+  var assembled = buildTelegramMessage_({
+    kind: v.kind,
+    submitterName: v.name,
+    anonymous: v.anonymous,
+    body: v.body,
+    marker: cfg.marker,
+  });
+
+  // 7. Audit-first phase 1: append the row in the pessimistic
+  //    'failed' shape. If THIS fails, we never call Telegram.
+  var dripStatus = computeDripStatus_(v, cfg);
+  var unsubscribeToken = '';
+  if (dripStatus === 'enabled') {
+    try { unsubscribeToken = computeUnsubscribeToken_(submissionId); }
+    catch (err) {
+      console.log('unsubscribe token compute failed: ' + err);
+      return jsonResponse({ ok: false, error: 'sheet-write-failed' });
+    }
+  }
+  try {
+    appendPrayersRow_({
+      submissionId: submissionId,
+      receivedAt: receivedAt,
+      kind: v.kind,
+      submitterName: v.name,
+      submitterEmail: v.email,
+      anonymous: v.anonymous,
+      body: v.body,
+      telegramStatus: 'failed',
+      telegramMessageId: '',
+      telegramError: '',
+      dripStatus: dripStatus,
+      unsubscribeToken: unsubscribeToken,
+      clientIpHash: ipHash,
+      versesJson: JSON.stringify(verses),
+    });
+  } catch (err) {
+    console.log('prayer-intake: audit append failed: ' + err);
+    return jsonResponse({ ok: false, error: 'sheet-write-failed' });
+  }
+
+  // 8. Send to Telegram.
+  var sendResult = relayToTelegram_(assembled.text);
+
+  // 9. Phase 2: update the audit row with the Telegram outcome.
+  try {
+    updatePrayersRowTelegramStatus_(submissionId,
+      sendResult.ok ? 'sent' : 'failed',
+      sendResult.messageId || '',
+      sendResult.error || '');
+  } catch (err) {
+    console.log('audit row update failed (audit row stays pessimistic): ' + err);
+  }
+
+  // 10. Drip enqueue + Day 0 inline send.
+  if (dripStatus === 'enabled') {
+    try {
+      enqueueAndSendDay0_({
+        submissionId: submissionId,
+        receivedAt: receivedAt,
+        submitterEmail: v.email,
+        submitterName: v.name,
+        anonymous: v.anonymous,
+        kind: v.kind,
+        body: v.body,
+        verses: verses,
+        unsubscribeToken: unsubscribeToken,
+        cfg: cfg,
+      });
+    } catch (err) {
+      console.log('drip enqueue/Day0 failed (non-fatal): ' + err);
+    }
+  }
+
+  // 11. Response.
+  return jsonResponse({
+    ok: true,
+    submissionId: submissionId,
+    telegram: sendResult.ok ? 'sent' : 'failed',
+    truncated: !!assembled.truncated,
+    dripStatus: dripStatus,
+  });
 }

@@ -1,0 +1,51 @@
+name: Prayer Intake Tests
+
+# Property-based tests for the prayer-request-intake spec
+# (.kiro/specs/prayer-request-intake/). Runs on every push or PR
+# that touches the helper file, the form-side JS, the drip
+# templates, or the test suite itself.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/prayer-intake.js'
+      - 'docs/apps-script/prayer-intake-helpers.js'
+      - 'docs/apps-script/prayer-drip-templates.json'
+      - 'docs/apps-script/order-handler.gs'
+      - 'tests/prayer_intake_*.test.mjs'
+      - 'tests/prayer_intake_*.test.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/prayer-intake-tests.yml'
+  pull_request:
+    paths:
+      - 'assets/js/prayer-intake.js'
+      - 'docs/apps-script/prayer-intake-helpers.js'
+      - 'docs/apps-script/prayer-drip-templates.json'
+      - 'docs/apps-script/order-handler.gs'
+      - 'tests/prayer_intake_*.test.mjs'
+      - 'tests/prayer_intake_*.test.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/prayer-intake-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        # Use npm install (not ci) because the repo intentionally
+        # ships without a lockfile — the dev deps are tiny and pinned.
+        run: npm install --no-audit --no-fund
+
+      - name: Run prayer-intake tests
+        run: npm run test:prayer-intake

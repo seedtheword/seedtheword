@@ -59,6 +59,19 @@ const nameStrategy = fc.string({
   return !lit.includes(t);
 });
 
+// Mirrors what Telegram does to a MarkdownV2 message body when it
+// renders + redelivers via getUpdates: the parser strips the
+// backslash from each \X escape sequence (where X is one of the 18
+// MarkdownV2 metacharacters), leaving the literal X. The producer
+// MUST emit the escaped form to satisfy Telegram's parser; the
+// digest's Poller reads the rendered form from getUpdates. PI3
+// asserts the round-trip on the rendered form.
+function unescapeMarkdownV2(s) {
+  return s.replace(/\\([_*\[\]()~`>#+\-=|{}.!])/g, '$1');
+}
+
+const MDV2_METACHARS = /[_*\[\]()~`>#+\-=|{}.!]/g;
+
 test('PI2 — anonymous attribution holds in Telegram', () => {
   fc.assert(fc.property(
     nameStrategy,
@@ -72,8 +85,11 @@ test('PI2 — anonymous attribution holds in Telegram', () => {
         body,
         marker: MARKER,
       });
+      // Compare on the rendered (post-Telegram-strip) form so the test
+      // doesn't have to track which characters got escaped.
+      const rendered = unescapeMarkdownV2(out.text);
       // The literal "Anonymous" must appear immediately after "from ".
-      assert.match(out.text, /\u{1F48C} New (?:prayer request|thanksgiving announcement) from Anonymous /u);
+      assert.match(rendered, /\u{1F48C} New (?:prayer request|thanksgiving announcement) from Anonymous /u);
       // The real name must NOT appear anywhere — neither raw nor escaped.
       // We strip the literal marker prefix from the haystack first so
       // legitimate English collisions inside the prefix don't fool the
@@ -81,11 +97,11 @@ test('PI2 — anonymous attribution holds in Telegram', () => {
       // must not contain the name.
       const prefixA = '\u{1F48C} New prayer request from Anonymous (via the website): ';
       const prefixB = '\u{1F48C} New thanksgiving announcement from Anonymous (via the website): ';
-      const haystack = out.text.startsWith(prefixA)
-        ? out.text.slice(prefixA.length)
-        : out.text.startsWith(prefixB)
-          ? out.text.slice(prefixB.length)
-          : out.text;
+      const haystack = rendered.startsWith(prefixA)
+        ? rendered.slice(prefixA.length)
+        : rendered.startsWith(prefixB)
+          ? rendered.slice(prefixB.length)
+          : rendered;
       const escaped = mdv2Escape_(name);
       const candidates = name === escaped ? [name] : [name, escaped];
       for (const c of candidates) {
@@ -100,6 +116,14 @@ test('PI2 — anonymous attribution holds in Telegram', () => {
 
 // ── PI3 ────────────────────────────────────────────────────────
 // Validates: Requirements 4.2, 4.3, 4.5, 4.6, 12.3
+//
+// The producer emits a MarkdownV2-escaped string. Telegram's
+// `sendMessage` accepts that under parse_mode=MarkdownV2 and re-
+// delivers the plain rendered form via getUpdates — that's the
+// string the digest's Poller actually parses. PI3 asserts the
+// round-trip on the rendered form: post-strip, the message MUST
+// match the digest's regex AND round-trip to the producer's
+// (kind, name, body) tuple.
 
 test('PI3 — marker pattern parses under the digest regex (round-trip)', () => {
   fc.assert(fc.property(
@@ -111,21 +135,27 @@ test('PI3 — marker pattern parses under the digest regex (round-trip)', () => 
       const out = buildTelegramMessage_({
         kind, submitterName: name, anonymous, body, marker: MARKER,
       });
-      const m = DIGEST_REGEX.exec(out.text);
-      assert.ok(m, 'message did not match digest regex: ' + JSON.stringify(out.text));
+      // Apply Telegram's render step before regex-matching — that's
+      // what the digest's Poller sees.
+      const rendered = unescapeMarkdownV2(out.text);
+      const m = DIGEST_REGEX.exec(rendered);
+      assert.ok(m,
+        'rendered message did not match digest regex: ' + JSON.stringify(rendered));
       const expectedVerb = kind === 'thanksgiving'
         ? 'thanksgiving announcement' : 'prayer request';
       assert.equal(m[1], expectedVerb);
-      const expectedName = anonymous ? 'Anonymous' : mdv2Escape_(name);
-      assert.equal(m[2], expectedName);
+      const expectedName = anonymous ? 'Anonymous' : name;
+      assert.equal(m[2], expectedName,
+        'rendered name did not round-trip: ' +
+        JSON.stringify({ expected: expectedName, actual: m[2] }));
       if (out.truncated) {
-        // Truncated body ends with the ellipsis codepoint; we only
-        // assert that the captured body is a prefix of mdv2Escape_(body)
-        // followed by the ellipsis.
+        // Truncated body ends with the ellipsis codepoint.
         assert.ok(m[3].endsWith('\u2026'),
           'truncated body should end with ellipsis: ' + JSON.stringify(m[3]));
       } else {
-        assert.equal(m[3], mdv2Escape_(body));
+        assert.equal(m[3], body,
+          'rendered body did not round-trip: ' +
+          JSON.stringify({ expected: body, actual: m[3] }));
       }
     },
   ), { numRuns: 200 });

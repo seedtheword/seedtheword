@@ -292,7 +292,10 @@ function buildTelegramMessage_(args) {
     ? 'Anonymous'
     : mdv2Escape_(args.submitterName);
   var bodySegment = mdv2Escape_(args.body);
-  var marker = args.marker;
+  // Marker MUST be MarkdownV2-escaped — `(` and `)` are reserved for
+  // link syntax. Telegram strips the backslashes during render so the
+  // digest's Poller still reads "(via the website)" via getUpdates.
+  var marker = mdv2Escape_(args.marker);
 
   var message = '\uD83D\uDC8C ' + verb + ' from ' + nameSegment + ' ' + marker + ': ' + bodySegment;
   if (message.length <= TELEGRAM_MAX_CHARS) {

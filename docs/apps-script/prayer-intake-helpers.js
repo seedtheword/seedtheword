@@ -63,19 +63,21 @@ export function mdv2Escape_(s) {
 // ── Telegram message assembly ──────────────────────────────────────
 //
 // Returns { text, truncated }. The four shapes match the digest
-// spec's regex character-for-character:
+// spec's regex character-for-character (post-Telegram-render):
 //
 //   💌 New prayer request from <name>            (via the website): <body>
 //   💌 New prayer request from Anonymous         (via the website): <body>
 //   💌 New thanksgiving announcement from <name> (via the website): <body>
 //   💌 New thanksgiving announcement from Anonymous (via the website): <body>
 //
-// The `(via the website)` literal is emitted unescaped — it is an
-// authored, balanced fragment that lives on both producer and consumer
-// sides in this exact form. Escaping it would break the digest's regex.
+// The `(via the website)` literal is MarkdownV2-escaped on the wire
+// (`\(via the website\)`) because `(` and `)` are reserved for link
+// syntax — Telegram rejects an unescaped pair with HTTP 400. Telegram
+// strips the backslashes during render, so the digest's Poller sees
+// the literal `(via the website)` exactly as the regex expects.
 //
-// PI3 (design §12 Property 3) asserts the round-trip property.
-// PI6 caps the assembled length at TELEGRAM_MAX_CHARS (4090).
+// PI3 (design §12 Property 3) asserts the round-trip on the rendered
+// form. PI6 caps the assembled length at TELEGRAM_MAX_CHARS (4090).
 export function buildTelegramMessage_(args) {
   const TELEGRAM_MAX_CHARS = 4090;
   const verb = (args.kind === 'thanksgiving')
@@ -86,7 +88,13 @@ export function buildTelegramMessage_(args) {
     ? 'Anonymous'                          // literal, no escape needed (no metachars)
     : mdv2Escape_(args.submitterName);
   const bodySegment = mdv2Escape_(args.body);
-  const marker = args.marker;              // literal, must not be escaped
+  // Marker MUST be MarkdownV2-escaped before sending — `(` and `)` are
+  // reserved for link syntax in MarkdownV2 and Telegram rejects an
+  // unescaped pair with HTTP 400 "can't parse entities". Telegram
+  // strips the backslashes during render, so the message body the
+  // digest's Poller reads via getUpdates is still the literal
+  // "(via the website)" the regex contract expects.
+  const marker = mdv2Escape_(args.marker);
 
   const message = '\uD83D\uDC8C ' + verb + ' from ' + nameSegment + ' ' + marker + ': ' + bodySegment;
   if (message.length <= TELEGRAM_MAX_CHARS) {

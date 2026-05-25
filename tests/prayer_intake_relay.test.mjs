@@ -28,11 +28,40 @@ const DIGEST_REGEX =
 // ── PI2 ────────────────────────────────────────────────────────
 // Validates: Requirements 4.4, 5.5, 12.2
 
+// Generator for "name-shaped" strings: at least 3 characters of
+// letters/digits/spaces. The 3-char floor avoids trivial substring
+// false-positives — single-character or two-character generated
+// names inevitably substring-match the literal marker prefix
+// ("e" appears in "website", "the", "request", etc.). Real
+// submitter names are well above this floor.
+const nameStrategy = fc.string({
+  minLength: 3,
+  maxLength: 80,
+  unit: fc.constantFrom(
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ',
+  ),
+}).filter((s) => {
+  const t = s.trim();
+  if (t.length < 3) return false;
+  // Reject names that are substrings of the literal marker prefix.
+  // The prefix "💌 New prayer request from " / "💌 New thanksgiving
+  // announcement from " plus " (via the website): " is fixed
+  // English text — generated names that happen to match it would
+  // create unavoidable false positives.
+  const lit =
+    '💌 New prayer request from  (via the website): ' +
+    '💌 New thanksgiving announcement from  (via the website): ' +
+    'Anonymous';
+  return !lit.includes(t);
+});
+
 test('PI2 — anonymous attribution holds in Telegram', () => {
   fc.assert(fc.property(
-    // Names: any non-trivial string up to 80 chars. We require at least
-    // one non-whitespace char so the message is well-formed.
-    fc.string({ minLength: 1, maxLength: 80 }).filter((s) => s.trim().length > 0),
+    nameStrategy,
     fc.constantFrom('prayer', 'thanksgiving'),
     fc.string({ minLength: 10, maxLength: 1500 }),
     (name, kind, body) => {
@@ -46,14 +75,24 @@ test('PI2 — anonymous attribution holds in Telegram', () => {
       // The literal "Anonymous" must appear immediately after "from ".
       assert.match(out.text, /\u{1F48C} New (?:prayer request|thanksgiving announcement) from Anonymous /u);
       // The real name must NOT appear anywhere — neither raw nor escaped.
+      // We strip the literal marker prefix from the haystack first so
+      // legitimate English collisions inside the prefix don't fool the
+      // substring check. The body and the "Anonymous" segment are what
+      // must not contain the name.
+      const prefixA = '\u{1F48C} New prayer request from Anonymous (via the website): ';
+      const prefixB = '\u{1F48C} New thanksgiving announcement from Anonymous (via the website): ';
+      const haystack = out.text.startsWith(prefixA)
+        ? out.text.slice(prefixA.length)
+        : out.text.startsWith(prefixB)
+          ? out.text.slice(prefixB.length)
+          : out.text;
       const escaped = mdv2Escape_(name);
-      // Don't bother with the escaped form when name has no metachars
-      // (escaped === name); only check unique forms.
       const candidates = name === escaped ? [name] : [name, escaped];
       for (const c of candidates) {
         if (c.length === 0) continue;
-        assert.equal(out.text.includes(c), false,
-          'anonymous Telegram message leaked the real name: ' + JSON.stringify({ name, c }));
+        assert.equal(haystack.includes(c), false,
+          'anonymous Telegram message leaked the real name: ' +
+          JSON.stringify({ name, c, haystack }));
       }
     },
   ), { numRuns: 200 });

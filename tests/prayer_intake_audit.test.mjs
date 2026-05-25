@@ -192,7 +192,17 @@ test('PI1 — when the Sheet append fails, NO Telegram call is made', () => {
       kind: fc.constantFrom('prayer', 'thanksgiving'),
       name: fc.string({ minLength: 1, maxLength: 30 }).filter((s) => s.trim().length > 0),
       anonymous: fc.boolean(),
-      body: fc.string({ minLength: 10, maxLength: 200 }),
+      // Body must validate (≥10 chars after stripHtmlAndNormalize_'s
+      // trim). Generate alphanumerics+spaces with a 15-char floor so
+      // even fully-trimmed bodies clear the bodyMinChars=10 threshold.
+      body: fc.string({
+        minLength: 15, maxLength: 200,
+        unit: fc.constantFrom(
+          'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+          'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+          ' ',
+        ),
+      }).filter((s) => s.trim().length >= 10),
     }),
     (p) => {
       const sheet = new PrayersSheetFake({ failOnAppend: true });

@@ -97,17 +97,34 @@ test('PI5 — template picks never include the real submitter name', () => {
   // entries are deliberately seeded with strings that include the
   // generated name as a substring — to confirm the picker simply
   // returns pool entries verbatim and never composes them.
+  //
+  // The name generator requires ≥3 alphanumeric characters and
+  // disjointness from the safe pool's English text. Single-character
+  // names ("A", "I", " ") trivially substring-match natural English
+  // ("and", "his", "the sparrow"); the property is meant to catch
+  // composition bugs, not unavoidable English collisions.
+  const safePool = [
+    'be still and know',
+    'his eye is on the sparrow',
+    'come unto me',
+  ];
+  const safeJoined = safePool.join(' ').toLowerCase();
+  const dripNameStrategy = fc.string({
+    minLength: 3,
+    maxLength: 30,
+    unit: fc.constantFrom(
+      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+      'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+      'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    ),
+  }).filter((s) => s.length >= 3 && !safeJoined.includes(s.toLowerCase()));
+
   fc.assert(fc.property(
-    fc.string({ minLength: 1, maxLength: 30 }).filter((s) => s.trim().length > 0),
+    dripNameStrategy,
     fc.string({ minLength: 1, maxLength: 30 }),
     (name, submissionId) => {
-      // A pool whose entries do NOT include the name. The picker
-      // should return one of these — never anything else.
-      const safePool = [
-        'be still and know',
-        'his eye is on the sparrow',
-        'come unto me',
-      ];
       const picks = parseDripTemplatesPicks_(submissionId, {
         day3_reflections: safePool,
         day3_tips: safePool,

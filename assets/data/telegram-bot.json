@@ -92,15 +92,15 @@
       "_help": "Two-half pipeline: Poller every 15 min, Digest_Poster Mon/Thu/Sat 08:00 PT. The websiteSubmissionMarker MUST match prayer.intake.marker — these are one contract, edited together."
     },
     "intake": {
-      "enabled": false,
-      "endpointUrl": "",
+      "enabled": true,
+      "endpointUrl": "https://script.google.com/macros/s/AKfycbzrHVlOqNu5skSDkf_rsy8moKvwRlM_mZNQpKSXH7HPBCSNjj1Dffz-IuFSJcWjjQUF/exec",
       "marker": "(via the website)",
       "bodyMinChars": 10,
       "bodyMaxChars": 2000,
       "dripDays": [0, 3, 7, 14],
       "dripEnabled": false,
       "auditSheetTabName": "Prayers",
-      "_help": "marker MUST equal prayer.digest.websiteSubmissionMarker — these are one contract. Set endpointUrl to the deployed Apps Script web app URL after deploying the prayer-intake action handler."
+      "_help": "marker MUST equal prayer.digest.websiteSubmissionMarker — these are one contract. endpointUrl reuses the existing Apps Script web app already used by orders / contact / stories. dripEnabled stays false until the Prayers + PrayerDrip Sheet tabs and PRAYER_INTAKE_UNSUBSCRIBE_SECRET are deployed (admin-help.html → Bot 6 deploy steps)."
     }
   }
 }

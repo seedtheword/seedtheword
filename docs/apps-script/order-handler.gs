@@ -4781,6 +4781,146 @@ function installPrayerDripTrigger_() {
   console.log('installPrayerDripTrigger_: removed ' + removed + ', created 1.');
 }
 
+// ── One-shot full bootstrap ─────────────────────────────────────
+//
+// Single entry point for deploying the prayer-intake action. Run
+// ONCE from the Apps Script editor's function dropdown after pasting
+// this file into Code.gs — the function does everything otherwise
+// done by hand:
+//
+//   1. Creates the `Prayers` tab if missing, writes the 14 header
+//      columns, bolds the header row, freezes row 1, applies sane
+//      default column widths.
+//   2. Creates the `PrayerDrip` tab if missing, writes the 6 header
+//      columns, same formatting.
+//   3. Generates a 32-byte random PRAYER_INTAKE_UNSUBSCRIBE_SECRET
+//      and stores it in Script Properties IFF one is not already set.
+//      Re-running will NOT rotate an existing secret (rotating breaks
+//      every previously-issued unsubscribe link, and the function is
+//      idempotent on purpose).
+//   4. Installs the every-30-min processPrayerDrip_ time trigger via
+//      installPrayerDripTrigger_().
+//   5. Logs the Sheet URL with deep-link gids for both tabs and a
+//      checklist of what's now done vs what still needs to happen
+//      (paste the Web App URL into telegram-bot.json, deploy a new
+//      version of the web app).
+//
+// Idempotent — safe to re-run. The Prayers + PrayerDrip tabs use the
+// existing openTab() helper which preserves data and only rewrites
+// headers if they drift from PRAYERS_HEADERS / PRAYER_DRIP_HEADERS.
+function installPrayerIntake() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+
+  // ── Prayers tab ────────────────────────────────────────────────
+  var prayers = openTab(PRAYERS_TAB, PRAYERS_HEADERS);
+  prayers.getRange(1, 1, 1, PRAYERS_HEADERS.length).setFontWeight('bold');
+  if (prayers.getFrozenRows() < 1) prayers.setFrozenRows(1);
+  // Sane default widths so the tab is readable on first open.
+  // submission_id (uuid) gets a wide column; body wider still.
+  var prayersWidths = {
+    submission_id: 220,        // uuid is ~36 chars
+    received_at: 160,
+    kind: 80,
+    submitter_name: 150,
+    submitter_email: 200,
+    anonymous: 90,
+    body: 360,
+    telegram_status: 110,
+    telegram_message_id: 120,
+    telegram_error: 220,
+    drip_status: 130,
+    unsubscribe_token: 240,
+    client_ip_hash: 200,
+    verses_json: 240,
+  };
+  for (var i = 0; i < PRAYERS_HEADERS.length; i++) {
+    var w = prayersWidths[PRAYERS_HEADERS[i]];
+    if (w) prayers.setColumnWidth(i + 1, w);
+  }
+
+  // ── PrayerDrip tab ────────────────────────────────────────────
+  var drip = openTab(DRIP_LOG_TAB, PRAYER_DRIP_HEADERS);
+  drip.getRange(1, 1, 1, PRAYER_DRIP_HEADERS.length).setFontWeight('bold');
+  if (drip.getFrozenRows() < 1) drip.setFrozenRows(1);
+  var dripWidths = {
+    submission_id: 220,
+    drip_day: 80,
+    status: 110,
+    timestamp: 200,
+    error: 280,
+    unsubscribed: 110,
+  };
+  for (var j = 0; j < PRAYER_DRIP_HEADERS.length; j++) {
+    var w2 = dripWidths[PRAYER_DRIP_HEADERS[j]];
+    if (w2) drip.setColumnWidth(j + 1, w2);
+  }
+
+  // Apply a `status` column data-validation dropdown to the PrayerDrip
+  // tab so admins can manually flip rows from the editor without typoing
+  // a value the cron rejects. Mirrors the pattern from
+  // installStatusDropdown for Orders.
+  var statusColIdx = PRAYER_DRIP_HEADERS.indexOf('status') + 1;
+  var dripStatusRange = drip.getRange(2, statusColIdx, 999, 1);
+  var dripStatusRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['pending', 'sent', 'failed', 'unsubscribed'], true)
+    .setAllowInvalid(false)
+    .setHelpText('Valid statuses: pending, sent, failed, unsubscribed')
+    .build();
+  dripStatusRange.setDataValidation(dripStatusRule);
+
+  // The unsubscribed column is a checkbox.
+  var unsubColIdx = PRAYER_DRIP_HEADERS.indexOf('unsubscribed') + 1;
+  drip.getRange(2, unsubColIdx, 999, 1).insertCheckboxes();
+
+  // ── Generate + store the unsubscribe HMAC secret ──────────────
+  var props = PropertiesService.getScriptProperties();
+  var existingSecret = props.getProperty(PRAYER_INTAKE_UNSUBSCRIBE_SECRET_KEY);
+  var secretAction;
+  if (!existingSecret) {
+    // Cryptographically random 32-byte secret, base64-encoded ≈ 44 chars.
+    var bytes = [];
+    for (var k = 0; k < 32; k++) bytes.push(Math.floor(Math.random() * 256));
+    // Apps Script lacks crypto.randomBytes; layer on Utilities.computeDigest
+    // of (Math.random() seed + millis + UUID) for a second source of
+    // entropy on top of Math.random(). The result is base64-web-safe.
+    var seedRaw = Utilities.getUuid() + ':' + new Date().getTime() + ':' +
+      Math.random() + ':' + Math.random();
+    var digest = Utilities.computeDigest(
+      Utilities.DigestAlgorithm.SHA_256, seedRaw);
+    var secret = Utilities.base64EncodeWebSafe(digest).replace(/=+$/, '');
+    props.setProperty(PRAYER_INTAKE_UNSUBSCRIBE_SECRET_KEY, secret);
+    secretAction = '✓ generated and stored a new secret';
+  } else {
+    secretAction = '✓ secret already set; preserved';
+  }
+
+  // ── Install the drip cron ─────────────────────────────────────
+  installPrayerDripTrigger_();
+
+  // ── Verification log ──────────────────────────────────────────
+  var sheetUrl = ss.getUrl();
+  var prayersGid = prayers.getSheetId();
+  var dripGid = drip.getSheetId();
+  console.log('═══════════════════════════════════════════════════════════');
+  console.log('  installPrayerIntake — bootstrap complete');
+  console.log('═══════════════════════════════════════════════════════════');
+  console.log('✓ Prayers tab ready (14 cols): ' + sheetUrl + '#gid=' + prayersGid);
+  console.log('✓ PrayerDrip tab ready (6 cols): ' + sheetUrl + '#gid=' + dripGid);
+  console.log('✓ ' + PRAYER_INTAKE_UNSUBSCRIBE_SECRET_KEY + ' ' + secretAction);
+  console.log('✓ processPrayerDrip_ trigger installed (every 30 min)');
+  console.log('');
+  console.log('STILL TO DO (manual):');
+  console.log('  1. Deploy → Manage deployments → ✏️ → New version → Deploy.');
+  console.log('     (The web-app URL stays the same; just publishes new code.)');
+  console.log('  2. The form is already enabled and pointed at the existing');
+  console.log('     web-app URL on the live site. Submit one test through');
+  console.log('     community.html to confirm the round-trip.');
+  console.log('  3. To enable the four-step encouragement drip emails, flip');
+  console.log('     prayer.intake.dripEnabled = true in telegram-bot.json');
+  console.log('     (admin editor → Telegram bot config → Prayer → Intake).');
+  console.log('═══════════════════════════════════════════════════════════');
+}
+
 // ── Orchestrator ────────────────────────────────────────────────
 //
 // Audit-first sequence (PI1, design §4.3). Steps 7→8→9 are the

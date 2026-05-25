@@ -2550,8 +2550,89 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
     <li><strong>Workflow:</strong> <code>.github/workflows/daily-prayer-nudge.yml</code> — still on the cron, but the script exits cleanly when <em>enabled: false</em>.</li>
   </ul>
 
+  <h3>Bot 5 — Weekly prayer digest <span style="opacity: 0.65; font-weight: 600; font-size: 0.85em;">(disabled by default)</span></h3>
+  <ul>
+    <li><strong>What it does:</strong> Mon / Thu / Sat at 8 AM Pacific, posts a short summary of the prayer requests and thanksgivings shared in the <em>Prayer &amp; Thanksgiving</em> topic since the last digest. Each entry is one bullet — attribution + a 60-character summary, never the full vulnerable text. Saturday's digest lands alongside the playlist digest so members see both as a single Saturday rhythm.</li>
+    <li><strong>Where:</strong> Prayer &amp; Thanksgiving topic (thread 21).</li>
+    <li><strong>Schedule:</strong> 08:00 PT Monday, Thursday, Saturday. The first run after the system goes live (First_Run) does NOT post — it just marks the slot complete and starts the capture window from that moment, so going live doesn't dump a back-fill flood.</li>
+    <li><strong>Two-half pipeline:</strong> Telegram bots can't read history retroactively, so a continuous <strong>Poller</strong> runs every 15 minutes and writes captured prayers to <code>assets/data/telegram-prayer-log.json</code>. The triweekly <strong>Digest_Poster</strong> reads that log and posts on Mon / Thu / Sat. Both halves gate on the same <code>prayer.digest.enabled</code> flag.</li>
+    <li><strong>Secret:</strong> <code>TELEGRAM_PRAYER_BOT_TOKEN</code> (reused — same bot as the nudge above; no new bot needed).</li>
+    <li><strong>Workflows:</strong> <code>.github/workflows/prayer-digest-poll.yml</code> + <code>.github/workflows/prayer-digest-post.yml</code></li>
+    <li><strong>Test it:</strong> Actions → <em>Prayer Digest Poller</em> → Run workflow → <em>dry_run</em> = <code>true</code> to verify auth without mutating the log.</li>
+  </ul>
+
+  <div class="admin-card">
+    <p class="admin-card__label">One-time setup</p>
+    <p class="admin-card__title">🔑 Disable BotFather privacy mode for the prayer bot</p>
+    <p>Without this, the bot only sees its own commands in the supergroup — non-command prayer messages are invisible to it and the digest stays empty. This is a one-time toggle:</p>
+    <ol>
+      <li>Open <a href="https://t.me/BotFather" target="_blank" rel="noopener">@BotFather</a> in Telegram.</li>
+      <li>Send <code>/mybots</code> → tap the prayer bot → <strong>Bot Settings</strong> → <strong>Group Privacy</strong>.</li>
+      <li>Tap <strong>Turn off</strong>. BotFather confirms with "<em>Privacy mode is disabled for [bot]</em>".</li>
+      <li>Confirm the bot is in the <code>@seedtheword</code> supergroup as an admin with <strong>Manage Topics</strong> + <strong>Send Messages</strong> permissions on thread 21.</li>
+    </ol>
+    <p>If you skip this, the Poller will run every 15 minutes and silently capture nothing. The fix is to come back to this card and flip privacy mode off — no code changes needed.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Per-member privacy</p>
+    <p class="admin-card__title">🔒 What members can do without asking an admin</p>
+    <p>Three opt-out paths are baked into the digest. None of them require admin action — they're discoverable in every digest's footer.</p>
+    <ul>
+      <li><code>/skipdigest</code> — any member can DM the prayer bot this command and they're permanently excluded from future digests. The bot replies once to confirm. To re-enable: <code>/optindigest</code>.</li>
+      <li><code>[private]</code> — prefix any single message in the topic with this tag and that one message is silently skipped (never makes it into the log, never appears in any digest). The member's other messages still flow normally.</li>
+      <li><code>[anon]</code> — prefix a message with this tag and it's still included in the digest, but rendered as <code>Anonymous</code> instead of the member's display name. The original sender is recorded in the log for audit only and never rendered.</li>
+    </ul>
+    <p>Members joining the supergroup will see these in the footer of every digest, so the privacy paths are always one tap away.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Going live</p>
+    <p class="admin-card__title">🟢 How to enable the digest</p>
+    <p>Default state on a fresh fork is <strong>disabled</strong>. To turn it on:</p>
+    <ol>
+      <li>Confirm the BotFather privacy step above is done.</li>
+      <li>Confirm the sibling website prayer-intake form is also deployed (or accept that website-form submissions won't flow into the topic until it is — the digest still works for messages members post directly into Telegram).</li>
+      <li>Open <em>Editor → Telegram bot config → Prayer nudge bot → digest</em>. Flip <code>enabled</code> to <code>true</code>. Save → Commit & push.</li>
+      <li>Within ~15 minutes the Poller starts capturing. The first scheduled Mon/Thu/Sat morning after that, the digest posts.</li>
+    </ol>
+    <p><strong>To pause:</strong> flip the same flag back to <code>false</code>. Both the Poller and the Digest_Poster exit immediately at the enabled-flag short-circuit. Already-captured entries stay in the log; they'll be pruned by the 14-day cutoff if the system stays paused that long.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Recovery</p>
+    <p class="admin-card__title">🛟 If a digest didn't post on time</p>
+    <ol>
+      <li>Check Actions → <em>Weekly Prayer Digest</em> for a failed run. The error message is usually self-explanatory (most often a Telegram MarkdownV2 parse error from an unexpected character — rare but possible).</li>
+      <li>Fix the cause. If you can't tell, replay with <em>dry_run = true</em> to see the rendered message Telegram rejected.</li>
+      <li>Click <strong>Run workflow</strong> with <em>dry_run = false</em> to fire the digest now. The script computes the current Schedule_Slot in PT and is idempotent — if the slot is already marked complete, it logs "already posted this slot" and exits.</li>
+      <li>If the digest posted but the log commit failed (rare race): manually edit <code>assets/data/telegram-prayer-log.json</code> and add the slot to <code>completedSlots</code> so the next run doesn't double-post. The slot ID format is <code>YYYY-WNN-{mon|thu|sat}</code> in PT (e.g. <code>2026-W22-mon</code>).</li>
+    </ol>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">What to look for</p>
+    <p class="admin-card__title">📓 The on-disk Prayer_Log</p>
+    <p>Lives at <code>assets/data/telegram-prayer-log.json</code>. A healthy file looks like:</p>
+    <pre style="white-space: pre-wrap; background: var(--ah-off); padding: 1rem; border-radius: 8px; font-size: 0.85rem; line-height: 1.45; border: 1px solid var(--ah-line);">{
+  "schemaVersion": 1,
+  "lastUpdateId": 84321,
+  "lastModified": "2026-05-23T15:00:09Z",
+  "optOut": [],
+  "completedSlots": {
+    "2026-W21-thu": { "since": "...", "messageId": 4731, "entryCount": 4, "postedAt": "..." }
+  },
+  "entries": [
+    { "chatId": -1001234567890, "messageId": 4521, "userId": 987654321,
+      "displayName": "Maria K", "kind": "telegram", "anonymous": false,
+      "text": "stripped body for summarizer", "ts": "2026-05-21T18:42:00Z" }
+  ]
+}</pre>
+    <p><strong>Don't edit by hand</strong> unless recovering from a stuck slot — the file is committed back by both workflows on every successful run, and any concurrent edit will lose to whichever workflow runs next.</p>
+  </div>
+
   <div class="admin-stepper">
-    <p class="admin-stepper__label">The 4-bot system at a glance</p>
+    <p class="admin-stepper__label">The 5-bot system at a glance</p>
     <p class="admin-stepper__title">Each bot handles its own topic, on its own schedule</p>
     <div class="admin-stepper__steps">
       <div class="admin-step">
@@ -2577,6 +2658,12 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
         <span class="admin-step__icon">🙏🏻</span>
         <p class="admin-step__title">Prayer nudge (disabled)</p>
         <p class="admin-step__body">Dormant — the Bible bot now carries the daily Prayer &amp; Thanksgiving block. Re-enable anytime from the editor.</p>
+      </div>
+      <div class="admin-step">
+        <span class="admin-step__num">5</span>
+        <span class="admin-step__icon">🙏</span>
+        <p class="admin-step__title">Prayer digest</p>
+        <p class="admin-step__body">Mon / Thu / Sat 8 AM PT, posts a short summary of recent prayers &amp; thanksgivings into the Prayer topic (thread 21). Disabled by default; flip on after the BotFather privacy step.</p>
       </div>
     </div>
   </div>
@@ -2703,7 +2790,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
 <script src="assets/js/admin-editor-commit-message.js?v=19" defer></script>
 <script src="assets/js/admin-editor-js-literal.js?v=19" defer></script>
 <script src="assets/js/admin-editor.js?v=20" defer></script>
-<script src="assets/js/admin-help.js?v=28" defer></script>
+<script src="assets/js/admin-help.js?v=29" defer></script>
 
 <script>
   // Populate the "Shared Calendar Photos Drive folder" admin-help card,

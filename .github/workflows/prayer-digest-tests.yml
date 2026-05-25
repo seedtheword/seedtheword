@@ -1,0 +1,54 @@
+name: Prayer Digest Tests
+
+# Runs the property-based test suite for the weekly-prayer-digest
+# pipeline. Triggered on any change to the Poller, Digest_Poster,
+# shared generators, requirements pin, or any of the test files.
+# The workflow is the gate that turns a green CI badge into a
+# precondition for the deployment cutover (Task 7 in
+# .kiro/specs/weekly-prayer-digest/tasks.md).
+
+on:
+  push:
+    paths:
+      - '.github/scripts/poll_prayer_topic.py'
+      - '.github/scripts/post_prayer_digest_to_telegram.py'
+      - '.github/scripts/telegram_common.py'
+      - 'tests/prayer_digest_*.py'
+      - 'tests/requirements.txt'
+      - 'tests/conftest.py'
+      - 'tests/pytest.ini'
+      - '.github/workflows/prayer-digest-tests.yml'
+  pull_request:
+    paths:
+      - '.github/scripts/poll_prayer_topic.py'
+      - '.github/scripts/post_prayer_digest_to_telegram.py'
+      - '.github/scripts/telegram_common.py'
+      - 'tests/prayer_digest_*.py'
+      - 'tests/requirements.txt'
+      - 'tests/conftest.py'
+      - 'tests/pytest.ini'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: tests/requirements.txt
+
+      - name: Install test dependencies
+        run: pip install -r tests/requirements.txt
+
+      - name: Run property-based tests
+        run: python -m pytest tests/prayer_digest_summarize.test.py tests/prayer_digest_select.test.py tests/prayer_digest_render.test.py tests/prayer_digest_capture.test.py -v

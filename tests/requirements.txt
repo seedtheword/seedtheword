@@ -1,0 +1,6 @@
+# Python test dependencies for property-based tests.
+# Currently used by the weekly-prayer-digest spec's test suite
+# (tests/prayer_digest_*.test.py). Future Python tests may share
+# this file.
+hypothesis==6.112.1
+pytest==8.3.3

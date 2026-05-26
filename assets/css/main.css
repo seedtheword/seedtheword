@@ -11012,3 +11012,80 @@ body.prayer-intake-modal-open {
   line-height: 1.6;
   margin: 0 0 0.75rem;
 }
+
+
+/* ──────────────────────────────────────────────────────────────
+   Going Deeper Today — companion-streams row on community.html
+   Quieter visual weight than the NT-walk weekly strip card above
+   it. R2.10 + R11.1–11.5: smaller pills, lighter background, no
+   today badge, mobile flex-wrap fallback. Heading copy is locked
+   in JS to "🌿 Going deeper today".
+   ────────────────────────────────────────────────────────────── */
+
+.going-deeper {
+  padding: 1.25rem 0 0;
+  margin: 1.25rem auto 0;
+  max-width: 920px;
+  border-top: 1px solid rgba(44, 95, 46, 0.10);
+}
+
+.going-deeper__heading {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green);
+  font-weight: 700;
+  margin: 0 0 0.85rem;
+  text-align: center;
+}
+
+.going-deeper__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+.going-deeper__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  background: rgba(212, 165, 116, 0.08);
+  border: 1px solid rgba(212, 165, 116, 0.25);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+a.going-deeper__pill:hover {
+  background: rgba(212, 165, 116, 0.16);
+  border-color: rgba(212, 165, 116, 0.45);
+  transform: translateY(-1px);
+}
+
+.going-deeper__pill-label {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.going-deeper__pill-listen {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.4rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--green);
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+@media (max-width: 540px) {
+  .going-deeper__pill { font-size: 0.9rem; padding: 0.45rem 0.8rem; }
+  .going-deeper__heading { letter-spacing: 0.14em; }
+}

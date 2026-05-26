@@ -2712,7 +2712,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
   </div>
 
   <div class="admin-stepper">
-    <p class="admin-stepper__label">The 6-bot system at a glance</p>
+    <p class="admin-stepper__label">The 7-bot system at a glance</p>
     <p class="admin-stepper__title">Each bot handles its own topic, on its own schedule</p>
     <div class="admin-stepper__steps">
       <div class="admin-step">
@@ -2751,7 +2751,65 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
         <p class="admin-step__title">Prayer Request Intake</p>
         <p class="admin-step__body">Two cards on community.html → quiet modal → audit Sheet → relay to Prayer topic + four-step encouragement drip with one-click unsubscribe. Disabled by default; flip on after Bot 5 is live and the Prayers + PrayerDrip tabs exist.</p>
       </div>
+      <div class="admin-step">
+        <span class="admin-step__num">7</span>
+        <span class="admin-step__icon">🌿</span>
+        <p class="admin-step__title">Layered reading plan</p>
+        <p class="admin-step__body">Quiet "Going deeper today" row on community.html plus a matching footer on the Mon–Fri Bible Telegram post. Four optional companion streams (OT walk, Poetry &amp; Prophecy, Psalm, Proverbs). Mon–Fri only — silent on Sat/Sun. Ships enabled.</p>
+      </div>
     </div>
+  </div>
+
+  <h3>Bot 7 — Layered Bible Reading Plan <span style="opacity: 0.65; font-weight: 600; font-size: 0.85em;">(ships enabled)</span></h3>
+
+  <ul>
+    <li><strong>What it does:</strong> Adds a quiet "🌿 Going deeper today" row on <code>community.html</code> directly below the existing weekly NT-strip card, and a matching short footer on the Bot 2 Bible post for Mon–Fri. Up to four pills per weekday: <em>OT walk</em> (Genesis–Esther, one chapter/day), <em>Poetry &amp; Prophecy</em> (Job, Ecclesiastes, Song of Solomon, Isaiah–Malachi excluding Psalms and Proverbs, one chapter/day), <em>Psalm of the day</em>, <em>Proverb of the day</em>. Saturday and Sunday: the row does not render and the Telegram footer is omitted (Sat keeps its Study Saturday Live post unchanged; Sun the bot does not run).</li>
+    <li><strong>What stays untouched:</strong> the existing NT walk in <code>assets/js/bible-plan.js</code> is frozen — same anchor (Mark 11 on Thu Apr 30 2026), same sequence, same date math. The Saturday Review block in <code>assets/js/study-saturday.js</code> + <code>assets/data/study-saturday.json</code> is also frozen — same two pills, same JSON keys, same admin schema. No admin action against either of those is part of this feature.</li>
+    <li><strong>Where:</strong> Front-end: <code>community.html</code> + <code>assets/js/layered-plan.js</code> + CSS in <code>assets/css/main.css</code>. Telegram: extends <code>.github/scripts/post_daily_bible_to_telegram.py</code> (GitHub Actions Mon–Fri runner) AND the <code>dailyBibleBot</code> flow in <code>docs/apps-script/order-handler.gs</code> (Apps Script time-trigger backup). Both ports read the same config block and produce byte-equal chapter references.</li>
+    <li><strong>Schedule:</strong> Website renders on every page load of <code>community.html</code>. Telegram footer rides along on Bot 2's existing Mon–Fri 8 AM PT cron — no new schedule.</li>
+    <li><strong>Newcomer page:</strong> a separate canonical page at <code>start-here.html</code> renders the locked 30-entry plan from <code>assets/data/newcomer-30day.json</code>. Reader-relative — day 1 is whatever day the reader picks it up. The QR card on bundles (<code>guide-newcomer-qr</code>) points at this URL.</li>
+    <li><strong>Lives in:</strong> <code>assets/js/layered-plan.js</code>, <code>assets/data/newcomer-30day.json</code>, <code>start-here.html</code>, plus the <code>bible.layeredPlan</code> block in <code>assets/data/telegram-bot.json</code>.</li>
+  </ul>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Daily configuration knobs</p>
+    <p class="admin-card__title">🎛️ <code>bible.layeredPlan</code> in <code>telegram-bot.json</code></p>
+    <p>One config block, three consumers (browser renderer + Python Telegram bot + Apps Script port). Edits flow through to all three on the next render or the next scheduled post — no redeploy needed.</p>
+    <ul>
+      <li><code>enabled</code> (default <code>true</code>) — master switch. <code>false</code> hides the row on the website AND drops the Telegram footer entirely, regardless of <code>includeInTelegram</code>.</li>
+      <li><code>includeInTelegram</code> (default <code>true</code>) — Telegram-only switch. <code>false</code> drops the footer from the Mon–Fri post; the website row keeps rendering normally.</li>
+      <li><code>timezone</code> (default <code>"America/Los_Angeles"</code>) — IANA tz used for weekday detection and the Psalm/Proverb day-of-year / day-of-month math. Pin this and forget it.</li>
+      <li><code>streams.otHistory.enabled</code> (default <code>true</code>) — toggles just the Genesis–Esther pill. The other three streams stay rendered.</li>
+      <li><code>streams.otHistory.anchor</code> (default <code>{date: "2026-04-30", book: "Genesis", chapter: 1}</code>) — the calendar date paired with the chapter that should show on that date. Re-anchoring shifts every future day's reading by the date delta.</li>
+      <li><code>streams.poetryProphecy.enabled</code> + <code>.anchor</code> — same pattern, default anchor is Job 1 on 2026-04-30 so all three weekday walks advance together.</li>
+      <li><code>streams.psalm.enabled</code> / <code>streams.proverbs.enabled</code> (default <code>true</code>) — Psalm of the day uses <code>((dayOfYear − 1) mod 150) + 1</code>; Proverb of the day uses <code>min(dayOfMonth, 31)</code>. Both compute every day; rendering on weekends is suppressed at the row/footer level.</li>
+    </ul>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Operator playbook</p>
+    <p class="admin-card__title">🔧 Quiet a stream, re-anchor a walk, replace the QR card</p>
+    <ol>
+      <li><strong>Disable a single companion stream</strong> — Editor → Telegram bot config → <code>bible</code> → <code>layeredPlan</code> → <code>streams</code> → pick <code>otHistory</code> / <code>poetryProphecy</code> / <code>psalm</code> / <code>proverbs</code> → flip <code>enabled</code> to <code>false</code> → commit. The website drops that pill and the Telegram footer drops that line on the next render / next scheduled post.</li>
+      <li><strong>Disable the whole feature</strong> — flip <code>bible.layeredPlan.enabled</code> to <code>false</code>. Both surfaces go silent immediately.</li>
+      <li><strong>Disable just the Telegram footer</strong> — flip <code>bible.layeredPlan.includeInTelegram</code> to <code>false</code>. Website row keeps rendering normally.</li>
+      <li><strong>Re-anchor a weekday walk</strong> — edit <code>streams.otHistory.anchor</code> or <code>streams.poetryProphecy.anchor</code>. Re-anchoring shifts <em>every</em> future date's reading by the date delta — confirm with the team before changing.</li>
+      <li><strong>Where the QR card points</strong> — the <code>guide-newcomer-qr</code> bundle item points at <code>start-here.html</code> on the live site. The 30-entry plan is in <code>assets/data/newcomer-30day.json</code>; intermediate <code>note</code> text can be edited freely, the day-1 / day-30 labels (John 1 / 2 Timothy 3) and the four week themes are locked.</li>
+      <li><strong>Regenerate the QR PNG/SVG</strong> — encode the URL <code>https://seedtheword.github.io/seedtheword/start-here.html</code> with any QR generator (<code>qrencode -o newcomer.png "https://…"</code> from the command line, or any free online generator). Test-scan it from a phone before sending bundles to print.</li>
+      <li><strong>Adding audio recordings later (Phase 2)</strong> — open <code>assets/data/bible-spotify-map.json</code>. Four optional buckets (<code>oldTestamentChapters</code>, <code>poetryProphecyChapters</code>, <code>psalmChapters</code>, <code>proverbsChapters</code>) ship empty. Adding a key like <code>"Genesis 5"</code> or <code>"Psalm 23"</code> lights up the 🎧 affordance on the matching pill on the next page load — no code change needed. Silence is honest while no recording exists.</li>
+    </ol>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Out of scope (don't ask the row to do these)</p>
+    <p class="admin-card__title">🚫 What this feature deliberately doesn't do</p>
+    <ul>
+      <li>No Russian-language pairing for the four companion streams. Russian deferred to a future <code>community-ru.html</code>.</li>
+      <li>No per-user reading-progress tracking. The plan is reader-relative — you read it at your pace.</li>
+      <li>No audio recordings for the four new streams in v1. Phase 2.</li>
+      <li>No multi-post-per-day Telegram channel. The footer is one short block at the end of the existing Mon–Fri post.</li>
+      <li>No admin-editor UI for the OT-walk weekday selections. The two walks are deterministic from their flat sequence and their anchor.</li>
+    </ul>
   </div>
 
   <h3>Adding a Spotify episode for a specific chapter</h3>

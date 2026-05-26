@@ -69,6 +69,24 @@
       "ffmpegFilter": "arnndn=m=/tmp/rnnoise-cb.rnnn,highpass=f=80,dynaudnorm=f=200:g=15:m=10,loudnorm=I=-16:TP=-1.5:LRA=11",
       "_filterNote": "RNNoise (cb.rnnn voice model) for ML-based speech denoising — aggressive on background noise without afftdn's watery artifacts. Followed by 80Hz high-pass for rumble, dynaudnorm for level matching across volunteers, and loudnorm to the Spotify -16 LUFS standard so every chapter sounds the same loudness. The /tmp/rnnoise-cb.rnnn path is downloaded by the bible-audio-cleanup workflow before ffmpeg runs.",
       "audioBitrate": "128k"
+    },
+    "layeredPlan": {
+      "_help": "Layered Bible Reading Plan config. Read by THREE consumers: (1) assets/js/layered-plan.js, the browser renderer for community.html's Going Deeper row; (2) .github/scripts/post_daily_bible_to_telegram.py, the GitHub-Actions Mon-Fri Telegram footer; (3) dailyBibleBot() in docs/apps-script/order-handler.gs, the Apps Script port of the same Telegram footer. Editing any field here affects all three on the next run, no redeploy needed. Re-anchoring streams.otHistory.anchor or streams.poetryProphecy.anchor changes what chapter is delivered on a given date — do not adjust without intent.",
+      "enabled": true,
+      "includeInTelegram": true,
+      "timezone": "America/Los_Angeles",
+      "streams": {
+        "otHistory": {
+          "enabled": true,
+          "anchor": { "date": "2026-04-30", "book": "Genesis", "chapter": 1 }
+        },
+        "poetryProphecy": {
+          "enabled": true,
+          "anchor": { "date": "2026-04-30", "book": "Job", "chapter": 1 }
+        },
+        "psalm": { "enabled": true },
+        "proverbs": { "enabled": true }
+      }
     }
   },
   "prayer": {

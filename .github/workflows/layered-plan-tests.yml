@@ -1,0 +1,60 @@
+name: Layered Plan Tests
+
+# Property-based test suite for the layered-bible-reading-plan spec.
+# Asserts L1-L10 from .kiro/specs/layered-bible-reading-plan/requirements.md
+# Requirement 13 against the Python footer composer in
+# post_daily_bible_to_telegram.py and the Apps Script algorithmic shim
+# transcribed in tests/layered_plan_footer.test.py. The shim is the
+# parity gate for L10 (Python ↔ Apps Script ↔ JS); any change to the
+# Apps Script port in docs/apps-script/order-handler.gs MUST be mirrored
+# in the shim in the same commit, or this workflow fails.
+
+on:
+  push:
+    paths:
+      - '.github/scripts/post_daily_bible_to_telegram.py'
+      - '.github/scripts/bible_books.py'
+      - 'docs/apps-script/order-handler.gs'
+      - 'assets/js/layered-plan.js'
+      - 'assets/data/newcomer-30day.json'
+      - 'assets/data/telegram-bot.json'
+      - 'tests/layered_plan_*.test.py'
+      - 'tests/requirements.txt'
+      - 'tests/conftest.py'
+      - 'tests/pytest.ini'
+      - '.github/workflows/layered-plan-tests.yml'
+  pull_request:
+    paths:
+      - '.github/scripts/post_daily_bible_to_telegram.py'
+      - '.github/scripts/bible_books.py'
+      - 'docs/apps-script/order-handler.gs'
+      - 'assets/js/layered-plan.js'
+      - 'assets/data/newcomer-30day.json'
+      - 'assets/data/telegram-bot.json'
+      - 'tests/layered_plan_*.test.py'
+      - 'tests/requirements.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: tests/requirements.txt
+
+      - name: Install test dependencies
+        run: pip install -r tests/requirements.txt
+
+      - name: Run property-based tests (L1-L10)
+        run: python -m pytest tests/layered_plan_footer.test.py -v

@@ -66,7 +66,13 @@ from telegram_common import (  # type: ignore
     edit_forum_topic,
     load_json,
 )
-from bible_books import NT_BOOKS  # type: ignore
+from bible_books import (  # type: ignore
+    NT_BOOKS,
+    OT_HISTORY_BOOKS,
+    POETRY_PROPHECY_BOOKS,
+    OT_HISTORY_SEQUENCE,
+    POETRY_PROPHECY_SEQUENCE,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -169,6 +175,126 @@ def get_reading_for_date(d: date):
     if idx < 0 or idx >= len(NT_SEQUENCE):
         return None
     return dict(NT_SEQUENCE[idx])
+
+
+# ── Layered Bible Reading Plan companion-stream helpers ────────────────
+# Pure functions. Mirror the algorithms in assets/js/layered-plan.js so
+# Property L10 (Python ↔ JS ↔ Apps Script parity) holds.
+
+def _parse_anchor_date(value) -> date | None:
+    """Parse 'YYYY-MM-DD' (or accept a date instance) into a date.
+    Returns None on bad input — the caller treats that as a silent
+    missing reading rather than crashing the post."""
+    if isinstance(value, date):
+        return value
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        return None
+
+
+def _walk_reading(d: date, anchor: dict, sequence: list) -> dict | None:
+    """Look up a chapter on a weekday-walk stream. Mirrors the JS
+    _getWalkReading algorithm: weekend short-circuit, anchor-index
+    lookup, signed weekday-offset against the flat sequence."""
+    if d.weekday() >= 5:  # Sat/Sun: no reading
+        return None
+    if not isinstance(anchor, dict):
+        return None
+    anchor_date = _parse_anchor_date(anchor.get("date"))
+    anchor_book = anchor.get("book")
+    anchor_chapter = anchor.get("chapter")
+    if anchor_date is None or not anchor_book or not isinstance(anchor_chapter, int):
+        return None
+    try:
+        anchor_idx = next(
+            i for i, r in enumerate(sequence)
+            if r["book"] == anchor_book and r["chapter"] == anchor_chapter
+        )
+    except StopIteration:
+        return None  # bad config — silent omit (R5.7-style fallthrough)
+    offset = weekdays_between(anchor_date, d)
+    idx = anchor_idx + offset
+    if idx < 0 or idx >= len(sequence):
+        return None
+    return dict(sequence[idx])
+
+
+def get_ot_history_reading(d: date, anchor: dict) -> dict | None:
+    """OT History walk lookup (Genesis through Esther). R5.4-R5.8."""
+    return _walk_reading(d, anchor, OT_HISTORY_SEQUENCE)
+
+
+def get_poetry_prophecy_reading(d: date, anchor: dict) -> dict | None:
+    """Poetry & Prophecy walk lookup (Job, Ecc, SoS, Isaiah-Malachi
+    excluding Psalms and Proverbs). R6.4-R6.7."""
+    return _walk_reading(d, anchor, POETRY_PROPHECY_SEQUENCE)
+
+
+def psalm_of_day(d: date, tz: ZoneInfo | None = None) -> int:
+    """Daily Psalm formula: ((dayOfYear - 1) mod 150) + 1. R7.1, L1, L6.
+    `d` is interpreted as already being a calendar date in the configured
+    timezone (the caller passes today_local, which is computed in tz)."""
+    doy = d.timetuple().tm_yday
+    return ((doy - 1) % 150) + 1
+
+
+def proverb_of_day(d: date, tz: ZoneInfo | None = None) -> int:
+    """Daily Proverb formula: min(dayOfMonth, 31). R7.4, L1, L6.
+    February tops out at 28 (or 29 in leap years); chapters 30-31 are
+    simply not read in February."""
+    return min(d.day, 31)
+
+
+def build_layered_footer(layered_cfg: dict, today_local: date, tz: ZoneInfo | None) -> list[str]:
+    """Compose the 'Going deeper today' footer block for the Mon-Fri
+    Telegram post. Pure function — no I/O, no escaping side effects.
+    Returns a list of MarkdownV2-escaped lines ready to be
+    `lines.extend()`-ed into the post body. Returns [] when any gate
+    blocks emission. Implements §4.5.3 of design.md and supports
+    Properties L1, L2, L8, L9, L10."""
+    if not layered_cfg or not layered_cfg.get("enabled"):
+        return []                                                 # R1.7
+    if not layered_cfg.get("includeInTelegram"):
+        return []                                                 # R1.10, R9.7
+    if today_local.weekday() >= 5:
+        return []                                                 # R3.5, R9.5
+
+    streams = layered_cfg.get("streams") or {}
+    pills: list[tuple[str | None, str]] = []
+
+    ot = streams.get("otHistory") or {}
+    if ot.get("enabled", True):
+        r = get_ot_history_reading(today_local, ot.get("anchor") or {})
+        if r:
+            pills.append(("OT walk", f"{r['book']} {r['chapter']}"))
+
+    pp = streams.get("poetryProphecy") or {}
+    if pp.get("enabled", True):
+        r = get_poetry_prophecy_reading(today_local, pp.get("anchor") or {})
+        if r:
+            pills.append(("Poetry & Prophecy", f"{r['book']} {r['chapter']}"))
+
+    psalm = streams.get("psalm") or {}
+    if psalm.get("enabled", True):
+        pills.append((None, f"Psalm {psalm_of_day(today_local, tz)}"))
+
+    proverbs = streams.get("proverbs") or {}
+    if proverbs.get("enabled", True):
+        pills.append((None, f"Proverbs {proverb_of_day(today_local, tz)}"))
+
+    if not pills:
+        return []                                                 # R1.9
+
+    out = ["", f"🌿 *{mdv2_escape('Going deeper today')}*"]
+    for label, ref in pills:
+        if label:
+            out.append(f"· {mdv2_escape(label + ': ' + ref)}")
+        else:
+            out.append(f"· {mdv2_escape(ref)}")
+    return out
 
 
 def pick_current_study_week(weeks: list) -> dict:
@@ -353,6 +479,10 @@ def _post_weekday_reading(full_cfg, cfg, tz, today_local, chat_id, thread_id) ->
 
     # Prayer & Thanksgiving block appended to the same message.
     lines.extend(build_prayer_block(full_cfg, cfg, today_local))
+
+    # Going Deeper Today footer — companion streams (R9.1, R9.2, R9.3).
+    layered_cfg = (full_cfg.get("bible") or {}).get("layeredPlan")
+    lines.extend(build_layered_footer(layered_cfg, today_local, tz))
 
     text = "\n".join(lines)
     try:

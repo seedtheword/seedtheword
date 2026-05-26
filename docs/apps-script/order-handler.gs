@@ -2976,6 +2976,147 @@ function _resolveSpotifyUrl(reading, biblecfg, spotifycfg, primaryKey, fallbackK
   return '';
 }
 
+// ── Layered Bible Reading Plan companion-stream helpers ─────────────
+// Mirrors the algorithms in:
+//   - assets/js/layered-plan.js (browser renderer)
+//   - .github/scripts/post_daily_bible_to_telegram.py (Python footer)
+// Property L10 asserts all three implementations agree byte-for-byte
+// on chapter references for the same date in the same timezone.
+
+const OT_HISTORY_BOOKS = [
+  ['Genesis', 50], ['Exodus', 40], ['Leviticus', 27], ['Numbers', 36],
+  ['Deuteronomy', 34], ['Joshua', 24], ['Judges', 21], ['Ruth', 4],
+  ['1 Samuel', 31], ['2 Samuel', 24], ['1 Kings', 22], ['2 Kings', 25],
+  ['1 Chronicles', 29], ['2 Chronicles', 36], ['Ezra', 10],
+  ['Nehemiah', 13], ['Esther', 10],
+];
+
+const POETRY_PROPHECY_BOOKS = [
+  ['Job', 42], ['Ecclesiastes', 12], ['Song of Solomon', 8],
+  ['Isaiah', 66], ['Jeremiah', 52], ['Lamentations', 5],
+  ['Ezekiel', 48], ['Daniel', 12], ['Hosea', 14], ['Joel', 3],
+  ['Amos', 9], ['Obadiah', 1], ['Jonah', 4], ['Micah', 7],
+  ['Nahum', 3], ['Habakkuk', 3], ['Zephaniah', 3], ['Haggai', 2],
+  ['Zechariah', 14], ['Malachi', 4],
+];
+
+function _flattenBookList(books) {
+  const out = [];
+  for (let i = 0; i < books.length; i++) {
+    const name = books[i][0];
+    const count = books[i][1];
+    for (let c = 1; c <= count; c++) out.push({ book: name, chapter: c });
+  }
+  return out;
+}
+
+const OT_HISTORY_SEQUENCE = _flattenBookList(OT_HISTORY_BOOKS);
+const POETRY_PROPHECY_SEQUENCE = _flattenBookList(POETRY_PROPHECY_BOOKS);
+
+function _parseAnchorYMD(value) {
+  if (!value || typeof value !== 'string') return null;
+  const parts = value.split('-');
+  if (parts.length !== 3) return null;
+  const y = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  const d = parseInt(parts[2], 10);
+  if (!y || !m || !d) return null;
+  return [y, m, d];
+}
+
+function _walkReading(date, anchor, sequence) {
+  const dow = date.getDay();
+  if (dow === 0 || dow === 6) return null;
+  if (!anchor || typeof anchor !== 'object') return null;
+  const ymd = _parseAnchorYMD(anchor.date);
+  if (!ymd) return null;
+  if (!anchor.book || typeof anchor.chapter !== 'number') return null;
+  let anchorIdx = -1;
+  for (let i = 0; i < sequence.length; i++) {
+    if (sequence[i].book === anchor.book && sequence[i].chapter === anchor.chapter) {
+      anchorIdx = i;
+      break;
+    }
+  }
+  if (anchorIdx < 0) return null;
+  const offset = _weekdaysBetween(
+    ymd[0], ymd[1], ymd[2],
+    date.getFullYear(), date.getMonth() + 1, date.getDate()
+  );
+  const idx = anchorIdx + offset;
+  if (idx < 0 || idx >= sequence.length) return null;
+  return { book: sequence[idx].book, chapter: sequence[idx].chapter };
+}
+
+function _getOtHistoryReading(date, anchor) {
+  return _walkReading(date, anchor, OT_HISTORY_SEQUENCE);
+}
+
+function _getPoetryProphecyReading(date, anchor) {
+  return _walkReading(date, anchor, POETRY_PROPHECY_SEQUENCE);
+}
+
+function _dayOfYear(date) {
+  const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const y = date.getFullYear();
+  const isLeap = ((y % 4 === 0) && (y % 100 !== 0)) || (y % 400 === 0);
+  if (isLeap) monthDays[1] = 29;
+  let doy = date.getDate();
+  for (let i = 0; i < date.getMonth(); i++) doy += monthDays[i];
+  return doy;
+}
+
+function _psalmOfDay(date, _tz) {
+  return ((_dayOfYear(date) - 1) % 150) + 1;
+}
+
+function _proverbOfDay(date, _tz) {
+  return Math.min(date.getDate(), 31);
+}
+
+function _buildLayeredFooter(layeredCfg, todayPT, tz) {
+  if (!layeredCfg || layeredCfg.enabled === false) return [];
+  if (!layeredCfg.includeInTelegram) return [];
+  const dow = todayPT.getDay();
+  if (dow === 0 || dow === 6) return [];
+
+  const streams = layeredCfg.streams || {};
+  const pills = [];
+
+  const ot = streams.otHistory || {};
+  if (ot.enabled !== false) {
+    const r = _getOtHistoryReading(todayPT, ot.anchor || {});
+    if (r) pills.push(['OT walk', r.book + ' ' + r.chapter]);
+  }
+  const pp = streams.poetryProphecy || {};
+  if (pp.enabled !== false) {
+    const r = _getPoetryProphecyReading(todayPT, pp.anchor || {});
+    if (r) pills.push(['Poetry & Prophecy', r.book + ' ' + r.chapter]);
+  }
+  const psalm = streams.psalm || {};
+  if (psalm.enabled !== false) {
+    pills.push([null, 'Psalm ' + _psalmOfDay(todayPT, tz)]);
+  }
+  const proverbs = streams.proverbs || {};
+  if (proverbs.enabled !== false) {
+    pills.push([null, 'Proverbs ' + _proverbOfDay(todayPT, tz)]);
+  }
+
+  if (pills.length === 0) return [];
+
+  const out = ['', '🌿 *' + _mdv2Escape('Going deeper today') + '*'];
+  for (let i = 0; i < pills.length; i++) {
+    const label = pills[i][0];
+    const ref = pills[i][1];
+    if (label) {
+      out.push('· ' + _mdv2Escape(label + ': ' + ref));
+    } else {
+      out.push('· ' + _mdv2Escape(ref));
+    }
+  }
+  return out;
+}
+
 function _buildPrayerBlock(fullCfg, biblecfg, todayLocal) {
   if (biblecfg.includePrayerBlock === false) return [];
   const dateLabel = Utilities.formatDate(todayLocal, 'America/Los_Angeles', 'MM/dd/yyyy');
@@ -3125,6 +3266,12 @@ function _postBibleWeekdayReading(fullCfg, biblecfg, todayPT, chatId, threadId, 
   // Append the prayer block.
   const prayerLines = _buildPrayerBlock(fullCfg, biblecfg, todayPT);
   for (let i = 0; i < prayerLines.length; i++) lines.push(prayerLines[i]);
+
+  // Going Deeper Today footer — companion streams (R9.1-R9.3, parity with Python).
+  const layeredCfg = (fullCfg.bible || {}).layeredPlan;
+  const tz = (biblecfg.timezone || 'America/Los_Angeles');
+  const layeredLines = _buildLayeredFooter(layeredCfg, todayPT, tz);
+  for (let i = 0; i < layeredLines.length; i++) lines.push(layeredLines[i]);
 
   const text = lines.join('\n');
   const resp = _sendTelegram(token, chatId, text, {

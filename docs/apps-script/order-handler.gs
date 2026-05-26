@@ -4080,6 +4080,7 @@ function installAllTimeTriggers() {
     'dailyWorkflowHealth',
     'dailyAppsScriptHealthCheck',
     'kickAnnouncementBot',
+    'kickHeartbeat',
   ];
   const existing = ScriptApp.getProjectTriggers();
   let removed = 0;
@@ -4113,8 +4114,14 @@ function installAllTimeTriggers() {
   // posts), so off-hours kicks just no-op rather than spamming.
   ScriptApp.newTrigger('kickAnnouncementBot').timeBased()
     .everyMinutes(30).create();
+  // Heartbeat kicker fires hourly so the heartbeat workflow ticks
+  // even when GitHub's cron is disabled (e.g. after a temporary
+  // account suspension that auto-reinstates without re-enabling
+  // scheduled triggers).
+  ScriptApp.newTrigger('kickHeartbeat').timeBased()
+    .everyHours(1).create();
 
-  console.log('installAllTimeTriggers: installed 8 triggers.');
+  console.log('installAllTimeTriggers: installed 9 triggers.');
   console.log('Confirm in: Project Settings → Triggers (left rail icon).');
   console.log('IMPORTANT: ensure script timezone is America/Los_Angeles');
   console.log('  (Project Settings → General → Time zone).');
@@ -4205,6 +4212,64 @@ function kickAnnouncementBot() {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Heartbeat kicker — fires the GitHub Actions heartbeat workflow every
+// hour from Apps Script, so the heartbeat keeps ticking even when
+// GitHub's free-tier cron has been disabled (e.g. after a temporary
+// account suspension that auto-reinstates without re-enabling the
+// scheduled triggers).
+//
+// Why bother kicking the heartbeat itself: the heartbeat exists to
+// keep GitHub's "is this repo active" timer fresh so OTHER scheduled
+// workflows don't get deprioritized. If the heartbeat itself stops
+// firing (because cron got disabled), the whole purpose of the
+// workflow is defeated. This kicker breaks that circularity by giving
+// us a second, independent trigger source (Apps Script) for the one
+// workflow whose entire job is to keep the repo looking active.
+//
+// The heartbeat workflow has its own concurrency:cancel-in-progress
+// guard, so duplicate invocations from cron + this kicker just
+// produce a single tick per cycle (the duplicate gets cancelled).
+// Same GITHUB_TOKEN as kickAnnouncementBot.
+// ─────────────────────────────────────────────────────────────────────
+function kickHeartbeat() {
+  _markAppsScriptRan('kickHeartbeat');
+
+  var ghToken = PropertiesService.getScriptProperties()
+    .getProperty('GITHUB_TOKEN');
+  if (!ghToken) {
+    console.log('kickHeartbeat: GITHUB_TOKEN script property not set; aborting');
+    return;
+  }
+
+  var url = 'https://api.github.com/repos/seedtheword/seedtheword/actions/workflows/heartbeat.yml/dispatches';
+  try {
+    var resp = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'Bearer ' + ghToken,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'seedtheword-apps-script/1.0',
+      },
+      payload: JSON.stringify({ ref: 'main' }),
+      muteHttpExceptions: true,
+    });
+    var code = resp.getResponseCode();
+    if (code === 204) {
+      console.log('kickHeartbeat: dispatched OK (204)');
+    } else {
+      console.log(
+        'kickHeartbeat: HTTP ' + code +
+        ' body=' + resp.getContentText().substring(0, 200)
+      );
+    }
+  } catch (err) {
+    console.log('kickHeartbeat: threw: ' + err);
+  }
+}
+
 function dailyAppsScriptHealthCheck() {
   _markAppsScriptRan('dailyAppsScriptHealthCheck');
 
@@ -4220,6 +4285,11 @@ function dailyAppsScriptHealthCheck() {
     // Announcement-bot kicker — fires every 30 min, so a 2-hour SLO
     // is generous. If this goes stale the announcements stop.
     { name: 'kickAnnouncementBot',            maxAgeHours: 2,  label: 'Announcement bot kicker' },
+    // Heartbeat kicker — fires hourly. SLO of 4 hours catches the
+    // failure mode where the kicker itself stops (Apps Script trigger
+    // unbound, GITHUB_TOKEN expired, etc.) without alerting too
+    // eagerly on a single missed run.
+    { name: 'kickHeartbeat',                  maxAgeHours: 4,  label: 'Heartbeat kicker' },
     // Weekly checks — SLO is 8 days so a one-day delay doesn't trip the
     // alarm but a missed week does.
     { name: 'weeklyMemberDigest',             maxAgeHours: 192, label: 'Weekly member digest (Sat)' },

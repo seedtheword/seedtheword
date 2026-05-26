@@ -342,19 +342,37 @@ def test_L6_psalm_150_day_cycle_within_year(d):
 
 
 @settings(max_examples=120, deadline=None)
-@given(d=DATE_RANGE.filter(lambda x: x.day == 1))
-def test_L6_proverb_first_of_month_is_one(d):
-    """Property L6: proverb_of_day is 1 on the 1st of every month."""
+@given(
+    year=st.integers(min_value=1900, max_value=2100),
+    month=st.integers(min_value=1, max_value=12),
+)
+def test_L6_proverb_first_of_month_is_one(year, month):
+    """Property L6: proverb_of_day is 1 on the 1st of every month.
+
+    Generates first-of-month dates directly rather than filtering the
+    DATE_RANGE strategy — the 1/30 acceptance ratio under filtering
+    trips Hypothesis's filter health-check."""
+    d = date(year, month, 1)
     assert p.proverb_of_day(d, TZ) == 1
 
 
 @settings(max_examples=120, deadline=None)
-@given(d=DATE_RANGE.filter(lambda x: x.month == 2))
-def test_L6_february_proverb_caps_at_29(d):
+@given(
+    year=st.integers(min_value=1900, max_value=2100),
+    day=st.integers(min_value=1, max_value=29),
+)
+def test_L6_february_proverb_caps_at_29(year, day):
     """Property L6: in February, proverb_of_day never exceeds 29 (28 in
-    non-leap years; the formula naturally caps because dayOfMonth ≤ 29)."""
+    non-leap years; the formula naturally caps because dayOfMonth ≤ 29).
+
+    Generates February dates directly rather than filtering the broad
+    DATE_RANGE strategy — Hypothesis's filter health-check rejects the
+    1/12 acceptance ratio that filtering would produce."""
+    is_leap = (year % 4 == 0 and year % 100 != 0) or year % 400 == 0
+    if day == 29 and not is_leap:
+        return  # 1900-02-29, 1901-02-29, etc. don't exist
+    d = date(year, 2, day)
     v = p.proverb_of_day(d, TZ)
-    is_leap = (d.year % 4 == 0 and d.year % 100 != 0) or d.year % 400 == 0
     assert v <= (29 if is_leap else 28)
 
 

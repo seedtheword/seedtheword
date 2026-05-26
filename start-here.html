@@ -20,7 +20,7 @@
   <meta name="twitter:description" content="A 30-day Bible reading plan for new readers.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
   <title>Where to start reading — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=24">
+  <link rel="stylesheet" href="assets/css/main.css?v=25">
   <style>
     /* start-here.html — newcomer 30-day plan
        Warm, sincere, no marketing speak. Mirrors the visual tone of
@@ -173,6 +173,60 @@
       text-decoration: underline;
       text-decoration-thickness: 1px;
     }
+
+    .newcomer-share {
+      display: flex;
+      align-items: center;
+      gap: 1.75rem;
+      margin: 1.5rem 0 0;
+      padding: 1.75rem;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .newcomer-share__copy {
+      flex: 1;
+      min-width: 0;
+    }
+    .newcomer-share__copy h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--green);
+      margin: 0 0 0.6rem;
+    }
+    .newcomer-share__copy p {
+      font-size: 0.97rem;
+      line-height: 1.65;
+      color: var(--text);
+      margin: 0;
+    }
+    .newcomer-share__copy a {
+      color: var(--green);
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+    }
+    .newcomer-share__qr {
+      flex-shrink: 0;
+      padding: 0.6rem;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .newcomer-share__qr img {
+      display: block;
+      width: 180px;
+      height: 180px;
+    }
+    @media (max-width: 540px) {
+      .newcomer-share {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.25rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -241,6 +295,22 @@
       the New Testament together every Monday through Friday. You'll have
       already met the Jesus you'll spend the rest of the year reading.
     </p>
+  </section>
+
+  <section class="newcomer-share">
+    <div class="newcomer-share__copy">
+      <h2>Share this plan</h2>
+      <p>
+        Know someone who is just starting out? They can scan this code with
+        their phone camera to land on this page. Or send them
+        <a href="https://seedtheword.github.io/seedtheword/start-here.html">the link directly</a>.
+      </p>
+    </div>
+    <div class="newcomer-share__qr">
+      <img src="assets/images/start-here-qr.svg"
+           alt="QR code linking to start-here.html"
+           width="180" height="180" loading="lazy">
+    </div>
   </section>
 </section>
 

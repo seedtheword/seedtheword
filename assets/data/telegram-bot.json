@@ -98,7 +98,7 @@
     "timezone": "America/Los_Angeles",
     "_note": "Disabled May 12 2026 — the Bible bot now includes a Prayer & Thanksgiving block in its daily post to thread 1, so this separate nudge would double up. Re-enable by flipping enabled to true.",
     "digest": {
-      "enabled": false,
+      "enabled": true,
       "messageThreadId": 21,
       "entryCap": 15,
       "summaryMaxChars": 60,

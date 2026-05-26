@@ -994,6 +994,22 @@
       redraw();
     });
     container.appendChild(addBtn);
+
+    // Optional bulk importer — currently only Instagram tile uses this.
+    // Lets an admin paste N URLs, dedupe against existing rows, drop one
+    // thumbnail per new URL, fill caption + date once, and commit all in
+    // a single GitHub atomic commit. See openInstagramBulkImport below.
+    if (group.bulkImport === 'instagram') {
+      const bulkBtn = el('button', {
+        className: 'ae-btn ae-btn--ghost',
+        text: '📋 Bulk import URLs',
+        attrs: { type: 'button', style: 'margin-left:0.5rem;' }
+      });
+      bulkBtn.addEventListener('click', () => {
+        openInstagramBulkImport(rows, () => { onChange(); redraw(); });
+      });
+      container.appendChild(bulkBtn);
+    }
   }
 
   function resolveRowFields(group, row) {
@@ -1003,6 +1019,257 @@
       return group.variantFields[key] || [];
     }
     return [];
+  }
+
+  // ── Instagram bulk-import modal ─────────────────────────────────────────
+  //
+  // Paste one Instagram URL per line, drop a thumbnail per new URL, fill
+  // caption and date once per row, then click Upload thumbnails. The modal
+  // commits the dropped images as one atomic GitHub commit, then appends
+  // the new row(s) to the posts array in the form. The user reviews the
+  // staged entries on the regular editor page and clicks the existing
+  // Save button to commit the JSON change.
+  //
+  // Why two commits and not one: the existing editor commit pipeline owns
+  // JSON serialization, validation, schema-driven commit-message templating,
+  // and SHA-conflict retry. Routing the JSON commit through that path keeps
+  // the bulk importer surgical — it only owns the thumbnail upload, which
+  // doesn't fit into the editor's text-only writeFile path.
+  function openInstagramBulkImport(existingRows, onCommitted) {
+    // Build the modal scaffold.
+    const overlay = el('div', { className: 'ae-modal-overlay' });
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,15,20,0.55);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow:auto;';
+    const dialog = el('div', { className: 'ae-modal' });
+    dialog.style.cssText = 'background:#fff;max-width:760px;width:100%;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.25);padding:1.75rem 1.75rem 1.5rem;';
+    overlay.appendChild(dialog);
+
+    const close = () => { document.body.removeChild(overlay); };
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+    const headRow = el('div');
+    headRow.style.cssText = 'display:flex;align-items:flex-start;gap:1rem;justify-content:space-between;margin-bottom:1rem;';
+    headRow.appendChild(el('h2', { text: '📋 Bulk import Instagram posts', attrs: { style: 'margin:0;font-size:1.25rem;' } }));
+    const closeBtn = el('button', { text: '✕', attrs: { type: 'button', 'aria-label': 'Close' }, className: 'ae-btn ae-btn--ghost' });
+    closeBtn.addEventListener('click', close);
+    headRow.appendChild(closeBtn);
+    dialog.appendChild(headRow);
+
+    dialog.appendChild(el('p', {
+      attrs: { style: 'margin:0 0 0.85rem;color:#555;line-height:1.55;font-size:0.95rem;' },
+      text: 'Paste one Instagram post URL per line below. URLs that already exist on the site are detected and skipped. For each new URL, drop the matching thumbnail image and fill caption + date.'
+    }));
+
+    // Step 1 — paste URLs
+    const urlField = el('textarea', {
+      attrs: { rows: '5', placeholder: 'https://www.instagram.com/p/DXryxtCDpW9\nhttps://www.instagram.com/p/DXS7TlmDlgA\nhttps://www.instagram.com/p/DWcUHeaEoyC' }
+    });
+    urlField.style.cssText = 'width:100%;font-family:Consolas,Menlo,monospace;font-size:13px;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;';
+    dialog.appendChild(urlField);
+
+    const parseBtn = el('button', { text: 'Parse URLs →', attrs: { type: 'button' }, className: 'ae-btn ae-btn--ghost' });
+    parseBtn.style.cssText = 'margin-top:0.5rem;';
+    dialog.appendChild(parseBtn);
+
+    // Step 2 — preview rows + per-row dropzones
+    const rowsHost = el('div');
+    rowsHost.style.cssText = 'margin-top:1.25rem;';
+    dialog.appendChild(rowsHost);
+
+    // Step 3 — submit
+    const submitRow = el('div');
+    submitRow.style.cssText = 'margin-top:1rem;display:flex;justify-content:flex-end;gap:0.5rem;';
+    const submitBtn = el('button', { text: 'Upload thumbnails & stage entries', attrs: { type: 'button', disabled: 'disabled' }, className: 'ae-btn ae-btn--primary' });
+    submitRow.appendChild(submitBtn);
+    dialog.appendChild(submitRow);
+
+    document.body.appendChild(overlay);
+
+    let stagedRows = []; // [{ slug, url, isDuplicate, file: File|null, caption, date }, ...]
+    function urlSlug(u) {
+      const m = String(u || '').match(/instagram\.com\/p\/([A-Za-z0-9_-]+)/);
+      return m ? m[1] : '';
+    }
+    function fileExt(f) {
+      const t = (f && f.type) || '';
+      if (/jpe?g/.test(t)) return 'jpg';
+      if (/png/.test(t)) return 'png';
+      if (/webp/.test(t)) return 'webp';
+      const name = (f && f.name) || '';
+      const m = name.match(/\.([a-zA-Z0-9]+)$/);
+      return m ? m[1].toLowerCase().replace('jpeg', 'jpg') : 'jpg';
+    }
+    function existingSlugs() {
+      const s = new Set();
+      for (const r of (existingRows || [])) {
+        const slug = urlSlug(r.url || '');
+        if (slug) s.add(slug);
+      }
+      return s;
+    }
+
+    function rebuildPreview() {
+      const lines = String(urlField.value || '')
+        .split(/\r?\n/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const seenInPaste = new Set();
+      const dupSet = existingSlugs();
+      stagedRows = lines.map((line) => {
+        const slug = urlSlug(line);
+        if (!slug) return { line, error: 'Not an instagram.com/p/<id> URL.' };
+        const isDuplicate = dupSet.has(slug) || seenInPaste.has(slug);
+        seenInPaste.add(slug);
+        return { line, slug, url: 'https://www.instagram.com/p/' + slug, isDuplicate, file: null, caption: '', date: '' };
+      });
+      renderPreview();
+    }
+
+    function renderPreview() {
+      clear(rowsHost);
+      const newCount = stagedRows.filter((r) => r && !r.isDuplicate && !r.error).length;
+      const dupCount = stagedRows.filter((r) => r && r.isDuplicate).length;
+      const errCount = stagedRows.filter((r) => r && r.error).length;
+
+      const summary = el('p', {
+        attrs: { style: 'margin:0 0 0.85rem;font-size:0.9rem;color:#444;' },
+        text: newCount + ' new · ' + dupCount + ' already on site · ' + errCount + ' invalid'
+      });
+      rowsHost.appendChild(summary);
+
+      for (const row of stagedRows) {
+        const card = el('div');
+        card.style.cssText = 'border:1px solid #e8e4de;border-radius:8px;padding:0.85rem 1rem;margin:0 0 0.6rem;';
+        if (row.error) {
+          card.style.background = '#fff4f0';
+          card.appendChild(el('strong', { attrs: { style: 'color:#a33;' }, text: '⚠️ ' + row.line }));
+          card.appendChild(el('p', { attrs: { style: 'margin:0.2rem 0 0;color:#a33;font-size:0.85rem;' }, text: row.error }));
+          rowsHost.appendChild(card);
+          continue;
+        }
+        if (row.isDuplicate) {
+          card.style.background = '#fef4e6';
+          const head = el('div');
+          head.style.cssText = 'display:flex;justify-content:space-between;align-items:center;';
+          head.appendChild(el('span', { attrs: { style: 'font-weight:600;color:#8a5a00;' }, text: row.url }));
+          head.appendChild(el('span', { attrs: { style: 'background:#e0a200;color:#fff;padding:0.15rem 0.5rem;border-radius:999px;font-size:0.75rem;font-weight:700;' }, text: 'ALREADY ON SITE' }));
+          card.appendChild(head);
+          rowsHost.appendChild(card);
+          continue;
+        }
+        // New row — show drop slot + caption + date
+        const head = el('div');
+        head.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;';
+        head.appendChild(el('span', { attrs: { style: 'font-weight:600;color:#222;font-size:0.9rem;' }, text: row.url }));
+        head.appendChild(el('span', { attrs: { style: 'background:#2C5F2E;color:#fff;padding:0.15rem 0.5rem;border-radius:999px;font-size:0.75rem;font-weight:700;' }, text: 'NEW' }));
+        card.appendChild(head);
+
+        // Drop zone
+        const drop = el('div');
+        drop.style.cssText = 'border:2px dashed #c8c2b6;border-radius:6px;padding:0.85rem;text-align:center;color:#777;font-size:0.85rem;cursor:pointer;background:#fafaf6;';
+        drop.textContent = 'Drop thumbnail image here, or click to pick';
+        const fileInput = el('input', { attrs: { type: 'file', accept: 'image/*', style: 'display:none;' } });
+        drop.appendChild(fileInput);
+        drop.addEventListener('click', (e) => { if (e.target === drop) fileInput.click(); });
+        drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.style.background = '#f4ece0'; });
+        drop.addEventListener('dragleave', () => { drop.style.background = '#fafaf6'; });
+        drop.addEventListener('drop', (e) => {
+          e.preventDefault();
+          drop.style.background = '#fafaf6';
+          if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+            row.file = e.dataTransfer.files[0];
+            drop.textContent = '✓ ' + row.file.name + ' (' + Math.round(row.file.size / 1024) + ' KB)';
+            updateSubmitState();
+          }
+        });
+        fileInput.addEventListener('change', () => {
+          if (fileInput.files && fileInput.files[0]) {
+            row.file = fileInput.files[0];
+            drop.textContent = '✓ ' + row.file.name + ' (' + Math.round(row.file.size / 1024) + ' KB)';
+            updateSubmitState();
+          }
+        });
+        card.appendChild(drop);
+
+        // Caption
+        const capLabel = el('label', { attrs: { style: 'display:block;margin-top:0.5rem;font-size:0.85rem;color:#444;' }, text: 'Caption' });
+        const capField = el('textarea', { attrs: { rows: '3', placeholder: 'Paste the post caption here.' } });
+        capField.style.cssText = 'width:100%;font-size:0.9rem;padding:0.5rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;margin-top:0.2rem;';
+        capField.addEventListener('input', () => { row.caption = capField.value; updateSubmitState(); });
+        capLabel.appendChild(capField);
+        card.appendChild(capLabel);
+
+        // Date
+        const dateRow = el('div');
+        dateRow.style.cssText = 'display:flex;gap:0.5rem;align-items:center;margin-top:0.5rem;';
+        const dateLabel = el('label', { attrs: { style: 'font-size:0.85rem;color:#444;' }, text: 'Posted date' });
+        const dateField = el('input', { attrs: { type: 'date' } });
+        dateField.style.cssText = 'font-size:0.9rem;padding:0.4rem;border:1px solid #ddd;border-radius:6px;';
+        dateField.addEventListener('change', () => { row.date = dateField.value; updateSubmitState(); });
+        dateRow.appendChild(dateLabel);
+        dateRow.appendChild(dateField);
+        card.appendChild(dateRow);
+
+        rowsHost.appendChild(card);
+      }
+      updateSubmitState();
+    }
+
+    function updateSubmitState() {
+      const newRows = stagedRows.filter((r) => r && !r.isDuplicate && !r.error);
+      const ready = newRows.length > 0 && newRows.every((r) => r.file && r.caption && r.date);
+      submitBtn.disabled = !ready;
+      submitBtn.textContent = newRows.length === 0
+        ? 'Nothing to import'
+        : (ready
+            ? 'Upload thumbnails & stage ' + newRows.length + ' new post' + (newRows.length === 1 ? '' : 's')
+            : 'Fill thumbnail + caption + date for each new post');
+    }
+
+    parseBtn.addEventListener('click', rebuildPreview);
+    urlField.addEventListener('change', rebuildPreview);
+
+    submitBtn.addEventListener('click', async () => {
+      const newRows = stagedRows.filter((r) => r && !r.isDuplicate && !r.error);
+      if (!newRows.length) { close(); return; }
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Reading files…';
+      try {
+        // Read each File into a Uint8Array.
+        const files = [];
+        for (const r of newRows) {
+          const buf = await r.file.arrayBuffer();
+          r.thumbPath = 'assets/images/instagram/' + r.slug + '.' + fileExt(r.file);
+          files.push({ path: r.thumbPath, content: new Uint8Array(buf) });
+        }
+        submitBtn.textContent = 'Uploading ' + files.length + ' thumbnail' + (files.length === 1 ? '' : 's') + '…';
+        const message = 'content(instagram): bulk-upload ' + files.length + ' thumbnail' + (files.length === 1 ? '' : 's');
+        await editor.client.commitMultipleFiles(files, message);
+
+        // Stage new rows into the form. Order matches paste order, but we
+        // unshift so the most recent paste lands at the top of the JSON.
+        for (let i = newRows.length - 1; i >= 0; i--) {
+          const r = newRows[i];
+          const iso = r.date ? new Date(r.date + 'T12:00:00Z').toISOString() : new Date().toISOString();
+          existingRows.unshift({
+            id: r.slug,
+            url: r.url,
+            thumbnail: r.thumbPath,
+            caption: r.caption,
+            date: iso,
+            is_video: false,
+            likes: null,
+            comments: null,
+          });
+        }
+        close();
+        if (typeof onCommitted === 'function') onCommitted();
+        alert('Uploaded ' + newRows.length + ' thumbnail(s) and staged ' + newRows.length + ' new post(s). Click Save to commit the JSON entries.');
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Try again';
+        alert('Bulk import failed: ' + (err && err.message || String(err)) + '\n\nNothing was staged. Re-open the modal and try again.');
+      }
+    });
   }
 
   function labelForVariant(v) {

@@ -695,6 +695,11 @@
             { name: 'is_video', label: 'This post is a video', kind: 'toggle' },
           ],
           addLabel: '+ Add Instagram post',
+          // Opt into the bulk-URL importer next to the add button. The
+          // editor wires this in renderRepeatingGroup → openInstagramBulkImport.
+          // Lets an admin paste N URLs, dedupe against the existing posts,
+          // drop a thumbnail per new URL, and commit everything in one push.
+          bulkImport: 'instagram',
         },
       ],
       validate: function (data) {

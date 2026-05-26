@@ -11089,3 +11089,24 @@ a.going-deeper__pill:hover {
   .going-deeper__pill { font-size: 0.9rem; padding: 0.45rem 0.8rem; }
   .going-deeper__heading { letter-spacing: 0.14em; }
 }
+
+
+/* Brand-new-reader handoff under the Going Deeper row on community.html.
+   Soft, optional, single sentence. Tone-matched to the row above. */
+.newcomer-callout {
+  margin: 1.25rem auto 0;
+  padding: 0.85rem 1rem;
+  max-width: 920px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-style: italic;
+}
+.newcomer-callout a {
+  color: var(--green);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  font-style: normal;
+}
+.newcomer-callout a:hover { color: var(--gold); }

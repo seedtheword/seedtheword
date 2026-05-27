@@ -11110,3 +11110,62 @@ a.going-deeper__pill:hover {
   font-style: normal;
 }
 .newcomer-callout a:hover { color: var(--gold); }
+
+
+/* ──────────────────────────────────────────────────────────────
+   Who is Jesus? video — Billy Graham sermon embedded as a
+   "compelling first answer" between the dark hero and the
+   gospel-narrative section. Calm cream backdrop bridges the two.
+   ────────────────────────────────────────────────────────────── */
+
+.who-is-jesus-video {
+  background: #fdf3e3;
+  padding: 4rem 1.5rem 4.5rem;
+  border-bottom: 1px solid rgba(44, 95, 46, 0.08);
+}
+.who-is-jesus-video__inner {
+  max-width: 880px;
+  margin: 0 auto;
+  text-align: center;
+}
+.who-is-jesus-video__title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  font-weight: 400;
+  color: var(--green);
+  margin: 0 0 0.85rem;
+  line-height: 1.3;
+}
+.who-is-jesus-video__caption {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin: 0 0 1.75rem;
+  font-style: italic;
+  line-height: 1.55;
+}
+.who-is-jesus-video__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0d0d10;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.18);
+  border: 1px solid rgba(44, 95, 46, 0.12);
+}
+.who-is-jesus-video__frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (max-width: 540px) {
+  .who-is-jesus-video {
+    padding: 3rem 1rem 3.5rem;
+  }
+  .who-is-jesus-video__title {
+    font-size: 1.35rem;
+  }
+}

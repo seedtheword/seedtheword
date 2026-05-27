@@ -20,7 +20,7 @@
   <meta name="twitter:description" content="The Gospel in seven movements, the team that tells it, and the SEED rhythm that keeps us walking.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
   <title>About — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=23">
+  <link rel="stylesheet" href="assets/css/main.css?v=24">
 </head>
 <body>
 
@@ -76,25 +76,33 @@
   </div>
 </section>
 
-<!-- Billy Graham sermon — embedded directly under the "Who is Jesus?" hero
-     as a compelling first answer for a curious reader. Using youtube-nocookie
-     so the page doesn't drop tracking cookies on visitors who never click
-     play. The wrapper's aspect-ratio keeps the embed responsive without an
-     inline padding hack. -->
+<!-- Billy Graham sermon — click-through card to YouTube. We tried an
+     embedded iframe first, but YouTube's anti-bot gate intermittently
+     blocks playback inside iframes for visitors without YouTube cookies.
+     Linking out keeps the visual cue (thumbnail + play button) while
+     letting YouTube handle their own auth flow on their domain. -->
 <section class="who-is-jesus-video">
   <div class="who-is-jesus-video__inner">
     <h2 class="who-is-jesus-video__title">Hear it from someone who spent a lifetime answering it</h2>
     <p class="who-is-jesus-video__caption">Sermon by American Evangelist Billy Graham &middot; November 7, 1918 &mdash; February 21, 2018</p>
-    <div class="who-is-jesus-video__frame">
-      <iframe
-        src="https://www.youtube-nocookie.com/embed/J8rJYH3gRho?rel=0"
-        title="Sermon by American Evangelist Billy Graham (November 7, 1918 – February 21, 2018)"
-        loading="lazy"
-        frameborder="0"
-        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen
-        referrerpolicy="strict-origin-when-cross-origin"></iframe>
-    </div>
+    <a class="who-is-jesus-video__card"
+       href="https://youtu.be/J8rJYH3gRho"
+       target="_blank"
+       rel="noopener"
+       aria-label="Watch Billy Graham sermon on YouTube (opens in new tab)">
+      <img class="who-is-jesus-video__thumb"
+           src="https://img.youtube.com/vi/J8rJYH3gRho/hqdefault.jpg"
+           alt="Billy Graham preaching"
+           loading="lazy"
+           width="480" height="360">
+      <span class="who-is-jesus-video__play" aria-hidden="true">
+        <svg viewBox="0 0 68 48" width="68" height="48">
+          <path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="#cc0000"/>
+          <path d="M27 34l17.45-10L27 14v20z" fill="#fff"/>
+        </svg>
+      </span>
+    </a>
+    <p class="who-is-jesus-video__hint">Opens on YouTube in a new tab.</p>
   </div>
 </section>
 

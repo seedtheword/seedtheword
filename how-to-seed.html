@@ -185,6 +185,52 @@
       display: block;
       margin-bottom: 0.2rem;
     }
+    /* "Before the meeting" preparation callout — distinct from hosting
+       tips (gold) so it reads as prep work, not in-meeting guidance.
+       Green tint to evoke Scripture preparation. */
+    .lg-movement__prep {
+      background: rgba(44, 95, 46, 0.06);
+      border-left: 3px solid var(--green);
+      padding: 0.85rem 1rem;
+      margin: 0.85rem 0 0;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .lg-movement__prep strong {
+      color: var(--green);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    /* "Going Deeper" sidebar pointing back at community.html's Going
+       Deeper Today row + start-here.html. Quieter than the hosting tip,
+       smaller text, dashed left border so the eye knows it's optional. */
+    .lg-movement__deeper {
+      margin: 0.85rem 0 0;
+      padding: 0.6rem 0.9rem;
+      border-left: 2px dashed rgba(44, 95, 46, 0.35);
+      font-size: 0.85rem;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+    .lg-movement__deeper strong {
+      color: var(--green);
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+    .lg-movement__deeper a {
+      color: var(--green);
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+    }
 
     /* Practical hosting boxes */
     .lg-hosting {
@@ -624,6 +670,10 @@
         "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God."
         <cite>— Philippians 4:6 NIV</cite>
       </blockquote>
+      <div class="lg-movement__prep">
+        <strong>Before the meeting (~15 min the day before)</strong>
+        Read the chapter on your own. Note one Old Testament passage that echoes, sets up, or is fulfilled by what this chapter is doing — even by feel. If the Old Testament prompt comes up in reflection, you'll have a verse ready. If you're stuck, reach out to someone in the group who's stronger in Scripture and ask. The leader doesn't carry this alone.
+      </div>
       <div class="lg-movement__tip">
         <strong>Hosting tip</strong>
         Three songs is plenty. If you don't play an instrument, use Spotify or YouTube — or ask whoever's most comfortable singing to lead. Worship doesn't need to be perfect. It needs to be honest.
@@ -658,7 +708,16 @@
     <span class="lg-movement__time">~25–35 min</span>
     <div class="lg-movement__body">
       <p>Read this week's anchor chapter together — out loud, slowly, all the way through. One person can read the whole chapter, or you can pass it around verse by verse. Sit with it. Take a breath when you need one.</p>
+      <p><strong>One chapter is enough.</strong> Don't pile on extra reading mid-meeting. The depth comes from sitting with the text, not racing through it.</p>
       <p>This week's chapter: <a href="community.html#bible-plan-container">see this week's plan →</a></p>
+      <div class="lg-movement__deeper">
+        <strong>Going Deeper (optional, before the meeting)</strong>
+        This week's chapter pairs with the Old Testament walk on the
+        <a href="community.html#going-deeper-container">Going Deeper Today row</a>
+        of our community page. If you have time before the meeting, glance at that day's Old Testament reading too — it gives you a verse to pull from when the &quot;where does this connect to the rest of Scripture?&quot; prompt comes up in reflection. New to reading the Bible? Start with the
+        <a href="start-here.html">30-day starter plan</a>
+        instead.
+      </div>
       <div class="lg-movement__tip">
         <strong>Hosting tip</strong>
         Have one or two extra Bibles on the table for anyone who didn't bring theirs. We give Bibles away — if someone needs one, we can <a href="store.html">help with that</a>.
@@ -675,20 +734,33 @@
     <span class="lg-movement__seed">Embrace Fellowship</span>
     <span class="lg-movement__time">~30–40 min</span>
     <div class="lg-movement__body">
-      <p>Walk through four questions together — one for each S.E.E.D. value. Anyone can answer in any order. There are no wrong answers, and you don't always need a clean takeaway. Sometimes a question lingers for a week.</p>
-      <ol>
-        <li><strong>Where did we see grace?</strong> <em>(Serve with Grace)</em></li>
-        <li><strong>What does this say about God and us?</strong> <em>(Encounter the Word)</em></li>
-        <li><strong>What does it call us to as a body?</strong> <em>(Embrace Fellowship)</em></li>
-        <li><strong>Who needs to hear this?</strong> <em>(Disciples of all Nations)</em></li>
-      </ol>
+      <p>Walk through this together. The leader opens with one question. After that, the conversation is the conversation — not a script, not a checklist. There are no wrong answers, and a question can linger a week or longer.</p>
+
+      <p style="margin: 1.25rem 0 0.4rem; font-family: Georgia, 'Times New Roman', serif; font-size: 1.05rem; color: var(--green); font-weight: 600;">The opener (always)</p>
+      <p style="margin: 0; font-size: 1.02rem; line-height: 1.7;"><strong>What stood out to you?</strong> A verse, a phrase, a person, a feeling — anything.</p>
+      <p style="margin: 0.4rem 0 0; font-size: 0.92rem; color: var(--muted); font-style: italic;">Pass it around. Anyone can answer, anyone can pass. Don't move on until everyone who wants to share has shared. Silence is fine.</p>
+
+      <p style="margin: 1.5rem 0 0.4rem; font-family: Georgia, 'Times New Roman', serif; font-size: 1.05rem; color: var(--green); font-weight: 600;">If the room needs a nudge — pick ONE</p>
+      <p style="margin: 0 0 0.6rem; font-size: 0.92rem; color: var(--muted); font-style: italic;">These are prompts, not a checklist. Pick the one the conversation seems hungry for and stay with it. If a prompt goes deep, don't try to also hit the others. The Spirit picks the one for the night.</p>
+      <ul style="margin: 0; padding-left: 1.25rem; line-height: 1.7;">
+        <li style="margin-bottom: 0.55rem;"><strong>Where did we see grace?</strong> The character of God showing up — mercy, kindness, patience, rescue. Where does it land in this chapter? <em>(Serve with Grace)</em></li>
+        <li style="margin-bottom: 0.55rem;"><strong>Where does this connect to the rest of Scripture?</strong> What in the Old Testament does this echo, fulfill, or look forward to? Even just by feel — what does it remind you of? <em>(Encounter the Word)</em></li>
+        <li style="margin-bottom: 0.55rem;"><strong>What is this asking of us as a body?</strong> Not a list of personal to-dos. What changes if we, together, took this seriously? <em>(Embrace Fellowship)</em></li>
+        <li><strong>Who needs to hear this?</strong> Not in the abstract — a name, a person, a conversation you've been putting off. <em>(Disciples of all Nations)</em></li>
+      </ul>
+
       <blockquote class="lg-movement__verse">
         "Do not conform to the pattern of this world, but be transformed by the renewing of your mind."
         <cite>— Romans 12:2 NIV</cite>
       </blockquote>
+
       <div class="lg-movement__tip">
-        <strong>Hosting tip</strong>
-        Silence is OK. Count to ten in your head before jumping in to fill it. The Spirit often moves in the gap.
+        <strong>Hosting tips</strong>
+        <p style="margin: 0 0 0.55rem;"><strong>Save your follow-up teaching for the end.</strong> The reflection is for the room, not the leader. If you have something to add or correct, write it down and bring it back when the reflection wraps. Save your questions until the end so the group can complete a thorough reflection.</p>
+        <p style="margin: 0 0 0.55rem;"><strong>Watch the room.</strong> If someone has been quiet for ten minutes, ask them gently — &quot;What stood out to you?&quot; Make space. Don't let the loud voices fill the whole hour.</p>
+        <p style="margin: 0 0 0.55rem;"><strong>Name the conclusion when you need to.</strong> If a question is generating debate that's pulling the group apart, step in honestly: &quot;Good — let's land here for tonight and come back to it next time.&quot; That's leadership, not legalism.</p>
+        <p style="margin: 0 0 0.55rem;"><strong>A different perspective is not a derailment.</strong> It's often what the Spirit was showing the group. The script is a starting point, not a fence. Walk with where the conversation goes.</p>
+        <p style="margin: 0;"><strong>Practice prayer out loud.</strong> Take turns praying. We pray publicly here so we have the muscle when we evangelize in outreach.</p>
       </div>
     </div>
   </div>

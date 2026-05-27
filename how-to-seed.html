@@ -534,31 +534,42 @@
       font-style: italic;
       color: #555;
     }
-    /* 7-day map — Mon-Sun pills laid out inline. */
-    .lg-followup-days {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
+    /* "How the week shapes you" — ordered list of three character-first
+       steps. Soft cream rows so it reads warm, not like a checklist. The
+       numbers are quiet (gold, no circle) because the steps aren't a
+       race; they're a rhythm. */
+    .lg-followup-steps {
+      list-style: none;
+      counter-reset: lg-step;
+      padding: 0;
       margin: 0.4rem 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
-    .lg-followup-days span {
-      flex: 1 1 auto;
-      min-width: 4.5rem;
-      text-align: center;
-      padding: 0.4rem 0.5rem;
+    .lg-followup-steps li {
+      counter-increment: lg-step;
+      position: relative;
+      padding: 0.55rem 0.75rem 0.55rem 2.4rem;
       background: rgba(255, 255, 255, 0.65);
       border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: 6px;
-      font-size: 0.78rem;
-      line-height: 1.3;
+      font-size: 0.9rem;
+      line-height: 1.55;
     }
-    .lg-followup-days span strong {
-      display: block;
-      font-size: 0.7rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+    .lg-followup-steps li::before {
+      content: counter(lg-step);
+      position: absolute;
+      left: 0.85rem;
+      top: 0.55rem;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold, #c79a3a);
+      line-height: 1.4;
+    }
+    .lg-followup-steps li strong {
       color: var(--green, #2c5f2e);
-      margin-bottom: 0.15rem;
     }
     /* Share buttons — small inline pills, brand-colored on hover only. */
     .lg-followup-share {
@@ -829,23 +840,26 @@
          buttons, a native share-this-page button, and a tiny anchor
          to the next gathering. -->
     <details class="lg-bible-seed__followup">
-      <summary>👉 Want to follow along this week?</summary>
+      <summary>👉 What to do with the Bible this week</summary>
       <div class="lg-bible-seed__followup-body">
 
-        <!-- 1. The 7-day map. Smallest possible scaffold so the rhythm is visible. -->
+        <!-- 1. How the week shapes you. The Bible's first work is on the
+             person carrying it — character first, hand-off second. No
+             day labels, no deadline; the Spirit sets the pace. -->
         <div class="lg-followup-row">
-          <p class="lg-followup-row__label">Your week, simply</p>
-          <div class="lg-followup-days">
-            <span><strong>Day 1</strong>Take it home. Pray.</span>
-            <span><strong>Day 2–6</strong>Read a chapter when you can. Stay listening.</span>
-            <span><strong>Day 7</strong>If a name comes, give it. If not, bring it back.</span>
-          </div>
+          <p class="lg-followup-row__label">How the week shapes you</p>
+          <ol class="lg-followup-steps">
+            <li><strong>Read it for yourself first.</strong> Open it slowly. Let the Word do its work in <em>you</em> before you think about who it's for.</li>
+            <li><strong>Pray honestly.</strong> About the people in your life, your own heart, what God is putting in front of you — not a hand-off plan. A real prayer life.</li>
+            <li><strong>Stay listening — no deadline.</strong> When a name comes, it comes. If it doesn't this week, bring the Bible back next time. The seed has already done its work in you.</li>
+          </ol>
         </div>
 
-        <!-- 2. What to say when handing it over. One short sentence, no script. -->
+        <!-- 2. What to say when handing it over. Not a script — a starting
+             point, in your own words. -->
         <div class="lg-followup-row">
-          <p class="lg-followup-row__label">When you hand it over</p>
-          <p><em>"I was praying this week, and the Lord put you on my heart. Take this — it's yours."</em></p>
+          <p class="lg-followup-row__label">If you do hand it over</p>
+          <p>Say it in your own words. Something like: <em>"I was praying this week, and the Lord put you on my heart. Take this — it's yours."</em></p>
         </div>
 
         <!-- 3. Share what God did. Three pills out to IG / Telegram / testimony form. -->

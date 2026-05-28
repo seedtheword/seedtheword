@@ -68,3 +68,49 @@ def test_first_word_overflow_hard_truncates():
     out = summarize(long_word, 20)
     assert len(out) == 20
     assert out.endswith("\u2026")
+
+
+def test_sentence_boundary_preferred_over_word_boundary():
+    """When a complete sentence fits within (max_chars - 2), the
+    summarizer ends at that sentence's period rather than truncating
+    mid-thought at a word boundary. Verifies the May 2026 sentence-
+    aware extension to §9 of design.md."""
+    text = (
+        "Members, what a pleasure it has been working with each one of you. "
+        "I'm asking for prayer surrounding our ministry and life updates."
+    )
+    out = summarize(text, 80)
+    # The first sentence is 65 chars and ends with '.', well under
+    # the 78-char budget. We should land on the sentence boundary.
+    assert out.endswith("you. \u2026"), repr(out)
+    assert len(out) <= 80
+
+
+def test_sentence_boundary_falls_back_to_word_boundary_when_no_sentence_fits():
+    """If no whole sentence fits in the budget, the summarizer falls
+    back to the original word-boundary walk (no content lost)."""
+    text = "This is one very long single sentence with no period in the middle so the sentence-walk yields a single chunk that exceeds the budget"
+    out = summarize(text, 50)
+    assert out.endswith(" \u2026")
+    assert len(out) <= 50
+    # The result should be a prefix of the body up to a word boundary
+    # — no period in there, so we know it took the word-walk path.
+    assert "." not in out
+
+
+def test_multi_sentence_partial_take():
+    """Body of three short sentences, budget fits exactly two of
+    them: result is the first two sentences."""
+    text = "Pray for Mom. Pray for Dad. Pray for the kids."
+    out = summarize(text, 35)
+    assert out == "Pray for Mom. Pray for Dad. \u2026", repr(out)
+    assert len(out) <= 35
+
+
+def test_question_and_exclamation_count_as_sentence_terminators():
+    text = "Is anyone willing to pray for me? It would mean a lot. Thanks!"
+    out = summarize(text, 40)
+    # First sentence ends at '?' and is 32 chars. Budget is 38. Fits.
+    assert out.startswith("Is anyone willing to pray for me?")
+    assert out.endswith(" \u2026")
+    assert len(out) <= 40

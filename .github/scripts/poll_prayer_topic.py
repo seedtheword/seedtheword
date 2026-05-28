@@ -193,13 +193,19 @@ def strip_leading_mentions(body: str) -> str:
 
 
 def summarize(text: str, max_chars: int) -> str:
-    """Pure, deterministic, no I/O. Algorithm from §9 of design.md:
+    """Pure, deterministic, no I/O. Algorithm from §9 of design.md
+    (extended May 2026 to prefer sentence boundaries):
 
       1. Defensive strip of any leading marker / tag / @mention.
       2. Normalize whitespace (\\s+ → single space) and trim ends.
       3. If body fits in max_chars → return verbatim.
-      4. Else greedy word-boundary truncation with a trailing ' …'.
-      5. If the first word alone exceeds the budget, hard-truncate
+      4. Sentence-boundary truncation: greedy walk over sentences
+         (split on `.`, `!`, `?` followed by space/end). Take as many
+         whole sentences as fit in (max_chars - 2) — leaving room for
+         ' …'. If at least one whole sentence fits, return it +' …'.
+      5. Word-boundary truncation: greedy walk over words, leaving
+         room for ' …'.
+      6. If the first word alone exceeds the budget, hard-truncate
          to (max_chars - 1) chars and append a single '…'.
 
     Length bound (P4): for any max_chars >= 8, len(result) <= max_chars.
@@ -220,11 +226,35 @@ def summarize(text: str, max_chars: int) -> str:
     if len(body) <= max_chars:
         return body
 
-    # Step 4: word-boundary truncation, leaving room for ' …'.
-    suffix = " " + HORIZONTAL_ELLIPSIS  # 2 chars
+    # Steps 4 & 5 both leave room for the same ' …' suffix (2 chars).
+    suffix = " " + HORIZONTAL_ELLIPSIS
     budget = max_chars - len(suffix)
 
-    # Edge case: first word alone exceeds the budget. Hard-truncate.
+    # Step 4: sentence-boundary truncation. Split on .!? followed by
+    # whitespace or end-of-string, KEEPING the terminator attached to
+    # the preceding sentence so the rendered summary reads naturally
+    # (e.g. "Members, what a pleasure. …" not "Members, what a pleasure …").
+    # Falls through to word-boundary truncation when no whole sentence
+    # fits in the budget.
+    sentences = re.findall(r".+?(?:[.!?](?=\s)|[.!?]$|$)", body)
+    if len(sentences) > 1:
+        out = ""
+        for sentence in sentences:
+            sentence = sentence.strip()
+            if not sentence:
+                continue
+            candidate = (out + " " + sentence).strip() if out else sentence
+            if len(candidate) > budget:
+                break
+            out = candidate
+        # Only use the sentence-split result if it captured at least
+        # one full sentence (otherwise fall through to word-walk so we
+        # don't lose all content for a long single-sentence body).
+        if out:
+            return out + suffix
+
+    # Step 5: word-boundary truncation. Edge case: first word alone
+    # exceeds the budget → hard-truncate.
     first_space = body.find(" ")
     first_word = body if first_space < 0 else body[:first_space]
     if len(first_word) > budget:

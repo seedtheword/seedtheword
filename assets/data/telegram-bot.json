@@ -101,13 +101,13 @@
       "enabled": true,
       "messageThreadId": 21,
       "entryCap": 15,
-      "summaryMaxChars": 60,
+      "summaryMaxChars": 200,
       "scheduleDays": ["mon", "thu", "sat"],
       "privateTags": ["[private]"],
       "anonTags": ["[anon]"],
       "excludeUserIds": [],
       "websiteSubmissionMarker": "(via the website)",
-      "_help": "Two-half pipeline: Poller every 15 min, Digest_Poster Mon/Thu/Sat 08:00 PT. The websiteSubmissionMarker MUST match prayer.intake.marker — these are one contract, edited together."
+      "_help": "Two-half pipeline: Poller every 15 min, Digest_Poster Mon/Thu/Sat 08:00 PT. The websiteSubmissionMarker MUST match prayer.intake.marker — these are one contract, edited together. summaryMaxChars=200 fits ~1-2 sentences; the summarizer prefers sentence boundaries (period/?/! followed by space) and falls back to word-boundary then hard-truncate."
     },
     "intake": {
       "enabled": true,

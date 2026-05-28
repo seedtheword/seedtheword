@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Help — Seed the Word</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=11">
+  <link rel="stylesheet" href="assets/css/main.css?v=12">
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
   <style>
     /* ============================================================
@@ -2552,11 +2552,12 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
 
   <h3>Bot 5 — Weekly prayer digest <span style="opacity: 0.65; font-weight: 600; font-size: 0.85em;">(disabled by default)</span></h3>
   <ul>
-    <li><strong>What it does:</strong> Mon / Thu / Sat at 8 AM Pacific, posts a short summary of the prayer requests and thanksgivings shared in the <em>Prayer &amp; Thanksgiving</em> topic since the last digest. Each entry is one bullet — attribution + a 60-character summary, never the full vulnerable text. Saturday's digest lands alongside the playlist digest so members see both as a single Saturday rhythm.</li>
+    <li><strong>What it does:</strong> Mon / Thu / Sat at 8 AM Pacific, posts a short summary of the prayer requests and thanksgivings shared in the <em>Prayer &amp; Thanksgiving</em> topic since the last digest. Each entry is one bullet — attribution + a 1-2 sentence summary (~200 characters), never the full vulnerable text. Saturday's digest lands alongside the playlist digest so members see both as a single Saturday rhythm.</li>
     <li><strong>Where:</strong> Prayer &amp; Thanksgiving topic (thread 21).</li>
     <li><strong>Schedule:</strong> 08:00 PT Monday, Thursday, Saturday. The first run after the system goes live (First_Run) does NOT post — it just marks the slot complete and starts the capture window from that moment, so going live doesn't dump a back-fill flood.</li>
     <li><strong>Two-half pipeline:</strong> Telegram bots can't read history retroactively, so a continuous <strong>Poller</strong> runs every 15 minutes and writes captured prayers to <code>assets/data/telegram-prayer-log.json</code>. The triweekly <strong>Digest_Poster</strong> reads that log and posts on Mon / Thu / Sat. Both halves gate on the same <code>prayer.digest.enabled</code> flag.</li>
-    <li><strong>Secret:</strong> <code>TELEGRAM_PRAYER_BOT_TOKEN</code> (reused — same bot as the nudge above; no new bot needed).</li>
+    <li><strong>Summarizer modes:</strong> <code>prayer.digest.summarizer</code> in <code>telegram-bot.json</code> picks how each entry gets compressed. <code>"rule-based"</code> uses sentence-boundary truncation (no API needed, fully deterministic). <code>"llm"</code> calls Gemini 2.5 Flash via the <code>GEMINI_API_KEY</code> Secret for a 1-2 sentence summary in the human's voice — and gracefully falls back to rule-based on missing key, network failure, or content-filter trip. The digest always renders.</li>
+    <li><strong>Secrets:</strong> <code>TELEGRAM_PRAYER_BOT_TOKEN</code> (reused — same bot as the nudge above; no new bot needed). Plus <code>GEMINI_API_KEY</code> if running in <code>"llm"</code> summarizer mode.</li>
     <li><strong>Workflows:</strong> <code>.github/workflows/prayer-digest-poll.yml</code> + <code>.github/workflows/prayer-digest-post.yml</code></li>
     <li><strong>Test it:</strong> Actions → <em>Prayer Digest Poller</em> → Run workflow → <em>dry_run</em> = <code>true</code> to verify auth without mutating the log.</li>
   </ul>
@@ -2572,6 +2573,22 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
       <li>Confirm the bot is in the <code>@seedtheword</code> supergroup as an admin with <strong>Manage Topics</strong> + <strong>Send Messages</strong> permissions on thread 21.</li>
     </ol>
     <p>If you skip this, the Poller will run every 15 minutes and silently capture nothing. The fix is to come back to this card and flip privacy mode off — no code changes needed.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Optional setup</p>
+    <p class="admin-card__title">✨ Wire up Gemini for prettier digest summaries</p>
+    <p>This is optional. If you skip it, the digest still posts — it just uses the rule-based sentence-boundary truncator. With Gemini wired in, each bullet becomes a 1-2 sentence summary in the human's voice ("David asks for prayer over ministry direction.") instead of a truncation ("Members, what a pleasure it has…").</p>
+    <ol>
+      <li>Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com</a> while signed in to the Google account that owns the ministry workspace.</li>
+      <li>Click <strong>Create API key</strong>. Copy the key — you won't see it again. Keep it out of chats and never paste it into the codebase.</li>
+      <li>In GitHub: <strong>Repo → Settings → Secrets and variables → Actions → New repository secret</strong>. Name it <code>GEMINI_API_KEY</code>. Paste the key. Save.</li>
+      <li>Confirm <code>prayer.digest.summarizer</code> is set to <code>"llm"</code> in <code>assets/data/telegram-bot.json</code> (the default after May 2026).</li>
+      <li>Run the next digest manually to verify: Actions → <em>Weekly Prayer Digest</em> → Run workflow → <em>dry_run = false</em>. Check thread 21 for the result.</li>
+    </ol>
+    <p><strong>What gets sent to Google:</strong> only the body text of messages that have already been posted to the public Prayer &amp; Thanksgiving topic. <code>[private]</code>-tagged messages are filtered out at capture time and never leave our pipeline. <code>[anon]</code>-tagged messages have their FROM-field resolved to "Anonymous" before anything reaches Gemini.</p>
+    <p><strong>Volume:</strong> at our pace (~3 digests/week × 15 entries) we use under 6% of Gemini's daily free quota. There is no expected scenario where this costs money.</p>
+    <p><strong>If you ever want to disable it:</strong> flip <code>prayer.digest.summarizer</code> back to <code>"rule-based"</code> in <code>telegram-bot.json</code> and commit. The next digest reverts immediately, and the <code>GEMINI_API_KEY</code> Secret can stay in place dormant.</p>
   </div>
 
   <div class="admin-card">

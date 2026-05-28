@@ -65,9 +65,18 @@ from poll_prayer_topic import (  # type: ignore
     save_prayer_log,
     summarize,
 )
+# Optional LLM-backed summarizer. Gracefully no-ops when GEMINI_API_KEY
+# is empty or the API call fails — the rule-based summarize() above
+# is always the final fallback.
+#
+# Imported as a module (not via `from gemini_summarize import ...`) so
+# tests can monkeypatch `gemini_summarize.llm_summarize` and have
+# `_summarize_entry` actually pick up the patched version.
+import gemini_summarize  # type: ignore  # noqa: E402
 
 
 TOKEN = os.environ.get("TELEGRAM_PRAYER_BOT_TOKEN", "").strip()
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 DRY_RUN = bool(os.environ.get("DRY_RUN", "").strip())
 
 LA_TZ = ZoneInfo("America/Los_Angeles")
@@ -218,6 +227,31 @@ def select_for_digest(log_state: dict, since: datetime, now: datetime,
 
 
 # ── Rendering ─────────────────────────────────────────────────────────
+def _summarize_entry(text: str, max_chars: int, summarizer_mode: str,
+                     api_key: str) -> str:
+    """Choose a summarizer for a single entry. The rule-based
+    summarize() is always called as the FINAL step so the returned
+    string is mathematically guaranteed to be length-capped (P4)
+    and deterministic given the rule-based path (P5 holds on the
+    rule-based mode; the LLM path is best-effort by design).
+
+    Modes:
+      'rule-based' (default) — call summarize() directly.
+      'llm'                  — try llm_summarize() first; on empty
+                               result (no key, network failure,
+                               safety filter, etc.) fall back to
+                               summarize() on the original text. The
+                               LLM result, when non-empty, is also
+                               passed through summarize() so the
+                               length cap is enforced regardless of
+                               what the model returned."""
+    if summarizer_mode == "llm" and api_key:
+        llm_out = gemini_summarize.llm_summarize(text, max_chars, api_key)
+        if llm_out:
+            return summarize(llm_out, max_chars)
+    return summarize(text, max_chars)
+
+
 def render_digest(entries: list[dict], slot: str, cfg: dict) -> str:
     """Render the full MarkdownV2 message: header + blank + bullets +
     blank + footer (Requirement 6.6, §10 of design.md). Every
@@ -227,6 +261,7 @@ def render_digest(entries: list[dict], slot: str, cfg: dict) -> str:
     are markup, not user content."""
     digest_cfg = cfg["prayer"]["digest"]
     summary_max = int(digest_cfg.get("summaryMaxChars") or 60)
+    summarizer_mode = str(digest_cfg.get("summarizer") or "rule-based").lower()
 
     day_code = slot.rsplit("-", 1)[-1]
     header = HEADER_BY_DAY.get(day_code, HEADER_BY_DAY["mon"])
@@ -235,7 +270,7 @@ def render_digest(entries: list[dict], slot: str, cfg: dict) -> str:
     for e in entries:
         name = e.get("displayName") or "Anonymous"
         text = e.get("text") or ""
-        summary = summarize(text, summary_max)
+        summary = _summarize_entry(text, summary_max, summarizer_mode, GEMINI_API_KEY)
         bullet_lines.append(
             "· " + mdv2_escape(name) + " — " + mdv2_escape(summary)
         )

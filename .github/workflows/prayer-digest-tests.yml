@@ -12,6 +12,7 @@ on:
     paths:
       - '.github/scripts/poll_prayer_topic.py'
       - '.github/scripts/post_prayer_digest_to_telegram.py'
+      - '.github/scripts/gemini_summarize.py'
       - '.github/scripts/telegram_common.py'
       - 'tests/prayer_digest_*.py'
       - 'tests/requirements.txt'
@@ -22,6 +23,7 @@ on:
     paths:
       - '.github/scripts/poll_prayer_topic.py'
       - '.github/scripts/post_prayer_digest_to_telegram.py'
+      - '.github/scripts/gemini_summarize.py'
       - '.github/scripts/telegram_common.py'
       - 'tests/prayer_digest_*.py'
       - 'tests/requirements.txt'
@@ -51,4 +53,4 @@ jobs:
         run: pip install -r tests/requirements.txt
 
       - name: Run property-based tests
-        run: python -m pytest tests/prayer_digest_summarize.test.py tests/prayer_digest_select.test.py tests/prayer_digest_render.test.py tests/prayer_digest_capture.test.py -v
+        run: python -m pytest tests/prayer_digest_summarize.test.py tests/prayer_digest_select.test.py tests/prayer_digest_render.test.py tests/prayer_digest_capture.test.py tests/prayer_digest_llm_summarize.test.py -v

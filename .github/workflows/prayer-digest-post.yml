@@ -48,6 +48,7 @@ jobs:
       - name: Run Prayer Digest Poster
         env:
           TELEGRAM_PRAYER_BOT_TOKEN: ${{ secrets.TELEGRAM_PRAYER_BOT_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
         run: python .github/scripts/post_prayer_digest_to_telegram.py
 

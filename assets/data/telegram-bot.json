@@ -102,12 +102,13 @@
       "messageThreadId": 21,
       "entryCap": 15,
       "summaryMaxChars": 200,
+      "summarizer": "llm",
       "scheduleDays": ["mon", "thu", "sat"],
       "privateTags": ["[private]"],
       "anonTags": ["[anon]"],
       "excludeUserIds": [],
       "websiteSubmissionMarker": "(via the website)",
-      "_help": "Two-half pipeline: Poller every 15 min, Digest_Poster Mon/Thu/Sat 08:00 PT. The websiteSubmissionMarker MUST match prayer.intake.marker — these are one contract, edited together. summaryMaxChars=200 fits ~1-2 sentences; the summarizer prefers sentence boundaries (period/?/! followed by space) and falls back to word-boundary then hard-truncate."
+      "_help": "Two-half pipeline: Poller every 15 min, Digest_Poster Mon/Thu/Sat 08:00 PT. The websiteSubmissionMarker MUST match prayer.intake.marker — these are one contract, edited together. summaryMaxChars=200 fits ~1-2 sentences; the rule-based summarizer prefers sentence boundaries and falls back to word-boundary then hard-truncate. summarizer='llm' calls Gemini 2.5 Flash via GEMINI_API_KEY; on missing key/API failure/safety trip it gracefully falls back to rule-based — the digest always renders. PrayerDrip emails (private to the submitter) deliberately stay rule-based and never call Gemini."
     },
     "intake": {
       "enabled": true,

@@ -4081,6 +4081,8 @@ function installAllTimeTriggers() {
     'dailyAppsScriptHealthCheck',
     'kickAnnouncementBot',
     'kickHeartbeat',
+    'kickPrayerDigestPoll',
+    'kickPrayerDigestPost',
   ];
   const existing = ScriptApp.getProjectTriggers();
   let removed = 0;
@@ -4120,8 +4122,20 @@ function installAllTimeTriggers() {
   // scheduled triggers).
   ScriptApp.newTrigger('kickHeartbeat').timeBased()
     .everyHours(1).create();
+  // Prayer digest poller kicker fires every 15 min so prayer-topic
+  // messages keep being captured into telegram-prayer-log.json even
+  // when GitHub's cron is silent. Telegram bots can't read history
+  // retroactively — a missed Poller window means lost messages.
+  ScriptApp.newTrigger('kickPrayerDigestPoll').timeBased()
+    .everyMinutes(15).create();
+  // Prayer digest poster kicker fires daily at 08:00 PT but the
+  // function itself bails on Tue/Wed/Fri/Sun (one daily trigger
+  // keeps the install simple; the function is the gate). Mirrors
+  // the GitHub cron `0 15 * * 1,4,6`.
+  ScriptApp.newTrigger('kickPrayerDigestPost').timeBased()
+    .everyDays(1).atHour(8).create();
 
-  console.log('installAllTimeTriggers: installed 9 triggers.');
+  console.log('installAllTimeTriggers: installed 11 triggers.');
   console.log('Confirm in: Project Settings → Triggers (left rail icon).');
   console.log('IMPORTANT: ensure script timezone is America/Los_Angeles');
   console.log('  (Project Settings → General → Time zone).');
@@ -4270,6 +4284,122 @@ function kickHeartbeat() {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Prayer digest poller kicker — fires the GitHub Actions
+// prayer-digest-poll.yml workflow every 15 min from Apps Script. The
+// poll captures messages from the @seedtheword Prayer & Thanksgiving
+// topic into telegram-prayer-log.json so the Mon/Thu/Sat digest poster
+// has data to render. Telegram bots can't read history retroactively,
+// so this MUST run on a tight cadence — independent redundancy with
+// GitHub's */15 * * * * cron means a suspended-then-reinstated repo
+// (which silently disables scheduled crons) doesn't drop messages.
+//
+// The poll workflow has concurrency:cancel-in-progress so a duplicate
+// dispatch from cron + this kicker just produces one effective run.
+// Same GITHUB_TOKEN as kickAnnouncementBot / kickHeartbeat.
+// ─────────────────────────────────────────────────────────────────────
+function kickPrayerDigestPoll() {
+  _markAppsScriptRan('kickPrayerDigestPoll');
+
+  var ghToken = PropertiesService.getScriptProperties()
+    .getProperty('GITHUB_TOKEN');
+  if (!ghToken) {
+    console.log('kickPrayerDigestPoll: GITHUB_TOKEN script property not set; aborting');
+    return;
+  }
+
+  var url = 'https://api.github.com/repos/seedtheword/seedtheword/actions/workflows/prayer-digest-poll.yml/dispatches';
+  try {
+    var resp = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'Bearer ' + ghToken,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'seedtheword-apps-script/1.0',
+      },
+      payload: JSON.stringify({ ref: 'main' }),
+      muteHttpExceptions: true,
+    });
+    var code = resp.getResponseCode();
+    if (code === 204) {
+      console.log('kickPrayerDigestPoll: dispatched OK (204)');
+    } else {
+      console.log(
+        'kickPrayerDigestPoll: HTTP ' + code +
+        ' body=' + resp.getContentText().substring(0, 200)
+      );
+    }
+  } catch (err) {
+    console.log('kickPrayerDigestPoll: threw: ' + err);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Prayer digest poster kicker — fires the GitHub Actions
+// prayer-digest-post.yml workflow on Mon/Thu/Sat at 08:00 PT from
+// Apps Script, mirroring the GitHub-side cron `0 15 * * 1,4,6`. The
+// trigger itself is daily (one trigger keeps the install simple); the
+// weekday gate inside the function bails on Tue/Wed/Fri/Sun so we
+// don't accidentally post an off-cycle digest.
+//
+// Why a kicker for a triweekly bot: same GitHub cron suspension/
+// reinstatement failure mode as the heartbeat. The post script is
+// itself idempotent — it slot-keys by ISO week and exits 0 on a
+// repeat — so a duplicate dispatch from cron + this kicker is safe;
+// only one slot completion writes back.
+//
+// Same GITHUB_TOKEN as the other kickers. Weekday computed in
+// America/Los_Angeles via Utilities.formatDate, NOT new Date().getDay(),
+// so the kick can't drift if the script project timezone ever changes.
+// ─────────────────────────────────────────────────────────────────────
+function kickPrayerDigestPost() {
+  _markAppsScriptRan('kickPrayerDigestPost');
+
+  // Weekday gate — Mon, Thu, Sat only. Match the GitHub cron and
+  // prayer.digest.scheduleDays in telegram-bot.json.
+  var dayCode = Utilities.formatDate(new Date(), 'America/Los_Angeles', 'EEE');
+  if (dayCode !== 'Mon' && dayCode !== 'Thu' && dayCode !== 'Sat') {
+    console.log('kickPrayerDigestPost: ' + dayCode + ' is not a digest day; skipping.');
+    return;
+  }
+
+  var ghToken = PropertiesService.getScriptProperties()
+    .getProperty('GITHUB_TOKEN');
+  if (!ghToken) {
+    console.log('kickPrayerDigestPost: GITHUB_TOKEN script property not set; aborting');
+    return;
+  }
+
+  var url = 'https://api.github.com/repos/seedtheword/seedtheword/actions/workflows/prayer-digest-post.yml/dispatches';
+  try {
+    var resp = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'Bearer ' + ghToken,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'seedtheword-apps-script/1.0',
+      },
+      payload: JSON.stringify({ ref: 'main' }),
+      muteHttpExceptions: true,
+    });
+    var code = resp.getResponseCode();
+    if (code === 204) {
+      console.log('kickPrayerDigestPost: dispatched OK (204) for ' + dayCode);
+    } else {
+      console.log(
+        'kickPrayerDigestPost: HTTP ' + code +
+        ' body=' + resp.getContentText().substring(0, 200)
+      );
+    }
+  } catch (err) {
+    console.log('kickPrayerDigestPost: threw: ' + err);
+  }
+}
+
 function dailyAppsScriptHealthCheck() {
   _markAppsScriptRan('dailyAppsScriptHealthCheck');
 
@@ -4290,6 +4420,17 @@ function dailyAppsScriptHealthCheck() {
     // unbound, GITHUB_TOKEN expired, etc.) without alerting too
     // eagerly on a single missed run.
     { name: 'kickHeartbeat',                  maxAgeHours: 4,  label: 'Heartbeat kicker' },
+
+    // Prayer digest poller kicker — fires every 15 min. SLO of 2
+    // hours catches a few consecutive misses without alerting on a
+    // single jittered run.
+    { name: 'kickPrayerDigestPoll',           maxAgeHours: 2,  label: 'Prayer digest poller kicker' },
+
+    // Prayer digest poster kicker — fires daily at 08:00 PT (the
+    // weekday gate inside the function bails on non-digest days).
+    // SLO of 30 hours catches a missed daily fire without false-
+    // positive on the day-after-Saturday gap.
+    { name: 'kickPrayerDigestPost',           maxAgeHours: 30, label: 'Prayer digest poster kicker' },
     // Weekly checks — SLO is 8 days so a one-day delay doesn't trip the
     // alarm but a missed week does.
     { name: 'weeklyMemberDigest',             maxAgeHours: 192, label: 'Weekly member digest (Sat)' },

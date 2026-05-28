@@ -1,0 +1,57 @@
+name: Saturday Icebreaker Tests
+
+# Property + unit tests for the Saturday icebreaker bot. Asserts
+# SI1-SI6 from tests/saturday_icebreaker.test.py. Triggered on any
+# change to the icebreaker script, the LLM caller, the upstream
+# weekday-walk helpers it imports, or the test file itself.
+
+on:
+  push:
+    paths:
+      - '.github/scripts/post_saturday_icebreaker_to_telegram.py'
+      - '.github/scripts/post_daily_bible_to_telegram.py'
+      - '.github/scripts/gemini_summarize.py'
+      - '.github/scripts/bible_books.py'
+      - '.github/scripts/telegram_common.py'
+      - 'assets/data/telegram-bot.json'
+      - 'tests/saturday_icebreaker.test.py'
+      - 'tests/requirements.txt'
+      - 'tests/conftest.py'
+      - 'tests/pytest.ini'
+      - '.github/workflows/saturday-icebreaker-tests.yml'
+  pull_request:
+    paths:
+      - '.github/scripts/post_saturday_icebreaker_to_telegram.py'
+      - '.github/scripts/post_daily_bible_to_telegram.py'
+      - '.github/scripts/gemini_summarize.py'
+      - '.github/scripts/bible_books.py'
+      - '.github/scripts/telegram_common.py'
+      - 'tests/saturday_icebreaker.test.py'
+      - 'tests/requirements.txt'
+      - 'tests/conftest.py'
+      - 'tests/pytest.ini'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: tests/requirements.txt
+
+      - name: Install test dependencies
+        run: pip install -r tests/requirements.txt
+
+      - name: Run icebreaker tests (SI1-SI6)
+        run: python -m pytest tests/saturday_icebreaker.test.py -v

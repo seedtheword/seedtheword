@@ -173,3 +173,50 @@ def llm_summarize(text: str, max_chars: int, api_key: str,
         log(f"llm_summarize: unexpected error ({type(e).__name__}: {e}); falling back")
         return ""
     return parse_response(payload)
+
+
+def call_gemini_with_prompt(prompt: str, api_key: str,
+                            temperature: float = 0.2,
+                            max_output_tokens: int = 256,
+                            model: str = "gemini-2.5-flash") -> str:
+    """General-purpose Gemini caller for any pure prompt → text task.
+    Used by sibling scripts (e.g. post_saturday_icebreaker_to_telegram)
+    that share the API key + privacy posture but want their own prompt
+    and decoding parameters.
+
+    Returns '' on any failure (no key, network, malformed response,
+    safety filter trip). Caller is responsible for whatever fallback
+    makes sense in their domain — same gentle-degradation contract
+    as llm_summarize.
+
+    `temperature` defaults to 0.2 like the summarizer but the
+    icebreaker caller raises it to ~0.4 for variety across weeks."""
+    if not prompt or not api_key:
+        return ""
+    url = GEMINI_ENDPOINT_TEMPLATE.format(model=model, key=api_key)
+    body = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": float(temperature),
+            "topP": 0.95,
+            "maxOutputTokens": int(max_output_tokens),
+        },
+    }
+    data = json.dumps(body).encode("utf-8")
+    req = Request(
+        url,
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urlopen(req, timeout=GEMINI_TIMEOUT_SECONDS) as resp:
+            raw = resp.read().decode("utf-8")
+        payload = json.loads(raw)
+    except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as e:
+        log(f"call_gemini_with_prompt: API call failed ({type(e).__name__}); returning ''")
+        return ""
+    except Exception as e:  # noqa: BLE001
+        log(f"call_gemini_with_prompt: unexpected error ({type(e).__name__}: {e}); returning ''")
+        return ""
+    return parse_response(payload)

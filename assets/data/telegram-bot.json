@@ -87,6 +87,12 @@
         "psalm": { "enabled": true },
         "proverbs": { "enabled": true }
       }
+    },
+    "saturdayIcebreaker": {
+      "_help": "Posts a Gemini-generated icebreaker question into the Discuss Scripture topic (thread 434) every Saturday at ~09:00 PT, anchored in the week's NT walk + OT history walk + Poetry & Prophecy walk. Falls back to a deterministic evergreen rotation if GEMINI_API_KEY is missing or the API is unreachable — the post always lands. Triggered by the kickSaturdayIcebreaker Apps Script kicker; manual test runs available via the saturday-icebreaker.yml workflow_dispatch with test_run=true.",
+      "enabled": true,
+      "messageThreadId": 434,
+      "summarizer": "llm"
     }
   },
   "prayer": {

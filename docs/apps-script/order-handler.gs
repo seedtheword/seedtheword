@@ -4083,6 +4083,7 @@ function installAllTimeTriggers() {
     'kickHeartbeat',
     'kickPrayerDigestPoll',
     'kickPrayerDigestPost',
+    'kickSaturdayIcebreaker',
   ];
   const existing = ScriptApp.getProjectTriggers();
   let removed = 0;
@@ -4134,8 +4135,14 @@ function installAllTimeTriggers() {
   // the GitHub cron `0 15 * * 1,4,6`.
   ScriptApp.newTrigger('kickPrayerDigestPost').timeBased()
     .everyDays(1).atHour(8).create();
+  // Saturday icebreaker kicker fires daily at 09:00 PT but the
+  // function itself bails on non-Saturdays. Lands ~1h after the
+  // daily Bible bot's morning post so the Discuss Scripture topic
+  // is the second thing members see, not competing for attention.
+  ScriptApp.newTrigger('kickSaturdayIcebreaker').timeBased()
+    .everyDays(1).atHour(9).create();
 
-  console.log('installAllTimeTriggers: installed 11 triggers.');
+  console.log('installAllTimeTriggers: installed 12 triggers.');
   console.log('Confirm in: Project Settings → Triggers (left rail icon).');
   console.log('IMPORTANT: ensure script timezone is America/Los_Angeles');
   console.log('  (Project Settings → General → Time zone).');
@@ -4400,6 +4407,119 @@ function kickPrayerDigestPost() {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Saturday icebreaker kicker — fires the GitHub Actions
+// saturday-icebreaker.yml workflow on Saturdays at 09:00 PT. The
+// trigger itself is daily; the function gates on weekday so we only
+// dispatch on Saturdays. Same suspicion-resistant pattern as the
+// prayer digest post kicker.
+//
+// The script the workflow runs (post_saturday_icebreaker_to_telegram)
+// is itself idempotent — once-per-Saturday dedup keyed in the same
+// telegram-bible-log.json that daily-bible writes — so a duplicate
+// dispatch from any source produces at most one icebreaker post.
+//
+// Same GITHUB_TOKEN as the other kickers.
+// ─────────────────────────────────────────────────────────────────────
+function kickSaturdayIcebreaker() {
+  _markAppsScriptRan('kickSaturdayIcebreaker');
+
+  var dayCode = Utilities.formatDate(new Date(), 'America/Los_Angeles', 'EEE');
+  if (dayCode !== 'Sat') {
+    console.log('kickSaturdayIcebreaker: ' + dayCode + ' is not Saturday; skipping.');
+    return;
+  }
+
+  var ghToken = PropertiesService.getScriptProperties()
+    .getProperty('GITHUB_TOKEN');
+  if (!ghToken) {
+    console.log('kickSaturdayIcebreaker: GITHUB_TOKEN script property not set; aborting');
+    return;
+  }
+
+  var url = 'https://api.github.com/repos/seedtheword/seedtheword/actions/workflows/saturday-icebreaker.yml/dispatches';
+  try {
+    var resp = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'Bearer ' + ghToken,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'seedtheword-apps-script/1.0',
+      },
+      payload: JSON.stringify({ ref: 'main' }),
+      muteHttpExceptions: true,
+    });
+    var code = resp.getResponseCode();
+    if (code === 204) {
+      console.log('kickSaturdayIcebreaker: dispatched OK (204)');
+    } else {
+      console.log(
+        'kickSaturdayIcebreaker: HTTP ' + code +
+        ' body=' + resp.getContentText().substring(0, 200)
+      );
+    }
+  } catch (err) {
+    console.log('kickSaturdayIcebreaker: threw: ' + err);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Saturday icebreaker TEST button — admin-on-demand. Fires the same
+// workflow but with `test_run=true` so the post lands in Discuss
+// Scripture (thread 434) prefixed with "(test)" and the once-per-day
+// dedup is bypassed. Run this from the Apps Script function dropdown
+// any day of the week to preview what tomorrow / next Saturday will
+// look like before it goes live.
+//
+// The script also gracefully snaps to the most recent Saturday's
+// readings when invoked on a non-Saturday (TEST_RUN handling in the
+// Python script), so the preview is meaningful regardless of when
+// you run it.
+// ─────────────────────────────────────────────────────────────────────
+function kickSaturdayIcebreakerTest() {
+  _markAppsScriptRan('kickSaturdayIcebreakerTest');
+
+  var ghToken = PropertiesService.getScriptProperties()
+    .getProperty('GITHUB_TOKEN');
+  if (!ghToken) {
+    console.log('kickSaturdayIcebreakerTest: GITHUB_TOKEN script property not set; aborting');
+    return;
+  }
+
+  var url = 'https://api.github.com/repos/seedtheword/seedtheword/actions/workflows/saturday-icebreaker.yml/dispatches';
+  try {
+    var resp = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'Bearer ' + ghToken,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'seedtheword-apps-script/1.0',
+      },
+      payload: JSON.stringify({
+        ref: 'main',
+        inputs: { test_run: 'true' },
+      }),
+      muteHttpExceptions: true,
+    });
+    var code = resp.getResponseCode();
+    if (code === 204) {
+      console.log('kickSaturdayIcebreakerTest: dispatched test_run OK (204). ' +
+        'Check Telegram thread 434 in ~1 minute for a "(test)"-labeled preview.');
+    } else {
+      console.log(
+        'kickSaturdayIcebreakerTest: HTTP ' + code +
+        ' body=' + resp.getContentText().substring(0, 200)
+      );
+    }
+  } catch (err) {
+    console.log('kickSaturdayIcebreakerTest: threw: ' + err);
+  }
+}
+
 function dailyAppsScriptHealthCheck() {
   _markAppsScriptRan('dailyAppsScriptHealthCheck');
 
@@ -4431,6 +4551,13 @@ function dailyAppsScriptHealthCheck() {
     // SLO of 30 hours catches a missed daily fire without false-
     // positive on the day-after-Saturday gap.
     { name: 'kickPrayerDigestPost',           maxAgeHours: 30, label: 'Prayer digest poster kicker' },
+
+    // Saturday icebreaker kicker — fires daily at 09:00 PT (the
+    // function bails on non-Saturdays). SLO of 30 hours catches a
+    // missed daily fire; the Saturday-only gate means we'd see only
+    // 1-in-7 actual icebreaker dispatches, but _markAppsScriptRan
+    // fires every kick attempt so this SLO works the same as Post.
+    { name: 'kickSaturdayIcebreaker',         maxAgeHours: 30, label: 'Saturday icebreaker kicker' },
     // Weekly checks — SLO is 8 days so a one-day delay doesn't trip the
     // alarm but a missed week does.
     { name: 'weeklyMemberDigest',             maxAgeHours: 192, label: 'Weekly member digest (Sat)' },

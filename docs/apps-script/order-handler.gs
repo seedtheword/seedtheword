@@ -4409,16 +4409,33 @@ function mirrorCalendarPaperclipAttachments_() {
 
       for (var j = 0; j < atts.length; j++) {
         var att = atts[j];
+        var fileId = att.fileId || _extractDriveFileId_(att.fileUrl);
         var mime = att.mimeType || '';
-        if (mime.indexOf('image/') !== 0) {
+        var titleLower = String(att.title || '').toLowerCase();
+
+        // Multi-signal "is this an image?" check. Calendar's API
+        // sometimes returns attachments missing the mimeType field
+        // (varies by upload path: paperclip → Photos, paperclip →
+        // Drive, drag-and-drop, mobile vs. web). Falling back to the
+        // file extension in the title catches those cases without
+        // false-positiving on docs / PDFs.
+        var looksLikeImage =
+          mime.indexOf('image/') === 0 ||
+          /\.(jpe?g|png|gif|webp|heic|heif|bmp)$/i.test(titleLower);
+
+        if (!looksLikeImage) {
           // Non-image attachment (PDF, doc, etc.) — leave alone.
           keepAtts.push(att);
           continue;
         }
 
-        var fileId = att.fileId || _extractDriveFileId_(att.fileUrl);
         if (!fileId) {
-          // Couldn't resolve a Drive file ID — leave it.
+          // Image-shaped attachment but we can't resolve a Drive
+          // file ID (e.g., a Google Photos URL we can't copy
+          // through DriveApp). Leave it; admin will need to drop
+          // it into Drive manually.
+          console.log('mirrorCalendarPaperclipAttachments_: image attachment without a resolvable fileId on event "' +
+            (ev.summary || ev.id) + '" (title=' + att.title + ', url=' + att.fileUrl + '); leaving in place.');
           keepAtts.push(att);
           continue;
         }
@@ -4565,6 +4582,73 @@ function _extractDriveFolderId_(url) {
   m = s.match(/[?&]id=([A-Za-z0-9_-]+)/);
   if (m) return m[1];
   return '';
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Diagnostic: dump every upcoming event's paperclip attachments so the
+// operator can see exactly what shape they're in. Use this when the
+// mirror appears to silently skip an attachment — the log shows you
+// the attachment fields (title, mimeType, fileId, fileUrl, iconLink)
+// and whether the mirror's heuristic considers it an image. Run from
+// the Apps Script function dropdown when debugging.
+// ─────────────────────────────────────────────────────────────────────
+function debugCalendarPaperclips() {
+  _markAppsScriptRan('debugCalendarPaperclips');
+  var calendarId = 'seedthewordministry@gmail.com';
+  var now = new Date();
+  var timeMin = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
+  var timeMax = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString();
+  var resp;
+  try {
+    resp = Calendar.Events.list(calendarId, {
+      timeMin: timeMin, timeMax: timeMax,
+      singleEvents: true, orderBy: 'startTime', showDeleted: false,
+      maxResults: 250,
+    });
+  } catch (err) {
+    console.log('debugCalendarPaperclips: Calendar.Events.list failed: ' + err);
+    console.log('Most likely cause: the advanced "Google Calendar API" service is not enabled. ' +
+      'In the editor: left rail → Services → + → Google Calendar API → Add. Identifier must be "Calendar".');
+    return;
+  }
+  var events = resp.items || [];
+  console.log('debugCalendarPaperclips: scanning ' + events.length + ' events.');
+  var anyAttachments = false;
+  for (var i = 0; i < events.length; i++) {
+    var ev = events[i];
+    var atts = ev.attachments || [];
+    if (!atts.length) continue;
+    anyAttachments = true;
+    console.log('--- Event "' + (ev.summary || ev.id) + '" (' + ev.id + ') — ' + atts.length + ' attachment(s):');
+    for (var j = 0; j < atts.length; j++) {
+      var a = atts[j];
+      var fid = a.fileId || _extractDriveFileId_(a.fileUrl);
+      var mime = a.mimeType || '(none)';
+      var titleLower = String(a.title || '').toLowerCase();
+      var looksLikeImage =
+        (a.mimeType || '').indexOf('image/') === 0 ||
+        /\.(jpe?g|png|gif|webp|heic|heif|bmp)$/i.test(titleLower);
+      console.log('  [' + j + '] title=' + a.title +
+        ' | mimeType=' + mime +
+        ' | fileId=' + (fid || '(unresolved)') +
+        ' | fileUrl=' + (a.fileUrl || '(none)') +
+        ' | looksLikeImage=' + looksLikeImage);
+    }
+  }
+  if (!anyAttachments) {
+    console.log('debugCalendarPaperclips: no events with attachments in the next 14 days.');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Manual run-now button. Same as the time-trigger fire but invokable
+// from the function dropdown so admins don't have to wait for the
+// next 5-min tick when verifying a fresh paperclip.
+// ─────────────────────────────────────────────────────────────────────
+function runMirrorCalendarPaperclipsNow() {
+  console.log('runMirrorCalendarPaperclipsNow: firing the mirror immediately…');
+  mirrorCalendarPaperclipAttachments_();
+  console.log('runMirrorCalendarPaperclipsNow: done. Refresh the calendar to see the result.');
 }
 
 // ─────────────────────────────────────────────────────────────────────

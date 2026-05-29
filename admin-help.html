@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Help — Seed the Word</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=13">
+  <link rel="stylesheet" href="assets/css/main.css?v=14">
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
   <style>
     /* ============================================================
@@ -2415,6 +2415,17 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
       <li><strong>Save.</strong> The next announcement tick (within 15 min for announcements, 8 AM next day for Bible-bot) picks it up automatically.</li>
     </ol>
     <p><strong>Also supported</strong> (no setup): any public <code>.jpg/.jpeg/.png/.webp/.gif</code> URL, or an <code>&lt;img src="..."&gt;</code> tag inside the description. Instagram and Facebook Page cover images work well (right-click the image in your browser → Copy image address).</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Verify before going live</p>
+    <p class="admin-card__title">🧪 Test that your photo will actually attach</p>
+    <p>Before relying on the next scheduled run to surface a problem, fire a one-shot preview that pulls from the next future event with attached photos and posts to the announcements channel with a clear "(test)" header. Two ways to trigger:</p>
+    <ul>
+      <li><strong>From Apps Script</strong> (recommended for admins): open the Apps Script editor → function dropdown → run <code>kickAnnouncementBotTest</code>. The execution log returns immediately; the test post lands in Telegram within ~1 minute.</li>
+      <li><strong>From GitHub</strong>: Actions tab → <em>Telegram Announcements</em> → <strong>Run workflow</strong> → set <code>test_run = true</code>.</li>
+    </ul>
+    <p>The test posts the actual caption shape members will see (only the header is replaced). If the photo doesn't show up in the test, the workflow log explains why — most often "URL not usable: served HTML, not image bytes" (Drive file isn't shared "Anyone with the link") or "no future events with reachable photo URLs found" (no upcoming event has a URL pasted in its description yet). Test runs do NOT touch the dedup log, so you can re-fire as many times as you want while iterating.</p>
   </div>
 
   <div class="admin-card">

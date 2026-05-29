@@ -4234,6 +4234,72 @@ function kickAnnouncementBot() {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// Announcement bot TEST button — admin-on-demand. Fires the same
+// workflow as kickAnnouncementBot but with `test_run=true` so the
+// Python script branches into _run_test() and posts ONE photo
+// announcement built from the next future event with attached
+// photos. Skips dedup so admins can re-fire freely while iterating.
+//
+// Use this to verify:
+//   1. A specific event's image URL is shareable (Drive permissions)
+//   2. The image URL parses out of the calendar event description
+//   3. Telegram accepts the image bytes (no HTML interstitial)
+//   4. The caption + photo render the way you want them to
+//
+// The post lands in the regular announcement channel + thread but is
+// prefixed with "(test) Photo announcement preview" so members reading
+// the channel know it's not a real announcement.
+//
+// If no future event with reachable photos exists yet, the script
+// logs that fact and exits cleanly — no Telegram post, no error.
+// Add a calendar event with a photo URL pasted in its description
+// and re-run.
+// ─────────────────────────────────────────────────────────────────────
+function kickAnnouncementBotTest() {
+  _markAppsScriptRan('kickAnnouncementBotTest');
+
+  var ghToken = PropertiesService.getScriptProperties()
+    .getProperty('GITHUB_TOKEN');
+  if (!ghToken) {
+    console.log('kickAnnouncementBotTest: GITHUB_TOKEN script property not set; aborting');
+    return;
+  }
+
+  var url = 'https://api.github.com/repos/seedtheword/seedtheword/actions/workflows/telegram-announcements.yml/dispatches';
+  try {
+    var resp = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'Bearer ' + ghToken,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'seedtheword-apps-script/1.0',
+      },
+      payload: JSON.stringify({
+        ref: 'main',
+        inputs: { test_run: 'true' },
+      }),
+      muteHttpExceptions: true,
+    });
+    var code = resp.getResponseCode();
+    if (code === 204) {
+      console.log('kickAnnouncementBotTest: dispatched test_run OK (204). ' +
+        'Check Telegram in ~1 minute for a "(test)"-labeled photo preview. ' +
+        'If nothing posts, the workflow log will explain why ' +
+        '(no upcoming events with photos, or photo URLs failed pre-flight).');
+    } else {
+      console.log(
+        'kickAnnouncementBotTest: HTTP ' + code +
+        ' body=' + resp.getContentText().substring(0, 200)
+      );
+    }
+  } catch (err) {
+    console.log('kickAnnouncementBotTest: threw: ' + err);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // Heartbeat kicker — fires the GitHub Actions heartbeat workflow every
 // hour from Apps Script, so the heartbeat keeps ticking even when
 // GitHub's free-tier cron has been disabled (e.g. after a temporary

@@ -72,6 +72,14 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 GOOGLE_CAL_ID = os.environ.get("GOOGLE_CAL_ID", "seedthewordministry@gmail.com").strip()
 DRY_RUN = bool(os.environ.get("DRY_RUN", "").strip())
 
+# When set, the script runs in test-preview mode: ignores dedup,
+# ignores quiet-hours and skip-days, and posts a single "(test)"-
+# labeled photo announcement built from the next future event with
+# attached photos. Used by the kickAnnouncementBotTest button in
+# Apps Script so admins can verify the photo pipeline without
+# waiting for the next real fire. See _run_test() for full behavior.
+TEST_RUN = bool(os.environ.get("TEST_RUN", "").strip())
+
 # Optional SMS-CC: when an announcement posts successfully to Telegram,
 # also fire a 140-char plain-text email to a Verizon-style SMS gateway
 # so the admin (or other phone-only members) gets a text. Two pieces of
@@ -793,6 +801,131 @@ def _build_sms_summary(to_post: list[tuple[dict, str]], tz: ZoneInfo, now: datet
     return body[:140]
 
 
+# ── Test-run path (Apps Script kickAnnouncementBotTest button) ────────
+def _run_test(cfg: dict, tz: ZoneInfo, chat_id, thread_id, now: datetime) -> int:
+    """Post a single '(test)' announcement built from the next future
+    event that has reachable image attachments. Used to verify the
+    photo pipeline end-to-end (Drive sharing, Calendar description
+    URL parsing, Telegram sendPhoto / sendMediaGroup) without waiting
+    for the regular cadence to fire.
+
+    Behavior:
+      * Skips the dedup log entirely (read AND write). Test posts
+        never affect production state — fire as many as you want.
+      * Skips quiet-hours and skip-days gates so admins can preview
+        any time.
+      * Walks events in chronological order; picks the FIRST one whose
+        description yields at least one URL that pre-flights as a
+        public image.
+      * Posts with a "(test)" header so members reading the channel
+        see it's not a real announcement.
+      * Returns 0 on success, 1 on infrastructure failure. Returns 0
+        with a log message when no eligible event is found — that's
+        a 'no test data available' outcome, not a bug.
+
+    Photo pre-flight is the same logic the production path uses, so a
+    failure here means the production path would also have failed —
+    which is exactly the diagnostic we want."""
+    log("[TEST_RUN] Searching for the next future event with photos…")
+
+    # Same window as production: now-6h to lookahead-end so we catch
+    # events created mid-day. We don't filter to live/skip-days here.
+    lookahead = int(cfg.get("lookaheadDays", 1))
+    now_local = now.astimezone(tz)
+    time_min = now - timedelta(hours=6)
+    end_of_lookahead = now_local.replace(hour=23, minute=59, second=59, microsecond=0)
+    # Test mode pulls a wider window (14 days) so a thin 1-2 day
+    # calendar still has something to test with.
+    time_max = (end_of_lookahead + timedelta(days=max(lookahead, 14))).astimezone(timezone.utc)
+
+    try:
+        events = fetch_events(time_min, time_max)
+    except Exception as exc:
+        log(f"[TEST_RUN] Failed to fetch calendar events: {exc}")
+        return 1
+    log(f"[TEST_RUN] Fetched {len(events)} events.")
+
+    # Sort chronologically — earliest future event with photos wins.
+    def _ev_start_for_sort(ev):
+        s = parse_ev_start(ev)
+        return s or datetime.max.replace(tzinfo=timezone.utc)
+
+    events.sort(key=_ev_start_for_sort)
+
+    chosen = None
+    chosen_kind = None
+    chosen_urls: list[str] = []
+    chosen_skipped: list[tuple[str, str, str]] = []  # (event_id, url, reason)
+
+    for ev in events:
+        if event_status(ev, now) == "past":
+            continue
+        urls = extract_image_urls(ev.get("description") or "")
+        if not urls:
+            continue
+        good_urls = []
+        for u in urls:
+            ok, reason = url_is_public_image(u)
+            if ok:
+                good_urls.append(u)
+            else:
+                chosen_skipped.append((ev.get("id") or "?", u, reason))
+                log(f"[TEST_RUN] URL not usable for event {ev.get('id')}: {u} — {reason}")
+        if good_urls:
+            chosen = ev
+            chosen_urls = good_urls
+            # Trigger label: 'live' if event is currently live, else
+            # 'upcoming'. Test posts use the same caption shape as the
+            # production path so what you see is what Saturday's run
+            # will actually produce.
+            chosen_kind = "live" if event_status(ev, now) == "live" else "upcoming"
+            break
+
+    if not chosen:
+        log("[TEST_RUN] No future events with reachable photo URLs found.")
+        if chosen_skipped:
+            log(f"[TEST_RUN] {len(chosen_skipped)} URL(s) were tried but rejected:")
+            for ev_id, u, reason in chosen_skipped[:5]:
+                log(f"  - event={ev_id} url={u} reason={reason}")
+        log("[TEST_RUN] Make sure at least one upcoming event has at least one "
+            "shared-Drive file URL pasted into its description.")
+        return 0
+
+    log(f"[TEST_RUN] Selected event: '{chosen.get('summary')}' "
+        f"(id={chosen.get('id')}) with {len(chosen_urls)} image URL(s).")
+
+    # Build the same caption shape the production path emits — but
+    # with a test header so members reading the channel know it's a
+    # preview. Reuse build_announcement_markdown so the body matches
+    # production byte-for-byte (modulo header).
+    announcement = build_announcement_markdown(
+        chosen, tz, now, build_share_url(chosen),
+        image_urls=chosen_urls,
+        max_description_chars=600,
+    )
+    test_header = "⚙️ *\\(test\\) Photo announcement preview*"
+    caption = f"{test_header}\n\n{announcement}"
+    if len(caption) > 1000:
+        caption = caption[:997] + "..."
+
+    try:
+        if len(chosen_urls) == 1:
+            resp = send_telegram_photo(chat_id, thread_id, chosen_urls[0], caption)
+        else:
+            resp = send_telegram_media_group(chat_id, thread_id, chosen_urls, caption)
+    except Exception as exc:
+        log(f"[TEST_RUN] Telegram send failed: {exc}")
+        return 1
+
+    if not resp.get("ok"):
+        log(f"[TEST_RUN] Telegram rejected the test post: {resp}")
+        return 1
+
+    log(f"[TEST_RUN] Posted '(test)' preview to chat={chat_id} thread={thread_id}. "
+        "No dedup state was touched.")
+    return 0
+
+
 # ── Main ───────────────────────────────────────────────────────────────
 def main() -> int:
     full_cfg = load_json(BOT_CONFIG_PATH, None)
@@ -819,6 +952,13 @@ def main() -> int:
     thread_id = cfg.get("messageThreadId")
     lookahead = int(cfg.get("lookaheadDays", 1))
     reminder_minutes = int(cfg.get("reminderMinutesBefore", 180))
+
+    # Test-run path: skip all the production gating + dedup and just
+    # fire one '(test)'-labeled photo announcement built from the next
+    # future event with attached photos. Fired by the
+    # kickAnnouncementBotTest button in Apps Script.
+    if TEST_RUN:
+        return _run_test(cfg, tz, chat_id, thread_id, now)
 
     # Quiet-hours guard applies to non-LIVE posts only. Defaults to 7 AM –
     # 9 PM local. LIVE events bypass (an event started 3 minutes ago is

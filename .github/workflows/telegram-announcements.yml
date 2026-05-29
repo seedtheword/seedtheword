@@ -28,6 +28,10 @@ on:
         description: "If 'true', build and log the message without posting to Telegram"
         required: false
         default: 'false'
+      test_run:
+        description: "If 'true', post ONE '(test)'-labeled photo announcement from the next event with attached photos. Skips dedup so this can be run repeatedly. Used for verifying the photo pipeline."
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -57,6 +61,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+          TEST_RUN: ${{ github.event.inputs.test_run == 'true' && '1' || '' }}
           # Optional SMS-CC: when both vars are set, every successful
           # Telegram announcement post fires a 140-char SMS to the
           # admin via the carrier email-to-SMS gateway.
@@ -65,6 +70,7 @@ jobs:
         run: python .github/scripts/post_calendar_to_telegram.py
 
       - name: Commit dedup log if changed
+        if: ${{ github.event.inputs.test_run != 'true' && github.event.inputs.dry_run != 'true' }}
         run: |
           set -e
           git config user.name  "github-actions[bot]"

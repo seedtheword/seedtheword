@@ -4084,6 +4084,7 @@ function installAllTimeTriggers() {
     'kickPrayerDigestPoll',
     'kickPrayerDigestPost',
     'kickSaturdayIcebreaker',
+    'mirrorCalendarPaperclipAttachments_',
   ];
   const existing = ScriptApp.getProjectTriggers();
   let removed = 0;
@@ -4141,8 +4142,16 @@ function installAllTimeTriggers() {
   // is the second thing members see, not competing for attention.
   ScriptApp.newTrigger('kickSaturdayIcebreaker').timeBased()
     .everyDays(1).atHour(9).create();
+  // Calendar paperclip-attachment mirror fires every 5 minutes 24/7.
+  // Each tick is cheap (~1 Calendar.Events.list call) and the
+  // function is a no-op on most ticks because most events have
+  // already been mirrored. The 5-min cadence means a freshly added
+  // paperclip ships into the bot pipeline within ~5 min of being
+  // attached, well ahead of the announcement bot's next fire.
+  ScriptApp.newTrigger('mirrorCalendarPaperclipAttachments_').timeBased()
+    .everyMinutes(5).create();
 
-  console.log('installAllTimeTriggers: installed 12 triggers.');
+  console.log('installAllTimeTriggers: installed 13 triggers.');
   console.log('Confirm in: Project Settings → Triggers (left rail icon).');
   console.log('IMPORTANT: ensure script timezone is America/Los_Angeles');
   console.log('  (Project Settings → General → Time zone).');
@@ -4297,6 +4306,265 @@ function kickAnnouncementBotTest() {
   } catch (err) {
     console.log('kickAnnouncementBotTest: threw: ' + err);
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Calendar paperclip attachment mirror
+// ─────────────────────────────────────────────────────────────────────
+//
+// Lets admins use Google Calendar's "Add attachment" paperclip icon
+// (the natural workflow) instead of having to upload to a shared
+// Drive folder and paste the URL into the description by hand.
+// Every 5 minutes this function:
+//
+//   1. Reads upcoming events from the ministry calendar via the
+//      advanced Calendar API (iCal doesn't expose attachments).
+//   2. For every image-mime attachment NOT already mirrored, copies
+//      the Drive file into the STW Calendar Photos folder (which is
+//      "Anyone with the link: Viewer", so the copy inherits public
+//      access without any per-file sharing).
+//   3. Appends the copy's `https://drive.google.com/file/d/<id>/view`
+//      URL to the event description on its own line — that's the
+//      shape the Python announcement bot already recognizes via
+//      extract_image_urls().
+//   4. Removes the original paperclip attachment from the event so
+//      the next tick is a no-op for that file (idempotency contract).
+//
+// On any failure (file copy, calendar patch, quota), the function
+// logs and returns; the next tick retries from a clean state.
+//
+// PREREQUISITES (one-time, in the Apps Script editor):
+//   1. Resources / Services panel → Add a service → enable
+//      "Google Calendar API" (the advanced version, not CalendarApp).
+//   2. Resources / Services panel → Add a service → enable
+//      "Drive API" (the advanced version, not DriveApp).
+//   3. Run installAllTimeTriggers() to register the 5-minute trigger.
+//
+// The folder ID is parsed from telegram-bot.json's
+// shared.calendarPhotosFolderUrl so the mirror folder is single-
+// sourced with the rest of the pipeline. If that field is empty,
+// the function logs and exits cleanly without doing anything.
+// ─────────────────────────────────────────────────────────────────────
+function mirrorCalendarPaperclipAttachments_() {
+  _markAppsScriptRan('mirrorCalendarPaperclipAttachments_');
+
+  // Cooperative lock so two concurrent triggers don't double-mirror
+  // the same paperclip in a 5-min window. 1-min wait then bail —
+  // next tick will retry.
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(60 * 1000)) {
+    console.log('mirrorCalendarPaperclipAttachments_: another instance holds the lock; skipping this tick.');
+    return;
+  }
+  try {
+    var folderId = _resolveCalendarPhotosFolderId_();
+    if (!folderId) {
+      console.log('mirrorCalendarPaperclipAttachments_: shared.calendarPhotosFolderUrl missing or unparseable; skipping.');
+      return;
+    }
+    var folder;
+    try {
+      folder = DriveApp.getFolderById(folderId);
+    } catch (err) {
+      console.log('mirrorCalendarPaperclipAttachments_: folder not accessible (' + err + '); skipping.');
+      return;
+    }
+
+    // Window: anything from 1h ago to 14 days out. Past events with
+    // attachments aren't worth mirroring (the bot won't post them
+    // anyway). 14 days matches the default lookahead horizon.
+    var now = new Date();
+    var timeMin = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
+    var timeMax = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString();
+    var calendarId = 'seedthewordministry@gmail.com';
+
+    var events;
+    try {
+      var resp = Calendar.Events.list(calendarId, {
+        timeMin: timeMin,
+        timeMax: timeMax,
+        singleEvents: true,
+        orderBy: 'startTime',
+        showDeleted: false,
+        maxResults: 250,
+      });
+      events = resp.items || [];
+    } catch (err) {
+      console.log('mirrorCalendarPaperclipAttachments_: Calendar.Events.list failed (' + err + '); skipping.');
+      return;
+    }
+
+    var mirrored = 0;
+    var skipped = 0;
+    var failed = 0;
+
+    for (var i = 0; i < events.length; i++) {
+      var ev = events[i];
+      var atts = ev.attachments || [];
+      if (!atts.length) continue;
+
+      var description = ev.description || '';
+      var newUrls = [];
+      var keepAtts = [];
+
+      for (var j = 0; j < atts.length; j++) {
+        var att = atts[j];
+        var mime = att.mimeType || '';
+        if (mime.indexOf('image/') !== 0) {
+          // Non-image attachment (PDF, doc, etc.) — leave alone.
+          keepAtts.push(att);
+          continue;
+        }
+
+        var fileId = att.fileId || _extractDriveFileId_(att.fileUrl);
+        if (!fileId) {
+          // Couldn't resolve a Drive file ID — leave it.
+          keepAtts.push(att);
+          continue;
+        }
+
+        // Idempotency: if the original file ID is already in the
+        // description, we mirrored it on a previous tick but failed
+        // to remove the paperclip. Remove the paperclip now and
+        // skip the copy.
+        if (description.indexOf(fileId) !== -1) {
+          skipped++;
+          // DO NOT push back into keepAtts — we want it gone.
+          continue;
+        }
+
+        // Copy the file into the STW Calendar Photos folder. The
+        // folder is set to "Anyone with the link: Viewer" so the
+        // copy inherits public-read; explicitly setSharing again as
+        // belt-and-suspenders.
+        try {
+          var sourceFile = DriveApp.getFileById(fileId);
+          var fileName = sourceFile.getName();
+          // Prefix with the event date for human-readable folder
+          // browsing later. Format: "2026-05-30 — original-name.jpg".
+          var datePrefix = '';
+          if (ev.start && (ev.start.dateTime || ev.start.date)) {
+            datePrefix = String(ev.start.dateTime || ev.start.date).slice(0, 10) + ' — ';
+          }
+          var copy = sourceFile.makeCopy(datePrefix + fileName, folder);
+          try {
+            copy.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+          } catch (sharingErr) {
+            // Sharing failed but the copy exists. Log and continue —
+            // the parent folder's sharing will usually still apply.
+            console.log('mirrorCalendarPaperclipAttachments_: setSharing on copy failed (' + sharingErr + '); relying on folder inheritance.');
+          }
+          var publicUrl = 'https://drive.google.com/file/d/' + copy.getId() + '/view?usp=sharing';
+          newUrls.push(publicUrl);
+          mirrored++;
+        } catch (copyErr) {
+          // Copy failed — leave the original paperclip in place so
+          // the admin can see it's still pending and retry next tick.
+          console.log('mirrorCalendarPaperclipAttachments_: copy failed for fileId=' + fileId + ' (' + copyErr + '); leaving paperclip intact.');
+          keepAtts.push(att);
+          failed++;
+        }
+      }
+
+      if (!newUrls.length) {
+        continue;  // Nothing to patch for this event.
+      }
+
+      // Append the new URLs to the description on their own lines.
+      // Newline-separate. Description may be HTML (Calendar's editor
+      // sometimes wraps free text in <p>...</p>) — appending plain
+      // URLs still works because the bot's extractor matches both
+      // raw URLs and href attributes.
+      var newDescription = description;
+      if (newDescription && !/[\n\r]\s*$/.test(newDescription)) {
+        newDescription += '\n';
+      }
+      for (var k = 0; k < newUrls.length; k++) {
+        newDescription += '\n' + newUrls[k];
+      }
+
+      // Patch the calendar event: new description + attachments=
+      // keepAtts (i.e., drop the paperclips we just mirrored).
+      try {
+        Calendar.Events.patch({
+          description: newDescription,
+          attachments: keepAtts,
+        }, calendarId, ev.id, { supportsAttachments: true });
+      } catch (patchErr) {
+        console.log('mirrorCalendarPaperclipAttachments_: Events.patch failed for event "' +
+          (ev.summary || ev.id) + '" (' + patchErr + '). Rolling back ' + newUrls.length + ' copies.');
+        // Rollback: delete the copies we just made so we don't
+        // accumulate orphans on retry.
+        for (var m = 0; m < newUrls.length; m++) {
+          try {
+            var rollbackId = _extractDriveFileId_(newUrls[m]);
+            if (rollbackId) DriveApp.getFileById(rollbackId).setTrashed(true);
+          } catch (_) { /* best-effort */ }
+        }
+        mirrored -= newUrls.length;
+        failed += newUrls.length;
+        continue;
+      }
+
+      console.log('mirrorCalendarPaperclipAttachments_: mirrored ' + newUrls.length +
+        ' image(s) for event "' + (ev.summary || ev.id) + '".');
+    }
+
+    if (mirrored || skipped || failed) {
+      console.log('mirrorCalendarPaperclipAttachments_: done. mirrored=' + mirrored +
+        ', skipped(idempotent)=' + skipped + ', failed=' + failed + ', events scanned=' + events.length);
+    }
+  } finally {
+    try { lock.releaseLock(); } catch (_) { /* best-effort */ }
+  }
+}
+
+// Pull the STW Calendar Photos folder ID out of telegram-bot.json's
+// shared.calendarPhotosFolderUrl. Returns '' if missing/malformed so
+// the caller can short-circuit cleanly.
+function _resolveCalendarPhotosFolderId_() {
+  try {
+    var resp = UrlFetchApp.fetch(SITE_URL + 'assets/data/telegram-bot.json', {
+      muteHttpExceptions: true,
+      headers: { 'User-Agent': 'seedtheword-apps-script/1.0' },
+    });
+    if (resp.getResponseCode() < 200 || resp.getResponseCode() >= 300) return '';
+    var cfg = JSON.parse(resp.getContentText());
+    var url = cfg && cfg.shared && cfg.shared.calendarPhotosFolderUrl;
+    return _extractDriveFolderId_(url);
+  } catch (err) {
+    console.log('_resolveCalendarPhotosFolderId_: ' + err);
+    return '';
+  }
+}
+
+// Match a Drive file ID inside any URL shape Drive emits:
+//   https://drive.google.com/file/d/<id>/view?usp=sharing
+//   https://drive.google.com/open?id=<id>
+//   https://docs.google.com/uc?id=<id>
+//   https://drive.google.com/uc?id=<id>&export=...
+// Returns '' on no match.
+function _extractDriveFileId_(url) {
+  if (!url) return '';
+  var s = String(url);
+  var m = s.match(/\/file\/d\/([A-Za-z0-9_-]+)/);
+  if (m) return m[1];
+  m = s.match(/[?&]id=([A-Za-z0-9_-]+)/);
+  if (m) return m[1];
+  return '';
+}
+
+// Match a Drive folder ID inside any URL shape Drive emits:
+//   https://drive.google.com/drive/folders/<id>?usp=drive_link
+//   https://drive.google.com/drive/u/0/folders/<id>
+function _extractDriveFolderId_(url) {
+  if (!url) return '';
+  var s = String(url);
+  var m = s.match(/\/folders\/([A-Za-z0-9_-]+)/);
+  if (m) return m[1];
+  m = s.match(/[?&]id=([A-Za-z0-9_-]+)/);
+  if (m) return m[1];
+  return '';
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -4624,6 +4892,11 @@ function dailyAppsScriptHealthCheck() {
     // 1-in-7 actual icebreaker dispatches, but _markAppsScriptRan
     // fires every kick attempt so this SLO works the same as Post.
     { name: 'kickSaturdayIcebreaker',         maxAgeHours: 30, label: 'Saturday icebreaker kicker' },
+
+    // Calendar paperclip-attachment mirror — fires every 5 min. SLO
+    // of 1 hour catches a few consecutive misses without alerting
+    // on a single jittered run.
+    { name: 'mirrorCalendarPaperclipAttachments_', maxAgeHours: 1, label: 'Calendar paperclip mirror' },
     // Weekly checks — SLO is 8 days so a one-day delay doesn't trip the
     // alarm but a missed week does.
     { name: 'weeklyMemberDigest',             maxAgeHours: 192, label: 'Weekly member digest (Sat)' },

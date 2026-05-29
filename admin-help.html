@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Help — Seed the Word</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=14">
+  <link rel="stylesheet" href="assets/css/main.css?v=15">
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
   <style>
     /* ============================================================
@@ -2367,8 +2367,8 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
     display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
   ">
     <div style="flex: 1; min-width: 280px;">
-      <p style="margin: 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; opacity: 0.9;">Always upload photos here first</p>
-      <p style="margin: 0.25rem 0 0; font-size: 1.05rem; font-weight: 700;">Drop the file in the shared Drive folder, THEN paste the link into the calendar event description.</p>
+      <p style="margin: 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; opacity: 0.9;">Use the calendar paperclip icon</p>
+      <p style="margin: 0.25rem 0 0; font-size: 1.05rem; font-weight: 700;">📎 Paperclip your photo right into the event. Apps Script mirrors it to the shared folder within 5 min, hands the URL to the bot, and removes the paperclip. No copy-paste.</p>
     </div>
     <a id="calendar-photos-banner-btn"
        href="#calendar-photos-folder-card"
@@ -2407,7 +2407,14 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
 
   <div class="admin-card">
     <p class="admin-card__label">Everyday workflow</p>
-    <p class="admin-card__title">📅 Attach a photo to an event (4 steps)</p>
+    <p class="admin-card__title">📅 Attach a photo to an event (the easy way)</p>
+    <p>The simplest path now: open the calendar event, click the <strong>📎 paperclip icon</strong>, upload your image. Save. That's it. The Apps Script <code>mirrorCalendarPaperclipAttachments_</code> trigger runs every 5 minutes — within that window it copies the attachment into the STW Calendar Photos folder, pastes the public URL into the event description, and removes the original paperclip. You walk away; it stages itself.</p>
+    <p>The classic upload-to-Drive-then-paste-URL workflow still works (described below) and is useful for events you want to attach photos from the public web to. But for everyday paperclip uploads, the mirror does the work.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Manual workflow (if you prefer)</p>
+    <p class="admin-card__title">📂 Drop in Drive, paste URL into description (4 steps)</p>
     <ol>
       <li><strong>Upload</strong> the image into the <em>STW Calendar Photos</em> Drive folder (drag-and-drop works).</li>
       <li><strong>Right-click</strong> the new file → <strong>Share</strong> → <strong>Copy link</strong>. The URL looks like <code>https://drive.google.com/file/d/&lt;id&gt;/view?usp=sharing</code>.</li>
@@ -2431,12 +2438,14 @@ More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)<
   <div class="admin-card">
     <p class="admin-card__label">Nudge template</p>
     <p class="admin-card__title">💬 Reminder message to paste in the group chat</p>
-    <p>When a teammate attaches a photo the wrong way (via Calendar's paperclip icon, or a private Drive link), paste this in the admin chat:</p>
-    <pre id="calendar-photos-reminder" style="white-space: pre-wrap; background: var(--ah-off); padding: 0.9rem 1rem; border-radius: 8px; font-size: 0.9rem; line-height: 1.55; border: 1px solid var(--ah-line); font-family: inherit;">Hey — for event photos, please upload to our shared <b>STW Calendar Photos</b> folder first:
+    <p>Most of the time the paperclip "just works" because the Apps Script mirror handles it. But when a teammate uses a private Drive link or the mirror's upstream service is having a bad day, the photo silently won't appear. If that happens, paste this in the admin chat:</p>
+    <pre id="calendar-photos-reminder" style="white-space: pre-wrap; background: var(--ah-off); padding: 0.9rem 1rem; border-radius: 8px; font-size: 0.9rem; line-height: 1.55; border: 1px solid var(--ah-line); font-family: inherit;">Hey — for event photos, the easiest way is the 📎 paperclip icon in the calendar event itself. The mirror handles the rest within 5 minutes.
+
+If that doesn't work for some reason, the manual fallback is to upload to our shared <b>STW Calendar Photos</b> folder first:
 
 {{FOLDER_URL}}
 
-Then paste the <i>file's</i> share link into the calendar event's description (not attach via the paperclip icon). That way Telegram and the website can actually load the image. Thanks! 🙏</pre>
+Then paste the <i>file's</i> share link into the calendar event's description. Thanks! 🙏</pre>
     <button type="button" id="calendar-photos-reminder-copy"
             style="margin-top: 0.5rem; padding: 0.55rem 1rem; border: 1.5px solid var(--ah-ink); background: #fff; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: inherit;">
       📋 Copy reminder

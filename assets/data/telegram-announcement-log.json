@@ -1,14 +1,7 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-05-30T02:21:19+00:00",
+  "updated": "2026-05-30T16:21:15+00:00",
   "events": {
-    "97v7rvel3qaled9trebltgiuj8@google.com": {
-      "title": "AWAKENING YOUTH SERVICE",
-      "start": "2026-05-16T02:30:00+00:00",
-      "lastPosted": "2026-05-15T23:40:59+00:00",
-      "upcomingPosted": true,
-      "reminderPosted": true
-    },
     "61h68p9g75hjcbb5cksm4b9k6cq3cbb16lhm4bb370qmaohmchh34c1n6o@google.com": {
       "title": "Seed the Word: Go & Tell Evangelism",
       "start": "2026-05-17T22:00:00+00:00",
@@ -73,8 +66,9 @@
     "jf2d85ooce6n5k8cns601garik@google.com": {
       "title": "One Heart MVMT: COMMUNITY COOKOUT",
       "start": "2026-05-30T19:00:00+00:00",
-      "lastPosted": "2026-05-29T14:14:36+00:00",
-      "upcomingPosted": true
+      "lastPosted": "2026-05-30T16:21:15+00:00",
+      "upcomingPosted": true,
+      "reminderPosted": true
     },
     "mdkvt5n6u7ee1avi8btf8s17mg@google.com": {
       "title": "IDENTITY YA",

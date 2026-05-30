@@ -431,9 +431,18 @@
         'story-too-short':     'Please share a little more — a couple of honest sentences.',
         'story-too-long':      'Please trim your story.',
         'sheet-write-failed':  'Something went wrong on our side. Please try again.',
+        'not-object':          'The form did not send correctly. Please refresh the page and try again.',
+        'invalid-payload':     'The form did not send correctly. Please refresh the page and try again.',
       })[resp.error];
-      return showError(humanCopy || 'Something went wrong. Please try again.');
+      // Diagnostic: log full response to the console so a user reporting
+      // a problem can copy/paste it. Visible message includes the raw
+      // error code when we don't have a friendly translation, so the
+      // admin team can tell at a glance what went wrong on the wire.
+      try { console.error('[donate] server response:', resp); } catch (_) {}
+      return showError(humanCopy || ('Server error: ' + String(resp.error) +
+        '. Please refresh and try again, or message us on Telegram if it keeps happening.'));
     }
+    try { console.error('[donate] unexpected response:', resp); } catch (_) {}
     showError('Something went wrong. Please try again, or message us on Telegram.');
   }
 

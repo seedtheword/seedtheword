@@ -28,6 +28,13 @@
       "ok": true,
       "detail": "weekday-reading",
       "at": "2026-05-18T15:08:01+00:00"
+    },
+    {
+      "date": "2026-05-30",
+      "kind": "saturday_icebreaker",
+      "ok": true,
+      "detail": "thread 434, q='When thinking about Abraham's hospitality in...'",
+      "ts": "2026-05-30T16:21:17Z"
     }
   ]
 }

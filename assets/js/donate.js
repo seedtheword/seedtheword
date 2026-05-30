@@ -84,8 +84,9 @@
         '<div class="donate-modal__dialog" role="document">' +
           '<button type="button" class="donate-modal__close" id="donate-modal-close" aria-label="Close">×</button>' +
           '<h2 id="donate-modal-title">…</h2>' +
+          '<p id="donate-modal-lead" class="donate-modal__lead"></p>' +
           '<form id="donate-form" novalidate>' +
-            '<div id="donate-form-fields"></div>' +
+            '<div id="donate-form-fields" class="donate-form__grid"></div>' +
             '<input type="text" name="extra_field_2" tabindex="-1" autocomplete="off" ' +
                    'aria-hidden="true" class="donate-form__honeypot">' +
             '<div class="donate-form__actions">' +
@@ -159,43 +160,102 @@
   }
 
   // ── Form fields per flow ────────────────────────────────────
+  //
+  // Each field is a self-contained .donate-form__field block:
+  //   <div class="donate-form__field [donate-form__field--full]">
+  //     <label for="...">Label <small class="donate-form__hint">…</small></label>
+  //     <input ... />
+  //   </div>
+  //
+  // The grid container (.donate-form__grid) lays them out 2-up on
+  // wide screens, 1-up on phones. Fields that should span the whole
+  // row carry --full.
   function renderFormFields(flow) {
     var fields = document.getElementById('donate-form-fields');
     var title = document.getElementById('donate-modal-title');
+    var lead = document.getElementById('donate-modal-lead');
+
     if (flow === 'donate') {
       title.textContent = 'Offer a Bible';
+      lead.textContent = "Tell us how to reach you and we'll coordinate the handoff. Most fields take a single tap.";
       fields.innerHTML =
-        '<label>Your name <input type="text" name="name" autocomplete="name" required maxlength="80"></label>' +
-        '<label>Email <em>(or phone)</em> <input type="email" name="email" autocomplete="email" maxlength="200"></label>' +
-        '<label>Phone <em>(or email)</em> <input type="text" name="phone" autocomplete="tel" maxlength="50"></label>' +
-        '<label>How many Bibles? <input type="number" name="count" min="1" max="500" value="1" required></label>' +
-        '<fieldset>' +
-          '<legend>Handoff</legend>' +
-          '<label><input type="radio" name="handoffMethod" value="dropoff" required> ' +
-            '📍 I\'ll drop them off at a meeting or cookout</label>' +
-          '<label><input type="radio" name="handoffMethod" value="pickup"> ' +
-            '🏠 I\'d prefer pickup at my place</label>' +
-        '</fieldset>' +
-        '<label>City <input type="text" name="city" autocomplete="address-level2" maxlength="60" placeholder="Everett"></label>' +
-        '<label>State <input type="text" name="state" autocomplete="address-level1" maxlength="2" value="WA"></label>' +
-        '<label>Anything you want to share with the team? <em>(optional)</em>' +
-          '<textarea name="note" rows="3" maxlength="500"></textarea>' +
-        '</label>';
+        // Row 1: name (full)
+        field({ name: 'name', label: 'Your name', required: true,
+                type: 'text', autocomplete: 'name', maxLength: 80, full: true }) +
+        // Row 2: email + phone (50/50)
+        field({ name: 'email', label: 'Email', hint: 'Or phone',
+                type: 'email', autocomplete: 'email', maxLength: 200 }) +
+        field({ name: 'phone', label: 'Phone', hint: 'Or email',
+                type: 'tel', autocomplete: 'tel', maxLength: 50 }) +
+        // Row 3: count + city (50/50)
+        field({ name: 'count', label: 'How many Bibles?', required: true,
+                type: 'number', min: 1, max: 500, value: 1 }) +
+        field({ name: 'city', label: 'City', hint: 'Optional',
+                type: 'text', autocomplete: 'address-level2', maxLength: 60,
+                placeholder: 'Everett' }) +
+        // Row 4: state (full, narrow)
+        field({ name: 'state', label: 'State',
+                type: 'text', autocomplete: 'address-level1', maxLength: 2,
+                value: 'WA' }) +
+        // Spacer to leave the grid at 1 column for the remaining rows.
+        '<div class="donate-form__field" aria-hidden="true"></div>' +
+        // Row 5: handoff radio cards (full)
+        radioCardsBlock({
+          legend: 'How do you want to hand them off?',
+          name: 'handoffMethod',
+          required: true,
+          options: [
+            {
+              value: 'dropoff',
+              icon: '📍',
+              title: "I'll drop them off",
+              note: 'At a meeting, cookout, or a spot we coordinate.',
+            },
+            {
+              value: 'pickup',
+              icon: '🏠',
+              title: "Pickup at my place",
+              note: "We'll come to you. We text first to confirm.",
+            },
+          ],
+        }) +
+        // Row 6: note (full)
+        field({ name: 'note', label: 'Anything you want to share with the team?',
+                hint: 'Optional', textarea: true, rows: 3, maxLength: 500, full: true });
     } else {
       title.textContent = 'Request a Bible';
+      lead.textContent = "Tell us a little about why you'd like a Bible. A couple of honest sentences are enough — we read every one.";
       fields.innerHTML =
-        '<label>First name <input type="text" name="name" autocomplete="given-name" required maxlength="60"></label>' +
-        '<label>Email <input type="email" name="email" autocomplete="email" required maxlength="200"></label>' +
-        '<label>Phone <em>(optional)</em> <input type="text" name="phone" autocomplete="tel" maxlength="50"></label>' +
-        '<label>City <input type="text" name="city" autocomplete="address-level2" required maxlength="60" placeholder="Everett"></label>' +
-        '<label>State <input type="text" name="state" autocomplete="address-level1" maxlength="2" value="WA"></label>' +
-        '<label>Tell us a little about why you\'d like a Bible. ' +
-          '<em>(A couple of honest sentences. We read every one.)</em>' +
-          '<textarea name="story" rows="6" required minlength="' + cfg.storyMinChars + '" maxlength="' + cfg.storyMaxChars + '"></textarea>' +
+        // Row 1: first name + email (50/50)
+        field({ name: 'name', label: 'First name', required: true,
+                type: 'text', autocomplete: 'given-name', maxLength: 60 }) +
+        field({ name: 'email', label: 'Email', required: true,
+                type: 'email', autocomplete: 'email', maxLength: 200 }) +
+        // Row 2: phone + city (50/50)
+        field({ name: 'phone', label: 'Phone', hint: 'Optional',
+                type: 'tel', autocomplete: 'tel', maxLength: 50 }) +
+        field({ name: 'city', label: 'City', required: true,
+                type: 'text', autocomplete: 'address-level2', maxLength: 60,
+                placeholder: 'Everett' }) +
+        // Row 3: state (left half; right half empty)
+        field({ name: 'state', label: 'State',
+                type: 'text', autocomplete: 'address-level1', maxLength: 2,
+                value: 'WA' }) +
+        '<div class="donate-form__field" aria-hidden="true"></div>' +
+        // Row 4: story (full)
+        '<div class="donate-form__field donate-form__field--full">' +
+          '<label for="donate-field-story" class="donate-form__label">' +
+            "Why you'd like a Bible " +
+            '<small class="donate-form__hint">A couple of honest sentences. We read every one.</small>' +
+          '</label>' +
+          '<textarea id="donate-field-story" name="story" rows="6" required ' +
+            'minlength="' + cfg.storyMinChars + '" maxlength="' + cfg.storyMaxChars + '"></textarea>' +
           '<span class="donate-form__counter" aria-live="polite">' +
             '<span id="donate-story-count">0</span> / ' + cfg.storyMaxChars +
           '</span>' +
-        '</label>';
+        '</div>';
+
+      // Wire the live character counter on the story field.
       var ta = fields.querySelector('textarea[name="story"]');
       var counter = fields.querySelector('.donate-form__counter');
       var countEl = document.getElementById('donate-story-count');
@@ -210,7 +270,7 @@
         } else if (len > (cfg.storyMaxChars - 200)) {
           counter.classList.add('donate-form__counter--warn');
           submit.disabled = false;
-        } else if (len < cfg.storyMinChars) {
+        } else if (len > 0 && len < cfg.storyMinChars) {
           counter.classList.add('donate-form__counter--warn');
           submit.disabled = false;
         } else {
@@ -218,6 +278,67 @@
         }
       });
     }
+  }
+
+  // Render a single labeled field (input or textarea).
+  function field(opts) {
+    var id = 'donate-field-' + opts.name;
+    var labelHtml = escapeHtml(opts.label) +
+      (opts.hint ? ' <small class="donate-form__hint">' + escapeHtml(opts.hint) + '</small>' : '');
+    var wrapClass = 'donate-form__field' + (opts.full ? ' donate-form__field--full' : '');
+
+    var inputAttrs =
+      ' id="' + id + '"' +
+      ' name="' + escapeHtml(opts.name) + '"' +
+      (opts.required ? ' required' : '') +
+      (opts.autocomplete ? ' autocomplete="' + escapeHtml(opts.autocomplete) + '"' : '') +
+      (opts.maxLength != null ? ' maxlength="' + opts.maxLength + '"' : '') +
+      (opts.placeholder ? ' placeholder="' + escapeHtml(opts.placeholder) + '"' : '');
+
+    var control;
+    if (opts.textarea) {
+      control = '<textarea' + inputAttrs +
+        (opts.rows ? ' rows="' + opts.rows + '"' : '') +
+        '></textarea>';
+    } else {
+      var typeAttr = ' type="' + escapeHtml(opts.type || 'text') + '"';
+      var minAttr = (opts.min != null) ? ' min="' + opts.min + '"' : '';
+      var maxAttr = (opts.max != null) ? ' max="' + opts.max + '"' : '';
+      var valAttr = (opts.value != null) ? ' value="' + escapeHtml(String(opts.value)) + '"' : '';
+      control = '<input' + typeAttr + inputAttrs + minAttr + maxAttr + valAttr + '>';
+    }
+    return '<div class="' + wrapClass + '">' +
+      '<label for="' + id + '" class="donate-form__label">' + labelHtml + '</label>' +
+      control +
+    '</div>';
+  }
+
+  function radioCardsBlock(opts) {
+    var cards = opts.options.map(function (o, i) {
+      var id = 'donate-radio-' + opts.name + '-' + i;
+      return '<label class="donate-form__radio-card" for="' + id + '">' +
+        '<input type="radio" id="' + id + '" name="' + escapeHtml(opts.name) + '" ' +
+          'value="' + escapeHtml(o.value) + '"' + (opts.required && i === 0 ? ' required' : '') + '>' +
+        '<span class="donate-form__radio-card-icon" aria-hidden="true">' + escapeHtml(o.icon || '') + '</span>' +
+        '<span class="donate-form__radio-card-body">' +
+          '<strong>' + escapeHtml(o.title) + '</strong>' +
+          (o.note ? '<small>' + escapeHtml(o.note) + '</small>' : '') +
+        '</span>' +
+      '</label>';
+    }).join('');
+    return '<fieldset>' +
+      '<legend>' + escapeHtml(opts.legend) + '</legend>' +
+      '<div class="donate-form__radio-grid">' + cards + '</div>' +
+    '</fieldset>';
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   // ── Submit ──────────────────────────────────────────────────

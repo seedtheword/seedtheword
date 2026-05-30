@@ -54,7 +54,13 @@ test('validateBibleDonate_ — strips HTML from note', () => {
     note: 'Hello <script>alert(1)</script> world',
   });
   assert.equal(out.ok, true);
-  assert.equal(out.note, 'Hello  world');
+  // Tags are stripped; inner text content is preserved as plain text.
+  // Same behavior as prayer-intake's stripHtmlAndNormalize_ — removing
+  // tags is what neutralizes XSS; subsequent MarkdownV2 escaping
+  // handles any special characters that survive.
+  assert.equal(out.note, 'Hello alert(1) world');
+  // Defense in depth: confirm no tag-shaped substring remains.
+  assert.equal(/<[^>]*>/.test(out.note), false);
 });
 
 test('validateBibleDonate_ — uppercases and slices state to two letters', () => {

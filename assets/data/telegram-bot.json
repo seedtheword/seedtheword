@@ -127,5 +127,15 @@
       "auditSheetTabName": "Prayers",
       "_help": "marker MUST equal prayer.digest.websiteSubmissionMarker — these are one contract. endpointUrl reuses the existing Apps Script web app already used by orders / contact / stories. dripEnabled stays false until the Prayers + PrayerDrip Sheet tabs and PRAYER_INTAKE_UNSUBSCRIBE_SECRET are deployed (admin-help.html → Bot 6 deploy steps)."
     }
+  },
+  "bibleDonate": {
+    "_help": "Public Bible donate/receive intake on donate.html. Same Apps Script web app as orders/prayer-intake. Story field is the central security primitive on the receive side: 80-char floor filters spam visually, 1500 ceiling bounds admin reading load. Receive flow is gated by admin email review (approve/decline links — decline is silent). Donate flow goes straight through with admin notification. Toggle 'enabled' off to disable the CTAs without removing donate.html. Apps Script needs BIBLE_REQUEST_REVIEW_SECRET in Script Properties before this can be enabled (openssl rand -base64 32). See admin-help.html → Bot 8 deploy steps.",
+    "enabled": false,
+    "endpointUrl": "https://script.google.com/macros/s/AKfycbzrHVlOqNu5skSDkf_rsy8moKvwRlM_mZNQpKSXH7HPBCSNjj1Dffz-IuFSJcWjjQUF/exec",
+    "storyMinChars": 80,
+    "storyMaxChars": 1500,
+    "donateIdempotencyDays": 1,
+    "receiveIdempotencyDays": 7,
+    "reviewReminderHours": 48
   }
 }

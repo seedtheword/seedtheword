@@ -423,13 +423,35 @@
             { name: 'timezone', label: 'Timezone', kind: 'text', required: true },
           ],
         },
+        {
+          name: 'bibleDonate',
+          dataKey: 'bibleDonate',
+          label: 'Bible donate / receive (donate.html)',
+          hint: 'Public-facing intake on donate.html. Two flows: donate a Bible (coordination) and receive a Bible (story-gated review). Apps Script needs BIBLE_REQUEST_REVIEW_SECRET in Script Properties before this can be enabled.',
+          fields: [
+            { name: 'enabled', label: 'Enabled (CTA buttons go live on donate.html)', kind: 'toggle' },
+            { name: 'endpointUrl', label: 'Apps Script web app URL', kind: 'url',
+              hint: 'Same web app as orders / prayer intake. Paste the deployed /exec URL.',
+              validate: (v) => !v || isValidHttpsUrl(v) ? null : 'Must be an https URL.' },
+            { name: 'storyMinChars', label: 'Receive flow: story minimum chars', kind: 'number',
+              hint: 'Below this length, receive submissions are rejected. 80 is the default — visible at a glance, hard to satisfy with copy-paste spam.' },
+            { name: 'storyMaxChars', label: 'Receive flow: story maximum chars', kind: 'number',
+              hint: '1500 is the default. Bounds the admin reading load while leaving room for an honest paragraph.' },
+            { name: 'donateIdempotencyDays', label: 'Donate flow: idempotency window (days)', kind: 'number',
+              hint: 'A second donate submission from the same email within this window is treated as a no-op duplicate. Default 1.' },
+            { name: 'receiveIdempotencyDays', label: 'Receive flow: idempotency window (days)', kind: 'number',
+              hint: 'A nervous resubmit from the same email within this window does not create a second pending_review row. Default 7.' },
+            { name: 'reviewReminderHours', label: 'Receive flow: review SLO before reminder (hours)', kind: 'number',
+              hint: 'How long a pending_review row can wait before the cron sends a reminder email to the admin team. Default 48.' },
+          ],
+        },
       ],
       validate: function (data) {
         if (!data || typeof data !== 'object') return 'Root must be an object.';
         // Soft validation — we want the form to be forgiving for admins who
         // are mid-edit. Strict required-field enforcement lives on the
         // per-field validators.
-        for (const bot of ['announcements', 'bible', 'prayer']) {
+        for (const bot of ['announcements', 'bible', 'prayer', 'bibleDonate']) {
           if (data[bot] && typeof data[bot] !== 'object') return bot + ' must be an object.';
         }
         return null;
@@ -438,7 +460,7 @@
       tokens: function (form) {
         // Best-effort summary: surface whichever bot the admin just touched.
         try {
-          for (const bot of ['announcements', 'bible', 'prayer']) {
+          for (const bot of ['announcements', 'bible', 'prayer', 'bibleDonate']) {
             const b = form && form[bot];
             if (b && typeof b === 'object' && b.enabled !== undefined) {
               return { summary: bot + ' ' + (b.enabled ? 'enabled' : 'disabled') };
@@ -724,6 +746,67 @@
           if (last && last.id) return { summary: 'edit ' + last.id };
         }
         return { summary: 'instagram update' };
+      },
+    },
+
+    // ── Bible donate / receive sign-tracking config ──────────────
+    // Each printed sign that points at donate.html?sign=<id> gets one
+    // entry here. The Apps Script handler stores sign_id on every
+    // Bibles row so we can correlate which signs convert. After
+    // editing this list, re-run scripts/generate_sign_qr_codes.py to
+    // regenerate the SVGs in assets/images/sign-qr/.
+    signLocations: {
+      id: 'signLocations',
+      label: 'Bible donate signs (where each printed sign is posted)',
+      category: 'content',
+      kind: 'json',
+      path: 'assets/data/sign-locations.json',
+      rootType: 'object',
+      groups: [
+        {
+          name: 'signs',
+          label: 'Signs (one entry per printed placement)',
+          kind: 'repeating-group',
+          fields: [
+            { name: 'id', label: 'Sign id (kebab-case)', kind: 'text', required: true,
+              hint: 'Free-form unique identifier — used in the QR URL as donate.html?sign=<id>. Suggested: <city>-<location>-<n> (e.g. everett-coffee-1).' },
+            { name: 'label', label: 'Human label', kind: 'text', required: true,
+              hint: 'Short description: "Everett Coffee Roasters bulletin board".' },
+            { name: 'city', label: 'City', kind: 'text' },
+            { name: 'posted_at', label: 'Posted on', kind: 'text',
+              hint: 'ISO date when the sign was put up. Example: 2026-06-01.' },
+            { name: 'posted_by', label: 'Posted by', kind: 'text',
+              hint: 'Admin who hung the sign.' },
+            { name: 'qr_url', label: 'QR URL (auto-derived if blank)', kind: 'url',
+              hint: 'Defaults to https://seedtheword.github.io/seedtheword/donate.html?sign=<id>. Override only for unusual placements (e.g. a custom landing).',
+              validate: (v) => !v || isValidHttpsUrl(v) ? null : 'Must be an https URL.' },
+            { name: 'notes', label: 'Notes (admin-only)', kind: 'textarea' },
+            { name: 'retired_at', label: 'Retired on (leave blank if active)', kind: 'text',
+              hint: 'ISO date when the sign was taken down. Set this instead of deleting the entry — the audit trail stays.' },
+          ],
+        },
+      ],
+      validate: function (data) {
+        if (!data || typeof data !== 'object') return 'Root must be an object.';
+        if (!Array.isArray(data.signs)) return 'signs must be an array.';
+        const ids = new Set();
+        for (let i = 0; i < data.signs.length; i++) {
+          const s = data.signs[i] || {};
+          const idx = '#' + (i + 1);
+          if (!s.id) return 'Sign ' + idx + ' is missing an id.';
+          if (ids.has(s.id)) return 'Sign ' + idx + ' has duplicate id "' + s.id + '".';
+          ids.add(s.id);
+        }
+        return null;
+      },
+      commitMessageTemplate: 'content(sign-locations): update {summary}',
+      tokens: function (form) {
+        const signs = (form && form.signs) || [];
+        if (signs.length) {
+          const last = signs[signs.length - 1];
+          if (last && last.id) return { summary: 'edit ' + last.id };
+        }
+        return { summary: 'sign update' };
       },
     },
 

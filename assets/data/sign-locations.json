@@ -1,0 +1,15 @@
+{
+  "_help": "Each printed Bible-donate sign gets a unique id and a QR code that points at donate.html?sign=<id>. The Apps Script handler stores sign_id on the Bibles row so we can correlate which signs convert. To add a new sign: append an entry below, then run scripts/generate_sign_qr_codes.py to (re)generate the SVGs in assets/images/sign-qr/. Retire a sign by setting retired_at to today's ISO date — the entry stays in the file as an audit record.",
+  "signs": [
+    {
+      "id": "example-coffee-1",
+      "label": "Example Coffee Roasters bulletin board",
+      "city": "Everett",
+      "posted_at": "2026-06-01",
+      "posted_by": "David A.",
+      "qr_url": "https://seedtheword.github.io/seedtheword/donate.html?sign=example-coffee-1",
+      "notes": "Seed entry — replace with real placements once Sam's signs are printed and posted. Keep this entry at least until 2026-09 so admin-help has something to render in the 'Where the signs are' card during the launch window.",
+      "retired_at": ""
+    }
+  ]
+}

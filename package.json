@@ -9,7 +9,8 @@
     "test:jesus-storytelling": "node --test tests/jesus-storytelling.test.js",
     "test:schema-testimonies": "node --test tests/schema-testimonies.test.js",
     "test:prayer-intake": "node --test tests/prayer_intake_relay.test.mjs tests/prayer_intake_drip.test.mjs tests/prayer_intake_audit.test.mjs tests/prayer_intake_form.test.mjs tests/prayer_intake_smoke.test.mjs",
-    "test": "npm run test:admin-editor && npm run test:jesus-storytelling && npm run test:schema-testimonies && npm run test:prayer-intake"
+    "test:bible-donate": "node --test tests/bible_donate_validate.test.mjs tests/bible_donate_token.test.mjs tests/bible_donate_idempotency.test.mjs tests/bible_donate_handler.test.mjs tests/bible_donate_review.test.mjs tests/bible_donate_handoff.test.mjs tests/bible_donate_reminder.test.mjs",
+    "test": "npm run test:admin-editor && npm run test:jesus-storytelling && npm run test:schema-testimonies && npm run test:prayer-intake && npm run test:bible-donate"
   },
   "devDependencies": {
     "fast-check": "3.23.2",

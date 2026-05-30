@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Help — Seed the Word</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=15">
+  <link rel="stylesheet" href="assets/css/main.css?v=16">
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
   <style>
     /* ============================================================
@@ -2688,6 +2688,47 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
     <p>The icebreaker reads from the same three streams the Bible bot's daily footer renders: NT (anchored at <em>bible-plan.js</em>'s <code>2026-04-30 = Mark 11</code>), OT history (<code>bible.layeredPlan.streams.otHistory.anchor</code>), and Poetry &amp; Prophecy (<code>streams.poetryProphecy.anchor</code>). If a stream's <code>enabled</code> flag is <code>false</code>, the icebreaker silently omits it from the prompt — no error, just narrower context for Gemini. Re-anchor any stream and the next icebreaker will reflect the new path the same Saturday.</p>
   </div>
 
+  <h3>Bot 8 — Bible Donate / Receive <span style="opacity: 0.65; font-weight: 600; font-size: 0.85em;">(disabled by default)</span></h3>
+  <ul>
+    <li><strong>What it does:</strong> A public-facing intake at <code>donate.html</code>, reachable by a QR code printed on physical signs around Everett, Mukilteo, and Lynnwood. Two flows: <strong>Donate a Bible</strong> (coordination only — name, contact, count, drop-off vs pickup) and <strong>Receive a Bible</strong> (story-gated review — admin reads the story body, clicks Approve or Decline; decline is silent). Submissions land in a new <code>Bibles</code> Sheet tab; admin notifications go to <code>seedthewordministry@gmail.com</code> like every other email pipeline. Framed on <code>store.html</code> as the inbound paired path of the same distribution mission.</li>
+    <li><strong>Where:</strong> Form on <code>donate.html</code>. Audit trail in the <code>Bibles</code> Sheet tab. Admin notifications → <code>seedthewordministry@gmail.com</code>. Approve/Decline routes → web app <code>doGet</code>. Handoff form (post-approval) → web app <code>doGet</code>.</li>
+    <li><strong>Schedule:</strong> Form is event-driven (one POST per submission). A 30-minute cron (<code>processBibleReviewReminders_</code>) re-emails admins for any <code>pending_review</code> row that's been waiting more than 48 hours.</li>
+    <li><strong>Story gate:</strong> The receive flow's only required filter — beyond name + email + city — is the story field, bounded 80–1500 characters. Below 80 chars rejects (filters copy-paste spam visually). Above 1500 trims (bounds admin reading load). Anyone willing to write 80 honest characters about why they need a Bible passes.</li>
+    <li><strong>Decline behavior:</strong> Silent. The requester does not receive an email. The default-trust posture is "lean toward yes"; decline is reserved for clearly bad-faith submissions.</li>
+    <li><strong>Sign tracking:</strong> Each printed sign points at <code>donate.html?sign=&lt;id&gt;</code>. The Apps Script writes <code>sign_id</code> on every Bibles row so we can correlate which signs convert. Sign list lives at <code>assets/data/sign-locations.json</code>; QR SVGs at <code>assets/images/sign-qr/&lt;id&gt;.svg</code>. Re-run <code>scripts/generate_sign_qr_codes.py</code> after editing the JSON.</li>
+    <li><strong>Privacy:</strong> Mailing addresses are collected ONLY post-approval, on the handoff form, and ONLY when the requester picks "mail". Pending and declined rows never have an address on file.</li>
+    <li><strong>Secret:</strong> <code>BIBLE_REQUEST_REVIEW_SECRET</code> — new HMAC signing key for approve/decline/handoff tokens. Generate with <code>openssl rand -base64 32</code>.</li>
+    <li><strong>Lives in:</strong> <code>docs/apps-script/order-handler.gs</code> (extends the existing web app) + <code>assets/js/donate.js</code> + <code>donate.html</code> + <code>assets/data/sign-locations.json</code>.</li>
+  </ul>
+
+  <div class="admin-card">
+    <p class="admin-card__label">One-time setup</p>
+    <p class="admin-card__title">🚀 Deploy the donate / receive flow</p>
+    <p>Four steps. The handler reuses the existing web app — no new deployment URL.</p>
+    <ol>
+      <li>Open <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> → STW Order Handler. Copy the latest <code>docs/apps-script/order-handler.gs</code> from the repo and paste over <code>Code.gs</code>. Save.</li>
+      <li><strong>Project Settings</strong> → <strong>Script Properties</strong> → <strong>Add script property</strong>: name <code>BIBLE_REQUEST_REVIEW_SECRET</code>, value the output of <code>openssl rand -base64 32</code> (any 32+ random characters work). Save.</li>
+      <li>Run <code>installAllTimeTriggers</code> from the function dropdown to register the new <code>processBibleReviewReminders_</code> 30-minute trigger. Confirm the log line says <em>"installed 14 triggers"</em>.</li>
+      <li>In the admin editor: <strong>Telegram bot config → Bible donate / receive</strong>. Paste the deployed web app URL into <code>endpointUrl</code>. Flip <code>enabled</code> to <strong>true</strong>. Save &amp; commit. The CTA buttons on <code>donate.html</code> go live on the next deploy.</li>
+    </ol>
+    <p>The first submission will auto-create the <code>Bibles</code> tab on the ministry Sheet via the <code>openTab</code> helper — no manual tab creation needed.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Reviewing a request</p>
+    <p class="admin-card__title">📖 What the admin team sees when a request lands</p>
+    <p>Every receive submission emails <code>seedthewordministry@gmail.com</code> with the full story body in a blockquote and two big buttons: <strong>Approve and email handoff form</strong> (green) and <strong>Decline silently</strong> (white). Click Approve and the requester gets an email with a link to the handoff form. Click Decline and the row is marked declined; the requester is not notified.</p>
+    <p>If you need to add a private decline reason for the audit trail, append <code>&amp;reason=&lt;short note&gt;</code> to the decline link before clicking. The reason is stored in the Bibles row's <code>decline_reason</code> column (admin-eyes-only).</p>
+    <p>If a request sits unreviewed for 48 hours, the cron re-emails the admin team once with the same buttons. Only one reminder per request.</p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Where the signs are</p>
+    <p class="admin-card__title">🧭 Active sign placements</p>
+    <p id="bible-donate-signs-body" class="admin-card__body"><em>Loading…</em></p>
+    <p style="font-size:0.88rem;color:var(--ah-muted);margin-top:0.85rem;">Edit the list in the admin editor → <em>Bible donate signs</em>. After editing, run <code>python scripts/generate_sign_qr_codes.py</code> to (re)generate the QR SVGs in <code>assets/images/sign-qr/</code>. Print the SVG into the physical sign Sam Petrov designs.</p>
+  </div>
+
   <h3>Bot 6 — Prayer Request Intake <span style="opacity: 0.65; font-weight: 600; font-size: 0.85em;">(disabled by default)</span></h3>
   <ul>
     <li><strong>What it does:</strong> Two cards on <code>community.html</code> (under the live Telegram dashboard) open a quiet modal where members can submit a prayer request or a thanksgiving announcement. Each Submission is appended to a private <code>Prayers</code> Sheet tab (audit-only — admin eyes only), then relayed into the <em>Prayer &amp; Thanksgiving</em> Telegram topic (thread 21) using the same <code>(via the website)</code> marker the Bot 5 digest already recognizes. Submitters who shared an email get a four-step encouragement drip (Day 0 confirmation, Days 3, 7, 14) with one-click unsubscribe baked into every message.</li>
@@ -3062,6 +3103,39 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
       })
       .catch(function () {
         if (body) body.innerHTML = '<em>Could not load config.</em>';
+      });
+  })();
+
+  // Populate the Bible-donate "Where the signs are" admin-help card
+  // from assets/data/sign-locations.json. Quiet on error — admins
+  // viewing this card on a freshly forked repo see "no signs yet"
+  // rather than a scary error message.
+  (function () {
+    var body = document.getElementById('bible-donate-signs-body');
+    if (!body) return;
+    fetch('assets/data/sign-locations.json?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (cfg) {
+        var signs = (cfg && cfg.signs) || [];
+        var active = signs.filter(function (s) { return s && s.id && !s.retired_at; });
+        if (!active.length) {
+          body.innerHTML = '<em>No active signs registered yet. Add one in the admin editor → Bible donate signs.</em>';
+          return;
+        }
+        var rows = active.map(function (s) {
+          var label = (s.label || s.id) + (s.city ? ' · ' + s.city : '');
+          var qr = s.qr_url || ('https://seedtheword.github.io/seedtheword/donate.html?sign=' + encodeURIComponent(s.id));
+          var posted = s.posted_at ? ' (posted ' + s.posted_at + (s.posted_by ? ' by ' + s.posted_by : '') + ')' : '';
+          return '<li style="margin:0.4rem 0;line-height:1.55;">' +
+            '<strong>' + label + '</strong>' + posted + '<br>' +
+            '<a href="' + encodeURI(qr) + '" target="_blank" rel="noopener" style="font-size:0.88rem;">' + encodeURI(qr) + '</a>' +
+            (s.notes ? '<br><span style="font-size:0.85rem;color:var(--ah-muted);">' + s.notes + '</span>' : '') +
+            '</li>';
+        }).join('');
+        body.innerHTML = '<ul style="padding-left:1.25rem;margin:0;">' + rows + '</ul>';
+      })
+      .catch(function () {
+        body.innerHTML = '<em>Could not load sign list.</em>';
       });
   })();
 </script>

@@ -1,0 +1,53 @@
+name: Bible Donate Tests
+
+# Property-based tests for the bible-donate-request spec
+# (.kiro/specs/bible-donate-request/). Runs on every push or PR
+# that touches the helper file, the form-side JS, the donate page,
+# the sign-locations config, or the test suite itself.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'donate.html'
+      - 'assets/js/donate.js'
+      - 'assets/data/sign-locations.json'
+      - 'assets/data/telegram-bot.json'
+      - 'docs/apps-script/bible-donate-helpers.js'
+      - 'docs/apps-script/order-handler.gs'
+      - 'tests/bible_donate_*.test.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/bible-donate-tests.yml'
+  pull_request:
+    paths:
+      - 'donate.html'
+      - 'assets/js/donate.js'
+      - 'assets/data/sign-locations.json'
+      - 'assets/data/telegram-bot.json'
+      - 'docs/apps-script/bible-donate-helpers.js'
+      - 'docs/apps-script/order-handler.gs'
+      - 'tests/bible_donate_*.test.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/bible-donate-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        # Use npm install (not ci) because the repo intentionally
+        # ships without a lockfile — the dev deps are tiny and pinned.
+        run: npm install --no-audit --no-fund
+
+      - name: Run bible-donate tests (BD1-BD9)
+        run: npm run test:bible-donate

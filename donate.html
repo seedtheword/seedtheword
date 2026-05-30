@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="description" content="Donate or receive a Bible — a paired path on Seed the Word Ministry. No cost, no shipping fee, no obligation. The team coordinates handoff in person or by mail.">
+  <!-- Open Graph -->
+  <meta property="og:site_name" content="Seed the Word Ministry">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Donate or receive a Bible — Seed the Word Ministry">
+  <meta property="og:description" content="If you have a Bible to share, we'll get it to someone who'll read it. If you'd like one, tell us a little about why and we'll be in touch.">
+  <meta property="og:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
+  <meta property="og:url" content="https://seedtheword.github.io/seedtheword/donate.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Donate or receive a Bible — Seed the Word Ministry">
+  <meta name="twitter:description" content="A paired path: offer a Bible you own, or ask the ministry to set one aside for you.">
+  <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
+  <title>Donate or receive a Bible — Seed the Word Ministry</title>
+  <link rel="stylesheet" href="assets/css/main.css?v=16">
+  <style>
+    /* donate.html — paired Bible donate/receive intake. Minimal,
+       mobile-first, brand-green/cream. Mirrors start-here.html shell.
+       Cards intentionally heavier than the bundle cards on store.html
+       so the donate path reads with equal visual weight. */
+
+    .donate-hero {
+      background: linear-gradient(135deg, var(--green) 0%, #1a4a1c 100%);
+      color: #fff;
+      padding: 3.75rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .donate-hero__back {
+      display: inline-block;
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid transparent;
+    }
+    .donate-hero__back:hover { border-bottom-color: rgba(255, 255, 255, 0.5); }
+    .donate-hero h1 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: clamp(1.85rem, 5vw, 2.4rem);
+      font-weight: 400;
+      margin: 0 0 1rem;
+      line-height: 1.2;
+    }
+    .donate-hero__lead {
+      max-width: 620px;
+      margin: 0 auto;
+      font-size: 1.08rem;
+      line-height: 1.7;
+      opacity: 0.95;
+    }
+
+    .donate-cards {
+      max-width: 920px;
+      margin: -2rem auto 0;
+      padding: 0 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      position: relative;
+      z-index: 2;
+    }
+    @media (max-width: 720px) { .donate-cards { grid-template-columns: 1fr; } }
+    .donate-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2.2rem 1.75rem 2rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .donate-card__icon {
+      font-size: 2.6rem;
+      margin: 0 0 1rem;
+    }
+    .donate-card h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--text);
+      margin: 0 0 0.85rem;
+      line-height: 1.25;
+    }
+    .donate-card p {
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--muted);
+      margin: 0 0 1.4rem;
+    }
+    .donate-card__cta {
+      display: inline-block;
+      padding: 0.85rem 1.6rem;
+      background: var(--green);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .donate-card__cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(44, 95, 46, 0.28);
+    }
+    .donate-card__cta:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .donate-context {
+      max-width: 720px;
+      margin: 3rem auto 0;
+      padding: 1.75rem 1.5rem;
+      text-align: center;
+    }
+    .donate-context p {
+      color: var(--muted);
+      font-size: 0.97rem;
+      margin: 0 0 0.85rem;
+    }
+    .donate-context ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.25rem;
+    }
+    .donate-context li a {
+      color: var(--green);
+      font-weight: 700;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      font-size: 0.97rem;
+    }
+
+    .donate-footer {
+      max-width: 620px;
+      margin: 2rem auto 3rem;
+      padding: 0 1.5rem;
+      text-align: center;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Modal — same structural pattern as prayer-intake.js's modal.
+       Backdrop + dialog, focus-trap-friendly. */
+    .donate-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .donate-modal[hidden] { display: none; }
+    .donate-modal__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+    }
+    .donate-modal__dialog {
+      position: relative;
+      background: #fff;
+      border-radius: 14px;
+      max-width: 520px;
+      width: 100%;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 2rem 1.75rem 1.75rem;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    }
+    .donate-modal__close {
+      position: absolute;
+      top: 0.75rem;
+      right: 1rem;
+      background: transparent;
+      border: none;
+      font-size: 1.6rem;
+      color: var(--muted);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.25rem 0.5rem;
+    }
+    .donate-modal__dialog h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--text);
+      margin: 0 0 1.25rem;
+    }
+    body.donate-modal-open { overflow: hidden; }
+
+    .donate-form label {
+      display: block;
+      margin: 0 0 0.85rem;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+    .donate-form label em {
+      font-weight: 400;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .donate-form input[type="text"],
+    .donate-form input[type="email"],
+    .donate-form input[type="number"],
+    .donate-form textarea {
+      display: block;
+      width: 100%;
+      margin-top: 0.3rem;
+      padding: 0.55rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.97rem;
+      background: #fff;
+    }
+    .donate-form textarea { resize: vertical; line-height: 1.55; }
+    .donate-form fieldset {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem 1rem;
+      margin: 0 0 0.85rem;
+    }
+    .donate-form fieldset legend {
+      padding: 0 0.4rem;
+      font-size: 0.92rem;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .donate-form fieldset label { margin: 0.35rem 0; font-weight: 400; }
+    .donate-form fieldset input[type="radio"] { margin-right: 0.5rem; }
+    .donate-form__counter {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .donate-form__counter--warn { color: #b54f2c; }
+    .donate-form__counter--over { color: #b03030; font-weight: 700; }
+    .donate-form__honeypot {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+    .donate-form__actions {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .donate-form__actions button {
+      padding: 0.75rem 1.5rem;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-family: inherit;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .donate-form__actions button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .donate-form__error {
+      background: #fbeaea;
+      border: 1px solid #f0c7c7;
+      color: #983131;
+      padding: 0.7rem 0.9rem;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      margin: 0;
+    }
+    .donate-form__success p { line-height: 1.7; }
+  </style>
+</head>
+<body>
+
+<section class="donate-hero">
+  <a href="index.html" class="donate-hero__back">← Seed the Word Ministry</a>
+  <h1>A Bible — to give, or to receive.</h1>
+  <p class="donate-hero__lead">
+    If you have a Bible to share, we'll get it to someone who'll read it.
+    If you'd like one, tell us a little about why and our team will be in touch.
+    No cost, no shipping fee, no obligation.
+  </p>
+</section>
+
+<section class="donate-cards">
+  <article class="donate-card">
+    <div class="donate-card__icon" aria-hidden="true">📚</div>
+    <h2>Donate a Bible</h2>
+    <p>You have one or more Bibles you'd like to pass on. We'll coordinate drop-off at a meeting or pickup at your place.</p>
+    <button type="button" class="donate-card__cta" data-donate-flow="donate">
+      Offer a Bible →
+    </button>
+  </article>
+
+  <article class="donate-card">
+    <div class="donate-card__icon" aria-hidden="true">📖</div>
+    <h2>Receive a Bible</h2>
+    <p>You'd like one for yourself. Tell us your story — a couple of sentences are enough — and our team will be in touch.</p>
+    <button type="button" class="donate-card__cta" data-donate-flow="receive">
+      Request a Bible →
+    </button>
+  </article>
+</section>
+
+<section class="donate-context">
+  <p>While you're here, you can also:</p>
+  <ul>
+    <li><a href="about.html">Learn who Seed the Word is</a></li>
+    <li><a href="store.html">See the bundles we send to gifters</a></li>
+    <li><a href="how-to-seed.html">Read how we seed the Word</a></li>
+  </ul>
+</section>
+
+<footer class="donate-footer">
+  <p>Sincerely,<br>The Seed the Word team</p>
+</footer>
+
+<script src="assets/js/donate.js?v=1"></script>
+
+</body>
+</html>

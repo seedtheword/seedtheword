@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615194,
-  "lastModified": "2026-05-31T17:35:30Z",
+  "lastUpdateId": 669615196,
+  "lastModified": "2026-05-31T17:50:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -157,6 +157,16 @@
       "kind": "telegram",
       "text": "Morning prayer for SEED\n\n5/30/2026",
       "ts": "2026-05-30T08:14:21Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4487,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request 5/31/2026:\n\nI'm asking for a prayer request this morning for God's wisdom and guidance of the Holy Spirit where I'll be at today to protect me from making any mistakes and allowing His will to be done.\n\nI've been worried to follow through with this action and afraid of the consequences it may carry but last time I did something similar it introduced a huge blessing into my life so I'll ask God's hand in this likewise.",
+      "ts": "2026-05-31T17:46:44Z"
     }
   ]
 }

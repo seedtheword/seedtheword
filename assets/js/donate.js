@@ -431,8 +431,6 @@
         'story-too-short':     'Please share a little more — a couple of honest sentences.',
         'story-too-long':      'Please trim your story.',
         'sheet-write-failed':  'Something went wrong on our side. Please try again.',
-        'not-object':          'The form did not send correctly. Please refresh the page and try again.',
-        'invalid-payload':     'The form did not send correctly. Please refresh the page and try again.',
       })[resp.error];
       // Diagnostic: log full response to the console so a user reporting
       // a problem can copy/paste it. Visible message includes the raw

@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="description" content="Donate or receive a Bible — a paired path on Seed the Word Ministry. No cost, no shipping fee, no obligation. The team coordinates handoff in person or by mail.">
+  <meta name="description" content="Donate or receive a Bible — Seed the Word Ministry. No cost, no shipping fee, no obligation. The team coordinates the handoff in person or by mail.">
   <!-- Open Graph -->
   <meta property="og:site_name" content="Seed the Word Ministry">
   <meta property="og:type" content="website">
@@ -19,100 +19,269 @@
   <meta name="twitter:description" content="A paired path: offer a Bible you own, or ask the ministry to set one aside for you.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
   <title>Donate or receive a Bible — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=17">
+  <link rel="stylesheet" href="assets/css/main.css?v=18">
   <style>
-    /* donate.html — paired Bible donate/receive intake. Minimal,
-       mobile-first, brand-green/cream. Mirrors start-here.html shell.
-       Cards intentionally heavier than the bundle cards on store.html
-       so the donate path reads with equal visual weight. */
+    /* ============================================================
+       donate.html — paired Bible donate / receive intake.
 
-    .donate-hero {
-      background: linear-gradient(135deg, var(--green) 0%, #1a4a1c 100%);
-      color: #fff;
-      padding: 3.75rem 1.5rem 3rem;
-      text-align: center;
+       Self-contained styles that match the ministry's brand tokens
+       (--green, --gold, --cream) and the serif-display + sans-body
+       cadence used on store.html, about.html, and the gospel-stage
+       blocks. Photo-driven hero, two equal-weight CTA cards, an
+       "anchor" scripture strip, a 3-step "what happens next" panel
+       per flow, and a soft footer. Form modal styles unchanged
+       (the form/JS is preserved from v3 and rendered by donate.js).
+       ============================================================ */
+
+    body {
+      background: var(--cream, #fdf3e3);
+      color: var(--text, #2b2b2b);
+      margin: 0;
     }
-    .donate-hero__back {
-      display: inline-block;
-      color: rgba(255, 255, 255, 0.85);
-      text-decoration: none;
-      font-size: 0.9rem;
-      letter-spacing: 0.04em;
-      margin-bottom: 1.25rem;
-      border-bottom: 1px solid transparent;
+
+    /* ── Top header strip ────────────────────────────────────── */
+    .donate-topbar {
+      position: relative;
+      z-index: 5;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border, #e8e4de);
     }
-    .donate-hero__back:hover { border-bottom-color: rgba(255, 255, 255, 0.5); }
-    .donate-hero h1 {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: clamp(1.85rem, 5vw, 2.4rem);
-      font-weight: 400;
-      margin: 0 0 1rem;
-      line-height: 1.2;
-    }
-    .donate-hero__lead {
-      max-width: 620px;
+    .donate-topbar__inner {
+      max-width: 1100px;
       margin: 0 auto;
-      font-size: 1.08rem;
-      line-height: 1.7;
-      opacity: 0.95;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .donate-topbar__brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      color: var(--green, #2C5F2E);
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.01em;
+    }
+    .donate-topbar__brand img {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(212, 165, 116, 0.5);
+    }
+    .donate-topbar__back {
+      color: var(--muted, #666);
+      text-decoration: none;
+      font-size: 0.92rem;
+      letter-spacing: 0.02em;
+      border-bottom: 1px solid transparent;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .donate-topbar__back:hover {
+      color: var(--green, #2C5F2E);
+      border-bottom-color: var(--gold, #d4a574);
     }
 
-    .donate-cards {
-      max-width: 920px;
-      margin: -2rem auto 0;
-      padding: 0 1.25rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
+    /* ── Hero ────────────────────────────────────────────────── */
+    .donate-hero {
+      position: relative;
+      min-height: 64vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5.5rem 1.5rem 6rem;
+      background:
+        linear-gradient(180deg, rgba(26, 60, 28, 0.78) 0%, rgba(20, 40, 21, 0.85) 100%),
+        url('assets/images/backgrounds/bible-in-background.jpg') center/cover no-repeat;
+      color: #fff;
+      overflow: hidden;
+    }
+    .donate-hero::after {
+      /* subtle gold flourish frame, like the gospel-stage hero */
+      content: "";
+      position: absolute;
+      inset: 1.25rem;
+      border: 1px solid rgba(212, 165, 116, 0.25);
+      border-radius: 6px;
+      pointer-events: none;
+    }
+    .donate-hero__inner {
+      max-width: 760px;
+      text-align: center;
       position: relative;
       z-index: 2;
     }
+    .donate-hero__eyebrow {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--gold, #d4a574);
+      margin-bottom: 1.25rem;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    }
+    .donate-hero__eyebrow::before,
+    .donate-hero__eyebrow::after {
+      content: "❦";
+      margin: 0 0.6rem;
+      opacity: 0.7;
+    }
+    .donate-hero h1 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: clamp(2.1rem, 5.5vw, 3.2rem);
+      font-weight: 400;
+      line-height: 1.18;
+      margin: 0 0 1.25rem;
+      letter-spacing: -0.01em;
+      text-shadow: 0 2px 18px rgba(0, 0, 0, 0.4);
+    }
+    .donate-hero h1 em {
+      font-style: italic;
+      color: var(--gold, #d4a574);
+    }
+    .donate-hero__lead {
+      max-width: 580px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+      line-height: 1.75;
+      opacity: 0.94;
+    }
+    .donate-hero__verse {
+      margin: 2rem auto 0;
+      max-width: 540px;
+      padding: 1rem 1.4rem;
+      background: rgba(255, 255, 255, 0.06);
+      border-left: 3px solid var(--gold, #d4a574);
+      border-radius: 4px;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-style: italic;
+      font-size: 0.98rem;
+      line-height: 1.7;
+      text-align: left;
+    }
+    .donate-hero__verse cite {
+      display: block;
+      margin-top: 0.5rem;
+      font-style: normal;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold, #d4a574);
+    }
+    .donate-hero__scroll {
+      position: absolute;
+      bottom: 1.4rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .donate-hero__scroll span {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 1rem;
+      animation: donateBob 2.4s ease-in-out infinite;
+    }
+    @keyframes donateBob {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(5px); }
+    }
+
+    /* ── Cards row ───────────────────────────────────────────── */
+    .donate-cards {
+      max-width: 980px;
+      margin: -3.5rem auto 0;
+      padding: 0 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      position: relative;
+      z-index: 3;
+    }
     @media (max-width: 720px) { .donate-cards { grid-template-columns: 1fr; } }
+
     .donate-card {
       background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 2.2rem 1.75rem 2rem;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+      border: 1px solid var(--border, #e8e4de);
+      border-radius: 18px;
+      padding: 2.25rem 1.85rem 2rem;
+      box-shadow: 0 18px 40px rgba(20, 40, 21, 0.12);
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .donate-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 24px 48px rgba(20, 40, 21, 0.18);
+    }
+    .donate-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--green, #2C5F2E), var(--gold, #d4a574));
+    }
+    .donate-card__badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--gold, #d4a574);
+      margin-bottom: 0.85rem;
     }
     .donate-card__icon {
-      font-size: 2.6rem;
+      font-size: 2.75rem;
       margin: 0 0 1rem;
+      filter: drop-shadow(0 2px 6px rgba(20, 40, 21, 0.12));
     }
     .donate-card h2 {
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: 1.5rem;
+      font-size: 1.65rem;
       font-weight: 400;
-      color: var(--text);
+      color: var(--text, #2b2b2b);
       margin: 0 0 0.85rem;
       line-height: 1.25;
     }
     .donate-card p {
       font-size: 1rem;
-      line-height: 1.65;
-      color: var(--muted);
+      line-height: 1.7;
+      color: var(--muted, #666);
       margin: 0 0 1.4rem;
+      max-width: 32ch;
     }
     .donate-card__cta {
       display: inline-block;
-      padding: 0.85rem 1.6rem;
-      background: var(--green);
+      padding: 0.95rem 1.85rem;
+      background: var(--green, #2C5F2E);
       color: #fff;
       font-weight: 700;
       border: none;
-      border-radius: 10px;
+      border-radius: 50px;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 1.02rem;
       font-family: inherit;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      letter-spacing: 0.01em;
+      box-shadow: 0 6px 18px rgba(44, 95, 46, 0.25);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     }
     .donate-card__cta:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(44, 95, 46, 0.28);
+      background: #234a25;
+      box-shadow: 0 10px 24px rgba(44, 95, 46, 0.34);
     }
     .donate-card__cta:disabled {
       background: #ccc;
@@ -120,17 +289,114 @@
       transform: none;
       box-shadow: none;
     }
+    .donate-card__chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      justify-content: center;
+      margin-top: 1.1rem;
+    }
+    .donate-card__chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.78rem;
+      color: var(--muted, #666);
+      background: rgba(44, 95, 46, 0.06);
+      padding: 0.3rem 0.65rem;
+      border-radius: 50px;
+      border: 1px solid rgba(44, 95, 46, 0.12);
+    }
 
+    /* ── Trust strip — what happens next ─────────────────────── */
+    .donate-flow {
+      max-width: 980px;
+      margin: 4rem auto 0;
+      padding: 0 1.25rem;
+    }
+    .donate-flow__heading {
+      text-align: center;
+      margin-bottom: 2.25rem;
+    }
+    .donate-flow__eyebrow {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--gold, #d4a574);
+      margin-bottom: 0.85rem;
+    }
+    .donate-flow__heading h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: clamp(1.5rem, 3.2vw, 1.95rem);
+      font-weight: 400;
+      color: var(--text, #2b2b2b);
+      margin: 0;
+    }
+    .donate-flow__steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 720px) { .donate-flow__steps { grid-template-columns: 1fr; } }
+    .donate-step {
+      background: #fff;
+      border: 1px solid var(--border, #e8e4de);
+      border-radius: 12px;
+      padding: 1.4rem 1.25rem;
+      text-align: left;
+      position: relative;
+    }
+    .donate-step__num {
+      position: absolute;
+      top: -0.85rem;
+      left: 1.25rem;
+      width: 1.7rem;
+      height: 1.7rem;
+      border-radius: 50%;
+      background: var(--green, #2C5F2E);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(44, 95, 46, 0.25);
+    }
+    .donate-step h3 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--green, #2C5F2E);
+      margin: 0.55rem 0 0.5rem;
+    }
+    .donate-step p {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: var(--muted, #666);
+    }
+
+    /* ── While-you're-here ───────────────────────────────────── */
     .donate-context {
-      max-width: 720px;
-      margin: 3rem auto 0;
-      padding: 1.75rem 1.5rem;
+      max-width: 760px;
+      margin: 4rem auto 0;
+      padding: 1.5rem 1.5rem 0;
       text-align: center;
     }
+    .donate-context__divider {
+      width: 60px;
+      height: 3px;
+      margin: 0 auto 1.25rem;
+      background: linear-gradient(90deg, var(--green, #2C5F2E), var(--gold, #d4a574));
+      border-radius: 2px;
+    }
     .donate-context p {
-      color: var(--muted);
+      color: var(--muted, #666);
       font-size: 0.97rem;
-      margin: 0 0 0.85rem;
+      margin: 0 0 1rem;
     }
     .donate-context ul {
       list-style: none;
@@ -139,29 +405,40 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 1.25rem;
+      gap: 0.75rem 1.25rem;
     }
     .donate-context li a {
-      color: var(--green);
+      color: var(--green, #2C5F2E);
       font-weight: 700;
       text-decoration: underline;
       text-decoration-thickness: 1px;
+      text-underline-offset: 4px;
       font-size: 0.97rem;
     }
 
+    /* ── Footer ─────────────────────────────────────────────── */
     .donate-footer {
-      max-width: 620px;
-      margin: 2rem auto 3rem;
-      padding: 0 1.5rem;
+      max-width: 720px;
+      margin: 3rem auto 0;
+      padding: 2rem 1.5rem 3rem;
       text-align: center;
+      color: var(--muted, #666);
+      font-size: 0.93rem;
+      line-height: 1.7;
+      border-top: 1px solid var(--border, #e8e4de);
+    }
+    .donate-footer__signature {
+      font-family: Georgia, 'Times New Roman', serif;
       font-style: italic;
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.6;
+      color: var(--green, #2C5F2E);
+      font-size: 1rem;
+      margin: 0 0 0.4rem;
     }
 
-    /* Modal — same structural pattern as prayer-intake.js's modal.
-       Backdrop + dialog, focus-trap-friendly. */
+    /* ── Modal — same structural pattern as v3, lightly polished
+       so it sits inside the new visual language. donate.js
+       targets these classes verbatim, so the form layout is
+       unchanged. */
     .donate-modal {
       position: fixed;
       inset: 0;
@@ -175,56 +452,60 @@
     .donate-modal__backdrop {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(20, 40, 21, 0.55);
+      backdrop-filter: blur(2px);
     }
     .donate-modal__dialog {
       position: relative;
       background: #fff;
-      border-radius: 16px;
-      max-width: 560px;
+      border-radius: 18px;
+      max-width: 580px;
       width: 100%;
       max-height: 92vh;
       overflow-y: auto;
-      padding: 2.25rem 2rem 2rem;
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+      padding: 2.4rem 2rem 2rem;
+      box-shadow: 0 24px 56px rgba(0, 0, 0, 0.32);
+      border-top: 4px solid var(--gold, #d4a574);
     }
     @media (max-width: 540px) {
-      .donate-modal__dialog { padding: 1.75rem 1.25rem 1.5rem; border-radius: 14px; }
+      .donate-modal__dialog { padding: 1.85rem 1.25rem 1.5rem; border-radius: 14px; }
     }
     .donate-modal__close {
       position: absolute;
-      top: 0.85rem;
-      right: 1rem;
+      top: 0.75rem;
+      right: 0.95rem;
       background: transparent;
       border: none;
-      font-size: 1.75rem;
-      color: var(--muted);
+      font-size: 1.85rem;
+      color: var(--muted, #666);
       cursor: pointer;
       line-height: 1;
       padding: 0.35rem 0.6rem;
       border-radius: 6px;
-      transition: background 0.15s ease;
+      transition: background 0.15s ease, color 0.15s ease;
     }
-    .donate-modal__close:hover { background: rgba(0, 0, 0, 0.04); }
+    .donate-modal__close:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--green, #2C5F2E);
+    }
     .donate-modal__dialog h2 {
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: 1.55rem;
+      font-size: 1.65rem;
       font-weight: 400;
-      color: var(--text);
+      color: var(--text, #2b2b2b);
       margin: 0 0 0.4rem;
+      letter-spacing: -0.005em;
     }
     .donate-modal__lead {
-      font-size: 0.95rem;
-      line-height: 1.55;
-      color: var(--muted);
+      font-size: 0.96rem;
+      line-height: 1.6;
+      color: var(--muted, #666);
       margin: 0 0 1.5rem;
     }
     body.donate-modal-open { overflow: hidden; }
 
-    /* Form layout — two-column grid on desktop/tablet, single
-       column on phones. Each field is a vertical stack: label sits
-       directly above its input so nothing competes for the same
-       row. Modern, scannable, mobile-first. */
+    /* Form layout — two-column grid on desktop, single column on
+       phones. Each field is a stacked label + input. */
     .donate-form__grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -237,7 +518,6 @@
     @media (max-width: 540px) {
       .donate-form__grid { grid-template-columns: 1fr; }
     }
-
     .donate-form__field {
       display: flex;
       flex-direction: column;
@@ -248,14 +528,14 @@
       display: block;
       font-size: 0.82rem;
       font-weight: 700;
-      color: var(--text);
+      color: var(--text, #2b2b2b);
       letter-spacing: 0.01em;
       margin: 0 0 0.4rem;
     }
     .donate-form__hint {
       display: block;
       font-weight: 400;
-      color: var(--muted);
+      color: var(--muted, #666);
       font-size: 0.78rem;
       letter-spacing: 0;
       margin-top: 0.15rem;
@@ -269,13 +549,13 @@
       display: block;
       width: 100%;
       margin: 0;
-      padding: 0.7rem 0.85rem;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      border: 1.5px solid var(--border, #e8e4de);
+      border-radius: 10px;
       font-family: inherit;
       font-size: 1rem;
       line-height: 1.4;
-      color: var(--text);
+      color: var(--text, #2b2b2b);
       background: #fff;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
       -webkit-appearance: none;
@@ -284,17 +564,16 @@
     .donate-form input:focus,
     .donate-form textarea:focus {
       outline: none;
-      border-color: var(--green);
+      border-color: var(--green, #2C5F2E);
       box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.15);
     }
     .donate-form textarea {
       resize: vertical;
       min-height: 7rem;
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
-    /* Card-style radio options — visually distinct from a plain
-       <input type="radio">. Click anywhere on the card to select. */
+    /* Card-style radios for the handoff pick. */
     .donate-form fieldset {
       border: none;
       padding: 0;
@@ -307,7 +586,7 @@
       padding: 0;
       font-size: 0.82rem;
       font-weight: 700;
-      color: var(--text);
+      color: var(--text, #2b2b2b);
       letter-spacing: 0.01em;
       margin: 0 0 0.5rem;
     }
@@ -323,15 +602,15 @@
       display: flex;
       align-items: flex-start;
       gap: 0.65rem;
-      padding: 0.85rem 1rem;
+      padding: 0.9rem 1rem;
       background: #fff;
-      border: 1.5px solid var(--border);
+      border: 1.5px solid var(--border, #e8e4de);
       border-radius: 10px;
       cursor: pointer;
       transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
       font-size: 0.95rem;
       line-height: 1.4;
-      color: var(--text);
+      color: var(--text, #2b2b2b);
       margin: 0;
     }
     .donate-form__radio-card:hover {
@@ -340,11 +619,11 @@
     }
     .donate-form__radio-card input[type="radio"] {
       margin: 0.15rem 0 0;
-      accent-color: var(--green);
+      accent-color: var(--green, #2C5F2E);
       flex-shrink: 0;
     }
     .donate-form__radio-card:has(input[type="radio"]:checked) {
-      border-color: var(--green);
+      border-color: var(--green, #2C5F2E);
       background: rgba(44, 95, 46, 0.06);
       box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.1);
     }
@@ -355,12 +634,12 @@
     .donate-form__radio-card-body strong {
       display: block;
       font-weight: 700;
-      color: var(--text);
+      color: var(--text, #2b2b2b);
       margin-bottom: 0.1rem;
     }
     .donate-form__radio-card-body small {
       display: block;
-      color: var(--muted);
+      color: var(--muted, #666);
       font-size: 0.85rem;
       line-height: 1.45;
     }
@@ -369,7 +648,7 @@
       display: block;
       margin-top: 0.4rem;
       font-size: 0.82rem;
-      color: var(--muted);
+      color: var(--muted, #666);
       text-align: right;
     }
     .donate-form__counter--warn { color: #b54f2c; font-weight: 600; }
@@ -382,26 +661,29 @@
       opacity: 0;
     }
     .donate-form__actions {
-      margin-top: 1.25rem;
+      margin-top: 1.4rem;
       display: flex;
       flex-direction: column;
       gap: 0.65rem;
     }
     .donate-form__actions button[type="submit"] {
-      padding: 0.95rem 1.5rem;
-      background: var(--green);
+      padding: 1rem 1.6rem;
+      background: var(--green, #2C5F2E);
       color: #fff;
       border: none;
-      border-radius: 10px;
+      border-radius: 50px;
       font-weight: 700;
       font-family: inherit;
-      font-size: 1.02rem;
+      font-size: 1.03rem;
       cursor: pointer;
+      letter-spacing: 0.01em;
+      box-shadow: 0 6px 18px rgba(44, 95, 46, 0.22);
       transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     }
     .donate-form__actions button[type="submit"]:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(44, 95, 46, 0.3);
+      background: #234a25;
+      box-shadow: 0 10px 24px rgba(44, 95, 46, 0.32);
     }
     .donate-form__actions button[type="submit"]:disabled {
       background: #ccc;
@@ -413,8 +695,8 @@
       background: #fbeaea;
       border: 1px solid #f0c7c7;
       color: #983131;
-      padding: 0.75rem 0.95rem;
-      border-radius: 8px;
+      padding: 0.8rem 0.95rem;
+      border-radius: 10px;
       font-size: 0.92rem;
       margin: 0;
       line-height: 1.5;
@@ -425,50 +707,134 @@
 </head>
 <body>
 
-<section class="donate-hero">
-  <a href="index.html" class="donate-hero__back">← Seed the Word Ministry</a>
-  <h1>A Bible — to give, or to receive.</h1>
-  <p class="donate-hero__lead">
-    If you have a Bible to share, we'll get it to someone who'll read it.
-    If you'd like one, tell us a little about why and our team will be in touch.
-    No cost, no shipping fee, no obligation.
-  </p>
+<header class="donate-topbar">
+  <div class="donate-topbar__inner">
+    <a href="index.html" class="donate-topbar__brand">
+      <img src="assets/images/stw-logo.jpg" alt="">
+      Seed the Word Ministry
+    </a>
+    <a href="index.html" class="donate-topbar__back">← Back to home</a>
+  </div>
+</header>
+
+<section class="donate-hero" id="top">
+  <div class="donate-hero__inner">
+    <div class="donate-hero__eyebrow">A Bible Initiative</div>
+    <h1>A Bible — to <em>give</em>, or to <em>receive</em>.</h1>
+    <p class="donate-hero__lead">
+      If you have a Bible to share, we'll get it to someone who'll read it.
+      If you'd like one, tell us a little about why and our team will be in touch.
+      <strong style="color:#fff;">No cost. No shipping fee. No obligation.</strong>
+    </p>
+    <blockquote class="donate-hero__verse">
+      "Freely you have received; freely give."
+      <cite>— Matthew 10:8</cite>
+    </blockquote>
+  </div>
+  <a href="#choose" class="donate-hero__scroll" aria-label="Scroll to options">
+    Choose a path
+    <span aria-hidden="true">↓</span>
+  </a>
 </section>
 
-<section class="donate-cards">
+<section class="donate-cards" id="choose">
   <article class="donate-card">
+    <div class="donate-card__badge">For gifters</div>
     <div class="donate-card__icon" aria-hidden="true">📚</div>
     <h2>Donate a Bible</h2>
     <p>You have one or more Bibles you'd like to pass on. We'll coordinate drop-off at a meeting or pickup at your place.</p>
     <button type="button" class="donate-card__cta" data-donate-flow="donate">
       Offer a Bible →
     </button>
+    <div class="donate-card__chips">
+      <span class="donate-card__chip">📍 Drop-off</span>
+      <span class="donate-card__chip">🏠 Pickup</span>
+      <span class="donate-card__chip">⏱ 48h follow-up</span>
+    </div>
   </article>
 
   <article class="donate-card">
+    <div class="donate-card__badge">For new readers</div>
     <div class="donate-card__icon" aria-hidden="true">📖</div>
     <h2>Receive a Bible</h2>
     <p>You'd like one for yourself. Tell us your story — a couple of sentences are enough — and our team will be in touch.</p>
     <button type="button" class="donate-card__cta" data-donate-flow="receive">
       Request a Bible →
     </button>
+    <div class="donate-card__chips">
+      <span class="donate-card__chip">✉️ Mail</span>
+      <span class="donate-card__chip">🤝 In-person</span>
+      <span class="donate-card__chip">🕊 Read by our team</span>
+    </div>
   </article>
 </section>
 
+<!-- ── What happens next — gifter side ─────────────────────── -->
+<section class="donate-flow">
+  <div class="donate-flow__heading">
+    <span class="donate-flow__eyebrow">If you donate</span>
+    <h2>What happens next</h2>
+  </div>
+  <div class="donate-flow__steps">
+    <div class="donate-step">
+      <div class="donate-step__num">1</div>
+      <h3>You tell us</h3>
+      <p>How many Bibles, and whether you'd like to drop them off or have us pick them up. Two minutes, max.</p>
+    </div>
+    <div class="donate-step">
+      <div class="donate-step__num">2</div>
+      <h3>We reach out</h3>
+      <p>Within 48 hours, our team coordinates the handoff at a meeting, cookout, or a place that works for you.</p>
+    </div>
+    <div class="donate-step">
+      <div class="donate-step__num">3</div>
+      <h3>They get read</h3>
+      <p>Each Bible is paired with someone who asked for one — or distributed at our outreach events.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── What happens next — receive side ────────────────────── -->
+<section class="donate-flow">
+  <div class="donate-flow__heading">
+    <span class="donate-flow__eyebrow">If you'd like to receive one</span>
+    <h2>What happens next</h2>
+  </div>
+  <div class="donate-flow__steps">
+    <div class="donate-step">
+      <div class="donate-step__num">1</div>
+      <h3>You share your story</h3>
+      <p>A couple of honest sentences about why you'd like a Bible. We read every one.</p>
+    </div>
+    <div class="donate-step">
+      <div class="donate-step__num">2</div>
+      <h3>Our team reviews</h3>
+      <p>Within 48 hours, a team member reads your request prayerfully and gets back to you by email.</p>
+    </div>
+    <div class="donate-step">
+      <div class="donate-step__num">3</div>
+      <h3>You receive yours</h3>
+      <p>Drop-off in person, or mailed to your address — your choice on the next step. Always free.</p>
+    </div>
+  </div>
+</section>
+
 <section class="donate-context">
-  <p>While you're here, you can also:</p>
+  <div class="donate-context__divider" aria-hidden="true"></div>
+  <p>While you're here, you might also enjoy:</p>
   <ul>
-    <li><a href="about.html">Learn who Seed the Word is</a></li>
-    <li><a href="store.html">See the bundles we send to gifters</a></li>
-    <li><a href="how-to-seed.html">Read how we seed the Word</a></li>
+    <li><a href="about.html">Who Seed the Word is</a></li>
+    <li><a href="store.html">Bundles we send to gifters</a></li>
+    <li><a href="how-to-seed.html">How we seed the Word</a></li>
   </ul>
 </section>
 
 <footer class="donate-footer">
-  <p>Sincerely,<br>The Seed the Word team</p>
+  <p class="donate-footer__signature">Sincerely,<br>The Seed the Word team</p>
+  <p>seedthewordministry@gmail.com · <a href="https://t.me/seedtheword" rel="noopener" style="color:var(--green);text-decoration:underline;">@seedtheword on Telegram</a></p>
 </footer>
 
-<script src="assets/js/donate.js?v=3"></script>
+<script src="assets/js/donate.js?v=4"></script>
 
 </body>
 </html>

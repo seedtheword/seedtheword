@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615197,
-  "lastModified": "2026-06-01T03:05:31Z",
+  "lastUpdateId": 669615198,
+  "lastModified": "2026-06-01T03:20:29Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -167,6 +167,16 @@
       "kind": "telegram",
       "text": "Prayer Request 5/31/2026:\n\nI'm asking for a prayer request this morning for God's wisdom and guidance of the Holy Spirit where I'll be at today to protect me from making any mistakes and allowing His will to be done.\n\nI've been worried to follow through with this action and afraid of the consequences it may carry but last time I did something similar it introduced a huge blessing into my life so I'll ask God's hand in this likewise.",
       "ts": "2026-05-31T17:46:44Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4489,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hey guys can yall pray for Brandon’s brother Daniel? He’s going through a terrible sickness (apparently it’s the “new virus” going around) he said he feels like he’s dying. So prayer for healing over that. Thank you all",
+      "ts": "2026-06-01T03:11:03Z"
     }
   ]
 }

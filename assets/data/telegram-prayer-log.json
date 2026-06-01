@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615201,
-  "lastModified": "2026-06-01T15:35:37Z",
+  "lastModified": "2026-06-01T15:45:16Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -15,6 +15,12 @@
       "messageId": 4455,
       "entryCount": 5,
       "postedAt": "2026-05-30T15:45:12Z"
+    },
+    "2026-W23-mon": {
+      "since": "2026-06-01T15:45:11Z",
+      "messageId": 4495,
+      "entryCount": 2,
+      "postedAt": "2026-06-01T15:45:16Z"
     }
   },
   "entries": [

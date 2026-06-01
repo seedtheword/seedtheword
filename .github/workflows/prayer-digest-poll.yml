@@ -49,16 +49,43 @@ jobs:
       - name: Commit updated Prayer_Log
         if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' }}
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Pull --rebase first so we serialize cleanly with any
-          # other workflow that may have committed to main since
-          # checkout (e.g. the digest-post or playlist-digest jobs).
-          git pull --rebase origin main || true
-          git add assets/data/telegram-prayer-log.json || true
-          if git diff --cached --quiet; then
-            echo "No log changes to commit."
+
+          # If the Poller didn't write anything, exit cleanly.
+          if [ -z "$(git status --porcelain assets/data/telegram-prayer-log.json)" ]; then
+            echo "No log changes — nothing to commit."
             exit 0
           fi
+
+          # Stash the unstaged change so the rebase can run cleanly,
+          # pull anything that landed on main while the Poller was
+          # working, then re-apply the stash on top.
+          git stash push -m "prayer-poll" -- assets/data/telegram-prayer-log.json
+          git pull --rebase origin main || true
+          git stash pop || true
+
+          if [ -z "$(git status --porcelain assets/data/telegram-prayer-log.json)" ]; then
+            echo "Log already current after rebase — nothing to push."
+            exit 0
+          fi
+
+          git add assets/data/telegram-prayer-log.json
           git commit -m "chore(prayer): update prayer log [skip ci]"
-          git push
+
+          # Retry push to handle pushes that race with us in the
+          # same 15-min window. The Poller is best-effort; if every
+          # retry loses the race, the next 15-min run will catch up.
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt $attempt..."
+            if git push origin HEAD:main; then
+              echo "Push succeeded."
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; rebasing and retrying..."
+            git pull --rebase origin main || true
+            sleep 5
+          done
+          echo "Push retries exhausted; next run will catch up."
+          exit 0

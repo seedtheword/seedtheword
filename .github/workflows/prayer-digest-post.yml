@@ -55,16 +55,40 @@ jobs:
       - name: Commit updated Prayer_Log (completedSlots)
         if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' }}
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Rebase first to serialize with any concurrent Poller
-          # commit (the Poller and Digest_Poster both write to
-          # assets/data/telegram-prayer-log.json).
-          git pull --rebase origin main || true
-          git add assets/data/telegram-prayer-log.json || true
-          if git diff --cached --quiet; then
-            echo "No log changes to commit."
+
+          if [ -z "$(git status --porcelain assets/data/telegram-prayer-log.json)" ]; then
+            echo "No log changes — nothing to commit."
             exit 0
           fi
+
+          # Stash → pull --rebase → pop. The Poller runs every 15
+          # min and writes to the same file, so a race here is
+          # actively expected. Stashing first lets the rebase run
+          # against a clean tree.
+          git stash push -m "prayer-post" -- assets/data/telegram-prayer-log.json
+          git pull --rebase origin main || true
+          git stash pop || true
+
+          if [ -z "$(git status --porcelain assets/data/telegram-prayer-log.json)" ]; then
+            echo "Log already current after rebase — nothing to push."
+            exit 0
+          fi
+
+          git add assets/data/telegram-prayer-log.json
           git commit -m "chore(prayer): record digest slot [skip ci]"
-          git push
+
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt $attempt..."
+            if git push origin HEAD:main; then
+              echo "Push succeeded."
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; rebasing and retrying..."
+            git pull --rebase origin main || true
+            sleep 5
+          done
+          echo "Push retries exhausted; the slot is marked complete locally — next slot will be unaffected."
+          exit 0

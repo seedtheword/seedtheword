@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615243,
-  "lastModified": "2026-06-03T14:50:38Z",
+  "lastUpdateId": 669615254,
+  "lastModified": "2026-06-03T15:05:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -193,6 +193,26 @@
       "kind": "telegram",
       "text": "Testimony:\n\nSome lady just walked up to me on the sidewalk and asked me what the time was so I told her it's 11:48, she then shared with me that her car and her phone were stolen and I said, \"Do you need a Bible?\", she said, \" Yes, I would like that\", that I reached into my car grabbed her Bible said it's the last copy I have and she told me her name is Anna. I said that I'll pray for her and she said she'll pray for me too.",
       "ts": "2026-06-02T18:51:07Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4538,
+      "userId": 8045440327,
+      "displayName": "✝️🙏PRAYER DOG🐺🥀",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for Wed Morning",
+      "ts": "2026-06-03T08:28:04Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4539,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Testimony:\n\nSo the girl named Ashley, that I prayed for at work, that Jesus put in my heart to ask her what her prayer need was.\n\nToday I walked into work and she was in front of me, we greeted each other and I gifted her a Bible. Jesus is so good y'all! Just as He promised her!",
+      "ts": "2026-06-03T13:36:01Z"
     }
   ]
 }

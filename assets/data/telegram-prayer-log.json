@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615229,
-  "lastModified": "2026-06-02T06:20:33Z",
+  "lastUpdateId": 669615243,
+  "lastModified": "2026-06-03T14:50:38Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -183,6 +183,16 @@
       "kind": "telegram",
       "text": "Hey guys can yall pray for Brandon’s brother Daniel? He’s going through a terrible sickness (apparently it’s the “new virus” going around) he said he feels like he’s dying. So prayer for healing over that. Thank you all",
       "ts": "2026-06-01T03:11:03Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4528,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Testimony:\n\nSome lady just walked up to me on the sidewalk and asked me what the time was so I told her it's 11:48, she then shared with me that her car and her phone were stolen and I said, \"Do you need a Bible?\", she said, \" Yes, I would like that\", that I reached into my car grabbed her Bible said it's the last copy I have and she told me her name is Anna. I said that I'll pray for her and she said she'll pray for me too.",
+      "ts": "2026-06-02T18:51:07Z"
     }
   ]
 }

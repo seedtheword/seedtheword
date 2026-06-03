@@ -59,33 +59,37 @@ jobs:
             exit 0
           fi
 
-          # Stash the unstaged change so the rebase can run cleanly,
-          # pull anything that landed on main while the Poller was
-          # working, then re-apply the stash on top.
-          git stash push -m "prayer-poll" -- assets/data/telegram-prayer-log.json
-          git pull --rebase origin main || true
-          git stash pop || true
-
-          if [ -z "$(git status --porcelain assets/data/telegram-prayer-log.json)" ]; then
-            echo "Log already current after rebase — nothing to push."
-            exit 0
-          fi
-
+          # Commit the local change first, on a detached state if
+          # needed. Then pull --rebase over the commit. Rebase will
+          # auto-resolve cleanly when only the entries / lastUpdateId
+          # / completedSlots / lastModified differ — git's rebase is
+          # smarter about JSON structure than `stash pop` was, and
+          # the worst case (a true conflict) leaves the rebase in a
+          # paused state we explicitly abort and skip, instead of
+          # silently committing conflict markers.
           git add assets/data/telegram-prayer-log.json
           git commit -m "chore(prayer): update prayer log [skip ci]"
 
-          # Retry push to handle pushes that race with us in the
-          # same 15-min window. The Poller is best-effort; if every
-          # retry loses the race, the next 15-min run will catch up.
           for attempt in 1 2 3 4 5; do
             echo "Push attempt $attempt..."
             if git push origin HEAD:main; then
               echo "Push succeeded."
               exit 0
             fi
-            echo "Push attempt $attempt failed; rebasing and retrying..."
-            git pull --rebase origin main || true
+            echo "Push attempt $attempt failed; rebasing..."
+            if ! git pull --rebase origin main; then
+              echo "Rebase had conflicts — aborting and skipping this run."
+              git rebase --abort || true
+              # Reset to origin so the next 15-min run starts clean.
+              # The lost data is just our lastModified stamp + any
+              # entries we'd captured this run; the next run re-fetches
+              # all updates after the last persisted lastUpdateId on
+              # origin, so nothing is permanently lost.
+              git reset --hard origin/main
+              exit 0
+            fi
             sleep 5
           done
-          echo "Push retries exhausted; next run will catch up."
+          echo "Push retries exhausted; resetting to origin so next run starts clean."
+          git reset --hard origin/main
           exit 0

@@ -64,19 +64,12 @@ jobs:
             exit 0
           fi
 
-          # Stash → pull --rebase → pop. The Poller runs every 15
-          # min and writes to the same file, so a race here is
-          # actively expected. Stashing first lets the rebase run
-          # against a clean tree.
-          git stash push -m "prayer-post" -- assets/data/telegram-prayer-log.json
-          git pull --rebase origin main || true
-          git stash pop || true
-
-          if [ -z "$(git status --porcelain assets/data/telegram-prayer-log.json)" ]; then
-            echo "Log already current after rebase — nothing to push."
-            exit 0
-          fi
-
+          # Commit the slot-completion update first, then rebase. If
+          # rebase hits a true conflict we abort and reset to origin
+          # rather than letting `stash pop` leave conflict markers
+          # in the committed file. The slot is marked locally; the
+          # very rare conflict case loses one slot's metadata but
+          # the digest itself was already posted.
           git add assets/data/telegram-prayer-log.json
           git commit -m "chore(prayer): record digest slot [skip ci]"
 
@@ -86,9 +79,15 @@ jobs:
               echo "Push succeeded."
               exit 0
             fi
-            echo "Push attempt $attempt failed; rebasing and retrying..."
-            git pull --rebase origin main || true
+            echo "Push attempt $attempt failed; rebasing..."
+            if ! git pull --rebase origin main; then
+              echo "Rebase had conflicts — aborting and skipping this run."
+              git rebase --abort || true
+              git reset --hard origin/main
+              exit 0
+            fi
             sleep 5
           done
-          echo "Push retries exhausted; the slot is marked complete locally — next slot will be unaffected."
+          echo "Push retries exhausted; resetting to origin."
+          git reset --hard origin/main
           exit 0

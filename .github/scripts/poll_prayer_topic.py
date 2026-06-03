@@ -91,10 +91,27 @@ def load_prayer_log() -> dict:
     return json.loads(LOG_PATH.read_text(encoding="utf-8"))
 
 
-def save_prayer_log(log_state: dict) -> None:
+def _log_state_signature(log_state: dict) -> str:
+    """Stable signature of the parts of the log that actually matter
+    for whether we need to commit. Excludes lastModified so a no-op
+    poll (no new updates, no prune deletions, no slot completion)
+    doesn't churn the file every 15 minutes — which was previously
+    triggering a fresh Pages rebuild on every cron run."""
+    snapshot = {k: v for k, v in log_state.items() if k != "lastModified"}
+    return json.dumps(snapshot, sort_keys=True, ensure_ascii=False)
+
+
+def save_prayer_log(log_state: dict, *, baseline_signature: str | None = None) -> None:
     """Atomic write — same pattern as the playlist digest's save_log.
     A partial write would leave invalid JSON; the next run's load
-    would raise on parse and the workflow would fail loudly."""
+    would raise on parse and the workflow would fail loudly.
+
+    If baseline_signature is provided and matches the current
+    signature, this is a no-op write: nothing material changed since
+    load, so we skip the file write (and avoid a churn commit).
+    """
+    if baseline_signature is not None and baseline_signature == _log_state_signature(log_state):
+        return
     log_state["lastModified"] = datetime.now(timezone.utc).isoformat(
         timespec="seconds"
     ).replace("+00:00", "Z")
@@ -627,6 +644,7 @@ def main() -> int:
         return 0
 
     log_state = load_prayer_log()
+    baseline_signature = _log_state_signature(log_state)
     now = datetime.now(timezone.utc)
     log_state = prune_old_entries(log_state, now)
 
@@ -635,7 +653,7 @@ def main() -> int:
     if updates is None:
         # getUpdates failed — persist any prune changes but do NOT
         # advance lastUpdateId. Next 15-min run retries.
-        save_prayer_log(log_state)
+        save_prayer_log(log_state, baseline_signature=baseline_signature)
         return 0
 
     highest_seen = last_update_id
@@ -653,7 +671,7 @@ def main() -> int:
         highest_seen = max(highest_seen, update_id)
 
     log_state["lastUpdateId"] = highest_seen
-    save_prayer_log(log_state)
+    save_prayer_log(log_state, baseline_signature=baseline_signature)
     log(f"Poller processed {len(updates)} update(s); lastUpdateId={highest_seen}.")
     return 0
 

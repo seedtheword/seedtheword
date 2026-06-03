@@ -16,9 +16,13 @@ name: Keep-alive heartbeat
 
 on:
   schedule:
-    # Every hour at :07 so the heartbeat doesn't collide with the
-    # every-15-min announcement runs (which fire at :00, :15, :30, :45).
-    - cron: '7 * * * *'
+    # Once a day at 14:07 UTC (07:07 PT during PDT). GitHub Actions
+    # only deprioritizes scheduled workflows after ~60 days of repo
+    # silence, so a daily tick is more than enough to keep crons
+    # warm without flooding the Pages-build queue with hourly
+    # commits. The :07 minute deliberately misses the on-the-quarter
+    # buckets that the announcement / poller crons live in.
+    - cron: '7 14 * * *'
   workflow_dispatch: {}
 
 permissions:

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615268,
-  "lastModified": "2026-06-04T00:20:32Z",
+  "lastUpdateId": 669615270,
+  "lastModified": "2026-06-04T01:05:30Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -233,6 +233,26 @@
       "kind": "telegram",
       "text": "(My style of evangelism is rubbing off on David, Lets Goooo 😂😎)",
       "ts": "2026-06-03T23:02:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4555,
+      "userId": 8045440327,
+      "displayName": "✝️🙏PRAYER DOG🐺🥀",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "My aunt Kathy is dying, she doesn't have alot of tune left from what I understand. I might join a call soon, so I can talk to her while I can, but she can only sleep really. I don't know if she is a believer or not. But she doesn't have time left so pray for her. I will be",
+      "ts": "2026-06-04T01:01:03Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4556,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Praying so Kathy sees Jesus",
+      "ts": "2026-06-04T01:01:43Z"
     }
   ]
 }

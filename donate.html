@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/main.css?v=18">
+  <link rel="stylesheet" href="assets/css/main.css?v=19">
   <style>
     /* ============================================================
        donate.html — sandwich-board-sign poster aesthetic.
@@ -308,8 +308,19 @@
       max-width: 540px;
       margin: 1.8rem auto 0.4rem;
     }
+    /* Three-button variant for when "Support the Ministry" is wired
+       in alongside Donate / Receive. The support card spans the
+       full row on desktop so it reads as the secondary path, not a
+       co-equal third tap-target. On mobile everything stacks. */
+    .poster-actions--three {
+      grid-template-columns: 1fr 1fr;
+    }
+    .poster-actions--three .poster-cta--support {
+      grid-column: 1 / -1;
+    }
     @media (max-width: 540px) {
-      .poster-actions { grid-template-columns: 1fr; }
+      .poster-actions, .poster-actions--three { grid-template-columns: 1fr; }
+      .poster-actions--three .poster-cta--support { grid-column: auto; }
     }
     .poster-cta {
       display: flex;
@@ -339,6 +350,13 @@
       cursor: not-allowed;
       opacity: 0.6;
       box-shadow: 0 4px 0 #999;
+    }
+    .poster-cta--support {
+      background: #FFF8E1;
+      border-color: #1F2A44;
+    }
+    .poster-cta--support:hover:not(:disabled) {
+      background: #FFEFB0;
     }
     .poster-cta__icon {
       font-size: 1.7rem;
@@ -475,6 +493,138 @@
       font-size: 0.94rem;
       line-height: 1.6;
       color: #444;
+    }
+
+    /* ── Support the ministry ────────────────────────────────── */
+    .support {
+      max-width: 980px;
+      margin: 4rem auto 0;
+      padding: 2rem 1.4rem 2.4rem;
+      background: #fff;
+      border: 3px solid #1F2A44;
+      border-radius: 6px;
+      box-shadow: 0 4px 0 #1F2A44, 0 12px 28px rgba(20, 40, 21, 0.08);
+      scroll-margin-top: 1rem;
+    }
+    .support__heading {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+    }
+    .support__eyebrow {
+      display: inline-block;
+      font-family: 'Anton', Impact, sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: #1F2A44;
+      background: #F4C84F;
+      padding: 0.35rem 0.9rem;
+      border: 2px solid #1F2A44;
+      transform: rotate(-1deg);
+      box-shadow: 0 3px 0 #1F2A44;
+      margin-bottom: 1.1rem;
+    }
+    .support__heading h2 {
+      font-family: 'Anton', Impact, sans-serif;
+      font-size: clamp(1.6rem, 3.6vw, 2.2rem);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #1F2A44;
+      margin: 0 0 0.85rem;
+      line-height: 1.2;
+    }
+    .support__heading p {
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: #444;
+      margin: 0;
+    }
+
+    .support__cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1.4rem;
+    }
+    @media (max-width: 540px) { .support__cards { grid-template-columns: 1fr; } }
+
+    .support-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding: 1.2rem 1.25rem;
+      background: #fff;
+      border: 2.5px solid #1F2A44;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #1F2A44;
+      text-decoration: none;
+      color: inherit;
+      font-family: inherit;
+      text-align: left;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+    }
+    .support-card:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #1F2A44;
+      background: #FFFAEC;
+    }
+    .support-card:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #1F2A44;
+    }
+    .support-card__brand {
+      display: inline-block;
+      align-self: flex-start;
+      font-family: 'Anton', Impact, sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.65rem;
+      border: 2px solid #1F2A44;
+      border-radius: 4px;
+      color: #1F2A44;
+    }
+    .support-card__brand--venmo   { background: #3D95CE; color: #fff; border-color: #1F2A44; }
+    .support-card__brand--cashapp { background: #00C244; color: #fff; border-color: #1F2A44; }
+    .support-card__brand--paypal  { background: #003087; color: #fff; border-color: #1F2A44; }
+    .support-card__brand--zelle   { background: #6D1ED4; color: #fff; border-color: #1F2A44; }
+    .support-card__handle {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text, #2b2b2b);
+      letter-spacing: -0.01em;
+      word-break: break-all;
+    }
+    .support-card__cta {
+      font-family: 'Caveat', cursive;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--green, #2C5F2E);
+      line-height: 1;
+      margin-top: 0.2rem;
+    }
+    .support-card--copy {
+      width: 100%;
+    }
+    .support-card--copy.is-copied .support-card__cta {
+      color: #1F2A44;
+    }
+
+    .support__note {
+      max-width: 680px;
+      margin: 1rem auto 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--muted, #666);
+      text-align: center;
+    }
+    .support__note a {
+      color: var(--green, #2C5F2E);
+      text-decoration: underline;
     }
 
     /* ── Verse strip ────────────────────────────────────────── */
@@ -783,7 +933,7 @@
       EVERETT · MUKILTEO · LYNNWOOD
     </span>
 
-    <div class="poster-actions">
+    <div class="poster-actions poster-actions--three">
       <button type="button" class="poster-cta" data-donate-flow="donate">
         <span class="poster-cta__icon" aria-hidden="true">📚</span>
         <span class="poster-cta__label">Donate a Bible</span>
@@ -794,6 +944,11 @@
         <span class="poster-cta__label">Receive a Bible</span>
         <span class="poster-cta__sub">tell us your story</span>
       </button>
+      <a class="poster-cta poster-cta--support" href="#support">
+        <span class="poster-cta__icon" aria-hidden="true">💛</span>
+        <span class="poster-cta__label">Support the Ministry</span>
+        <span class="poster-cta__sub">help fund free Bibles</span>
+      </a>
     </div>
 
     <div class="poster-credit">
@@ -855,6 +1010,54 @@
     </div>
   </section>
 
+  <section class="support" id="support" aria-label="Support the ministry">
+    <div class="support__heading">
+      <span class="support__eyebrow">Support the Ministry</span>
+      <h2>Every Bible we give costs us something.</h2>
+      <p>
+        Seed the Word isn't a 501(c)(3) — we're a small team funding our outreach
+        out of pocket. If God's prompting you to help cover the cost of the next
+        Bible, here are the ways our team treasurer can receive it.
+        <strong>Every dollar goes straight back into Bibles, study guides,
+        and outreach supplies.</strong>
+      </p>
+    </div>
+
+    <div class="support__cards">
+
+      <a class="support-card" href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener">
+        <span class="support-card__brand support-card__brand--venmo">Venmo</span>
+        <span class="support-card__handle">@Vanessamind</span>
+        <span class="support-card__cta">Open Venmo →</span>
+      </a>
+
+      <a class="support-card" href="https://cash.app/$Vanessamind" target="_blank" rel="noopener">
+        <span class="support-card__brand support-card__brand--cashapp">Cash App</span>
+        <span class="support-card__handle">$Vanessamind</span>
+        <span class="support-card__cta">Open Cash App →</span>
+      </a>
+
+      <a class="support-card" href="https://paypal.me/vanessamind" target="_blank" rel="noopener">
+        <span class="support-card__brand support-card__brand--paypal">PayPal</span>
+        <span class="support-card__handle">@vanessamind</span>
+        <span class="support-card__cta">Open PayPal →</span>
+      </a>
+
+      <button type="button" class="support-card support-card--copy" data-copy="vanessamindone@gmail.com" aria-label="Copy Zelle email address to clipboard">
+        <span class="support-card__brand support-card__brand--zelle">Zelle</span>
+        <span class="support-card__handle">vanessamindone@gmail.com</span>
+        <span class="support-card__cta" data-copy-label>Tap to copy email</span>
+      </button>
+
+    </div>
+
+    <p class="support__note">
+      Treasurer: <strong>Vanessa</strong>. Funds go directly to ministry expenses —
+      Bibles, study guides, cookout supplies, and outreach materials. Questions?
+      Email <a href="mailto:seedthewordministry@gmail.com">seedthewordministry@gmail.com</a>.
+    </p>
+  </section>
+
   <section class="verse-strip">
     <blockquote>
       "Freely you have received; freely give."
@@ -876,6 +1079,52 @@
 </footer>
 
 <script src="assets/js/donate.js?v=5"></script>
+<script>
+  // ── Tiny clipboard handler for the Zelle support card.
+  // Inline because it's a 10-line concern that doesn't belong in
+  // donate.js (which is the form modal). On tap, copy the email
+  // address from data-copy, swap the helper line to "Copied!" for
+  // ~2 seconds, then revert. Falls back gracefully if the browser
+  // doesn't expose navigator.clipboard.
+  (function () {
+    document.querySelectorAll('[data-copy]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        var value = el.getAttribute('data-copy') || '';
+        var label = el.querySelector('[data-copy-label]');
+        var copyDone = function (ok) {
+          if (!label) return;
+          var original = label.dataset.original || label.textContent;
+          label.dataset.original = original;
+          label.textContent = ok ? 'Copied! ✓' : 'Copy failed — long-press to copy';
+          el.classList.add('is-copied');
+          setTimeout(function () {
+            label.textContent = original;
+            el.classList.remove('is-copied');
+          }, 2200);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(value).then(function () { copyDone(true); }, function () { copyDone(false); });
+        } else {
+          // Fallback: invisible textarea + execCommand. Older mobile
+          // browsers still need this path; modern Safari + Chrome
+          // hit the clipboard API above.
+          try {
+            var ta = document.createElement('textarea');
+            ta.value = value;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            copyDone(true);
+          } catch (_) { copyDone(false); }
+        }
+      });
+    });
+  })();
+</script>
 
 </body>
 </html>

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615279,
-  "lastModified": "2026-06-04T07:05:31Z",
+  "lastUpdateId": 669615283,
+  "lastModified": "2026-06-04T08:05:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -253,6 +253,16 @@
       "kind": "telegram",
       "text": "Praying so Kathy sees Jesus",
       "ts": "2026-06-04T01:01:43Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4566,
+      "userId": 8045440327,
+      "displayName": "✝️🙏PRAYER DOG🐺🥀",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for Thursday Morning 6/4/2026",
+      "ts": "2026-06-04T07:55:40Z"
     }
   ]
 }

@@ -103,8 +103,8 @@
       }
     },
     "saturdayIcebreaker": {
-      "_help": "Posts a Gemini-generated icebreaker question into the Discuss Scripture topic (thread 434) every Saturday at ~09:00 PT, anchored in the week's NT walk + OT history walk + Poetry & Prophecy walk. Falls back to a deterministic evergreen rotation if GEMINI_API_KEY is missing or the API is unreachable — the post always lands. Triggered by the kickSaturdayIcebreaker Apps Script kicker; manual test runs available via the saturday-icebreaker.yml workflow_dispatch with test_run=true.",
-      "enabled": true,
+      "_help": "DISABLED June 2026 — was creating noise in the Discuss Scripture topic with no clear engagement payoff. Re-enable by flipping enabled to true once a clearer weekly cadence is in place (e.g., paired with a Mon-Sat challenge cycle or 'Your Walk' tracker shipping on the website). Originally posted a Gemini-generated icebreaker question into thread 434 every Saturday at ~09:00 PT, anchored in the week's NT walk + OT history walk + Poetry & Prophecy walk, with a deterministic evergreen rotation as fallback.",
+      "enabled": false,
       "messageThreadId": 434,
       "summarizer": "llm"
     }

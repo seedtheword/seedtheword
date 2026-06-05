@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615302,
-  "lastModified": "2026-06-05T02:35:28Z",
+  "lastUpdateId": 669615304,
+  "lastModified": "2026-06-05T07:50:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -289,6 +289,16 @@
       "kind": "telegram",
       "text": "Prayer Request 6/4/2026:\n\nI'm requesting prayer that the Holy Spirit leads me in a conference that I'll be attending where our ministry will be speaking on the testimonies that God has been doing and in partnership with Gideon's International \n\nThis will take place at the Church of Bethel and I would appreciate all the support we can get to further God's kingdom 👑",
       "ts": "2026-06-05T01:29:44Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4585,
+      "userId": 8045440327,
+      "displayName": "✝️🙏PRAYER DOG🐺🥀",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "MORNING PRAYER SEED THE WORD 6/5/2026",
+      "ts": "2026-06-05T07:44:24Z"
     }
   ]
 }

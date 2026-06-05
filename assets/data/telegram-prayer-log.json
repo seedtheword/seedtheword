@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615298,
-  "lastModified": "2026-06-04T22:05:30Z",
+  "lastUpdateId": 669615301,
+  "lastModified": "2026-06-05T01:35:29Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -279,6 +279,16 @@
       "kind": "telegram",
       "text": "Pray so I can get some rest, just got home, I need to be restored for tomorrow",
       "ts": "2026-06-04T17:35:55Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4583,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request 6/4/2026:\n\nI'm requesting prayer that the Holy Spirit leads me in a conference that I'll be attending where our ministry will be speaking on the testimonies that God has been doing and in partnership with Gideon's International \n\nThis will take place at the Church of Bethel and I would appreciate all the support we can get to further God's kingdom 👑",
+      "ts": "2026-06-05T01:29:44Z"
     }
   ]
 }

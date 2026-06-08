@@ -7887,3 +7887,177 @@ function sendWalkMagicLinkEmail_(email, token) {
     noReply: true,
   });
 }
+
+
+
+// ── Apps Script handler — handleWalkStamp_ ──────────────────────────
+//
+// Daily "I read today" stamp. Audit-first sequence:
+//   1. Honeypot → silently OK.
+//   2. Validate (validateWalkStamp_).
+//   3. Load yourWalk config; reject when disabled.
+//   4. ±2-day server-UTC sanity bound on `today` (defense-in-depth
+//      against clock-skewed or malicious clients trying to backdate).
+//   5. Resolve token via findWalkTokensRowObject_; reject on
+//      tokenIsActive_ === false.
+//   6. Read all stamps + already-unlocked badges for the email.
+//   7. Idempotency: did this email already stamp `today`? If so,
+//      recompute streak/badges/totals but force newlyUnlocked = []
+//      and return idempotent: true. No new row. No mutation of the
+//      WalkTokens row.
+//   8. On new stamp: append WalkStamps row, then update the
+//      WalkTokens row's last_seen_at and expires_at. evaluate badges,
+//      append one WalkBadges row per newlyUnlocked id.
+//   9. Compute streak + totals, return state.
+//
+// Property YW1 (idempotency), YW5 (no second celebration on second
+// stamp), YW6 (token TTL enforced), YW8 (stamp authenticity).
+//
+// Spec: design §4.9; requirements 5.x.
+function handleWalkStamp_(payload) {
+  if (payload && payload.extra_field_2) {
+    return jsonResponse({ ok: true, route: 'honeypot' });
+  }
+
+  var v = validateWalkStamp_(payload);
+  if (!v.ok) return jsonResponse({ ok: false, error: v.reason });
+
+  var cfg = loadYourWalkConfig_();
+  if (!cfg.enabled) return jsonResponse({ ok: false, error: 'disabled' });
+
+  // ±2-day server-UTC sanity bound on `today`.
+  var serverToday = ymdUtc_(new Date());
+  var dayDelta = daysBetweenIso_(v.today, serverToday);
+  if (!isFinite(dayDelta) || Math.abs(dayDelta) > WALK_STAMP_DATE_BOUND_DAYS) {
+    return jsonResponse({ ok: false, error: 'bad-date' });
+  }
+
+  // Resolve token → email. tokenIsActive_ enforces YW6.
+  var tokensSheet = openTab(WALK_TOKENS_TAB, WALK_TOKENS_HEADERS);
+  var tokenValues = tokensSheet.getDataRange().getValues();
+  var tokenIdx = headerIndex_(tokenValues[0]);
+  var tokenRow = findWalkTokensRowObject_(tokenValues, tokenIdx, v.token);
+  var nowDate = new Date();
+  if (!tokenRow || !tokenIsActive_(tokenRow, nowDate)) {
+    return jsonResponse({ ok: false, error: 'bad-token' });
+  }
+  var email = tokenRow.email;
+
+  // Read all stamps for this email.
+  var stampsSheet = openTab(WALK_STAMPS_TAB, WALK_STAMPS_HEADERS);
+  var stampValues = stampsSheet.getDataRange().getValues();
+  var stampIdx = headerIndex_(stampValues[0]);
+  var myStamps = readStampsForEmail_(stampValues, stampIdx, email);
+
+  // Read already-unlocked badges for this email.
+  var badgesSheet = openTab(WALK_BADGES_TAB, WALK_BADGES_HEADERS);
+  var badgeValues = badgesSheet.getDataRange().getValues();
+  var badgeIdx = headerIndex_(badgeValues[0]);
+  var alreadyUnlocked = readBadgeIdsForEmail_(badgeValues, badgeIdx, email);
+
+  // Idempotency check on (email, today).
+  var alreadyStampedToday = false;
+  for (var i = 0; i < myStamps.length; i++) {
+    if (myStamps[i].stamp_date === v.today) { alreadyStampedToday = true; break; }
+  }
+  var isIdempotent = alreadyStampedToday;
+
+  // On a NEW stamp: append the row, then update the WalkTokens row.
+  // Order matters — audit first. If the WalkStamps appendRow throws,
+  // we surface sheet-write-failed and never mutate WalkTokens or
+  // WalkBadges (the audit-first invariant property YW8 depends on).
+  if (!alreadyStampedToday) {
+    try {
+      var newRow = new Array(WALK_STAMPS_HEADERS.length);
+      newRow[stampIdx.email]          = email;
+      newRow[stampIdx.stamp_date]     = v.today;
+      newRow[stampIdx.stamp_at]       = nowDate.toISOString();
+      newRow[stampIdx.anchor_book]    = v.anchorBook;
+      newRow[stampIdx.anchor_chapter] = v.anchorChapter === '' ? '' : v.anchorChapter;
+      newRow[stampIdx.stream]         = v.stream;
+      stampsSheet.appendRow(newRow);
+    } catch (err) {
+      console.log('walkStamp: WalkStamps appendRow failed: ' + err);
+      return jsonResponse({ ok: false, error: 'sheet-write-failed' });
+    }
+
+    // Now update the in-memory copy so streak/badge math reflects today.
+    myStamps.push({
+      stamp_date:     v.today,
+      anchor_book:    v.anchorBook,
+      anchor_chapter: typeof v.anchorChapter === 'number' ? v.anchorChapter : null,
+      stream:         v.stream,
+    });
+
+    // Bump WalkTokens.last_seen_at and expires_at. Failures here are
+    // logged but do not roll back the stamp — the audit row already
+    // exists.
+    var newExpiry = new Date(nowDate.getTime() + cfg.tokenTtlDays * 86400000);
+    var tokenRowIdx = findWalkTokensRowIndexByToken_(tokenValues, tokenIdx, v.token);
+    if (tokenRowIdx !== -1) {
+      try {
+        var rr = tokenRowIdx + 1;
+        tokensSheet.getRange(rr, tokenIdx.last_seen_at + 1).setValue(nowDate.toISOString());
+        tokensSheet.getRange(rr, tokenIdx.expires_at + 1).setValue(newExpiry.toISOString());
+      } catch (err2) {
+        console.log('walkStamp: WalkTokens update failed (non-fatal): ' + err2);
+      }
+    }
+  }
+
+  // Evaluate badges. On idempotent re-stamp, this is still safe — the
+  // already-unlocked set means nothing new will be in newlyUnlocked,
+  // and we force newlyUnlocked = [] in the response below regardless.
+  var catalog = loadBadgeCatalog_();
+  var evalResult = evaluateBadgeUnlocks_(myStamps, catalog, alreadyUnlocked);
+
+  // Append one WalkBadges row per newly-unlocked id (only on a new stamp).
+  if (!alreadyStampedToday && evalResult.newlyUnlocked.length) {
+    for (var b = 0; b < evalResult.newlyUnlocked.length; b++) {
+      try {
+        var badgeId = evalResult.newlyUnlocked[b];
+        var brow = new Array(WALK_BADGES_HEADERS.length);
+        brow[badgeIdx.email]       = email;
+        brow[badgeIdx.badge_id]    = badgeId;
+        brow[badgeIdx.unlocked_at] = nowDate.toISOString();
+        brow[badgeIdx.unlocked_on] = v.today;
+        badgesSheet.appendRow(brow);
+      } catch (err3) {
+        console.log('walkStamp: WalkBadges appendRow failed (non-fatal): ' + err3);
+      }
+    }
+  }
+
+  // Compute streak + totals from the up-to-date stamp list.
+  var allDates = [];
+  for (var s = 0; s < myStamps.length; s++) allDates.push(myStamps[s].stamp_date);
+  var streak = computeStreak_(allDates, v.today, cfg.graceDays);
+
+  var psalmDates = {};
+  var johnChapters = {};
+  for (var t = 0; t < myStamps.length; t++) {
+    var st = myStamps[t];
+    if (st.stream === 'psalm' && st.stamp_date) psalmDates[st.stamp_date] = true;
+    if (st.anchor_book === 'John'
+        && typeof st.anchor_chapter === 'number'
+        && isFinite(st.anchor_chapter)) {
+      johnChapters[st.anchor_chapter] = true;
+    }
+  }
+  var totals = {
+    stamps:       myStamps.length,
+    psalmStamps:  Object.keys(psalmDates).length,
+    johnChapters: Object.keys(johnChapters).length,
+  };
+
+  return jsonResponse({
+    ok: true,
+    idempotent: isIdempotent,
+    streak: streak,
+    totals: totals,
+    badges: {
+      all: evalResult.all,
+      newlyUnlocked: isIdempotent ? [] : evalResult.newlyUnlocked,
+    },
+  });
+}

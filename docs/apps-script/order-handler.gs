@@ -7108,3 +7108,782 @@ function sendBibleRequestReviewReminderEmail_(args) {
     noReply: true,
   });
 }
+
+
+// ════════════════════════════════════════════════════════════════════
+//
+//   YOUR WALK READING TRACKER (community.html panel)
+//
+//   Personal-walk reading tracker. Three Sheet tabs (WalkTokens,
+//   WalkStamps, WalkBadges), four POST actions (walkLinkRequest,
+//   walkStamp, walkSync, walkRevoke), one hourly cleanup cron
+//   (processWalkTokenCleanup_), one one-shot installer
+//   (installYourWalk).
+//
+//   Reuses everything that already lives in this file: openTab,
+//   headerIndex_, jsonResponse, emailShell, SITE_URL, TEAM_INBOX,
+//   STW_GREEN. No new Sheet, no new web app, no new bot, no new
+//   Script Property, no new external dep.
+//
+//   Pure helpers are mirrored verbatim from
+//   docs/apps-script/your-walk-helpers.js (the canonical version);
+//   the Node test runner imports the helpers file, the Apps-Script
+//   runtime uses the copy below. The test suite is the trip wire
+//   for drift between the two locations.
+//
+//   See .kiro/specs/your-walk-tracker/{requirements,design,tasks}.md
+//
+// ════════════════════════════════════════════════════════════════════
+
+// ── WalkTokens constants ───────────────────────────────────────────
+//
+// One row per member. The natural key is `email`; the device's
+// credential is `token`. Token rotation = overwrite the row's token
+// + bump expires_at. Revoke = delete the row.
+const WALK_TOKENS_TAB = 'WalkTokens';
+
+const WALK_TOKENS_HEADERS = [
+  'email', 'token', 'created_at', 'last_seen_at', 'expires_at',
+  'link_requests_24h_ts', 'revoked_at',
+];
+
+// ── WalkStamps constants ───────────────────────────────────────────
+//
+// One row per day a member stamped. Idempotency key is the pair
+// (email, stamp_date). The anchor columns (book/chapter/stream) are
+// the layered-plan reading the panel was visually showing at stamp
+// time — used by the chapter-aware badges. Empty when the panel was
+// not on a walk day.
+const WALK_STAMPS_TAB = 'WalkStamps';
+
+const WALK_STAMPS_HEADERS = [
+  'email', 'stamp_date', 'stamp_at', 'anchor_book', 'anchor_chapter', 'stream',
+];
+
+// ── WalkBadges constants ───────────────────────────────────────────
+//
+// One row per (email, badge_id) unlock event. unlocked_on is the
+// stamp_date of the stamp whose evaluateBadgeUnlocks_ pass produced
+// the unlock — used by the celebration UI for retrospective display.
+const WALK_BADGES_TAB = 'WalkBadges';
+
+const WALK_BADGES_HEADERS = [
+  'email', 'badge_id', 'unlocked_at', 'unlocked_on',
+];
+
+// ── Walk-tracker constants ─────────────────────────────────────────
+const WALK_TOKEN_HEX_LENGTH        = 64;        // 32 bytes hex
+const WALK_EMAIL_MAX_CHARS         = 200;
+const WALK_ANCHOR_BOOK_MAX_CHARS   = 40;
+const WALK_ANCHOR_CHAPTER_MAX      = 200;
+const WALK_DEFAULT_TTL_DAYS        = 30;
+const WALK_DEFAULT_GRACE_DAYS      = 3;
+const WALK_DEFAULT_LINK_RATE_LIMIT = 3;
+const WALK_LINK_RATE_WINDOW_HOURS  = 24;
+const WALK_LINK_RATE_TIMESTAMP_CAP = 5;         // most-recent-N kept on the row
+const WALK_STAMP_DATE_BOUND_DAYS   = 2;         // ±2-day server-UTC sanity check
+
+// Allowed stream names a stamp's `stream` field may take. Mirror of
+// the layered-plan streams in assets/data/telegram-bot.json#bible.
+const WALK_STREAMS = ['nt', 'otHistory', 'poetryProphecy', 'psalm', 'proverbs'];
+
+
+// ── Pure helpers (mirrored from docs/apps-script/your-walk-helpers.js) ──
+//
+// These are the Apps-Script-side copies. The canonical version lives
+// in your-walk-helpers.js and is imported by the Node test runner.
+// Edit BOTH places in lockstep — the test suite is the safety net.
+
+function isLikelyEmail_(s) {
+  if (typeof s !== 'string') return false;
+  var t = s.trim();
+  if (!t) return false;
+  if (t.length > WALK_EMAIL_MAX_CHARS) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t);
+}
+
+function isIsoDateString_(s) {
+  if (typeof s !== 'string' || s.length !== 10) return false;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  var parts = s.split('-').map(Number);
+  var y = parts[0], m = parts[1], d = parts[2];
+  if (m < 1 || m > 12 || d < 1 || d > 31) return false;
+  var dt = new Date(Date.UTC(y, m - 1, d));
+  return dt.getUTCFullYear() === y
+      && dt.getUTCMonth()    === m - 1
+      && dt.getUTCDate()     === d;
+}
+
+function isWalkTokenHex_(s) {
+  return typeof s === 'string'
+      && s.length === WALK_TOKEN_HEX_LENGTH
+      && /^[0-9a-f]+$/.test(s);
+}
+
+function daysBetweenIso_(aIso, bIso) {
+  if (!isIsoDateString_(aIso) || !isIsoDateString_(bIso)) return NaN;
+  var ap = aIso.split('-').map(Number);
+  var bp = bIso.split('-').map(Number);
+  var aMs = Date.UTC(ap[0], ap[1] - 1, ap[2]);
+  var bMs = Date.UTC(bp[0], bp[1] - 1, bp[2]);
+  return Math.round((bMs - aMs) / 86400000);
+}
+
+function isoWeekdayForDate_(isoDate) {
+  if (!isIsoDateString_(isoDate)) return 0;
+  var p = isoDate.split('-').map(Number);
+  var dt = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+  return ((dt.getUTCDay() + 6) % 7) + 1;
+}
+
+function isoWeekKeyForDate_(isoDate) {
+  if (!isIsoDateString_(isoDate)) return null;
+  var p = isoDate.split('-').map(Number);
+  var date = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+  var dayNum = ((date.getUTCDay() + 6) % 7) + 1;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  var weekNum = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  return date.getUTCFullYear() + '-W' + String(weekNum).padStart(2, '0');
+}
+
+function isoWeekMondayDate_(weekKey) {
+  if (typeof weekKey !== 'string') return null;
+  var m = /^(\d{4})-W(\d{2})$/.exec(weekKey);
+  if (!m) return null;
+  var year = parseInt(m[1], 10);
+  var week = parseInt(m[2], 10);
+  if (week < 1 || week > 53) return null;
+  var jan4 = new Date(Date.UTC(year, 0, 4));
+  var jan4Day = ((jan4.getUTCDay() + 6) % 7) + 1;
+  var w01Mon = new Date(Date.UTC(year, 0, 4 - (jan4Day - 1)));
+  var offsetMs = (week - 1) * 7 * 86400000;
+  return new Date(w01Mon.getTime() + offsetMs);
+}
+
+function consecutiveIsoWeeks_(aKey, bKey) {
+  var aMon = isoWeekMondayDate_(aKey);
+  var bMon = isoWeekMondayDate_(bKey);
+  if (!aMon || !bMon) return false;
+  return Math.round((bMon - aMon) / 86400000) === 7;
+}
+
+function validateWalkLinkRequest_(p) {
+  if (!p || typeof p !== 'object') return { ok: false, reason: 'not-object' };
+  var email = String(p.email == null ? '' : p.email).trim().toLowerCase();
+  if (!email)                              return { ok: false, reason: 'email-required' };
+  if (email.length > WALK_EMAIL_MAX_CHARS) return { ok: false, reason: 'email-too-long' };
+  if (!isLikelyEmail_(email))              return { ok: false, reason: 'bad-email' };
+  return { ok: true, email: email };
+}
+
+function validateWalkStamp_(p) {
+  if (!p || typeof p !== 'object') return { ok: false, reason: 'not-object' };
+  var token = String(p.token == null ? '' : p.token).trim();
+  var today = String(p.today == null ? '' : p.today).trim();
+
+  if (!token)                   return { ok: false, reason: 'token-required' };
+  if (!isWalkTokenHex_(token))  return { ok: false, reason: 'bad-token-shape' };
+  if (!today)                   return { ok: false, reason: 'today-required' };
+  if (!isIsoDateString_(today)) return { ok: false, reason: 'bad-date' };
+
+  var anchorBook = '';
+  var anchorChapter = '';
+  var stream = '';
+  if (p.anchor && typeof p.anchor === 'object') {
+    anchorBook = String(p.anchor.book == null ? '' : p.anchor.book)
+      .trim()
+      .slice(0, WALK_ANCHOR_BOOK_MAX_CHARS);
+
+    var chRaw = p.anchor.chapter;
+    var ch = typeof chRaw === 'number'
+      ? Math.floor(chRaw)
+      : parseInt(String(chRaw == null ? '' : chRaw), 10);
+    if (isFinite(ch) && ch >= 1 && ch <= WALK_ANCHOR_CHAPTER_MAX) {
+      anchorChapter = ch;
+    }
+
+    var streamRaw = String(p.anchor.stream == null ? '' : p.anchor.stream).trim();
+    if (WALK_STREAMS.indexOf(streamRaw) !== -1) stream = streamRaw;
+  }
+
+  return {
+    ok: true,
+    token: token, today: today,
+    anchorBook: anchorBook, anchorChapter: anchorChapter, stream: stream,
+  };
+}
+
+function computeStreak_(stampDates, today, graceDays) {
+  var grace = (graceDays == null) ? WALK_DEFAULT_GRACE_DAYS : graceDays;
+  var inputs = (Array.isArray(stampDates) ? stampDates : [])
+    .filter(isIsoDateString_);
+  var seen = {};
+  for (var k = 0; k < inputs.length; k++) seen[inputs[k]] = true;
+  var unique = Object.keys(seen).sort();
+
+  if (unique.length === 0) {
+    return { current: 0, longest: 0, lastStampDate: null };
+  }
+
+  var current = 0, longest = 0, prev = null;
+  for (var i = 0; i < unique.length; i++) {
+    var d = unique[i];
+    if (prev === null) {
+      current = 1;
+    } else {
+      var gap = daysBetweenIso_(prev, d);
+      if (gap === 0) continue;
+      if (gap <= grace + 1) current = current + 1;
+      else                  current = 1;
+    }
+    if (current > longest) longest = current;
+    prev = d;
+  }
+
+  return { current: current, longest: longest, lastStampDate: prev };
+}
+
+function evaluateWalkRule_(rule, stamps) {
+  switch (rule) {
+    case 'first-stamp-ever':
+      return stamps.length >= 1;
+
+    case 'twenty-one-john-chapters': {
+      var johnChapters = {};
+      for (var i = 0; i < stamps.length; i++) {
+        var s = stamps[i];
+        if (s && s.anchor_book === 'John'
+            && typeof s.anchor_chapter === 'number'
+            && isFinite(s.anchor_chapter)) {
+          johnChapters[s.anchor_chapter] = true;
+        }
+      }
+      return Object.keys(johnChapters).length >= 21;
+    }
+
+    case 'thirty-psalm-stamps': {
+      var psalmDates = {};
+      for (var j = 0; j < stamps.length; j++) {
+        var s2 = stamps[j];
+        if (s2 && s2.stream === 'psalm' && isIsoDateString_(s2.stamp_date)) {
+          psalmDates[s2.stamp_date] = true;
+        }
+      }
+      return Object.keys(psalmDates).length >= 30;
+    }
+
+    case 'thirty-day-streak': {
+      var dates = [];
+      for (var m = 0; m < stamps.length; m++) {
+        var s3 = stamps[m];
+        if (s3 && isIsoDateString_(s3.stamp_date)) dates.push(s3.stamp_date);
+      }
+      if (dates.length === 0) return false;
+      var seenD = {};
+      for (var n = 0; n < dates.length; n++) seenD[dates[n]] = true;
+      var sorted = Object.keys(seenD).sort();
+      var r = computeStreak_(sorted, sorted[sorted.length - 1], WALK_DEFAULT_GRACE_DAYS);
+      return r.longest >= 30;
+    }
+
+    case 'five-days-four-weeks': {
+      var datesByWeek = {};
+      for (var p = 0; p < stamps.length; p++) {
+        var s4 = stamps[p];
+        if (!s4 || !isIsoDateString_(s4.stamp_date)) continue;
+        var dow = isoWeekdayForDate_(s4.stamp_date);
+        if (dow < 1 || dow > 5) continue;
+        var wk = isoWeekKeyForDate_(s4.stamp_date);
+        if (!wk) continue;
+        if (!datesByWeek[wk]) datesByWeek[wk] = {};
+        datesByWeek[wk][s4.stamp_date] = true;
+      }
+      var qualifying = [];
+      for (var wkKey in datesByWeek) {
+        if (Object.keys(datesByWeek[wkKey]).length >= 5) qualifying.push(wkKey);
+      }
+      qualifying.sort();
+      for (var q = 0; q + 3 < qualifying.length; q++) {
+        if (consecutiveIsoWeeks_(qualifying[q],     qualifying[q + 1])
+         && consecutiveIsoWeeks_(qualifying[q + 1], qualifying[q + 2])
+         && consecutiveIsoWeeks_(qualifying[q + 2], qualifying[q + 3])) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    default:
+      return false;
+  }
+}
+
+function evaluateBadgeUnlocks_(stamps, badgeCatalog, alreadyUnlocked) {
+  var stampsList = Array.isArray(stamps) ? stamps : [];
+  var catalog = (badgeCatalog && Array.isArray(badgeCatalog.badges))
+    ? badgeCatalog.badges
+    : [];
+
+  var alreadyMap = {};
+  if (alreadyUnlocked && typeof alreadyUnlocked.forEach === 'function') {
+    alreadyUnlocked.forEach(function (id) { alreadyMap[id] = true; });
+  } else if (Array.isArray(alreadyUnlocked)) {
+    for (var a = 0; a < alreadyUnlocked.length; a++) alreadyMap[alreadyUnlocked[a]] = true;
+  }
+
+  var newly = [];
+  var all = [];
+
+  for (var i = 0; i < catalog.length; i++) {
+    var badge = catalog[i];
+    if (!badge || typeof badge.id !== 'string') continue;
+    var wasUnlocked = alreadyMap[badge.id] === true;
+    var ruleHits = wasUnlocked || evaluateWalkRule_(badge.unlockRule, stampsList);
+    if (ruleHits) {
+      all.push(badge.id);
+      if (!wasUnlocked) newly.push(badge.id);
+    }
+  }
+
+  return { newlyUnlocked: newly, all: all };
+}
+
+function tokenIsActive_(tokenRow, now) {
+  if (!tokenRow || typeof tokenRow !== 'object') return false;
+  if (tokenRow.revoked_at) return false;
+  var expRaw = tokenRow.expires_at;
+  if (expRaw == null || expRaw === '') return false;
+  var exp = (expRaw instanceof Date) ? expRaw : new Date(expRaw);
+  if (!(exp instanceof Date) || isNaN(exp.getTime())) return false;
+  var nowMs = (now instanceof Date && !isNaN(now.getTime())) ? now.getTime() : Date.now();
+  return exp.getTime() > nowMs;
+}
+
+function findEmailLinkRequestsInWindow_(values, idx, email, hours, now) {
+  if (!Array.isArray(values) || values.length < 2) return [];
+  if (!idx || typeof idx !== 'object') return [];
+  if (typeof idx.email !== 'number' || typeof idx.link_requests_24h_ts !== 'number') {
+    return [];
+  }
+  var target = String(email == null ? '' : email).trim().toLowerCase();
+  if (!target) return [];
+
+  var windowMs = (typeof hours === 'number' && hours > 0 ? hours : WALK_LINK_RATE_WINDOW_HOURS) * 3600000;
+  var nowMs = (now instanceof Date && !isNaN(now.getTime())) ? now.getTime() : Date.now();
+  var cutoffMs = nowMs - windowMs;
+
+  var out = [];
+  for (var r = 1; r < values.length; r++) {
+    var row = values[r];
+    if (!row) continue;
+    var rowEmail = String(row[idx.email] == null ? '' : row[idx.email]).trim().toLowerCase();
+    if (rowEmail !== target) continue;
+    var tsField = String(row[idx.link_requests_24h_ts] == null ? '' : row[idx.link_requests_24h_ts]);
+    if (!tsField) continue;
+    var parts = tsField.split(',');
+    for (var i = 0; i < parts.length; i++) {
+      var tsRaw = parts[i].trim();
+      if (!tsRaw) continue;
+      var ts = new Date(tsRaw);
+      if (isNaN(ts.getTime())) continue;
+      if (ts.getTime() >= cutoffMs) out.push(ts);
+    }
+  }
+  out.sort(function (a, b) { return a.getTime() - b.getTime(); });
+  return out;
+}
+
+
+// ── I/O wrappers ────────────────────────────────────────────────────
+
+// Load the yourWalk config block off the deployed site's
+// telegram-bot.json. Returns sane defaults when the fetch fails.
+// Cached in CacheService for 6 hours.
+function loadYourWalkConfig_() {
+  var cache = null;
+  try { cache = CacheService.getScriptCache(); } catch (_) {}
+  var cacheKey = 'your-walk:config-v1';
+  var cached = cache ? cache.get(cacheKey) : null;
+  if (cached) {
+    try { return JSON.parse(cached); } catch (_) {}
+  }
+  var url = SITE_URL + 'assets/data/telegram-bot.json';
+  var raw = {};
+  try {
+    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    if (resp.getResponseCode() >= 200 && resp.getResponseCode() < 300) {
+      raw = JSON.parse(resp.getContentText()) || {};
+    }
+  } catch (err) {
+    console.log('loadYourWalkConfig_: fetch failed: ' + err);
+  }
+  var w = raw.yourWalk || {};
+  var cfg = {
+    enabled: w.enabled === true,
+    endpointUrl: String(w.endpointUrl || ''),
+    tokenTtlDays: Number(w.tokenTtlDays) || WALK_DEFAULT_TTL_DAYS,
+    graceDays: (typeof w.graceDays === 'number') ? w.graceDays : WALK_DEFAULT_GRACE_DAYS,
+    linkRateLimitPerDay: Number(w.linkRateLimitPerDay) || WALK_DEFAULT_LINK_RATE_LIMIT,
+  };
+  if (cache) {
+    try { cache.put(cacheKey, JSON.stringify(cfg), 6 * 60 * 60); } catch (_) {}
+  }
+  return cfg;
+}
+
+// Load the badge catalog off the deployed site's badges.json. Returns
+// {badges: []} when the fetch fails — evaluateBadgeUnlocks_ tolerates
+// an empty catalog by returning {newlyUnlocked: [], all: []}.
+function loadBadgeCatalog_() {
+  var cache = null;
+  try { cache = CacheService.getScriptCache(); } catch (_) {}
+  var cacheKey = 'your-walk:badges-v1';
+  var cached = cache ? cache.get(cacheKey) : null;
+  if (cached) {
+    try { return JSON.parse(cached); } catch (_) {}
+  }
+  var url = SITE_URL + 'assets/data/badges.json';
+  var raw = { badges: [] };
+  try {
+    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    if (resp.getResponseCode() >= 200 && resp.getResponseCode() < 300) {
+      raw = JSON.parse(resp.getContentText()) || { badges: [] };
+    }
+  } catch (err) {
+    console.log('loadBadgeCatalog_: fetch failed: ' + err);
+  }
+  if (!Array.isArray(raw.badges)) raw.badges = [];
+  if (cache) {
+    try { cache.put(cacheKey, JSON.stringify(raw), 6 * 60 * 60); } catch (_) {}
+  }
+  return raw;
+}
+
+// Find the rowIndex (1-based on values; values[rowIndex] is the row,
+// sheet.getRange(rowIndex+1, …) is the cell for setValue) for the
+// given email, or -1 if absent.
+function findWalkTokensRowByEmail_(values, idx, email) {
+  if (!Array.isArray(values) || values.length < 2) return -1;
+  var target = String(email == null ? '' : email).trim().toLowerCase();
+  if (!target) return -1;
+  for (var r = 1; r < values.length; r++) {
+    var rowEmail = String(values[r][idx.email] == null ? '' : values[r][idx.email]).trim().toLowerCase();
+    if (rowEmail === target) return r;
+  }
+  return -1;
+}
+
+// Given a token, return the row's columns as an object or null.
+function findWalkTokensRowObject_(values, idx, token) {
+  if (!Array.isArray(values) || values.length < 2) return null;
+  if (!token) return null;
+  for (var r = 1; r < values.length; r++) {
+    if (String(values[r][idx.token] || '') === token) {
+      return {
+        email:                String(values[r][idx.email] || '').trim().toLowerCase(),
+        token:                String(values[r][idx.token] || ''),
+        created_at:           values[r][idx.created_at],
+        last_seen_at:         values[r][idx.last_seen_at],
+        expires_at:           values[r][idx.expires_at],
+        link_requests_24h_ts: values[r][idx.link_requests_24h_ts],
+        revoked_at:           values[r][idx.revoked_at],
+      };
+    }
+  }
+  return null;
+}
+
+// Same lookup but returns the rowIndex (1-based on values) for use
+// with sheet.getRange.
+function findWalkTokensRowIndexByToken_(values, idx, token) {
+  if (!Array.isArray(values) || values.length < 2) return -1;
+  if (!token) return -1;
+  for (var r = 1; r < values.length; r++) {
+    if (String(values[r][idx.token] || '') === token) return r;
+  }
+  return -1;
+}
+
+// Returns an array of stamp objects in evaluateBadgeUnlocks_ shape
+// (column names with underscores) for the given email.
+function readStampsForEmail_(values, idx, email) {
+  var out = [];
+  if (!Array.isArray(values) || values.length < 2) return out;
+  var target = String(email == null ? '' : email).trim().toLowerCase();
+  if (!target) return out;
+  for (var r = 1; r < values.length; r++) {
+    var rowEmail = String(values[r][idx.email] == null ? '' : values[r][idx.email]).trim().toLowerCase();
+    if (rowEmail !== target) continue;
+    var chRaw = values[r][idx.anchor_chapter];
+    var ch = (typeof chRaw === 'number') ? chRaw : parseInt(String(chRaw == null ? '' : chRaw), 10);
+    out.push({
+      stamp_date:     String(values[r][idx.stamp_date] || ''),
+      anchor_book:    String(values[r][idx.anchor_book] || ''),
+      anchor_chapter: isFinite(ch) ? ch : null,
+      stream:         String(values[r][idx.stream] || ''),
+    });
+  }
+  return out;
+}
+
+// Returns a JS object acting as a Set<string> of badge ids already
+// unlocked for the email. (Apps Script supports Set, but a plain
+// object is enough for evaluateBadgeUnlocks_'s contract.)
+function readBadgeIdsForEmail_(values, idx, email) {
+  var setLike = {
+    _items: {},
+    has: function (id) { return this._items[id] === true; },
+    add: function (id) { this._items[id] = true; },
+    forEach: function (fn) {
+      for (var k in this._items) if (this._items[k] === true) fn(k);
+    },
+  };
+  if (!Array.isArray(values) || values.length < 2) return setLike;
+  var target = String(email == null ? '' : email).trim().toLowerCase();
+  if (!target) return setLike;
+  for (var r = 1; r < values.length; r++) {
+    var rowEmail = String(values[r][idx.email] == null ? '' : values[r][idx.email]).trim().toLowerCase();
+    if (rowEmail !== target) continue;
+    var bid = String(values[r][idx.badge_id] || '');
+    if (bid) setLike.add(bid);
+  }
+  return setLike;
+}
+
+// Append `now` to `existing` (most-recent-N capped). `existing` may be
+// an array of Date|ISO strings or comma-joined-string. Returns an
+// array of ISO strings.
+function appendAndCapTimestamps_(existing, now, cap) {
+  var max = (typeof cap === 'number' && cap > 0) ? cap : WALK_LINK_RATE_TIMESTAMP_CAP;
+  var out = [];
+  if (Array.isArray(existing)) {
+    for (var i = 0; i < existing.length; i++) {
+      var v = existing[i];
+      if (v instanceof Date) out.push(v.toISOString());
+      else if (typeof v === 'string' && v.trim()) out.push(v.trim());
+    }
+  } else if (typeof existing === 'string' && existing) {
+    var parts = existing.split(',');
+    for (var j = 0; j < parts.length; j++) {
+      var p = parts[j].trim();
+      if (p) out.push(p);
+    }
+  }
+  out.push((now instanceof Date) ? now.toISOString() : new Date().toISOString());
+  if (out.length > max) out = out.slice(out.length - max);
+  return out;
+}
+
+// Read the link_requests_24h_ts cell at rowIdx (1-based on values) into
+// an array of Date objects. Returns [] for missing/malformed cells or
+// when rowIdx is -1 (no existing row).
+function rowTimestamps_(values, idx, rowIdx) {
+  var out = [];
+  if (rowIdx < 1 || !Array.isArray(values) || rowIdx >= values.length) return out;
+  var raw = String(values[rowIdx][idx.link_requests_24h_ts] || '');
+  if (!raw) return out;
+  var parts = raw.split(',');
+  for (var i = 0; i < parts.length; i++) {
+    var t = parts[i].trim();
+    if (!t) continue;
+    var dt = new Date(t);
+    if (!isNaN(dt.getTime())) out.push(dt);
+  }
+  return out;
+}
+
+// Random 32 bytes rendered as 64 lowercase hex chars. Apps Script
+// does not expose a direct CSPRNG, so we use UUID concatenation as
+// the entropy source, then hash with SHA-256 to whiten and to land
+// on exactly 32 bytes regardless of UUID format quirks.
+function randomWalkTokenHex_() {
+  var seed = Utilities.getUuid() + Utilities.getUuid();
+  var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, seed);
+  var out = '';
+  for (var i = 0; i < bytes.length; i++) {
+    var b = bytes[i] & 0xff;
+    out += (b < 16 ? '0' : '') + b.toString(16);
+  }
+  return out;
+}
+
+// 'YYYY-MM-DD' UTC date string for a Date object.
+function ymdUtc_(date) {
+  var d = (date instanceof Date) ? date : new Date(date);
+  if (isNaN(d.getTime())) return '';
+  var y = d.getUTCFullYear();
+  var m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  var dd = String(d.getUTCDate()).padStart(2, '0');
+  return y + '-' + m + '-' + dd;
+}
+
+// Walk every row bottom-up and delete on email match. Returns the
+// count deleted. Bottom-up so row indices stay valid mid-walk.
+function deleteRowsByEmail_(sheet, idx, email) {
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) return 0;
+  var target = String(email == null ? '' : email).trim().toLowerCase();
+  if (!target) return 0;
+  var deleted = 0;
+  for (var r = values.length - 1; r >= 1; r--) {
+    var rowEmail = String(values[r][idx.email] == null ? '' : values[r][idx.email]).trim().toLowerCase();
+    if (rowEmail === target) {
+      sheet.deleteRow(r + 1);
+      deleted++;
+    }
+  }
+  return deleted;
+}
+
+
+
+// ── Apps Script handler — handleWalkLinkRequest_ ────────────────────
+//
+// Magic-link request. Audit-first sequence:
+//   1. Honeypot trip → silently OK, write nothing.
+//   2. Validate (validateWalkLinkRequest_).
+//   3. Load yourWalk config; reject when disabled.
+//   4. Rate-limit via findEmailLinkRequestsInWindow_ (3 per email
+//      per 24h rolling window; cap configurable).
+//   5. Generate 64-hex-char token; upsert WalkTokens row (rotate
+//      token + bump expires_at when email already exists; otherwise
+//      append a fresh row).
+//   6. Append `now` ISO into link_requests_24h_ts capped at 5 most-
+//      recent entries.
+//   7. Email the magic link via sendWalkMagicLinkEmail_.
+//   8. Return { ok: true, status: 'sent' }.
+//
+// On email-send failure the row is preserved (the audit row already
+// exists) but we surface the error so the browser shows a "try again
+// in a minute" message instead of a silent success.
+//
+// Spec: design §4.8; requirements 3.x and YW7.
+function handleWalkLinkRequest_(payload) {
+  if (payload && payload.extra_field_2) {
+    return jsonResponse({ ok: true, route: 'honeypot' });
+  }
+
+  var v = validateWalkLinkRequest_(payload);
+  if (!v.ok) return jsonResponse({ ok: false, error: v.reason });
+
+  var cfg = loadYourWalkConfig_();
+  if (!cfg.enabled) return jsonResponse({ ok: false, error: 'disabled' });
+
+  var sheet = openTab(WALK_TOKENS_TAB, WALK_TOKENS_HEADERS);
+  var values = sheet.getDataRange().getValues();
+  var idx = headerIndex_(values[0]);
+  var now = new Date();
+
+  var recent = findEmailLinkRequestsInWindow_(
+    values, idx, v.email, WALK_LINK_RATE_WINDOW_HOURS, now);
+  if (recent.length >= cfg.linkRateLimitPerDay) {
+    return jsonResponse({ ok: false, error: 'rate-limited' });
+  }
+
+  var token = randomWalkTokenHex_();
+  var expiresAt = new Date(now.getTime() + cfg.tokenTtlDays * 86400000);
+
+  var existingRowIdx = findWalkTokensRowByEmail_(values, idx, v.email);
+  var newTimestamps = appendAndCapTimestamps_(
+    rowTimestamps_(values, idx, existingRowIdx),
+    now,
+    WALK_LINK_RATE_TIMESTAMP_CAP
+  );
+
+  if (existingRowIdx === -1) {
+    var row = new Array(WALK_TOKENS_HEADERS.length);
+    row[idx.email]                = v.email;
+    row[idx.token]                = token;
+    row[idx.created_at]           = now.toISOString();
+    row[idx.last_seen_at]         = '';
+    row[idx.expires_at]           = expiresAt.toISOString();
+    row[idx.link_requests_24h_ts] = newTimestamps.join(',');
+    row[idx.revoked_at]           = '';
+    sheet.appendRow(row);
+  } else {
+    var r = existingRowIdx + 1; // 1-based for getRange
+    sheet.getRange(r, idx.token + 1).setValue(token);
+    sheet.getRange(r, idx.expires_at + 1).setValue(expiresAt.toISOString());
+    sheet.getRange(r, idx.link_requests_24h_ts + 1).setValue(newTimestamps.join(','));
+    // Clear revoked_at if a previously-soft-revoked row is being
+    // re-activated by a fresh request.
+    sheet.getRange(r, idx.revoked_at + 1).setValue('');
+  }
+
+  try {
+    sendWalkMagicLinkEmail_(v.email, token);
+  } catch (err) {
+    console.log('walkLinkRequest: email send failed: ' + err);
+    return jsonResponse({ ok: false, error: 'email-send-failed' });
+  }
+
+  return jsonResponse({ ok: true, status: 'sent' });
+}
+
+
+// ── Magic-link email — sendWalkMagicLinkEmail_ ──────────────────────
+//
+// One CTA, plaintext fallback included. Tone matches the warm
+// gospel-stage emails: no exclamation points, ≤ 1 emoji glyph,
+// signed "Sincerely / The Seed the Word team". Sender = script
+// owner (the same identity every other ministry email flows from).
+//
+// Spec: design §4.13; requirement 6.x.
+function sendWalkMagicLinkEmail_(email, token) {
+  var link = SITE_URL + 'community.html?walk=' + encodeURIComponent(token);
+  var html = emailShell({
+    headerTitle: 'Your Walk — your magic link',
+    headerSubtitle: 'Open this on the device you read on.',
+    bodyHtml:
+      '<p style="margin:0 0 16px;font-size:15.5px;line-height:1.6;color:#3d3a35;">' +
+        'You asked us to save your walk. The link below opens the community page on this device ' +
+        'and saves your reading rhythm so the streak follows you here.' +
+      '</p>' +
+      '<p style="margin:0 0 24px;text-align:center;">' +
+        '<a href="' + escapeHtml(link) + '" style="display:inline-block;padding:14px 28px;' +
+          'background:' + STW_GREEN + ';color:#ffffff;font-weight:600;font-size:15px;' +
+          'border-radius:6px;text-decoration:none;">Open my walk</a>' +
+      '</p>' +
+      '<p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#5e574d;">' +
+        'The link is good for 30 days of activity. Stamping a day extends it for another 30. ' +
+        'If you stop stamping for 30 days, the link expires and you can ask for a new one.' +
+      '</p>' +
+      '<p style="margin:0 0 8px;font-size:14px;line-height:1.6;color:#5e574d;">' +
+        'If you did not ask for this, you can ignore the message and nothing further happens.' +
+      '</p>' +
+      '<p style="margin:24px 0 4px;font-family:Georgia,serif;font-style:italic;color:' + STW_GREEN + ';">' +
+        'Sincerely,' +
+      '</p>' +
+      '<p style="margin:0;font-size:14.5px;color:' + STW_GREEN + ';font-weight:600;">' +
+        'The Seed the Word team' +
+      '</p>',
+    footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="mailto:' + TEAM_INBOX +
+      '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
+  });
+
+  var plain = [
+    'Open this on the device you read on:',
+    link,
+    '',
+    'The link is good for 30 days of activity. Stamping a day extends it ' +
+    'for another 30. If you stop stamping for 30 days, the link expires and ' +
+    'you can ask for a new one.',
+    '',
+    'If you did not ask for this, ignore this email and nothing further happens.',
+    '',
+    'Sincerely,',
+    'The Seed the Word team',
+    TEAM_INBOX,
+  ].join('\n');
+
+  MailApp.sendEmail({
+    to: email,
+    subject: 'Your Walk — your magic link',
+    htmlBody: html,
+    body: plain,
+    replyTo: TEAM_INBOX,
+    name: 'Seed the Word Ministry',
+    noReply: true,
+  });
+}

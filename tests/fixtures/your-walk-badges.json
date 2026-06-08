@@ -1,0 +1,47 @@
+{
+  "_help": "Test fixture mirroring the production assets/data/badges.json catalog plus one synthetic 'unknown-rule' entry. The unknown-rule entry exercises the `default → false` branch of evaluateRule_ so we pin that contract.",
+  "badges": [
+    {
+      "id": "first-chapter-back",
+      "name": "First chapter back",
+      "description": "The first stamp on a new walk. Welcome.",
+      "unlockRule": "first-stamp-ever",
+      "private": false
+    },
+    {
+      "id": "faithful-in-small-things",
+      "name": "Faithful in the small things",
+      "description": "Five days a week, four weeks in a row. He who is faithful in the little is faithful in the much.",
+      "unlockRule": "five-days-four-weeks",
+      "private": false
+    },
+    {
+      "id": "walked-through-john",
+      "name": "Walked through the Gospel of John",
+      "description": "Twenty-one chapters of the apostle's witness. A milestone — you walked through John.",
+      "unlockRule": "twenty-one-john-chapters",
+      "private": false
+    },
+    {
+      "id": "psalmists-30-days",
+      "name": "Sat with the Psalmists for 30 days",
+      "description": "Thirty stamps in the Psalm stream. Their songs have shaped your prayer.",
+      "unlockRule": "thirty-psalm-stamps",
+      "private": false
+    },
+    {
+      "id": "30-day-walk",
+      "name": "30-day walk",
+      "description": "Thirty calendar days carrying a current streak. Steady is its own kind of grace.",
+      "unlockRule": "thirty-day-streak",
+      "private": false
+    },
+    {
+      "id": "synthetic-unknown-rule",
+      "name": "Synthetic — unknown rule (test fixture only)",
+      "description": "Exercises the default branch of evaluateRule_. Should never unlock.",
+      "unlockRule": "this-rule-does-not-exist",
+      "private": false
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+name: Your Walk Tests
+
+# Property-based tests for the your-walk-tracker spec
+# (.kiro/specs/your-walk-tracker/). Runs on every push or PR that
+# touches the helper file, the browser module, the badge catalog,
+# the bot config, the panel-bearing community page, the admin-help
+# walkthrough, or the test suite itself.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'community.html'
+      - 'admin-help.html'
+      - 'assets/js/your-walk.js'
+      - 'assets/data/badges.json'
+      - 'assets/data/telegram-bot.json'
+      - 'assets/js/admin-editor-schemas.js'
+      - 'docs/apps-script/your-walk-helpers.js'
+      - 'docs/apps-script/order-handler.gs'
+      - 'tests/your_walk_*.test.mjs'
+      - 'tests/fixtures/your-walk-*'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/your-walk-tests.yml'
+  pull_request:
+    paths:
+      - 'community.html'
+      - 'admin-help.html'
+      - 'assets/js/your-walk.js'
+      - 'assets/data/badges.json'
+      - 'assets/data/telegram-bot.json'
+      - 'assets/js/admin-editor-schemas.js'
+      - 'docs/apps-script/your-walk-helpers.js'
+      - 'docs/apps-script/order-handler.gs'
+      - 'tests/your_walk_*.test.mjs'
+      - 'tests/fixtures/your-walk-*'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/your-walk-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        # Use npm install (not ci) because the repo intentionally
+        # ships without a lockfile — the dev deps are tiny and pinned.
+        run: npm install --no-audit --no-fund
+
+      - name: Run your-walk tests (YW1-YW9)
+        run: npm run test:your-walk

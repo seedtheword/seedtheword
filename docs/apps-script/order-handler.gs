@@ -4125,6 +4125,7 @@ function installAllTimeTriggers() {
     'kickSaturdayIcebreaker',
     'mirrorCalendarPaperclipAttachments_',
     'processBibleReviewReminders_',
+    'processWalkTokenCleanup_',
   ];
   const existing = ScriptApp.getProjectTriggers();
   let removed = 0;
@@ -4198,7 +4199,14 @@ function installAllTimeTriggers() {
   ScriptApp.newTrigger('processBibleReviewReminders_').timeBased()
     .everyMinutes(30).create();
 
-  console.log('installAllTimeTriggers: installed 14 triggers.');
+  // Your Walk token cleanup cron fires hourly. Reaps WalkTokens
+  // rows whose expires_at is in the past. WalkStamps + WalkBadges
+  // are preserved (a returning member with the same email keeps
+  // their reading history).
+  ScriptApp.newTrigger('processWalkTokenCleanup_').timeBased()
+    .everyHours(1).create();
+
+  console.log('installAllTimeTriggers: installed 15 triggers.');
   console.log('Confirm in: Project Settings → Triggers (left rail icon).');
   console.log('IMPORTANT: ensure script timezone is America/Los_Angeles');
   console.log('  (Project Settings → General → Time zone).');
@@ -5033,6 +5041,10 @@ function dailyAppsScriptHealthCheck() {
     // hours catches a few consecutive misses without false-alarming
     // on a single jitter.
     { name: 'processBibleReviewReminders_', maxAgeHours: 2, label: 'Bible review reminder cron' },
+
+    // Your Walk token cleanup cron — fires hourly. SLO of 2 hours
+    // catches a stalled cron within one ordinary heartbeat.
+    { name: 'processWalkTokenCleanup_',     maxAgeHours: 2, label: 'Your Walk token cleanup cron' },
     // Weekly checks — SLO is 8 days so a one-day delay doesn't trip the
     // alarm but a missed week does.
     { name: 'weeklyMemberDigest',             maxAgeHours: 192, label: 'Weekly member digest (Sat)' },
@@ -8215,4 +8227,116 @@ function handleWalkRevoke_(payload) {
   deleted.badges = deleteRowsByEmail_(badgesSheet, badgeIdx, email);
 
   return jsonResponse({ ok: true, deleted: deleted });
+}
+
+
+
+// ── Hourly cleanup cron — processWalkTokenCleanup_ ──────────────────
+//
+// Deletes every WalkTokens row whose expires_at is in the past.
+// Walks bottom-up so row indices stay valid mid-iteration. Does
+// NOT touch WalkStamps or WalkBadges — a member who returns and
+// re-saves their walk with the same email keeps their full history;
+// only the token (the credential) is reaped.
+//
+// Runs hourly via installAllTimeTriggers(). Calls _markAppsScriptRan
+// at entry so dailyAppsScriptHealthCheck can detect a stalled cron.
+//
+// Spec: design §4.14; requirement 10.5–10.7.
+function processWalkTokenCleanup_() {
+  _markAppsScriptRan('processWalkTokenCleanup_');
+
+  var sheet = openTab(WALK_TOKENS_TAB, WALK_TOKENS_HEADERS);
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) {
+    console.log('processWalkTokenCleanup_: WalkTokens empty; nothing to do.');
+    return;
+  }
+  var idx = headerIndex_(values[0]);
+  var nowMs = Date.now();
+  var deleted = 0;
+  for (var r = values.length - 1; r >= 1; r--) {
+    var expRaw = String(values[r][idx.expires_at] || '');
+    if (!expRaw) continue;
+    var exp = new Date(expRaw);
+    if (isNaN(exp.getTime())) continue;
+    if (exp.getTime() < nowMs) {
+      sheet.deleteRow(r + 1);
+      deleted++;
+    }
+  }
+  console.log('processWalkTokenCleanup_: removed ' + deleted + ' expired token row(s).');
+}
+
+
+// ── One-shot installer — installYourWalk ────────────────────────────
+//
+// Run installYourWalk() ONCE from the Apps Script editor's function
+// dropdown. Idempotent — safe to re-run. The three Walk tabs use
+// the existing openTab() helper which preserves data and only
+// rewrites headers if they drift from the canonical *_HEADERS
+// constants. After this completes, an admin still needs to:
+//
+//   1. Set yourWalk.endpointUrl in assets/data/telegram-bot.json
+//      to the deployed /exec URL.
+//   2. Flip yourWalk.enabled to true in the same file.
+//   3. Bump community.html and admin-help.html main.css cache busters.
+//   4. Run installAllTimeTriggers() to register the hourly
+//      processWalkTokenCleanup_ cron.
+//
+// Spec: design §6.3; requirement 12.6.
+function installYourWalk() {
+  // ── WalkTokens ────────────────────────────────────────────────
+  var tokens = openTab(WALK_TOKENS_TAB, WALK_TOKENS_HEADERS);
+  tokens.getRange(1, 1, 1, WALK_TOKENS_HEADERS.length).setFontWeight('bold');
+  if (tokens.getFrozenRows() < 1) tokens.setFrozenRows(1);
+  var tokensWidths = {
+    email:                200,
+    token:                280,
+    created_at:           180,
+    last_seen_at:         180,
+    expires_at:           180,
+    link_requests_24h_ts: 280,
+    revoked_at:           180,
+  };
+  for (var i = 0; i < WALK_TOKENS_HEADERS.length; i++) {
+    var w = tokensWidths[WALK_TOKENS_HEADERS[i]];
+    if (w) tokens.setColumnWidth(i + 1, w);
+  }
+
+  // ── WalkStamps ────────────────────────────────────────────────
+  var stamps = openTab(WALK_STAMPS_TAB, WALK_STAMPS_HEADERS);
+  stamps.getRange(1, 1, 1, WALK_STAMPS_HEADERS.length).setFontWeight('bold');
+  if (stamps.getFrozenRows() < 1) stamps.setFrozenRows(1);
+  var stampsWidths = {
+    email:          200,
+    stamp_date:     120,
+    stamp_at:       180,
+    anchor_book:    140,
+    anchor_chapter: 60,
+    stream:         120,
+  };
+  for (var j = 0; j < WALK_STAMPS_HEADERS.length; j++) {
+    var w2 = stampsWidths[WALK_STAMPS_HEADERS[j]];
+    if (w2) stamps.setColumnWidth(j + 1, w2);
+  }
+
+  // ── WalkBadges ────────────────────────────────────────────────
+  var badges = openTab(WALK_BADGES_TAB, WALK_BADGES_HEADERS);
+  badges.getRange(1, 1, 1, WALK_BADGES_HEADERS.length).setFontWeight('bold');
+  if (badges.getFrozenRows() < 1) badges.setFrozenRows(1);
+  var badgesWidths = {
+    email:       200,
+    badge_id:    220,
+    unlocked_at: 180,
+    unlocked_on: 120,
+  };
+  for (var k = 0; k < WALK_BADGES_HEADERS.length; k++) {
+    var w3 = badgesWidths[WALK_BADGES_HEADERS[k]];
+    if (w3) badges.setColumnWidth(k + 1, w3);
+  }
+
+  console.log('installYourWalk: WalkTokens, WalkStamps, WalkBadges ready.');
+  console.log('Next: set yourWalk.endpointUrl + yourWalk.enabled in telegram-bot.json,');
+  console.log('  bump cache busters, run installAllTimeTriggers() to register the cron.');
 }

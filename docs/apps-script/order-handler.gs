@@ -185,6 +185,18 @@ function doPost(e) {
   if ((payload && payload.action) === 'requestBible') {
     return handleBibleRequest_(payload, e && e.parameter);
   }
+  if ((payload && payload.action) === 'walkLinkRequest') {
+    return handleWalkLinkRequest_(payload);
+  }
+  if ((payload && payload.action) === 'walkStamp') {
+    return handleWalkStamp_(payload);
+  }
+  if ((payload && payload.action) === 'walkSync') {
+    return handleWalkSync_(payload);
+  }
+  if ((payload && payload.action) === 'walkRevoke') {
+    return handleWalkRevoke_(payload);
+  }
   return handleOrder(payload);
 }
 
@@ -8060,4 +8072,147 @@ function handleWalkStamp_(payload) {
       newlyUnlocked: isIdempotent ? [] : evalResult.newlyUnlocked,
     },
   });
+}
+
+
+
+// ── Apps Script handler — handleWalkSync_ ───────────────────────────
+//
+// Read-only state pull. Used on page load and when the URL carried
+// a fresh ?walk=<token>. Never mutates the WalkTokens row — does NOT
+// bump expires_at. Always returns newlyUnlocked: [] (a celebration
+// only fires on a real stamp).
+//
+// Sequence:
+//   1. Honeypot.
+//   2. Token-shape gate (isWalkTokenHex_).
+//   3. Load yourWalk config; reject when disabled.
+//   4. Resolve token; reject on tokenIsActive_ === false.
+//   5. Read stamps + already-unlocked badges.
+//   6. Compute streak + totals + badges.all (no celebration).
+//   7. Return state.
+//
+// Spec: design §4.10; requirement 10.3 (read-only contract).
+function handleWalkSync_(payload) {
+  if (payload && payload.extra_field_2) {
+    return jsonResponse({ ok: true, route: 'honeypot' });
+  }
+
+  var token = String((payload && payload.token) || '').trim();
+  if (!isWalkTokenHex_(token)) {
+    return jsonResponse({ ok: false, error: 'bad-token-shape' });
+  }
+
+  var cfg = loadYourWalkConfig_();
+  if (!cfg.enabled) return jsonResponse({ ok: false, error: 'disabled' });
+
+  var tokensSheet = openTab(WALK_TOKENS_TAB, WALK_TOKENS_HEADERS);
+  var tokenValues = tokensSheet.getDataRange().getValues();
+  var tokenIdx = headerIndex_(tokenValues[0]);
+  var tokenRow = findWalkTokensRowObject_(tokenValues, tokenIdx, token);
+  if (!tokenRow || !tokenIsActive_(tokenRow, new Date())) {
+    return jsonResponse({ ok: false, error: 'bad-token' });
+  }
+  var email = tokenRow.email;
+
+  var stampsSheet = openTab(WALK_STAMPS_TAB, WALK_STAMPS_HEADERS);
+  var stampValues = stampsSheet.getDataRange().getValues();
+  var stampIdx = headerIndex_(stampValues[0]);
+  var myStamps = readStampsForEmail_(stampValues, stampIdx, email);
+
+  var badgesSheet = openTab(WALK_BADGES_TAB, WALK_BADGES_HEADERS);
+  var badgeValues = badgesSheet.getDataRange().getValues();
+  var badgeIdx = headerIndex_(badgeValues[0]);
+  var alreadyUnlocked = readBadgeIdsForEmail_(badgeValues, badgeIdx, email);
+
+  var today = ymdUtc_(new Date());
+  var allDates = [];
+  for (var s = 0; s < myStamps.length; s++) allDates.push(myStamps[s].stamp_date);
+  var streak = computeStreak_(allDates, today, cfg.graceDays);
+
+  var psalmDates = {};
+  var johnChapters = {};
+  for (var t = 0; t < myStamps.length; t++) {
+    var st = myStamps[t];
+    if (st.stream === 'psalm' && st.stamp_date) psalmDates[st.stamp_date] = true;
+    if (st.anchor_book === 'John'
+        && typeof st.anchor_chapter === 'number'
+        && isFinite(st.anchor_chapter)) {
+      johnChapters[st.anchor_chapter] = true;
+    }
+  }
+  var totals = {
+    stamps:       myStamps.length,
+    psalmStamps:  Object.keys(psalmDates).length,
+    johnChapters: Object.keys(johnChapters).length,
+  };
+
+  var catalog = loadBadgeCatalog_();
+  var evalResult = evaluateBadgeUnlocks_(myStamps, catalog, alreadyUnlocked);
+
+  return jsonResponse({
+    ok: true,
+    email: email,
+    today: today,
+    streak: streak,
+    totals: totals,
+    badges: {
+      all: evalResult.all,
+      newlyUnlocked: [],
+    },
+  });
+}
+
+
+// ── Apps Script handler — handleWalkRevoke_ ─────────────────────────
+//
+// Privacy escape hatch. Wipes every WalkTokens, WalkStamps, and
+// WalkBadges row whose email matches the token's email. Critically,
+// this handler MUST work on an expired token — a member who let
+// their walk lapse should still be able to delete their data
+// without renewing first (Requirement 9.4). So we deliberately
+// resolve the token row directly, bypassing tokenIsActive_.
+//
+// Sequence:
+//   1. Honeypot.
+//   2. Token-shape gate.
+//   3. Resolve the row; if the token is unknown → bad-token.
+//   4. deleteRowsByEmail_ on each of the three tabs.
+//   5. Return { ok: true, deleted: { tokens, stamps, badges } }.
+//
+// Property YW9 — after revoke, every subsequent action for the
+// same email behaves as if the email never existed.
+//
+// Spec: design §4.11; requirements 9.x.
+function handleWalkRevoke_(payload) {
+  if (payload && payload.extra_field_2) {
+    return jsonResponse({ ok: true, route: 'honeypot' });
+  }
+
+  var token = String((payload && payload.token) || '').trim();
+  if (!isWalkTokenHex_(token)) {
+    return jsonResponse({ ok: false, error: 'bad-token-shape' });
+  }
+
+  var tokensSheet = openTab(WALK_TOKENS_TAB, WALK_TOKENS_HEADERS);
+  var tokenValues = tokensSheet.getDataRange().getValues();
+  var tokenIdx = headerIndex_(tokenValues[0]);
+  // Do NOT call tokenIsActive_ here — revoke must work on an expired
+  // token. We only need the row to exist so we can resolve email.
+  var tokenRow = findWalkTokensRowObject_(tokenValues, tokenIdx, token);
+  if (!tokenRow) return jsonResponse({ ok: false, error: 'bad-token' });
+  var email = tokenRow.email;
+
+  var deleted = { tokens: 0, stamps: 0, badges: 0 };
+  deleted.tokens = deleteRowsByEmail_(tokensSheet, tokenIdx, email);
+
+  var stampsSheet = openTab(WALK_STAMPS_TAB, WALK_STAMPS_HEADERS);
+  var stampIdx = headerIndex_(stampsSheet.getDataRange().getValues()[0]);
+  deleted.stamps = deleteRowsByEmail_(stampsSheet, stampIdx, email);
+
+  var badgesSheet = openTab(WALK_BADGES_TAB, WALK_BADGES_HEADERS);
+  var badgeIdx = headerIndex_(badgesSheet.getDataRange().getValues()[0]);
+  deleted.badges = deleteRowsByEmail_(badgesSheet, badgeIdx, email);
+
+  return jsonResponse({ ok: true, deleted: deleted });
 }

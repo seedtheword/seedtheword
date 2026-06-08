@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615336,
-  "lastModified": "2026-06-08T19:34:06Z",
+  "lastUpdateId": 669615338,
+  "lastModified": "2026-06-08T20:35:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -331,6 +331,16 @@
       "kind": "telegram",
       "text": "MONDAY MORNING PRAYER SEED 6/8/2026",
       "ts": "2026-06-08T17:23:53Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4622,
+      "userId": 8045440327,
+      "displayName": "✝️🙏PRAYER DOG🐺🥀",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer request for steven, guy Who hears voices and was put in a mental hospital. Worships a random white and grey God on a spaceship with cards that is controlled by the CIA (I am not making this up, bro needs help)\n\nAlso prayers he can spend time with his family and friends now hes out and more healthy",
+      "ts": "2026-06-08T20:30:50Z"
     }
   ]
 }

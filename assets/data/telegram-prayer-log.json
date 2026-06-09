@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615350,
-  "lastModified": "2026-06-09T07:35:30Z",
+  "lastUpdateId": 669615352,
+  "lastModified": "2026-06-09T08:05:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -381,6 +381,16 @@
       "kind": "telegram",
       "text": "Trust the Lord your God, praying unceasingly, unto Him alone casting all of our doubts, and in His grace abounding finding undeniable victory over the enemy.",
       "ts": "2026-06-09T07:33:20Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4635,
+      "userId": 8045440327,
+      "displayName": "✝️🙏PRAYER DOG🐺🥀",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for Tuesday Morning SEED 6/9/2026",
+      "ts": "2026-06-09T08:00:52Z"
     }
   ]
 }

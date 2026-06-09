@@ -1,0 +1,75 @@
+name: How to Grow Tests
+
+# Runs the HG1–HG5 structural test suite for how-to-grow.html on any
+# push or PR that touches the page, its sibling, the test files, the
+# workflow itself, or package.json. Uses Node's built-in test runner
+# plus the existing jsdom devDependency — zero new dependencies.
+#
+# Spec: .kiro/specs/how-to-grow-evangelism-guide/
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'how-to-grow.html'
+      - 'how-to-seed.html'
+      - 'tests/how_to_grow_*.test.mjs'
+      - '.github/workflows/how-to-grow-tests.yml'
+      - 'package.json'
+  pull_request:
+    paths:
+      - 'how-to-grow.html'
+      - 'how-to-seed.html'
+      - 'tests/how_to_grow_*.test.mjs'
+      - '.github/workflows/how-to-grow-tests.yml'
+      - 'package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Print versions
+        run: node --version
+
+      - name: Install devDependencies
+        # The repo doesn't commit package-lock.json (the only deps are
+        # dev-only test libraries; the deployed site loads zero npm
+        # packages), so we use `npm install` instead of `npm ci`.
+        run: npm install --no-audit --no-fund
+
+      - name: Run how-to-grow tests
+        id: tests
+        run: |
+          set -o pipefail
+          npm run test:how-to-grow 2>&1 | tee /tmp/how-to-grow-output.txt
+
+      - name: Attach test output to job summary
+        if: always()
+        run: |
+          if [ -f /tmp/how-to-grow-output.txt ]; then
+            echo "## Test output (how-to-grow)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 200 /tmp/how-to-grow-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload test output as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: how-to-grow-test-output
+          path: /tmp/how-to-grow-output.txt
+          retention-days: 7

@@ -6,7 +6,7 @@
 // 24h window:
 //   • 3 walkLinkRequests for the same email inside the same 24h
 //     window all return { ok: true, status: 'sent' } AND emit one
-//     magic-link email each.
+//     miracle-link email each.
 //   • The 4th request inside the same window returns
 //     { ok: false, error: 'rate-limited' } AND emits NO email.
 //   • A 4th request after now + 24h + 1ms succeeds again — the
@@ -69,7 +69,7 @@ function makeHarness(now) {
       const hex = String(randomCounter).padStart(64, 'a');
       return hex.slice(-64);
     },
-    sendMagicLink(email, token) { emails.push({ email, token }); },
+    sendMiracleLink(email, token) { emails.push({ email, token }); },
   };
 }
 
@@ -145,7 +145,7 @@ function shadowWalkLinkRequest(payload, h) {
     h.tokens.getRange(r, idx.link_requests_24h_ts + 1).setValue(newTs.join(','));
   }
 
-  h.sendMagicLink(v.email, token);
+  h.sendMiracleLink(v.email, token);
   return { ok: true, status: 'sent' };
 }
 
@@ -167,7 +167,7 @@ test('YW7 — first three walkLinkRequests inside 24h all return { ok: true, sta
   const out3 = shadowWalkLinkRequest({ email: 'sam@example.com' }, h);
   assert.deepEqual(out3, { ok: true, status: 'sent' });
 
-  // Three magic-link emails dispatched.
+  // Three miracle-link emails dispatched.
   assert.equal(h.emailLog.length, 3);
   // One row in WalkTokens (rotated, not appended).
   assert.equal(h.tokens.rows().length, 1);

@@ -86,7 +86,7 @@ function makeHarness(seed = {}) {
       return hex.slice(-64);
     },
     emailLog: emails,
-    sendMagicLink(email, token) { emails.push({ email, token }); },
+    sendMiracleLink(email, token) { emails.push({ email, token }); },
   };
 }
 
@@ -175,7 +175,7 @@ function shadowWalkLinkRequest(payload, h) {
     h.tokens.getRange(r, idx.link_requests_24h_ts + 1).setValue(newTs);
     h.tokens.getRange(r, idx.revoked_at + 1).setValue('');
   }
-  h.sendMagicLink(v.email, token);
+  h.sendMiracleLink(v.email, token);
   return { ok: true, status: 'sent', tokenForTest: token };
 }
 

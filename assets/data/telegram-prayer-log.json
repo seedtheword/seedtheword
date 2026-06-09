@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615347,
-  "lastModified": "2026-06-09T05:20:28Z",
+  "lastUpdateId": 669615349,
+  "lastModified": "2026-06-09T07:20:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -351,6 +351,26 @@
       "kind": "telegram",
       "text": "Prayer requests for this week:\n1. Tomorrow I'm meeting with the elders of my church (Maple Park) about reviving our young Adults Ministry. David will be there as well. \n2. On Friday I have my final rounds of interviews for the Service Engineer role at Fluke. \n3. I'll be teaching a class on Sunday at ECC Edmonds Youth Group titled \"Intervention\"",
       "ts": "2026-06-09T04:23:13Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4632,
+      "userId": 8045440327,
+      "displayName": "✝️🙏PRAYER DOG🐺🥀",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Can I ask for prayers for my father. I am realizing that either he might not be saved, or he just is more lenient and accepting then he probably should.",
+      "ts": "2026-06-09T07:15:20Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4633,
+      "userId": 8045440327,
+      "displayName": "✝️🙏PRAYER DOG🐺🥀",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "He doesn't believe in hell, he doesn't push to uphold the scripture, half the time I don't even know if he supports or is against LGBTQ+. So, like Job, when he made sacrifices in case his sons had sinned, in case he is sinning against God, in case he isn't saved. I pray for intercession for him, and that he might be convicted hard. So, his path might be set straight. He might Go back to even being a pastor soon, and its worrying to me that I don't trust my father to spread the truth.",
+      "ts": "2026-06-09T07:19:42Z"
     }
   ]
 }

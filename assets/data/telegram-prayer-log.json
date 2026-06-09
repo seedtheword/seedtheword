@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615345,
-  "lastModified": "2026-06-09T02:20:31Z",
+  "lastUpdateId": 669615346,
+  "lastModified": "2026-06-09T04:35:29Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -341,6 +341,16 @@
       "kind": "telegram",
       "text": "Prayer request for steven, guy Who hears voices and was put in a mental hospital. Worships a random white and grey God on a spaceship with cards that is controlled by the CIA (I am not making this up, bro needs help)\n\nAlso prayers he can spend time with his family and friends now hes out and more healthy",
       "ts": "2026-06-08T20:30:50Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4631,
+      "userId": 8583445613,
+      "displayName": "Edward Wei",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer requests for this week:\n1. Tomorrow I'm meeting with the elders of my church (Maple Park) about reviving our young Adults Ministry. David will be there as well. \n2. On Friday I have my final rounds of interviews for the Service Engineer role at Fluke. \n3. I'll be teaching a class on Sunday at ECC Edmonds Youth Group titled \"Intervention\"",
+      "ts": "2026-06-09T04:23:13Z"
     }
   ]
 }

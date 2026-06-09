@@ -109,6 +109,14 @@
       "summarizer": "llm"
     }
   },
+  "yourWalk": {
+    "_help": "Your Walk reading-tracker config. Read by TWO consumers: (1) assets/js/your-walk.js, the browser panel on community.html; (2) loadYourWalkConfig_() inside docs/apps-script/order-handler.gs, the server-side handlers. Editing any field here affects both on the next page-load and the next /exec hit, no redeploy needed. Set endpointUrl to the deployed /exec URL once Apps Script is published, then flip enabled to true. See admin-help.html#your-walk for the full walkthrough.",
+    "enabled": false,
+    "endpointUrl": "",
+    "tokenTtlDays": 30,
+    "graceDays": 3,
+    "linkRateLimitPerDay": 3
+  },
   "prayer": {
     "enabled": false,
     "tokenSecret": "TELEGRAM_PRAYER_BOT_TOKEN",

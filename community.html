@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="Read with us Monday through Friday. Study live on Saturdays. Connect on Telegram, Spotify, Twitch, and Instagram.">
   <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-ministry-1.jpg">
   <title>Community — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=25">
+  <link rel="stylesheet" href="assets/css/main.css?v=26">
 </head>
 <body>
 
@@ -66,6 +66,16 @@
   <div class="hero__content">
     <h1 class="hero__title">Join Our Community</h1>
     <p class="hero__tagline">Connect, grow, and serve together in faith.</p>
+  </div>
+</section>
+
+<!-- 0. Your Walk — personal reading-tracker panel. Hidden until
+     yourWalk.enabled flips true in assets/data/telegram-bot.json
+     and an endpoint URL is set. Spec: .kiro/specs/your-walk-tracker/ -->
+<section class="section your-walk-section" aria-labelledby="your-walk-heading">
+  <div class="container container--narrow">
+    <div id="your-walk" class="your-walk" role="region"
+         aria-labelledby="your-walk-heading" hidden></div>
   </div>
 </section>
 
@@ -698,6 +708,7 @@
 <script src="assets/js/main.js?v=9"></script>
 <script src="assets/js/bible-plan.js?v=2"></script>
 <script src="assets/js/layered-plan.js?v=1"></script>
+<script src="assets/js/your-walk.js?v=1" defer></script>
 <script src="assets/js/twitch-integration.js?v=4"></script>
 <script src="assets/js/instagram-feed.js?v=2"></script>
 <script src="assets/js/telegram-stats.js?v=1"></script>

@@ -1,0 +1,40 @@
+{
+  "_help": "Catalog for the Your Walk reading tracker badges. Each badge has a stable id (used as the row key in the WalkBadges Sheet tab — DO NOT rename ids after launch), a human-readable name shown on the celebration card, a description shown under the name, and an unlockRule string that maps to one of the evaluator functions in evaluateBadgeUnlocks_ inside docs/apps-script/order-handler.gs. To add a new badge: append an entry, deploy a fresh /exec from the Apps Script editor, bump the badges.json cache buster on community.html. See admin-help.html#your-walk for the full walkthrough.",
+  "badges": [
+    {
+      "id": "first-chapter-back",
+      "name": "First chapter back",
+      "description": "You stamped your first day. Welcome back to the Word.",
+      "unlockRule": "first-stamp-ever",
+      "private": false
+    },
+    {
+      "id": "faithful-in-small-things",
+      "name": "Faithful in the small things",
+      "description": "Five days a week for four weeks running. Luke 16:10 — whoever can be trusted with very little can also be trusted with much.",
+      "unlockRule": "five-days-four-weeks",
+      "private": false
+    },
+    {
+      "id": "walked-through-john",
+      "name": "Walked through the Gospel of John",
+      "description": "Twenty-one chapters of John, one at a time. You walked the road with him.",
+      "unlockRule": "twenty-one-john-chapters",
+      "private": false
+    },
+    {
+      "id": "psalmists-30-days",
+      "name": "Sat with the Psalmists for 30 days",
+      "description": "A month of psalms. The Psalter has been your companion.",
+      "unlockRule": "thirty-psalm-stamps",
+      "private": false
+    },
+    {
+      "id": "30-day-walk",
+      "name": "30-day walk",
+      "description": "Thirty days, with the three-day grace. Faithful, not perfect — that is the point.",
+      "unlockRule": "thirty-day-streak",
+      "private": false
+    }
+  ]
+}

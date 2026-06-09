@@ -646,11 +646,68 @@
     partner: {
       destination: 'Paste inside the <code>"partners"</code> array in <code>assets/data/recommendations.json</code>.',
       fields: [
-        { name: 'name',        label: 'Partner name',                    placeholder: 'Slavic Christian Awakening' },
-        { name: 'url',         label: 'Partner website',                 placeholder: 'https://partner-site.com' },
-        { name: 'logo',        label: 'Logo path (optional)',            placeholder: 'assets/images/partners/partner-logo.png', hint: 'Upload logo first, then put its path here.' },
-        { name: 'description', label: 'One-sentence description (optional)', kind: 'textarea', placeholder: 'One sentence about what they do together with STW.' }
-      ]
+        { name: 'name',           label: 'Partner name',                    placeholder: 'One Heart MVMT' },
+        { name: 'url',            label: 'Partner website',                 placeholder: 'https://oneheartmvmt.com' },
+        { name: 'slug',           label: 'Slug (kebab-case, required for any rich field)',
+                                  placeholder: 'one-heart-mvmt',
+                                  hint: 'Lowercase letters, digits, and hyphens. Pattern: ^[a-z0-9][a-z0-9-]{1,40}$' },
+        { name: 'logo',           label: 'Logo path (optional)',            placeholder: 'assets/images/partners/<slug>/logo.png',
+                                  hint: 'Upload logo first under assets/images/partners/<slug>/, then paste its path here.' },
+        { name: 'description',    label: 'Legacy one-sentence description (optional)',
+                                  kind: 'textarea',
+                                  placeholder: 'One sentence about what they do together with STW.' },
+        { name: 'pointOfContact', label: 'Point of contact (display name)',
+                                  placeholder: 'Sam Petrov',
+                                  hint: 'First and last name only. Never an email or phone number — those go in the private hint below.' },
+        { name: 'story',          label: 'Story paragraph (≤ 5 sentences)',
+                                  kind: 'textarea',
+                                  placeholder: "We met them at... They walked alongside us during... What we do together is...",
+                                  hint: 'Plainspoken pastor tone. No exclamation points, no marketing superlatives.' },
+        { name: '_pocEmail',      label: '🔒 POC email (private — never written to JSON)',
+                                  placeholder: 'sam@oneheartmvmt.com',
+                                  hint: 'Hint-only. This field is for your reference inside this builder; it is silently stripped before the JSON is generated.',
+                                  private: true }
+      ],
+      repeatables: {
+        socials: {
+          label: 'Socials (icon row on the card)',
+          fields: [
+            { name: 'platform', label: 'Platform', kind: 'select',
+              options: [
+                ['instagram', 'Instagram'],
+                ['youtube',   'YouTube'],
+                ['telegram',  'Telegram'],
+                ['facebook',  'Facebook'],
+                ['twitch',    'Twitch'],
+                ['spotify',   'Spotify'],
+                ['website',   'Website']
+              ] },
+            { name: 'handle', label: 'Handle (optional)',  placeholder: '@oneheartmvmt' },
+            { name: 'url',    label: 'URL (required)',     placeholder: 'https://www.instagram.com/oneheartmvmt/' }
+          ]
+        },
+        photos: {
+          label: 'Photos (grid)',
+          fields: [
+            { name: 'path', label: 'Image path', placeholder: 'assets/images/partners/<slug>/photo-1.jpg' }
+          ]
+        },
+        videos: {
+          label: 'Videos (Drive /preview or YouTube /embed/ only)',
+          fields: [
+            { name: 'provider', label: 'Provider', kind: 'select', options: [['drive', 'Drive'], ['youtube', 'YouTube']] },
+            { name: 'url',      label: 'Embed URL', placeholder: 'https://drive.google.com/file/d/<id>/preview  OR  https://www.youtube.com/embed/<id>' },
+            { name: 'title',    label: 'Title (optional)', placeholder: 'Hosted training with Keegan' }
+          ]
+        },
+        contributions: {
+          label: 'What they shaped here (internal links)',
+          fields: [
+            { name: 'href',  label: 'Relative href',       placeholder: 'how-to-grow.html' },
+            { name: 'label', label: 'Plainspoken link text', placeholder: 'The four-movement evangelism guide came out of training they hosted at our ministry.' }
+          ]
+        }
+      }
     },
     'spotify-show': {
       destination: 'Paste inside the <code>"listening"</code> array in <code>assets/data/recommendations.json</code>.',
@@ -717,14 +774,131 @@
 
     function renderFields() {
       const schema = recoSchemas[recoKind];
-      fieldsEl.innerHTML = '<div class="reco-builder__grid">' +
+      let html = '<div class="reco-builder__grid">' +
         schema.fields.map(renderField).join('') + '</div>';
+
+      if (recoKind === 'partner' && schema.repeatables) {
+        html += '<div class="reco-builder__repeatables">';
+        Object.keys(schema.repeatables).forEach((groupName) => {
+          html += renderRepeatableGroup(groupName, schema.repeatables[groupName], []);
+        });
+        html += '</div>';
+      }
+
+      fieldsEl.innerHTML = html;
       fieldsEl.querySelectorAll('input, select, textarea').forEach((el) => {
         el.addEventListener('input', updateAll);
         el.addEventListener('change', updateAll);
       });
+
+      // Wire repeatable +Add / Remove buttons via delegation. Setting
+      // fieldsEl.innerHTML above clears any prior listener, so attaching
+      // once per render is correct (no double-binding).
+      fieldsEl.addEventListener('click', onRepeatableButtonClick);
+
       if (destEl) destEl.innerHTML = schema.destination + ' Add a comma after the previous block\'s closing <code>}</code>. The last item in the array should NOT have a trailing comma.';
       updateAll();
+    }
+
+    // ── Repeatable-row editor (partner builder only) ────────────────
+    // Used by the rich partner schema's repeatables (socials, photos,
+    // videos, contributions). Self-contained; no other recoKind uses
+    // this pattern.
+    // Spec: .kiro/specs/partner-ministries-rich-profiles/ §6.1
+    function renderRepeatableGroup(groupName, groupSchema, rows) {
+      const headerHtml =
+        '<div class="reco-builder__repeatable-header">' +
+          '<h5>' + escapeHtml(groupSchema.label) + '</h5>' +
+          '<button type="button" class="reco-builder__repeatable-add" data-group="' + escapeAttr(groupName) + '">+ Add another</button>' +
+        '</div>';
+      const rowsHtml = (rows || []).map(function (row, i) {
+        return renderRepeatableRow(groupName, groupSchema, i, row);
+      }).join('');
+      return (
+        '<div class="reco-builder__repeatable" data-group="' + escapeAttr(groupName) + '">' +
+          headerHtml +
+          '<div class="reco-builder__repeatable-rows">' + rowsHtml + '</div>' +
+        '</div>'
+      );
+    }
+
+    function renderRepeatableRow(groupName, groupSchema, index, value) {
+      const inputs = groupSchema.fields.map(function (f) {
+        const v = (value && value[f.name]) || '';
+        if (f.kind === 'select') {
+          const opts = f.options.map(function (o) {
+            return '<option value="' + escapeAttr(o[0]) + '"' + (o[0] === v ? ' selected' : '') + '>' + escapeHtml(o[1]) + '</option>';
+          }).join('');
+          return (
+            '<label class="reco-builder__repeatable-field">' +
+              '<span>' + escapeHtml(f.label) + '</span>' +
+              '<select data-group="' + escapeAttr(groupName) + '" data-field="' + escapeAttr(f.name) + '">' + opts + '</select>' +
+            '</label>'
+          );
+        }
+        return (
+          '<label class="reco-builder__repeatable-field">' +
+            '<span>' + escapeHtml(f.label) + '</span>' +
+            '<input type="text" data-group="' + escapeAttr(groupName) + '" data-field="' + escapeAttr(f.name) + '"' +
+              ' value="' + escapeAttr(v) + '" placeholder="' + escapeAttr(f.placeholder || '') + '">' +
+          '</label>'
+        );
+      }).join('');
+      return (
+        '<div class="reco-builder__repeatable-row" data-index="' + index + '">' +
+          inputs +
+          '<button type="button" class="reco-builder__repeatable-remove" data-group="' + escapeAttr(groupName) + '">Remove</button>' +
+        '</div>'
+      );
+    }
+
+    function readRepeatableArray(groupName, groupSchema) {
+      const rowEls = fieldsEl.querySelectorAll(
+        '.reco-builder__repeatable[data-group="' + groupName + '"] .reco-builder__repeatable-row'
+      );
+      const out = [];
+      rowEls.forEach(function (rowEl) {
+        const obj = {};
+        let anyFilled = false;
+        groupSchema.fields.forEach(function (f) {
+          const ctl = rowEl.querySelector('[data-field="' + f.name + '"]');
+          const v = ctl ? (ctl.value || '').trim() : '';
+          if (v) { obj[f.name] = v; anyFilled = true; }
+        });
+        if (anyFilled) out.push(obj);
+      });
+      return out;
+    }
+
+    function onRepeatableButtonClick(e) {
+      const addBtn = e.target.closest && e.target.closest('.reco-builder__repeatable-add');
+      if (addBtn) {
+        const groupName = addBtn.getAttribute('data-group');
+        const schema = recoSchemas[recoKind] && recoSchemas[recoKind].repeatables
+          ? recoSchemas[recoKind].repeatables[groupName] : null;
+        if (!schema) return;
+        const rowsContainer = addBtn.closest('.reco-builder__repeatable')
+          .querySelector('.reco-builder__repeatable-rows');
+        const newIndex = rowsContainer.children.length;
+        const tmp = document.createElement('div');
+        tmp.innerHTML = renderRepeatableRow(groupName, schema, newIndex, {});
+        const newRow = tmp.firstElementChild;
+        rowsContainer.appendChild(newRow);
+        // Wire input/change listeners on the new row's controls.
+        newRow.querySelectorAll('input, select').forEach(function (el) {
+          el.addEventListener('input', updateAll);
+          el.addEventListener('change', updateAll);
+        });
+        updateAll();
+        return;
+      }
+      const removeBtn = e.target.closest && e.target.closest('.reco-builder__repeatable-remove');
+      if (removeBtn) {
+        const row = removeBtn.closest('.reco-builder__repeatable-row');
+        if (row) row.remove();
+        updateAll();
+        return;
+      }
     }
 
     function renderField(f) {
@@ -826,9 +1000,27 @@
         return o;
       }
       if (recoKind === 'partner') {
-        const o = { name: v.name, url: v.url };
-        if (v.logo) o.logo = v.logo;
-        if (v.description) o.description = v.description;
+        const o = { name: v.name || '', url: v.url || '' };
+        if (v.slug)           o.slug           = v.slug;
+        if (v.logo)           o.logo           = v.logo;
+        if (v.description)    o.description    = v.description;
+        if (v.pointOfContact) o.pointOfContact = v.pointOfContact;
+        if (v.story)          o.story          = v.story;
+
+        // Repeatables — emit the key only when the array is non-empty.
+        const rs = recoSchemas.partner.repeatables;
+        const socials       = readRepeatableArray('socials',       rs.socials);
+        const photoEntries  = readRepeatableArray('photos',        rs.photos);
+        const videos        = readRepeatableArray('videos',        rs.videos);
+        const contributions = readRepeatableArray('contributions', rs.contributions);
+        if (socials.length)       o.socials       = socials;
+        if (photoEntries.length)  o.photos        = photoEntries.map(function (p) { return p.path; }).filter(Boolean);
+        if (videos.length)        o.videos        = videos;
+        if (contributions.length) o.contributions = contributions;
+
+        // _pocEmail is NEVER written to JSON. It's a private maintainer
+        // hint inside the builder UI only (Req 9.3, Req 11.6). Because
+        // we copy field-by-field above, it can't leak.
         return o;
       }
       if (recoKind === 'spotify-show') {
@@ -885,6 +1077,25 @@
       }
       if (recoKind === 'partner') {
         if (!obj.name || !obj.url) return 'incomplete';
+
+        const SLUG_RE = /^[a-z0-9][a-z0-9-]{1,40}$/;
+        const richFieldsPresent = !!(obj.pointOfContact || obj.story
+          || (obj.socials && obj.socials.length)
+          || (obj.photos && obj.photos.length)
+          || (obj.videos && obj.videos.length)
+          || (obj.contributions && obj.contributions.length));
+
+        if (richFieldsPresent && !obj.slug) return 'incomplete';
+        if (obj.slug && !SLUG_RE.test(obj.slug)) return 'incomplete';
+
+        // Reject partial repeatable rows. Empty rows are dropped earlier
+        // by readRepeatableArray; partial rows (some sub-field non-empty
+        // but a required sub-field missing) surface here.
+        if (obj.socials && obj.socials.some(function (s) { return !s.platform || !s.url; })) return 'incomplete';
+        if (obj.videos && obj.videos.some(function (v) { return !v.provider || !v.url; })) return 'incomplete';
+        if (obj.contributions && obj.contributions.some(function (c) { return !c.href || !c.label; })) return 'incomplete';
+
+        return 'ready';
       } else {
         if (!obj.title && !obj.name) return 'incomplete';
       }

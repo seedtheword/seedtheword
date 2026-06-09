@@ -1,0 +1,83 @@
+name: Partner Ministries Tests
+
+# Runs the PM1–PM5 structural test suite for the partner-ministries
+# rich-profiles feature on any push or PR that touches the renderer,
+# the data, the admin-help builder, the test files, the workflow
+# itself, the partner-images directory, or package.json. Uses Node's
+# built-in test runner plus the existing jsdom devDependency — zero
+# new deps.
+#
+# Spec: .kiro/specs/partner-ministries-rich-profiles/
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/recommendations.js'
+      - 'assets/js/admin-help.js'
+      - 'assets/data/recommendations.json'
+      - 'assets/images/partners/**'
+      - 'tests/partner_ministries_*.test.mjs'
+      - 'tests/_partner_render_harness.mjs'
+      - '.github/workflows/partner-ministries-tests.yml'
+      - 'package.json'
+  pull_request:
+    paths:
+      - 'assets/js/recommendations.js'
+      - 'assets/js/admin-help.js'
+      - 'assets/data/recommendations.json'
+      - 'assets/images/partners/**'
+      - 'tests/partner_ministries_*.test.mjs'
+      - 'tests/_partner_render_harness.mjs'
+      - '.github/workflows/partner-ministries-tests.yml'
+      - 'package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Print versions
+        run: node --version
+
+      - name: Install devDependencies
+        # The repo doesn't commit package-lock.json (the only deps are
+        # dev-only test libraries; the deployed site loads zero npm
+        # packages), so we use `npm install` instead of `npm ci`.
+        run: npm install --no-audit --no-fund
+
+      - name: Run partner-ministries tests
+        id: tests
+        run: |
+          set -o pipefail
+          npm run test:partner-ministries 2>&1 | tee /tmp/partner-ministries-output.txt
+
+      - name: Attach test output to job summary
+        if: always()
+        run: |
+          if [ -f /tmp/partner-ministries-output.txt ]; then
+            echo "## Test output (partner-ministries)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 200 /tmp/partner-ministries-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload test output as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: partner-ministries-test-output
+          path: /tmp/partner-ministries-output.txt
+          retention-days: 7

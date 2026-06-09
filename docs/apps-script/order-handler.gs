@@ -7764,7 +7764,7 @@ function deleteRowsByEmail_(sheet, idx, email) {
 
 // ── Apps Script handler — handleWalkLinkRequest_ ────────────────────
 //
-// Magic-link request. Audit-first sequence:
+// Miracle-link request. Audit-first sequence:
 //   1. Honeypot trip → silently OK, write nothing.
 //   2. Validate (validateWalkLinkRequest_).
 //   3. Load yourWalk config; reject when disabled.
@@ -7775,7 +7775,7 @@ function deleteRowsByEmail_(sheet, idx, email) {
 //      append a fresh row).
 //   6. Append `now` ISO into link_requests_24h_ts capped at 5 most-
 //      recent entries.
-//   7. Email the magic link via sendWalkMagicLinkEmail_.
+//   7. Email the miracle link via sendWalkMiracleLinkEmail_.
 //   8. Return { ok: true, status: 'sent' }.
 //
 // On email-send failure the row is preserved (the audit row already
@@ -7836,7 +7836,7 @@ function handleWalkLinkRequest_(payload) {
   }
 
   try {
-    sendWalkMagicLinkEmail_(v.email, token);
+    sendWalkMiracleLinkEmail_(v.email, token);
   } catch (err) {
     console.log('walkLinkRequest: email send failed: ' + err);
     return jsonResponse({ ok: false, error: 'email-send-failed' });
@@ -7846,7 +7846,7 @@ function handleWalkLinkRequest_(payload) {
 }
 
 
-// ── Magic-link email — sendWalkMagicLinkEmail_ ──────────────────────
+// ── Miracle-link email — sendWalkMiracleLinkEmail_ ──────────────────
 //
 // One CTA, plaintext fallback included. Tone matches the warm
 // gospel-stage emails: no exclamation points, ≤ 1 emoji glyph,
@@ -7854,10 +7854,10 @@ function handleWalkLinkRequest_(payload) {
 // owner (the same identity every other ministry email flows from).
 //
 // Spec: design §4.13; requirement 6.x.
-function sendWalkMagicLinkEmail_(email, token) {
+function sendWalkMiracleLinkEmail_(email, token) {
   var link = SITE_URL + 'community.html?walk=' + encodeURIComponent(token);
   var html = emailShell({
-    headerTitle: 'Your Walk — your magic link',
+    headerTitle: 'Your Walk — your miracle link',
     headerSubtitle: 'Open this on the device you read on.',
     bodyHtml:
       '<p style="margin:0 0 16px;font-size:15.5px;line-height:1.6;color:#3d3a35;">' +
@@ -7903,7 +7903,7 @@ function sendWalkMagicLinkEmail_(email, token) {
 
   MailApp.sendEmail({
     to: email,
-    subject: 'Your Walk — your magic link',
+    subject: 'Your Walk — your miracle link',
     htmlBody: html,
     body: plain,
     replyTo: TEAM_INBOX,

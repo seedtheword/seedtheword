@@ -42,7 +42,7 @@ export const WALK_STREAMS = Object.freeze([
  * Shape-only email check. Mirrors prayer-intake / bible-donate helper.
  * Returns true for strings of the form `local@domain.tld` no longer
  * than WALK_EMAIL_MAX_CHARS. NOT a full RFC 5322 validator — we accept
- * "good-enough" because the email itself is verified by the magic-link
+ * "good-enough" because the email itself is verified by the miracle-link
  * round-trip (a typo means the link never lands).
  */
 export function isLikelyEmail_(s) {
@@ -167,7 +167,7 @@ function consecutiveIsoWeeks_(aKey, bKey) {
 
 // ── Walk_Link_Request validator ────────────────────────────────────
 //
-// Validates a magic-link request payload. Lower-cases and trims the
+// Validates a miracle-link request payload. Lower-cases and trims the
 // email so case/whitespace variants don't create duplicate WalkTokens
 // rows. Returns either:
 //   { ok: true,  email }

@@ -186,7 +186,7 @@
         '<h2 class="your-walk__title">Your Walk</h2>' +
         '<p class="your-walk__lede">' +
           'Save your walk and we will keep your streak quietly across devices — ' +
-          'no account, just a magic link from your inbox.' +
+          'no account, just a miracle link from your inbox.' +
         '</p>' +
         '<button type="button" class="your-walk__cta" data-walk-action="open-email-modal">' +
           'Save your walk' +

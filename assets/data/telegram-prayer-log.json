@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615349,
-  "lastModified": "2026-06-09T07:20:31Z",
+  "lastUpdateId": 669615350,
+  "lastModified": "2026-06-09T07:35:30Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -371,6 +371,16 @@
       "kind": "telegram",
       "text": "He doesn't believe in hell, he doesn't push to uphold the scripture, half the time I don't even know if he supports or is against LGBTQ+. So, like Job, when he made sacrifices in case his sons had sinned, in case he is sinning against God, in case he isn't saved. I pray for intercession for him, and that he might be convicted hard. So, his path might be set straight. He might Go back to even being a pastor soon, and its worrying to me that I don't trust my father to spread the truth.",
       "ts": "2026-06-09T07:19:42Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4634,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Trust the Lord your God, praying unceasingly, unto Him alone casting all of our doubts, and in His grace abounding finding undeniable victory over the enemy.",
+      "ts": "2026-06-09T07:33:20Z"
     }
   ]
 }

@@ -377,6 +377,7 @@ function renderRichCard(p) {
   const photosHtml  = renderPhotosBlock(p);
   const videosHtml  = renderVideosBlock(p);
   const contribHtml = renderContributionsBlock(p);
+  const outreachPreviewHtml = renderOutreachPreviewBlock(p);
 
   return (
     `<article class="partner-card glass-morphism partner-card--rich" data-slug="${escapeAttr(p.slug)}">` +
@@ -386,6 +387,7 @@ function renderRichCard(p) {
       photosHtml +
       videosHtml +
       contribHtml +
+      outreachPreviewHtml +
     `</article>`
   );
 }
@@ -463,6 +465,75 @@ function renderContributionsBlock(p) {
       `</ul>` +
     `</div>`
   );
+}
+
+// -------------------------------------------------------------------------
+// Outreach preview strip — rendered with placeholder skeleton tiles,
+// then populated once the manifest fetch resolves. Shows up to 3 thumbnails
+// from the linked ministry-outreach folder and links to news.html#ministry-outreach.
+// -------------------------------------------------------------------------
+function renderOutreachPreviewBlock(p) {
+  const events = Array.isArray(p.outreachEvents) ? p.outreachEvents.filter(e => e && e.folder) : [];
+  if (!events.length) return '';
+
+  return events.map(ev => {
+    const previewId = `partner-outreach-preview-${escapeAttr(p.slug)}-${escapeAttr(ev.folder)}`;
+    fetchOutreachThumbnails(ev.folder, previewId);
+    return (
+      `<div class="partner-card__outreach-preview">` +
+        `<h5 class="partner-card__outreach-preview-heading">📸 Outreach Together</h5>` +
+        `<p class="partner-card__outreach-preview-meta">${escapeHtml(ev.title || '')}` +
+          `${ev.date ? ` · ${escapeHtml(ev.date)}` : ''}` +
+          `${ev.location ? ` · ${escapeHtml(ev.location)}` : ''}` +
+        `</p>` +
+        `<div class="partner-card__outreach-thumbs" id="${previewId}">` +
+          `<div class="partner-card__outreach-thumb partner-card__outreach-thumb--skeleton"></div>` +
+          `<div class="partner-card__outreach-thumb partner-card__outreach-thumb--skeleton"></div>` +
+          `<div class="partner-card__outreach-thumb partner-card__outreach-thumb--skeleton"></div>` +
+        `</div>` +
+        `<a class="partner-card__outreach-cta" href="news.html#ministry-outreach">` +
+          `See the full story <span aria-hidden="true">→</span>` +
+        `</a>` +
+      `</div>`
+    );
+  }).join('');
+}
+
+async function fetchOutreachThumbnails(folder, containerId) {
+  const base = `assets/images/ministry-outreach/${folder}`;
+  try {
+    const res = await fetch(`${base}/images.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const media = Array.isArray(data.media) ? data.media.filter(m => m && m.file && m.type === 'photo') : [];
+
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (!media.length) {
+      container.innerHTML =
+        `<div class="partner-card__outreach-thumb partner-card__outreach-thumb--empty">` +
+          `<span>Photos coming soon</span>` +
+        `</div>`;
+      return;
+    }
+
+    container.innerHTML = media.slice(0, 3).map(m =>
+      `<div class="partner-card__outreach-thumb" ` +
+        `style="background-image:url('${escapeAttr(base + '/' + m.file)}')" ` +
+        `role="img" ` +
+        `aria-label="${escapeAttr(m.caption || 'Outreach photo')}">` +
+      `</div>`
+    ).join('');
+  } catch (_) {
+    const container = document.getElementById(containerId);
+    if (container) {
+      container.innerHTML =
+        `<div class="partner-card__outreach-thumb partner-card__outreach-thumb--empty">` +
+          `<span>Photos coming soon</span>` +
+        `</div>`;
+    }
+  }
 }
 
 // Inline SVG map for partner-card socials. Path data for Instagram,

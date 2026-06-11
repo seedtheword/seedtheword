@@ -45,7 +45,7 @@
           "url": "https://www.instagram.com/forzionministries"
         }
       ],
-      "story": "Our first official ministry partnership. We hosted Keegan and For Zion Ministries — sat with them for a meeting, prayed over what comes next, and walked away with a clear sense that God is doing something with the young adults in Washington state. The four-movement evangelism guide on this site came out of training Keegan walked us through that week.",
+      "story": "Our first official ministry partnership. We hosted Keegan and For Zion Ministries — sat with them for a meeting, prayed over what comes next, and walked away with a clear sense that God is doing something with the young adults in Washington state. The four-movement evangelism guide on this site came out of training Keegan walked us through that week. Keegan also trained our team in LGBTQ+ evangelism — how to meet people exactly where they are with love, truth, and the Gospel without compromise.",
       "photos": [
         "assets/images/partners/for-zion-ministries/meeting-1.jpg",
         "assets/images/partners/for-zion-ministries/meeting-2.jpg"
@@ -55,7 +55,69 @@
           "href": "how-to-grow.html",
           "label": "The four-movement evangelism guide came out of training Keegan walked us through at our first partnership meeting."
         }
+      ],
+      "outreachEvents": [
+        {
+          "folder": "for-zion-lgbtq-outreach-june-2026",
+          "title": "LGBTQ+ Evangelism Outreach",
+          "date": "June 2026",
+          "location": "Lake Stevens, WA"
+        }
       ]
+    },
+    {
+      "slug": "one-heart-mvmt",
+      "name": "One Heart MVMT",
+      "url": "https://www.instagram.com/sam_petrov/",
+      "pointOfContact": "Sam Petrov",
+      "socials": [
+        {
+          "platform": "instagram",
+          "handle": "@sam_petrov",
+          "url": "https://www.instagram.com/sam_petrov/"
+        },
+        {
+          "platform": "spotify",
+          "handle": "After the Heart Podcast",
+          "url": "https://open.spotify.com/show/0D88O8K0Yx3pDFBqbnoDX8"
+        }
+      ],
+      "story": "Sam Petrov and David Ageyev first met at Slavic Christian Awakening Church in Mukilteo, WA in 2025, and what started as a friendship has grown into one of our most active ministry partnerships. Sam officially launched One Heart MVMT on May 7, 2026 — a movement built around bringing churches together to reach people where they are. The Community Cookout events are the heartbeat of it: free food, prizes, a bouncy castle for the kids, and at the center of it all, the Gospel. Sam evangelizes, makes an altar call, and people receive healing and prayer — then they come to us for a Bible. Sam also intends to bring this same generosity to native tribal lands, children, and those in prison — and wherever God opens a door, we plan to walk through it together.",
+      "photos": [
+        "assets/images/partners/one-heart-mvmt/01.jpg",
+        "assets/images/partners/one-heart-mvmt/02.jpg",
+        "assets/images/partners/one-heart-mvmt/03.jpg",
+        "assets/images/partners/one-heart-mvmt/04.jpg",
+        "assets/images/partners/one-heart-mvmt/05.jpg",
+        "assets/images/partners/one-heart-mvmt/06.jpg",
+        "assets/images/partners/one-heart-mvmt/07.jpg",
+        "assets/images/partners/one-heart-mvmt/08.jpg",
+        "assets/images/partners/one-heart-mvmt/09.jpg",
+        "assets/images/partners/one-heart-mvmt/10.jpg",
+        "assets/images/partners/one-heart-mvmt/11.jpg",
+        "assets/images/partners/one-heart-mvmt/12.jpg",
+        "assets/images/partners/one-heart-mvmt/13.jpg",
+        "assets/images/partners/one-heart-mvmt/14.jpg",
+        "assets/images/partners/one-heart-mvmt/15.jpg",
+        "assets/images/partners/one-heart-mvmt/16.jpg",
+        "assets/images/partners/one-heart-mvmt/17.jpg",
+        "assets/images/partners/one-heart-mvmt/18.jpg",
+        "assets/images/partners/one-heart-mvmt/19.jpg",
+        "assets/images/partners/one-heart-mvmt/20.jpg",
+        "assets/images/partners/one-heart-mvmt/21.jpg",
+        "assets/images/partners/one-heart-mvmt/22.jpg",
+        "assets/images/partners/one-heart-mvmt/23.jpg",
+        "assets/images/partners/one-heart-mvmt/24.jpg",
+        "assets/images/partners/one-heart-mvmt/25.jpg",
+        "assets/images/partners/one-heart-mvmt/26.jpg",
+        "assets/images/partners/one-heart-mvmt/27.jpg",
+        "assets/images/partners/one-heart-mvmt/28.jpg",
+        "assets/images/partners/one-heart-mvmt/29.jpg",
+        "assets/images/partners/one-heart-mvmt/30.jpg",
+        "assets/images/partners/one-heart-mvmt/31.jpg",
+        "assets/images/partners/one-heart-mvmt/32.jpg"
+      ],
+      "contributions": []
     }
   ],
   "_help": "Drives the 'What We're Listening To' and 'Partner Ministries' sections on community.html. Admins: use the editor on admin-help.html (Editor tab) to add entries and commit straight from the browser. Each listening item is one of these kinds: 'spotify' (type: 'episode' or 'show'), 'youtube' (feedType: 'video' (default) | 'channel' | 'playlist'), 'instagram' (handle + optional avatar), 'twitch' (channel slug), or 'link' (universal fallback for other platforms). Pick a creator-feed kind (spotify show, youtube channel/playlist, instagram, twitch) when featuring a friend so the card stays fresh as they post; pick episode/single-video when pinning a specific piece. Partners just need name + url, with optional logo and description."

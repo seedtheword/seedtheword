@@ -2,6 +2,14 @@
   "_help": "Master index for the Ministry Outreach cards on news.html. Each entry points to a folder under assets/images/ministry-outreach/{folder}/ that contains an images.json manifest. Add new events by (1) creating a new folder, (2) dropping photos/videos + an images.json manifest inside it, and (3) appending a new entry to the 'events' list below. See admin-help.html for the full walkthrough. Keep 'events' ordered most-recent-first.",
   "events": [
     {
+      "folder": "for-zion-lgbtq-outreach-june-2026",
+      "title": "LGBTQ+ Community Outreach with For Zion Ministries",
+      "date": "June 2026",
+      "location": "Lake Stevens, WA",
+      "body": "Out with Keegan and For Zion in Lake Stevens. We sat with the LGBTQ+ community, asked questions, listened, prayed when it was wanted.",
+      "testimony": ""
+    },
+    {
       "folder": "slavic-awakening-bellevue-may-2026",
       "title": "Slavic Christian Awakening Evangelism",
       "date": "May 2, 2026",

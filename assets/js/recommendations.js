@@ -430,26 +430,45 @@ function renderPhotosBlock(p) {
 }
 
 function renderVideosBlock(p) {
-  const list = (Array.isArray(p.videos) ? p.videos : []).filter(isValidVideoEntry);
-  if (!list.length) return '';
+  const videos = Array.isArray(p.videos) ? p.videos : [];
+  if (!videos.length) return '';
   const partnerName = p.name || '';
-  return (
-    `<div class="partner-card__videos">` +
-      list.map(v => {
-        const title = v.title ? String(v.title) : `${partnerName} — video`;
-        return (
-          `<div class="partner-card__video">` +
-            `<iframe` +
-              ` src="${escapeAttr(v.url)}"` +
-              ` title="${escapeAttr(title)}"` +
-              ` allow="autoplay; encrypted-media; picture-in-picture"` +
-              ` allowfullscreen` +
-              ` loading="lazy"></iframe>` +
-          `</div>`
-        );
-      }).join('') +
-    `</div>`
-  );
+
+  const rendered = videos.map(v => {
+    if (!v || typeof v.url !== 'string') return '';
+    const title = v.title ? String(v.title) : `${partnerName} — video`;
+
+    // Local repo mp4 — render as <video> element
+    if (v.provider === 'local' || v.url.endsWith('.mp4')) {
+      return (
+        `<div class="partner-card__video">` +
+          `<video` +
+            ` src="${escapeAttr(v.url)}"` +
+            ` controls` +
+            ` playsinline` +
+            ` preload="metadata"` +
+            ` aria-label="${escapeAttr(title)}">` +
+            `Your browser doesn't support embedded video.` +
+          `</video>` +
+        `</div>`
+      );
+    }
+
+    // Drive or YouTube iframe
+    if (!isValidVideoEntry(v)) return '';
+    return (
+      `<div class="partner-card__video">` +
+        `<iframe` +
+          ` src="${escapeAttr(v.url)}"` +
+          ` title="${escapeAttr(title)}"` +
+          ` allow="autoplay; encrypted-media; picture-in-picture"` +
+          ` allowfullscreen` +
+          ` loading="lazy"></iframe>` +
+      `</div>`
+    );
+  }).filter(Boolean).join('');
+
+  return rendered ? `<div class="partner-card__videos">${rendered}</div>` : '';
 }
 
 function renderContributionsBlock(p) {

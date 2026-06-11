@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615370,
-  "lastModified": "2026-06-10T23:42:43Z",
+  "lastModified": "2026-06-11T00:43:05Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -42,26 +42,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4379,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Let’s keep praying for David my friends 🙏🏻 he’s going through a real spiritual battle and Satan will try everything he can to stop David from serving effectively but God will prevail!",
-      "ts": "2026-05-28T00:42:27Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 4380,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "In Jesus name rebuke the enemy from his life!",
-      "ts": "2026-05-28T00:42:56Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4381,

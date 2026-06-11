@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615372,
-  "lastModified": "2026-06-11T02:12:42Z",
+  "lastModified": "2026-06-11T05:27:42Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -42,16 +42,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4382,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thank you for the prayers, God is good, feeling better ❤️",
-      "ts": "2026-05-28T05:26:26Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4383,

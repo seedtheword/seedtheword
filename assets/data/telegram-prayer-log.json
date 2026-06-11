@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615413,
-  "lastModified": "2026-06-11T23:12:43Z",
+  "lastUpdateId": 669615417,
+  "lastModified": "2026-06-11T23:42:43Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -377,6 +377,26 @@
       "kind": "telegram",
       "text": "Pray for the team today as they’re doing their mini evangelism at Jennings Memorial ! May God touch hearts!",
       "ts": "2026-06-11T22:47:06Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4677,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thanksgiving Announcement 6/11/2026:\n\nSo far we have away 3 Bibles, prayed for Marcus and testified, encouraging him to follow Jesus!\n\nPray for us please Seed the Word members and may Jesus make Himself known to all!",
+      "ts": "2026-06-11T23:32:58Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4678,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hallelujah Jesus!",
+      "ts": "2026-06-11T23:41:03Z"
     }
   ]
 }

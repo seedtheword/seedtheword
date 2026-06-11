@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615370,
-  "lastModified": "2026-06-11T00:43:05Z",
+  "lastModified": "2026-06-11T00:57:41Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -42,16 +42,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4381,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Remember how powerful prayer is, and every prayer counts!",
-      "ts": "2026-05-28T00:44:47Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4382,

@@ -2,6 +2,15 @@
   "_help": "Master index for the Ministry Outreach cards on news.html. Each entry points to a folder under assets/images/ministry-outreach/{folder}/ that contains an images.json manifest. Add new events by (1) creating a new folder, (2) dropping photos/videos + an images.json manifest inside it, and (3) appending a new entry to the 'events' list below. See admin-help.html for the full walkthrough. Keep 'events' ordered most-recent-first.",
   "events": [
     {
+      "folder": "one-heart-mvmt-cookout-2026",
+      "title": "One Heart MVMT — Community Cookout",
+      "date": "May–June 2026",
+      "location": "Wiggums Hollow Park, Everett, WA",
+      "partnerSlug": "one-heart-mvmt",
+      "body": "Joined Sam Petrov and One Heart MVMT at Wiggums Hollow Park for a Community Cookout — free food, prizes, and a bouncy castle for the kids. Sam preached, made an altar call, and people came forward for prayer and healing. Seed the Word was there with Bibles for every hand that reached out.",
+      "testimony": ""
+    },
+    {
       "folder": "for-zion-lgbtq-outreach-june-2026",
       "title": "LGBTQ+ Community Outreach with For Zion Ministries",
       "date": "June 2026",

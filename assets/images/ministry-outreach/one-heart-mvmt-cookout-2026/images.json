@@ -1,0 +1,28 @@
+{
+  "_help": "Ordered list of media for this outreach card's slideshow. 'type' is either 'photo' or 'video'. Photos hold for 5.5s; videos play their full duration before advancing.",
+  "media": [
+    { "file": "01.jpg", "type": "photo", "caption": "" },
+    { "file": "02.jpg", "type": "photo", "caption": "" },
+    { "file": "03.jpg", "type": "photo", "caption": "" },
+    { "file": "04.jpg", "type": "photo", "caption": "" },
+    { "file": "05.jpg", "type": "photo", "caption": "" },
+    { "file": "06.jpg", "type": "photo", "caption": "" },
+    { "file": "07.jpg", "type": "photo", "caption": "" },
+    { "file": "08.jpg", "type": "photo", "caption": "" },
+    { "file": "09.jpg", "type": "photo", "caption": "" },
+    { "file": "10.jpg", "type": "photo", "caption": "" },
+    { "file": "11.jpg", "type": "photo", "caption": "" },
+    { "file": "12.jpg", "type": "photo", "caption": "" },
+    { "file": "13.jpg", "type": "photo", "caption": "" },
+    { "file": "14.jpg", "type": "photo", "caption": "" },
+    { "file": "15.jpg", "type": "photo", "caption": "" },
+    { "file": "16.jpg", "type": "photo", "caption": "" },
+    { "file": "17.jpg", "type": "photo", "caption": "" },
+    { "file": "18.jpg", "type": "photo", "caption": "" },
+    { "file": "19.jpg", "type": "photo", "caption": "" },
+    { "file": "video-01.mp4", "type": "video", "caption": "One Heart MVMT — Community Cookout" },
+    { "file": "20.jpg", "type": "photo", "caption": "" },
+    { "file": "21.jpg", "type": "photo", "caption": "" },
+    { "file": "video-02.mp4", "type": "video", "caption": "One Heart MVMT — Community Cookout" }
+  ]
+}

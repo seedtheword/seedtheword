@@ -84,11 +84,6 @@
       ],
       "story": "Sam Petrov and David Ageyev first met at Slavic Christian Awakening Church in Mukilteo, WA in 2025, and what started as a friendship has grown into one of our most active ministry partnerships. Sam officially launched One Heart MVMT on May 7, 2026 — a movement built around bringing churches together to reach people where they are. The Community Cookout events are the heartbeat of it: free food, prizes, a bouncy castle for the kids, and at the center of it all, the Gospel. Sam evangelizes, makes an altar call, and people receive healing and prayer — then they come to us for a Bible. Sam also intends to bring this same generosity to native tribal lands, children, and those in prison — and wherever God opens a door, we plan to walk through it together.",
       "photos": [
-        "assets/images/partners/one-heart-mvmt/01.jpg",
-        "assets/images/partners/one-heart-mvmt/02.jpg",
-        "assets/images/partners/one-heart-mvmt/03.jpg",
-        "assets/images/partners/one-heart-mvmt/04.jpg",
-        "assets/images/partners/one-heart-mvmt/05.jpg",
         "assets/images/partners/one-heart-mvmt/06.jpg",
         "assets/images/partners/one-heart-mvmt/07.jpg",
         "assets/images/partners/one-heart-mvmt/08.jpg",
@@ -96,37 +91,17 @@
         "assets/images/partners/one-heart-mvmt/10.jpg",
         "assets/images/partners/one-heart-mvmt/11.jpg",
         "assets/images/partners/one-heart-mvmt/12.jpg",
-        "assets/images/partners/one-heart-mvmt/13.jpg",
-        "assets/images/partners/one-heart-mvmt/14.jpg",
-        "assets/images/partners/one-heart-mvmt/15.jpg",
-        "assets/images/partners/one-heart-mvmt/16.jpg",
         "assets/images/partners/one-heart-mvmt/17.jpg",
         "assets/images/partners/one-heart-mvmt/18.jpg",
-        "assets/images/partners/one-heart-mvmt/19.jpg",
-        "assets/images/partners/one-heart-mvmt/20.jpg",
-        "assets/images/partners/one-heart-mvmt/21.jpg",
-        "assets/images/partners/one-heart-mvmt/22.jpg",
-        "assets/images/partners/one-heart-mvmt/23.jpg",
-        "assets/images/partners/one-heart-mvmt/24.jpg",
-        "assets/images/partners/one-heart-mvmt/25.jpg",
         "assets/images/partners/one-heart-mvmt/26.jpg",
-        "assets/images/partners/one-heart-mvmt/27.jpg",
-        "assets/images/partners/one-heart-mvmt/28.jpg",
-        "assets/images/partners/one-heart-mvmt/29.jpg",
-        "assets/images/partners/one-heart-mvmt/30.jpg",
-        "assets/images/partners/one-heart-mvmt/31.jpg",
-        "assets/images/partners/one-heart-mvmt/32.jpg"
+        "assets/images/partners/one-heart-mvmt/27.jpg"
       ],
-      "videos": [
+      "outreachEvents": [
         {
-          "provider": "local",
-          "url": "assets/images/partners/one-heart-mvmt/video-01.mp4",
-          "title": "One Heart MVMT — Community Cookout"
-        },
-        {
-          "provider": "local",
-          "url": "assets/images/partners/one-heart-mvmt/video-02.mp4",
-          "title": "One Heart MVMT — Community Cookout"
+          "folder": "one-heart-mvmt-cookout-2026",
+          "title": "Community Cookout",
+          "date": "May–June 2026",
+          "location": "Wiggums Hollow Park, Everett, WA"
         }
       ]
     }

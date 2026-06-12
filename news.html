@@ -347,22 +347,20 @@
   </div>
 </div>
 
-<!-- 4. Ministry Highlights — worship nights, Bible studies,
-     behind-the-scenes clips. Sits directly under Share Your Story so the
-     page reads: what's coming (announcements + outreach) → how to share
-     (Share Your Story) → what we've been up to (highlights) → full
-     schedule (calendar at the bottom). -->
+<!-- 4. Ministry Highlights — bold featured photos from the field, with a
+     "View full gallery →" link to the lightbox gallery on Testimonies.
+     The highlight tiles are the big visual statement; the gallery is where
+     every photo lives at full size. -->
 <section class="section section--white highlights-section" id="ministry-highlights">
   <div class="container">
     <h2 class="section-title">📸 Ministry Highlights</h2>
     <p class="outreach-subheading">
-      Worship nights, Bible studies, and behind-the-scenes moments from our team.
+      Moments from the field — worship, outreach, fellowship, and the stories behind them.
+      <a class="highlights-gallery-link" href="testimonies.html#ministry-gallery">
+        View the full photo gallery <span aria-hidden="true">→</span>
+      </a>
     </p>
 
-    <!-- Ministry Highlights grid — 6 image/video tiles plus the "See More
-         Behind the Scenes" archive card (7 total). Image tiles auto-rotate
-         their photos via assets/images/ministry-highlights/images.json so
-         admins can swap photos without touching this markup. -->
     <div class="highlight-grid">
       <!-- 1: Worship / Prayer (video) -->
       <article class="highlight-tile highlight-tile--video">
@@ -422,29 +420,14 @@
         </div>
       </article>
 
-      <!-- 7: See More Behind the Scenes archive card -->
-      <article class="highlight-tile highlight-tile--more" tabindex="0" role="button"
-               aria-label="See more behind-the-scenes content on our social channels"
-               onclick="this.classList.toggle('open')"
-               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.classList.toggle('open')}">
-        <div class="highlight-more">
-          <div class="highlight-more__default">
-            <span class="highlight-more__icon" aria-hidden="true">＋</span>
-            <h3 class="highlight-more__title">See More Behind the Scenes</h3>
-            <p class="highlight-more__desc">View our full archive of photos, videos, and audio.</p>
-          </div>
-          <div class="highlight-more__choices">
-            <h4 class="highlight-more__heading">Open our archives</h4>
-            <a class="highlight-more__btn highlight-more__btn--ig"
-               href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">
-              <span>📸</span> Photos &amp; Videos on Instagram
-            </a>
-            <a class="highlight-more__btn highlight-more__btn--tg"
-               href="https://t.me/seedtheword" target="_blank" rel="noopener">
-              <span>💬</span> Audio &amp; Chat on Telegram
-            </a>
-          </div>
-        </div>
+      <!-- 7: Full gallery CTA tile -->
+      <article class="highlight-tile highlight-tile--gallery-cta">
+        <a href="testimonies.html#ministry-gallery" class="highlight-gallery-cta">
+          <span class="highlight-gallery-cta__icon" aria-hidden="true">🖼️</span>
+          <h3 class="highlight-gallery-cta__title">Full Photo Gallery</h3>
+          <p class="highlight-gallery-cta__desc">Every photo from every outreach and ministry event — full size, searchable by event.</p>
+          <span class="highlight-gallery-cta__action">Open gallery <span aria-hidden="true">→</span></span>
+        </a>
       </article>
     </div>
   </div>
@@ -575,7 +558,7 @@
 <script src="assets/js/main.js?v=9"></script>
 <script src="assets/js/google-calendar.js?v=16"></script>
 <script src="assets/js/livestream.js?v=2"></script>
-<script src="assets/js/ministry-outreach.js?v=1"></script>
+<script src="assets/js/ministry-outreach.js?v=2"></script>
 <script src="assets/js/share-story.js?v=1" defer></script>
 <script src="assets/js/testimonies.js?v=4" defer></script>
 </body>

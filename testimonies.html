@@ -69,12 +69,38 @@
   </div>
 </section>
 
-<!-- Full archive grid — every published testimony, sorted by
-     publishedAt descending. Powered by the same assets/js/testimonies.js
-     module that drives news.html and about.html. The container ID
-     'testimonies-grid' is reused so the existing renderGrid path
-     auto-wires on DOMContentLoaded. -->
-<section class="section section--light testimonies-archive-section">
+<!-- Ministry Stories — overflow outreach cards beyond what news.html shows.
+     All events are visible here as a complete archive. -->
+<section class="section section--white ministry-stories-section" id="ministry-stories">
+  <div class="container">
+    <p style="text-align:center;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.12em;font-weight:800;color:var(--accent,#2C5F2E);margin:0 0 0.35rem;">From the field</p>
+    <h2 class="section-title">🙌 Ministry Outreach — Full Archive</h2>
+    <p style="text-align:center;max-width:680px;margin:-1rem auto 2.5rem;font-size:1rem;color:var(--muted);line-height:1.7;">
+      Every outreach event, every story. The full history of where God has sent us and what He did when we showed up.
+    </p>
+    <div class="outreach-grid" id="ministry-stories-cards" aria-live="polite">
+      <!-- Populated by assets/js/ministry-outreach.js -->
+    </div>
+  </div>
+</section>
+
+<!-- Ministry Gallery — full lightbox photo gallery of every outreach photo
+     and ministry highlight. Click any photo to open full-size viewer. -->
+<section class="section section--light ministry-gallery-section" id="ministry-gallery">
+  <div class="container">
+    <p style="text-align:center;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.12em;font-weight:800;color:var(--accent,#2C5F2E);margin:0 0 0.35rem;">Every photo, full size</p>
+    <h2 class="section-title">🖼️ Ministry Photo Gallery</h2>
+    <p style="text-align:center;max-width:680px;margin:-1rem auto 2.5rem;font-size:1rem;color:var(--muted);line-height:1.7;">
+      Photos from every outreach event and ministry moment. Click any photo to open it full size.
+    </p>
+    <div class="ministry-gallery-grid" id="ministry-gallery-grid" aria-live="polite">
+      <!-- Populated by assets/js/ministry-gallery.js -->
+    </div>
+  </div>
+</section>
+
+<!-- Full archive grid — every published testimony -->
+<section class="section section--light testimonies-archive-section" id="testimonies-section">
   <div class="container">
     <p class="testimonies-archive-section__intro">
       What follows are testimonies submitted by members of our family,
@@ -157,6 +183,8 @@
 </footer>
 
 <script src="assets/js/main.js?v=10"></script>
+<script src="assets/js/ministry-outreach.js?v=2" defer></script>
+<script src="assets/js/ministry-gallery.js?v=1" defer></script>
 <script src="assets/js/testimonies.js?v=4" defer></script>
 </body>
 </html>

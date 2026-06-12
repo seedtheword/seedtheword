@@ -1,15 +1,7 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-06-12T02:24:52+00:00",
+  "updated": "2026-06-12T02:54:51+00:00",
   "events": {
-    "l7hlp28egdeke9a085tpfbje78@google.com": {
-      "title": "Canyon Hills YA",
-      "start": "2026-05-29T02:30:00+00:00",
-      "lastPosted": "2026-05-29T02:39:06+00:00",
-      "upcomingPosted": true,
-      "reminderPosted": true,
-      "livePosted": true
-    },
     "tr4euocb5bdpk5q5d8jc7eotjo@google.com": {
       "title": "VOLUNTEERS NEEDED",
       "start": "2026-05-29T16:00:00+00:00",
@@ -65,9 +57,10 @@
     "g2umuv1e7tqskg404im604pq6g@google.com": {
       "title": "Canyon Hills YA",
       "start": "2026-06-12T02:30:00+00:00",
-      "lastPosted": "2026-06-11T23:54:54+00:00",
+      "lastPosted": "2026-06-12T02:54:51+00:00",
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "livePosted": true
     },
     "9dun0c965emtdtme238gbvjiss@google.com": {
       "title": "TENT REVIVAL",

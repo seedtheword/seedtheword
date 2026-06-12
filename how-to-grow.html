@@ -191,6 +191,72 @@
       color: var(--text);
     }
 
+    /* Testimony note — bridge callout before the closing */
+    .lg-testimony-note {
+      background: linear-gradient(135deg, rgba(44,95,46,0.06) 0%, rgba(212,165,116,0.06) 100%);
+      border-top: 3px solid var(--green, #2C5F2E);
+      border-bottom: 3px solid var(--green, #2C5F2E);
+      padding: 3rem 1.5rem;
+    }
+    .lg-testimony-note__inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .lg-testimony-note__icon {
+      font-size: 2.5rem;
+      text-align: center;
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+    .lg-testimony-note__title {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--green, #2C5F2E);
+      text-align: center;
+      line-height: 1.3;
+      margin: 0 0 1.5rem;
+    }
+    .lg-testimony-note__inner p {
+      font-size: 1.0rem;
+      line-height: 1.75;
+      color: var(--text, #2b2b2b);
+      margin: 0 0 1rem;
+    }
+    .lg-testimony-note__verse {
+      background: rgba(44, 95, 46, 0.07);
+      border-left: 3px solid var(--green, #2C5F2E);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .lg-testimony-note__verse p {
+      font-style: italic;
+      margin: 0 0 0.35rem !important;
+    }
+    .lg-testimony-note__verse cite {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--green, #2C5F2E);
+      font-style: normal;
+    }
+    .lg-testimony-note__cta-text {
+      font-size: 0.95rem !important;
+      color: var(--muted, #666) !important;
+      font-style: italic;
+    }
+    .lg-testimony-note__cta-text a {
+      color: var(--green, #2C5F2E);
+      font-weight: 600;
+      text-decoration: underline;
+      font-style: normal;
+    }
+    @media (max-width: 600px) {
+      .lg-testimony-note { padding: 2.5rem 1rem; }
+      .lg-testimony-note__title { font-size: 1.35rem; }
+    }
+
     /* Closing CTA — copied from how-to-seed.html */
     .lg-closing {
       background: var(--cream, #fdf3e3);
@@ -425,6 +491,26 @@
     </div>
   </section>
 
+</section>
+
+<!-- Testimony note — essential bridge between the four movements
+     and actually leading someone to Jesus Christ -->
+<section class="lg-testimony-note">
+  <div class="lg-testimony-note__inner">
+    <div class="lg-testimony-note__icon" aria-hidden="true">🕊️</div>
+    <h2 class="lg-testimony-note__title">Sharing your testimony and the Gospel is what leads to Jesus Christ</h2>
+    <p>All four movements build toward this moment. The Reconnaissance tells you who is in front of you. The Law shows them the need. The Gospel shows them the answer. But the thing that makes it <em>real</em> — the thing that moves it from theology to encounter — is when you stop explaining and start testifying.</p>
+    <p>Your story is not a sermon. It is a witness. "I was this. I met Jesus. I am now this." Nobody can argue with it. Nobody can debunk it. And the Holy Spirit rides on it in ways He does not always ride on a theological argument.</p>
+    <p><strong>Tell them what Jesus did for you specifically.</strong> Not what He does in general. Not what the Bible says in the abstract. What He did. For you. In your life. That testimony, paired with the Gospel — His life, death, resurrection, and what that means — is the complete seed. Everything else in this framework is preparation for it.</p>
+    <blockquote class="lg-testimony-note__verse">
+      <p>"They triumphed over him by the blood of the Lamb and by the word of their testimony."</p>
+      <cite>— Revelation 12:11 NIV</cite>
+    </blockquote>
+    <p class="lg-testimony-note__cta-text">
+      If you have a testimony to share, we want to hear it — and so does someone who needs it.
+      <a href="testimonies.html">Read testimonies from our community →</a>
+    </p>
+  </div>
 </section>
 
 <section class="lg-closing">

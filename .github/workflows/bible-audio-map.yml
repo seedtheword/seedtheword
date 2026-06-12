@@ -1,0 +1,65 @@
+name: Generate Bible Audio Drive Map
+
+# One-time (and re-runnable) workflow that lists the FCBH ESV audio
+# folder on Google Drive, matches each filename to its NT chapter,
+# and commits assets/data/bible-audio-drive-map.json to the repo.
+# Re-run any time new audio files are added to the Drive folder.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If 'true', print the map without committing"
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bible-audio-map
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install google-api-python-client google-auth
+
+      - name: Generate audio map
+        env:
+          GDRIVE_OAUTH_CLIENT_ID: ${{ secrets.GDRIVE_OAUTH_CLIENT_ID }}
+          GDRIVE_OAUTH_CLIENT_SECRET: ${{ secrets.GDRIVE_OAUTH_CLIENT_SECRET }}
+          GDRIVE_OAUTH_REFRESH_TOKEN: ${{ secrets.GDRIVE_OAUTH_REFRESH_TOKEN }}
+        run: python scripts/generate_drive_audio_map.py
+
+      - name: Commit map if changed
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          if [ -z "$(git status --porcelain assets/data/bible-audio-drive-map.json)" ]; then
+            echo "No changes to bible-audio-drive-map.json."
+            exit 0
+          fi
+          git config user.name  "stw-audio-map-bot"
+          git config user.email "stw-audio-map-bot@users.noreply.github.com"
+          git stash push -m "audio-map" -- assets/data/bible-audio-drive-map.json
+          git pull --rebase origin main
+          git stash pop || true
+          if [ -n "$(git status --porcelain assets/data/bible-audio-drive-map.json)" ]; then
+            git add assets/data/bible-audio-drive-map.json
+            git commit -m "chore(audio): update bible audio drive map [skip ci]"
+            git push origin main
+            echo "Committed and pushed bible-audio-drive-map.json"
+          else
+            echo "Map already current after rebase; nothing to push."
+          fi

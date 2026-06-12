@@ -1,204 +1,178 @@
 /* ============================================================
    Ministry Gallery — testimonies.html #ministry-gallery
-   Aggregates every photo from every ministry-outreach event
-   folder plus assets/images/ministry-highlights/ into a
-   full-bleed masonry thumbnail grid. Clicking any photo opens
-   a full-size lightbox with prev/next navigation and caption.
+   Wrapped in an IIFE to avoid variable collisions with
+   ministry-outreach.js which shares the same page.
    ============================================================ */
+(function () {
+  'use strict';
 
-const OUTREACH_INDEX_URL  = 'assets/data/ministry-outreach.json';
-const OUTREACH_BASE_PATH  = 'assets/images/ministry-outreach';
-const HIGHLIGHTS_MANIFEST = 'assets/images/ministry-highlights/images.json';
-const HIGHLIGHTS_BASE     = 'assets/images/ministry-highlights';
+  const INDEX_URL        = 'assets/data/ministry-outreach.json';
+  const OUTREACH_BASE    = 'assets/images/ministry-outreach';
+  const HIGHLIGHTS_JSON  = 'assets/images/ministry-highlights/images.json';
+  const HIGHLIGHTS_BASE  = 'assets/images/ministry-highlights';
 
-// ── Init ───────────────────────────────────────────────────────────────────
-async function initMinistryGallery() {
-  const mount = document.getElementById('ministry-gallery-grid');
-  if (!mount) return;
+  // ── Init ─────────────────────────────────────────────────────────────────
+  async function initMinistryGallery() {
+    const mount = document.getElementById('ministry-gallery-grid');
+    if (!mount) return;
 
-  // Show loading state
-  mount.innerHTML = '<p class="gallery-loading">Loading gallery…</p>';
+    mount.innerHTML = '<p class="gallery-loading">Loading gallery…</p>';
 
-  let allPhotos = [];
+    const allPhotos = [];
 
-  // 1. Load outreach event photos
-  try {
-    const res = await fetch(`${OUTREACH_INDEX_URL}?t=${Date.now()}`, { cache: 'no-store' });
-    if (res.ok) {
-      const index = await res.json();
-      const events = Array.isArray(index.events) ? index.events : [];
-      const manifests = await Promise.all(events.map(async ev => {
-        try {
-          const mr = await fetch(`${OUTREACH_BASE_PATH}/${ev.folder}/images.json?t=${Date.now()}`, { cache: 'no-store' });
-          if (!mr.ok) return [];
-          const m = await mr.json();
-          const media = Array.isArray(m.media) ? m.media : [];
-          return media
-            .filter(item => item && item.file && item.type === 'photo')
-            .map(item => ({
-              src: `${OUTREACH_BASE_PATH}/${ev.folder}/${encodeURIComponent(item.file)}`,
-              caption: item.caption || '',
-              group: ev.title || ev.folder,
-              date: ev.date || '',
-              location: ev.location || '',
-            }));
-        } catch (_) { return []; }
-      }));
-      manifests.forEach(group => allPhotos.push(...group));
+    // 1. Outreach event photos
+    try {
+      const res = await fetch(INDEX_URL + '?t=' + Date.now(), { cache: 'no-store' });
+      if (res.ok) {
+        const index = await res.json();
+        const events = Array.isArray(index.events) ? index.events : [];
+        const groups = await Promise.all(events.map(async ev => {
+          try {
+            const mr = await fetch(OUTREACH_BASE + '/' + ev.folder + '/images.json?t=' + Date.now(), { cache: 'no-store' });
+            if (!mr.ok) return [];
+            const m = await mr.json();
+            return (Array.isArray(m.media) ? m.media : [])
+              .filter(item => item && item.file && item.type === 'photo')
+              .map(item => ({
+                src: OUTREACH_BASE + '/' + ev.folder + '/' + encodeURIComponent(item.file),
+                caption: item.caption || '',
+                group: ev.title || ev.folder,
+                date: ev.date || '',
+                location: ev.location || '',
+              }));
+          } catch (_) { return []; }
+        }));
+        groups.forEach(g => allPhotos.push(...g));
+      }
+    } catch (_) {}
+
+    // 2. Ministry highlights photos
+    try {
+      const res = await fetch(HIGHLIGHTS_JSON + '?t=' + Date.now(), { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        (Array.isArray(data.images) ? data.images : [])
+          .filter(item => item && item.file)
+          .forEach(item => allPhotos.push({
+            src: HIGHLIGHTS_BASE + '/' + item.file,
+            caption: item.body || item.title || '',
+            group: 'Ministry Highlights',
+            date: '',
+            location: '',
+          }));
+      }
+    } catch (_) {}
+
+    if (!allPhotos.length) {
+      mount.innerHTML = '<p class="gallery-empty">Photos will appear here as we add them.</p>';
+      return;
     }
-  } catch (_) {}
 
-  // 2. Load ministry highlights photos
-  try {
-    const res = await fetch(`${HIGHLIGHTS_MANIFEST}?t=${Date.now()}`, { cache: 'no-store' });
-    if (res.ok) {
-      const data = await res.json();
-      const images = Array.isArray(data.images) ? data.images : [];
-      images.filter(item => item && item.file).forEach(item => {
-        allPhotos.push({
-          src: `${HIGHLIGHTS_BASE}/${item.file}`,
-          caption: item.body || item.title || '',
-          group: 'Ministry Highlights',
-          date: '',
-          location: '',
-        });
-      });
-    }
-  } catch (_) {}
+    // Render grid
+    mount.innerHTML = allPhotos.map((photo, idx) =>
+      '<button class="gallery-thumb" data-index="' + idx + '"' +
+        ' aria-label="Open photo from ' + esc(photo.group) + '"' +
+        ' style="background-image:url(\'' + esc(photo.src) + '\')">' +
+        (photo.group ? '<span class="gallery-thumb__group">' + esc(photo.group) + '</span>' : '') +
+      '</button>'
+    ).join('');
 
-  if (!allPhotos.length) {
-    mount.innerHTML = '<p class="gallery-empty">Photos will appear here as we add them.</p>';
-    return;
+    mount.addEventListener('click', function (e) {
+      const btn = e.target.closest('.gallery-thumb');
+      if (btn) openLightbox(allPhotos, parseInt(btn.dataset.index, 10));
+    });
   }
 
-  // Render grid
-  mount.innerHTML = allPhotos.map((photo, idx) => `
-    <button
-      class="gallery-thumb"
-      data-index="${idx}"
-      aria-label="Open photo${photo.caption ? ': ' + escapeHtml(photo.caption) : ''} from ${escapeHtml(photo.group)}"
-      style="background-image:url('${escapeAttr(photo.src)}')">
-      ${photo.group ? `<span class="gallery-thumb__group">${escapeHtml(photo.group)}</span>` : ''}
-    </button>
-  `).join('');
+  // ── Lightbox ──────────────────────────────────────────────────────────────
+  let _el = null;
+  let _photos = [];
+  let _idx = 0;
 
-  // Wire lightbox
-  mount.addEventListener('click', e => {
-    const btn = e.target.closest('.gallery-thumb');
-    if (!btn) return;
-    openLightbox(allPhotos, parseInt(btn.dataset.index, 10));
-  });
-
-  // If page loaded with #ministry-gallery in the hash, scroll to it
-  if (window.location.hash === '#ministry-gallery') {
-    mount.closest('section')?.scrollIntoView({ behavior: 'smooth' });
+  function openLightbox(photos, startIdx) {
+    _photos = photos;
+    _idx    = startIdx;
+    if (!_el) _el = buildLightbox();
+    document.body.appendChild(_el);
+    document.body.style.overflow = 'hidden';
+    _el.hidden = false;
+    renderSlide();
+    _el.querySelector('.lightbox__close').focus();
   }
-}
 
-// ── Lightbox ───────────────────────────────────────────────────────────────
-let _lightboxEl = null;
-let _currentPhotos = [];
-let _currentIdx = 0;
-
-function openLightbox(photos, startIdx) {
-  _currentPhotos = photos;
-  _currentIdx    = startIdx;
-
-  if (!_lightboxEl) _lightboxEl = buildLightbox();
-  document.body.appendChild(_lightboxEl);
-  document.body.style.overflow = 'hidden';
-
-  renderLightboxSlide();
-  _lightboxEl.hidden = false;
-  _lightboxEl.querySelector('.lightbox__close').focus();
-}
-
-function closeLightbox() {
-  if (_lightboxEl) {
-    _lightboxEl.hidden = true;
-    _lightboxEl.remove();
+  function closeLightbox() {
+    if (_el) { _el.hidden = true; _el.remove(); }
+    document.body.style.overflow = '';
   }
-  document.body.style.overflow = '';
-}
 
-function renderLightboxSlide() {
-  if (!_lightboxEl) return;
-  const photo   = _currentPhotos[_currentIdx];
-  const imgEl   = _lightboxEl.querySelector('.lightbox__img');
-  const captEl  = _lightboxEl.querySelector('.lightbox__caption');
-  const groupEl = _lightboxEl.querySelector('.lightbox__group');
-  const counterEl = _lightboxEl.querySelector('.lightbox__counter');
+  function renderSlide() {
+    if (!_el) return;
+    const p = _photos[_idx];
+    _el.querySelector('.lightbox__img').src = p.src;
+    _el.querySelector('.lightbox__img').alt = p.caption || p.group || 'Ministry photo';
+    const cap = _el.querySelector('.lightbox__caption');
+    cap.textContent = p.caption || '';
+    cap.hidden = !p.caption;
+    const meta = [p.group, p.date, p.location].filter(Boolean).join(' · ');
+    const grp = _el.querySelector('.lightbox__group');
+    grp.textContent = meta;
+    grp.hidden = !meta;
+    _el.querySelector('.lightbox__counter').textContent = (_idx + 1) + ' / ' + _photos.length;
+    _el.querySelector('.lightbox__prev').disabled = _idx === 0;
+    _el.querySelector('.lightbox__next').disabled = _idx === _photos.length - 1;
+  }
 
-  imgEl.src = photo.src;
-  imgEl.alt = photo.caption || photo.group || 'Ministry photo';
-  captEl.textContent = photo.caption || '';
-  captEl.hidden = !photo.caption;
+  function buildLightbox() {
+    const el = document.createElement('div');
+    el.className = 'ministry-lightbox';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-label', 'Photo viewer');
+    el.hidden = true;
+    el.innerHTML =
+      '<div class="lightbox__backdrop"></div>' +
+      '<div class="lightbox__shell">' +
+        '<button class="lightbox__close" aria-label="Close photo viewer">✕</button>' +
+        '<button class="lightbox__prev" aria-label="Previous photo">‹</button>' +
+        '<div class="lightbox__stage"><img class="lightbox__img" src="" alt="" loading="eager"></div>' +
+        '<button class="lightbox__next" aria-label="Next photo">›</button>' +
+        '<div class="lightbox__meta">' +
+          '<p class="lightbox__counter"></p>' +
+          '<p class="lightbox__group" hidden></p>' +
+          '<p class="lightbox__caption" hidden></p>' +
+        '</div>' +
+      '</div>';
 
-  const meta = [photo.group, photo.date, photo.location].filter(Boolean).join(' · ');
-  groupEl.textContent = meta;
-  groupEl.hidden = !meta;
+    el.querySelector('.lightbox__backdrop').addEventListener('click', closeLightbox);
+    el.querySelector('.lightbox__close').addEventListener('click', closeLightbox);
+    el.querySelector('.lightbox__prev').addEventListener('click', function () {
+      if (_idx > 0) { _idx--; renderSlide(); }
+    });
+    el.querySelector('.lightbox__next').addEventListener('click', function () {
+      if (_idx < _photos.length - 1) { _idx++; renderSlide(); }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (_el && !_el.hidden) {
+        if (e.key === 'ArrowLeft'  && _idx > 0)               { _idx--; renderSlide(); }
+        if (e.key === 'ArrowRight' && _idx < _photos.length-1) { _idx++; renderSlide(); }
+        if (e.key === 'Escape') closeLightbox();
+      }
+    });
+    return el;
+  }
 
-  counterEl.textContent = `${_currentIdx + 1} / ${_currentPhotos.length}`;
+  // ── Utility ───────────────────────────────────────────────────────────────
+  function esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
 
-  // Prev/next button visibility
-  _lightboxEl.querySelector('.lightbox__prev').disabled = _currentIdx === 0;
-  _lightboxEl.querySelector('.lightbox__next').disabled = _currentIdx === _currentPhotos.length - 1;
-}
+  // ── Boot ──────────────────────────────────────────────────────────────────
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMinistryGallery);
+  } else {
+    initMinistryGallery();
+  }
 
-function buildLightbox() {
-  const el = document.createElement('div');
-  el.className = 'ministry-lightbox';
-  el.setAttribute('role', 'dialog');
-  el.setAttribute('aria-modal', 'true');
-  el.setAttribute('aria-label', 'Photo viewer');
-  el.hidden = true;
-  el.innerHTML = `
-    <div class="lightbox__backdrop"></div>
-    <div class="lightbox__shell">
-      <button class="lightbox__close" aria-label="Close photo viewer">✕</button>
-      <button class="lightbox__prev" aria-label="Previous photo">‹</button>
-      <div class="lightbox__stage">
-        <img class="lightbox__img" src="" alt="" loading="eager">
-      </div>
-      <button class="lightbox__next" aria-label="Next photo">›</button>
-      <div class="lightbox__meta">
-        <p class="lightbox__counter"></p>
-        <p class="lightbox__group" hidden></p>
-        <p class="lightbox__caption" hidden></p>
-      </div>
-    </div>
-  `;
-
-  el.querySelector('.lightbox__backdrop').addEventListener('click', closeLightbox);
-  el.querySelector('.lightbox__close').addEventListener('click', closeLightbox);
-  el.querySelector('.lightbox__prev').addEventListener('click', () => {
-    if (_currentIdx > 0) { _currentIdx--; renderLightboxSlide(); }
-  });
-  el.querySelector('.lightbox__next').addEventListener('click', () => {
-    if (_currentIdx < _currentPhotos.length - 1) { _currentIdx++; renderLightboxSlide(); }
-  });
-
-  // Keyboard navigation
-  document.addEventListener('keydown', e => {
-    if (_lightboxEl && !_lightboxEl.hidden) {
-      if (e.key === 'ArrowLeft')  { if (_currentIdx > 0) { _currentIdx--; renderLightboxSlide(); } }
-      if (e.key === 'ArrowRight') { if (_currentIdx < _currentPhotos.length - 1) { _currentIdx++; renderLightboxSlide(); } }
-      if (e.key === 'Escape') closeLightbox();
-    }
-  });
-
-  return el;
-}
-
-/* ── Utilities ────────────────────────────────────────────────────────────── */
-function escapeHtml(s) {
-  if (s == null) return '';
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function escapeAttr(s) { return escapeHtml(s); }
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initMinistryGallery);
-} else {
-  initMinistryGallery();
-}
+})();

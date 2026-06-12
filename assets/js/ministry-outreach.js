@@ -285,4 +285,8 @@ function escapeHtml(s) {
 }
 function escapeAttr(s) { return escapeHtml(s); }
 
-document.addEventListener('DOMContentLoaded', initMinistryOutreach);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMinistryOutreach);
+} else {
+  initMinistryOutreach();
+}

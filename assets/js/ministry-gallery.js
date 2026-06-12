@@ -197,4 +197,8 @@ function escapeHtml(s) {
 }
 function escapeAttr(s) { return escapeHtml(s); }
 
-document.addEventListener('DOMContentLoaded', initMinistryGallery);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMinistryGallery);
+} else {
+  initMinistryGallery();
+}

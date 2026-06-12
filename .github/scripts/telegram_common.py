@@ -213,3 +213,46 @@ def load_json(path, default):
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return default
+
+
+def send_telegram_audio(
+    token: str,
+    chat_id,
+    audio_url: str,
+    caption: str = "",
+    message_thread_id: Optional[int] = None,
+    parse_mode: str = "MarkdownV2",
+    dry_run: bool = False,
+) -> dict:
+    """Send an audio file to Telegram via URL (no local download needed).
+    The URL must be publicly accessible. Telegram fetches and caches it.
+    caption supports MarkdownV2 formatting when parse_mode='MarkdownV2'.
+    """
+    if dry_run:
+        log("[DRY_RUN] Would send audio to %s (thread %s):\n  url: %s\n  caption: %s\n" % (
+            chat_id, message_thread_id, audio_url, caption[:200]))
+        return {"ok": True, "dry_run": True}
+    if not token:
+        raise SystemExit("Missing bot token; aborting.")
+    url = f"https://api.telegram.org/bot{token}/sendAudio"
+    payload: dict = {
+        "chat_id": str(chat_id),
+        "audio": audio_url,
+    }
+    if caption:
+        payload["caption"] = caption
+        payload["parse_mode"] = parse_mode
+    if message_thread_id:
+        payload["message_thread_id"] = int(message_thread_id)
+    data = json.dumps(payload).encode("utf-8")
+    req = Request(url, data=data, headers={"Content-Type": "application/json"})
+    try:
+        with urlopen(req, timeout=60) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        log(f"Telegram sendAudio error {e.code}: {body}")
+        raise
+    except URLError as e:
+        log(f"Telegram sendAudio URL error: {e.reason}")
+        raise

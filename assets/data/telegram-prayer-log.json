@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615426,
-  "lastModified": "2026-06-12T22:12:48Z",
+  "lastModified": "2026-06-13T08:14:47Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -57,16 +57,6 @@
       "kind": "telegram",
       "text": "Morning prayer for SEED\n\n5/30/2026",
       "ts": "2026-05-30T08:16:19Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 4453,
-      "userId": 8045440327,
-      "displayName": "✝️🙏PRAYER DOG🐺🥀",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Morning prayer for SEED\n\n5/30/2026",
-      "ts": "2026-05-30T08:14:21Z"
     },
     {
       "chatId": -1003502632009,

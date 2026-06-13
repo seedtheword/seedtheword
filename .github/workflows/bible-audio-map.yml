@@ -52,14 +52,8 @@ jobs:
           fi
           git config user.name  "stw-audio-map-bot"
           git config user.email "stw-audio-map-bot@users.noreply.github.com"
-          git stash push -m "audio-map" -- assets/data/bible-audio-drive-map.json
           git pull --rebase origin main
-          git stash pop || true
-          if [ -n "$(git status --porcelain assets/data/bible-audio-drive-map.json)" ]; then
-            git add assets/data/bible-audio-drive-map.json
-            git commit -m "chore(audio): update bible audio drive map [skip ci]"
-            git push origin main
-            echo "Committed and pushed bible-audio-drive-map.json"
-          else
-            echo "Map already current after rebase; nothing to push."
-          fi
+          git add assets/data/bible-audio-drive-map.json
+          git commit -m "chore(audio): update bible audio drive map [skip ci]"
+          git push origin main
+          echo "Committed and pushed bible-audio-drive-map.json"

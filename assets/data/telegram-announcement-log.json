@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-06-13T02:24:53+00:00",
+  "updated": "2026-06-13T16:24:57+00:00",
   "events": {
     "jf2d85ooce6n5k8cns601garik@google.com": {
       "title": "One Heart MVMT: COMMUNITY COOKOUT",
@@ -83,8 +83,9 @@
     "h1pi7qvcpki81ckjqrhu9ojfco@google.com": {
       "title": "COMMUNITY COOKOUT!",
       "start": "2026-06-13T19:00:00+00:00",
-      "lastPosted": "2026-06-12T14:25:00+00:00",
-      "upcomingPosted": true
+      "lastPosted": "2026-06-13T16:24:57+00:00",
+      "upcomingPosted": true,
+      "reminderPosted": true
     },
     "1v80uveo95c9fcrrcgdv6vkgso@google.com": {
       "title": "TENT REVIVAL",

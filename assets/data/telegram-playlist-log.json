@@ -1,6 +1,6 @@
 {
   "_help": "Dedup log for the weekly playlist digest. The workflow updates this file every Sunday run so previously-posted tracks aren't re-announced. First run back-fills every existing playlist track so only NEW additions get posted going forward.",
-  "updated": "2026-06-06T16:07:13+00:00",
+  "updated": "2026-06-13T16:14:38+00:00",
   "seen": {
     "21od4Ae35Nvx91Qel9gRiw": {
       "backfilled": "2026-05-18T06:35:21+00:00",
@@ -401,6 +401,306 @@
     "0krtvDIwyoXFEDb94gjSJM": {
       "posted": "2026-05-23T18:13:14+00:00",
       "name": "Holy War"
+    },
+    "3DhU6tHaRVOny8YLcIQH9C": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Touch Of Heaven - Live"
+    },
+    "7Bo3bNQF6DJ9mKHwvymFZb": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "For Christ Alone"
+    },
+    "4T3Ib8IZnnUZTNt7VMbUm8": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Faithful Then / Faithful Now (feat. Chris Brown)"
+    },
+    "6AJYNru2GfKj46emhLMtuJ": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Yahweh We 🤍 You"
+    },
+    "0Bn1DSXfisvfKjGUwI6rzW": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Oceans (Where Feet May Fail)"
+    },
+    "16UFXi7IGVGG1mUSBMHfh2": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Firm Foundation (He Won't)[Feat. Chandler Moore]"
+    },
+    "69LJDpanuQNBdBibTLJLfV": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "JESUS IS ALIVE - feat. Julia Poe"
+    },
+    "7pS6A11LEP0ID59nC8pB6a": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "WE STILL BELIEVE (HLY FOREVER) (feat. One Church Music)"
+    },
+    "0fpq0dLG0T477C0QSxJwUd": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "NO LONGER BOUND"
+    },
+    "68KVmSqAOYem04YsC37U7B": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "PRAISES"
+    },
+    "4JR9blNFjAUiybd7RLYfkx": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Holy Spirit"
+    },
+    "1M3Y52bIexPAMJlcRju6zB": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "This Is The Gospel"
+    },
+    "0wokdbjRBEVknN1c6FBf9S": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "LION (feat. Chris Brown & Brandon Lake)"
+    },
+    "1D9ByxtOr0trURwGmKG7wm": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "MIRACLE WORKER"
+    },
+    "4uEgHHcmkiHaEq4oXm1r8g": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Promises (feat. Naomi Raine) - Radio Version"
+    },
+    "4OXwsfRuR2LiO8fiDMc4gj": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Rest On Us (Spirit Come Move Over Us) (feat. Sam Rivera)"
+    },
+    "6sfMU3Zx38YzBmv0QTQsH4": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Amazing Grace"
+    },
+    "0p3j36w9WbvP9ulX7rbWQS": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Nobody But Jesus (feat. Genavieve Linkowski & Nick Day)"
+    },
+    "4wc8FpW9XCUaoxtii3CiCf": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Graves Into Gardens (Live)"
+    },
+    "2KT7avEqThs1U3vSr7zO0a": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Priority"
+    },
+    "3VHw706kvMksMjxmdUFnaq": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Lord I Need You"
+    },
+    "6HAFm4kEijLXpvRE1hnPxN": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Praise You"
+    },
+    "0ediELnQ9rvSUKIRJQKxn1": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "One Name (Jesus) - Live"
+    },
+    "1pAyPMHDHBOR3zlTK1eUb4": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Kingdom(feat. Chandler Moore, Naomi Raine)"
+    },
+    "1AlIF7Ndgztmris8fLgytr": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Fear Is Not My Future (feat. Brandon Lake, Chandler Moore)"
+    },
+    "4XNvEOnmGkCN3yIcjJgdth": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "More like Jesus (feat. Canaan Baca)"
+    },
+    "2cut7Izp9DLQ26dP8HQ1fE": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Break Every Chain - Live"
+    },
+    "1u21AFQtqUHHlqePHk3qUL": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Out Of My Hands"
+    },
+    "2FUtrpctr6v6Ae8StKAKqa": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Say I Won't"
+    },
+    "6oizwmD5yHvlQUw0xvirrY": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "There Was Jesus"
+    },
+    "17GmwQ9Q3MTAz05OokmNNB": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Chain Breaker"
+    },
+    "0KNvJzxdbslBddN27BEhfm": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "My Jesus"
+    },
+    "5uhQ4sXi1agwWa3NPKKj0n": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Won't Start Now"
+    },
+    "02pWkxcaRcoJh2Sjf49W32": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "This Side Of Heaven"
+    },
+    "2iqyErkSp4WMehvFy7FDID": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Counting My Blessings"
+    },
+    "2jneHgyd1uUIfk7eVhqmDK": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Kingdom of God"
+    },
+    "6gJj2m1SMEywchE08sNY5h": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "idols"
+    },
+    "0W7KIc2GSB9suYQAaMZ9rF": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Nobody (feat. Matthew West)"
+    },
+    "5sRITMgSHlVGA9ea0aDArm": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Sing His Name - Live"
+    },
+    "3X3uhRNVcrIXJGuxd8o4Zx": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Dwell - Live"
+    },
+    "4XfVyyzn41CUKB0JFretdb": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Pour My Oil - Live"
+    },
+    "0doPj8mw2bYP7sAm2JSJkV": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "I Surrender - Live"
+    },
+    "5cAWEK6WN0TzKJBvWdfItC": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "No One Like The Lord - Live"
+    },
+    "3jlAkZoMZovVV5gUA62ulF": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "I Shall Not Want"
+    },
+    "58triUtuAX5ZbfyOeogCJ6": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "No Longer Slaves"
+    },
+    "1syLk0ow1xPP3EU2TzGYeg": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Build Your Kingdom Here"
+    },
+    "5NcXfjm9jgfDSXb6H5Dd82": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Where The Joy Is"
+    },
+    "3gVYa5bvsuvBegKEIEY8Mk": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "That's Who I Praise"
+    },
+    "1MJ1jFf6KRJxf1axrGnKKW": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "My Hope Is In You"
+    },
+    "4Hi02YgCMOh7AvfB5jYuoT": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "All Things"
+    },
+    "1euPGfGlqYXKWmly5jGRk1": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Glory And My Good"
+    },
+    "76IIh5e4bJETR0yKwu6w9M": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "grand prix!"
+    },
+    "1bw0pKdQVY17dmevzVioKY": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Goodbye Ole Me"
+    },
+    "6EzvvxlT2GBafs9jYk2iHK": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "I Need You God"
+    },
+    "3oRO90HlbMfCWUhteNrqTf": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "on my own"
+    },
+    "5Ts6LVig3JGNugPFbJFBmS": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "WITH ME"
+    },
+    "5bZQwgrDwYHE1aWWTrjBdD": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Unstoppable God"
+    },
+    "6wOYn6rRqhLaQgDuNlBuL4": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Nothing but the Blood"
+    },
+    "1IrganK1YSvjYDvGNYu3aa": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Can't Steal My Joy (feat. Brandon Lake)"
+    },
+    "2fgP2l1YoefcEtBd3FtKEW": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Jesus Saves"
+    },
+    "66wPG22qStRk2Hl5h0905j": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "MORE!"
+    },
+    "2MB2pKgf2fWBGKcewyUBUS": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Yesterday Is Dead"
+    },
+    "4yeHaR8JaZWbGw9wxdJisu": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "He Does"
+    },
+    "5OqnfFu7rdE3DEe0GoWkd7": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "The Goodness (feat. Blessing Offor)"
+    },
+    "74d6h5krYCC2PuO3DYAvUR": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Hope Says"
+    },
+    "6MdvwmSn9YUJNn2tC4A7dk": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "God Did It"
+    },
+    "3Wwcd5hYKCLpocRJfZVdbQ": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Made For Heaven"
+    },
+    "1cRZDGhDfCyescWrNkI2PR": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Oh Death (feat. Walker Hayes)"
+    },
+    "3a7J6TQmiM9TGl0wH3VMLO": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Money Can't Buy"
+    },
+    "3QT7ruZDodBTndp0q0EpW5": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "I See Grace"
+    },
+    "6Kfd3XrgqJ0M50O3Z5KN9c": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Running Back To You"
+    },
+    "12QlHvyqVV6GDFnVIprOWl": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "idols"
+    },
+    "7sj3foHbvvf33iGlhx2Rma": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "Heart Cry"
+    },
+    "5IB4ugsKzjD4hWuIEFZtAE": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "What A God - Live"
+    },
+    "2HRuGsdbODLOS0Yr5vpUi6": {
+      "posted": "2026-06-13T16:14:38+00:00",
+      "name": "I Know A Name"
     }
   }
 }

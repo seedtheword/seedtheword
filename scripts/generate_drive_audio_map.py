@@ -87,7 +87,7 @@ def build_expected_map() -> dict[str, str]:
     mapping = {}
     for book_num, book_name, fcbh_short in FCBH_NT_BOOKS:
         for ch in range(1, NT_CHAPTERS[book_name] + 1):
-            prefix = f"B{book_num:02d}___{ch:03d}_{fcbh_short}ENGGIDN1DA"
+            prefix = f"B{book_num:02d}___{ch:02d}_{fcbh_short}ENGGIDN1DA"
             mapping[prefix] = f"{book_name} {ch}"
     return mapping
 

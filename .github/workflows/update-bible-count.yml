@@ -1,0 +1,99 @@
+name: Update Bible Count
+
+# Secure way to update the Bibles Given Away counter.
+# Only people with repo write access can trigger this.
+#
+# Usage:
+#   GitHub Actions → "Update Bible Count" → Run workflow
+#   Enter the new total OR a delta like "+47"
+#
+# The Telegram bot can also trigger this via repository_dispatch
+# when an admin sends "/bibles +47" or "/bibles 209" in the
+# designated admin Telegram topic.
+
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: "New total (e.g. 209) or delta (e.g. +47 or -5)"
+        required: true
+      note:
+        description: "Optional note for the commit message (e.g. 'OHM Cookout June 14')"
+        required: false
+        default: ''
+  repository_dispatch:
+    types: [update-bible-count]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bible-count-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Update bible count in site-config.json
+        env:
+          COUNT_INPUT: ${{ github.event.inputs.count || github.event.client_payload.count }}
+          NOTE_INPUT: ${{ github.event.inputs.note || github.event.client_payload.note }}
+        run: |
+          python - <<'EOF'
+          import json, os, sys, re
+          from pathlib import Path
+
+          config_path = Path("assets/data/site-config.json")
+          config = json.loads(config_path.read_text(encoding="utf-8"))
+
+          raw = os.environ.get("COUNT_INPUT", "").strip()
+          if not raw:
+              print("ERROR: no count input provided", file=sys.stderr)
+              sys.exit(1)
+
+          current = int(config.get("biblesGivenAway", 0))
+
+          # Delta or absolute
+          if raw.startswith("+") or raw.startswith("-"):
+              delta = int(raw)
+              new_count = max(0, current + delta)
+              print(f"Delta {raw}: {current} → {new_count}")
+          elif re.match(r"^\d+$", raw):
+              new_count = int(raw)
+              print(f"Absolute: {current} → {new_count}")
+          else:
+              print(f"ERROR: invalid count input: {raw!r}", file=sys.stderr)
+              sys.exit(1)
+
+          config["biblesGivenAway"] = new_count
+          config_path.write_text(
+              json.dumps(config, indent=2, ensure_ascii=False) + "\n",
+              encoding="utf-8"
+          )
+          print(f"Updated biblesGivenAway to {new_count}")
+          EOF
+
+      - name: Commit and push
+        run: |
+          git config user.name  "stw-bible-count-bot"
+          git config user.email "stw-bible-count-bot@users.noreply.github.com"
+          git pull --rebase origin main
+          git add assets/data/site-config.json
+          NOTE="${{ github.event.inputs.note || github.event.client_payload.note }}"
+          if [ -n "$NOTE" ]; then
+            MSG="chore(counter): update bible count — $NOTE [skip ci]"
+          else
+            MSG="chore(counter): update bible count [skip ci]"
+          fi
+          git commit -m "$MSG" || echo "Nothing to commit."
+          git push origin main || echo "Nothing to push."

@@ -1,5 +1,8 @@
 {
   "_help": "Site-wide configuration. Each field is documented inline. Edit through the admin editor.",
   "orderHandlerUrl": "https://script.google.com/macros/s/AKfycbzrHVlOqNu5skSDkf_rsy8moKvwRlM_mZNQpKSXH7HPBCSNjj1Dffz-IuFSJcWjjQUF/exec",
-  "_orderHandlerUrlNote": "Google Apps Script Web App URL that receives bundle-builder orders. When empty, the form falls back to Formspree. See admin-help.html → How-to → Set up the order email handler."
+  "_orderHandlerUrlNote": "Google Apps Script Web App URL that receives bundle-builder orders. When empty, the form falls back to Formspree. See admin-help.html → How-to → Set up the order email handler.",
+  "biblesGivenAway": 162,
+  "biblesGoal2026": 70000,
+  "_biblesNote": "Update via Telegram: send '/bibles +47' or '/bibles 209' in the admin topic. Or edit here directly via the admin editor. The counter appears on news.html (Ministry Outreach section) and store.html."
 }

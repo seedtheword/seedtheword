@@ -12144,3 +12144,93 @@ body.your-walk-modal-open {
   }
   .lightbox__close { top: -2.5rem; }
 }
+
+
+/* ============================================================
+   Bible Counter — milestone card (news.html) + inline (store.html)
+   ============================================================ */
+.bible-counter {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 720px;
+  margin: 0 auto 2.5rem;
+  padding: 1.75rem 2rem;
+  border-radius: 16px;
+  border-left: 4px solid var(--green, #2C5F2E);
+}
+.bible-counter__icon {
+  font-size: 2.8rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.bible-counter__body {
+  flex: 1;
+  min-width: 0;
+}
+.bible-counter__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--green, #2C5F2E);
+  margin: 0 0 0.2rem;
+}
+.bible-counter__number {
+  line-height: 1;
+  margin: 0 0 0.25rem;
+}
+.bible-counter__num {
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  color: var(--text, #2b2b2b);
+  font-variant-numeric: tabular-nums;
+}
+.bible-counter__goal {
+  font-size: 0.88rem;
+  color: var(--muted, #666);
+  margin: 0 0 0.85rem;
+}
+.bible-counter__bar-wrap {
+  height: 8px;
+  background: var(--border, #e8e4de);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+}
+.bible-counter__bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green, #2C5F2E), #5a9e5c);
+  border-radius: 99px;
+  transition: width 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.bible-counter__pct {
+  font-size: 0.78rem;
+  color: var(--muted, #666);
+  margin: 0;
+}
+
+/* Inline variant (store.html) */
+.bible-counter-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.97rem;
+  color: var(--muted, #666);
+}
+.bible-counter-inline__icon {
+  font-size: 1.1rem;
+}
+.bible-counter-inline__num {
+  color: var(--green, #2C5F2E);
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .bible-counter {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1rem;
+  }
+}

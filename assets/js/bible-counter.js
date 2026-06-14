@@ -59,11 +59,24 @@
 
   function renderInline(el, fmtCount) {
     el.innerHTML =
-      '<span class="bible-counter-inline">' +
-        '<span class="bible-counter-inline__icon" aria-hidden="true">📖</span>' +
-        '<strong class="bible-counter-inline__num">' + fmtCount + '</strong>' +
-        ' Bibles given away by Seed the Word Ministry &amp; our partners — and counting' +
-      '</span>';
+      '<div class="bible-counter-store glass-morphism">' +
+        '<div class="bible-counter-store__top">' +
+          '<span class="bible-counter-store__emoji" aria-hidden="true">🙌</span>' +
+          '<div>' +
+            '<p class="bible-counter-store__eyebrow">Bibles Given Away — and counting</p>' +
+            '<div class="bible-counter-store__number">' + fmtCount + '</div>' +
+            '<p class="bible-counter-store__sub">' +
+              'By Seed the Word Ministry &amp; our partners, ' +
+              'made possible through <strong>Gideon\'s International</strong>' +
+            '</p>' +
+          '</div>' +
+        '</div>' +
+        '<p class="bible-counter-store__call">' +
+          'Every Bible you sponsor through this page goes into someone\'s hands — ' +
+          'personally packed, prayed over, and shipped with a handwritten note. ' +
+          'This number grows with you.' +
+        '</p>' +
+      '</div>';
   }
 
   function animateCount(el, from, to, durationMs) {

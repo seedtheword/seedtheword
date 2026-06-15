@@ -415,7 +415,73 @@
       letter-spacing: 0.04em;
     }
 
-    /* ── Below the fold — what happens next, kept light ──────── */
+    /* ── Flow accordions ────────────────────────────────────── */
+    .flow-accordions {
+      max-width: 980px;
+      margin: 3rem auto 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .flow-accordion {
+      background: #fff;
+      border: 3px solid #1F2A44;
+      border-radius: 4px;
+      box-shadow: 0 4px 0 #1F2A44;
+    }
+    .flow-accordion[open] {
+      box-shadow: 0 6px 0 #1F2A44;
+    }
+    .flow-accordion__summary {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 1.4rem;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .flow-accordion__summary::-webkit-details-marker { display: none; }
+    .flow-accordion__summary:hover { background: #FFFAEC; }
+    .flow-accordion[open] > .flow-accordion__summary { background: #F4C84F; border-bottom: 3px solid #1F2A44; }
+    .flow-accordion__eyebrow {
+      font-family: 'Anton', Impact, sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: #1F2A44;
+      background: rgba(31,42,68,0.1);
+      padding: 0.2rem 0.6rem;
+      border-radius: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .flow-accordion[open] .flow-accordion__eyebrow { background: rgba(31,42,68,0.15); }
+    .flow-accordion__title {
+      font-family: 'Anton', Impact, sans-serif;
+      font-size: clamp(1.1rem, 3vw, 1.4rem);
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #1F2A44;
+      flex: 1;
+    }
+    .flow-accordion__arrow {
+      font-size: 1.3rem;
+      color: #1F2A44;
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .flow-accordion[open] .flow-accordion__arrow {
+      transform: rotate(180deg);
+    }
+    .flow-accordion__body {
+      padding: 1.5rem 1.4rem 1.75rem;
+    }
+
+    /* ── Flow sections (kept for reference, now only inside accordions) ── */
     .below-fold {
       max-width: 980px;
       margin: 4rem auto 0;
@@ -1130,53 +1196,63 @@
 <!-- ── Below the fold: what happens next ─────────────────────── -->
 <div class="below-fold">
 
-  <section class="flow-section">
-    <div class="flow-heading">
-      <span class="flow-heading__eyebrow">If you donate</span>
-      <h2>What happens next</h2>
-    </div>
-    <div class="flow-steps">
-      <div class="flow-step">
-        <div class="flow-step__num">1</div>
-        <h3>You tell us</h3>
-        <p>How many Bibles, and whether you'd like to drop them off or have us pick them up. Two minutes, max.</p>
-      </div>
-      <div class="flow-step">
-        <div class="flow-step__num">2</div>
-        <h3>We reach out</h3>
-        <p>Within 48 hours, our team coordinates the handoff at a meeting, cookout, or a place that works for you.</p>
-      </div>
-      <div class="flow-step">
-        <div class="flow-step__num">3</div>
-        <h3>They get read</h3>
-        <p>Each Bible is paired with someone who asked for one — or distributed at our outreach events.</p>
-      </div>
-    </div>
-  </section>
+  <div class="flow-accordions">
 
-  <section class="flow-section">
-    <div class="flow-heading">
-      <span class="flow-heading__eyebrow">If you'd like to receive</span>
-      <h2>What happens next</h2>
-    </div>
-    <div class="flow-steps">
-      <div class="flow-step">
-        <div class="flow-step__num">1</div>
-        <h3>You share your story</h3>
-        <p>A couple of honest sentences about why you'd like a Bible. We read every one.</p>
+    <details class="flow-accordion">
+      <summary class="flow-accordion__summary">
+        <span class="flow-accordion__eyebrow">If you donate</span>
+        <span class="flow-accordion__title">What happens next</span>
+        <span class="flow-accordion__arrow" aria-hidden="true">↓</span>
+      </summary>
+      <div class="flow-accordion__body">
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step__num">1</div>
+            <h3>You tell us</h3>
+            <p>How many Bibles, and whether you'd like to drop them off or have us pick them up. Two minutes, max.</p>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__num">2</div>
+            <h3>We reach out</h3>
+            <p>Within 48 hours, our team coordinates the handoff at a meeting, cookout, or a place that works for you.</p>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__num">3</div>
+            <h3>They get read</h3>
+            <p>Each Bible is paired with someone who asked for one — or distributed at our outreach events.</p>
+          </div>
+        </div>
       </div>
-      <div class="flow-step">
-        <div class="flow-step__num">2</div>
-        <h3>Our team reviews</h3>
-        <p>Within 48 hours, a team member reads your request prayerfully and gets back to you by email.</p>
+    </details>
+
+    <details class="flow-accordion">
+      <summary class="flow-accordion__summary">
+        <span class="flow-accordion__eyebrow">If you'd like to receive</span>
+        <span class="flow-accordion__title">What happens next</span>
+        <span class="flow-accordion__arrow" aria-hidden="true">↓</span>
+      </summary>
+      <div class="flow-accordion__body">
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step__num">1</div>
+            <h3>You share your story</h3>
+            <p>A couple of honest sentences about why you'd like a Bible. We read every one.</p>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__num">2</div>
+            <h3>Our team reviews</h3>
+            <p>Within 48 hours, a team member reads your request prayerfully and gets back to you by email.</p>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__num">3</div>
+            <h3>You receive yours</h3>
+            <p>Drop-off in person, or mailed to your address — your choice on the next step. Always free.</p>
+          </div>
+        </div>
       </div>
-      <div class="flow-step">
-        <div class="flow-step__num">3</div>
-        <h3>You receive yours</h3>
-        <p>Drop-off in person, or mailed to your address — your choice on the next step. Always free.</p>
-      </div>
-    </div>
-  </section>
+    </details>
+
+  </div>
 
   <section class="support" id="support" aria-label="Support the ministry">
     <div class="support__heading">

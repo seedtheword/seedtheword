@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615460,
-  "lastModified": "2026-06-17T08:28:04Z",
+  "lastModified": "2026-06-17T08:42:45Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -60,16 +60,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4538,
-      "userId": 8045440327,
-      "displayName": "✝️🙏PRAYER DOG🐺🥀",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer for Wed Morning",
-      "ts": "2026-06-03T08:28:04Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4539,

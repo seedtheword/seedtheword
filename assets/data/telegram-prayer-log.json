@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615465,
-  "lastModified": "2026-06-18T16:12:49Z",
+  "lastModified": "2026-06-18T17:39:27Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -66,16 +66,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4576,
-      "userId": 8045440327,
-      "displayName": "✝️🙏PRAYER DOG🐺🥀",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Pray so I can get some rest, just got home, I need to be restored for tomorrow",
-      "ts": "2026-06-04T17:35:55Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4583,

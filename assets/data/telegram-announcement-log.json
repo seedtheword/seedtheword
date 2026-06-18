@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-06-17T14:24:59+00:00",
+  "updated": "2026-06-18T14:24:58+00:00",
   "events": {
     "g1m4bjkr54mevhgpqcsjo3d60k@google.com": {
       "title": "R3ACH your workspace",
@@ -107,6 +107,24 @@
       "title": "Canyon Hills YA",
       "start": "2026-06-19T02:30:00+00:00",
       "lastPosted": "2026-06-17T14:24:59+00:00",
+      "upcomingPosted": true
+    },
+    "3pu4bs80spk356tmr7o48sh9jh@google.com": {
+      "title": "FIFA 2026 Evangelism",
+      "start": "2026-06-19T15:00:00+00:00",
+      "lastPosted": "2026-06-18T14:24:58+00:00",
+      "upcomingPosted": true
+    },
+    "r4qol4uvs6gm1mia6496ubkhs8@google.com": {
+      "title": "SEED THE WORD POP-UP",
+      "start": "2026-06-19T20:00:00+00:00",
+      "lastPosted": "2026-06-18T14:24:58+00:00",
+      "upcomingPosted": true
+    },
+    "ppis8f6kgv9n8jrhg35nu2ctjs@google.com": {
+      "title": "Identity Young Adults",
+      "start": "2026-06-20T02:00:00+00:00",
+      "lastPosted": "2026-06-18T14:24:58+00:00",
       "upcomingPosted": true
     }
   }

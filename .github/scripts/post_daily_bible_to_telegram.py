@@ -611,12 +611,18 @@ def _post_audio_to_chapter_topic(cfg: dict, chat_id, reading: dict) -> None:
     chapter_label = f"{book} Chapter {chapter}"
 
     # Build MarkdownV2 caption following the exact template
+    # (pre-escape strings to avoid backslashes inside f-strings — Python < 3.12)
+    audio_heading = mdv2_escape("\u2019s Audio:")
+    escaped_label = mdv2_escape(chapter_label)
+    escaped_translation = mdv2_escape("Translation: English Standard Version - Bible Brain Audio Recording")
+    escaped_follow = mdv2_escape("Following digitally or need to read online?")
+    escaped_display = mdv2_escape(chapter_display)
     lines = [
-        f"*{mdv2_escape('Today\u2019s Audio:')}* {mdv2_escape(chapter_label)}",
-        mdv2_escape("Translation: English Standard Version - Bible Brain Audio Recording"),
+        f"*Today{audio_heading}* {escaped_label}",
+        escaped_translation,
         "",
-        mdv2_escape("Following digitally or need to read online?"),
-        f"[{mdv2_escape(chapter_display)}]({yv_url})",
+        escaped_follow,
+        f"[{escaped_display}]({yv_url})",
     ]
     caption = "\n".join(lines)
 

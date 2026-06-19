@@ -348,12 +348,12 @@
 <script>
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-(async function renderPlan() {
+(function renderPlan() {
   const target = document.getElementById('plan-weeks');
   if (!target) return;
 
   function esc(s) {
-    return String(s == null ? '').replace(/[&<>"']/g, function(c) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
@@ -365,56 +365,50 @@ document.getElementById('footer-year').textContent = new Date().getFullYear();
     4: { title: 'Week 4: The Christian Walk', focus: 'Faith in action and living the Great Commission.' },
   };
 
-  let data;
-  try {
-    const res = await fetch('assets/data/newcomer-30day.json?t=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    data = await res.json();
-  } catch (err) {
-    target.innerHTML = '<p class="plan-error">Reading plan temporarily unavailable — refresh in a moment.</p>';
-    return;
-  }
+  // Reading plan — static, no fetch needed
+  const ENTRIES = [
+    { day:1,  week:1, weekday:'Mon', label:'Monday Bible Study #1 (DBS)', anchor:'', seed_theme:'', note:'Gather with us for the first Bible Discussion Study. Bring your questions. There are no wrong ones.', yv:'' },
+    { day:2,  week:1, weekday:'Tue', label:'John 1', anchor:'\u201cLamb of God\u201d', seed_theme:'', note:'John starts before the beginning. This is who Jesus has always been \u2014 the Word, the light, God with us.', yv:'https://www.bible.com/bible/59/JHN.1.ESV' },
+    { day:3,  week:1, weekday:'Wed', label:'John 3:16 & 3:29', anchor:'\u201cTherefore this joy of mine is now complete.\u201d', seed_theme:'', note:'A teacher comes to Jesus by night and gets the most famous verse in the Bible. Read it slowly \u2014 this is the heart of the gospel.', yv:'https://www.bible.com/bible/59/JHN.3.ESV' },
+    { day:4,  week:1, weekday:'Thu', label:'John 8', anchor:'\u201cI AM\u201d', seed_theme:'', note:'A woman is dragged in to be condemned. Watch how Jesus answers \u2014 both her accusers and her \u2014 and you\u2019ll see what mercy looks like.', yv:'https://www.bible.com/bible/59/JHN.8.ESV' },
+    { day:5,  week:1, weekday:'Fri', label:'John 14:19', anchor:'\u201c\u2026but you will see me.\u201d', seed_theme:'', note:'Jesus is preparing his friends for what comes next. This is a promise to people who are afraid of being left behind.', yv:'https://www.bible.com/bible/59/JHN.14.ESV' },
+    { day:6,  week:2, weekday:'Mon', label:'Monday Bible Study #2 (DBS)', anchor:'', seed_theme:'', note:'The second DBS. Bring what you\u2019ve been sitting with from the first week.', yv:'' },
+    { day:7,  week:2, weekday:'Tue', label:'Psalm 23', anchor:'\u201cThe Lord is my shepherd\u201d', seed_theme:'', note:'The most-read poem in human history. Read it as if you wrote it about your own life \u2014 because in a real way, you can.', yv:'https://www.bible.com/bible/59/PSA.23.ESV' },
+    { day:8,  week:2, weekday:'Wed', label:'Psalm 51', anchor:'\u201cO God of my salvation / Prayer of repentance\u201d', seed_theme:'', note:'David has just done something terrible and he is not pretending otherwise. This is what real repentance sounds like, in front of a real God.', yv:'https://www.bible.com/bible/59/PSA.51.ESV' },
+    { day:9,  week:2, weekday:'Thu', label:'Psalm 139', anchor:'You are known', seed_theme:'', note:'You are known. Not generally \u2014 specifically, completely, before you said a single word. Let that land before you read tomorrow\u2019s chapter.', yv:'https://www.bible.com/bible/59/PSA.139.ESV' },
+    { day:10, week:2, weekday:'Fri', label:'Psalm 91', anchor:'\u201c\u2026show him my salvation.\u201d', seed_theme:'', note:'A psalm for fear. When you don\u2019t know what\u2019s coming, this one tells you who is already there.', yv:'https://www.bible.com/bible/59/PSA.91.ESV' },
+    { day:11, week:3, weekday:'Mon', label:'Monday Bible Study #3 (DBS)', anchor:'', seed_theme:'', note:'The third DBS. Come ready to ask: what does it mean to receive grace?', yv:'' },
+    { day:12, week:3, weekday:'Tue', label:'Romans 3:24', anchor:'\u201c\u2026grace as a gift\u201d', seed_theme:'', note:'Paul stops the conversation to make sure no one misunderstands: nobody earns this. Salvation is a gift, received by trust, period.', yv:'https://www.bible.com/bible/59/ROM.3.ESV' },
+    { day:13, week:3, weekday:'Wed', label:'Romans 5:1 & 5:15', anchor:'\u201c\u2026justified by faith / free gift\u201d', seed_theme:'', note:'Reconciliation is the word. Not tolerance, not second chance \u2014 reconciliation. You and God on the same side again, because of Jesus.', yv:'https://www.bible.com/bible/59/ROM.5.ESV' },
+    { day:14, week:3, weekday:'Thu', label:'Romans 8:16', anchor:'\u201c\u2026children of God\u201d', seed_theme:'', note:'Read the last paragraph out loud. Then read it again. Nothing \u2014 nothing \u2014 can separate you from the love of God in Christ Jesus.', yv:'https://www.bible.com/bible/59/ROM.8.ESV' },
+    { day:15, week:3, weekday:'Fri', label:'Romans 12:5 & 12:9', anchor:'\u201c\u2026one body in Christ / Let love be genuine.\u201d', seed_theme:'', note:'Paul turns from theology to life. \u2018Be transformed by the renewing of your mind\u2019 is the bridge from believing to living.', yv:'https://www.bible.com/bible/59/ROM.12.ESV' },
+    { day:16, week:4, weekday:'Mon', label:'Monday Bible Study #4 (DBS)', anchor:'', seed_theme:'', note:'The final DBS. Come ready to ask: how does faith show up in how I live?', yv:'' },
+    { day:17, week:4, weekday:'Tue', label:'Matthew 6:9-13 & 9:33', anchor:'\u201cThe Lord\u2019s Prayer\u201d', seed_theme:'Serve with Grace', note:'How to give, how to pray, how to handle worry. Notice how often Jesus says \u2018your Father\u2019 \u2014 this is a family conversation, not a performance review.', yv:'https://www.bible.com/bible/59/MAT.6.ESV' },
+    { day:18, week:4, weekday:'Wed', label:'James 1:2-8', anchor:'\u201c\u2026testing of your faith produces steadfastness.\u201d', seed_theme:'Encounter the Word', note:'James is practical to the bone. If your faith doesn\u2019t show up in how you treat people, he wants to know why.', yv:'https://www.bible.com/bible/59/JAS.1.ESV' },
+    { day:19, week:4, weekday:'Thu', label:'1 John 4:8 & 4:11', anchor:'\u201cGod is love / love one another.\u201d', seed_theme:'Embrace Fellowship', note:'\u2018God is love\u2019 is not a sentiment here; it\u2019s a definition. And the test of whether we know him is whether that love is showing up in us.', yv:'https://www.bible.com/bible/59/1JN.4.ESV' },
+    { day:20, week:4, weekday:'Fri', label:'Philippians 4:6-7', anchor:'\u201cDo not be anxious\u2026\u201d', seed_theme:'Make Disciples of All Nations', note:'Paul writes this from a prison cell and tells you not to be anxious. Read it knowing the man writing has earned the right to say so.', yv:'https://www.bible.com/bible/59/PHP.4.ESV' },
+  ];
 
-  const entries = Array.isArray(data && data.entries) ? data.entries : [];
-  if (!entries.length) {
-    target.innerHTML = '<p class="plan-error">Reading plan temporarily unavailable.</p>';
-    return;
-  }
-
-  const weeks = [1, 2, 3, 4];
+  const weeks = [1,2,3,4];
   const html = weeks.map(function(w) {
-    const meta = WEEK_META[w] || { title: 'Week ' + w, focus: '' };
-    const days = entries.filter(function(e) { return e.week === w; });
+    const meta = WEEK_META[w];
+    const days = ENTRIES.filter(function(e) { return e.week === w; });
     const dayRows = days.map(function(e) {
       const isDbs = !e.yv;
-      const seedTag = e.seed_theme
-        ? '<span class="plan-day__seed">' + esc(e.seed_theme) + '</span><br>'
-        : '';
-      const anchor = e.anchor
-        ? '<p class="plan-day__anchor">&ldquo;' + esc(e.anchor) + '&rdquo;</p>'
-        : '';
-      const yvLink = e.yv
-        ? '<a class="plan-day__yv" href="' + esc(e.yv) + '" target="_blank" rel="noopener">Read in YouVersion &rarr;</a>'
-        : '';
+      const seedTag = e.seed_theme ? '<span class="plan-day__seed">' + esc(e.seed_theme) + '</span><br>' : '';
+      const anchor = e.anchor ? '<p class="plan-day__anchor">&ldquo;' + esc(e.anchor) + '&rdquo;</p>' : '';
+      const yvLink = e.yv ? '<a class="plan-day__yv" href="' + esc(e.yv) + '" target="_blank" rel="noopener">Read in YouVersion &rarr;</a>' : '';
       return '<li class="plan-day' + (isDbs ? ' plan-day--dbs' : '') + '">' +
         '<span class="plan-day__num">D' + e.day + '</span>' +
         '<div class="plan-day__body">' +
-          '<div class="plan-day__top">' +
-            '<span class="plan-day__weekday">' + esc(e.weekday) + '</span>' +
-            '<span class="plan-day__label">' + esc(e.label) + '</span>' +
-          '</div>' +
-          anchor +
-          seedTag +
+          '<div class="plan-day__top"><span class="plan-day__weekday">' + esc(e.weekday) + '</span><span class="plan-day__label">' + esc(e.label) + '</span></div>' +
+          anchor + seedTag +
           '<p class="plan-day__note">' + esc(e.note) + '</p>' +
           yvLink +
-        '</div>' +
-      '</li>';
+        '</div></li>';
     }).join('');
     return '<article class="plan-week" data-week="' + w + '">' +
-      '<div class="plan-week__header">' +
-        '<h2 class="plan-week__title">' + esc(meta.title) + '</h2>' +
-        '<p class="plan-week__focus">Focus: ' + esc(meta.focus) + '</p>' +
-      '</div>' +
+      '<div class="plan-week__header"><h2 class="plan-week__title">' + esc(meta.title) + '</h2><p class="plan-week__focus">Focus: ' + esc(meta.focus) + '</p></div>' +
       '<ul class="plan-days">' + dayRows + '</ul>' +
     '</article>';
   }).join('');

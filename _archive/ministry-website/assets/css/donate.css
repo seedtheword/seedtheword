@@ -1,0 +1,297 @@
+/**
+ * Donate Page Styles — Ministry Website
+ *
+ * Covers: Hero, Thank-You banner, Impact stat cards, GiveWP form wrapper,
+ *         Plain HTML fallback.
+ *
+ * Breakpoints:
+ *   768px — tablet / single-column transition
+ *
+ * Requirements: 5.1–5.5
+ */
+
+/* ── Shared helpers ────────────────────────────────────────────────────────── */
+
+.donate-section-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.donate-section-title {
+    text-align: center;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    margin-bottom: 2.5rem;
+    color: #2c2c2c;
+}
+
+/* ── Hero Banner ────────────────────────────────────────────────────────────── */
+
+.donate-hero {
+    position: relative;
+    width: 100%;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, #3a1a0a 0%, #7b3f1e 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+.donate-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.48);
+    z-index: 1;
+}
+
+.donate-hero__content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #fff;
+    padding: 2rem 24px;
+    max-width: 700px;
+}
+
+.donate-hero__title {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.15;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.donate-hero__tagline {
+    font-size: clamp(1rem, 2.25vw, 1.25rem);
+    line-height: 1.6;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    margin: 0;
+}
+
+/* ── Thank-You Banner ───────────────────────────────────────────────────────── */
+
+.donate-thankyou {
+    padding: 2.5rem 0;
+    background: #f0faf2;
+    border-bottom: 2px solid #b7e0c0;
+}
+
+.donate-thankyou__banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    background: #fff;
+    border: 2px solid #4caf50;
+    border-radius: 10px;
+    padding: 2rem 2rem;
+    max-width: 760px;
+    margin: 0 auto;
+    box-shadow: 0 3px 12px rgba(76, 175, 80, 0.15);
+}
+
+.donate-thankyou__icon {
+    font-size: 2.25rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.donate-thankyou__heading {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #2e7d32;
+    margin-bottom: 0.5rem;
+}
+
+.donate-thankyou__message {
+    font-size: 1rem;
+    color: #3a3a3a;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* ── Impact Stat Cards ──────────────────────────────────────────────────────── */
+
+.donate-impact {
+    padding: 5rem 0;
+    background: #f9f6f1;
+}
+
+.donate-impact-cards {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.donate-impact-card {
+    flex: 1 1 260px;
+    max-width: 320px;
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #ece9e4;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.donate-impact-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.donate-impact-card__stat {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 900;
+    color: #c0392b;
+    line-height: 1;
+    display: block;
+    margin-bottom: 0.875rem;
+}
+
+.donate-impact-card__label {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 0.75rem;
+}
+
+.donate-impact-card__desc {
+    font-size: 0.9375rem;
+    color: #555;
+    line-height: 1.65;
+    margin: 0;
+}
+
+/* ── GiveWP Form Wrapper ────────────────────────────────────────────────────── */
+
+.donate-form-section {
+    padding: 5rem 0 6rem;
+    background: #fff;
+}
+
+.donate-form-wrapper {
+    max-width: 640px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem 2rem;
+    border: 1px solid #ece9e4;
+}
+
+/* Override GiveWP default button colour to match ministry palette */
+.donate-form-wrapper .give-btn,
+.donate-form-wrapper .give-submit {
+    background-color: #c0392b !important;
+    border-color: #c0392b !important;
+    color: #fff !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.03em !important;
+    transition: background-color 0.2s ease !important;
+}
+
+.donate-form-wrapper .give-btn:hover,
+.donate-form-wrapper .give-submit:hover {
+    background-color: #a93226 !important;
+    border-color: #a93226 !important;
+}
+
+/* ── Fallback Card (GiveWP not active) ──────────────────────────────────────── */
+
+.donate-form-fallback {
+    display: flex;
+    justify-content: center;
+}
+
+.donate-fallback-card {
+    max-width: 520px;
+    text-align: center;
+    background: #fff;
+    border: 2px dashed #d5cfc7;
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.donate-fallback-card__icon {
+    font-size: 3rem;
+    line-height: 1;
+    display: block;
+    margin-bottom: 1.25rem;
+}
+
+.donate-fallback-card__heading {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 0.875rem;
+}
+
+.donate-fallback-card__message {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+}
+
+.donate-fallback-card__cta {
+    display: inline-block;
+}
+
+/* ── Responsive — tablet (≤ 768px) ──────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+
+    .donate-hero {
+        min-height: 40vh;
+    }
+
+    .donate-impact-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .donate-impact-card {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .donate-form-wrapper {
+        padding: 2rem 1.25rem;
+    }
+
+    .donate-thankyou__banner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1.75rem 1.25rem;
+    }
+
+    .donate-thankyou__icon {
+        margin-top: 0;
+    }
+}
+
+/* ── Responsive — small mobile (≤ 480px) ─────────────────────────────────────── */
+
+@media (max-width: 480px) {
+
+    .donate-section-inner {
+        padding: 0 16px;
+    }
+
+    .donate-hero__content {
+        padding: 1.5rem 16px;
+    }
+
+    .donate-form-wrapper {
+        padding: 1.5rem 1rem;
+        border-radius: 8px;
+    }
+}

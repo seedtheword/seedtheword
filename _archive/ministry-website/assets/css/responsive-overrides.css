@@ -1,0 +1,154 @@
+/**
+ * Responsive Overrides — Ministry Website
+ *
+ * Loaded last on every page (after all per-page stylesheets).
+ * Fills any gaps not covered by the per-page CSS files and adds
+ * global accessibility / print / motion rules.
+ *
+ * Sections:
+ *   1. Global image scaling
+ *   2. Button overflow protection
+ *   3. Bundle card square image-wrap reinforcement
+ *   4. Bundle Builder 2-col → 1-col stack fallback (≤ 680px)
+ *   5. Catalog grid reinforcement (3 → 2 → 1 col)
+ *   6. prefers-reduced-motion
+ *   7. @media print
+ *
+ * Requirements: 10.5
+ */
+
+/* ── 1. Global image scaling ─────────────────────────────────────────────── */
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ── 2. Button overflow protection ──────────────────────────────────────── */
+
+.btn {
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* ── 3. Bundle card square image-wrap — all breakpoints ─────────────────── */
+/*
+ * catalog.css already sets aspect-ratio: 1/1 and the @supports fallback,
+ * but we re-enforce it here so it survives any Elementor/Astra overrides.
+ */
+
+.bundle-card__image-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+}
+
+@supports not (aspect-ratio: 1 / 1) {
+    .bundle-card__image-wrap {
+        padding-bottom: 100%;
+        height: 0;
+    }
+
+    .bundle-card__image-wrap > * {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+/* ── 4. Bundle Builder 2-col → 1-col stack fallback (≤ 680px) ───────────── */
+/*
+ * bundle-builder.css already handles this; the rule below acts as a
+ * safety net in case parent-theme styles override flex-direction.
+ */
+
+@media (max-width: 680px) {
+    .bundle-builder__layout {
+        flex-direction: column !important;
+    }
+
+    .bundle-builder__summary {
+        position: static !important;
+        width: 100% !important;
+        flex: 1 1 auto !important;
+    }
+}
+
+/* ── 5. Catalog grid reinforcement (3 → 2 → 1 col) ──────────────────────── */
+/*
+ * catalog.css already defines these via min-width queries.
+ * Restating with max-width guards against theme override specificity.
+ */
+
+@media (max-width: 1023px) and (min-width: 768px) {
+    .bundle-catalog-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .bundle-catalog-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── 6. Reduced motion — disable transitions globally ───────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ── 7. Print styles — hide non-content elements ────────────────────────── */
+
+@media print {
+    /* Hide navigation, footer, CTAs, and interactive controls */
+    .site-header,
+    .site-nav,
+    .hamburger,
+    .site-footer,
+    .home-ctas,
+    .home-community-strip,
+    .about-ctas,
+    .testimonies-ways-to-help,
+    .donate-hero .btn,
+    .bundle-builder__summary .btn,
+    .summary-panel__ctas,
+    .donation-request-section,
+    .order-modal,
+    .gallery-arrow,
+    .footer-telegram-btn,
+    .contact-info-block__link--telegram {
+        display: none !important;
+    }
+
+    /* Ensure body and main content use full page width */
+    body {
+        font-size: 12pt;
+        color: #000;
+        background: #fff;
+    }
+
+    a[href]::after {
+        content: " (" attr(href) ")";
+        font-size: 0.85em;
+        color: #555;
+    }
+
+    /* Suppress href expansion for nav/button links */
+    .site-logo::after,
+    .nav-links a::after,
+    .btn::after,
+    .footer-links a::after {
+        content: none;
+    }
+}

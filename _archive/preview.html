@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ministry Website Preview</title>
+<style>
+/* ── Preview chrome ── */
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',system-ui,sans-serif;background:#f0f0f0}
+#preview-tabs{position:fixed;top:0;left:0;right:0;z-index:10000;background:#1a1a2e;display:flex;flex-wrap:wrap;gap:4px;padding:8px 12px;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+#preview-tabs button{padding:6px 14px;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem;font-weight:600;background:#2d2d4e;color:#ccc;transition:all .2s}
+#preview-tabs button.active{background:#c0392b;color:#fff}
+#preview-tabs button:hover:not(.active){background:#3d3d6e;color:#fff}
+.page-section{display:none;margin-top:56px}
+.page-section.active{display:block}
+
+/* ── Base resets ── */
+:root{--ministry-primary:#2C5F2E;--ministry-accent:#D4A853;--ministry-light:#F9F5EF;--ministry-text:#2B2B2B;--ministry-muted:#6B6B6B;--ministry-radius:8px;--ministry-transition:0.25s ease}
+body.preview-body{background:#fff;color:#2B2B2B}
+img{max-width:100%;height:auto}
+a{text-decoration:none}
+h1,h2,h3,h4{margin:0 0 1rem}
+p{margin:0 0 1rem}
+ul{margin:0;padding:0;list-style:none}
+</style>
+</head>
+<body>
+
+<div id="preview-tabs">
+  <button class="active" onclick="showPage('home')">🏠 Home</button>
+  <button onclick="showPage('catalog')">📚 Bundles</button>
+  <button onclick="showPage('builder')">🛠 Bundle Builder</button>
+  <button onclick="showPage('about')">ℹ About</button>
+  <button onclick="showPage('testimonies')">💬 Testimonies</button>
+  <button onclick="showPage('donate')">❤ Donate</button>
+  <button onclick="showPage('contact')">✉ Contact</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SHARED HEADER + FOOTER (used by all pages)
+══════════════════════════════════════════════════════════ -->
+<style>
+.site-header{position:sticky;top:56px;left:0;right:0;z-index:999;height:70px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.1);display:flex;align-items:center;justify-content:space-between;padding:0 32px}
+.site-logo{font-size:1.2rem;font-weight:700;color:#2C5F2E;text-decoration:none}
+.nav-links{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+.nav-links a{color:#333;font-size:.9rem;font-weight:500;text-decoration:none;padding:4px 0;border-bottom:2px solid transparent;transition:all .2s}
+.nav-links a:hover{color:#2C5F2E;border-bottom-color:#2C5F2E}
+.site-footer{background:#1a1a1a;color:#ccc;padding:48px 24px 32px;text-align:center}
+.site-footer__inner{max-width:960px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:20px}
+.site-footer__name{font-size:1.1rem;font-weight:700;color:#fff;margin:0}
+.site-footer__tagline{font-size:.85rem;color:#aaa;margin:0}
+.footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 20px;list-style:none;margin:0;padding:0}
+.footer-links a{color:#aaa;font-size:.8rem;text-decoration:none}
+.footer-links a:hover{color:#fff}
+.footer-telegram-btn{display:inline-block;padding:10px 24px;background:#2ca5e0;color:#fff;border-radius:24px;font-size:.85rem;font-weight:600;text-decoration:none}
+.site-footer__copyright{font-size:.75rem;color:#555;margin:0}
+
+/* Buttons */
+.btn{display:inline-block;padding:.75rem 1.75rem;border-radius:4px;font-weight:600;font-size:1rem;text-decoration:none;cursor:pointer;transition:all .2s;border:2px solid transparent}
+.btn--primary{background:#c0392b;color:#fff;border-color:#c0392b}
+.btn--primary:hover{background:#96281b}
+.btn--secondary{background:transparent;color:#c0392b;border-color:#c0392b}
+.btn--secondary:hover{background:#c0392b;color:#fff}
+.btn--telegram{background:#0088cc;color:#fff;border-color:#0088cc}
+.btn--gold{background:#b5813b;color:#fff;border-color:#b5813b}
+.btn--gold:hover{background:#9a6a2c}
+</style>
+
+<!-- Shared Nav -->
+<template id="tpl-nav">
+<header class="site-header">
+  <a href="#" class="site-logo">&#9997; Bible Gifting Ministry</a>
+  <nav>
+    <ul class="nav-links">
+      <li><a href="#" onclick="showPage('home');return false">Home</a></li>
+      <li><a href="#" onclick="showPage('catalog');return false">Bundles</a></li>
+      <li><a href="#" onclick="showPage('about');return false">About</a></li>
+      <li><a href="#" onclick="showPage('testimonies');return false">Testimonies</a></li>
+      <li><a href="#" onclick="showPage('donate');return false">Donate</a></li>
+      <li><a href="#" onclick="showPage('contact');return false">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+</template>
+
+<!-- Shared Footer -->
+<template id="tpl-footer">
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div><p class="site-footer__name">Bible Gifting Ministry</p><p class="site-footer__tagline">Welcoming newcomers to faith — one Bible at a time.</p></div>
+    <ul class="footer-links">
+      <li><a href="#">Home</a></li><li><a href="#">Bundles</a></li><li><a href="#">About</a></li>
+      <li><a href="#">Testimonies</a></li><li><a href="#">Donate</a></li><li><a href="#">Contact</a></li>
+    </ul>
+    <a href="#" class="footer-telegram-btn">Join Our Telegram Community</a>
+    <p class="site-footer__copyright">&copy; 2026 Bible Gifting Ministry. All rights reserved.</p>
+  </div>
+</footer>
+</template>
+
+<!-- ══════════════════════════════════════════
+     HOME PAGE
+══════════════════════════════════════════ -->
+<style>
+/* ── HOME PAGE — Editorial redesign ── */
+
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+.home-page *{font-family:'Inter',system-ui,sans-serif}
+.home-page h1,.home-page h2,.home-page .editorial-num{font-family:'Playfair Display',Georgia,serif}
+
+/* ── Hero ── */
+.home-hero{
+  position:relative;width:100%;min-height:92vh;
+  display:flex;align-items:flex-end;justify-content:flex-start;
+  background-image:url('ministry-website/assets/images/hero-bg.jpg');
+  background-size:cover;background-position:center top;overflow:hidden
+}
+.home-hero__overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(10,8,5,.85) 0%,rgba(20,14,8,.3) 55%,rgba(30,20,10,.1) 100%)
+}
+.home-hero__content{
+  position:relative;z-index:2;
+  padding:0 64px 72px;max-width:820px
+}
+.home-hero__eyebrow{
+  display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:1.25rem
+}
+.home-hero__title{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(2.75rem,7vw,5.5rem);font-weight:900;
+  color:#fff;line-height:1.05;margin-bottom:1.5rem;
+  text-shadow:0 2px 24px rgba(0,0,0,.4)
+}
+.home-hero__title em{font-style:italic;color:#d4a853}
+.home-hero__tagline{
+  font-size:clamp(1rem,2vw,1.25rem);color:rgba(255,255,255,.82);
+  line-height:1.7;margin-bottom:2.5rem;max-width:560px;font-weight:300
+}
+.home-hero__actions{display:flex;gap:1rem;flex-wrap:wrap}
+.hero-btn-primary{
+  display:inline-block;padding:.875rem 2.25rem;
+  background:#d4a853;color:#1a1008;
+  font-weight:700;font-size:1rem;border-radius:2px;
+  text-decoration:none;letter-spacing:.03em;
+  transition:background .2s,transform .15s
+}
+.hero-btn-primary:hover{background:#c49540;transform:translateY(-1px)}
+.hero-btn-ghost{
+  display:inline-block;padding:.875rem 2.25rem;
+  background:transparent;color:#fff;
+  font-weight:600;font-size:1rem;border-radius:2px;
+  border:1.5px solid rgba(255,255,255,.5);text-decoration:none;
+  letter-spacing:.03em;transition:border-color .2s,background .2s
+}
+.hero-btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+.home-hero__scroll{
+  position:absolute;bottom:28px;right:48px;z-index:2;
+  display:flex;align-items:center;gap:.5rem;
+  color:rgba(255,255,255,.45);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase
+}
+.home-hero__scroll-line{width:40px;height:1px;background:rgba(255,255,255,.3)}
+
+/* ── Marquee strip ── */
+.home-marquee{
+  background:#1a1008;color:#d4a853;
+  padding:.75rem 0;overflow:hidden;white-space:nowrap
+}
+.home-marquee__track{
+  display:inline-flex;gap:0;
+  animation:marquee 28s linear infinite
+}
+.home-marquee__track:hover{animation-play-state:paused}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.home-marquee__item{
+  display:inline-block;padding:0 2.5rem;
+  font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase
+}
+.home-marquee__sep{color:rgba(212,168,83,.4);padding:0 .5rem}
+
+/* ── Shared section helpers ── */
+.home-inner{max-width:1200px;margin:0 auto;padding:0 48px}
+.home-label{
+  font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:#888;margin-bottom:1.5rem;display:block
+}
+.home-section-heading{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(2rem,4vw,3rem);font-weight:700;
+  color:#111;line-height:1.15;margin-bottom:0
+}
+
+/* ── Mission statement ── */
+.home-mission{padding:7rem 0;background:#fff;border-bottom:1px solid #ebebeb}
+.home-mission__inner{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center}
+.home-mission__num{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:9rem;font-weight:900;color:#f0ece4;line-height:1;
+  margin-bottom:-1.5rem;display:block
+}
+.home-mission__quote{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(1.5rem,3vw,2.25rem);font-weight:700;
+  color:#111;line-height:1.35;margin-bottom:1.5rem;font-style:italic
+}
+.home-mission__body{font-size:1.0625rem;color:#555;line-height:1.8;margin-bottom:2rem}
+.home-mission__link{
+  font-size:.875rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:#111;text-decoration:none;border-bottom:2px solid #d4a853;padding-bottom:2px;
+  transition:color .2s
+}
+.home-mission__link:hover{color:#d4a853}
+.home-mission__image-wrap{position:relative}
+.home-mission__image{
+  width:100%;aspect-ratio:4/5;object-fit:cover;
+  border-radius:2px;display:block
+}
+.home-mission__image-placeholder{
+  width:100%;aspect-ratio:4/5;
+  background:linear-gradient(135deg,#e8e0d4 0%,#c8b89a 100%);
+  border-radius:2px;display:flex;align-items:center;justify-content:center;
+  font-size:6rem
+}
+.home-mission__badge{
+  position:absolute;bottom:-20px;right:-20px;
+  width:120px;height:120px;border-radius:50%;
+  background:#d4a853;color:#1a1008;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-weight:700;font-size:.75rem;text-align:center;line-height:1.3;
+  text-transform:uppercase;letter-spacing:.06em;
+  box-shadow:0 4px 20px rgba(212,168,83,.4)
+}
+.home-mission__badge strong{font-size:1.5rem;display:block;line-height:1}
+
+/* ── How it works — numbered editorial ── */
+.home-how{padding:7rem 0;background:#f8f5f0;border-bottom:1px solid #ebebeb}
+.home-how__header{margin-bottom:4rem}
+.home-how__steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-left:1px solid #e0dbd2}
+.home-how__step{padding:3rem 2.5rem;border-right:1px solid #e0dbd2;position:relative}
+.home-how__step-num{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:4rem;font-weight:900;color:#e8e0d4;
+  line-height:1;margin-bottom:1.25rem;display:block
+}
+.home-how__step-title{font-size:1.125rem;font-weight:700;color:#111;margin-bottom:.75rem}
+.home-how__step-desc{font-size:.9375rem;color:#666;line-height:1.75}
+
+/* ── Gallery carousel ── */
+.home-gallery{position:relative;background:#111;overflow:hidden}
+.home-gallery__carousel{position:relative;width:100%;height:560px;overflow:hidden;outline:none}
+.home-gallery__slide{position:absolute;inset:0;opacity:0;transition:opacity .8s ease}
+.home-gallery__slide.is-active{opacity:1}
+.home-gallery__img{width:100%;height:100%;object-fit:cover;display:block}
+.home-gallery__slide--placeholder{
+  display:flex;align-items:center;justify-content:center;
+  font-size:6rem
+}
+.home-gallery__overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 50%)
+}
+.home-gallery__caption{
+  position:absolute;bottom:0;left:0;right:0;z-index:5;
+  padding:2rem 64px 2.5rem;
+  display:flex;align-items:flex-end;justify-content:space-between
+}
+.home-gallery__caption-text{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:1.5rem;font-weight:700;color:#fff;
+  text-shadow:0 2px 8px rgba(0,0,0,.4)
+}
+.home-gallery__caption-sub{font-size:.875rem;color:rgba(255,255,255,.65);margin-top:.25rem}
+.home-gallery__controls{display:flex;align-items:center;gap:1rem}
+.home-gallery__arrow{
+  background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);
+  color:#fff;width:44px;height:44px;border-radius:50%;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .2s;backdrop-filter:blur(4px)
+}
+.home-gallery__arrow:hover{background:rgba(255,255,255,.3)}
+.home-gallery__dots{display:flex;gap:6px}
+.home-gallery__dot{
+  width:8px;height:8px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.6);background:transparent;
+  cursor:pointer;padding:0;transition:background .2s
+}
+.home-gallery__dot.is-active{background:#fff;border-color:#fff}
+
+/* ── Testimonies ── */
+.home-testimonies{padding:7rem 0;background:#fff;border-bottom:1px solid #ebebeb}
+.home-testimonies__header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4rem}
+.home-testimonies__link{
+  font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#111;text-decoration:none;border-bottom:2px solid #d4a853;padding-bottom:2px
+}
+.home-testimonies__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#ebebeb}
+.testimony-item{background:#fff;padding:2.5rem 2rem}
+.testimony-item__quote{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:1.0625rem;font-style:italic;color:#333;
+  line-height:1.75;margin-bottom:1.5rem
+}
+.testimony-item__name{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888}
+.testimony-item__photo{
+  width:48px;height:48px;border-radius:50%;
+  background:#e8e0d4;margin-bottom:1.25rem;display:block;object-fit:cover
+}
+
+/* ── CTA strip ── */
+.home-cta-strip{
+  padding:6rem 0;
+  background:#1a1008;
+  position:relative;overflow:hidden
+}
+.home-cta-strip::before{
+  content:'';position:absolute;inset:0;
+  background:url('ministry-website/assets/images/hero-bg.jpg') center/cover no-repeat;
+  opacity:.08
+}
+.home-cta-strip__inner{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:0;border-left:1px solid rgba(255,255,255,.1)
+}
+.home-cta-item{
+  padding:3rem 2.5rem;border-right:1px solid rgba(255,255,255,.1);
+  display:flex;flex-direction:column;gap:1rem
+}
+.home-cta-item__num{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:3rem;font-weight:900;color:rgba(212,168,83,.25);line-height:1
+}
+.home-cta-item__title{font-size:1.25rem;font-weight:700;color:#fff}
+.home-cta-item__desc{font-size:.9375rem;color:rgba(255,255,255,.6);line-height:1.7;flex:1}
+.home-cta-item__btn{
+  display:inline-block;padding:.7rem 1.75rem;
+  background:transparent;color:#d4a853;
+  border:1.5px solid #d4a853;border-radius:2px;
+  font-size:.875rem;font-weight:700;letter-spacing:.06em;
+  text-decoration:none;align-self:flex-start;
+  transition:background .2s,color .2s
+}
+.home-cta-item__btn:hover{background:#d4a853;color:#1a1008}
+
+/* ── Community strip ── */
+.home-community{
+  padding:5rem 0;background:#f8f5f0;
+  border-top:1px solid #ebebeb;border-bottom:1px solid #ebebeb
+}
+.home-community__inner{
+  display:flex;align-items:center;justify-content:space-between;gap:3rem;flex-wrap:wrap
+}
+.home-community__text{max-width:560px}
+.home-community__eyebrow{
+  font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:#888;margin-bottom:1rem;display:block
+}
+.home-community__title{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;color:#111;
+  line-height:1.2;margin-bottom:1rem
+}
+.home-community__desc{font-size:1rem;color:#666;line-height:1.75;margin:0}
+.home-community__btn{
+  display:inline-flex;align-items:center;gap:.6rem;
+  padding:1rem 2.25rem;background:#0088cc;color:#fff;
+  border-radius:2px;font-weight:700;font-size:1rem;
+  text-decoration:none;white-space:nowrap;
+  transition:background .2s
+}
+.home-community__btn:hover{background:#0070a8}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  .home-hero__content{padding:0 32px 56px}
+  .home-inner{padding:0 24px}
+  .home-mission__inner{grid-template-columns:1fr;gap:3rem}
+  .home-mission__badge{bottom:16px;right:16px}
+  .home-how__steps{grid-template-columns:1fr;border-left:none}
+  .home-how__step{border-right:none;border-bottom:1px solid #e0dbd2;padding:2rem 0}
+  .home-testimonies__grid{grid-template-columns:1fr}
+  .home-cta-strip__inner{grid-template-columns:1fr;border-left:none}
+  .home-cta-item{border-right:none;border-bottom:1px solid rgba(255,255,255,.1)}
+  .home-gallery__caption{padding:1.5rem 24px 2rem}
+  .home-gallery__carousel{height:380px}
+  .home-testimonies__header{flex-direction:column;align-items:flex-start;gap:1rem}
+  .home-community__inner{flex-direction:column}
+}
+.home-hero__content{position:relative;z-index:2;text-align:center;color:#fff;padding:2rem 24px;max-width:760px}
+.home-hero__title{font-size:clamp(2rem,6vw,3.75rem);font-weight:800;margin-bottom:1rem;line-height:1.15;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.home-hero__tagline{font-size:clamp(1rem,2.5vw,1.375rem);margin-bottom:2rem;line-height:1.6;text-shadow:0 1px 4px rgba(0,0,0,.35)}
+.home-how-it-works{padding:5rem 0;background:#fff}
+.home-section-inner{max-width:1140px;margin:0 auto;padding:0 24px}
+.home-section-title{text-align:center;font-size:clamp(1.5rem,3vw,2.25rem);margin-bottom:2.5rem;color:#2c2c2c}
+.home-steps{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap}
+.home-step{flex:1 1 260px;max-width:320px;text-align:center;padding:2rem 1.5rem;border-radius:8px;background:#fafafa;border:1px solid #ece9e4}
+.home-step__circle{width:56px;height:56px;border-radius:50%;background:#c0392b;color:#fff;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem}
+.home-step__title{font-size:1.125rem;font-weight:700;margin-bottom:.75rem;color:#2c2c2c}
+.home-step__desc{font-size:.9375rem;color:#555;line-height:1.6}
+.home-testimonies{padding:5rem 0;background:#f9f6f1}
+.testimony-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+.testimony-card{background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem 1.75rem;border:1px solid #ece9e4;transition:box-shadow .2s,transform .2s}
+.testimony-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.1);transform:translateY(-2px)}
+.testimony-card__photo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #ece9e4;background:#e0dbd2;display:block;margin-bottom:1rem}
+.testimony-card__name{font-size:1rem;font-weight:700;color:#2c2c2c;margin-bottom:.5rem;text-align:center}
+.testimony-card__excerpt{font-size:.9375rem;color:#555;line-height:1.65;text-align:center;margin-bottom:1rem}
+.testimony-card__read-more{font-size:.875rem;color:#c0392b;font-weight:600;text-decoration:none}
+.home-ctas{padding:5rem 0;background:#fff}
+.home-cta-blocks{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap}
+.home-cta-block{flex:1 1 260px;max-width:320px;text-align:center;padding:2.5rem 1.5rem;border-radius:8px;background:#fafafa;border:1px solid #ece9e4;display:flex;flex-direction:column;align-items:center;gap:.75rem}
+.home-cta-block__icon{font-size:2.25rem;line-height:1;display:block}
+.home-cta-block__label{font-size:1.125rem;font-weight:700;color:#2c2c2c;margin:0}
+.home-cta-block__desc{font-size:.9375rem;color:#555;line-height:1.6;flex:1;margin:0}
+.home-community-strip{background:#f7f3ec;padding:3.5rem 0;border-top:3px solid #e2d9cb}
+.home-community-strip__inner{display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap;text-align:center;max-width:1140px;margin:0 auto;padding:0 24px}
+.home-community-strip__title{font-size:1.375rem;font-weight:700;color:#2c2c2c;margin-bottom:.375rem}
+.home-community-strip__desc{font-size:1rem;color:#555;line-height:1.6;margin:0}
+@media(max-width:768px){.testimony-cards{grid-template-columns:1fr}.home-cta-blocks{flex-direction:column;align-items:center}.home-cta-block{max-width:100%;width:100%}}
+</style>
+
+<section id="page-home" class="page-section active home-page">
+  <div id="nav-home"></div>
+  <main>
+
+    <!-- Hero -->
+    <section class="home-hero">
+      <div class="home-hero__overlay"></div>
+      <div class="home-hero__content">
+        <span class="home-hero__eyebrow">Bible Gifting Ministry</span>
+        <h1 class="home-hero__title">Seed the Word.<br><em>Change a life.</em></h1>
+        <p class="home-hero__tagline">Because Jesus supported you first — we place the Word of God in the hands of those just beginning their faith journey.</p>
+        <div class="home-hero__actions">
+          <a href="#" onclick="showPage('catalog');return false" class="hero-btn-primary">Browse Bundles</a>
+          <a href="#" onclick="showPage('donate');return false" class="hero-btn-ghost">Give Now</a>
+        </div>
+      </div>
+      <div class="home-hero__scroll"><span class="home-hero__scroll-line"></span>Scroll</div>
+    </section>
+
+    <!-- Marquee -->
+    <div class="home-marquee" aria-hidden="true">
+      <div class="home-marquee__track">
+        <span class="home-marquee__item">Bible Gifting</span><span class="home-marquee__sep">〰</span>
+        <span class="home-marquee__item">Personalized Bundles</span><span class="home-marquee__sep">〰</span>
+        <span class="home-marquee__item">Faith Community</span><span class="home-marquee__sep">〰</span>
+        <span class="home-marquee__item">Newcomers Welcome</span><span class="home-marquee__sep">〰</span>
+        <span class="home-marquee__item">Seed the Word</span><span class="home-marquee__sep">〰</span>
+        <span class="home-marquee__item">Donate Today</span><span class="home-marquee__sep">〰</span>
+        <span class="home-marquee__item">Bible Gifting</span><span class="home-marquee__sep">〰</span>
+        <span class="home-marquee__item">Personalized Bundles</span><span class="home-marquee__sep">〰</span>
+        <span class="home-marquee__item">Faith Community</span><span class="home-marquee__sep">〰</span>
+        <span class="home-marquee__item">Newcomers Welcome</span><span class="home-marquee__sep">〰</span>
+        <span class="home-marquee__item">Seed the Word</span><span class="home-marquee__sep">〰</span>
+        <span class="home-marquee__item">Donate Today</span><span class="home-marquee__sep">〰</span>
+      </div>
+    </div>
+
+    <!-- Mission -->
+    <section class="home-mission">
+      <div class="home-inner">
+        <div class="home-mission__inner">
+          <div>
+            <span class="home-mission__num">01</span>
+            <span class="home-label">Our Mission</span>
+            <p class="home-mission__quote">"Welcoming newcomers to faith — one Bible bundle at a time."</p>
+            <p class="home-mission__body">We believe every person stepping into faith deserves a warm, personal welcome. Through community donations and volunteer hearts, we fund, customize, and deliver Bible bundles — removing financial barriers so no one is denied access to Scripture.</p>
+            <a href="#" onclick="showPage('about');return false" class="home-mission__link">Learn about us →</a>
+          </div>
+          <div class="home-mission__image-wrap">
+            <div class="home-mission__image-placeholder">📖</div>
+            <div class="home-mission__badge"><strong>$2</strong>covers one<br>Bible bundle</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="home-how">
+      <div class="home-inner">
+        <div class="home-how__header">
+          <span class="home-label">How It Works</span>
+          <h2 class="home-section-heading">Three steps to gift<br>the Word of God.</h2>
+        </div>
+        <div class="home-how__steps">
+          <div class="home-how__step">
+            <span class="home-how__step-num">01</span>
+            <h3 class="home-how__step-title">Choose a Bundle</h3>
+            <p class="home-how__step-desc">Browse our curated Bible bundle options and pick the one that feels right — from essentials to premium engraved editions.</p>
+          </div>
+          <div class="home-how__step">
+            <span class="home-how__step-num">02</span>
+            <h3 class="home-how__step-title">Customize It</h3>
+            <p class="home-how__step-desc">Add a personal touch — custom engraving, highlighted verses, a handwritten note, or a carrying case. Every detail matters.</p>
+          </div>
+          <div class="home-how__step">
+            <span class="home-how__step-num">03</span>
+            <h3 class="home-how__step-title">Gift or Donate</h3>
+            <p class="home-how__step-desc">Complete your gift directly, or request the Ministry to cover the cost for someone who cannot afford it. No one is turned away.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery Carousel -->
+    <section class="home-gallery" aria-label="Ministry photo gallery">
+      <div class="home-gallery__carousel" tabindex="0" role="region" aria-roledescription="carousel">
+        <div class="home-gallery__slide home-gallery__slide--placeholder" style="background:linear-gradient(135deg,#2a4a2a,#4a7a4a)">🕊️</div>
+        <div class="home-gallery__slide home-gallery__slide--placeholder" style="background:linear-gradient(135deg,#3a1a0a,#7b3f1e)">📖</div>
+        <div class="home-gallery__slide home-gallery__slide--placeholder" style="background:linear-gradient(135deg,#1a2a4a,#3a5a8a)">✝️</div>
+        <div class="home-gallery__overlay"></div>
+        <div class="home-gallery__caption">
+          <div>
+            <div class="home-gallery__caption-text">Our Memories</div>
+            <div class="home-gallery__caption-sub">Moments frozen in time</div>
+          </div>
+          <div class="home-gallery__controls">
+            <button class="home-gallery__arrow home-gallery__arrow--prev" type="button" aria-label="Previous">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="home-gallery__dots"></div>
+            <button class="home-gallery__arrow home-gallery__arrow--next" type="button" aria-label="Next">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonies -->
+    <section class="home-testimonies">
+      <div class="home-inner">
+        <div class="home-testimonies__header">
+          <div>
+            <span class="home-label">Stories of Impact</span>
+            <h2 class="home-section-heading">Lives changed by<br>the Word.</h2>
+          </div>
+          <a href="#" onclick="showPage('testimonies');return false" class="home-testimonies__link">All testimonies →</a>
+        </div>
+        <div class="home-testimonies__grid">
+          <div class="testimony-item">
+            <div class="testimony-item__photo"></div>
+            <p class="testimony-item__quote">"Receiving this Bible changed everything for me. It felt like a hug from God — someone cared enough to pray for me specifically."</p>
+            <span class="testimony-item__name">Maria G.</span>
+          </div>
+          <div class="testimony-item">
+            <div class="testimony-item__photo"></div>
+            <p class="testimony-item__quote">"I had so many questions about faith. This ministry gave me a Bible and helped me find a community that answered them with love."</p>
+            <span class="testimony-item__name">James T.</span>
+          </div>
+          <div class="testimony-item">
+            <div class="testimony-item__photo"></div>
+            <p class="testimony-item__quote">"The personalized note inside my Bible still makes me smile. Someone prayed for me — a stranger. That changed how I see God's love."</p>
+            <span class="testimony-item__name">Priya N.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Strip -->
+    <section class="home-cta-strip">
+      <div class="home-inner">
+        <div class="home-cta-strip__inner">
+          <div class="home-cta-item">
+            <span class="home-cta-item__num">01</span>
+            <h3 class="home-cta-item__title">Donate</h3>
+            <p class="home-cta-item__desc">Help cover the cost of a Bible bundle for someone who cannot afford it. Every $2 funds a complete bundle.</p>
+            <a href="#" onclick="showPage('donate');return false" class="home-cta-item__btn">Give Now</a>
+          </div>
+          <div class="home-cta-item">
+            <span class="home-cta-item__num">02</span>
+            <h3 class="home-cta-item__title">Browse Bundles</h3>
+            <p class="home-cta-item__desc">Explore our curated Bible bundles and customize one as a welcoming gift for someone stepping into faith.</p>
+            <a href="#" onclick="showPage('catalog');return false" class="home-cta-item__btn">See All Bundles</a>
+          </div>
+          <div class="home-cta-item">
+            <span class="home-cta-item__num">03</span>
+            <h3 class="home-cta-item__title">Join Community</h3>
+            <p class="home-cta-item__desc">Connect with fellow believers in our Bible reading group and daily encouragement community on Telegram.</p>
+            <a href="#" class="home-cta-item__btn">Join on Telegram</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Community Strip -->
+    <section class="home-community">
+      <div class="home-inner">
+        <div class="home-community__inner">
+          <div class="home-community__text">
+            <span class="home-community__eyebrow">Stay Connected</span>
+            <h2 class="home-community__title">Join our Bible reading group and daily encouragement community.</h2>
+            <p class="home-community__desc">We gather online to read, reflect, and encourage one another in faith. Come as you are — all are welcome.</p>
+          </div>
+          <a href="#" class="home-community__btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+            Join on Telegram
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <div id="footer-home"></div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     BUNDLE CATALOG PAGE
+══════════════════════════════════════════ -->
+<style>
+/* ── Catalog page ── */
+.catalog-page{background:#f5f5f5;min-height:100vh;font-family:'Inter',system-ui,sans-serif}
+.catalog-hero{background:#fff;border-bottom:1px solid #e8e8e8;padding:3rem 48px 2.5rem}
+.catalog-hero__inner{max-width:1280px;margin:0 auto}
+.catalog-hero__label{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#888;display:block;margin-bottom:.75rem}
+.catalog-hero__title{font-family:'Playfair Display',Georgia,serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:#111;margin-bottom:.5rem}
+.catalog-hero__sub{font-size:1rem;color:#666;line-height:1.6}
+.catalog-toolbar{background:#fff;border-bottom:1px solid #e8e8e8;padding:.875rem 48px;position:sticky;top:126px;z-index:50}
+.catalog-toolbar__inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.catalog-count{font-size:.875rem;color:#888;font-weight:500}
+.catalog-filters{display:flex;gap:.5rem;flex-wrap:wrap}
+.catalog-filter-btn{padding:.4rem 1.1rem;border:1.5px solid #ddd;border-radius:999px;background:#fff;font-size:.8rem;font-weight:600;cursor:pointer;color:#333;transition:all .15s}
+.catalog-filter-btn.active,.catalog-filter-btn:hover{border-color:#111;background:#111;color:#fff}
+.catalog-grid-wrap{max-width:1280px;margin:0 auto;padding:2rem 48px 5rem}
+.catalog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+/* card */
+.catalog-card{background:#fff;position:relative;border:1px solid #e8e8e8;transition:box-shadow .2s}
+.catalog-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.1)}
+/* per-card carousel */
+.card-carousel{position:relative;aspect-ratio:4/3;overflow:hidden;background:#f0ece4;user-select:none}
+.card-carousel__track{display:flex;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)}
+.card-carousel__slide{min-width:100%;height:100%;flex-shrink:0;background:#e8e0d4;display:flex;align-items:center;justify-content:center}
+.card-carousel__slide img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.card-carousel__slide--coming{background:linear-gradient(135deg,#e8e0d4,#d4c8b8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;min-width:100%;height:100%}
+.card-carousel__slide--coming svg{opacity:.35}
+.card-carousel__slide--coming span{font-size:.75rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#8a7a6a;opacity:.7}
+.card-carousel__arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:5;background:rgba(255,255,255,.92);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);opacity:0;transition:opacity .2s;color:#111}
+.card-carousel:hover .card-carousel__arrow{opacity:1}
+.card-carousel__arrow--prev{left:10px}
+.card-carousel__arrow--next{right:10px}
+.card-carousel__dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
+.card-carousel__dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);border:none;padding:0;cursor:pointer;transition:background .2s}
+.card-carousel__dot.is-active{background:#fff}
+/* thumbnail strip */
+.card-thumbs{display:flex;gap:4px;padding:6px 8px;background:#fafafa;border-bottom:1px solid #e8e8e8;overflow-x:auto}
+.card-thumb{width:48px;height:48px;flex-shrink:0;cursor:pointer;border:2px solid transparent;overflow:hidden;transition:border-color .15s;background:#e8e0d4}
+.card-thumb.is-active{border-color:#111}
+.card-thumb img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.card-thumb--coming{display:flex;align-items:center;justify-content:center;background:#e8e0d4}
+.card-thumb--coming svg{opacity:.4}
+/* wishlist */
+.catalog-card__wishlist{position:absolute;top:10px;right:10px;z-index:6;background:rgba(255,255,255,.88);border:none;cursor:pointer;padding:6px;border-radius:50%;color:#333;transition:color .15s;backdrop-filter:blur(4px)}
+.catalog-card__wishlist:hover,.catalog-card__wishlist.saved{color:#c0392b}
+.catalog-card__wishlist svg{display:block}
+/* card body */
+.catalog-card__body{padding:1rem 1.25rem 1.5rem}
+.catalog-card__price{font-size:1.0625rem;font-weight:800;color:#111;margin-bottom:.3rem}
+.catalog-card__name{font-size:1rem;font-weight:700;color:#111;margin-bottom:.2rem;line-height:1.3}
+.catalog-card__category{font-size:.8125rem;color:#767676;margin-bottom:.25rem}
+.catalog-card__contents{font-size:.8125rem;color:#767676;line-height:1.5;margin-bottom:.5rem}
+.catalog-card__badge{display:inline-block;font-size:.75rem;font-weight:700;color:#d4a853;letter-spacing:.04em;margin-bottom:.75rem}
+.catalog-card__cta{display:block;width:100%;padding:.7rem 1rem;background:#111;color:#fff;border:none;border-radius:2px;font-size:.875rem;font-weight:700;cursor:pointer;letter-spacing:.04em;transition:background .15s;text-align:center;text-decoration:none}
+.catalog-card__cta:hover{background:#333}
+@media(max-width:1024px){.catalog-grid{grid-template-columns:repeat(2,1fr)}.catalog-grid-wrap{padding:2rem 24px 4rem}.catalog-hero{padding:2.5rem 24px 2rem}.catalog-toolbar{padding:.875rem 24px}}
+@media(max-width:600px){.catalog-grid{grid-template-columns:1fr}}
+</style>
+
+<section id="page-catalog" class="page-section catalog-page">
+  <div id="nav-catalog"></div>
+  <main>
+
+    <div class="catalog-hero">
+      <div class="catalog-hero__inner">
+        <span class="catalog-hero__label">Ministry</span>
+        <h1 class="catalog-hero__title">Bible Bundle Catalog</h1>
+        <p class="catalog-hero__sub">Choose a bundle to customize as a welcoming gift for a newcomer to faith. Starting from $2.</p>
+      </div>
+    </div>
+
+    <div class="catalog-toolbar">
+      <div class="catalog-toolbar__inner">
+        <span class="catalog-count">6 Bundles</span>
+        <div class="catalog-filters">
+          <button class="catalog-filter-btn active" onclick="filterCatalog('all',this)">All</button>
+          <button class="catalog-filter-btn" onclick="filterCatalog('essentials',this)">Essentials</button>
+          <button class="catalog-filter-btn" onclick="filterCatalog('devotional',this)">Devotional</button>
+          <button class="catalog-filter-btn" onclick="filterCatalog('premium',this)">Premium</button>
+          <button class="catalog-filter-btn" onclick="filterCatalog('group',this)">Life Group</button>
+          <button class="catalog-filter-btn" onclick="filterCatalog('youth',this)">Youth</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="catalog-grid-wrap">
+      <div class="catalog-grid" id="catalog-grid">
+
+        <!-- Essentials Welcome Bundle -->
+        <div class="catalog-card" data-tag="essentials">
+          <div class="card-carousel" data-card-carousel>
+            <div class="card-carousel__track">
+              <div class="card-carousel__slide"><img src="ministry-website/assets/images/bible-open-spread.jpg" alt="Open Bible interior"></div>
+              <div class="card-carousel__slide"><img src="ministry-website/assets/images/bible-open-leather.jpg" alt="Bible with leather cover"></div>
+            </div>
+            <button class="card-carousel__arrow card-carousel__arrow--prev" type="button" aria-label="Previous"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <button class="card-carousel__arrow card-carousel__arrow--next" type="button" aria-label="Next"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            <div class="card-carousel__dots"></div>
+          </div>
+          <div class="card-thumbs">
+            <div class="card-thumb is-active" data-idx="0"><img src="ministry-website/assets/images/bible-open-spread.jpg" alt=""></div>
+            <div class="card-thumb" data-idx="1"><img src="ministry-website/assets/images/bible-open-leather.jpg" alt=""></div>
+          </div>
+          <button class="catalog-card__wishlist" onclick="this.classList.toggle('saved')" aria-label="Save"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+          <div class="catalog-card__body">
+            <div class="catalog-card__price">From $2.00</div>
+            <div class="catalog-card__name">Essentials Welcome Bundle</div>
+            <div class="catalog-card__category">Bible Gifting · Newcomer</div>
+            <div class="catalog-card__contents">ESV Study Bible · Leather bookmark · Welcome card</div>
+            <div class="catalog-card__badge">Most Popular</div>
+            <a href="#" onclick="showPage('builder');return false" class="catalog-card__cta">Customize &amp; Gift</a>
+          </div>
+        </div>
+
+        <!-- Complete Faith Starter Bundle -->
+        <div class="catalog-card" data-tag="essentials">
+          <div class="card-carousel" data-card-carousel>
+            <div class="card-carousel__track">
+              <div class="card-carousel__slide"><img src="ministry-website/assets/images/bible-open-leather.jpg" alt="Bible open with leather cover"></div>
+              <div class="card-carousel__slide"><img src="ministry-website/assets/images/bible-open-spread.jpg" alt="Open Bible pages"></div>
+            </div>
+            <button class="card-carousel__arrow card-carousel__arrow--prev" type="button" aria-label="Previous"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <button class="card-carousel__arrow card-carousel__arrow--next" type="button" aria-label="Next"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            <div class="card-carousel__dots"></div>
+          </div>
+          <div class="card-thumbs">
+            <div class="card-thumb is-active" data-idx="0"><img src="ministry-website/assets/images/bible-open-leather.jpg" alt=""></div>
+            <div class="card-thumb" data-idx="1"><img src="ministry-website/assets/images/bible-open-spread.jpg" alt=""></div>
+          </div>
+          <button class="catalog-card__wishlist" onclick="this.classList.toggle('saved')" aria-label="Save"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+          <div class="catalog-card__body">
+            <div class="catalog-card__price">From $2.00</div>
+            <div class="catalog-card__name">Complete Faith Starter Bundle</div>
+            <div class="catalog-card__category">Bible Gifting · Complete</div>
+            <div class="catalog-card__contents">KJV Study Bible · Concordance · Prayer journal · Gift box</div>
+            <div class="catalog-card__badge">Best Seller</div>
+            <a href="#" onclick="showPage('builder');return false" class="catalog-card__cta">Customize &amp; Gift</a>
+          </div>
+        </div>
+
+        <!-- Life Group Bundle -->
+        <div class="catalog-card" data-tag="group">
+          <div class="card-carousel" data-card-carousel>
+            <div class="card-carousel__track">
+              <div class="card-carousel__slide"><img src="ministry-website/assets/images/bible-stack-blue.jpg" alt="Stack of blue Bibles"></div>
+              <div class="card-carousel__slide"><img src="ministry-website/assets/images/bible-hand-bw.jpg" alt="Hand holding Bible"></div>
+            </div>
+            <button class="card-carousel__arrow card-carousel__arrow--prev" type="button" aria-label="Previous"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <button class="card-carousel__arrow card-carousel__arrow--next" type="button" aria-label="Next"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            <div class="card-carousel__dots"></div>
+          </div>
+          <div class="card-thumbs">
+            <div class="card-thumb is-active" data-idx="0"><img src="ministry-website/assets/images/bible-stack-blue.jpg" alt=""></div>
+            <div class="card-thumb" data-idx="1"><img src="ministry-website/assets/images/bible-hand-bw.jpg" alt=""></div>
+          </div>
+          <button class="catalog-card__wishlist" onclick="this.classList.toggle('saved')" aria-label="Save"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+          <div class="catalog-card__body">
+            <div class="catalog-card__price">From $2.00 each</div>
+            <div class="catalog-card__name">Life Group Gift Bundle (5+)</div>
+            <div class="catalog-card__category">Bible Gifting · Small Group</div>
+            <div class="catalog-card__contents">New Testament · Psalms &amp; Proverbs · Bulk pricing available</div>
+            <div class="catalog-card__badge">Group Discount</div>
+            <a href="#" onclick="showPage('builder');return false" class="catalog-card__cta">Customize &amp; Gift</a>
+          </div>
+        </div>
+
+        <!-- Devotional Journey Bundle — photos coming -->
+        <div class="catalog-card" data-tag="devotional">
+          <div class="card-carousel" data-card-carousel>
+            <div class="card-carousel__track">
+              <div class="card-carousel__slide card-carousel__slide--coming">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8a7a6a" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span>Photo coming soon</span>
+              </div>
+            </div>
+            <div class="card-carousel__dots"></div>
+          </div>
+          <div class="card-thumbs">
+            <div class="card-thumb card-thumb--coming is-active" data-idx="0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a7a6a" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+          </div>
+          <button class="catalog-card__wishlist" onclick="this.classList.toggle('saved')" aria-label="Save"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+          <div class="catalog-card__body">
+            <div class="catalog-card__price">From $2.00</div>
+            <div class="catalog-card__name">Devotional Journey Bundle</div>
+            <div class="catalog-card__category">Bible Gifting · Devotional</div>
+            <div class="catalog-card__contents">NIV Bible · Daily devotional · Journal · Pen set</div>
+            <div class="catalog-card__badge">New</div>
+            <a href="#" onclick="showPage('builder');return false" class="catalog-card__cta">Customize &amp; Gift</a>
+          </div>
+        </div>
+
+        <!-- Premium Engraved Bundle — photos coming -->
+        <div class="catalog-card" data-tag="premium">
+          <div class="card-carousel" data-card-carousel>
+            <div class="card-carousel__track">
+              <div class="card-carousel__slide card-carousel__slide--coming" style="background:linear-gradient(135deg,#1a1a1a,#2a2a2a)">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span style="color:#888">Photo coming soon</span>
+              </div>
+            </div>
+            <div class="card-carousel__dots"></div>
+          </div>
+          <div class="card-thumbs" style="background:#111">
+            <div class="card-thumb card-thumb--coming is-active" data-idx="0" style="background:#222"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+          </div>
+          <button class="catalog-card__wishlist" onclick="this.classList.toggle('saved')" aria-label="Save"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+          <div class="catalog-card__body">
+            <div class="catalog-card__price">From $2.00</div>
+            <div class="catalog-card__name">Premium Engraved Bundle</div>
+            <div class="catalog-card__category">Bible Gifting · Premium</div>
+            <div class="catalog-card__contents">Leather-bound KJV · Custom engraving · Gift case · Note</div>
+            <div class="catalog-card__badge">Best Seller</div>
+            <a href="#" onclick="showPage('builder');return false" class="catalog-card__cta">Customize &amp; Gift</a>
+          </div>
+        </div>
+
+        <!-- Women's Devotional Bundle — photos coming -->
+        <div class="catalog-card" data-tag="devotional">
+          <div class="card-carousel" data-card-carousel>
+            <div class="card-carousel__track">
+              <div class="card-carousel__slide card-carousel__slide--coming" style="background:linear-gradient(135deg,#f0e8f0,#e0d0e0)">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8a7a6a" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span>Photo coming soon</span>
+              </div>
+            </div>
+            <div class="card-carousel__dots"></div>
+          </div>
+          <div class="card-thumbs">
+            <div class="card-thumb card-thumb--coming is-active" data-idx="0" style="background:#f0e8f0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a7a6a" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+          </div>
+          <button class="catalog-card__wishlist" onclick="this.classList.toggle('saved')" aria-label="Save"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+          <div class="catalog-card__body">
+            <div class="catalog-card__price">From $2.00</div>
+            <div class="catalog-card__name">Women's Devotional Bundle</div>
+            <div class="catalog-card__category">Bible Gifting · Women's</div>
+            <div class="catalog-card__contents">Women's Study Bible · Floral journal · Devotional · Ribbons</div>
+            <div class="catalog-card__badge">New</div>
+            <a href="#" onclick="showPage('builder');return false" class="catalog-card__cta">Customize &amp; Gift</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+  <div id="footer-catalog"></div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     BUNDLE BUILDER PAGE
+══════════════════════════════════════════ -->
+<style>
+.bundle-builder-page{padding:2rem 1.5rem 4rem;max-width:1200px;margin:0 auto}
+.bundle-builder__mission{background:#f7f3ec;border-left:4px solid #b5813b;padding:1rem 1.25rem;border-radius:4px;margin-bottom:2.5rem;font-size:.95rem;color:#4a3728;line-height:1.6}
+.bundle-builder__layout{display:flex;gap:2.5rem;align-items:flex-start}
+.bundle-builder__controls{flex:1 1 0;min-width:0}
+.bundle-builder__summary{flex:0 0 320px;width:320px;position:sticky;top:136px}
+.builder-step{margin-bottom:2.5rem}
+.builder-step__heading{display:flex;align-items:center;gap:.6rem;font-size:1.15rem;font-weight:700;color:#2c1a0e;margin-bottom:1rem;border-bottom:1px solid #e4ddd6;padding-bottom:.5rem}
+.builder-step__number{display:inline-flex;align-items:center;justify-content:center;width:1.75rem;height:1.75rem;border-radius:50%;background:#b5813b;color:#fff;font-size:.85rem;font-weight:700;flex-shrink:0}
+.bundle-selector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+.bundle-card-radio{cursor:pointer;display:block}
+.bundle-card-radio input{position:absolute;opacity:0;width:0;height:0}
+.bundle-card-radio__inner{border:2px solid #ddd5c8;border-radius:10px;overflow:hidden;transition:border-color .2s,box-shadow .2s;background:#fff;padding:.75rem}
+.bundle-card-radio:hover .bundle-card-radio__inner{border-color:#b5813b;box-shadow:0 2px 10px rgba(181,129,59,.18)}
+.bundle-card-radio input:checked + .bundle-card-radio__inner{border-color:#b5813b;box-shadow:0 0 0 3px rgba(181,129,59,.25);background:#fffaf3}
+.bundle-card-radio__title{display:block;font-weight:700;font-size:.9rem;color:#2c1a0e;margin-bottom:.25rem}
+.bundle-card-radio__price{font-size:.8rem;font-weight:600;color:#b5813b;display:block}
+.addon-bubbles{display:flex;flex-wrap:wrap;gap:.65rem}
+.addon-bubble{display:inline-flex;align-items:center;gap:.3rem;padding:.45rem .9rem;border:2px solid #c9b99a;border-radius:999px;cursor:pointer;background:#fff;font-size:.875rem;color:#4a3728;transition:all .18s;user-select:none}
+.addon-bubble:hover,.addon-bubble.selected{background:#b5813b;border-color:#b5813b;color:#fff}
+.addon-bubble__price{font-size:.78rem;color:#8a6a3a}
+.addon-bubble.selected .addon-bubble__price{color:rgba(255,255,255,.85)}
+.summary-panel{background:#fff;border:1px solid #ddd5c8;border-radius:12px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.summary-panel__heading{font-size:1.1rem;font-weight:700;color:#2c1a0e;margin-bottom:1rem;border-bottom:1px solid #e4ddd6;padding-bottom:.5rem}
+.summary-panel__price-wrap{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e4ddd6;padding-top:.75rem;margin-bottom:1.25rem}
+.summary-panel__price-label{font-size:.9rem;color:#6b5744}
+.summary-panel__price{font-size:1.5rem;font-weight:800;color:#b5813b}
+.summary-panel__ctas{display:flex;flex-direction:column;gap:.65rem}
+.btn-gold{display:block;width:100%;padding:.75rem 1rem;border-radius:6px;font-size:.95rem;font-weight:700;text-align:center;cursor:pointer;background:#b5813b;color:#fff;border:2px solid #b5813b}
+.btn-outline-gold{display:block;width:100%;padding:.75rem 1rem;border-radius:6px;font-size:.95rem;font-weight:700;text-align:center;cursor:pointer;background:transparent;color:#b5813b;border:2px solid #b5813b}
+.builder-step__description{font-size:.9rem;color:#6b5744;margin-bottom:1rem}
+@media(max-width:680px){.bundle-builder__layout{flex-direction:column}.bundle-builder__summary{position:static;width:100%;flex:1 1 auto}}
+</style>
+
+<section id="page-builder" class="page-section">
+  <div id="nav-builder"></div>
+  <main>
+    <div class="bundle-builder-page">
+      <div class="bundle-builder__mission">
+        <p>Starting out with only $2 per Bible, you can help build a special welcoming gift for someone you believe or know may be a newcomer to our faith and help them find the necessary resources to grow in the Word that Is Jesus Christ.</p>
+      </div>
+      <div class="bundle-builder__layout">
+        <div class="bundle-builder__controls">
+
+          <section class="builder-step">
+            <h2 class="builder-step__heading"><span class="builder-step__number">1</span> Choose Your Base Bundle</h2>
+            <div class="bundle-selector-grid">
+              <label class="bundle-card-radio"><input type="radio" name="bundle" value="essentials" onchange="updatePrice()"><div class="bundle-card-radio__inner"><span class="bundle-card-radio__title">📖 Essentials Bundle</span><span class="bundle-card-radio__price">From $2.00</span></div></label>
+              <label class="bundle-card-radio"><input type="radio" name="bundle" value="devotional" onchange="updatePrice()"><div class="bundle-card-radio__inner"><span class="bundle-card-radio__title">✝️ Devotional Bundle</span><span class="bundle-card-radio__price">From $2.00</span></div></label>
+              <label class="bundle-card-radio"><input type="radio" name="bundle" value="complete" onchange="updatePrice()"><div class="bundle-card-radio__inner"><span class="bundle-card-radio__title">🕊️ Complete Starter</span><span class="bundle-card-radio__price">From $2.00</span></div></label>
+              <label class="bundle-card-radio"><input type="radio" name="bundle" value="premium" onchange="updatePrice()"><div class="bundle-card-radio__inner"><span class="bundle-card-radio__title">💎 Premium Bundle</span><span class="bundle-card-radio__price">From $2.00</span></div></label>
+            </div>
+          </section>
+
+          <section class="builder-step">
+            <h2 class="builder-step__heading"><span class="builder-step__number">2</span> Personalise Your Gift</h2>
+            <p class="builder-step__description">Select any customisations below — each one makes the gift more special.</p>
+            <div class="addon-bubbles" id="addon-bubbles">
+              <span class="addon-bubble" onclick="toggleAddon(this,5)" data-price="5">Custom Engraving <span class="addon-bubble__price">+$5.00</span></span>
+              <span class="addon-bubble" onclick="toggleAddon(this,2)" data-price="2">Verse Highlighting <span class="addon-bubble__price">+$2.00</span></span>
+              <span class="addon-bubble" onclick="toggleAddon(this,1)" data-price="1">Personalized Note <span class="addon-bubble__price">+$1.00</span></span>
+              <span class="addon-bubble" onclick="toggleAddon(this,8)" data-price="8">Custom Cover <span class="addon-bubble__price">+$8.00</span></span>
+              <span class="addon-bubble" onclick="toggleAddon(this,1.5)" data-price="1.5">Bookmarks &amp; Ribbons <span class="addon-bubble__price">+$1.50</span></span>
+              <span class="addon-bubble" onclick="toggleAddon(this,6)" data-price="6">Carrying Case / Gift Box <span class="addon-bubble__price">+$6.00</span></span>
+            </div>
+          </section>
+
+          <section class="builder-step">
+            <h2 class="builder-step__heading"><span class="builder-step__number">3</span> Additional Details</h2>
+            <div style="display:flex;flex-direction:column;gap:1rem;background:#fafafa;padding:1.25rem;border-radius:8px;border:1px solid #e4ddd6">
+              <label style="font-size:.875rem;font-weight:600;color:#2c1a0e">Upload an Image <span style="font-weight:400;color:#8a6a3a">(max 5MB)</span><br><input type="file" accept="image/*" style="margin-top:.35rem;width:100%"></label>
+              <label style="font-size:.875rem;font-weight:600;color:#2c1a0e">Engraving Text<br><input type="text" maxlength="100" placeholder="e.g. John 3:16 — For God so loved the world…" style="margin-top:.35rem;width:100%;padding:.55rem .75rem;border:1px solid #c9b99a;border-radius:6px;font-size:.875rem"></label>
+              <label style="font-size:.875rem;font-weight:600;color:#2c1a0e">Verses to Highlight<br><textarea placeholder="e.g. John 3:16, Romans 8:28, Psalm 23" rows="3" style="margin-top:.35rem;width:100%;padding:.55rem .75rem;border:1px solid #c9b99a;border-radius:6px;font-size:.875rem;resize:vertical"></textarea></label>
+              <label style="font-size:.875rem;font-weight:600;color:#2c1a0e">Additional Notes<br><textarea placeholder="Any other details or special requests…" rows="4" style="margin-top:.35rem;width:100%;padding:.55rem .75rem;border:1px solid #c9b99a;border-radius:6px;font-size:.875rem;resize:vertical"></textarea></label>
+            </div>
+          </section>
+        </div>
+
+        <aside class="bundle-builder__summary">
+          <div class="summary-panel">
+            <h2 class="summary-panel__heading">Your Bundle</h2>
+            <p id="summary-bundle-name" style="font-size:1rem;font-weight:600;color:#2c1a0e;margin-bottom:.75rem;font-style:italic;color:#aaa">No bundle selected</p>
+            <ul id="summary-addons-list" style="list-style:none;padding:0;margin:0 0 1rem;font-size:.875rem;color:#4a3728;min-height:1.5rem"></ul>
+            <div class="summary-panel__price-wrap">
+              <span class="summary-panel__price-label">Estimated Total</span>
+              <span class="summary-panel__price" id="price-display">$2.00</span>
+            </div>
+            <div class="summary-panel__ctas">
+              <button class="btn-gold" onclick="alert('In the live WordPress site, this would proceed to WooCommerce checkout.')">Complete My Gift</button>
+              <button class="btn-outline-gold" onclick="document.getElementById('donation-section').style.display='block';document.getElementById('donation-section').scrollIntoView({behavior:'smooth'})">Request Ministry to Cover This Gift</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div id="donation-section" style="display:none;background:#fdf8f2;border-top:3px solid #b5813b;margin-top:3rem;padding:2.5rem 1.5rem;border-radius:0 0 8px 8px">
+        <div style="max-width:640px;margin:0 auto;position:relative">
+          <button onclick="this.closest('#donation-section').style.display='none'" style="position:absolute;top:0;right:0;background:none;border:none;font-size:1.6rem;cursor:pointer;color:#8a6a3a">&times;</button>
+          <h2 style="font-size:1.3rem;font-weight:700;color:#2c1a0e;margin:0 0 .75rem;padding-right:2rem">Request the Ministry to Cover This Gift</h2>
+          <p style="font-size:.925rem;color:#5a4032;line-height:1.65;margin:0 0 1.5rem">If you are unable to cover the cost of this bundle, our ministry would love to help. Please share your circumstances below and we will review your request personally.</p>
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <input type="text" placeholder="Your Name *" style="padding:.6rem .875rem;border:1px solid #d5d0cb;border-radius:6px;font-size:.9375rem">
+            <input type="email" placeholder="Your Email *" style="padding:.6rem .875rem;border:1px solid #d5d0cb;border-radius:6px;font-size:.9375rem">
+            <input type="tel" placeholder="Phone (optional)" style="padding:.6rem .875rem;border:1px solid #d5d0cb;border-radius:6px;font-size:.9375rem">
+            <textarea placeholder="Please describe your circumstances and why you are requesting this gift *" rows="5" style="padding:.6rem .875rem;border:1px solid #d5d0cb;border-radius:6px;font-size:.9375rem;resize:vertical"></textarea>
+            <label style="display:flex;align-items:flex-start;gap:.5rem;font-size:.9rem;color:#4a3728;cursor:pointer"><input type="checkbox" style="margin-top:.2rem"> I agree that the Ministry may contact me to discuss this request</label>
+            <button onclick="this.closest('#donation-section').innerHTML='<div style=\'padding:1.25rem 1.5rem;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;color:#2e7d32;font-weight:600\'>Thank you for reaching out. Our team will review your request and follow up with you personally.</div>'" style="padding:.75rem 2rem;background:#b5813b;color:#fff;border:none;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer">Submit Request</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div id="footer-builder"></div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     ABOUT PAGE
+══════════════════════════════════════════ -->
+<style>
+.about-hero{position:relative;width:100%;min-height:55vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#3a1a0a 0%,#7b3f1e 100%)}
+.about-hero__overlay{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+.about-hero__content{position:relative;z-index:2;text-align:center;color:#fff;padding:2rem 24px;max-width:760px}
+.about-hero__title{font-size:clamp(2rem,5vw,3.25rem);font-weight:800;margin-bottom:1rem;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.about-hero__tagline{font-size:clamp(1rem,2.25vw,1.25rem);line-height:1.6;text-shadow:0 1px 4px rgba(0,0,0,.35);margin:0}
+.about-section-inner{max-width:1140px;margin:0 auto;padding:0 24px}
+.about-section-title{text-align:center;font-size:clamp(1.5rem,3vw,2.25rem);margin-bottom:2.5rem;color:#2c2c2c}
+.about-who{padding:5rem 0;background:#fff}
+.about-who__body{max-width:780px;margin:0 auto;font-size:1.0625rem;line-height:1.75;color:#3a3a3a}
+.about-how-we-serve{padding:5rem 0;background:#f9f6f1}
+.about-serve-cards{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap}
+.about-serve-card{flex:1 1 260px;max-width:320px;text-align:center;padding:2.5rem 1.5rem;border-radius:8px;background:#fff;border:1px solid #ece9e4;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.about-serve-card__icon{font-size:2.5rem;line-height:1;display:block;margin-bottom:1.125rem}
+.about-serve-card__title{font-size:1.125rem;font-weight:700;color:#2c2c2c;margin-bottom:.75rem}
+.about-serve-card__desc{font-size:.9375rem;color:#555;line-height:1.65;margin:0}
+.about-ctas{padding:4.5rem 0;background:#fff;border-top:3px solid #ece9e4}
+.about-cta-strip{display:flex;gap:1.5rem;justify-content:center;align-items:center;flex-wrap:wrap}
+</style>
+
+<section id="page-about" class="page-section">
+  <div id="nav-about"></div>
+  <main>
+    <section class="about-hero">
+      <div class="about-hero__overlay"></div>
+      <div class="about-hero__content">
+        <h1 class="about-hero__title">About Our Ministry</h1>
+        <p class="about-hero__tagline">Sharing faith, one Bible at a time.</p>
+      </div>
+    </section>
+
+    <section class="about-who">
+      <div class="about-section-inner">
+        <h2 class="about-section-title">Who We Are</h2>
+        <div class="about-who__body">
+          <p>We are a community-driven Bible gifting ministry dedicated to placing the Word of God in the hands of those who are new to faith. We believe that every newcomer deserves a warm, personalized welcome — and that a Bible, thoughtfully prepared, can be that gift.</p>
+          <p>Our mission is to remove financial barriers so that no one is denied access to Scripture. Through community donations and volunteer hearts, we fund, customize, and deliver Bible bundles to newcomers across our community and beyond.</p>
+          <p>We believe in the transformative power of the Word, the generosity of believers, and the importance of walking alongside those who are just beginning their faith journey.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-how-we-serve">
+      <div class="about-section-inner">
+        <h2 class="about-section-title">How We Serve</h2>
+        <div class="about-serve-cards">
+          <div class="about-serve-card"><span class="about-serve-card__icon">📖</span><h3 class="about-serve-card__title">Bible Gifting</h3><p class="about-serve-card__desc">We curate and customize Bible bundles as welcoming gifts for newcomers to faith — removing financial barriers so everyone can receive the Word.</p></div>
+          <div class="about-serve-card"><span class="about-serve-card__icon">👥</span><h3 class="about-serve-card__title">Community</h3><p class="about-serve-card__desc">We nurture an online community of believers for daily encouragement, Bible reading, and mutual support on the journey of faith.</p></div>
+          <div class="about-serve-card"><span class="about-serve-card__icon">🙏</span><h3 class="about-serve-card__title">Prayer Support</h3><p class="about-serve-card__desc">We pray with and for those who reach out — whether they are new to faith, seeking answers, or simply in need of encouragement.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:5rem 0;background:#fff">
+      <div class="about-section-inner">
+        <h2 class="about-section-title">Stories of Impact</h2>
+        <div class="testimony-cards">
+          <article class="testimony-card"><div class="testimony-card__photo"></div><h3 class="testimony-card__name">Maria G.</h3><p class="testimony-card__excerpt">"Receiving this Bible changed everything for me. I never expected someone to reach out with such a personal gift."</p><a href="#" class="testimony-card__read-more">Read More</a></article>
+          <article class="testimony-card"><div class="testimony-card__photo"></div><h3 class="testimony-card__name">James T.</h3><p class="testimony-card__excerpt">"I had so many questions about faith. This ministry gave me a Bible and helped me find a community that answered them with love."</p><a href="#" class="testimony-card__read-more">Read More</a></article>
+          <article class="testimony-card"><div class="testimony-card__photo"></div><h3 class="testimony-card__name">Priya N.</h3><p class="testimony-card__excerpt">"The personalized note inside my Bible still makes me smile. It reminded me that someone cared enough to pray for me specifically."</p><a href="#" class="testimony-card__read-more">Read More</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-ctas">
+      <div class="about-section-inner">
+        <div class="about-cta-strip">
+          <a href="#" onclick="showPage('donate');return false" class="btn btn--primary" style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.0625rem;padding:.875rem 2rem">❤️ Donate</a>
+          <a href="#" class="btn btn--telegram" style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.0625rem;padding:.875rem 2rem">💬 Join Community</a>
+          <a href="#" onclick="showPage('contact');return false" class="btn btn--secondary" style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.0625rem;padding:.875rem 2rem">✉️ Contact Us</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="footer-about"></div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     TESTIMONIES PAGE
+══════════════════════════════════════════ -->
+<section id="page-testimonies" class="page-section">
+  <div id="nav-testimonies"></div>
+  <main>
+    <section style="background:linear-gradient(135deg,#3a1a0a 0%,#7b3f1e 60%,#a0522d 100%);padding:4rem 24px 3.5rem;text-align:center">
+      <div style="max-width:720px;margin:0 auto">
+        <h1 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;color:#fff;margin-bottom:1rem;text-shadow:0 2px 8px rgba(0,0,0,.4)">Testimonies &amp; Ways to Help</h1>
+        <p style="font-size:clamp(1rem,2.25vw,1.2rem);color:rgba(255,255,255,.88);line-height:1.65;margin:0;text-shadow:0 1px 4px rgba(0,0,0,.3)">Read stories of lives transformed by faith — and discover how you can help.</p>
+      </div>
+    </section>
+
+    <section style="padding:5rem 0;background:#fff">
+      <div style="max-width:1140px;margin:0 auto;padding:0 24px">
+        <h2 style="text-align:center;font-size:clamp(1.5rem,3vw,2.25rem);margin-bottom:2.5rem;color:#2c2c2c">Community Testimonies</h2>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2rem">
+          <article class="testimony-card"><div class="testimony-card__photo"></div><h3 class="testimony-card__name">Maria G.</h3><p class="testimony-card__excerpt">"Receiving this Bible changed everything for me. I never expected someone to reach out with such a personal gift. It felt like a hug from God. I have been reading it every morning since."</p></article>
+          <article class="testimony-card"><div class="testimony-card__photo"></div><h3 class="testimony-card__name">James T.</h3><p class="testimony-card__excerpt">"I had so many questions about faith and wasn't sure where to start. This ministry gave me not just a Bible but a community that walked alongside me with patience and love."</p></article>
+          <article class="testimony-card"><div class="testimony-card__photo"></div><h3 class="testimony-card__name">Priya N.</h3><p class="testimony-card__excerpt">"The personalized note inside my Bible still makes me smile every time I open it. Someone prayed for me specifically — a stranger. That changed how I see God's love."</p></article>
+          <article class="testimony-card"><div class="testimony-card__photo"></div><h3 class="testimony-card__name">Carlos M.</h3><p class="testimony-card__excerpt">"I requested a donation-funded bundle because I couldn't afford one. No judgment, no conditions — just love. The ministry team followed up with me personally. I'll never forget it."</p></article>
+          <article class="testimony-card"><div class="testimony-card__photo"></div><h3 class="testimony-card__name">Sarah K.</h3><p class="testimony-card__excerpt">"I gifted a bundle to my coworker who recently lost her husband. The engraved cover with a comforting verse meant more to her than I can put into words."</p></article>
+          <article class="testimony-card"><div class="testimony-card__photo"></div><h3 class="testimony-card__name">David L.</h3><p class="testimony-card__excerpt">"As a youth pastor, I've used this ministry to welcome new teens into our group. Every single bundle has been received with joy and gratitude."</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section style="background:linear-gradient(135deg,#5a2d0c 0%,#8b4513 100%);padding:5rem 0 4.5rem">
+      <div style="max-width:1140px;margin:0 auto;padding:0 24px">
+        <h2 style="text-align:center;font-size:clamp(1.5rem,3vw,2.25rem);margin-bottom:.5rem;color:#fff">Ways to Help</h2>
+        <p style="text-align:center;color:rgba(255,255,255,.85);font-size:1.0625rem;line-height:1.65;max-width:640px;margin:0 auto 2.5rem">Every act of generosity makes a difference. Here is how you can get involved today.</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2rem">
+          <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:2.25rem 1.75rem 2rem;text-align:center;display:flex;flex-direction:column;align-items:center">
+            <div style="font-size:2.5rem;margin-bottom:1.125rem">❤️</div>
+            <h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin-bottom:.75rem">Make a Donation</h3>
+            <p style="font-size:.9375rem;color:rgba(255,255,255,.82);line-height:1.65;margin-bottom:1.5rem;flex:1">Help fund Bible bundles for newcomers to faith who cannot afford them.</p>
+            <a href="#" onclick="showPage('donate');return false" class="btn btn--primary" style="margin-top:auto">Give Now</a>
+          </div>
+          <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:2.25rem 1.75rem 2rem;text-align:center;display:flex;flex-direction:column;align-items:center">
+            <div style="font-size:2.5rem;margin-bottom:1.125rem">✉️</div>
+            <h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin-bottom:.75rem">Contact Us</h3>
+            <p style="font-size:.9375rem;color:rgba(255,255,255,.82);line-height:1.65;margin-bottom:1.5rem;flex:1">Have questions or want to volunteer? Reach out — we'd love to hear from you.</p>
+            <a href="#" onclick="showPage('contact');return false" class="btn btn--secondary" style="margin-top:auto">Get in Touch</a>
+          </div>
+          <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:2.25rem 1.75rem 2rem;text-align:center;display:flex;flex-direction:column;align-items:center">
+            <div style="font-size:2.5rem;margin-bottom:1.125rem">💬</div>
+            <h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin-bottom:.75rem">Join Our Community</h3>
+            <p style="font-size:.9375rem;color:rgba(255,255,255,.82);line-height:1.65;margin-bottom:1.5rem;flex:1">Join our Telegram group for daily encouragement and Bible reading.</p>
+            <a href="#" class="btn btn--telegram" style="margin-top:auto">Join on Telegram</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="footer-testimonies"></div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     DONATE PAGE
+══════════════════════════════════════════ -->
+<section id="page-donate" class="page-section">
+  <div id="nav-donate"></div>
+  <main>
+    <section style="position:relative;width:100%;min-height:50vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#3a1a0a 0%,#7b3f1e 100%)">
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,.48)"></div>
+      <div style="position:relative;z-index:2;text-align:center;color:#fff;padding:2rem 24px;max-width:700px">
+        <h1 style="font-size:clamp(2rem,5vw,3.25rem);font-weight:800;margin-bottom:1rem;text-shadow:0 2px 8px rgba(0,0,0,.4)">Donate</h1>
+        <p style="font-size:clamp(1rem,2.25vw,1.25rem);line-height:1.6;text-shadow:0 1px 4px rgba(0,0,0,.35);margin:0">Every gift places the Word of God in someone's hands.</p>
+      </div>
+    </section>
+
+    <section style="padding:5rem 0;background:#f9f6f1">
+      <div style="max-width:1140px;margin:0 auto;padding:0 24px">
+        <h2 style="text-align:center;font-size:clamp(1.5rem,3vw,2.25rem);margin-bottom:2.5rem;color:#2c2c2c">How Your Donation Helps</h2>
+        <div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap">
+          <div style="flex:1 1 260px;max-width:320px;text-align:center;padding:2.5rem 1.5rem;border-radius:10px;background:#fff;border:1px solid #ece9e4;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+            <span style="font-size:3rem;font-weight:900;color:#c0392b;line-height:1;display:block;margin-bottom:.875rem">$2</span>
+            <h3 style="font-size:1.125rem;font-weight:700;color:#2c2c2c;margin-bottom:.75rem">Covers One Bible</h3>
+            <p style="font-size:.9375rem;color:#555;line-height:1.65;margin:0">Just $2 is all it takes to fund a complete Bible bundle — making every dollar genuinely impactful.</p>
+          </div>
+          <div style="flex:1 1 260px;max-width:320px;text-align:center;padding:2.5rem 1.5rem;border-radius:10px;background:#fff;border:1px solid #ece9e4;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+            <span style="font-size:3rem;font-weight:900;color:#c0392b;line-height:1;display:block;margin-bottom:.875rem">100%</span>
+            <h3 style="font-size:1.125rem;font-weight:700;color:#2c2c2c;margin-bottom:.75rem">Goes to Bundles</h3>
+            <p style="font-size:.9375rem;color:#555;line-height:1.65;margin:0">Every cent of your donation is directed toward purchasing and customizing Bible bundles.</p>
+          </div>
+          <div style="flex:1 1 260px;max-width:320px;text-align:center;padding:2.5rem 1.5rem;border-radius:10px;background:#fff;border:1px solid #ece9e4;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+            <span style="font-size:3rem;font-weight:900;color:#c0392b;line-height:1;display:block;margin-bottom:.875rem">❤</span>
+            <h3 style="font-size:1.125rem;font-weight:700;color:#2c2c2c;margin-bottom:.75rem">Every Gift Matters</h3>
+            <p style="font-size:.9375rem;color:#555;line-height:1.65;margin:0">No gift is too small. Whether you give $2 or $200, you are helping place the Word of God in someone's hands.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:5rem 0 6rem;background:#fff">
+      <div style="max-width:1140px;margin:0 auto;padding:0 24px">
+        <h2 style="text-align:center;font-size:clamp(1.5rem,3vw,2.25rem);margin-bottom:2.5rem;color:#2c2c2c">Make a Donation</h2>
+        <div style="max-width:640px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.1);padding:2.5rem 2rem;border:1px solid #ece9e4">
+          <p style="font-size:.95rem;color:#555;margin-bottom:1.5rem;text-align:center">Your donation funds Bible bundles for newcomers to faith who cannot afford them.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;margin-bottom:1.5rem">
+            <button onclick="setDonation(5,this)" style="padding:.65rem 1.5rem;border:2px solid #ddd;border-radius:6px;font-weight:600;cursor:pointer;background:#fff;font-size:1rem">$5</button>
+            <button onclick="setDonation(10,this)" style="padding:.65rem 1.5rem;border:2px solid #ddd;border-radius:6px;font-weight:600;cursor:pointer;background:#fff;font-size:1rem">$10</button>
+            <button onclick="setDonation(25,this)" style="padding:.65rem 1.5rem;border:2px solid #c0392b;border-radius:6px;font-weight:600;cursor:pointer;background:#c0392b;color:#fff;font-size:1rem">$25</button>
+            <button onclick="setDonation(50,this)" style="padding:.65rem 1.5rem;border:2px solid #ddd;border-radius:6px;font-weight:600;cursor:pointer;background:#fff;font-size:1rem">$50</button>
+            <button onclick="setDonation(100,this)" style="padding:.65rem 1.5rem;border:2px solid #ddd;border-radius:6px;font-weight:600;cursor:pointer;background:#fff;font-size:1rem">$100</button>
+          </div>
+          <div style="margin-bottom:1.5rem">
+            <label style="display:block;font-size:.875rem;font-weight:600;color:#2c2c2c;margin-bottom:.375rem">Custom Amount ($)</label>
+            <input type="number" id="donation-amount" value="25" min="1" style="width:100%;padding:.6rem .875rem;border:1px solid #d5d0cb;border-radius:6px;font-size:1rem;box-sizing:border-box">
+          </div>
+          <div style="margin-bottom:1.5rem">
+            <label style="display:block;font-size:.875rem;font-weight:600;color:#2c2c2c;margin-bottom:.375rem">Your Name</label>
+            <input type="text" placeholder="Full name" style="width:100%;padding:.6rem .875rem;border:1px solid #d5d0cb;border-radius:6px;font-size:.9375rem;box-sizing:border-box">
+          </div>
+          <div style="margin-bottom:1.5rem">
+            <label style="display:block;font-size:.875rem;font-weight:600;color:#2c2c2c;margin-bottom:.375rem">Email Address</label>
+            <input type="email" placeholder="your@email.com" style="width:100%;padding:.6rem .875rem;border:1px solid #d5d0cb;border-radius:6px;font-size:.9375rem;box-sizing:border-box">
+          </div>
+          <button onclick="document.getElementById('donate-confirm').style.display='block';this.style.display='none'" style="width:100%;padding:.875rem 1rem;background:#c0392b;color:#fff;border:none;border-radius:6px;font-size:1.05rem;font-weight:700;cursor:pointer">Donate $<span id="donate-btn-amount">25</span></button>
+          <div id="donate-confirm" style="display:none;background:#f0faf2;border:2px solid #4caf50;border-radius:10px;padding:1.5rem 1.75rem;color:#2e7d32;font-weight:600;text-align:center">❤️ Thank you for your generosity! Your donation has been received. Because of your gift, someone who cannot afford a Bible will soon hold the Word of God in their hands.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="footer-donate"></div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CONTACT PAGE
+══════════════════════════════════════════ -->
+<section id="page-contact" class="page-section">
+  <div id="nav-contact"></div>
+  <main>
+    <section style="position:relative;width:100%;min-height:44vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a3a 0%,#3a3a7a 100%)">
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,.45)"></div>
+      <div style="position:relative;z-index:2;text-align:center;color:#fff;padding:2rem 24px;max-width:680px">
+        <h1 style="font-size:clamp(2rem,5vw,3.25rem);font-weight:800;margin-bottom:.75rem;text-shadow:0 2px 8px rgba(0,0,0,.4)">Contact Us</h1>
+        <p style="font-size:clamp(1rem,2.25vw,1.25rem);line-height:1.6;margin:0;font-style:italic;opacity:.92;text-shadow:0 1px 4px rgba(0,0,0,.35)">We'd love to hear from you</p>
+      </div>
+    </section>
+
+    <section style="padding:5rem 0 6rem;background:#fff">
+      <div style="max-width:1140px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr 360px;gap:4rem;align-items:start">
+        <div>
+          <h2 style="font-size:1.5rem;font-weight:700;color:#2c2c2c;margin-bottom:1.75rem">Send Us a Message</h2>
+          <div id="contact-form-area">
+            <div style="display:flex;flex-direction:column;gap:1.25rem">
+              <div>
+                <label style="display:block;font-size:.9375rem;font-weight:600;color:#2c2c2c;margin-bottom:.375rem">Your Name <span style="color:#c0392b">*</span></label>
+                <input type="text" id="cf-name" placeholder="Full name" style="width:100%;padding:.6rem .875rem;border:1px solid #d5d0cb;border-radius:6px;font-size:.9375rem;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:.9375rem;font-weight:600;color:#2c2c2c;margin-bottom:.375rem">Your Email <span style="color:#c0392b">*</span></label>
+                <input type="email" id="cf-email" placeholder="your@email.com" style="width:100%;padding:.6rem .875rem;border:1px solid #d5d0cb;border-radius:6px;font-size:.9375rem;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:.9375rem;font-weight:600;color:#2c2c2c;margin-bottom:.375rem">Subject</label>
+                <select style="width:100%;padding:.6rem .875rem;border:1px solid #d5d0cb;border-radius:6px;font-size:.9375rem;box-sizing:border-box">
+                  <option>— Select a subject —</option>
+                  <option>General Inquiry</option>
+                  <option>Bundle Question</option>
+                  <option>Donation</option>
+                  <option>Prayer Request</option>
+                  <option>Volunteer</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block;font-size:.9375rem;font-weight:600;color:#2c2c2c;margin-bottom:.375rem">Message <span style="color:#c0392b">*</span></label>
+                <textarea id="cf-message" rows="6" placeholder="Your message…" style="width:100%;padding:.6rem .875rem;border:1px solid #d5d0cb;border-radius:6px;font-size:.9375rem;box-sizing:border-box;resize:vertical"></textarea>
+              </div>
+              <div id="cf-errors" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:.75rem 1rem;color:#b91c1c;font-size:.875rem"></div>
+              <button onclick="submitContact()" style="padding:.75rem 2rem;background:#3a3a7a;color:#fff;border:none;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer;align-self:flex-start">Send Message</button>
+            </div>
+          </div>
+        </div>
+        <aside style="background:#f9f6f1;border-radius:12px;padding:2.5rem 2rem;border:1px solid #ece9e4">
+          <div style="margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid #e8e4de">
+            <h2 style="font-size:1.25rem;font-weight:700;color:#2c2c2c;margin-bottom:.625rem">Get in Touch</h2>
+            <p style="font-size:.9375rem;color:#555;line-height:1.65;margin:0">Have a question about Bible bundles, donations, or how to get involved? We are here to help.</p>
+          </div>
+          <div style="margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid #e8e4de">
+            <h3 style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:.5rem">Email</h3>
+            <a href="mailto:hello@ministry.org" style="font-size:.9375rem;color:#3a3a7a;font-weight:500;text-decoration:none">hello@ministry.org</a>
+          </div>
+          <div style="margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid #e8e4de">
+            <h3 style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:.5rem">Community</h3>
+            <p style="font-size:.9375rem;color:#555;line-height:1.65;margin-bottom:.75rem">Join our Bible reading group and stay connected.</p>
+            <a href="#" style="background:#2ca5e0;color:#fff;padding:.5rem 1.125rem;border-radius:6px;font-weight:600;font-size:.9375rem;text-decoration:none;display:inline-flex;align-items:center;gap:.4em">✈ Join our Telegram Group</a>
+          </div>
+          <div>
+            <h3 style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:.5rem">Explore</h3>
+            <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem">
+              <li><a href="#" onclick="showPage('catalog');return false" style="color:#3a3a7a;text-decoration:none;font-size:.9375rem;font-weight:500">Browse Bible Bundles</a></li>
+              <li><a href="#" onclick="showPage('donate');return false" style="color:#3a3a7a;text-decoration:none;font-size:.9375rem;font-weight:500">Make a Donation</a></li>
+              <li><a href="#" onclick="showPage('about');return false" style="color:#3a3a7a;text-decoration:none;font-size:.9375rem;font-weight:500">About the Ministry</a></li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <div id="footer-contact"></div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════ -->
+<script>
+// ── Catalog filter ─────────────────────────────────────────────────────────
+function filterCatalog(tag, btn) {
+  document.querySelectorAll('.catalog-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.catalog-card').forEach(card => {
+    card.style.display = (tag === 'all' || card.dataset.tag === tag) ? '' : 'none';
+  });
+}
+
+// ── Per-card carousel ───────────────────────────────────────────────────────
+function initCardCarousels() {
+  document.querySelectorAll('[data-card-carousel]').forEach(function(carousel) {
+    var track = carousel.querySelector('.card-carousel__track');
+    var dotsWrap = carousel.querySelector('.card-carousel__dots');
+    var card = carousel.closest('.catalog-card');
+    var thumbs = card ? Array.from(card.querySelectorAll('.card-thumb')) : [];
+    if (!track) return;
+    var slides = Array.from(track.children);
+    var total = slides.length;
+    var current = 0;
+    var dots = [];
+
+    // build dots
+    if (dotsWrap && total > 1) {
+      slides.forEach(function(_, i) {
+        var d = document.createElement('button');
+        d.className = 'card-carousel__dot' + (i === 0 ? ' is-active' : '');
+        d.type = 'button';
+        d.addEventListener('click', function(e) { e.stopPropagation(); goTo(i); });
+        dotsWrap.appendChild(d);
+        dots.push(d);
+      });
+    }
+
+    function goTo(i) {
+      current = (i + total) % total;
+      track.style.transform = 'translateX(-' + (current * 100) + '%)';
+      dots.forEach(function(d, idx) { d.classList.toggle('is-active', idx === current); });
+      thumbs.forEach(function(t, idx) { t.classList.toggle('is-active', idx === current); });
+    }
+
+    // arrow buttons
+    var btnPrev = carousel.querySelector('.card-carousel__arrow--prev');
+    var btnNext = carousel.querySelector('.card-carousel__arrow--next');
+    if (btnPrev) btnPrev.addEventListener('click', function(e) { e.stopPropagation(); goTo(current - 1); });
+    if (btnNext) btnNext.addEventListener('click', function(e) { e.stopPropagation(); goTo(current + 1); });
+
+    // thumbnail clicks
+    thumbs.forEach(function(thumb, i) {
+      thumb.addEventListener('click', function(e) { e.stopPropagation(); goTo(i); });
+    });
+
+    goTo(0);
+  });
+}
+document.addEventListener('DOMContentLoaded', initCardCarousels);
+
+// ── Home Gallery Carousel ──────────────────────────────────────────────────
+(function() {
+  var carousel = document.querySelector('.home-gallery__carousel');
+  if (!carousel) return;
+  var slides = Array.from(carousel.querySelectorAll('.home-gallery__slide'));
+  var dotsWrap = carousel.querySelector('.home-gallery__dots');
+  var btnPrev = carousel.querySelector('.home-gallery__arrow--prev');
+  var btnNext = carousel.querySelector('.home-gallery__arrow--next');
+  var current = 0, total = slides.length, timer = null;
+  var dots = [];
+  slides.forEach(function(_, i) {
+    var d = document.createElement('button');
+    d.className = 'home-gallery__dot'; d.type = 'button';
+    d.addEventListener('click', function() { goTo(i); });
+    dotsWrap.appendChild(d); dots.push(d);
+  });
+  function goTo(i) {
+    slides[current].classList.remove('is-active');
+    if (dots[current]) dots[current].classList.remove('is-active');
+    current = (i + total) % total;
+    slides[current].classList.add('is-active');
+    if (dots[current]) dots[current].classList.add('is-active');
+  }
+  function start() { timer = setInterval(function(){ goTo(current+1); }, 4000); }
+  function stop() { clearInterval(timer); }
+  if (btnPrev) btnPrev.addEventListener('click', function(){ stop(); goTo(current-1); start(); });
+  if (btnNext) btnNext.addEventListener('click', function(){ stop(); goTo(current+1); start(); });
+  carousel.addEventListener('mouseenter', stop);
+  carousel.addEventListener('mouseleave', start);
+  carousel.addEventListener('keydown', function(e){
+    if (e.key==='ArrowLeft'){stop();goTo(current-1);start();}
+    if (e.key==='ArrowRight'){stop();goTo(current+1);start();}
+  });
+  goTo(0); start();
+})();
+function showPage(id) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('#preview-tabs button').forEach(b => b.classList.remove('active'));
+  const labels = {home:0,catalog:1,builder:2,about:3,testimonies:4,donate:5,contact:6};
+  document.querySelectorAll('#preview-tabs button')[labels[id]].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── Inject nav + footer into each page ─────────────────────────────────────
+const navHTML = document.getElementById('tpl-nav').innerHTML;
+const footerHTML = document.getElementById('tpl-footer').innerHTML;
+['home','catalog','builder','about','testimonies','donate','contact'].forEach(id => {
+  const navEl = document.getElementById('nav-' + id);
+  const footerEl = document.getElementById('footer-' + id);
+  if (navEl) navEl.innerHTML = navHTML;
+  if (footerEl) footerEl.innerHTML = footerHTML;
+});
+
+// ── Bundle Builder: live price ─────────────────────────────────────────────
+let addonTotal = 0;
+const addons = {};
+
+function toggleAddon(el, price) {
+  const key = el.dataset.price;
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    addonTotal -= price;
+    delete addons[key + '_' + el.querySelector('.addon-bubble__price').previousSibling.textContent.trim()];
+  } else {
+    el.classList.add('selected');
+    addonTotal += price;
+    addons[key + '_' + el.querySelector('.addon-bubble__price').previousSibling.textContent.trim()] = price;
+  }
+  updatePrice();
+}
+
+function updatePrice() {
+  const radio = document.querySelector('input[name="bundle"]:checked');
+  const base = 2.00;
+  const total = Math.max(2.00, base + addonTotal);
+  document.getElementById('price-display').textContent = '$' + total.toFixed(2);
+
+  if (radio) {
+    const labels = {essentials:'Essentials Welcome Bundle', devotional:'Devotional Journey Bundle', complete:'Complete Faith Starter', premium:'Premium Engraved Bundle'};
+    document.getElementById('summary-bundle-name').textContent = labels[radio.value] || radio.value;
+    document.getElementById('summary-bundle-name').style.fontStyle = 'normal';
+    document.getElementById('summary-bundle-name').style.color = '#2c1a0e';
+  }
+
+  const list = document.getElementById('summary-addons-list');
+  list.innerHTML = '';
+  document.querySelectorAll('.addon-bubble.selected').forEach(el => {
+    const li = document.createElement('li');
+    const name = el.querySelector('.addon-bubble__price').previousSibling.textContent.trim();
+    const p = parseFloat(el.dataset.price);
+    li.style.cssText = 'display:flex;justify-content:space-between;padding:.2rem 0;font-size:.875rem;color:#4a3728';
+    li.innerHTML = '<span>' + name + '</span><span style="color:#b5813b;font-weight:600">+$' + p.toFixed(2) + '</span>';
+    list.appendChild(li);
+  });
+}
+
+// ── Donate: amount buttons ──────────────────────────────────────────────────
+function setDonation(amount, btn) {
+  document.getElementById('donation-amount').value = amount;
+  document.getElementById('donate-btn-amount').textContent = amount;
+  document.querySelectorAll('#page-donate button[onclick^="setDonation"]').forEach(b => {
+    b.style.background = '#fff';
+    b.style.color = '#333';
+    b.style.borderColor = '#ddd';
+  });
+  btn.style.background = '#c0392b';
+  btn.style.color = '#fff';
+  btn.style.borderColor = '#c0392b';
+}
+document.getElementById('donation-amount').addEventListener('input', function() {
+  document.getElementById('donate-btn-amount').textContent = this.value || '?';
+});
+
+// ── Contact: form validation ───────────────────────────────────────────────
+function submitContact() {
+  const name = document.getElementById('cf-name').value.trim();
+  const email = document.getElementById('cf-email').value.trim();
+  const msg = document.getElementById('cf-message').value.trim();
+  const errEl = document.getElementById('cf-errors');
+  const errors = [];
+  if (!name) errors.push('Your name is required.');
+  if (!email || !email.includes('@')) errors.push('A valid email address is required.');
+  if (!msg) errors.push('A message is required.');
+  if (errors.length) {
+    errEl.style.display = 'block';
+    errEl.innerHTML = errors.map(e => '• ' + e).join('<br>');
+    return;
+  }
+  errEl.style.display = 'none';
+  document.getElementById('contact-form-area').innerHTML = '<div style="background:#f0faf2;border:2px solid #4caf50;border-radius:10px;padding:1.5rem 1.75rem;color:#2e7d32;font-size:1.0625rem;font-weight:600">✅ Thank you for reaching out! We will get back to you as soon as possible.</div>';
+}
+</script>
+</body>
+</html>

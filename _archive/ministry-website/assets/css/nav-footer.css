@@ -1,0 +1,350 @@
+/* ==========================================================================
+   Ministry Website — Navigation & Footer Styles
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Site Header — sticky, white, shadow on scroll
+   -------------------------------------------------------------------------- */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    height: 80px;
+    background-color: #ffffff;
+    transition: box-shadow 0.25s ease;
+}
+
+/* JS adds .is-scrolled when page is scrolled > 10px */
+.site-header.is-scrolled {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* --------------------------------------------------------------------------
+   Logo
+   -------------------------------------------------------------------------- */
+
+.site-logo {
+    text-decoration: none;
+    color: #1a1a1a;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+}
+
+.site-logo:hover,
+.site-logo:focus {
+    color: #5a6f3b; /* ministry brand green */
+    text-decoration: none;
+}
+
+/* --------------------------------------------------------------------------
+   Primary Navigation
+   -------------------------------------------------------------------------- */
+
+.site-nav {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li {
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links a {
+    display: inline-block;
+    text-decoration: none;
+    color: #333333;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 4px 0;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+/* Animated underline on hover and active */
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #5a6f3b;
+    transition: width 0.2s ease;
+}
+
+.nav-links a:hover,
+.nav-links a:focus {
+    color: #5a6f3b;
+}
+
+.nav-links a:hover::after,
+.nav-links a:focus::after,
+.nav-links .current-menu-item > a::after,
+.nav-links .current_page_item > a::after {
+    width: 100%;
+}
+
+.nav-links .current-menu-item > a,
+.nav-links .current_page_item > a {
+    color: #5a6f3b;
+    font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Hamburger Button — shown only on mobile
+   -------------------------------------------------------------------------- */
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    padding: 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.hamburger:hover,
+.hamburger:focus {
+    background: rgba(90, 111, 59, 0.08);
+    outline: 2px solid #5a6f3b;
+    outline-offset: 2px;
+}
+
+.hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background-color: #333333;
+    border-radius: 2px;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    transform-origin: center;
+}
+
+/* Animated X when menu is open */
+.hamburger[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.hamburger[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* --------------------------------------------------------------------------
+   Mobile Navigation — < 768px
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 767px) {
+
+    .hamburger {
+        display: flex;
+    }
+
+    .site-nav {
+        position: absolute;
+        top: 80px; /* matches header height */
+        left: 0;
+        right: 0;
+        background-color: #ffffff;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+        padding: 0 24px;
+    }
+
+    .site-nav.is-open {
+        max-height: 400px;
+        padding: 12px 24px 20px;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        width: 100%;
+    }
+
+    .nav-links li {
+        width: 100%;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .nav-links li:last-child {
+        border-bottom: none;
+    }
+
+    .nav-links a {
+        display: block;
+        padding: 12px 0;
+        font-size: 1rem;
+        width: 100%;
+    }
+
+    .nav-links a::after {
+        display: none;
+    }
+
+}
+
+/* Desktop — ensure nav shows even if JS failed to clean up is-open */
+@media (min-width: 768px) {
+
+    .site-nav {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    .hamburger {
+        display: none !important;
+    }
+
+}
+
+/* --------------------------------------------------------------------------
+   Site Footer
+   -------------------------------------------------------------------------- */
+
+.site-footer {
+    background-color: #1a1a1a;
+    color: #cccccc;
+    padding: 48px 24px 32px;
+    text-align: center;
+}
+
+.site-footer__inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.site-footer__name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 4px;
+}
+
+.site-footer__tagline {
+    font-size: 0.9rem;
+    color: #aaaaaa;
+    margin: 0;
+}
+
+.site-footer__brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Footer navigation links */
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.footer-links li {
+    margin: 0;
+    padding: 0;
+}
+
+.footer-links a {
+    color: #aaaaaa;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover,
+.footer-links a:focus {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* Telegram community button */
+.footer-telegram-btn {
+    display: inline-block;
+    padding: 10px 24px;
+    background-color: #2ca5e0; /* Telegram brand blue */
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 24px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.footer-telegram-btn:hover,
+.footer-telegram-btn:focus {
+    background-color: #1a8abf;
+    color: #ffffff;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.site-footer__copyright {
+    font-size: 0.8rem;
+    color: #666666;
+    margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Footer responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 767px) {
+
+    .site-footer {
+        padding: 36px 16px 24px;
+    }
+
+    .footer-links {
+        gap: 8px 16px;
+    }
+
+}

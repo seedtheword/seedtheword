@@ -45,7 +45,7 @@ const ADMINS_TAB = 'Admins';
 
 // Public site URL — used in email footers to link back to ministry
 // pages (community, news, store, etc.). Trailing slash kept.
-const SITE_URL = 'https://seedtheword.github.io/seedtheword/';
+const SITE_URL = 'https://seedtheword.org/';
 
 // ── Display labels for human-readable emails / Sheet rows ───────
 const BUNDLE_DISPLAY = {
@@ -2811,7 +2811,7 @@ function getAdminDigestData() {
 // stay in sync with whatever's on main without needing a
 // configured-per-script override.
 const REPO_RAW_BASE = 'https://raw.githubusercontent.com/seedtheword/seedtheword/main';
-const SITE_PUBLIC_BASE = 'https://seedtheword.github.io/seedtheword';
+const SITE_PUBLIC_BASE = 'https://seedtheword.org';
 
 // MarkdownV2 reserved characters per Telegram's API docs. When used
 // as literal text (not formatting), each must be backslash-escaped

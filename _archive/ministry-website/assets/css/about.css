@@ -1,0 +1,308 @@
+/**
+ * About Page Styles — Ministry Website
+ *
+ * Covers: Hero, Who We Are, How We Serve, Our Team,
+ *         Stories of Impact, and CTA Strip.
+ *
+ * Breakpoints:
+ *   768px — tablet / single-column transition
+ *   320px — small mobile baseline
+ *
+ * Requirements: 6.1–6.5
+ */
+
+/* ── Shared helpers ────────────────────────────────────────────────────────── */
+
+.about-section-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.about-section-title {
+    text-align: center;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    margin-bottom: 2.5rem;
+    color: #2c2c2c;
+}
+
+/* ── Hero Banner ────────────────────────────────────────────────────────────── */
+
+.about-hero {
+    position: relative;
+    width: 100%;
+    min-height: 55vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, #3a1a0a 0%, #7b3f1e 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+.about-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.50);
+    z-index: 1;
+}
+
+.about-hero__content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #fff;
+    padding: 2rem 24px;
+    max-width: 760px;
+}
+
+.about-hero__title {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.15;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.about-hero__tagline {
+    font-size: clamp(1rem, 2.25vw, 1.25rem);
+    line-height: 1.6;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    margin: 0;
+}
+
+/* ── Who We Are ─────────────────────────────────────────────────────────────── */
+
+.about-who {
+    padding: 5rem 0;
+    background: #fff;
+}
+
+.about-who__body {
+    max-width: 780px;
+    margin: 0 auto;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: #3a3a3a;
+}
+
+.about-who__body p {
+    margin-bottom: 1.25rem;
+}
+
+/* ── How We Serve ────────────────────────────────────────────────────────────── */
+
+.about-how-we-serve {
+    padding: 5rem 0;
+    background: #f9f6f1;
+}
+
+.about-serve-cards {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.about-serve-card {
+    flex: 1 1 260px;
+    max-width: 320px;
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid #ece9e4;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.about-serve-card__icon {
+    font-size: 2.5rem;
+    line-height: 1;
+    display: block;
+    margin-bottom: 1.125rem;
+}
+
+.about-serve-card__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 0.75rem;
+}
+
+.about-serve-card__desc {
+    font-size: 0.9375rem;
+    color: #555;
+    line-height: 1.65;
+    margin: 0;
+}
+
+/* ── Our Team ────────────────────────────────────────────────────────────────── */
+
+.about-team {
+    padding: 5rem 0;
+    background: #fff;
+}
+
+.about-team-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2rem;
+}
+
+.about-team-card {
+    background: #fafafa;
+    border-radius: 8px;
+    border: 1px solid #ece9e4;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.about-team-card__photo-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 1.75rem 1.5rem 0;
+}
+
+.about-team-card__photo {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ece9e4;
+}
+
+.about-team-card__photo--placeholder {
+    background: #e0dbd2;
+    display: block;
+}
+
+.about-team-card__body {
+    padding: 1rem 1.25rem 1.75rem;
+    flex: 1;
+}
+
+.about-team-card__name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 0.25rem;
+}
+
+.about-team-card__role {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #c0392b;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.about-team-card__bio {
+    font-size: 0.9375rem;
+    color: #555;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.about-team__placeholder {
+    text-align: center;
+    color: #777;
+    font-size: 1rem;
+    font-style: italic;
+}
+
+/* ── Stories of Impact ───────────────────────────────────────────────────────── */
+
+.about-testimonies {
+    padding: 5rem 0;
+    background: #f9f6f1;
+}
+
+.about-testimonies__empty {
+    text-align: center;
+    color: #777;
+    font-size: 1rem;
+}
+
+/* Reuses .testimony-card styles defined in home.css / global stylesheet */
+
+/* ── CTA Strip ───────────────────────────────────────────────────────────────── */
+
+.about-ctas {
+    padding: 4.5rem 0;
+    background: #fff;
+    border-top: 3px solid #ece9e4;
+}
+
+.about-cta-strip {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.about-cta-strip__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.0625rem;
+    padding: 0.875rem 2rem;
+}
+
+.about-cta-strip__icon {
+    font-size: 1.2em;
+    line-height: 1;
+}
+
+/* ── Responsive — tablet (≤ 768px) ──────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+
+    .about-hero {
+        min-height: 45vh;
+    }
+
+    .about-serve-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .about-serve-card {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .about-team-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .about-cta-strip {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .about-cta-strip__item {
+        justify-content: center;
+    }
+}
+
+/* ── Responsive — small mobile (≤ 480px) ─────────────────────────────────────── */
+
+@media (max-width: 480px) {
+
+    .about-section-inner {
+        padding: 0 16px;
+    }
+
+    .about-team-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .about-hero__content {
+        padding: 1.5rem 16px;
+    }
+}

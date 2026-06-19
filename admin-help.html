@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -2371,7 +2371,7 @@ Sign up with : @Alina Matyuk-Pavlun
 
 We can\u2019t wait to see you there! \u2728
 
-More Details (https://seedtheword.github.io/seedtheword/news.html#event=abc123)</code></pre>
+More Details (https://seedtheword.org/news.html#event=abc123)</code></pre>
 
   <h3>How each field is generated (so Calendar edits drive the post)</h3>
   <ul>
@@ -2954,7 +2954,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
       <li><strong>Disable just the Telegram footer</strong> — flip <code>bible.layeredPlan.includeInTelegram</code> to <code>false</code>. Website row keeps rendering normally.</li>
       <li><strong>Re-anchor a weekday walk</strong> — edit <code>streams.otHistory.anchor</code> or <code>streams.poetryProphecy.anchor</code>. Re-anchoring shifts <em>every</em> future date's reading by the date delta — confirm with the team before changing.</li>
       <li><strong>Where the QR card points</strong> — the <code>guide-newcomer-qr</code> bundle item points at <code>start-here.html</code> on the live site. The 30-entry plan is in <code>assets/data/newcomer-30day.json</code>; intermediate <code>note</code> text can be edited freely, the day-1 / day-30 labels (John 1 / 2 Timothy 3) and the four week themes are locked.</li>
-      <li><strong>Regenerate the QR PNG/SVG</strong> — encode the URL <code>https://seedtheword.github.io/seedtheword/start-here.html</code> with any QR generator (<code>qrencode -o newcomer.png "https://…"</code> from the command line, or any free online generator). Test-scan it from a phone before sending bundles to print.</li>
+      <li><strong>Regenerate the QR PNG/SVG</strong> — encode the URL <code>https://seedtheword.org/start-here.html</code> with any QR generator (<code>qrencode -o newcomer.png "https://…"</code> from the command line, or any free online generator). Test-scan it from a phone before sending bundles to print.</li>
       <li><strong>Adding audio recordings later (Phase 2)</strong> — open <code>assets/data/bible-spotify-map.json</code>. Four optional buckets (<code>oldTestamentChapters</code>, <code>poetryProphecyChapters</code>, <code>psalmChapters</code>, <code>proverbsChapters</code>) ship empty. Adding a key like <code>"Genesis 5"</code> or <code>"Psalm 23"</code> lights up the 🎧 affordance on the matching pill on the next page load — no code change needed. Silence is honest while no recording exists.</li>
     </ol>
   </div>
@@ -3185,7 +3185,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
         }
         var rows = active.map(function (s) {
           var label = (s.label || s.id) + (s.city ? ' · ' + s.city : '');
-          var qr = s.qr_url || ('https://seedtheword.github.io/seedtheword/donate.html?sign=' + encodeURIComponent(s.id));
+          var qr = s.qr_url || ('https://seedtheword.org/donate.html?sign=' + encodeURIComponent(s.id));
           var posted = s.posted_at ? ' (posted ' + s.posted_at + (s.posted_by ? ' by ' + s.posted_by : '') + ')' : '';
           return '<li style="margin:0.4rem 0;line-height:1.55;">' +
             '<strong>' + label + '</strong>' + posted + '<br>' +

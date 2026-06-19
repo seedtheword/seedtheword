@@ -1,0 +1,335 @@
+/**
+ * Testimonies & Ways to Help Page Styles — Ministry Website
+ *
+ * Covers: page header, testimonies grid (3→2→1 col), testimony card
+ * Read More toggle, Ways to Help section, and CTA cards.
+ *
+ * Breakpoints:
+ *   768px — tablet
+ *   480px — small mobile
+ *
+ * Requirements: 7.1, 7.2, 7.3, 7.4
+ */
+
+/* ── Shared helpers ─────────────────────────────────────────────────────────── */
+
+.testimonies-section-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.testimonies-section-title {
+    text-align: center;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    margin-bottom: 2.5rem;
+    color: #2c2c2c;
+}
+
+.testimonies-section-title--light {
+    color: #fff;
+}
+
+/* ── Page Header ─────────────────────────────────────────────────────────────── */
+
+.testimonies-header {
+    background: linear-gradient(135deg, #3a1a0a 0%, #7b3f1e 60%, #a0522d 100%);
+    padding: 4rem 24px 3.5rem;
+    text-align: center;
+}
+
+.testimonies-header__inner {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.testimonies-header__title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 1rem;
+    line-height: 1.15;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.testimonies-header__subtitle {
+    font-size: clamp(1rem, 2.25vw, 1.2rem);
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.65;
+    margin: 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Testimonies Grid Section ────────────────────────────────────────────────── */
+
+.testimonies-grid-section {
+    padding: 5rem 0;
+    background: #fff;
+}
+
+.testimonies-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* ── Testimony Card ──────────────────────────────────────────────────────────── */
+/* Shared .testimony-card class used by home/about/testimonies pages */
+
+.testimony-card {
+    background: #fafafa;
+    border: 1px solid #ece9e4;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem 1.75rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.testimony-card:hover {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Photo — circle */
+.testimony-card__photo-wrap {
+    margin-bottom: 1.25rem;
+    flex-shrink: 0;
+}
+
+.testimony-card__photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ece9e4;
+    display: block;
+}
+
+.testimony-card__photo--placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #e0dbd2;
+    border: 3px solid #ece9e4;
+    display: block;
+}
+
+/* Card body */
+.testimony-card__body {
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.testimony-card__name {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 0.75rem;
+}
+
+/* Story text — truncated by default, JS-expanded */
+.testimony-card__excerpt {
+    font-size: 0.9375rem;
+    color: #555;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+    flex: 1;
+}
+
+/* Read More / Show Less toggle button */
+.testimony-card__toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: #c0392b;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.15s ease;
+    margin-top: auto;
+}
+
+.testimony-card__toggle:hover,
+.testimony-card__toggle:focus-visible {
+    color: #922b21;
+    outline: 2px solid #c0392b;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* Expanded state: excerpt shows full text */
+.testimony-card__excerpt--expanded {
+    /* full text is set by JS via textContent */
+}
+
+/* ── Empty State ─────────────────────────────────────────────────────────────── */
+
+.testimonies-empty {
+    text-align: center;
+    padding: 3rem 0;
+    color: #777;
+    font-size: 1rem;
+    font-style: italic;
+}
+
+/* ── Pagination ──────────────────────────────────────────────────────────────── */
+
+.testimonies-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.testimonies-pagination .page-numbers {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 0.9375rem;
+    color: #555;
+    text-decoration: none;
+    background: #fff;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.testimonies-pagination .page-numbers:hover {
+    background: #f9f6f1;
+    color: #2c2c2c;
+}
+
+.testimonies-pagination .page-numbers.current {
+    background: #c0392b;
+    color: #fff;
+    border-color: #c0392b;
+    font-weight: 700;
+}
+
+/* ── Ways to Help Section ────────────────────────────────────────────────────── */
+
+.testimonies-ways-to-help {
+    background: linear-gradient(135deg, #5a2d0c 0%, #8b4513 100%);
+    padding: 5rem 0 4.5rem;
+}
+
+.testimonies-ways-intro {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    max-width: 640px;
+    margin: -1.25rem auto 2.5rem;
+}
+
+.ways-to-help-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+/* Ways card */
+.ways-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 2.25rem 1.75rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    backdrop-filter: blur(4px);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.ways-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.ways-card__icon {
+    font-size: 2.5rem;
+    line-height: 1;
+    margin-bottom: 1.125rem;
+}
+
+.ways-card__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.75rem;
+}
+
+.ways-card__desc {
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.65;
+    margin-bottom: 1.5rem;
+    flex: 1;
+}
+
+.ways-card__cta {
+    margin-top: auto;
+    white-space: nowrap;
+}
+
+/* ── Responsive — tablet (≤ 768px) ──────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+
+    .testimonies-header {
+        padding: 3rem 20px 2.5rem;
+    }
+
+    .testimonies-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .ways-to-help-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+/* ── Responsive — small mobile (≤ 480px) ─────────────────────────────────────── */
+
+@media (max-width: 480px) {
+
+    .testimonies-section-inner {
+        padding: 0 16px;
+    }
+
+    .testimonies-header {
+        padding: 2.5rem 16px 2rem;
+    }
+
+    .testimonies-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .ways-to-help-cards {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .testimonies-pagination {
+        gap: 0.35rem;
+    }
+}

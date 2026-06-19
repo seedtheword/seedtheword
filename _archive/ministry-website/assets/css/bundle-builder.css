@@ -1,0 +1,758 @@
+/**
+ * Bundle Builder — Styles
+ *
+ * 2-column flex layout (controls | sticky summary).
+ * Bundle selector radio cards, pill/bubble add-on toggles,
+ * live price panel, accordion, and responsive stacking.
+ *
+ * Requirements: 3.1, 3.2, 10.5
+ */
+
+/* ── Page wrapper ──────────────────────────────────────────────────────────── */
+
+.bundle-builder-page {
+    padding: 2rem 1.5rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ── Mission statement ─────────────────────────────────────────────────────── */
+
+.bundle-builder__mission {
+    background: #f7f3ec;
+    border-left: 4px solid #b5813b;
+    padding: 1rem 1.25rem;
+    border-radius: 4px;
+    margin-bottom: 2.5rem;
+    font-size: 0.95rem;
+    color: #4a3728;
+    line-height: 1.6;
+}
+
+/* ── Two-column layout ─────────────────────────────────────────────────────── */
+
+.bundle-builder__layout {
+    display: flex;
+    gap: 2.5rem;
+    align-items: flex-start;
+}
+
+.bundle-builder__controls {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.bundle-builder__summary {
+    flex: 0 0 320px;
+    width: 320px;
+    position: sticky;
+    top: 100px; /* clears a ~80px sticky header */
+}
+
+/* ── Builder step sections ─────────────────────────────────────────────────── */
+
+.builder-step {
+    margin-bottom: 2.5rem;
+}
+
+.builder-step__heading {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #2c1a0e;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e4ddd6;
+    padding-bottom: 0.5rem;
+}
+
+.builder-step__number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: #b5813b;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.builder-step__description {
+    font-size: 0.9rem;
+    color: #6b5744;
+    margin-bottom: 1rem;
+}
+
+.builder-empty-notice {
+    font-style: italic;
+    color: #888;
+}
+
+/* ── Step 1: Bundle selector cards ────────────────────────────────────────── */
+
+.bundle-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+/* Visually hide the native radio input */
+.bundle-radio-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.bundle-card-radio {
+    cursor: pointer;
+    display: block;
+}
+
+.bundle-card-radio__inner {
+    border: 2px solid #ddd5c8;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fff;
+}
+
+.bundle-card-radio:hover .bundle-card-radio__inner {
+    border-color: #b5813b;
+    box-shadow: 0 2px 10px rgba(181, 129, 59, 0.18);
+}
+
+/* Selected state */
+.bundle-radio-input:checked + .bundle-card-radio__inner {
+    border-color: #b5813b;
+    box-shadow: 0 0 0 3px rgba(181, 129, 59, 0.25);
+    background: #fffaf3;
+}
+
+.bundle-card-radio__image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+}
+
+.bundle-card-radio__image--placeholder {
+    aspect-ratio: 4 / 3;
+    background: #eee;
+}
+
+.bundle-card-radio__body {
+    padding: 0.75rem;
+}
+
+.bundle-card-radio__title {
+    display: block;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #2c1a0e;
+    margin-bottom: 0.35rem;
+}
+
+.bundle-card-radio__contents {
+    list-style: disc;
+    padding-left: 1.1rem;
+    margin: 0 0 0.5rem;
+    font-size: 0.8rem;
+    color: #6b5744;
+}
+
+.bundle-card-radio__price {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #b5813b;
+}
+
+/* Keyboard focus ring for radio cards */
+.bundle-radio-input:focus-visible + .bundle-card-radio__inner {
+    outline: 3px solid #b5813b;
+    outline-offset: 2px;
+}
+
+/* ── Step 2: Add-on pill/bubble toggles ────────────────────────────────────── */
+
+.addon-bubbles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+/* Visually hide the native checkbox */
+.addon-checkbox-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.addon-bubble {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.45rem 0.9rem;
+    border: 2px solid #c9b99a;
+    border-radius: 999px;
+    cursor: pointer;
+    background: #fff;
+    font-size: 0.875rem;
+    color: #4a3728;
+    transition: background 0.18s, border-color 0.18s, color 0.18s;
+    user-select: none;
+}
+
+.addon-bubble:hover {
+    border-color: #b5813b;
+    background: #fdf6ec;
+}
+
+/* Selected / checked state */
+.addon-checkbox-input:checked + .addon-bubble__label,
+.addon-bubble.is-selected {
+    /* handled via sibling selector below */
+}
+
+.addon-checkbox-input:checked ~ .addon-bubble__label {
+    font-weight: 600;
+}
+
+/* Target the whole label when its hidden checkbox is checked */
+.addon-bubble:has(.addon-checkbox-input:checked),
+.addon-bubble.is-selected {
+    background: #b5813b;
+    border-color: #b5813b;
+    color: #fff;
+}
+
+.addon-bubble:has(.addon-checkbox-input:checked) .addon-bubble__price {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.addon-bubble__price {
+    font-size: 0.78rem;
+    color: #8a6a3a;
+}
+
+/* Keyboard focus ring for bubbles */
+.addon-checkbox-input:focus-visible ~ .addon-bubble__label {
+    outline: 3px solid #b5813b;
+    outline-offset: 2px;
+    border-radius: 999px;
+}
+
+/* ── Step 3: Accordion ─────────────────────────────────────────────────────── */
+
+.accordion-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.accordion-toggle__icon {
+    display: inline-block;
+    transition: transform 0.25s;
+    font-size: 0.9rem;
+}
+
+.accordion-toggle[aria-expanded="true"] .accordion-toggle__icon {
+    transform: rotate(-180deg);
+}
+
+.accordion-body {
+    padding: 1rem 0;
+}
+
+.accordion-body[hidden] {
+    display: none;
+}
+
+.accordion-placeholder {
+    font-size: 0.875rem;
+    color: #888;
+    font-style: italic;
+}
+
+/* ── Summary / price panel ─────────────────────────────────────────────────── */
+
+.summary-panel {
+    background: #fff;
+    border: 1px solid #ddd5c8;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.summary-panel__heading {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c1a0e;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e4ddd6;
+    padding-bottom: 0.5rem;
+}
+
+.summary-panel__bundle-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c1a0e;
+    margin-bottom: 0.75rem;
+}
+
+.summary-panel__placeholder {
+    font-style: italic;
+    color: #aaa;
+    font-weight: 400;
+}
+
+.summary-panel__addons {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+    min-height: 1.5rem;
+    font-size: 0.875rem;
+    color: #4a3728;
+}
+
+.summary-panel__addons li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 0;
+}
+
+.summary-panel__addons li .addon-line-price {
+    color: #b5813b;
+    font-weight: 600;
+}
+
+/* Bundle recommendation banner */
+.bundle-recommendation {
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-radius: 6px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.85rem;
+    color: #2e7d32;
+    margin-bottom: 1rem;
+}
+
+.bundle-recommendation[hidden] {
+    display: none;
+}
+
+/* Price display */
+.summary-panel__price-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #e4ddd6;
+    padding-top: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.summary-panel__price-label {
+    font-size: 0.9rem;
+    color: #6b5744;
+}
+
+.summary-panel__price {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #b5813b;
+}
+
+/* CTA buttons */
+.summary-panel__ctas {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn--primary {
+    background: #b5813b;
+    color: #fff;
+    border-color: #b5813b;
+}
+
+.btn--primary:hover {
+    background: #9a6a2c;
+    border-color: #9a6a2c;
+}
+
+.btn--secondary {
+    background: transparent;
+    color: #b5813b;
+    border-color: #b5813b;
+}
+
+.btn--secondary:hover {
+    background: #fdf6ec;
+}
+
+/* ── Responsive: tablet ────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    .bundle-builder__summary {
+        flex: 0 0 260px;
+        width: 260px;
+    }
+}
+
+/* ── Responsive: mobile — stack vertically ─────────────────────────────────── */
+
+@media (max-width: 680px) {
+    .bundle-builder__layout {
+        flex-direction: column;
+    }
+
+    .bundle-builder__summary {
+        position: static;
+        width: 100%;
+        flex: 1 1 auto;
+    }
+
+    .bundle-selector-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Step 3: Additional Details fields ─────────────────────────────────────── */
+
+.additional-details-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.additional-details-fields__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.additional-details-fields__field label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #2c1a0e;
+}
+
+.additional-details-fields__hint {
+    font-weight: 400;
+    color: #8a6a3a;
+    font-size: 0.8rem;
+    margin-left: 0.25rem;
+}
+
+.additional-details-fields__field input[type="text"],
+.additional-details-fields__field input[type="file"],
+.additional-details-fields__field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid #c9b99a;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #2c1a0e;
+    background: #fff;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    font-family: inherit;
+}
+
+.additional-details-fields__field input[type="file"] {
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+}
+
+.additional-details-fields__field input[type="text"]:focus,
+.additional-details-fields__field textarea:focus {
+    outline: none;
+    border-color: #b5813b;
+    box-shadow: 0 0 0 3px rgba(181, 129, 59, 0.2);
+}
+
+.additional-details-fields__field textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* ── Order Summary Modal ───────────────────────────────────────────────────── */
+
+/* Full-screen fixed overlay */
+.order-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.order-modal[hidden] {
+    display: none;
+}
+
+/* Semi-transparent dark backdrop */
+.order-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+/* Centered dialog box */
+.order-modal__dialog {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem 1.75rem 1.75rem;
+    max-width: 480px;
+    width: calc(100% - 2rem);
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.22);
+}
+
+/* Close button — top right */
+.order-modal__close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.85rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #6b5744;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: color 0.15s;
+}
+
+.order-modal__close:hover {
+    color: #2c1a0e;
+}
+
+.order-modal__close:focus-visible {
+    outline: 3px solid #b5813b;
+    border-radius: 3px;
+}
+
+/* Dialog heading */
+.order-modal__dialog h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c1a0e;
+    margin: 0 0 1.25rem;
+    padding-right: 1.5rem; /* avoid overlap with close button */
+}
+
+/* Summary content rows */
+.modal-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid #f0ebe4;
+    font-size: 0.9rem;
+}
+
+.modal-summary-label {
+    font-weight: 600;
+    color: #6b5744;
+    white-space: nowrap;
+}
+
+.modal-summary-value {
+    color: #2c1a0e;
+    font-weight: 700;
+    text-align: right;
+}
+
+.modal-summary-section {
+    padding: 0.65rem 0;
+    border-bottom: 1px solid #f0ebe4;
+}
+
+.modal-summary-section .modal-summary-label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 0.9rem;
+}
+
+/* Add-ons list inside modal */
+.modal-addons-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.875rem;
+    color: #4a3728;
+}
+
+.modal-addons-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 0;
+}
+
+.modal-addon-price {
+    color: #b5813b;
+    font-weight: 600;
+}
+
+.modal-no-addons {
+    font-size: 0.875rem;
+    font-style: italic;
+    color: #aaa;
+    margin: 0;
+}
+
+/* Total row — emphasised */
+.modal-summary-total {
+    border-bottom: none;
+    padding-top: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.modal-summary-total .modal-summary-value {
+    font-size: 1.25rem;
+    color: #b5813b;
+}
+
+/* Action buttons row */
+.order-modal__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-top: 1.5rem;
+}
+
+/* Bundle selection validation error */
+.bundle-selection-error {
+    color: #c0392b;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.bundle-selection-error[hidden] {
+    display: none;
+}
+
+/* ── Donation Request Section ──────────────────────────────────────────────── */
+
+.donation-request-section {
+    width: 100%;
+    background: #fdf8f2;
+    border-top: 3px solid #b5813b;
+    margin-top: 3rem;
+    padding: 2.5rem 1.5rem;
+    box-sizing: border-box;
+}
+
+.donation-request-section[hidden] {
+    display: none;
+}
+
+.donation-request-section__inner {
+    position: relative;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.donation-request-section__inner h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2c1a0e;
+    margin: 0 0 0.75rem;
+    padding-right: 2rem; /* avoid overlap with close button */
+}
+
+.donation-request-section__intro {
+    font-size: 0.925rem;
+    color: #5a4032;
+    line-height: 1.65;
+    margin: 0 0 1.5rem;
+}
+
+/* Close button — top-right of the inner container */
+.donation-request-section__close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: #8a6a3a;
+    cursor: pointer;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+}
+
+.donation-request-section__close:hover {
+    color: #2c1a0e;
+    background: rgba(181, 129, 59, 0.1);
+}
+
+.donation-request-section__close:focus-visible {
+    outline: 3px solid #b5813b;
+    outline-offset: 2px;
+}
+
+/* Confirmation message shown after successful form submission */
+.donation-request-confirmation {
+    padding: 1.25rem 1.5rem;
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-radius: 8px;
+}
+
+.donation-request-confirmation__message {
+    margin: 0;
+    font-size: 0.975rem;
+    color: #2e7d32;
+    line-height: 1.6;
+    font-weight: 600;
+}
+
+/* Responsive: full-width on mobile */
+@media (max-width: 680px) {
+    .donation-request-section {
+        padding: 2rem 1rem;
+        margin-top: 2rem;
+    }
+
+    .donation-request-section__inner h2 {
+        font-size: 1.1rem;
+    }
+}

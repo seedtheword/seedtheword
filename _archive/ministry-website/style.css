@@ -1,0 +1,43 @@
+/*
+Theme Name: Ministry Website
+Theme URI: https://github.com/your-ministry/ministry-website
+Author: Ministry Team
+Author URI: https://your-ministry.org
+Description: A warm, Christ-centered Bible gifting ministry theme built on Astra with Elementor Pro, WooCommerce, GiveWP, and WPForms.
+Version: 1.0.0
+Requires at least: 6.0
+Tested up to: 6.5
+Requires PHP: 8.0
+License: GNU General Public License v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: ministry-website
+Template: astra
+
+This theme requires the Astra parent theme to be installed.
+It functions as a child theme of Astra, extending it with
+ministry-specific customizations, plugin configurations,
+and custom post types for the Bible gifting ministry.
+*/
+
+/* Import Astra parent styles */
+@import url("../astra/style.css");
+
+/* ─────────────────────────────────────────
+   Ministry Website — Global Overrides
+   ───────────────────────────────────────── */
+
+:root {
+    --ministry-primary:    #2C5F2E;   /* deep forest green  */
+    --ministry-accent:     #D4A853;   /* warm gold           */
+    --ministry-light:      #F9F5EF;   /* warm off-white      */
+    --ministry-text:       #2B2B2B;   /* near-black          */
+    --ministry-muted:      #6B6B6B;   /* secondary text      */
+    --ministry-radius:     8px;
+    --ministry-transition: 0.25s ease;
+}
+
+body {
+    font-family: 'Lato', 'Open Sans', sans-serif;
+    color: var(--ministry-text);
+    background-color: #ffffff;
+}

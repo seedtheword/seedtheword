@@ -1,0 +1,102 @@
+Ministry Website — Required Plugins
+=====================================
+Install all plugins listed below before activating the Ministry Website child theme.
+Plugins marked [free] are available on WordPress.org.
+Plugins marked [premium] require a purchase/license from the vendor.
+
+──────────────────────────────────────────────────────────────────
+ #  Plugin Name                         Slug / Source
+──────────────────────────────────────────────────────────────────
+
+PARENT THEME
+ 1. Astra                               [free]
+    WordPress.org slug : astra
+    Install via        : Appearance > Themes > Add New > Search "Astra"
+    Notes              : This theme is a CHILD of Astra. Astra must be
+                         installed BEFORE activating Ministry Website.
+
+PAGE BUILDER
+ 2. Elementor                           [free]
+    WordPress.org slug : elementor
+    Install via        : Plugins > Add New > Search "Elementor"
+
+ 3. Elementor Pro                       [premium]
+    Purchase           : https://elementor.com/pro/
+    Notes              : Required for Sticky Header, Theme Builder,
+                         custom header/footer, and advanced widgets.
+
+E-COMMERCE & ORDER MANAGEMENT
+ 4. WooCommerce                         [free]
+    WordPress.org slug : woocommerce
+    Install via        : Plugins > Add New > Search "WooCommerce"
+    Notes              : Run the setup wizard; currency and shipping
+                         settings are overridden by the theme's
+                         setup/woocommerce-config.php hooks.
+
+ 5. WC Contour — Bundle Configurator    [premium]
+    Purchase / info    : https://wccontour.com/
+    Alternative        : WooCommerce Composite Products (Woo.com)
+                         https://woocommerce.com/products/composite-products/
+    Notes              : Used to build the interactive Bundle Builder
+                         with selectable add-on toggles and live pricing.
+
+DONATIONS
+ 6. GiveWP                              [free]
+    WordPress.org slug : give
+    Install via        : Plugins > Add New > Search "GiveWP"
+    Notes              : Create a donation form in Give > Add Form.
+                         Enable "Custom Amount" in form settings.
+                         A starter form is auto-created on activation.
+
+CONTACT & DONATION REQUEST FORMS
+ 7. WPForms Lite                        [free]  OR
+    WPForms Pro                         [premium]
+    Free slug          : wpforms-lite
+    Pro purchase       : https://wpforms.com/pricing/
+    Notes              : Lite is sufficient for basic contact forms.
+                         Pro adds conditional logic and file uploads
+                         needed for the donation request form's image
+                         attachment and bundle summary auto-population.
+
+CUSTOM FIELDS
+ 8. Advanced Custom Fields (ACF)        [free]
+    WordPress.org slug : advanced-custom-fields
+    Install via        : Plugins > Add New > Search "Advanced Custom Fields"
+    Notes              : ACF Pro is recommended for the Repeater field
+                         (bundle contents list, team members).
+    Pro purchase       : https://www.advancedcustomfields.com/pro/
+
+TESTING (development environment only)
+ 9. Pest PHP                            [dev-dependency — Composer]
+    Install via        : composer require pestphp/pest --dev
+                         (run from wp-content/themes/ministry-website/)
+    Notes              : Pest is a PHP testing framework, not a
+                         WordPress plugin. Install via Composer in the
+                         theme directory. See tests/ folder for test suite.
+    Docs               : https://pestphp.com/
+
+──────────────────────────────────────────────────────────────────
+ Installation Order (recommended)
+──────────────────────────────────────────────────────────────────
+ 1. Install & activate Astra theme
+ 2. Install & activate Elementor (free)
+ 3. Install & activate Elementor Pro (upload zip from purchase)
+ 4. Install & activate WooCommerce — run its setup wizard
+ 5. Install & activate WC Contour / Composite Products
+ 6. Install & activate GiveWP
+ 7. Install & activate WPForms Lite or Pro
+ 8. Install & activate Advanced Custom Fields (free or Pro)
+ 9. Upload & activate Ministry Website child theme
+    (Appearance > Themes > Add New > Upload Theme > ministry-website.zip)
+10. Install Pest PHP via Composer (development only):
+    cd wp-content/themes/ministry-website
+    composer install
+
+──────────────────────────────────────────────────────────────────
+ Notes for Production Deployment
+──────────────────────────────────────────────────────────────────
+- All premium plugin licenses must be activated on the production domain.
+- Do NOT deploy Pest PHP or composer dev-dependencies to production.
+- Use a staging environment for theme/plugin updates before going live.
+- Recommended hosts: WP Engine, SiteGround, Kinsta, or any managed
+  WordPress host with PHP 8.0+ and MySQL 8.0+.

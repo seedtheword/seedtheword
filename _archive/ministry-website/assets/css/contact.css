@@ -1,0 +1,381 @@
+/**
+ * Contact Page Styles — Ministry Website
+ *
+ * Covers: Hero header, 2-column layout (form + sidebar), contact info sidebar,
+ *         WPForms overrides, fallback form field styling.
+ *
+ * Breakpoints:
+ *   768px — collapses 2-col layout to 1-col
+ *   480px — small-mobile tweaks
+ *
+ * Requirements: 8.1–8.4
+ */
+
+/* ── Shared helpers ────────────────────────────────────────────────────────── */
+
+.ministry-contact-page {
+    background: #fff;
+}
+
+/* ── Hero Header ────────────────────────────────────────────────────────────── */
+
+.contact-hero {
+    position: relative;
+    width: 100%;
+    min-height: 44vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a1a3a 0%, #3a3a7a 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+.contact-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1;
+}
+
+.contact-hero__content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #fff;
+    padding: 2rem 24px;
+    max-width: 680px;
+}
+
+.contact-hero__title {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    line-height: 1.15;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.contact-hero__subtitle {
+    font-size: clamp(1rem, 2.25vw, 1.25rem);
+    line-height: 1.6;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    margin: 0;
+    font-style: italic;
+    opacity: 0.92;
+}
+
+/* ── Contact Body: 2-column layout ─────────────────────────────────────────── */
+
+.contact-body {
+    padding: 5rem 0 6rem;
+}
+
+.contact-body__inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 4rem;
+    align-items: start;
+}
+
+.contact-body__form-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 1.75rem;
+}
+
+/* ── Contact Info Sidebar ───────────────────────────────────────────────────── */
+
+.contact-body__info {
+    background: #f9f6f1;
+    border-radius: 12px;
+    padding: 2.5rem 2rem;
+    border: 1px solid #ece9e4;
+}
+
+.contact-info-block {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e8e4de;
+}
+
+.contact-info-block:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.contact-info-block__heading {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 0.625rem;
+}
+
+.contact-info-block__label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    margin-bottom: 0.5rem;
+}
+
+.contact-info-block__intro,
+.contact-info-block__text {
+    font-size: 0.9375rem;
+    color: #555;
+    line-height: 1.65;
+    margin-bottom: 0.75rem;
+}
+
+.contact-info-block__link {
+    display: inline-block;
+    font-size: 0.9375rem;
+    color: #3a3a7a;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.contact-info-block__link:hover {
+    color: #c0392b;
+    text-decoration: underline;
+}
+
+.contact-info-block__link--telegram {
+    background: #2ca5e0;
+    color: #fff;
+    padding: 0.5rem 1.125rem;
+    border-radius: 6px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+}
+
+.contact-info-block__link--telegram:hover {
+    background: #1a8ec0;
+    color: #fff;
+    text-decoration: none;
+}
+
+.contact-info-block__links-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.contact-info-block__links-list a {
+    font-size: 0.9375rem;
+    color: #3a3a7a;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.contact-info-block__links-list a:hover {
+    color: #c0392b;
+    text-decoration: underline;
+}
+
+/* ── WPForms overrides ──────────────────────────────────────────────────────── */
+
+.contact-body__form .wpforms-form .wpforms-field input[type="text"],
+.contact-body__form .wpforms-form .wpforms-field input[type="email"],
+.contact-body__form .wpforms-form .wpforms-field select,
+.contact-body__form .wpforms-form .wpforms-field textarea {
+    border: 1px solid #d5d0cb;
+    border-radius: 6px;
+    padding: 0.6rem 0.875rem;
+    font-size: 0.9375rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.contact-body__form .wpforms-form .wpforms-field input:focus,
+.contact-body__form .wpforms-form .wpforms-field select:focus,
+.contact-body__form .wpforms-form .wpforms-field textarea:focus {
+    border-color: #3a3a7a;
+    box-shadow: 0 0 0 3px rgba(58, 58, 122, 0.12);
+    outline: none;
+}
+
+.contact-body__form .wpforms-form .wpforms-submit-container .wpforms-submit {
+    background-color: #3a3a7a !important;
+    border-color: #3a3a7a !important;
+    color: #fff !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    padding: 0.75rem 2rem !important;
+    letter-spacing: 0.03em !important;
+    transition: background-color 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.contact-body__form .wpforms-form .wpforms-submit-container .wpforms-submit:hover {
+    background-color: #2c2c60 !important;
+    border-color: #2c2c60 !important;
+}
+
+/* ── Fallback form field styling (mirrors .ministry-form-field pattern) ──────── */
+
+.ministry-form-field {
+    margin-bottom: 1.375rem;
+}
+
+.ministry-form-field label {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #2c2c2c;
+    margin-bottom: 0.375rem;
+}
+
+.ministry-form-field .required {
+    color: #c0392b;
+    margin-left: 2px;
+}
+
+.ministry-form-field input[type="text"],
+.ministry-form-field input[type="email"],
+.ministry-form-field select,
+.ministry-form-field textarea {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 0.875rem;
+    font-size: 0.9375rem;
+    border: 1px solid #d5d0cb;
+    border-radius: 6px;
+    background: #fff;
+    color: #2c2c2c;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
+}
+
+.ministry-form-field input:focus,
+.ministry-form-field select:focus,
+.ministry-form-field textarea:focus {
+    border-color: #3a3a7a;
+    box-shadow: 0 0 0 3px rgba(58, 58, 122, 0.12);
+    outline: none;
+}
+
+.ministry-form-field.has-error input,
+.ministry-form-field.has-error select,
+.ministry-form-field.has-error textarea {
+    border-color: #c0392b;
+}
+
+.ministry-form-error {
+    display: block;
+    font-size: 0.8125rem;
+    color: #c0392b;
+    margin-top: 0.3rem;
+    font-weight: 500;
+}
+
+.ministry-form-field--submit {
+    margin-top: 1.75rem;
+}
+
+.ministry-btn {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    border: 2px solid transparent;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    font-family: inherit;
+}
+
+.ministry-btn--primary {
+    background: #3a3a7a;
+    border-color: #3a3a7a;
+    color: #fff;
+}
+
+.ministry-btn--primary:hover {
+    background: #2c2c60;
+    border-color: #2c2c60;
+    color: #fff;
+}
+
+/* Confirmation message */
+.ministry-contact-confirmation {
+    background: #f0faf2;
+    border: 2px solid #4caf50;
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem;
+    color: #2e7d32;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.ministry-contact-confirmation p {
+    margin: 0;
+}
+
+/* ── Responsive — tablet (≤ 768px): collapse to 1-column ───────────────────── */
+
+@media (max-width: 768px) {
+
+    .contact-body {
+        padding: 3.5rem 0 4rem;
+    }
+
+    .contact-body__inner {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+
+    .contact-hero {
+        min-height: 36vh;
+    }
+
+    .contact-body__info {
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* ── Responsive — small mobile (≤ 480px) ────────────────────────────────────── */
+
+@media (max-width: 480px) {
+
+    .contact-body__inner {
+        padding: 0 16px;
+    }
+
+    .contact-hero__content {
+        padding: 1.5rem 16px;
+    }
+
+    .contact-body__info {
+        padding: 1.5rem 1.25rem;
+        border-radius: 8px;
+    }
+
+    .ministry-form-field input[type="text"],
+    .ministry-form-field input[type="email"],
+    .ministry-form-field select,
+    .ministry-form-field textarea {
+        font-size: 1rem; /* prevent iOS zoom */
+    }
+}

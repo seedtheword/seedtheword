@@ -1260,51 +1260,69 @@ function validateContactPayload(p) {
 }
 
 function buildContactTeamEmail(c) {
-  const subjectLabel = c.subject || 'General contact';
+  const subjectLabel = c.subject || 'General Inquiry';
   const receivedAt = formatHumanTimestamp(new Date());
 
   let body = '';
-  // Pill row — table-cell layout so Gmail doesn't collapse the gaps.
-  body += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin:0 0 22px;">' +
+
+  // Metadata bar — type badge + timestamp on separate lines for clarity
+  body += '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;margin:0 0 28px;">' +
     '<tr>' +
-      '<td style="padding-right:6px;">' +
-        '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0.04em;">Contact</span>' +
+      '<td style="padding-bottom:10px;">' +
+        '<span style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Contact Form</span>' +
+        '&nbsp;&nbsp;' +
+        '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:0.04em;">' + escapeHtml(subjectLabel) + '</span>' +
       '</td>' +
-      '<td style="padding-right:10px;">' +
-        '<span style="display:inline-block;background:' + STW_GOLD + ';color:#fff;padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:0.04em;">' + escapeHtml(subjectLabel) + '</span>' +
-      '</td>' +
-      '<td style="color:' + STW_MUTED + ';font-size:12px;">' + escapeHtml(receivedAt) + '</td>' +
+    '</tr>' +
+    '<tr>' +
+      '<td style="font-size:12.5px;color:' + STW_MUTED + ';">Received: ' + escapeHtml(receivedAt) + '</td>' +
     '</tr>' +
   '</table>';
 
-  body += emailSection('From',
-    emailKeyValueRow([
-      { label: 'Name',    value: '<strong>' + escapeHtml(c.name) + '</strong>' },
-      { label: 'Email',   value: '<a href="mailto:' + escapeHtml(c.email) + '" style="color:' + STW_GREEN + ';">' + escapeHtml(c.email) + '</a>' },
-      { label: 'Subject', value: c.subject ? escapeHtml(c.subject) : '<span style="color:' + STW_MUTED + ';">(none)</span>' },
-    ]),
+  // Sender details — generous row padding, clear visual separation
+  body += emailSection('Sender',
+    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">' +
+      '<tr><td style="padding:8px 18px 8px 0;color:' + STW_MUTED + ';font-size:13px;font-weight:700;width:90px;vertical-align:top;">Name</td>' +
+        '<td style="padding:8px 0;font-size:15px;font-weight:700;color:' + STW_TEXT + ';vertical-align:top;">' + escapeHtml(c.name) + '</td></tr>' +
+      '<tr style="border-top:1px solid ' + STW_BORDER + ';">' +
+        '<td style="padding:8px 18px 8px 0;color:' + STW_MUTED + ';font-size:13px;font-weight:700;vertical-align:top;">Email</td>' +
+        '<td style="padding:8px 0;font-size:14px;vertical-align:top;"><a href="mailto:' + escapeHtml(c.email) + '" style="color:' + STW_GREEN + ';font-weight:600;">' + escapeHtml(c.email) + '</a></td></tr>' +
+      '<tr style="border-top:1px solid ' + STW_BORDER + ';">' +
+        '<td style="padding:8px 18px 8px 0;color:' + STW_MUTED + ';font-size:13px;font-weight:700;vertical-align:top;">Subject</td>' +
+        '<td style="padding:8px 0;font-size:14px;color:' + STW_TEXT + ';vertical-align:top;">' + (c.subject ? escapeHtml(c.subject) : '<span style="color:' + STW_MUTED + ';font-style:italic;">(none)</span>') + '</td></tr>' +
+    '</table>',
     { accent: STW_GREEN });
 
+  // Message body — generous padding, larger font, cream background
   body += emailSection('Message',
-    '<div style="white-space:pre-wrap;font-size:14.5px;line-height:1.65;">' + escapeHtml(c.message) + '</div>',
+    '<div style="background-color:' + STW_CREAM + ';border-radius:8px;padding:20px 24px;">' +
+      '<div style="font-size:16px;line-height:1.75;color:' + STW_TEXT + ';white-space:pre-wrap;">' + escapeHtml(c.message) + '</div>' +
+    '</div>',
     { accent: STW_GOLD });
 
-  body += '<p style="margin:18px 0 0;font-size:12.5px;color:' + STW_MUTED + ';font-style:italic;">' +
-    'Reply directly &mdash; this email\'s Reply-To is the sender. A confirmation has also been sent to them.' +
-  '</p>';
+  // Reply nudge
+  body += '<div style="margin:24px 0 0;padding:16px 20px;background:#f0f7f0;border-radius:8px;border-left:4px solid ' + STW_GREEN + ';">' +
+    '<p style="margin:0;font-size:13px;color:#2b2b2b;line-height:1.6;">' +
+      '<strong>Reply directly</strong> &mdash; this email\'s Reply-To is set to the sender\'s address. A confirmation email has also been sent to them.' +
+    '</p>' +
+  '</div>';
 
   // Plain-text body
   const plainLines = [
-    'New contact form message.',
+    'New contact form message',
+    '========================',
     '',
-    'From:    ' + c.name + ' <' + c.email + '>',
+    'Name:    ' + c.name,
+    'Email:   ' + c.email,
     'Subject: ' + (c.subject || '(none)'),
     'Sent:    ' + receivedAt,
     '',
     'MESSAGE',
-    c.message.split('\n').map(function (l) { return '  ' + l; }).join('\n'),
+    '-------',
+    c.message,
     '',
-    'A confirmation has also been sent to the sender.',
+    'Reply directly — this email\'s Reply-To is the sender.',
+    'A confirmation has also been sent to them.',
     'Logged to the Contact tab.',
   ];
 

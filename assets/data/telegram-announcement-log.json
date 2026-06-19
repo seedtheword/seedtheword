@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-06-19T17:25:56+00:00",
+  "updated": "2026-06-19T20:03:04+00:00",
   "events": {
     "g1m4bjkr54mevhgpqcsjo3d60k@google.com": {
       "title": "R3ACH your workspace",
@@ -122,9 +122,10 @@
     "r4qol4uvs6gm1mia6496ubkhs8@google.com": {
       "title": "SEED THE WORD POP-UP",
       "start": "2026-06-19T20:00:00+00:00",
-      "lastPosted": "2026-06-19T17:25:56+00:00",
+      "lastPosted": "2026-06-19T20:03:04+00:00",
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "livePosted": true
     },
     "ppis8f6kgv9n8jrhg35nu2ctjs@google.com": {
       "title": "Identity Young Adults",

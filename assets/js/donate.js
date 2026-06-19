@@ -474,7 +474,7 @@
             : '<p>We read every story. Our team will be in touch within 48 hours.</p>') +
           '<p>While you wait, you might enjoy seeing ' +
             '<a href="how-to-seed.html">how we seed the Word</a>, or ' +
-            '<a href="start-here.html">the 30-day reading plan</a> we use with new readers.</p>' +
+            '<a href="start-here.html">the 20-day reading plan</a> we use with new readers.</p>' +
         '</div>';
     }
     dialog.innerHTML =

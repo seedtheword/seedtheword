@@ -176,7 +176,7 @@
 
     { key: 'guide-newcomer-qr', label: 'QR card → "Where to start reading" newcomer plan',
       tier: 'standard', madeToOrder: false,
-      description: 'Scannable card with a 30-day starter plan for someone new to the Bible. Points to start-here.html on the ministry site.',
+      description: 'Scannable card with a 20-day/month reading plan for someone new to the Bible. Points to start-here.html on the ministry site.',
       bundleScope: ['essentials'], groupingSection: 'guides' },
 
     { key: 'guide-audio-qr', label: 'Audio Bible USB / QR card → Spotify reading',

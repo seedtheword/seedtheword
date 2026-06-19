@@ -4,228 +4,231 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <meta name="description" content="A 30-day plan for someone new to the Bible. Day 1 is whatever day you pick this up. Read one short passage a day, in any order if a day calls.">
-  <!-- Open Graph -->
+  <meta name="description" content="A 20-day Bible reading plan for newcomers to faith. 4 weeks, 5 days each, built around Monday Bible Discussion Studies.">
   <meta property="og:site_name" content="Seed the Word Ministry">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Where to start reading — Seed the Word Ministry">
-  <meta property="og:description" content="A 30-day Bible reading plan for new readers. Reader-relative — start any day, walk it at your pace.">
-  <meta property="og:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
-  <meta property="og:url" content="https://seedtheword.github.io/seedtheword/start-here.html">
-  <!-- Twitter card -->
+  <meta property="og:title" content="20-Day Reading Plan — Seed the Word Ministry">
+  <meta property="og:description" content="4 weeks. Who is Jesus, Trust in God, What is Salvation, The Christian Walk. One passage a day, Monday through Friday.">
+  <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
+  <meta property="og:url" content="https://seedtheword.org/start-here.html">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Where to start reading — Seed the Word Ministry">
-  <meta name="twitter:description" content="A 30-day Bible reading plan for new readers.">
-  <meta name="twitter:image" content="https://seedtheword.github.io/seedtheword/assets/images/backgrounds/bible-in-background.jpg">
-  <title>Where to start reading — Seed the Word Ministry</title>
+  <meta name="twitter:title" content="20-Day Reading Plan — Seed the Word Ministry">
+  <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
+  <title>20-Day Reading Plan — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <style>
-    /* start-here.html — newcomer 30-day plan
-       Warm, sincere, no marketing speak. Mirrors the visual tone of
-       how-to-seed.html and about.html. R10.5, R10.6, R10.10. */
-
-    .newcomer-hero {
+    .plan-hero {
       background: linear-gradient(135deg, var(--green) 0%, #1a4a1c 100%);
       color: #fff;
       padding: 4rem 1.5rem 3.5rem;
       text-align: center;
     }
-    .newcomer-hero h1 {
+    .plan-hero h1 {
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: clamp(2rem, 5vw, 2.5rem);
+      font-size: clamp(2rem, 5vw, 2.8rem);
       font-weight: 400;
-      margin: 0 0 1rem;
+      margin: 0 0 0.75rem;
       line-height: 1.2;
     }
-    .newcomer-hero__lead {
+    .plan-hero__eyebrow {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold, #d4a574);
+      margin: 0 0 1rem;
+      display: block;
+    }
+    .plan-hero__lead {
       max-width: 620px;
       margin: 0 auto 1.5rem;
-      font-size: 1.1rem;
-      line-height: 1.7;
-      opacity: 0.95;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      opacity: 0.93;
     }
-    .newcomer-hero__verse {
-      max-width: 580px;
-      margin: 1.5rem auto 0;
+    .plan-hero__verse {
+      max-width: 560px;
+      margin: 1.25rem auto 0;
       font-style: italic;
-      font-size: 1rem;
+      font-size: 0.97rem;
       line-height: 1.65;
-      opacity: 0.9;
-      border-left: 3px solid rgba(255, 255, 255, 0.3);
-      padding-left: 1.25rem;
+      opacity: 0.88;
+      border-left: 3px solid rgba(255,255,255,0.3);
+      padding-left: 1.2rem;
       text-align: left;
     }
-    .newcomer-hero__verse cite {
+    .plan-hero__verse cite {
       display: block;
-      margin-top: 0.5rem;
-      font-size: 0.875rem;
+      margin-top: 0.45rem;
+      font-size: 0.85rem;
       font-style: normal;
       letter-spacing: 0.05em;
-      opacity: 0.8;
+      opacity: 0.75;
     }
-
-    .newcomer-body {
-      max-width: 760px;
+    .plan-body {
+      max-width: 780px;
       margin: 0 auto;
       padding: 3rem 1.5rem 2rem;
     }
-    .newcomer-body__intro {
+    .plan-intro {
       font-size: 1.05rem;
-      line-height: 1.75;
+      line-height: 1.8;
       color: var(--text);
       margin: 0 0 2.5rem;
     }
-
-    .newcomer-week {
+    .plan-week {
       background: #fff;
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.75rem 1.75rem 1.25rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      border-radius: 14px;
+      margin-bottom: 1.75rem;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
-    .newcomer-week h2 {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: var(--green);
-      margin: 0 0 1rem;
-      letter-spacing: 0.01em;
+    .plan-week__header {
+      background: linear-gradient(135deg, rgba(44,95,46,0.07) 0%, rgba(44,95,46,0.03) 100%);
+      border-bottom: 2px solid rgba(44,95,46,0.12);
+      padding: 1.25rem 1.75rem 1rem;
     }
-    .newcomer-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      counter-reset: newcomer-day;
-    }
-    .newcomer-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.9rem;
-      padding: 0.85rem 0;
-      border-top: 1px solid rgba(44, 95, 46, 0.08);
-    }
-    .newcomer-list li:first-child { border-top: none; }
-    .newcomer-list__day {
-      flex-shrink: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.1rem;
-      height: 2.1rem;
-      border-radius: 50%;
-      background: rgba(212, 165, 116, 0.18);
-      color: var(--green);
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-    .newcomer-list__body {
-      flex: 1;
-      min-width: 0;
-    }
-    .newcomer-list__label {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text);
-      margin: 0 0 0.2rem;
-    }
-    .newcomer-list__note {
-      font-size: 0.95rem;
-      line-height: 1.65;
-      color: var(--muted);
-      margin: 0;
-    }
-
-    .newcomer-loading,
-    .newcomer-error {
-      padding: 1.5rem;
-      text-align: center;
-      color: var(--muted);
-      font-style: italic;
-    }
-
-    .newcomer-handoff {
-      background: linear-gradient(135deg, rgba(247, 243, 236, 0.9) 0%, rgba(255, 250, 243, 0.9) 100%);
-      border-left: 4px solid var(--gold);
-      border-radius: 12px;
-      padding: 2rem 1.75rem;
-      margin: 2.5rem 0 1rem;
-    }
-    .newcomer-handoff h2 {
+    .plan-week__title {
       font-family: Georgia, 'Times New Roman', serif;
       font-size: 1.35rem;
       font-weight: 600;
       color: var(--green);
-      margin: 0 0 0.85rem;
+      margin: 0 0 0.3rem;
     }
-    .newcomer-handoff p {
-      font-size: 1.02rem;
-      line-height: 1.75;
-      color: var(--text);
+    .plan-week__focus {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-style: italic;
       margin: 0;
     }
-    .newcomer-handoff a {
-      color: var(--green);
-      font-weight: 700;
-      text-decoration: underline;
-      text-decoration-thickness: 1px;
+    .plan-days { list-style: none; padding: 0; margin: 0; }
+    .plan-day {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 1.75rem;
+      border-top: 1px solid rgba(44,95,46,0.07);
     }
-
-    .newcomer-share {
+    .plan-day:first-child { border-top: none; }
+    .plan-day--dbs {
+      background: rgba(212,165,116,0.06);
+    }
+    .plan-day__num {
+      flex-shrink: 0;
+      width: 2.1rem;
+      height: 2.1rem;
+      border-radius: 50%;
+      background: rgba(44,95,46,0.12);
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0.15rem;
+    }
+    .plan-day--dbs .plan-day__num {
+      background: rgba(212,165,116,0.25);
+      color: #8b6230;
+    }
+    .plan-day__body { flex: 1; min-width: 0; }
+    .plan-day__top {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+    .plan-day__weekday {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.18rem 0.55rem;
+      border-radius: 4px;
+      background: rgba(44,95,46,0.1);
+      color: var(--green);
+      flex-shrink: 0;
+    }
+    .plan-day--dbs .plan-day__weekday {
+      background: rgba(212,165,116,0.22);
+      color: #8b6230;
+    }
+    .plan-day__label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .plan-day__anchor {
+      font-size: 0.92rem;
+      color: var(--muted);
+      font-style: italic;
+      margin: 0.1rem 0 0.3rem;
+    }
+    .plan-day__seed {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.18rem 0.6rem;
+      background: var(--green);
+      color: #fff;
+      border-radius: 4px;
+      margin-bottom: 0.35rem;
+    }
+    .plan-day__note {
+      font-size: 0.93rem;
+      line-height: 1.65;
+      color: var(--muted);
+      margin: 0 0 0.35rem;
+    }
+    .plan-day__yv {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--green);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(44,95,46,0.3);
+      transition: border-color 0.15s;
+    }
+    .plan-day__yv:hover { border-color: var(--green); }
+    .plan-handoff {
+      background: linear-gradient(135deg, rgba(247,243,236,0.9) 0%, rgba(255,250,243,0.9) 100%);
+      border-left: 4px solid var(--gold);
+      border-radius: 12px;
+      padding: 2rem 1.75rem;
+      margin: 2.5rem 0 1.5rem;
+    }
+    .plan-handoff h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.3rem;
+      color: var(--green);
+      margin: 0 0 0.75rem;
+    }
+    .plan-handoff p { font-size: 1rem; line-height: 1.75; color: var(--text); margin: 0; }
+    .plan-handoff a { color: var(--green); font-weight: 700; text-decoration: underline; }
+    .plan-share {
       display: flex;
       align-items: center;
       gap: 1.75rem;
-      margin: 1.5rem 0 0;
       padding: 1.75rem;
       background: #fff;
       border: 1px solid var(--border);
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
-    .newcomer-share__copy {
-      flex: 1;
-      min-width: 0;
-    }
-    .newcomer-share__copy h2 {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--green);
-      margin: 0 0 0.6rem;
-    }
-    .newcomer-share__copy p {
-      font-size: 0.97rem;
-      line-height: 1.65;
-      color: var(--text);
-      margin: 0;
-    }
-    .newcomer-share__copy a {
-      color: var(--green);
-      font-weight: 600;
-      text-decoration: underline;
-      text-decoration-thickness: 1px;
-    }
-    .newcomer-share__qr {
-      flex-shrink: 0;
-      padding: 0.6rem;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-    }
-    .newcomer-share__qr img {
-      display: block;
-      width: 180px;
-      height: 180px;
-    }
+    .plan-share__copy { flex: 1; min-width: 0; }
+    .plan-share__copy h2 { font-family: Georgia, serif; font-size: 1.2rem; color: var(--green); margin: 0 0 0.5rem; }
+    .plan-share__copy p { font-size: 0.97rem; line-height: 1.65; color: var(--text); margin: 0; }
+    .plan-share__copy a { color: var(--green); font-weight: 600; text-decoration: underline; }
+    .plan-share__qr { flex-shrink: 0; padding: 0.5rem; background: #fff; border: 1px solid var(--border); border-radius: 8px; }
+    .plan-share__qr img { display: block; width: 160px; height: 160px; }
+    .plan-loading, .plan-error { padding: 2rem; text-align: center; color: var(--muted); font-style: italic; }
     @media (max-width: 540px) {
-      .newcomer-share {
-        flex-direction: column;
-        text-align: center;
-        gap: 1.25rem;
-      }
+      .plan-share { flex-direction: column; text-align: center; gap: 1rem; }
+      .plan-day { padding: 0.9rem 1rem; }
+      .plan-week__header { padding: 1rem; }
     }
   </style>
 </head>
@@ -271,45 +274,35 @@
   </div>
 </header>
 
-<section class="newcomer-hero">
+<section class="plan-hero">
+  <span class="plan-hero__eyebrow">20-Day / Month Reading Plan</span>
   <h1>Where to start reading</h1>
-  <p class="newcomer-hero__lead">A 30-day walk through the parts of the Bible that meet a brand-new reader where they are. Day 1 is whatever day you pick this up. Read one short passage a day, in any order if a particular day calls.</p>
-  <blockquote class="newcomer-hero__verse">
-    <p>"All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness."</p>
-    <cite>— 2 Timothy 3:16 NIV</cite>
+  <p class="plan-hero__lead">Four weeks. Five days each — Monday through Friday. Every Monday is a Bible Discussion Study (DBS) where we gather and dig in together. Tuesday through Friday is one focused passage with an anchor verse to carry with you.</p>
+  <blockquote class="plan-hero__verse">
+    <p>"Your word is a lamp to my feet and a light to my path."</p>
+    <cite>— Psalm 119:105 ESV</cite>
   </blockquote>
 </section>
 
-<section class="newcomer-body">
-  <p class="newcomer-body__intro">The plan is grouped into four weeks. Each week has a quiet theme — who Jesus is, how God meets us, what salvation is, how to walk. There's no quiz at the end. If you miss a day, just pick up where you left off. The point is the meeting, not the streak.</p>
+<section class="plan-body">
+  <p class="plan-intro">The plan walks through four themes in order: who Jesus is, trusting God in prayer and praise, what salvation means, and then what the Christian walk looks like in daily life. There's no quiz at the end. If you miss a day, pick up where you left off. The point is the meeting, not the streak.</p>
 
-  <div id="newcomer-weeks">
-    <p class="newcomer-loading">Loading the reading list…</p>
+  <div id="plan-weeks">
+    <p class="plan-loading">Loading the reading plan…</p>
   </div>
 
-  <section class="newcomer-handoff">
-    <h2>When you finish day 30</h2>
-    <p>
-      Come walk with us daily on the
-      <a href="community.html">community page</a>. We read one chapter of
-      the New Testament together every Monday through Friday. You'll have
-      already met the Jesus you'll spend the rest of the year reading.
-    </p>
+  <section class="plan-handoff">
+    <h2>When you finish Day 20</h2>
+    <p>Come walk with us daily on the <a href="community.html">community page</a>. We read one chapter of the New Testament together every Monday through Friday. You'll have already met the Jesus you'll spend the rest of the year reading about.</p>
   </section>
 
-  <section class="newcomer-share">
-    <div class="newcomer-share__copy">
+  <section class="plan-share">
+    <div class="plan-share__copy">
       <h2>Share this plan</h2>
-      <p>
-        Know someone who is just starting out? They can scan this code with
-        their phone camera to land on this page. Or send them
-        <a href="https://seedtheword.github.io/seedtheword/start-here.html">the link directly</a>.
-      </p>
+      <p>Know someone just starting out? They can scan this code with their phone camera, or send them <a href="https://seedtheword.org/start-here.html">the link directly</a>.</p>
     </div>
-    <div class="newcomer-share__qr">
-      <img src="assets/images/start-here-qr.svg"
-           alt="QR code linking to start-here.html"
-           width="180" height="180" loading="lazy">
+    <div class="plan-share__qr">
+      <img src="assets/images/start-here-qr.svg" alt="QR code linking to start-here.html" width="160" height="160" loading="lazy">
     </div>
   </section>
 </section>
@@ -345,47 +338,32 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; <span id="footer-year">2026</span> Seed the Word Ministry. All Scripture quotations from the New International Version unless otherwise noted.</p>
+      <p>&copy; <span id="footer-year">2026</span> Seed the Word Ministry. All Scripture quotations from the English Standard Version unless otherwise noted.</p>
     </div>
   </div>
 </footer>
 
 <script src="assets/js/main.js?v=15" defer></script>
+
 <script>
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-(async function renderNewcomerPlan() {
-  const target = document.getElementById('newcomer-weeks');
+(async function renderPlan() {
+  const target = document.getElementById('plan-weeks');
   if (!target) return;
 
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => (
-      {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
-    ));
+  function esc(s) {
+    return String(s == null ? '').replace(/[&<>"']/g, function(c) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
   }
 
-  function rowHtml(entry) {
-    return `
-      <li>
-        <span class="newcomer-list__day">Day ${entry.day}</span>
-        <div class="newcomer-list__body">
-          <p class="newcomer-list__label">${escapeHtml(entry.label)}</p>
-          <p class="newcomer-list__note">${escapeHtml(entry.note || '')}</p>
-        </div>
-      </li>
-    `;
-  }
-
-  function buildWeek(weekNum, themeText, entries, startDay) {
-    const items = entries.map(rowHtml).join('');
-    const startAttr = startDay > 1 ? ` start="${startDay}"` : '';
-    return `
-      <article class="newcomer-week" data-week="${weekNum}">
-        <h2>Week ${weekNum} — ${escapeHtml(themeText)}</h2>
-        <ol class="newcomer-list"${startAttr}>${items}</ol>
-      </article>
-    `;
-  }
+  const WEEK_META = {
+    1: { title: 'Week 1: Who is Jesus',      focus: 'Understanding Jesus and His ministry.' },
+    2: { title: 'Week 2: Trust in God',       focus: 'Prayer, repentance, and praise.' },
+    3: { title: 'Week 3: What is Salvation',  focus: 'Grace, faith, and the body of Christ.' },
+    4: { title: 'Week 4: The Christian Walk', focus: 'Faith in action and living the Great Commission.' },
+  };
 
   let data;
   try {
@@ -393,34 +371,56 @@ document.getElementById('footer-year').textContent = new Date().getFullYear();
     if (!res.ok) throw new Error('HTTP ' + res.status);
     data = await res.json();
   } catch (err) {
-    console.warn('[start-here] reading list unavailable:', err.message);
-    target.innerHTML = '<p class="newcomer-error">Reading list temporarily unavailable — refresh in a moment, or come back later.</p>';
+    target.innerHTML = '<p class="plan-error">Reading plan temporarily unavailable — refresh in a moment.</p>';
     return;
   }
 
-  const themes = (data && data.themes) || {};
-  const entries = (data && Array.isArray(data.entries)) ? data.entries : [];
-  if (entries.length === 0) {
-    target.innerHTML = '<p class="newcomer-error">Reading list temporarily unavailable — refresh in a moment, or come back later.</p>';
+  const entries = Array.isArray(data && data.entries) ? data.entries : [];
+  if (!entries.length) {
+    target.innerHTML = '<p class="plan-error">Reading plan temporarily unavailable.</p>';
     return;
   }
 
-  const ranges = [
-    { week: 1, key: '1-7',   start: 1,  end: 7  },
-    { week: 2, key: '8-14',  start: 8,  end: 14 },
-    { week: 3, key: '15-21', start: 15, end: 21 },
-    { week: 4, key: '22-30', start: 22, end: 30 }
-  ];
-
-  const html = ranges.map(r => {
-    const weekEntries = entries.filter(e => e.day >= r.start && e.day <= r.end);
-    const themeText = themes[r.key] || (weekEntries[0] && weekEntries[0].theme) || '';
-    return buildWeek(r.week, themeText, weekEntries, r.start);
+  const weeks = [1, 2, 3, 4];
+  const html = weeks.map(function(w) {
+    const meta = WEEK_META[w] || { title: 'Week ' + w, focus: '' };
+    const days = entries.filter(function(e) { return e.week === w; });
+    const dayRows = days.map(function(e) {
+      const isDbs = !e.yv;
+      const seedTag = e.seed_theme
+        ? '<span class="plan-day__seed">' + esc(e.seed_theme) + '</span><br>'
+        : '';
+      const anchor = e.anchor
+        ? '<p class="plan-day__anchor">&ldquo;' + esc(e.anchor) + '&rdquo;</p>'
+        : '';
+      const yvLink = e.yv
+        ? '<a class="plan-day__yv" href="' + esc(e.yv) + '" target="_blank" rel="noopener">Read in YouVersion &rarr;</a>'
+        : '';
+      return '<li class="plan-day' + (isDbs ? ' plan-day--dbs' : '') + '">' +
+        '<span class="plan-day__num">D' + e.day + '</span>' +
+        '<div class="plan-day__body">' +
+          '<div class="plan-day__top">' +
+            '<span class="plan-day__weekday">' + esc(e.weekday) + '</span>' +
+            '<span class="plan-day__label">' + esc(e.label) + '</span>' +
+          '</div>' +
+          anchor +
+          seedTag +
+          '<p class="plan-day__note">' + esc(e.note) + '</p>' +
+          yvLink +
+        '</div>' +
+      '</li>';
+    }).join('');
+    return '<article class="plan-week" data-week="' + w + '">' +
+      '<div class="plan-week__header">' +
+        '<h2 class="plan-week__title">' + esc(meta.title) + '</h2>' +
+        '<p class="plan-week__focus">Focus: ' + esc(meta.focus) + '</p>' +
+      '</div>' +
+      '<ul class="plan-days">' + dayRows + '</ul>' +
+    '</article>';
   }).join('');
 
   target.innerHTML = html;
 })();
 </script>
-
 </body>
 </html>

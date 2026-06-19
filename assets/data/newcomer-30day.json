@@ -1,191 +1,215 @@
 {
-  "_help": "Locked 30-day starter plan rendered by start-here.html. Reader-relative: day 1 is whatever calendar day the reader picks the plan up. Editing label values changes which chapter day-N points to; editing note text adjusts the pastoral framing. Day 1 must remain John 1 and day 30 must remain 2 Timothy 3 to satisfy the spec's locked starter list (Requirement 10.2).",
+  "_help": "20-day starter plan rendered by start-here.html. 4 weeks x 5 days (Mon–Fri). Monday = DBS (Bible Discussion Study). Tue–Fri = focused passage with anchor quote. Week 4 days carry a SEED theme tag.",
   "themes": {
-    "1-7": "Who is Jesus?",
-    "8-14": "How God meets us",
-    "15-21": "What salvation is",
-    "22-30": "How to walk"
+    "1": "Who is Jesus",
+    "2": "Trust in God",
+    "3": "What is Salvation",
+    "4": "The Christian Walk"
   },
   "entries": [
     {
       "day": 1,
-      "label": "John 1",
-      "theme": "Who is Jesus?",
-      "note": "John starts before the beginning. This is who Jesus has always been — the Word, the light, God with us."
+      "week": 1,
+      "weekday": "Mon",
+      "label": "Monday Bible Study #1 (DBS)",
+      "passage": "",
+      "anchor": "",
+      "note": "Gather with us for the first Bible Discussion Study. Bring your questions. There are no wrong ones.",
+      "yv": ""
     },
     {
       "day": 2,
-      "label": "John 3",
-      "theme": "Who is Jesus?",
-      "note": "A teacher comes to Jesus by night and gets the most famous verse in the Bible. Read it slowly; this is the heart of the gospel."
+      "week": 1,
+      "weekday": "Tue",
+      "label": "John 1",
+      "passage": "John 1",
+      "anchor": "\u201cLamb of God\u201d",
+      "note": "John starts before the beginning. This is who Jesus has always been \u2014 the Word, the light, God with us.",
+      "yv": "https://www.bible.com/bible/59/JHN.1.ESV"
     },
     {
       "day": 3,
-      "label": "John 8",
-      "theme": "Who is Jesus?",
-      "note": "A woman is dragged in to be condemned. Watch how Jesus answers — both her accusers and her — and you'll see what mercy looks like."
+      "week": 1,
+      "weekday": "Wed",
+      "label": "John 3:16 & 3:29",
+      "passage": "John 3",
+      "anchor": "\u201cTherefore this joy of mine is now complete.\u201d",
+      "note": "A teacher comes to Jesus by night and gets the most famous verse in the Bible. Read it slowly \u2014 this is the heart of the gospel.",
+      "yv": "https://www.bible.com/bible/59/JHN.3.ESV"
     },
     {
       "day": 4,
-      "label": "John 14",
-      "theme": "Who is Jesus?",
-      "note": "Jesus is preparing his friends for what comes next. 'I am the way' is not a slogan here; it's a promise to people about to be left behind."
+      "week": 1,
+      "weekday": "Thu",
+      "label": "John 8",
+      "passage": "John 8",
+      "anchor": "\u201cI AM\u201d",
+      "note": "A woman is dragged in to be condemned. Watch how Jesus answers \u2014 both her accusers and her \u2014 and you\u2019ll see what mercy looks like.",
+      "yv": "https://www.bible.com/bible/59/JHN.8.ESV"
     },
     {
       "day": 5,
-      "label": "Mark 1",
-      "theme": "Who is Jesus?",
-      "note": "Mark moves fast. In one chapter Jesus is announced, baptized, tested, calls his first followers, and starts healing people. Keep up."
+      "week": 1,
+      "weekday": "Fri",
+      "label": "John 14:19",
+      "passage": "John 14",
+      "anchor": "\u201c\u2026but you will see me.\u201d",
+      "note": "Jesus is preparing his friends for what comes next. This is a promise to people who are afraid of being left behind.",
+      "yv": "https://www.bible.com/bible/59/JHN.14.ESV"
     },
     {
       "day": 6,
-      "label": "Mark 4",
-      "theme": "Who is Jesus?",
-      "note": "Three short stories about how the kingdom grows, then a storm. The same Jesus who tells the parables also tells the wind to be quiet."
+      "week": 2,
+      "weekday": "Mon",
+      "label": "Monday Bible Study #2 (DBS)",
+      "passage": "",
+      "anchor": "",
+      "note": "The second DBS. Bring what you\u2019ve been sitting with from the first week.",
+      "yv": ""
     },
     {
       "day": 7,
-      "label": "Mark 8",
-      "theme": "Who is Jesus?",
-      "note": "Halfway through Mark, Jesus asks the question the whole gospel is built on: 'Who do you say I am?' Sit with your own answer."
+      "week": 2,
+      "weekday": "Tue",
+      "label": "Psalm 23",
+      "passage": "Psalm 23",
+      "anchor": "\u201cThe Lord is my shepherd\u201d",
+      "note": "The most-read poem in human history. Read it as if you wrote it about your own life \u2014 because in a real way, you can.",
+      "yv": "https://www.bible.com/bible/59/PSA.23.ESV"
     },
     {
       "day": 8,
-      "label": "Psalm 23",
-      "theme": "How God meets us",
-      "note": "The most-read poem in human history. Read it as if you wrote it about your own life — because in a real way, you can."
+      "week": 2,
+      "weekday": "Wed",
+      "label": "Psalm 51",
+      "passage": "Psalm 51",
+      "anchor": "\u201cO God of my salvation / Prayer of repentance\u201d",
+      "note": "David has just done something terrible and he is not pretending otherwise. This is what real repentance sounds like, in front of a real God.",
+      "yv": "https://www.bible.com/bible/59/PSA.51.ESV"
     },
     {
       "day": 9,
-      "label": "Psalm 51",
-      "theme": "How God meets us",
-      "note": "David has just done something terrible and he is not pretending otherwise. This is what real repentance sounds like, in front of a real God."
+      "week": 2,
+      "weekday": "Thu",
+      "label": "Psalm 139",
+      "passage": "Psalm 139",
+      "anchor": "You are known",
+      "note": "You are known. Not generally \u2014 specifically, completely, before you said a single word. Let that land before you read tomorrow\u2019s chapter.",
+      "yv": "https://www.bible.com/bible/59/PSA.139.ESV"
     },
     {
       "day": 10,
+      "week": 2,
+      "weekday": "Fri",
       "label": "Psalm 91",
-      "theme": "How God meets us",
-      "note": "A psalm for fear. When you don't know what's coming, this one tells you who is already there."
+      "passage": "Psalm 91",
+      "anchor": "\u201c\u2026show him my salvation.\u201d",
+      "note": "A psalm for fear. When you don\u2019t know what\u2019s coming, this one tells you who is already there.",
+      "yv": "https://www.bible.com/bible/59/PSA.91.ESV"
     },
     {
       "day": 11,
-      "label": "Psalm 139",
-      "theme": "How God meets us",
-      "note": "You are known. Not generally — specifically, completely, before you said a single word. Let that land before you read tomorrow's chapter."
+      "week": 3,
+      "weekday": "Mon",
+      "label": "Monday Bible Study #3 (DBS)",
+      "passage": "",
+      "anchor": "",
+      "note": "The third DBS. Come ready to ask: what does it mean to receive grace?",
+      "yv": ""
     },
     {
       "day": 12,
-      "label": "Genesis 1",
-      "theme": "How God meets us",
-      "note": "Before there was anything, there was God, and his first move was to make. Creation is not an accident; it's a gift with your name on it."
+      "week": 3,
+      "weekday": "Tue",
+      "label": "Romans 3:24",
+      "passage": "Romans 3",
+      "anchor": "\u201c\u2026grace as a gift\u201d",
+      "note": "Paul stops the conversation to make sure no one misunderstands: nobody earns this. Salvation is a gift, received by trust, period.",
+      "yv": "https://www.bible.com/bible/59/ROM.3.ESV"
     },
     {
       "day": 13,
-      "label": "Genesis 3",
-      "theme": "How God meets us",
-      "note": "How everything broke. Notice that even in the middle of the disaster, God is still the one looking for the people, not the other way around."
+      "week": 3,
+      "weekday": "Wed",
+      "label": "Romans 5:1 & 5:15",
+      "passage": "Romans 5",
+      "anchor": "\u201c\u2026justified by faith / free gift\u201d",
+      "note": "Reconciliation is the word. Not tolerance, not second chance \u2014 reconciliation. You and God on the same side again, because of Jesus.",
+      "yv": "https://www.bible.com/bible/59/ROM.5.ESV"
     },
     {
       "day": 14,
-      "label": "Exodus 3",
-      "theme": "How God meets us",
-      "note": "A bush on fire that doesn't burn up, and a name God gives himself: 'I AM.' He sees the suffering of his people and he is sending help."
+      "week": 3,
+      "weekday": "Thu",
+      "label": "Romans 8:16",
+      "passage": "Romans 8",
+      "anchor": "\u201c\u2026children of God\u201d",
+      "note": "Read the last paragraph out loud. Then read it again. Nothing \u2014 nothing \u2014 can separate you from the love of God in Christ Jesus.",
+      "yv": "https://www.bible.com/bible/59/ROM.8.ESV"
     },
     {
       "day": 15,
-      "label": "Romans 3",
-      "theme": "What salvation is",
-      "note": "Paul stops the conversation to make sure no one misunderstands: nobody earns this. Salvation is a gift, received by trust, period."
+      "week": 3,
+      "weekday": "Fri",
+      "label": "Romans 12:5 & 12:9",
+      "passage": "Romans 12",
+      "anchor": "\u201c\u2026one body in Christ / Let love be genuine.\u201d",
+      "note": "Paul turns from theology to life. \u2018Be transformed by the renewing of your mind\u2019 is the bridge from believing to living.",
+      "yv": "https://www.bible.com/bible/59/ROM.12.ESV"
     },
     {
       "day": 16,
-      "label": "Romans 5",
-      "theme": "What salvation is",
-      "note": "Reconciliation is the word. Not 'tolerance,' not 'second chance' — reconciliation. You and God on the same side again, because of Jesus."
+      "week": 4,
+      "weekday": "Mon",
+      "label": "Monday Bible Study #4 (DBS)",
+      "passage": "",
+      "anchor": "",
+      "note": "The final DBS. Come ready to ask: how does faith show up in how I live?",
+      "yv": ""
     },
     {
       "day": 17,
-      "label": "Romans 8",
-      "theme": "What salvation is",
-      "note": "Read the last paragraph out loud. Then read it again. Nothing — nothing — can separate you from the love of God in Christ Jesus."
+      "week": 4,
+      "weekday": "Tue",
+      "label": "Matthew 6:9-13 & 9:33",
+      "passage": "Matthew 6",
+      "anchor": "\u201cThe Lord\u2019s Prayer\u201d",
+      "seed_theme": "Serve with Grace",
+      "note": "How to give, how to pray, how to handle worry. Notice how often Jesus says \u2018your Father\u2019 \u2014 this is a family conversation, not a performance review.",
+      "yv": "https://www.bible.com/bible/59/MAT.6.ESV"
     },
     {
       "day": 18,
-      "label": "Romans 12",
-      "theme": "What salvation is",
-      "note": "Now what? Paul turns from theology to life. 'Be transformed by the renewing of your mind' is the bridge from believing to living."
+      "week": 4,
+      "weekday": "Wed",
+      "label": "James 1:2-8",
+      "passage": "James 1",
+      "anchor": "\u201c\u2026testing of your faith produces steadfastness.\u201d",
+      "seed_theme": "Encounter the Word",
+      "note": "James is practical to the bone. If your faith doesn\u2019t show up in how you treat people, he wants to know why.",
+      "yv": "https://www.bible.com/bible/59/JAS.1.ESV"
     },
     {
       "day": 19,
-      "label": "Isaiah 53",
-      "theme": "What salvation is",
-      "note": "Written 700 years before Jesus, this is a portrait of the cross. Read it knowing whose face is being described."
+      "week": 4,
+      "weekday": "Thu",
+      "label": "1 John 4:8 & 4:11",
+      "passage": "1 John 4",
+      "anchor": "\u201cGod is love / love one another.\u201d",
+      "seed_theme": "Embrace Fellowship",
+      "note": "\u2018God is love\u2019 is not a sentiment here; it\u2019s a definition. And the test of whether we know him is whether that love is showing up in us.",
+      "yv": "https://www.bible.com/bible/59/1JN.4.ESV"
     },
     {
       "day": 20,
-      "label": "Ephesians 2",
-      "theme": "What salvation is",
-      "note": "'Dead in trespasses' to 'seated with him.' That's the journey of salvation in two prepositions. By grace, through faith."
-    },
-    {
-      "day": 21,
-      "label": "Galatians 3",
-      "theme": "What salvation is",
-      "note": "Paul is in arguing-with-friends mode here. The point: rules don't save anyone. Faith in Jesus does, and that has been the plan all along."
-    },
-    {
-      "day": 22,
-      "label": "James 1",
-      "theme": "How to walk",
-      "note": "James is practical to the bone. If your faith doesn't show up in how you treat people and what you do with your tongue, he wants to know why."
-    },
-    {
-      "day": 23,
-      "label": "1 John 4",
-      "theme": "How to walk",
-      "note": "'God is love' is not a sentiment here; it's a definition. And the test of whether we know him is whether that love is showing up in us."
-    },
-    {
-      "day": 24,
-      "label": "Matthew 5",
-      "theme": "How to walk",
-      "note": "The Sermon on the Mount opens with the people Jesus calls blessed. This is the new shape of a life that follows him."
-    },
-    {
-      "day": 25,
-      "label": "Matthew 6",
-      "theme": "How to walk",
-      "note": "How to give, how to pray, how to handle worry. Notice how often Jesus says 'your Father' — this is a family conversation, not a performance review."
-    },
-    {
-      "day": 26,
-      "label": "Matthew 7",
-      "theme": "How to walk",
-      "note": "Three years of Jesus' teaching distilled into one chapter ending. 'Ask, seek, knock' is the invitation; the wise builder is the warning."
-    },
-    {
-      "day": 27,
-      "label": "Acts 2",
-      "theme": "How to walk",
-      "note": "The first day of the church, and it does not look like a building. It looks like the Spirit poured out and ordinary people learning to live in common."
-    },
-    {
-      "day": 28,
-      "label": "Philippians 4",
-      "theme": "How to walk",
-      "note": "Paul writes this from a prison cell and tells you not to be anxious. Read it knowing the man writing has earned the right to say so."
-    },
-    {
-      "day": 29,
-      "label": "1 Corinthians 13",
-      "theme": "How to walk",
-      "note": "The love chapter. Read it once for what it says about love. Read it again knowing every line is a description of Jesus."
-    },
-    {
-      "day": 30,
-      "label": "2 Timothy 3",
-      "theme": "How to walk",
-      "note": "Paul's last letter. He tells Timothy why Scripture matters and what to do with it. After 30 days, this is your invitation forward."
+      "week": 4,
+      "weekday": "Fri",
+      "label": "Philippians 4:6-7",
+      "passage": "Philippians 4",
+      "anchor": "\u201cDo not be anxious\u2026\u201d",
+      "seed_theme": "Make Disciples of All Nations",
+      "note": "Paul writes this from a prison cell and tells you not to be anxious. Read it knowing the man writing has earned the right to say so.",
+      "yv": "https://www.bible.com/bible/59/PHP.4.ESV"
     }
   ]
 }

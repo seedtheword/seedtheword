@@ -393,35 +393,38 @@ def test_L7_newcomer_byte_equal_loads():
 
 
 def test_L7_newcomer_locked_endpoints():
-    """Property L7: day-1 label is John 1, day-30 label is 2 Timothy 3."""
+    """Property L7: 20-day plan — day-1 is DBS, day-2 is John 1, day-20 is Philippians 4:6-7."""
     data = _load_newcomer()
     entries = data["entries"]
-    assert len(entries) == 30
-    assert entries[0]["label"] == "John 1"
-    assert entries[29]["label"] == "2 Timothy 3"
+    assert len(entries) == 20, f"Expected 20 entries, got {len(entries)}"
+    assert entries[0]["day"] == 1
+    assert entries[0]["label"] == "Monday Bible Study #1 (DBS)"
+    assert entries[1]["label"] == "John 1"
+    assert entries[19]["label"] == "Philippians 4:6-7"
     for i, e in enumerate(entries):
         assert e["day"] == i + 1
-        assert "theme" in e and e["theme"]
         assert "note" in e and e["note"]
+        assert "week" in e and e["week"] in (1, 2, 3, 4)
 
 
 def test_L7_newcomer_themes_match_day_ranges():
-    """Property L7: each entry's theme matches its day-range bucket."""
+    """Property L7: themes dict uses week-number keys 1-4; each entry has correct week."""
     data = _load_newcomer()
     themes = data["themes"]
-    expected = {
-        (1, 7): themes["1-7"],
-        (8, 14): themes["8-14"],
-        (15, 21): themes["15-21"],
-        (22, 30): themes["22-30"],
-    }
+    # New format uses string week numbers "1", "2", "3", "4"
+    for week_key in ("1", "2", "3", "4"):
+        assert week_key in themes, f"Missing theme key {week_key!r}"
+    week_day_map = {1: range(1, 6), 2: range(6, 11), 3: range(11, 16), 4: range(16, 21)}
     for e in data["entries"]:
-        for (lo, hi), theme in expected.items():
-            if lo <= e["day"] <= hi:
-                assert e["theme"] == theme, (
-                    f"day {e['day']} expected theme {theme!r}, got {e['theme']!r}"
-                )
+        expected_week = None
+        for w, days in week_day_map.items():
+            if e["day"] in days:
+                expected_week = w
                 break
+        assert expected_week is not None, f"day {e['day']} not in any week range"
+        assert e["week"] == expected_week, (
+            f"day {e['day']} expected week {expected_week}, got {e['week']}"
+        )
 
 
 # ============================================================

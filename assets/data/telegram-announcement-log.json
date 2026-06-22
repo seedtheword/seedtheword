@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-06-22T18:56:00+00:00",
+  "updated": "2026-06-22T19:25:56+00:00",
   "events": {
     "sov4cn0pn85er3clvte8hjq968@google.com": {
       "title": "NO BIBLE STUDY! Ministry Meeting",
@@ -130,9 +130,10 @@
     "zoom-9wtreil7tinbn2zv0npn7maee0": {
       "title": "Nonprofit Advisory Consult - 30 mins with Greg Scully",
       "start": "2026-06-22T19:00:00+00:00",
-      "lastPosted": "2026-06-22T18:56:00+00:00",
+      "lastPosted": "2026-06-22T19:25:56+00:00",
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "livePosted": true
     },
     "r8rc1qc3n31edjpshuij3sc6bk@google.com": {
       "title": "SEED THE WORD BIBLE STUDY",

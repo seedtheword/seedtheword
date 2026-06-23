@@ -754,6 +754,11 @@
       line-height: 1;
       letter-spacing: -0.01em;
       font-variant-numeric: tabular-nums;
+      animation: count-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes count-pulse {
+      0%, 100% { transform: scale(1); text-shadow: 0 0 0 rgba(244,200,79,0); }
+      50% { transform: scale(1.04); text-shadow: 0 0 24px rgba(244,200,79,0.6), 0 0 48px rgba(244,200,79,0.25); }
     }
     .poster-count__label {
       display: block;
@@ -1141,7 +1146,7 @@
       <a class="poster-cta poster-cta--support" href="#support">
         <span class="poster-cta__icon" aria-hidden="true">💛</span>
         <span class="poster-cta__label">Support the Ministry</span>
-        <span class="poster-cta__sub">help fund free Bibles</span>
+        <span class="poster-cta__sub">support the ministry</span>
       </a>
     </div>
 
@@ -1260,15 +1265,15 @@
       <h2>Every Bible we give costs us something.</h2>
       <p>
         Seed the Word isn't a 501(c)(3) — we're a small team funding our outreach
-        out of pocket. If God's prompting you to help cover the cost of the next
-        Bible, here are the ways our team treasurer can receive it.
-        <strong>Every dollar goes straight back into Bibles, study guides,
-        and outreach supplies.</strong>
+        out of pocket. If God's prompting you to support the ministry,
+        here are the ways our team treasurer can receive it.
+        <strong>Every gift supports Bible distribution, outreach events,
+        community fellowship, and ministry operations.</strong>
+        Your generosity goes where it's needed most.
       </p>
     </div>
 
     <div class="support__cards">
-
       <a class="support-card" href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener">
         <span class="support-card__brand support-card__brand--venmo">Venmo</span>
         <span class="support-card__handle">@Vanessamind</span>

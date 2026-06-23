@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615523,
-  "lastModified": "2026-06-23T07:25:31Z",
+  "lastModified": "2026-06-23T07:40:30Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -78,16 +78,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4634,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Trust the Lord your God, praying unceasingly, unto Him alone casting all of our doubts, and in His grace abounding finding undeniable victory over the enemy.",
-      "ts": "2026-06-09T07:33:20Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4635,

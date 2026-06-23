@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-06-23T02:25:56+00:00",
+  "updated": "2026-06-23T14:03:51+00:00",
   "events": {
     "sov4cn0pn85er3clvte8hjq968@google.com": {
       "title": "NO BIBLE STUDY! Ministry Meeting",
@@ -134,6 +134,18 @@
       "upcomingPosted": true,
       "reminderPosted": true,
       "livePosted": true
+    },
+    "04j5nci29hveafd1ecv1g2achj@google.com": {
+      "title": "FIFA 2026 Evangelism",
+      "start": "2026-06-24T15:00:00+00:00",
+      "lastPosted": "2026-06-23T14:03:51+00:00",
+      "upcomingPosted": true
+    },
+    "040000008200E00074C5B7101A82E00800000000CAAB293E6F02DD0100000000000000001000000027426B4FCCDEEE4D81A0B6300B98315C": {
+      "title": "Meet with Seed the Word",
+      "start": "2026-06-24T20:00:00+00:00",
+      "lastPosted": "2026-06-23T14:03:51+00:00",
+      "upcomingPosted": true
     }
   }
 }

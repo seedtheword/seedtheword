@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615526,
-  "lastModified": "2026-06-23T20:10:35Z",
+  "lastModified": "2026-06-23T21:55:30Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -78,16 +78,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4645,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer Request 6/9/2026:\n\nAbout to be meeting with Gideon's International to lay the ground work for an official sponsorship or collaboration with our ministry.\n\nPlease pray so the meeting goes well and God provides us with the correct people for His work to be done!",
-      "ts": "2026-06-09T21:51:58Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4649,

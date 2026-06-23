@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615526,
-  "lastModified": "2026-06-23T19:55:33Z",
+  "lastModified": "2026-06-23T20:10:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -78,16 +78,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4642,
-      "userId": 8429534975,
-      "displayName": "Isaac Miller",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Will do brotha God Bless❤️",
-      "ts": "2026-06-09T19:57:58Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4645,

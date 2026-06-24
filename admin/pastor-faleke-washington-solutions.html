@@ -3,99 +3,229 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Faleke's & Washington Solutions LLC</title>
+  <meta name="description" content="The Faleke's & Washington Solutions LLC — Government contracting, Section 8 housing refurbishment, and IDP support services in Washington State.">
+  <meta name="theme-color" content="#0f1a0f">
+  <title>The Faleke's &amp; Washington Solutions LLC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    *,*::before,*::after{box-sizing:border-box;}
-    body{margin:0;font-family:'Inter',sans-serif;background:#0f0f0f;color:#e8e8e8;}
-    .hero{background:linear-gradient(160deg,#111 0%,#1a2f1a 60%,#2c4a2c 100%);padding:4rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden;}
-    .badge{display:inline-block;background:#2c4a2c;border:1px solid rgba(255,255,255,0.15);color:#a8d8a8;font-size:0.72rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;padding:0.3rem 1rem;border-radius:999px;margin-bottom:1rem;}
-    .hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,6vw,3rem);color:#fff;margin:0 0 0.4rem;line-height:1.2;}
-    .hero__sub{font-size:0.95rem;color:rgba(232,232,232,0.65);letter-spacing:0.08em;margin:0 0 1rem;}
-    .hero__lead{max-width:600px;margin:0 auto;font-size:1.05rem;line-height:1.75;color:rgba(232,232,232,0.88);}
-    .reg-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.5rem 1.1rem;font-size:0.82rem;color:rgba(232,232,232,0.65);margin-top:1.25rem;}
-    .section{max-width:880px;margin:0 auto;padding:3rem 1.5rem;}
-    .section-title{font-family:'Playfair Display',serif;font-size:1.8rem;color:#a8d8a8;margin:0 0 1.25rem;}
-    .services{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;}
-    .service-card{background:rgba(255,255,255,0.04);border:1px solid rgba(168,216,168,0.15);border-radius:12px;padding:1.5rem;}
-    .service-card__icon{font-size:2rem;margin-bottom:0.6rem;}
-    .service-card h3{font-size:0.95rem;font-weight:700;color:#a8d8a8;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 0.5rem;}
-    .service-card p{font-size:0.92rem;line-height:1.65;color:rgba(232,232,232,0.7);margin:0;}
-    .mission-block{background:rgba(168,216,168,0.06);border-left:4px solid #a8d8a8;border-radius:0 12px 12px 0;padding:1.5rem 1.75rem;margin:2rem 0;}
-    .mission-block p{font-size:0.97rem;line-height:1.75;color:rgba(232,232,232,0.82);margin:0;}
-    .mission-block p + p{margin-top:0.75rem;}
-    .mission-block strong{color:#a8d8a8;}
-    .idp-section{background:rgba(255,255,255,0.03);border-radius:12px;padding:1.75rem;margin-top:2rem;}
-    .idp-section h3{color:#a8d8a8;margin:0 0 0.75rem;}
-    .idp-section p{font-size:0.95rem;line-height:1.7;color:rgba(232,232,232,0.75);margin:0;}
-    .cta{background:linear-gradient(135deg,#1a2f1a,#2c4a2c);border-radius:16px;padding:2.5rem 2rem;text-align:center;margin:2rem 0;}
-    .cta h2{font-family:'Playfair Display',serif;color:#a8d8a8;margin:0 0 0.75rem;}
-    .cta p{color:rgba(232,232,232,0.8);margin:0 0 1.25rem;}
-    .btn{display:inline-block;background:#a8d8a8;color:#0f1a0f;font-weight:700;padding:0.85rem 2rem;border-radius:8px;text-decoration:none;font-size:1rem;}
-    .disclaimer{font-size:0.82rem;color:rgba(232,232,232,0.4);font-style:italic;margin-top:1rem;}
-    .footer{background:#080808;padding:2rem 1.5rem;text-align:center;color:rgba(232,232,232,0.4);font-size:0.85rem;border-top:1px solid rgba(255,255,255,0.06);}
-    .footer strong{color:#a8d8a8;}
+    :root {
+      --dark:   #0a0a0a;
+      --forest: #0f1a0f;
+      --green:  #2c4a2c;
+      --sage:   #a8d8a8;
+      --gold:   #d4a96a;
+      --white:  #ffffff;
+      --muted:  rgba(232,232,232,0.6);
+      --card:   rgba(255,255,255,0.04);
+      --border: rgba(168,216,168,0.15);
+      --text:   #e8e8e8;
+    }
+    *, *::before, *::after { box-sizing:border-box; }
+    html { -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+    body { margin:0; font-family:'Inter',-apple-system,sans-serif; background:var(--dark); color:var(--text); line-height:1.6; -webkit-font-smoothing:antialiased; }
+    a { color:inherit; text-decoration:none; }
+
+    /* ── Hero ── */
+    .hero {
+      position:relative; min-height:85vh; display:flex; align-items:center; justify-content:center;
+      padding:5rem 1.5rem 4rem; text-align:center; overflow:hidden;
+      background:linear-gradient(160deg, #080808 0%, #0f1a0f 50%, #1a2f1a 100%);
+    }
+    .hero__grid {
+      position:absolute; inset:0; pointer-events:none;
+      background-image: linear-gradient(rgba(168,216,168,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(168,216,168,0.03) 1px, transparent 1px);
+      background-size:60px 60px;
+    }
+    .hero__inner { position:relative; z-index:1; max-width:700px; }
+    .hero__eyebrow {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      background:rgba(168,216,168,0.08); border:1px solid var(--border);
+      color:var(--sage); font-size:0.72rem; font-weight:700; letter-spacing:0.22em;
+      text-transform:uppercase; padding:0.4rem 1.2rem; border-radius:999px; margin-bottom:1.5rem;
+    }
+    .hero__reg {
+      display:inline-flex; align-items:center; gap:0.4rem;
+      background:rgba(168,216,168,0.06); border:1px solid rgba(168,216,168,0.2);
+      color:var(--sage); font-size:0.78rem; padding:0.35rem 0.9rem;
+      border-radius:6px; margin-bottom:1.5rem;
+    }
+    .hero h1 {
+      font-family:'Playfair Display',serif; font-size:clamp(2rem,6vw,3.5rem);
+      font-weight:700; color:var(--white); margin:0 0 0.5rem; line-height:1.15;
+    }
+    .hero h1 span { color:var(--sage); }
+    .hero__sub { font-size:1rem; color:var(--muted); letter-spacing:0.06em; margin:0 0 1.25rem; font-weight:300; }
+    .hero__lead { font-size:1.05rem; color:rgba(232,232,232,0.82); line-height:1.75; margin:0 auto 2rem; max-width:560px; }
+    .hero__ctas { display:flex; gap:0.85rem; justify-content:center; flex-wrap:wrap; }
+    .btn {
+      display:inline-flex; align-items:center; gap:0.4rem;
+      padding:0.85rem 1.75rem; border-radius:10px; font-weight:700; font-size:1rem;
+      transition:transform 0.15s, box-shadow 0.15s; cursor:pointer;
+    }
+    .btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+    .btn--sage { background:var(--sage); color:#0a1a0a; }
+    .btn--outline { background:rgba(255,255,255,0.06); color:var(--white); border:2px solid rgba(255,255,255,0.2); }
+
+    /* ── Layout ── */
+    .stage { max-width:980px; margin:0 auto; padding:0 1.5rem; }
+    .section { padding:4rem 0; }
+    .section-label { display:block; font-size:0.7rem; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:var(--sage); margin-bottom:0.5rem; }
+    .section-title { font-family:'Playfair Display',serif; font-size:clamp(1.7rem,4vw,2.4rem); color:var(--white); margin:0 0 0.6rem; }
+    .section-lead { font-size:1rem; color:var(--muted); line-height:1.75; max-width:600px; margin:0; }
+    .section-head { margin-bottom:2.5rem; }
+
+    /* ── Services ── */
+    .services { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.25rem; }
+    .service-card {
+      background:var(--card); border:1px solid var(--border); border-radius:14px;
+      padding:1.75rem 1.5rem; transition:transform 0.15s, border-color 0.15s;
+    }
+    .service-card:hover { transform:translateY(-3px); border-color:var(--sage); }
+    .service-card__icon { font-size:2rem; margin-bottom:0.75rem; }
+    .service-card h3 { font-size:0.85rem; font-weight:700; color:var(--sage); text-transform:uppercase; letter-spacing:0.1em; margin:0 0 0.5rem; }
+    .service-card p { font-size:0.92rem; line-height:1.65; color:var(--muted); margin:0; }
+
+    /* ── Mission statement ── */
+    .mission-block {
+      background:rgba(168,216,168,0.05); border:1px solid var(--border);
+      border-left:4px solid var(--sage); border-radius:0 14px 14px 0;
+      padding:1.75rem 2rem; margin:2rem 0;
+    }
+    .mission-block p { font-size:0.97rem; line-height:1.8; color:rgba(232,232,232,0.82); margin:0 0 0.75rem; }
+    .mission-block p:last-child { margin:0; }
+    .mission-block strong { color:var(--sage); }
+
+    /* ── Stats row ── */
+    .stats { display:flex; flex-wrap:wrap; gap:1.25rem; margin:2rem 0; }
+    .stat {
+      flex:1; min-width:180px;
+      background:var(--card); border:1px solid var(--border); border-radius:12px;
+      padding:1.5rem; text-align:center;
+    }
+    .stat__num { font-family:'Playfair Display',serif; font-size:2.2rem; color:var(--sage); display:block; margin-bottom:0.35rem; }
+    .stat__label { font-size:0.82rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; }
+
+    /* ── Compliance note ── */
+    .compliance {
+      background:rgba(212,169,106,0.08); border:1px solid rgba(212,169,106,0.25);
+      border-radius:12px; padding:1.5rem 1.75rem; margin:2rem 0;
+      display:flex; gap:1rem; align-items:flex-start;
+    }
+    .compliance__icon { font-size:1.5rem; flex-shrink:0; margin-top:0.1rem; }
+    .compliance p { font-size:0.92rem; line-height:1.7; color:rgba(232,232,232,0.75); margin:0; }
+    .compliance strong { color:var(--gold); }
+
+    /* ── CTA ── */
+    .cta-block {
+      background:linear-gradient(135deg, #0f1a0f, #1a2f1a);
+      border:1px solid var(--border); border-radius:20px;
+      padding:3rem 2.5rem; text-align:center; margin:2rem 0;
+    }
+    .cta-block h2 { font-family:'Playfair Display',serif; color:var(--white); margin:0 0 0.75rem; font-size:clamp(1.6rem,4vw,2.2rem); }
+    .cta-block p { color:var(--muted); max-width:480px; margin:0 auto 1.75rem; line-height:1.7; }
+    .cta-block small { display:block; margin-top:1.25rem; font-size:0.8rem; color:rgba(232,232,232,0.35); font-style:italic; }
+
+    /* ── Footer ── */
+    footer { background:#050505; padding:3rem 1.5rem; text-align:center; color:rgba(232,232,232,0.35); border-top:1px solid rgba(255,255,255,0.05); }
+    footer strong { color:var(--sage); display:block; font-size:1.05rem; margin-bottom:0.4rem; }
+    footer p { margin:0.25rem 0; font-size:0.88rem; }
+    footer small { font-size:0.74rem; opacity:0.5; display:block; margin-top:0.75rem; }
+
+    .divider { border:none; border-top:1px solid var(--border); margin:0; }
+    @media(max-width:600px){ .hero{ min-height:auto; padding:6rem 1.25rem 5rem; } .cta-block{ padding:2rem 1.25rem; } }
   </style>
 </head>
 <body>
 
 <section class="hero">
-  <span class="badge">For-Profit LLC · Washington State</span>
-  <h1>The Faleke's &amp;<br>Washington Solutions LLC</h1>
-  <p class="hero__sub">Contract Services · Housing Solutions · Community Development</p>
-  <p class="hero__lead">A Washington State registered LLC providing contract-sourced services to state and federal government, housing refurbishment, and solutions for internally displaced communities.</p>
-  <div class="reg-badge">✅ Registered with the Secretary of Washington State</div>
+  <div class="hero__grid"></div>
+  <div class="hero__inner">
+    <span class="hero__reg">✅ Registered with the Secretary of State — Washington</span>
+    <span class="hero__eyebrow">For-Profit LLC · Washington State</span>
+    <h1>The Faleke's &amp;<br><span>Washington Solutions</span> LLC</h1>
+    <p class="hero__sub">Contract Services · Housing · Community Development</p>
+    <p class="hero__lead">A Washington State registered LLC providing government-contracted services, Section 8 housing refurbishment, and solutions for internally displaced individuals and communities.</p>
+    <div class="hero__ctas">
+      <a href="#services" class="btn btn--sage">🏗️ Our Services</a>
+      <a href="#contact" class="btn btn--outline">📧 Partner With Us</a>
+    </div>
+  </div>
 </section>
 
-<div class="section">
-
-  <h2 class="section-title">What We Do</h2>
-  <div class="services">
-    <div class="service-card">
-      <div class="service-card__icon">🏗️</div>
-      <h3>Government Contracting</h3>
-      <p>Contract sourcing from state and federal government agencies. We pursue service contracts that align with our expertise in housing, community development, and operational services.</p>
+<section class="section" id="services">
+  <div class="stage">
+    <div class="section-head">
+      <span class="section-label">What We Do</span>
+      <h2 class="section-title">Core Services</h2>
+      <p class="section-lead">Practical, government-aligned services that create dignified outcomes for communities and individuals in need.</p>
     </div>
-    <div class="service-card">
-      <div class="service-card__icon">🏠</div>
-      <h3>Section 8 Refurbishment</h3>
-      <p>Refurbishing Section 8 housing units to livable, dignified standards. Every family deserves a safe place to call home — we make that happen through quality restoration work.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-card__icon">🌍</div>
-      <h3>IDP Support Solutions</h3>
-      <p>Services addressing the needs of internally displaced people (IDP) — connecting resources, housing, and operational support to those who have been forced from their homes.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-card__icon">📋</div>
-      <h3>Administrative & Operations</h3>
-      <p>Professional operational services supporting community organizations, nonprofits, and government-adjacent entities seeking reliable, mission-aligned partners.</p>
+    <div class="services">
+      <div class="service-card">
+        <div class="service-card__icon">🏛️</div>
+        <h3>Government Contracting</h3>
+        <p>Contract sourcing from state and federal government agencies. We pursue service contracts aligned with housing, community development, and operational services where our expertise delivers results.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-card__icon">🏠</div>
+        <h3>Section 8 Refurbishment</h3>
+        <p>Restoring Section 8 housing units to livable, dignified standards. We believe every family deserves a safe home — quality restoration work that makes that a reality.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-card__icon">🌍</div>
+        <h3>IDP Support</h3>
+        <p>Serving Internally Displaced People (IDP) — connecting housing resources, operational support, and community infrastructure to those forced from their homes by conflict or circumstance.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-card__icon">📋</div>
+        <h3>Administrative &amp; Operations</h3>
+        <p>Professional operational services supporting community organizations, nonprofits, and government-adjacent entities seeking reliable, mission-aligned partners.</p>
+      </div>
     </div>
   </div>
+</section>
 
-  <div class="mission-block">
-    <p><strong>For-profit gains, nonprofit purpose.</strong> The Faleke's &amp; Washington Solutions LLC operates as a separate for-profit entity. A portion of earnings is directed toward sponsoring W.A.V.E — West African Vision &amp; Empowerment — supporting displaced Christians in Nigeria.</p>
-    <p>This structure allows the LLC to engage in commercial contracts, merchandise, and earned income activities that the nonprofit cannot — while ensuring those gains extend the mission of empowerment, relief, and Gospel work.</p>
+<div class="divider"></div>
+
+<section class="section">
+  <div class="stage">
+    <div class="section-head">
+      <span class="section-label">Our Structure</span>
+      <h2 class="section-title">For-Profit Gains, Nonprofit Purpose</h2>
+    </div>
+
+    <div class="mission-block">
+      <p><strong>The Faleke's &amp; Washington Solutions LLC is a separate for-profit entity from W.A.V.E. nonprofit.</strong> This structure allows the LLC to engage in commercial contracts, merchandise, and earned income activities that the nonprofit cannot.</p>
+      <p>A portion of the LLC's earnings is directed toward sponsoring <strong>W.A.V.E — West African Vision &amp; Empowerment</strong> — supporting displaced Christians in Nigeria through farm training, pastoral equipping, and youth empowerment programs.</p>
+    </div>
+
+    <div class="compliance">
+      <span class="compliance__icon">⚖️</span>
+      <p><strong>Compliance note:</strong> For-profit merchandise and commercial services are offered through this LLC only — not through the W.A.V.E. nonprofit. Donors to W.A.V.E. support charitable mission. Commercial clients engage the LLC. Both work together toward the same vision.</p>
+    </div>
   </div>
+</section>
 
-  <div class="idp-section">
-    <h3>Internally Displaced People (IDP) Focus</h3>
-    <p>Whether displaced by conflict in West Africa or facing housing instability in Washington State, our work is oriented toward people who have lost their footing. We believe stable housing and community infrastructure are foundational — to healing, to family, and to faith.</p>
+<div class="divider"></div>
+
+<section class="section" id="contact">
+  <div class="stage">
+    <div class="cta-block">
+      <h2>Partner With Washington Solutions</h2>
+      <p>We are actively seeking government contracts, Section 8 refurbishment projects, and community development partnerships. Property owners, agencies, and organizations — let's connect.</p>
+      <a href="mailto:" class="btn btn--sage">📧 Contact Us</a>
+      <small>The Faleke's &amp; Washington Solutions LLC is a for-profit entity registered with the Secretary of State, Washington. All commercial activity is separate from W.A.V.E. nonprofit operations.</small>
+    </div>
   </div>
+</section>
 
-  <div class="cta">
-    <h2>Partner With Us</h2>
-    <p>We are actively seeking government contracts, community partnerships, and Section 8 refurbishment projects. If you are a property owner, government agency, or community organization — let's talk.</p>
-    <a href="mailto:" class="btn">📧 Contact Us</a>
-    <p class="disclaimer">The Faleke's &amp; Washington Solutions LLC is a for-profit entity separate from W.A.V.E. nonprofit. For-profit merchandise and services are offered through this entity only.</p>
-  </div>
-</div>
-
-<footer class="footer">
-  <strong>The Faleke's &amp; Washington Solutions LLC</strong><br>
-  Registered · Secretary of State, Washington<br>
-  <span style="font-size:0.75rem;opacity:0.5;">Logo placeholder — official logo pending</span>
+<footer>
+  <strong>The Faleke's &amp; Washington Solutions LLC</strong>
+  <p>Registered · Secretary of State, Washington State</p>
+  <p>For-profit gains support W.A.V.E — West African Vision &amp; Empowerment</p>
+  <small>Official logo pending · LLC registration documentation available on request</small>
 </footer>
 
 </body>

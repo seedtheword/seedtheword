@@ -1,20 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>News � Seed the Word Ministry</title>
+  <title>News — Seed the Word Ministry</title>
   <meta name="description" content="Live calendar, ministry outreach, highlights, and testimonies from Seed the Word Ministry.">
   <!-- Open Graph (Telegram, WhatsApp, Facebook, LinkedIn link previews) -->
   <meta property="og:site_name" content="Seed the Word Ministry">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="News � Seed the Word Ministry">
+  <meta property="og:title" content="News — Seed the Word Ministry">
   <meta property="og:description" content="Live calendar, ministry outreach, and stories from the field.">
   <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <meta property="og:url" content="https://seedtheword.org/news.html">
   <!-- Twitter card (mirrors OG for some Telegram clients + X) -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="News � Seed the Word Ministry">
+  <meta name="twitter:title" content="News — Seed the Word Ministry">
   <meta name="twitter:description" content="Live calendar, ministry outreach, and stories from the field.">
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
@@ -138,7 +138,7 @@
     /* Lock the background scroll while the modal is open. */
     body.share-story-modal-open { overflow: hidden; }
 
-    /* Inline variant � Share your story tucked under the testimonies grid
+    /* Inline variant — Share your story tucked under the testimonies grid
        inside the same section. Adds a soft top divider so the eyebrow
        reads as a sub-section, not a fresh page area. */
     .share-story-section--inline {
@@ -153,7 +153,7 @@
       text-align: center;
     }
 
-    /* Highlights section cosmetic tweaks � it was nested inside the
+    /* Highlights section cosmetic tweaks — it was nested inside the
        combined outreach section before, now it's standalone. */
     .highlights-section .outreach-subheading {
       margin-bottom: 1.5rem;
@@ -170,7 +170,7 @@
         Seed the Word
       </a>
       <div class="header-verse">
-        <span class="header-verse__text">"He answered and said unto them, He that soweth the good seed is the Son of man;" � Matthew 13:37 KJV</span>
+        <span class="header-verse__text">"He answered and said unto them, He that soweth the good seed is the Son of man;" — Matthew 13:37 KJV</span>
       </div>
     </div>
     <nav id="site-nav">
@@ -206,14 +206,14 @@
   <div class="hero__overlay"></div>
   <div class="hero__content">
     <h1 class="hero__title">News &amp; Testimonies</h1>
-    <p class="hero__tagline">Read stories of lives transformed by faith � and discover how you can help.</p>
+    <p class="hero__tagline">Read stories of lives transformed by faith — and discover how you can help.</p>
   </div>
 </section>
 
 <!-- 1. Announcements -->
 <section class="section section--light" style="padding: 3rem 0;">
   <div class="container">
-    <h2 class="section-title">?? Announcements</h2>
+    <h2 class="section-title">📢 Announcements</h2>
     <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">Stay connected with what's happening in our ministry community</p>
     
     <!-- Compact 3-Column Announcements Layout -->
@@ -221,7 +221,7 @@
       
       <!-- Column 1: Live & Current Events -->
       <div class="announcements-column">
-        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">?? Live & Current</h3>
+        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">🔴 Live & Current</h3>
         <div class="announcements-list" id="live-events-container">
           <!-- Live events will be populated by JavaScript from Google Calendar -->
         </div>
@@ -229,7 +229,7 @@
 
       <!-- Column 2: Upcoming Events -->
       <div class="announcements-column">
-        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">?? Upcoming Events</h3>
+        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">📅 Upcoming Events</h3>
         <div class="announcements-list" id="upcoming-events-container">
           <!-- Upcoming events will be populated by JavaScript from Google Calendar -->
         </div>
@@ -237,7 +237,7 @@
 
       <!-- Column 3: Ongoing Ministries -->
       <div class="announcements-column">
-        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">?? Ongoing Ministries</h3>
+        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">💝 Ongoing Ministries</h3>
         <div class="announcements-list" id="ongoing-ministries-container">
           <!-- Ongoing ministries will be populated by JavaScript from Google Calendar -->
         </div>
@@ -248,28 +248,28 @@
     <!-- Quick Navigation -->
     <div style="text-align: center; margin-top: 1.5rem;">
       <button onclick="document.getElementById('calendar-section').scrollIntoView({behavior: 'smooth'})" class="btn btn-primary btn-sm">
-        <span>??</span> View Full Calendar
+        <span>📅</span> View Full Calendar
       </button>
       <button onclick="window.refreshGoogleCalendar()" class="btn btn-primary btn-sm" style="margin-left: 0.5rem; background: linear-gradient(135deg, #2C5F2E 0%, #3a7d3c 100%); box-shadow: 0 4px 15px rgba(44, 95, 46, 0.4);">
-        <span>??</span> Refresh
+        <span>🔄</span> Refresh
       </button>
     </div>
   </div>
 </section>
 
-<!-- 2. Ministry Outreach � event cards + "Your story belongs here too" callout.
+<!-- 2. Ministry Outreach — event cards + "Your story belongs here too" callout.
      The historical "Highlights from the field" grid now lives as section 4
      (Ministry Highlights, directly under Share Your Story) so members can
      browse outreach stories without wading through the whole archive first. -->
 <section class="section section--white outreach-section" id="ministry-outreach">
   <div class="container">
-    <h2 class="section-title">?? Ministry Outreach</h2>
+    <h2 class="section-title">🙌 Ministry Outreach</h2>
     <p class="outreach-subheading">
       The field is where the Word takes root. These are stories from outreaches
       our team has walked together.
     </p>
 
-    <!-- Bible counter � populated by assets/js/bible-counter.js -->
+    <!-- Bible counter — populated by assets/js/bible-counter.js -->
     <div id="bible-counter"></div>
 
     <!-- Outreach event cards with their own carousels -->
@@ -279,9 +279,9 @@
   </div>
 </section>
 
-<!-- 2.5. Testimonies + Share your story � combined into one section per
+<!-- 2.5. Testimonies + Share your story — combined into one section per
      user preference. Top half is the testimonies grid (renderer hides it
-     on empty state). A "Read every testimony ?" archive link sits below
+     on empty state). A "Read every testimony →" archive link sits below
      the grid when more than 6 entries are published. Bottom half is the
      existing Share your story CTA (eyebrow heading + lead + modal launcher
      + alt channels), wording preserved exactly. The id "share-your-story"
@@ -289,7 +289,7 @@
      resolving. Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
 <section class="section section--light testimonies-section" id="share-your-story">
   <div class="container">
-    <h2 class="section-title">?? My Testimony of How I Met Jesus</h2>
+    <h2 class="section-title">✝️ My Testimony of How I Met Jesus</h2>
     <p class="outreach-subheading">
       Real people. Real encounters with Jesus Christ. Shared with permission,
       lightly edited for clarity.
@@ -299,15 +299,15 @@
     </div>
     <div class="testimonies-archive-link" id="testimonies-archive-link" hidden>
       <a href="testimonies.html" class="btn btn-secondary">
-        Read every testimony ?
+        Read every testimony →
       </a>
     </div>
 
-    <!-- Share your story � eyebrow + CTA tagged onto the same section.
+    <!-- Share your story — eyebrow + CTA tagged onto the same section.
          Wording preserved verbatim from the original Share-your-story
          section. Telegram button removed per user request. -->
     <div class="share-story-section share-story-section--inline">
-      <h3 class="section-title section-title--sub">? Share your story</h3>
+      <h3 class="section-title section-title--sub">✨ Share your story</h3>
       <p class="share-story__lead">
         Has God used our ministry to meet you in your walk with Jesus? Have you
         watched Him move through an outreach &mdash; or captured a moment out in
@@ -317,11 +317,11 @@
 
       <div class="share-story__actions">
         <button type="button" class="btn btn-primary btn-block share-story__primary" id="share-story-open">
-          ?? Share photos, video &amp; testimony
+          📤 Share photos, video &amp; testimony
         </button>
         <div class="share-story__alts">
-          <a class="btn btn-secondary btn-sm" href="about.html#contact">?? Email the team directly</a>
-          <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">?? Tag us on Instagram</a>
+          <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team directly</a>
+          <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a>
         </div>
         <p class="share-story__privacy">
           Your submission lands in our ministry team&rsquo;s private review inbox.
@@ -350,17 +350,17 @@
   </div>
 </div>
 
-<!-- 4. Ministry Highlights � bold featured photos from the field, with a
-     "View full gallery ?" link to the lightbox gallery on Testimonies.
+<!-- 4. Ministry Highlights — bold featured photos from the field, with a
+     "View full gallery →" link to the lightbox gallery on Testimonies.
      The highlight tiles are the big visual statement; the gallery is where
      every photo lives at full size. -->
 <section class="section section--white highlights-section" id="ministry-highlights">
   <div class="container">
-    <h2 class="section-title">?? Ministry Highlights</h2>
+    <h2 class="section-title">📸 Ministry Highlights</h2>
     <p class="outreach-subheading">
-      Moments from the field � worship, outreach, fellowship, and the stories behind them.
+      Moments from the field — worship, outreach, fellowship, and the stories behind them.
       <a class="highlights-gallery-link" href="testimonies.html#ministry-gallery">
-        View the full photo gallery <span aria-hidden="true">?</span>
+        View the full photo gallery <span aria-hidden="true">→</span>
       </a>
     </p>
 
@@ -371,7 +371,7 @@
           <source src="assets/videos/worship-composing.mp4" type="video/mp4">
         </video>
         <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">? Video</span>
+          <span class="highlight-tile__type">▶ Video</span>
           <h3 class="highlight-tile__title">Worship / Prayer</h3>
         </div>
       </article>
@@ -382,7 +382,7 @@
           <source src="assets/videos/bible-flip.mp4" type="video/mp4">
         </video>
         <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">? Video</span>
+          <span class="highlight-tile__type">▶ Video</span>
           <h3 class="highlight-tile__title">Encountering the Word</h3>
         </div>
       </article>
@@ -391,7 +391,7 @@
       <article class="highlight-tile highlight-tile--photo">
         <img src="assets/images/ministry-highlights/stw-bibles-giveaway.jpg" alt="Volunteers handing personalized Bibles to newcomers">
         <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">?? Photo</span>
+          <span class="highlight-tile__type">📸 Photo</span>
           <h3 class="highlight-tile__title">Bibles Going Out</h3>
         </div>
       </article>
@@ -400,7 +400,7 @@
       <article class="highlight-tile highlight-tile--photo">
         <img src="assets/images/ministry-highlights/bible-ministry-gift-zander.jpg" alt="A personalized Bible handed to a friend">
         <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">?? Photo</span>
+          <span class="highlight-tile__type">📸 Photo</span>
           <h3 class="highlight-tile__title">One Life, One Bible</h3>
         </div>
       </article>
@@ -409,7 +409,7 @@
       <article class="highlight-tile highlight-tile--photo">
         <img src="assets/images/ministry-highlights/photo_4909333866749823932_w.jpg" alt="Outreach moment from a recent ministry day">
         <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">?? Photo</span>
+          <span class="highlight-tile__type">📸 Photo</span>
           <h3 class="highlight-tile__title">Outreach in Action</h3>
         </div>
       </article>
@@ -418,7 +418,7 @@
       <article class="highlight-tile highlight-tile--photo">
         <img src="assets/images/ministry-highlights/photo_5172494948291513310_w.jpg" alt="Friends gathered around the Word">
         <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">?? Photo</span>
+          <span class="highlight-tile__type">📸 Photo</span>
           <h3 class="highlight-tile__title">Friends in the Word</h3>
         </div>
       </article>
@@ -426,22 +426,22 @@
       <!-- 7: Full gallery CTA tile -->
       <article class="highlight-tile highlight-tile--gallery-cta">
         <a href="testimonies.html#ministry-gallery" class="highlight-gallery-cta">
-          <span class="highlight-gallery-cta__icon" aria-hidden="true">???</span>
+          <span class="highlight-gallery-cta__icon" aria-hidden="true">🖼️</span>
           <h3 class="highlight-gallery-cta__title">Full Photo Gallery</h3>
-          <p class="highlight-gallery-cta__desc">Every photo from every outreach and ministry event � full size, searchable by event.</p>
-          <span class="highlight-gallery-cta__action">Open gallery <span aria-hidden="true">?</span></span>
+          <p class="highlight-gallery-cta__desc">Every photo from every outreach and ministry event — full size, searchable by event.</p>
+          <span class="highlight-gallery-cta__action">Open gallery <span aria-hidden="true">→</span></span>
         </a>
       </article>
     </div>
   </div>
 </section>
 
-<!-- 5. Calendar � full schedule sits at the bottom of the page as
+<!-- 5. Calendar — full schedule sits at the bottom of the page as
      the "anything else you want to check" landing spot. The scroll
      button in the Announcements section still targets #calendar-section. -->
 <section class="section section--white" id="calendar-section">
   <div class="container">
-    <h2 class="section-title">?? Ministry Calendar</h2>
+    <h2 class="section-title">📅 Ministry Calendar</h2>
     <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">
       View our complete schedule of events, services, and activities
     </p>
@@ -449,9 +449,9 @@
     <!-- Ministry Calendar -->
     <div class="calendar-container">
       <div class="calendar-header">
-        <button class="calendar-nav-btn" id="prev-month">�</button>
+        <button class="calendar-nav-btn" id="prev-month">‹</button>
         <h3 class="calendar-month" id="calendar-month">January 2026</h3>
-        <button class="calendar-nav-btn" id="next-month">�</button>
+        <button class="calendar-nav-btn" id="next-month">›</button>
       </div>
       
       <div class="calendar-grid" id="calendar-grid">
@@ -509,7 +509,7 @@
           <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo">
           <p class="footer-brand__name">Seed the Word Ministry</p>
         </div>
-        <p class="footer-brand__tagline">Welcoming newcomers to faith � one Bible at a time.</p>
+        <p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p>
       </div>
 
       <!-- Navigate -->
@@ -542,7 +542,7 @@
           </a>
         </div>
         <a class="footer-connect__contact" href="about.html#contact">
-          ?? Contact us
+          ✉️ Contact us
         </a>
       </div>
     </div>
@@ -562,7 +562,7 @@
 <script src="assets/js/google-calendar.js?v=16"></script>
 <script src="assets/js/livestream.js?v=2"></script>
 <script src="assets/js/ministry-outreach.js?v=3"></script>
-<script src="assets/js/bible-counter.js?v=2" defer></script>
+<script src="assets/js/bible-counter.js?v=1" defer></script>
 <script src="assets/js/share-story.js?v=1" defer></script>
 <script src="assets/js/testimonies.js?v=4" defer></script>
 </body>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dad's Spicy Chicken — African Cuisine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;}
+    body{margin:0;font-family:'Inter',sans-serif;background:#1a0a00;color:#f5e6c8;}
+    .hero{position:relative;background:linear-gradient(160deg,#3d1a00 0%,#7a2e00 60%,#c25a00 100%);padding:4rem 1.5rem 3rem;text-align:center;overflow:hidden;}
+    .hero::before{content:'🍲';font-size:8rem;position:absolute;top:-1rem;right:-1rem;opacity:0.08;}
+    .badge{display:inline-block;background:#c25a00;color:#fff;font-size:0.72rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;padding:0.3rem 1rem;border-radius:999px;margin-bottom:1rem;}
+    .hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,8vw,4rem);color:#f4c842;margin:0 0 0.5rem;line-height:1.15;}
+    .hero__sub{font-size:1.1rem;color:rgba(245,230,200,0.85);margin:0 0 0.5rem;}
+    .hero__tagline{font-family:'Playfair Display',serif;font-style:italic;font-size:1.25rem;color:#f4c842;margin:1rem 0 0;}
+    .license{display:inline-block;font-size:0.78rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:0.35rem 0.9rem;margin-top:0.75rem;color:rgba(245,230,200,0.7);}
+    .section{max-width:860px;margin:0 auto;padding:3rem 1.5rem;}
+    .section-title{font-family:'Playfair Display',serif;font-size:1.8rem;color:#f4c842;margin:0 0 1.25rem;}
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+    @media(max-width:600px){.about-grid{grid-template-columns:1fr;}}
+    .about-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.5rem;}
+    .about-card__icon{font-size:2rem;margin-bottom:0.6rem;}
+    .about-card h3{font-size:1rem;font-weight:700;color:#f4c842;margin:0 0 0.4rem;}
+    .about-card p{font-size:0.95rem;line-height:1.65;color:rgba(245,230,200,0.8);margin:0;}
+    .menu-section{background:rgba(255,255,255,0.04);border-radius:16px;padding:2rem 1.5rem;margin-top:2rem;}
+    .menu-item{display:flex;justify-content:space-between;align-items:flex-start;padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.08);}
+    .menu-item:last-child{border-bottom:none;}
+    .menu-item__name{font-weight:700;color:#f5e6c8;font-size:1.05rem;}
+    .menu-item__desc{font-size:0.88rem;color:rgba(245,230,200,0.65);margin-top:0.2rem;}
+    .menu-item__tag{font-size:0.72rem;background:#c25a00;color:#fff;border-radius:4px;padding:0.15rem 0.5rem;white-space:nowrap;flex-shrink:0;margin-left:1rem;margin-top:0.2rem;}
+    .promo{background:linear-gradient(135deg,#c25a00,#f4c842);border-radius:16px;padding:2.5rem 2rem;text-align:center;margin:2rem 0;}
+    .promo h2{font-family:'Playfair Display',serif;font-size:1.7rem;color:#1a0a00;margin:0 0 0.75rem;}
+    .promo p{color:#3d1a00;font-size:1rem;margin:0 0 1.25rem;}
+    .btn{display:inline-block;background:#1a0a00;color:#f4c842;font-weight:700;font-size:1rem;padding:0.85rem 2rem;border-radius:8px;text-decoration:none;letter-spacing:0.04em;}
+    .inclusive-strip{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1.5rem;}
+    .tag{background:rgba(244,200,66,0.12);border:1px solid rgba(244,200,66,0.3);color:#f4c842;font-size:0.82rem;border-radius:999px;padding:0.3rem 0.85rem;}
+    .footer{background:#0d0500;padding:2rem 1.5rem;text-align:center;color:rgba(245,230,200,0.5);font-size:0.85rem;border-top:1px solid rgba(255,255,255,0.06);}
+    .footer strong{color:#f4c842;}
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <span class="badge">Family Owned · African Cuisine</span>
+  <h1>Dad's Spicy Chicken</h1>
+  <p class="hero__sub">Authentic African Flavors · Cooked with Love · Open to All</p>
+  <p class="hero__tagline">"Where every plate tells a story from home."</p>
+  <span class="license">Dept. of Revenue Licensed · Operational since 02/17/2026</span>
+</section>
+
+<div class="section">
+  <h2 class="section-title">About Us</h2>
+  <div class="about-grid">
+    <div class="about-card">
+      <div class="about-card__icon">👨‍🍳</div>
+      <h3>Family Recipe</h3>
+      <p>Born from a father's love of African cooking, handed down and perfected. Co-owned and operated by family — every dish carries the warmth of home.</p>
+    </div>
+    <div class="about-card">
+      <div class="about-card__icon">🌍</div>
+      <h3>Authentic & Welcoming</h3>
+      <p>A welcoming environment for all who want to experience the richness of African cuisine. Inclusive, warm, no labels — just great food.</p>
+    </div>
+    <div class="about-card">
+      <div class="about-card__icon">📍</div>
+      <h3>Coming to Pike Place</h3>
+      <p>Currently working with the City of Seattle — permit progress already made. Watch this space for our Pike Place Market debut.</p>
+    </div>
+    <div class="about-card">
+      <div class="about-card__icon">🎟️</div>
+      <h3>Vouchers Welcome</h3>
+      <p>We accept vouchers and participate in community outreach food programs. Everyone deserves a good meal.</p>
+    </div>
+  </div>
+
+  <div class="menu-section">
+    <h2 class="section-title" style="margin-bottom:0.75rem;">Signature Menu</h2>
+    <p style="color:rgba(245,230,200,0.6);font-size:0.9rem;margin:0 0 1.5rem;">Selective highlights — ask us what's on today</p>
+    <div class="menu-item">
+      <div>
+        <div class="menu-item__name">🌶️ Dad's Signature Spicy Chicken</div>
+        <div class="menu-item__desc">The dish that started it all. Slow-marinated, bold West African spices, grilled to perfection.</div>
+      </div>
+      <span class="menu-item__tag">Signature</span>
+    </div>
+    <div class="menu-item">
+      <div>
+        <div class="menu-item__name">🍚 Jollof Rice & Stew</div>
+        <div class="menu-item__desc">Smoky, rich tomato-based rice with the depth only an open flame can give. Served with choice of protein.</div>
+      </div>
+      <span class="menu-item__tag">Family Fav</span>
+    </div>
+    <div class="menu-item">
+      <div>
+        <div class="menu-item__name">🥘 Nigerian Pepper Soup</div>
+        <div class="menu-item__desc">A warming, aromatic broth with goat or chicken. Healing food for body and soul.</div>
+      </div>
+    </div>
+    <div class="menu-item">
+      <div>
+        <div class="menu-item__name">🫓 Puff Puff & Chin Chin</div>
+        <div class="menu-item__desc">Sweet fried dough bites — a West African classic for snacking, sharing, and celebrating.</div>
+      </div>
+      <span class="menu-item__tag">Dessert</span>
+    </div>
+    <div class="menu-item">
+      <div>
+        <div class="menu-item__name">🍲 Egusi Soup</div>
+        <div class="menu-item__desc">Ground melon seeds, leafy greens, and seasoned proteins — a staple of Nigerian home cooking.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:1.5rem;">
+    <div class="inclusive-strip">
+      <span class="tag">🌍 African Cuisine</span>
+      <span class="tag">👨‍👩‍👧 Family Owned</span>
+      <span class="tag">🎟️ Vouchers Accepted</span>
+      <span class="tag">🤝 Inclusive & Welcoming</span>
+      <span class="tag">🌶️ Bold Flavors</span>
+      <span class="tag">📍 Seattle Area</span>
+    </div>
+  </div>
+
+  <div class="promo">
+    <h2>Special Offer — Try Us First</h2>
+    <p>Ask about our community outreach pricing and group catering options. First-time visitors always welcome with a smile.</p>
+    <a href="tel:+1" class="btn">📞 Contact Us to Order</a>
+  </div>
+</div>
+
+<footer class="footer">
+  <strong>Dad's Spicy Chicken</strong> · African Cuisine · Family Business<br>
+  Dept. of Revenue Registered · Est. 02/17/2026<br>
+  <span style="font-size:0.75rem;opacity:0.5;">Logo: African pot on a stick fryer — designed with love by the family</span>
+</footer>
+
+</body>
+</html>

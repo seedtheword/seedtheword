@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>W.A.V.E — West African Vision & Empowerment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;}
+    body{margin:0;font-family:'Inter',sans-serif;background:#0a1628;color:#e8f0fe;}
+    .hero{background:linear-gradient(160deg,#0a1628 0%,#0d2b5e 60%,#1a4d8a 100%);padding:4rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'🌊';font-size:10rem;position:absolute;top:-2rem;left:-1rem;opacity:0.06;}
+    .badge{display:inline-block;background:#1a4d8a;border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:0.72rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;padding:0.3rem 1rem;border-radius:999px;margin-bottom:1rem;}
+    .hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,7vw,3.5rem);color:#7eb8f7;margin:0 0 0.4rem;line-height:1.15;}
+    .hero h1 span{color:#fff;}
+    .hero__full{font-size:1rem;color:rgba(232,240,254,0.7);letter-spacing:0.06em;margin:0 0 1rem;}
+    .hero__mission{max-width:620px;margin:0 auto;font-size:1.05rem;line-height:1.75;color:rgba(232,240,254,0.88);}
+    .section{max-width:880px;margin:0 auto;padding:3rem 1.5rem;}
+    .section-title{font-family:'Playfair Display',serif;font-size:1.8rem;color:#7eb8f7;margin:0 0 1.25rem;}
+    .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;margin-top:1.5rem;}
+    .pillar{background:rgba(255,255,255,0.05);border:1px solid rgba(126,184,247,0.2);border-radius:12px;padding:1.5rem;}
+    .pillar__icon{font-size:2rem;margin-bottom:0.6rem;}
+    .pillar h3{font-size:0.95rem;font-weight:700;color:#7eb8f7;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 0.5rem;}
+    .pillar p{font-size:0.92rem;line-height:1.65;color:rgba(232,240,254,0.75);margin:0;}
+    .crisis-block{background:rgba(220,53,69,0.08);border:1px solid rgba(220,53,69,0.3);border-left:4px solid #dc3545;border-radius:0 12px 12px 0;padding:1.5rem 1.75rem;margin:2rem 0;}
+    .crisis-block h3{color:#ff6b6b;font-size:1.05rem;margin:0 0 0.6rem;}
+    .crisis-block p{font-size:0.95rem;line-height:1.7;color:rgba(232,240,254,0.8);margin:0;}
+    .programs{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1.5rem;}
+    @media(max-width:600px){.programs{grid-template-columns:1fr;}}
+    .program-card{background:rgba(255,255,255,0.04);border:1px solid rgba(126,184,247,0.15);border-radius:12px;padding:1.4rem;}
+    .program-card h4{color:#7eb8f7;font-size:0.95rem;font-weight:700;margin:0 0 0.5rem;}
+    .program-card p{font-size:0.88rem;line-height:1.6;color:rgba(232,240,254,0.7);margin:0;}
+    .access-block{background:rgba(126,184,247,0.07);border-radius:12px;padding:1.75rem;margin-top:2rem;}
+    .access-block h3{color:#7eb8f7;margin:0 0 0.75rem;}
+    .access-block p{font-size:0.95rem;line-height:1.7;color:rgba(232,240,254,0.8);margin:0;}
+    .cta{background:linear-gradient(135deg,#0d2b5e,#1a4d8a);border-radius:16px;padding:2.5rem 2rem;text-align:center;margin:2rem 0;}
+    .cta h2{font-family:'Playfair Display',serif;color:#7eb8f7;margin:0 0 0.75rem;}
+    .cta p{color:rgba(232,240,254,0.8);margin:0 0 1.25rem;}
+    .btn{display:inline-block;background:#7eb8f7;color:#0a1628;font-weight:700;padding:0.85rem 2rem;border-radius:8px;text-decoration:none;font-size:1rem;}
+    .footer{background:#060e1c;padding:2rem 1.5rem;text-align:center;color:rgba(232,240,254,0.45);font-size:0.85rem;border-top:1px solid rgba(255,255,255,0.06);}
+    .footer strong{color:#7eb8f7;}
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <span class="badge">Nonprofit · Nigeria · West Africa</span>
+  <h1><span>W.A.V.E</span></h1>
+  <p class="hero__full">West African Vision &amp; Empowerment</p>
+  <p class="hero__mission">Raising support for displaced and persecuted Christians in West Africa. Empowering youth. Training leaders. Preaching truth.</p>
+</section>
+
+<div class="section">
+
+  <div class="crisis-block">
+    <h3>⚠️ The Crisis We're Responding To</h3>
+    <p>Islamic militant groups are waging genocide against Nigerian Christians — kidnapping families, burning villages, displacing communities, and forcing conversion on teenagers and children. W.A.V.E. exists to respond to this crisis with tangible support, training, and the Gospel.</p>
+  </div>
+
+  <h2 class="section-title">Our Mission Pillars</h2>
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar__icon">🛡️</div>
+      <h3>Protect the Persecuted</h3>
+      <p>Raise awareness and support for displaced Nigerian Christians who have lost homes, families, and livelihoods to militant violence.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar__icon">🌱</div>
+      <h3>Youth Empowerment</h3>
+      <p>50–60% youth unemployment in affected regions. W.A.V.E. trains young people to be self-sufficient through vocational and agricultural programs.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar__icon">📖</div>
+      <h3>Sound Doctrine</h3>
+      <p>Training pastors and ministers in Biblical truth — pushing back against prosperity gospel that weaponizes Christianity and misleads believers in poverty.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar__icon">🎓</div>
+      <h3>Student Access</h3>
+      <p>Through Fellowship of Christian Students and campus alumni networks — reaching elementary through university students with servant-leadership training.</p>
+    </div>
+  </div>
+
+  <h2 class="section-title" style="margin-top:3rem;">Programs</h2>
+  <div class="programs">
+    <div class="program-card">
+      <h4>🌾 Farm Training Program</h4>
+      <p>A 3-month crash course on sustainable farming — displaced youth learn agricultural skills, feed themselves, and build toward economic independence. The farm feeds the students while they train.</p>
+    </div>
+    <div class="program-card">
+      <h4>⛪ Pastoral Training</h4>
+      <p>Equipping pastors and church leaders with sound Biblical teaching within the Pentecostal tradition. Fighting false doctrine with truth and discipleship.</p>
+    </div>
+    <div class="program-card">
+      <h4>🏫 Student Leadership</h4>
+      <p>Training students in elementary, secondary, and university settings to lead as servants — rooted in the image of Christ, not cultural prosperity narratives.</p>
+    </div>
+    <div class="program-card">
+      <h4>🤝 Organizational Access</h4>
+      <p>Through C.A.N. (Christian Association of Nigeria) and P.F.N. (Pentecostal Fellowship of Nigeria) — institutional access to reach and train across the entire Nigerian church body.</p>
+    </div>
+  </div>
+
+  <div class="access-block">
+    <h3>About Our Founder</h3>
+    <p>A former Vice President of the student union and alumnus of the Fellowship of Christian Students — with 10 years of pastoral ministry in Nigeria. The founder built W.A.V.E. from lived experience in the crisis, with established relationships inside C.A.N. and P.F.N. that open doors for training and ministry across West Africa.</p>
+  </div>
+
+  <div class="cta">
+    <h2>Stand With Nigerian Christians</h2>
+    <p>Your support funds farm land, training programs, displaced family relief, and the equipping of faithful pastors who refuse to compromise the Gospel.</p>
+    <a href="mailto:" class="btn">✉️ Get Involved</a>
+  </div>
+</div>
+
+<footer class="footer">
+  <strong>W.A.V.E — West African Vision &amp; Empowerment</strong><br>
+  Nonprofit Organization · Nigeria &amp; Washington State<br>
+  <span style="font-size:0.75rem;opacity:0.5;">Logo placeholder — official logo pending</span>
+</footer>
+
+</body>
+</html>

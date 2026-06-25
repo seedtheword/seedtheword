@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-06-24T21:16:52+00:00",
+  "updated": "2026-06-25T00:25:59+00:00",
   "events": {
     "g2umuv1e7tqskg404im604pq6g@google.com": {
       "title": "Canyon Hills YA",
@@ -148,9 +148,10 @@
     "2jmguh13o1icrafr1mcet11p53@google.com": {
       "title": "ICC Bonfire and Worship!",
       "start": "2026-06-25T00:00:00+00:00",
-      "lastPosted": "2026-06-24T21:16:52+00:00",
+      "lastPosted": "2026-06-25T00:25:59+00:00",
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "livePosted": true
     },
     "n2nfgktikql6bucteto0dn0ajk@google.com": {
       "title": "Canyon Hills YA",

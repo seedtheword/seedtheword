@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615545,
-  "lastModified": "2026-06-25T23:40:34Z",
+  "lastModified": "2026-06-25T23:55:27Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -84,16 +84,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4678,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hallelujah Jesus!",
-      "ts": "2026-06-11T23:41:03Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4708,

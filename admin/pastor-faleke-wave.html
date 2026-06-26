@@ -3,264 +3,366 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="W.A.V.E — West African Vision & Empowerment. Supporting displaced and persecuted Christians in Nigeria through youth training, pastoral equipping, and community development.">
-  <meta name="theme-color" content="#003087">
+  <meta name="description" content="W.A.V.E — West African Vision & Empowerment. An indigenous evangelistic, relief and development organization raising support for displaced and persecuted Christians in Nigeria.">
+  <meta name="theme-color" content="#1b4332">
   <title>W.A.V.E — West African Vision &amp; Empowerment</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --blue:    #003087;
-      --bright:  #0057b8;
-      --sky:     #4a9eff;
-      --gold:    #f4a100;
+      --forest:  #1b4332;
+      --green:   #2d6a4f;
+      --sage:    #52b788;
+      --gold:    #d4a017;
+      --amber:   #f4a261;
       --red:     #c0392b;
       --white:   #ffffff;
-      --light:   #f0f6ff;
-      --dark:    #0a0f1e;
-      --muted:   #6b7280;
-      --text:    #1f2937;
+      --cream:   #fdf8f0;
+      --light:   #f0f4f0;
+      --text:    #1a1a1a;
+      --muted:   #666666;
+      --border:  #e0e0e0;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Open Sans', sans-serif; background: var(--white); color: var(--text); -webkit-font-smoothing: antialiased; }
+    body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--text); -webkit-font-smoothing: antialiased; line-height: 1.6; }
     a { color: inherit; text-decoration: none; }
 
     /* NAV */
     nav {
       position: fixed; top: 0; width: 100%; z-index: 100;
-      background: rgba(0,48,135,0.97); backdrop-filter: blur(8px);
+      background: rgba(27,67,50,0.97); backdrop-filter: blur(8px);
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 2rem; height: 68px;
     }
-    .nav-logo { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.4rem; letter-spacing: 0.12em; color: var(--white); }
-    .nav-logo span { color: var(--gold); }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .nav-logo__badge {
+      background: var(--gold); color: #fff;
+      font-weight: 900; font-size: 1rem; letter-spacing: 0.06em;
+      padding: 0.3rem 0.75rem; border-radius: 3px;
+    }
+    .nav-logo__name {
+      font-weight: 700; font-size: 1rem; color: rgba(255,255,255,0.9);
+      letter-spacing: 0.06em;
+    }
     .nav-links { display: flex; gap: 2rem; }
-    .nav-links a { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.8); transition: color 0.15s; }
+    .nav-links a { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.75); transition: color 0.15s; }
     .nav-links a:hover { color: var(--gold); }
-    .nav-cta { background: var(--gold); color: var(--dark); font-weight: 700; font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.6rem 1.4rem; border-radius: 3px; transition: background 0.15s; }
-    .nav-cta:hover { background: #e09200; }
-    @media(max-width:680px){ .nav-links{ display:none; } }
+    .nav-donate { background: var(--gold); color: var(--white); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.6rem 1.4rem; border-radius: 3px; transition: background 0.15s; }
+    .nav-donate:hover { background: #b8870d; }
+    @media(max-width:700px){ .nav-links{ display:none; } }
 
     /* HERO */
     .hero {
-      min-height: 100vh; display: flex; align-items: center;
-      position: relative; overflow: hidden; padding: 6rem 2rem 4rem;
-      background: linear-gradient(135deg, #000d2e 0%, #003087 60%, #0057b8 100%);
+      min-height: 100vh; position: relative; overflow: hidden;
+      display: flex; align-items: center; padding: 6rem 2rem 5rem;
+      background: linear-gradient(160deg, #0d2818 0%, #1b4332 40%, #2d6a4f 80%, #40916c 100%);
     }
     .hero::before {
       content: ''; position: absolute; inset: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><circle cx="40" cy="40" r="1" fill="rgba(255,255,255,0.15)"/></svg>') repeat;
-      opacity: 0.6;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><text x="200" y="200" font-size="180" text-anchor="middle" dominant-baseline="middle" opacity=".03" fill="white">&#127758;</text></svg>') no-repeat right bottom / 500px;
     }
-    .hero__inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-    @media(max-width:768px){ .hero__inner{ grid-template-columns:1fr; } }
-    .hero__text {}
-    .hero__badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(244,161,0,0.15); border: 1px solid rgba(244,161,0,0.4); color: var(--gold); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 0.4rem 1rem; border-radius: 2px; margin-bottom: 1.5rem; }
-    .hero h1 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: clamp(2.8rem,7vw,5rem); line-height: 1; letter-spacing: -0.02em; color: var(--white); margin-bottom: 0.4rem; }
-    .hero h1 span { color: var(--sky); }
-    .hero__fullname { font-size: 1rem; color: rgba(255,255,255,0.6); letter-spacing: 0.06em; margin-bottom: 1.5rem; }
-    .hero__desc { font-size: 1.05rem; color: rgba(255,255,255,0.82); line-height: 1.8; margin-bottom: 2rem; }
+    .hero__inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem; align-items: center; }
+    @media(max-width:768px){ .hero__inner{ grid-template-columns:1fr; } .hero__stats{ display:none; } }
+    .hero__eyebrow {
+      display: inline-block; border: 1px solid rgba(212,160,23,0.5); color: var(--gold);
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase;
+      padding: 0.35rem 1rem; margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-family: 'Merriweather', Georgia, serif; font-size: clamp(2.2rem,5vw,3.5rem);
+      font-weight: 700; color: var(--white); line-height: 1.2; margin-bottom: 0.5rem;
+    }
+    .hero h1 em { font-style: italic; color: var(--sage); }
+    .hero__tagline {
+      font-size: 0.9rem; color: rgba(255,255,255,0.6); letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 1.5rem;
+    }
+    .hero__lead {
+      font-size: 1.05rem; color: rgba(255,255,255,0.85); line-height: 1.8;
+      margin-bottom: 2.5rem;
+    }
     .hero__ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .btn-gold { background: var(--gold); color: var(--dark); font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.9rem 2rem; border-radius: 3px; transition: background 0.15s, transform 0.15s; display: inline-block; }
-    .btn-gold:hover { background: #e09200; transform: translateY(-2px); }
-    .btn-ghost { background: transparent; color: var(--white); border: 2px solid rgba(255,255,255,0.3); font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.9rem 2rem; border-radius: 3px; transition: border-color 0.15s, transform 0.15s; display: inline-block; }
-    .btn-ghost:hover { border-color: var(--sky); color: var(--sky); transform: translateY(-2px); }
+    .btn-gold { background: var(--gold); color: var(--white); font-weight: 700; font-size: 0.95rem; letter-spacing: 0.08em; padding: 0.9rem 2rem; border-radius: 3px; transition: background 0.15s, transform 0.15s; display: inline-block; }
+    .btn-gold:hover { background: #b8870d; transform: translateY(-2px); }
+    .btn-outline-w { background: transparent; color: var(--white); border: 2px solid rgba(255,255,255,0.35); font-weight: 700; font-size: 0.95rem; letter-spacing: 0.08em; padding: 0.9rem 2rem; border-radius: 3px; transition: border-color 0.15s, transform 0.15s; display: inline-block; }
+    .btn-outline-w:hover { border-color: var(--sage); color: var(--sage); transform: translateY(-2px); }
 
-    /* Impact numbers panel */
-    .hero__impact {
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 8px; padding: 2rem;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    .hero__stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); }
+    .hero__stat { background: rgba(255,255,255,0.05); padding: 1.75rem 1.5rem; backdrop-filter: blur(4px); }
+    .hero__stat-num { font-family: 'Merriweather', serif; font-size: 2rem; font-weight: 700; color: var(--gold); display: block; line-height: 1; margin-bottom: 0.4rem; }
+    .hero__stat-label { font-size: 0.78rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.4; }
+
+    /* URGENCY STRIP */
+    .urgency {
+      background: var(--red); padding: 2.5rem 2rem;
     }
-    .impact-num { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.2rem; color: var(--gold); display: block; line-height: 1; }
-    .impact-label { font-size: 0.8rem; color: rgba(255,255,255,0.65); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.3rem; display: block; line-height: 1.4; }
-    .impact-item { padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .impact-item:last-child, .impact-item:nth-last-child(2):nth-child(odd) { border-bottom: none; padding-bottom: 0; }
+    .urgency__inner { max-width: 900px; margin: 0 auto; display: flex; gap: 1.5rem; align-items: flex-start; }
+    .urgency__icon { font-size: 2.5rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .urgency h2 { font-family: 'Merriweather', serif; font-size: 1.3rem; font-weight: 700; color: var(--white); margin-bottom: 0.6rem; }
+    .urgency p { font-size: 0.97rem; color: rgba(255,255,255,0.88); line-height: 1.75; }
+    @media(max-width:600px){ .urgency__inner{ flex-direction:column; } }
 
-    /* URGENCY */
-    .urgency { background: var(--red); padding: 3rem 2rem; }
-    .urgency .container { max-width: 900px; margin: 0 auto; display: flex; gap: 2rem; align-items: flex-start; }
-    .urgency__icon { font-size: 2.5rem; flex-shrink: 0; }
-    .urgency h2 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--white); margin-bottom: 0.75rem; }
-    .urgency p { font-size: 1rem; color: rgba(255,255,255,0.88); line-height: 1.75; }
-    @media(max-width:600px){ .urgency .container{ flex-direction:column; } }
-
-    /* PROGRAMS */
-    .programs-section { background: var(--light); padding: 5rem 2rem; }
-    .programs-section .container { max-width: 1100px; margin: 0 auto; }
-    .section-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.28em; text-transform: uppercase; color: var(--bright); display: block; margin-bottom: 0.65rem; }
-    h2.section-title { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: clamp(1.8rem,4vw,2.8rem); color: var(--dark); margin-bottom: 0.75rem; line-height: 1.15; }
-    .section-lead { font-size: 1rem; color: var(--muted); line-height: 1.75; max-width: 600px; margin-bottom: 3rem; }
-    .programs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap: 1.5rem; }
-    .program-card {
-      background: var(--white); border-radius: 8px;
-      border-top: 4px solid var(--bright); padding: 2rem 1.75rem;
-      box-shadow: 0 2px 16px rgba(0,48,135,0.08);
+    /* MISSION */
+    .mission-section { background: var(--cream); padding: 5rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-eyebrow { font-size: 0.72rem; font-weight: 900; letter-spacing: 0.28em; text-transform: uppercase; color: var(--green); display: block; margin-bottom: 0.6rem; }
+    h2.sh2 { font-family: 'Merriweather', serif; font-size: clamp(1.7rem,4vw,2.5rem); font-weight: 700; color: var(--text); margin-bottom: 0.75rem; line-height: 1.25; }
+    .slead { font-size: 1rem; color: var(--muted); line-height: 1.8; max-width: 600px; margin-bottom: 3rem; }
+    .mission-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 1.5rem; }
+    .mission-card {
+      background: var(--white); border-radius: 6px;
+      border-top: 4px solid var(--green);
+      padding: 2rem 1.75rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
       transition: transform 0.15s, box-shadow 0.15s;
     }
-    .program-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,48,135,0.14); }
-    .program-card__icon { font-size: 2.2rem; margin-bottom: 1rem; }
-    .program-card h3 { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dark); margin-bottom: 0.6rem; }
-    .program-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+    .mission-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.1); }
+    .mission-card__icon { font-size: 2.2rem; margin-bottom: 1rem; }
+    .mission-card h3 { font-family: 'Merriweather', serif; font-size: 1rem; font-weight: 700; color: var(--forest); margin-bottom: 0.6rem; }
+    .mission-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+
+    /* PROGRAMS */
+    .programs-section { background: var(--forest); padding: 5rem 2rem; }
+    .programs-section .sh2 { color: var(--white); }
+    .programs-section .slead { color: rgba(255,255,255,0.65); }
+    .programs-section .section-eyebrow { color: var(--sage); }
+    .programs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media(max-width:650px){ .programs-grid{ grid-template-columns:1fr; } }
+    .prog-card {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-left: 4px solid var(--sage);
+      padding: 2rem 1.75rem; border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .prog-card:hover { background: rgba(255,255,255,0.1); }
+    .prog-card h4 { font-family: 'Merriweather', serif; font-size: 1rem; color: var(--white); margin-bottom: 0.6rem; }
+    .prog-card p { font-size: 0.9rem; line-height: 1.7; color: rgba(255,255,255,0.65); }
 
     /* QUOTE */
-    .quote-section { background: var(--blue); padding: 5rem 2rem; text-align: center; }
-    .quote-section blockquote { font-family: 'Montserrat', sans-serif; font-style: italic; font-size: clamp(1.1rem,2.5vw,1.6rem); font-weight: 600; color: var(--white); max-width: 760px; margin: 0 auto 1rem; line-height: 1.65; }
-    .quote-section cite { font-size: 0.85rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; font-style: normal; }
+    .quote-section { background: var(--light); padding: 5rem 2rem; text-align: center; }
+    .quote-section blockquote {
+      font-family: 'Merriweather', serif; font-style: italic;
+      font-size: clamp(1.1rem,2.5vw,1.5rem); color: var(--forest);
+      max-width: 760px; margin: 0 auto 1rem; line-height: 1.7;
+    }
+    .quote-section blockquote::before { content: '\201C'; font-size: 4rem; color: var(--sage); line-height: 0; vertical-align: -1.5rem; margin-right: 0.25rem; }
+    .quote-section cite { font-size: 0.85rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; font-style: normal; }
 
     /* FOUNDER */
     .founder-section { background: var(--white); padding: 5rem 2rem; }
-    .founder-section .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.6fr; gap: 4rem; align-items: center; }
-    @media(max-width:768px){ .founder-section .container{ grid-template-columns:1fr; } }
-    .founder-card { background: var(--light); border-radius: 8px; padding: 2.5rem; text-align: center; }
-    .founder-card__initial { width: 80px; height: 80px; border-radius: 50%; background: var(--blue); color: var(--white); font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
-    .founder-card h3 { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--dark); margin-bottom: 0.25rem; }
-    .founder-card__role { font-size: 0.82rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
-    .founder-creds { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; justify-content: center; }
-    .cred-tag { background: rgba(0,87,184,0.1); border: 1px solid rgba(0,87,184,0.2); color: var(--bright); font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.75rem; border-radius: 3px; }
-    .founder-bio h2 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.7rem; color: var(--dark); margin-bottom: 1rem; }
-    .founder-bio p { font-size: 0.97rem; color: var(--muted); line-height: 1.8; margin-bottom: 0.85rem; }
+    .founder-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 4rem; align-items: start; }
+    @media(max-width:768px){ .founder-grid{ grid-template-columns:1fr; } }
+    .founder-card {
+      background: var(--light); border-radius: 8px; padding: 2.5rem;
+      text-align: center; border-top: 4px solid var(--forest);
+    }
+    .founder-avatar {
+      width: 88px; height: 88px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--forest), var(--sage));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Merriweather', serif; font-size: 2rem; font-weight: 700; color: var(--white);
+      margin: 0 auto 1rem;
+    }
+    .founder-card h3 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.15rem; color: var(--text); margin-bottom: 0.2rem; }
+    .founder-role { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 1.25rem; }
+    .cred-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
+    .cred-tag { background: rgba(45,106,79,0.1); border: 1px solid rgba(45,106,79,0.2); color: var(--forest); font-size: 0.73rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 3px; }
+    .founder-bio h2 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.6rem; color: var(--text); margin-bottom: 1rem; }
+    .founder-bio p { font-size: 0.97rem; color: var(--muted); line-height: 1.85; margin-bottom: 0.85rem; }
 
     /* CTA */
-    .cta-section { background: linear-gradient(135deg, var(--blue), #001a6e); padding: 5rem 2rem; text-align: center; }
-    .cta-section h2 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: clamp(1.8rem,4vw,2.8rem); color: var(--white); margin-bottom: 0.75rem; }
-    .cta-section p { font-size: 1rem; color: rgba(255,255,255,0.72); max-width: 500px; margin: 0 auto 2rem; line-height: 1.75; }
+    .cta-section { background: linear-gradient(135deg, var(--forest), var(--green)); padding: 5rem 2rem; text-align: center; }
+    .cta-section h2 { font-family: 'Merriweather', serif; font-weight: 700; font-size: clamp(1.7rem,4vw,2.6rem); color: var(--white); margin-bottom: 0.75rem; line-height: 1.25; }
+    .cta-section p { font-size: 1rem; color: rgba(255,255,255,0.75); max-width: 520px; margin: 0 auto 2rem; line-height: 1.75; }
+    .cta-sub { font-size: 0.82rem; color: rgba(255,255,255,0.45); margin-top: 1.25rem; }
 
     /* FOOTER */
-    footer { background: var(--dark); padding: 3rem 2rem; text-align: center; }
-    .footer-logo { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.5rem; letter-spacing: 0.1em; color: var(--sky); margin-bottom: 0.4rem; }
-    footer p { font-size: 0.85rem; color: rgba(255,255,255,0.35); line-height: 1.8; }
-    footer small { font-size: 0.72rem; color: rgba(255,255,255,0.2); display: block; margin-top: 0.75rem; }
+    footer { background: #0d1f16; padding: 3rem 2rem; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 2rem; }
+    .footer-brand h3 { font-family: 'Merriweather', serif; font-size: 1.2rem; font-weight: 700; color: var(--sage); margin-bottom: 0.4rem; }
+    .footer-brand p { font-size: 0.85rem; color: rgba(255,255,255,0.4); line-height: 1.7; }
+    .footer-brand small { font-size: 0.72rem; color: rgba(255,255,255,0.2); display: block; margin-top: 0.5rem; }
+    .footer-links h4 { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 0.75rem; }
+    .footer-links a { display: block; font-size: 0.88rem; color: rgba(255,255,255,0.55); margin-bottom: 0.4rem; transition: color 0.15s; }
+    .footer-links a:hover { color: var(--sage); }
   </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-logo"><span>W.A.V.E</span></div>
+  <div class="nav-logo">
+    <span class="nav-logo__badge">W.A.V.E</span>
+    <span class="nav-logo__name">West African Vision &amp; Empowerment</span>
+  </div>
   <div class="nav-links">
     <a href="#mission">Mission</a>
     <a href="#programs">Programs</a>
     <a href="#founder">About</a>
     <a href="#give">Give</a>
   </div>
-  <a href="#give" class="nav-cta">Support W.A.V.E</a>
+  <a href="#give" class="nav-donate">Donate</a>
 </nav>
 
 <section class="hero">
   <div class="hero__inner">
     <div class="hero__text">
-      <span class="hero__badge">&#127757; Christian Nonprofit · Nigeria &amp; Washington</span>
-      <h1><span>W.A.V.E</span></h1>
-      <p class="hero__fullname">West African Vision &amp; Empowerment</p>
-      <p class="hero__desc">We stand with displaced and persecuted Christians in West Africa — providing youth training, pastoral equipping, and practical support for those driven from their homes by militant violence.</p>
+      <span class="hero__eyebrow">&#127758; Christian Nonprofit · Nigeria &amp; Washington State</span>
+      <h1>West African<br><em>Vision &amp; Empowerment</em></h1>
+      <p class="hero__tagline">W.A.V.E — Evangelism · Relief · Development</p>
+      <p class="hero__lead">An indigenous Christian organization raising support for displaced and persecuted believers in Nigeria — through youth empowerment, pastoral training, and community development rooted in sound Biblical doctrine.</p>
       <div class="hero__ctas">
         <a href="#give" class="btn-gold">Support the Mission</a>
-        <a href="#mission" class="btn-ghost">Learn More</a>
+        <a href="#mission" class="btn-outline-w">Learn More</a>
       </div>
     </div>
-    <div class="hero__impact">
-      <div class="impact-item">
-        <span class="impact-num">50–60%</span>
-        <span class="impact-label">Youth unemployment in affected regions</span>
+    <div class="hero__stats">
+      <div class="hero__stat">
+        <span class="hero__stat-num">50–60%</span>
+        <span class="hero__stat-label">Youth unemployment in crisis regions</span>
       </div>
-      <div class="impact-item">
-        <span class="impact-num">3 Mo.</span>
-        <span class="impact-label">Farm training crash course program</span>
+      <div class="hero__stat">
+        <span class="hero__stat-num">3 Mo.</span>
+        <span class="hero__stat-label">Farm training crash course program</span>
       </div>
-      <div class="impact-item">
-        <span class="impact-num">10 Yrs</span>
-        <span class="impact-label">Founder's pastoral ministry in Nigeria</span>
+      <div class="hero__stat">
+        <span class="hero__stat-num">10 Yrs</span>
+        <span class="hero__stat-label">Founder's pastoral ministry in Nigeria</span>
       </div>
-      <div class="impact-item">
-        <span class="impact-num">C.A.N. + P.F.N.</span>
-        <span class="impact-label">Institutional church access across Nigeria</span>
+      <div class="hero__stat">
+        <span class="hero__stat-num">C.A.N. &amp; P.F.N.</span>
+        <span class="hero__stat-label">National church body access across Nigeria</span>
       </div>
     </div>
   </div>
 </section>
 
 <div class="urgency" id="mission">
-  <div class="container">
+  <div class="urgency__inner">
     <span class="urgency__icon">&#9888;&#65039;</span>
     <div>
       <h2>The Crisis We Are Responding To</h2>
-      <p>Islamic militant groups are waging genocide against Nigerian Christians — kidnapping families, burning villages, displacing entire communities, and forcing children and teenagers into conversion. W.A.V.E. responds to this crisis with tangible support, Gospel-centered training, and unwavering truth.</p>
+      <p>Islamic militant groups are waging genocide against Nigerian Christians — kidnapping families, burning villages, displacing communities, and forcing children into conversion. W.A.V.E. responds with tangible support, Gospel-centered training, and the truth that sets people free.</p>
     </div>
   </div>
 </div>
 
+<section class="mission-section">
+  <div class="container">
+    <span class="section-eyebrow">What We Stand For</span>
+    <h2 class="sh2">Our Mission Pillars</h2>
+    <p class="slead">Four areas where W.A.V.E. directs its work — all rooted in Biblical truth and practical compassion for those who have suffered most.</p>
+    <div class="mission-grid">
+      <div class="mission-card">
+        <div class="mission-card__icon">&#127807;</div>
+        <h3>Youth Empowerment &amp; Training</h3>
+        <p>50–60% youth unemployment in affected regions. W.A.V.E. trains young people to be self-sufficient through vocational and agricultural programs — building futures from the ground up.</p>
+      </div>
+      <div class="mission-card">
+        <div class="mission-card__icon">&#128214;</div>
+        <h3>Sound Biblical Doctrine</h3>
+        <p>Pushing back against prosperity gospel that weaponizes Christianity and misleads believers living in poverty. We teach what Scripture actually says — because truth matters most when life is hardest.</p>
+      </div>
+      <div class="mission-card">
+        <div class="mission-card__icon">&#9962;&#65039;</div>
+        <h3>Pastoral &amp; Minister Training</h3>
+        <p>Equipping pastors and church leaders within the Pentecostal tradition with sound theology and practical ministry tools — building the capacity of the church to serve its own communities.</p>
+      </div>
+      <div class="mission-card">
+        <div class="mission-card__icon">&#127979;</div>
+        <h3>Student Leadership Development</h3>
+        <p>Through Fellowship of Christian Students alumni networks — reaching elementary through university students with servant-leadership training rooted in the image of Christ, not prosperity narratives.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="programs-section" id="programs">
   <div class="container">
     <span class="section-eyebrow">How We Work</span>
-    <h2 class="section-title">Programs &amp; Initiatives</h2>
-    <p class="section-lead">Four areas where W.A.V.E. channels its work — all rooted in sound Biblical doctrine and practical compassion for suffering communities.</p>
+    <h2 class="sh2">Programs &amp; Initiatives</h2>
+    <p class="slead">Practical programs that address both spiritual and physical hunger — because W.A.V.E. was built for the whole person, not just the soul.</p>
     <div class="programs-grid">
-      <div class="program-card">
-        <div class="program-card__icon">&#127807;</div>
-        <h3>Farm Training Program</h3>
-        <p>A 3-month crash course in sustainable farming. Displaced youth learn agricultural skills, feed themselves during training, and build toward economic independence — trusting God to provide while equipping His people to work.</p>
+      <div class="prog-card">
+        <h4>&#127807; 3-Month Farm Training Program</h4>
+        <p>Displaced youth learn sustainable farming skills, feed themselves during training, and build toward economic independence. The farm provides nourishment and a career pathway — trusting God to provide while equipping His people to work with dignity.</p>
       </div>
-      <div class="program-card">
-        <div class="program-card__icon">&#9962;&#65039;</div>
-        <h3>Pastoral Training</h3>
-        <p>Equipping pastors and ministers with sound Biblical doctrine — pushing back against prosperity gospel that weaponizes Christianity and misleads believers living in poverty. We teach what Scripture actually says.</p>
+      <div class="prog-card">
+        <h4>&#9962;&#65039; Pastoral Training Institutes</h4>
+        <p>Equipping pastors and ministers with sound Biblical doctrine within the Pentecostal movement — combating false teaching with truth, and building a generation of leaders who serve rather than exploit their congregations.</p>
       </div>
-      <div class="program-card">
-        <div class="program-card__icon">&#127979;</div>
-        <h3>Student Leadership</h3>
-        <p>Through Fellowship of Christian Students alumni networks — training elementary through university students to lead as servants, rooted in the image of Christ, not cultural success narratives.</p>
+      <div class="prog-card">
+        <h4>&#127759; C.A.N. &amp; P.F.N. Church Access</h4>
+        <p>Through the Christian Association of Nigeria and Pentecostal Fellowship of Nigeria — institutional access to reach and train across the entire Nigerian church body. All Christians in Nigeria belong to these two bodies, giving W.A.V.E. unmatched reach.</p>
       </div>
-      <div class="program-card">
-        <div class="program-card__icon">&#129309;</div>
-        <h3>C.A.N. &amp; P.F.N. Access</h3>
-        <p>Through the Christian Association of Nigeria and Pentecostal Fellowship of Nigeria — institutional access to reach and train across the entire Nigerian church body. Every Christian in Nigeria belongs to these organizations.</p>
+      <div class="prog-card">
+        <h4>&#127979; Campus Student Training</h4>
+        <p>Through Fellowship of Christian Students alumni networks — W.A.V.E. trains students from elementary through university to lead as servants of Christ. The goal is to develop leaders who bear the image of Christ, not cultural success metrics.</p>
       </div>
     </div>
   </div>
 </section>
 
 <section class="quote-section">
-  <blockquote>"Poverty is not a lack of faith. Christianity has been weaponized as prosperity gospel — and we are here to preach the truth that sets people free."</blockquote>
-  <cite>— W.A.V.E. Founder</cite>
+  <div class="container">
+    <blockquote>Poverty is not a lack of faith. Christianity has been weaponized as prosperity gospel — and we are here to preach the truth that sets people free.</blockquote>
+    <cite>— Pastor Faleke, Founder · W.A.V.E.</cite>
+  </div>
 </section>
 
 <section class="founder-section" id="founder">
   <div class="container">
-    <div class="founder-card">
-      <div class="founder-card__initial">F</div>
-      <h3>Pastor Faleke</h3>
-      <span class="founder-card__role">Founder, W.A.V.E.</span>
-      <div class="founder-creds">
-        <span class="cred-tag">10 Yrs Nigeria Ministry</span>
-        <span class="cred-tag">FCS Alumni</span>
-        <span class="cred-tag">C.A.N. Access</span>
-        <span class="cred-tag">P.F.N. Access</span>
-        <span class="cred-tag">Student Union VP</span>
-        <span class="cred-tag">Washington State</span>
+    <div class="founder-grid">
+      <div class="founder-card">
+        <div class="founder-avatar">F</div>
+        <h3>Pastor Faleke</h3>
+        <span class="founder-role">Founder · W.A.V.E.</span>
+        <div class="cred-tags">
+          <span class="cred-tag">10 Yrs Nigeria Ministry</span>
+          <span class="cred-tag">FCS Alumni</span>
+          <span class="cred-tag">C.A.N. Access</span>
+          <span class="cred-tag">P.F.N. Access</span>
+          <span class="cred-tag">Student Union VP</span>
+          <span class="cred-tag">Washington State</span>
+        </div>
       </div>
-    </div>
-    <div class="founder-bio">
-      <h2>Built From the Inside</h2>
-      <p>A former Vice President of the student union and alumnus of the Fellowship of Christian Students — with 10 years of pastoral ministry in Nigeria. Pastor Faleke built W.A.V.E. from lived experience in the crisis, with established relationships inside C.A.N. and P.F.N. that open doors for training and ministry across West Africa.</p>
-      <p>Currently based in Washington State, partnering with local ministries including Seed the Word to build a bridge between West African persecuted communities and American churches that want to stand with their brothers and sisters in Christ.</p>
-      <p>The work is not theoretical. The crisis is real. The response is organized, trained, and already underway.</p>
+      <div class="founder-bio">
+        <h2>Built From the Inside</h2>
+        <p>A former Vice President of the student union and alumnus of the Fellowship of Christian Students — with 10 years of pastoral ministry in Nigeria. Pastor Faleke built W.A.V.E. from lived experience in the crisis, with established relationships inside C.A.N. and P.F.N. that open doors for training and ministry across West Africa.</p>
+        <p>Currently based in Washington State, partnering with local ministries including Seed the Word Ministry to build a bridge between West African persecuted communities and American churches that want to stand with their brothers and sisters in Christ.</p>
+        <p>The work is not theoretical. The crisis is real. The response is organized, trained, and already underway.</p>
+      </div>
     </div>
   </div>
 </section>
 
 <section class="cta-section" id="give">
-  <h2>Stand With Nigerian Christians</h2>
-  <p>Your support funds farm land, training programs, displaced family relief, and faithful pastors who refuse to compromise the Gospel.</p>
-  <a href="mailto:" class="btn-gold">&#9993;&#65039; Contact W.A.V.E.</a>
+  <div class="container">
+    <h2>Stand With Nigerian Christians</h2>
+    <p>Your support funds farm land, training programs, displaced family relief, and faithful pastors who refuse to compromise the Gospel. Every gift goes toward the whole mission.</p>
+    <a href="mailto:" class="btn-gold">&#9993;&#65039; Contact W.A.V.E.</a>
+    <p class="cta-sub">W.A.V.E. — West African Vision &amp; Empowerment · Christian Nonprofit · Nigeria &amp; Washington State</p>
+  </div>
 </section>
 
 <footer>
-  <p class="footer-logo">W.A.V.E</p>
-  <p>West African Vision &amp; Empowerment · Christian Nonprofit</p>
-  <p>Nigeria &amp; Washington State · Partnering with Seed the Word Ministry</p>
-  <small>Official logo pending · Vision statement available on request</small>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h3>W.A.V.E</h3>
+      <p>West African Vision &amp; Empowerment<br>Christian Nonprofit · Nigeria &amp; Washington State<br>Partnering with Seed the Word Ministry</p>
+      <small>Official logo pending · Vision statement available on request</small>
+    </div>
+    <div class="footer-links">
+      <h4>Navigate</h4>
+      <a href="#mission">Our Mission</a>
+      <a href="#programs">Programs</a>
+      <a href="#founder">About the Founder</a>
+      <a href="#give">Give / Contact</a>
+    </div>
+  </div>
 </footer>
 
 </body>

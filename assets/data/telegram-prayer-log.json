@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615552,
-  "lastModified": "2026-06-28T00:55:27Z",
+  "lastModified": "2026-06-28T01:10:28Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -90,16 +90,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4710,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thank you 🙏PRAYER DOG🙏 ! Amen brother",
-      "ts": "2026-06-14T01:09:20Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4712,

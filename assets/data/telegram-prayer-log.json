@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615552,
-  "lastModified": "2026-06-27T17:52:30Z",
+  "lastModified": "2026-06-28T00:55:27Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -90,16 +90,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4708,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey guys, pray for me, for discernment over a relationship.\n\nPray for Brandon and Jeremiah. Just as we all need to be closer to Jesus, they need Jesus too. May they open that door that God is knocking at, for the door knob is only on one side, and that is the side we’re standing on.",
-      "ts": "2026-06-14T00:40:50Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4710,

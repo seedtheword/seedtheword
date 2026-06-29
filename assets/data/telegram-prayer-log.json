@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615563,
-  "lastModified": "2026-06-29T16:40:33Z",
+  "lastUpdateId": 669615565,
+  "lastModified": "2026-06-29T16:55:29Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -125,6 +125,16 @@
       "kind": "telegram",
       "text": "Pray for Neil, hes a homeless guy I met as I was heading to church, I bought him food and almost missed my bus but the Lord stopped traffic perfectly so I could catch it last second. I got to pray over him, and also he does and will continue to go to church, and he himself memorized verses and was talking to me about them. He's a really cool Guy and I am happy I was able to meet him. I also shared the verse telling him not to be anxious about what to eat or wear and he reacted very positively to that. I wish I had a Gideon on me, as he didn't have a Bible.",
       "ts": "2026-06-28T16:48:33Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4887,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "🙏PRAYER DOG🙏 you can most definitely pick up a Gideon Bible from one of our ministry members Liam!\n\nContact @Davy_Lep to schedule delivery/pickup",
+      "ts": "2026-06-29T16:42:29Z"
     }
   ]
 }

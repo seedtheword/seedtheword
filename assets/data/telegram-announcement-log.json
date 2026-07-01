@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-07-01T02:25:56+00:00",
+  "updated": "2026-07-01T14:25:58+00:00",
   "events": {
     "5mdjbfj72j59fqchn1ugvv79e0@google.com": {
       "title": "Canyon Hills YA",
@@ -142,6 +142,12 @@
       "lastPosted": "2026-07-01T02:25:56+00:00",
       "reminderPosted": true,
       "livePosted": true
+    },
+    "6fvg0c6lhi0vrfj9jsua0s6bd4@google.com": {
+      "title": "Canyon Hills YA",
+      "start": "2026-07-03T02:30:00+00:00",
+      "lastPosted": "2026-07-01T14:25:58+00:00",
+      "upcomingPosted": true
     }
   }
 }

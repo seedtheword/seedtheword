@@ -2,7 +2,7 @@
   "_help": "Site-wide configuration. Each field is documented inline. Edit through the admin editor.",
   "orderHandlerUrl": "https://script.google.com/macros/s/AKfycbzrHVlOqNu5skSDkf_rsy8moKvwRlM_mZNQpKSXH7HPBCSNjj1Dffz-IuFSJcWjjQUF/exec",
   "_orderHandlerUrlNote": "Google Apps Script Web App URL that receives bundle-builder orders. When empty, the form falls back to Formspree. See admin-help.html → How-to → Set up the order email handler.",
-  "biblesGivenAway": 383,
+  "biblesGivenAway": 123,
   "biblesGoal2026": 70000,
   "biblesLanguagesMessage": "Available in 2,000+ languages through our Gideon's International partnership",
   "biblesInStock": [

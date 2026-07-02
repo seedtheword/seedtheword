@@ -11,63 +11,100 @@
 
   // ── Counter ─────────────────────────────────────────────────
   async function initCounter() {
-    var numEl  = document.getElementById('hp-counter-num');
-    var barEl  = document.getElementById('hp-counter-bar');
-    var goalEl = document.getElementById('hp-counter-goal');
-    var langEl = document.getElementById('hp-languages-msg');
+    var numEl   = document.getElementById('hp-counter-num');
+    var barEl   = document.getElementById('hp-counter-bar');
+    var goalEl  = document.getElementById('hp-counter-goal');
+    var langEl  = document.getElementById('hp-languages-msg');
     var stockEl = document.getElementById('hp-stock-list');
     if (!numEl) return;
 
-    var count = 383, goal = 70000;
-    var langMsg = 'Available in 2,000+ languages through Gideon\'s International';
+    var CACHE_KEY = 'stw_ministry_stats';
 
+    // Load cached fallback from localStorage
+    var cached = {};
+    try { cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}'); } catch (_) {}
+
+    var count = cached.total || 123;
+    var goal  = cached.goal  || 70000;
+    var inStock = cached.inStock || [];
+
+    // Apply cached values immediately so page never shows 0 on reload
+    renderCounter(numEl, barEl, goalEl, langEl, stockEl, count, goal, inStock, false);
+
+    // Fetch live from Apps Script (getMinistryStats) then fall back to site-config.json
+    var orderHandlerUrl = '';
     try {
-      var res = await fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' });
-      if (res.ok) {
-        var d = await res.json();
-        count = typeof d.biblesGivenAway === 'number' ? d.biblesGivenAway : count;
-        goal  = typeof d.biblesGoal2026  === 'number' ? d.biblesGoal2026  : goal;
-        if (d.biblesLanguagesMessage) langMsg = d.biblesLanguagesMessage;
-        if (d.biblesInStock && stockEl) {
-          var inStockItems = d.biblesInStock.filter(function(item) {
-            return item && item.language && (item.count === undefined || item.count > 0);
-          });
-          if (inStockItems.length) {
-            stockEl.innerHTML = inStockItems.map(function(item) {
-              return '<span class="stock-tag">' + esc(item.language) + '</span>';
-            }).join('');
-          } else {
-            stockEl.closest('.impact-counter__right') && (stockEl.closest('.impact-counter__right').querySelector('.impact-counter__stock-label').style.display = 'none');
-            stockEl.style.display = 'none';
-          }
+      var cfgRes = await fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' });
+      if (cfgRes.ok) {
+        var cfg = await cfgRes.json();
+        orderHandlerUrl = cfg.orderHandlerUrl || '';
+        // Use site-config as baseline fallback
+        if (!cached.total) {
+          count   = typeof cfg.biblesGivenAway === 'number' ? cfg.biblesGivenAway : count;
+          goal    = typeof cfg.biblesGoal2026  === 'number' ? cfg.biblesGoal2026  : goal;
+          inStock = Array.isArray(cfg.biblesInStock) ? cfg.biblesInStock : inStock;
         }
       }
     } catch (_) {}
 
-    var pct = Math.min(100, Math.round(count / goal * 1000) / 10);
-    if (goalEl) goalEl.textContent = 'and counting — goal: ' + goal.toLocaleString('en-US') + ' for 2026';
-    if (langEl) langEl.textContent = langMsg;
-
-    // Count-up animation with strobe
-    numEl.style.animation = 'counter-strobe 0.22s steps(1) infinite';
-    var start = performance.now();
-    var dur = 1800;
-    function step(now) {
-      var prog = Math.min((now - start) / dur, 1);
-      var eased = 1 - Math.pow(1 - prog, 3);
-      numEl.textContent = Math.round(count * eased).toLocaleString('en-US');
-      if (prog < 1) {
-        requestAnimationFrame(step);
-      } else {
-        numEl.textContent = count.toLocaleString('en-US');
-        numEl.style.animation = 'counter-glow-store 3s ease-in-out infinite';
-        if (barEl) {
-          barEl.style.transition = 'width 1.4s cubic-bezier(0.25,1,0.5,1)';
-          barEl.style.width = pct + '%';
+    // Try live Apps Script endpoint
+    if (orderHandlerUrl) {
+      try {
+        var liveRes = await fetch(orderHandlerUrl + '?action=getMinistryStats', { cache: 'no-store' });
+        if (liveRes.ok) {
+          var live = await liveRes.json();
+          if (live.ok) {
+            count   = live.total   || count;
+            goal    = live.goal    || goal;
+            inStock = live.inStock || inStock;
+            // Cache the fresh live data
+            try { localStorage.setItem(CACHE_KEY, JSON.stringify({ total: count, goal: goal, inStock: inStock, ts: Date.now() })); } catch (_) {}
+          }
         }
+      } catch (_) {}
+    }
+
+    // Animate to live count
+    renderCounter(numEl, barEl, goalEl, langEl, stockEl, count, goal, inStock, true);
+  }
+
+  function renderCounter(numEl, barEl, goalEl, langEl, stockEl, count, goal, inStock, animate) {
+    var pct = Math.min(100, Math.round(count / goal * 1000) / 10);
+    if (goalEl) goalEl.textContent = 'and counting \u2014 goal: ' + goal.toLocaleString('en-US') + ' for 2026';
+    if (langEl) langEl.style.display = 'none'; // hide languages msg, show stock only
+    if (stockEl) {
+      var items = inStock.filter(function(i) { return i && i.language && (i.count === undefined || i.count > 0); });
+      if (items.length) {
+        stockEl.innerHTML = items.map(function(i) { return '<span class="stock-tag">' + esc(i.language) + '</span>'; }).join('');
+        var label = stockEl.closest('.impact-counter__right') && stockEl.closest('.impact-counter__right').querySelector('.impact-counter__stock-label');
+        if (label) label.style.display = '';
+        stockEl.style.display = '';
+      } else {
+        var label2 = stockEl.closest('.impact-counter__right') && stockEl.closest('.impact-counter__right').querySelector('.impact-counter__stock-label');
+        if (label2) label2.style.display = 'none';
+        stockEl.style.display = 'none';
       }
     }
-    requestAnimationFrame(step);
+    if (animate) {
+      numEl.style.animation = 'counter-strobe 0.22s steps(1) infinite';
+      var start = performance.now(), dur = 1600;
+      var from = parseInt(numEl.textContent.replace(/,/g,''), 10) || 0;
+      function step(now) {
+        var prog = Math.min((now - start) / dur, 1);
+        var eased = 1 - Math.pow(1 - prog, 3);
+        numEl.textContent = Math.round(from + (count - from) * eased).toLocaleString('en-US');
+        if (prog < 1) { requestAnimationFrame(step); }
+        else {
+          numEl.textContent = count.toLocaleString('en-US');
+          numEl.style.animation = 'counter-glow-store 3s ease-in-out infinite';
+          if (barEl) { barEl.style.transition = 'width 1.4s cubic-bezier(0.25,1,0.5,1)'; barEl.style.width = pct + '%'; }
+        }
+      }
+      requestAnimationFrame(step);
+    } else {
+      numEl.textContent = count.toLocaleString('en-US');
+      if (barEl) barEl.style.width = pct + '%';
+    }
   }
 
   // ── Outreach Slideshow ───────────────────────────────────────

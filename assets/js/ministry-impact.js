@@ -29,9 +29,17 @@
         goal  = typeof d.biblesGoal2026  === 'number' ? d.biblesGoal2026  : goal;
         if (d.biblesLanguagesMessage) langMsg = d.biblesLanguagesMessage;
         if (d.biblesInStock && stockEl) {
-          stockEl.innerHTML = d.biblesInStock.map(function(item) {
-            return '<span class="stock-tag">' + esc(item.language) + '</span>';
-          }).join('');
+          var inStockItems = d.biblesInStock.filter(function(item) {
+            return item && item.language && (item.count === undefined || item.count > 0);
+          });
+          if (inStockItems.length) {
+            stockEl.innerHTML = inStockItems.map(function(item) {
+              return '<span class="stock-tag">' + esc(item.language) + '</span>';
+            }).join('');
+          } else {
+            stockEl.closest('.impact-counter__right') && (stockEl.closest('.impact-counter__right').querySelector('.impact-counter__stock-label').style.display = 'none');
+            stockEl.style.display = 'none';
+          }
         }
       }
     } catch (_) {}
@@ -122,12 +130,13 @@
   function renderSlides(track, dots) {
     track.innerHTML = SLIDES.map(function(s, i) {
       return '<div class="oss-slide' + (i === 0 ? ' active' : '') + '" data-index="' + i + '">' +
-        '<div class="oss-slide__img" style="background-image:url(\'' + esc(s.img) + '\')"></div>' +
-        '<div class="oss-slide__content">' +
-          '<p class="oss-slide__date">' + esc((s.date ? s.date + (s.location ? ' · ' : '') : '') + (s.location || '')) + '</p>' +
-          '<h3 class="oss-slide__title">' + esc(s.title) + '</h3>' +
-          '<p class="oss-slide__body">' + esc(s.body.slice(0, 100) + (s.body.length > 100 ? '\u2026' : '')) + '</p>' +
-          (s.folder ? '<a class="oss-slide__link" href="news.html#ministry-outreach">Read the story \u2192</a>' : '') +
+        '<div class="oss-slide__img" style="background-image:url(\'' + esc(s.img) + '\')">' +
+          '<div class="oss-slide__content">' +
+            '<p class="oss-slide__date">' + esc((s.date ? s.date + (s.location ? ' \xb7 ' : '') : '') + (s.location || '')) + '</p>' +
+            '<h3 class="oss-slide__title">' + esc(s.title) + '</h3>' +
+            '<p class="oss-slide__body">' + esc(s.body.slice(0, 120) + (s.body.length > 120 ? '\u2026' : '')) + '</p>' +
+            (s.folder ? '<a class="oss-slide__link" href="news.html#ministry-outreach">Read the full story \u2192</a>' : '') +
+          '</div>' +
         '</div>' +
       '</div>';
     }).join('');

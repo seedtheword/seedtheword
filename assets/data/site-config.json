@@ -6,12 +6,11 @@
   "biblesGoal2026": 70000,
   "biblesLanguagesMessage": "Available in 2,000+ languages through our Gideon's International partnership",
   "biblesInStock": [
-    { "language": "English (KJV NT)", "count": 100, "format": "Red pocket NT" },
-    { "language": "English (NIV)", "count": 3, "format": "Full Bible" },
-    { "language": "Spanish NT", "count": 5, "format": "Large Print" },
-    { "language": "Spanish/English NT", "count": 3, "format": "Large Print" },
+    { "language": "English", "count": 100, "format": "Red pocket NT" },
+    { "language": "Spanish", "count": 5, "format": "Large Print" },
+    { "language": "Spanish / English", "count": 3, "format": "Large Print" },
     { "language": "Hindi", "count": 10, "format": "Bible" },
-    { "language": "Mandarin/Chinese", "count": 5, "format": "Bible" },
+    { "language": "Mandarin", "count": 5, "format": "Bible" },
     { "language": "Urdu", "count": 6, "format": "Bible" }
   ],
   "_biblesNote": "Update biblesGivenAway manually via GitHub Actions or admin editor after each outreach. Stock counts updated by leadership team."

@@ -1186,3 +1186,49 @@ if (document.readyState === 'loading') {
     });
   }
 })();
+
+
+// ── Floating Donate Button ──────────────────────────────────
+// Shown on all pages except donate.html itself.
+// Hides when user scrolls to within 200px of the footer.
+(function () {
+  if (window.location.pathname.includes('donate')) return;
+
+  var btn = document.createElement('a');
+  btn.href = 'donate.html#support';
+  btn.className = 'floating-donate';
+  btn.setAttribute('aria-label', 'Give to the ministry');
+  btn.innerHTML = '<span class="floating-donate__icon" aria-hidden="true">&#10084;&#65039;</span><span class="floating-donate__label">Give</span>';
+  document.body.appendChild(btn);
+
+  var style = document.createElement('style');
+  style.textContent = [
+    '.floating-donate{',
+      'position:fixed;bottom:1.5rem;right:1.5rem;z-index:900;',
+      'display:inline-flex;align-items:center;gap:0.4rem;',
+      'background:var(--green,#2C5F2E);color:#fff;',
+      'padding:0.7rem 1.2rem;border-radius:999px;',
+      'font-weight:700;font-size:0.88rem;text-decoration:none;',
+      'box-shadow:0 4px 16px rgba(44,95,46,0.45);',
+      'transition:transform 0.2s,opacity 0.3s,box-shadow 0.2s;',
+      'letter-spacing:0.04em;',
+    '}',
+    '.floating-donate:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 8px 24px rgba(44,95,46,0.55);}',
+    '.floating-donate--hidden{opacity:0;pointer-events:none;transform:translateY(8px);}',
+    '.floating-donate__icon{font-size:1rem;line-height:1;}',
+    '@media(max-width:480px){.floating-donate__label{display:none;}.floating-donate{padding:0.8rem;}}',
+  ].join('');
+  document.head.appendChild(style);
+
+  function updateVisibility() {
+    var footer = document.querySelector('.site-footer, footer');
+    if (!footer) return;
+    var footerTop = footer.getBoundingClientRect().top;
+    var nearFooter = footerTop < window.innerHeight + 60;
+    var scrolled = window.scrollY > 300;
+    btn.classList.toggle('floating-donate--hidden', !scrolled || nearFooter);
+  }
+
+  window.addEventListener('scroll', updateVisibility, { passive: true });
+  updateVisibility();
+})();

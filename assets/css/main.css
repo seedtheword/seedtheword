@@ -12297,3 +12297,55 @@ body.your-walk-modal-open {
     gap: 0.5rem;
   }
 }
+
+
+/* ============================================================
+   Ministry Impact Section — homepage counter + slideshow
+   ============================================================ */
+.ministry-impact-section { padding: 4rem 0 5rem; background: var(--light, #f9f6f1); }
+
+/* Counter card */
+.impact-counter-wrap { margin-bottom: 2.5rem; }
+.impact-counter {
+  display: flex; gap: 2rem; flex-wrap: wrap;
+  padding: 2rem 2.25rem; border-radius: 16px;
+  border-left: 5px solid var(--green, #2C5F2E);
+  align-items: flex-start;
+}
+.impact-counter__left { flex: 1; min-width: 220px; }
+.impact-counter__right { flex-shrink: 0; min-width: 200px; display: flex; flex-direction: column; gap: 1rem; }
+.impact-counter__eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--green, #2C5F2E); margin: 0 0 0.3rem; }
+.impact-counter__number { display: flex; align-items: flex-end; gap: 2px; line-height: 1; margin-bottom: 0.25rem; }
+.impact-counter__num { font-size: clamp(2.8rem, 6vw, 4rem); font-weight: 800; color: var(--green, #2C5F2E); font-variant-numeric: tabular-nums; }
+.impact-counter__plus { font-size: 1.4rem; font-weight: 800; color: var(--green, #2C5F2E); margin-bottom: 0.5rem; }
+.impact-counter__sub { font-size: 0.82rem; color: var(--muted, #666); margin: 0 0 0.75rem; line-height: 1.5; }
+.impact-counter__bar-wrap { height: 6px; background: var(--border, #e8e4de); border-radius: 99px; overflow: hidden; margin-bottom: 0.4rem; }
+.impact-counter__bar { height: 100%; background: linear-gradient(90deg, var(--green, #2C5F2E), #5a9e5c); border-radius: 99px; width: 0; }
+.impact-counter__goal { font-size: 0.78rem; color: var(--muted, #666); margin: 0; }
+.impact-counter__stock-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted, #666); }
+.impact-counter__stock { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.stock-tag { background: rgba(44,95,46,0.08); border: 1px solid rgba(44,95,46,0.18); color: var(--green, #2C5F2E); font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 4px; }
+.impact-counter__actions { display: flex; flex-direction: column; gap: 0.5rem; }
+@media(max-width:600px){ .impact-counter{ flex-direction:column; } .impact-counter__right{ min-width:0; width:100%; } .impact-counter__actions{ flex-direction:row; flex-wrap:wrap; } }
+
+/* Outreach slideshow */
+.outreach-slideshow { position: relative; }
+.outreach-slideshow__track { position: relative; border-radius: 14px; overflow: hidden; background: #111; min-height: 340px; }
+.oss-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease; display: flex; align-items: flex-end; }
+.oss-slide.active { opacity: 1; position: relative; }
+.oss-slide__img { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.oss-slide__img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(0,0,0,0.75) 100%); }
+.oss-slide__content { position: relative; z-index: 1; padding: 1.75rem 2rem; color: #fff; width: 100%; }
+.oss-slide__date { font-size: 0.75rem; color: rgba(255,255,255,0.65); letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 0.3rem; }
+.oss-slide__title { font-size: 1.4rem; font-weight: 800; margin: 0 0 0.4rem; color: #fff; }
+.oss-slide__body { font-size: 0.9rem; color: rgba(255,255,255,0.8); line-height: 1.6; margin: 0 0 0.6rem; max-width: 560px; }
+.oss-slide__link { font-size: 0.85rem; font-weight: 600; color: var(--gold, #d4a574); text-decoration: none; border-bottom: 1px solid currentColor; transition: opacity 0.15s; }
+.oss-slide__link:hover { opacity: 0.75; }
+.outreach-slideshow__controls { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1rem; }
+.oss-btn { background: rgba(44,95,46,0.1); border: 1px solid rgba(44,95,46,0.2); color: var(--green, #2C5F2E); width: 38px; height: 38px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.oss-btn:hover { background: rgba(44,95,46,0.2); }
+.oss-dots { display: flex; gap: 0.4rem; }
+.oss-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(44,95,46,0.2); border: none; cursor: pointer; transition: background 0.15s, transform 0.15s; padding: 0; }
+.oss-dot.active { background: var(--green, #2C5F2E); transform: scale(1.25); }
+.oss-see-all { font-size: 0.9rem; font-weight: 600; color: var(--green, #2C5F2E); text-decoration: none; border-bottom: 1px solid currentColor; transition: opacity 0.15s; }
+.oss-see-all:hover { opacity: 0.72; }

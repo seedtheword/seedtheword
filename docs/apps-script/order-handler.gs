@@ -1698,6 +1698,64 @@ function onStoryFormSubmit(e) {
   }
 }
 
+// ── Ministry Stats ─────────────────────────────────────────────
+//
+// Reads the MinistryStats tab from the Order Ledger spreadsheet and
+// returns a JSON object with:
+//   - total: number of Bibles given away (manual entry by team)
+//   - goal: 2026 goal
+//   - languagesMessage: e.g. "Available in 2,000+ languages"
+//   - inStock: array of { language, count, format }
+//   - lastUpdated: ISO timestamp of last edit
+//
+// Tab format (MinistryStats tab):
+//   Row 1: Headers [key, value, note]
+//   Row 2: total | 383 | Total Bibles given away
+//   Row 3: goal | 70000 | 2026 annual goal
+//   Row 4: languagesMessage | Available in 2,000+ languages... | ...
+//   Row 5+: inStock rows with key="stock", value=JSON string of {language,count,format}
+//
+// Falls back to site-config.json values if the sheet is unavailable.
+const MINISTRY_STATS_TAB = 'MinistryStats';
+
+function getMinistryStats_() {
+  try {
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName(MINISTRY_STATS_TAB);
+    if (!sheet) {
+      return { ok: false, error: 'MinistryStats tab not found. Please create it.' };
+    }
+    var rows = sheet.getDataRange().getValues();
+    var result = {
+      ok: true,
+      total: 0,
+      goal: 70000,
+      languagesMessage: 'Available in 2,000+ languages through Gideon\'s International',
+      inStock: [],
+      lastUpdated: new Date().toISOString(),
+    };
+    for (var i = 1; i < rows.length; i++) {
+      var key = String(rows[i][0] || '').trim().toLowerCase();
+      var val = rows[i][1];
+      if (!key) continue;
+      if (key === 'total')            result.total = parseInt(val, 10) || 0;
+      else if (key === 'goal')        result.goal  = parseInt(val, 10) || 70000;
+      else if (key === 'languagesmessage') result.languagesMessage = String(val || '');
+      else if (key === 'lastupdated') result.lastUpdated = String(val || '');
+      else if (key === 'stock') {
+        try {
+          var item = typeof val === 'string' ? JSON.parse(val) : val;
+          if (item && item.language) result.inStock.push(item);
+        } catch (_) {}
+      }
+    }
+    return result;
+  } catch (err) {
+    console.log('getMinistryStats_ error:', err);
+    return { ok: false, error: String(err) };
+  }
+}
+
 // ── HTTP response helper ────────────────────────────────────────
 function jsonResponse(obj) {
   return ContentService
@@ -2373,6 +2431,15 @@ function doGet(e) {
       (e && e.parameter && e.parameter.token) || '',
       (e && e.parameter) || {}
     );
+  }
+
+  if (action === 'getMinistryStats') {
+    try {
+      return jsonResponse(getMinistryStats_());
+    } catch (err) {
+      console.log('getMinistryStats failed:', err);
+      return jsonResponse({ ok: false, error: 'stats-read-failed' });
+    }
   }
 
   if (action === 'subscribers') {

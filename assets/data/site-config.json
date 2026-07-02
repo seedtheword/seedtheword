@@ -2,7 +2,17 @@
   "_help": "Site-wide configuration. Each field is documented inline. Edit through the admin editor.",
   "orderHandlerUrl": "https://script.google.com/macros/s/AKfycbzrHVlOqNu5skSDkf_rsy8moKvwRlM_mZNQpKSXH7HPBCSNjj1Dffz-IuFSJcWjjQUF/exec",
   "_orderHandlerUrlNote": "Google Apps Script Web App URL that receives bundle-builder orders. When empty, the form falls back to Formspree. See admin-help.html → How-to → Set up the order email handler.",
-  "biblesGivenAway": 162,
+  "biblesGivenAway": 383,
   "biblesGoal2026": 70000,
-  "_biblesNote": "Update via Telegram: send '/bibles +47' or '/bibles 209' in the admin topic. Or edit here directly via the admin editor. The counter appears on news.html (Ministry Outreach section) and store.html."
+  "biblesLanguagesMessage": "Available in 2,000+ languages through our Gideon's International partnership",
+  "biblesInStock": [
+    { "language": "English (KJV NT)", "count": 100, "format": "Red pocket NT" },
+    { "language": "English (NIV)", "count": 3, "format": "Full Bible" },
+    { "language": "Spanish NT", "count": 5, "format": "Large Print" },
+    { "language": "Spanish/English NT", "count": 3, "format": "Large Print" },
+    { "language": "Hindi", "count": 10, "format": "Bible" },
+    { "language": "Mandarin/Chinese", "count": 5, "format": "Bible" },
+    { "language": "Urdu", "count": 6, "format": "Bible" }
+  ],
+  "_biblesNote": "Update biblesGivenAway manually via GitHub Actions or admin editor after each outreach. Stock counts updated by leadership team."
 }

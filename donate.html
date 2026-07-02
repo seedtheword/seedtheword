@@ -738,6 +738,59 @@
     }
     .poster-footer a { color: #F4C84F; text-decoration: underline; }
 
+    /* ── Outreach story section ─────────────────────────────── */
+    .donate-story {
+      background: #fff;
+      padding: 4rem 1.5rem;
+      border-bottom: 1px solid #e8e4de;
+    }
+    .donate-story__inner { max-width: 900px; margin: 0 auto; }
+    .donate-story__eyebrow {
+      font-family: 'Anton', Impact, sans-serif;
+      font-size: 0.78rem; letter-spacing: 0.28em; text-transform: uppercase;
+      color: #F4C84F; text-align: center; margin: 0 0 0.6rem;
+    }
+    .donate-story__title {
+      font-family: 'Anton', Impact, sans-serif;
+      font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 400;
+      text-transform: uppercase; text-align: center;
+      color: #1F2A44; margin: 0 0 2.5rem; line-height: 1.15;
+    }
+    .donate-story__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .donate-story__block {
+      padding: 1.5rem;
+      background: #fdf8f0;
+      border: 1px solid #e8d5b8;
+      border-top: 3px solid #F4C84F;
+      border-radius: 4px;
+    }
+    .donate-story__icon { font-size: 1.75rem; display: block; margin-bottom: 0.65rem; }
+    .donate-story__block h3 {
+      font-family: 'Anton', Impact, sans-serif; font-size: 1rem;
+      font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #1F2A44; margin: 0 0 0.5rem;
+    }
+    .donate-story__block p { font-size: 0.9rem; line-height: 1.7; color: #555; margin: 0; }
+    .donate-story__cta-row { margin-top: 1rem; }
+    .donate-story__cta-link {
+      display: flex; align-items: flex-start; gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, #1F2A44, #2d3f60);
+      border-radius: 6px; color: #fff; text-decoration: none;
+      transition: transform 0.15s;
+    }
+    .donate-story__cta-link:hover { transform: translateY(-2px); }
+    .donate-story__cta-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .donate-story__cta-link span:nth-child(2) { flex: 1; font-size: 0.93rem; line-height: 1.65; color: rgba(255,255,255,0.88); }
+    .donate-story__cta-link strong { color: #F4C84F; }
+    .donate-story__cta-arrow { font-size: 1.25rem; color: #F4C84F; flex-shrink: 0; margin-top: 0.1rem; }
+    @media(max-width:540px){ .donate-story__cta-link{ flex-direction:column; gap:0.5rem; } }
+
     /* ── Bible count — inside the poster frame ──────────────── */
     .poster-count {
       margin: 1.6rem -1.6rem -2.4rem;
@@ -1197,6 +1250,46 @@
   </div>
 </section>
 
+<!-- ── Outreach mission narrative ─────────────────────────────── -->
+<section class="donate-story">
+  <div class="donate-story__inner">
+    <p class="donate-story__eyebrow">Why We Do This</p>
+    <h2 class="donate-story__title">Every Bible is a seed.<br>Every seed has a story.</h2>
+    <div class="donate-story__grid">
+      <div class="donate-story__block">
+        <span class="donate-story__icon" aria-hidden="true">📖</span>
+        <h3>We go where people are</h3>
+        <p>From college campuses and street corners to cookouts and tribal communities — Seed the Word and our partners bring the Gospel and a Bible directly to the people God places in front of us. No invitation required. We show up.</p>
+      </div>
+      <div class="donate-story__block">
+        <span class="donate-story__icon" aria-hidden="true">🌍</span>
+        <h3>Bibles in 9 languages and counting</h3>
+        <p>Through our partnership with Gideon's International, we have access to Scripture in over 2,000 languages. Right now we carry English, Spanish, Russian, Ukrainian, Hindi, Mandarin, Urdu, Arabic, and French — and we're always adding more as God opens doors.</p>
+      </div>
+      <div class="donate-story__block">
+        <span class="donate-story__icon" aria-hidden="true">🤝</span>
+        <h3>We need more hands</h3>
+        <p>We are actively recruiting evangelists — members who want to go out with us, or new people who feel called to walk alongside this ministry. If that's you, reach out. Leadership reviews every inquiry personally.</p>
+      </div>
+      <div class="donate-story__block">
+        <span class="donate-story__icon" aria-hidden="true">🙏</span>
+        <h3>Prayer is the foundation</h3>
+        <p>We pray over every Bible before it goes out. We pray for the hands that receive it. And we want to pray for you too — your needs, your family, your walk. This isn't a transaction. It's a partnership in the Gospel.</p>
+      </div>
+    </div>
+    <div class="donate-story__cta-row">
+      <a href="start-here.html" class="donate-story__cta-link">
+        <span class="donate-story__cta-icon" aria-hidden="true">📅</span>
+        <span>
+          <strong>New to reading the Bible?</strong>
+          Start with our free 20-Day Reading Plan — and if you donate, request a Bible, or purchase from our store, we'll mail you the booklet version for free.
+        </span>
+        <span class="donate-story__cta-arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
 <!-- ── Below the fold: what happens next ─────────────────────── -->
 <div class="below-fold">
 
@@ -1328,18 +1421,48 @@
 </footer>
 
 <script src="assets/js/donate.js?v=5"></script>
-<script src="assets/js/bible-counter.js?v=1" defer></script>
+<script src="assets/js/ministry-impact.js?v=2" defer></script>
 <script>
-  // Update the poster count number from site-config.json
-  (function() {
+  // ── Live poster count — uses same ministry-impact.js live fetch
+  // with localStorage fallback. Runs after ministry-impact.js loads.
+  (function () {
+    var CACHE_KEY = 'stw_ministry_stats';
+    function updatePosterNum(count) {
+      var el = document.querySelector('.poster-count__num');
+      if (!el) return;
+      var from = parseInt(el.textContent.replace(/,/g,''), 10) || 0;
+      if (from === count) { el.textContent = count.toLocaleString('en-US'); return; }
+      el.style.animation = 'counter-strobe 0.22s steps(1) infinite';
+      var start = performance.now(), dur = 1600;
+      function step(now) {
+        var prog = Math.min((now - start) / dur, 1);
+        var eased = 1 - Math.pow(1 - prog, 3);
+        el.textContent = Math.round(from + (count - from) * eased).toLocaleString('en-US');
+        if (prog < 1) { requestAnimationFrame(step); }
+        else { el.textContent = count.toLocaleString('en-US'); el.style.animation = 'counter-glow-store 3s ease-in-out infinite'; }
+      }
+      requestAnimationFrame(step);
+    }
+    // Apply cached immediately
+    try {
+      var cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+      if (cached.total) updatePosterNum(cached.total);
+    } catch (_) {}
+    // Then fetch live
     fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
-      .then(function(r) { return r.ok ? r.json() : {}; })
-      .then(function(data) {
-        var el = document.querySelector('.poster-count__num');
-        if (!el) return;
-        var count = typeof data.biblesGivenAway === 'number' ? data.biblesGivenAway : 0;
-        el.textContent = count.toLocaleString('en-US');
-      }).catch(function() {});
+      .then(function(r){ return r.ok ? r.json() : {}; })
+      .then(function(cfg) {
+        var url = cfg.orderHandlerUrl || '';
+        var fallback = typeof cfg.biblesGivenAway === 'number' ? cfg.biblesGivenAway : 0;
+        if (!url) { updatePosterNum(fallback); return; }
+        return fetch(url + '?action=getMinistryStats', { cache: 'no-store' })
+          .then(function(r){ return r.ok ? r.json() : {}; })
+          .then(function(live) {
+            var count = (live.ok && live.total) ? live.total : fallback;
+            try { var c = JSON.parse(localStorage.getItem(CACHE_KEY)||'{}'); c.total=count; localStorage.setItem(CACHE_KEY,JSON.stringify(c)); } catch(_){}
+            updatePosterNum(count);
+          }).catch(function(){ updatePosterNum(fallback); });
+      }).catch(function(){});
   })();
 </script>
 <script>

@@ -12302,7 +12302,11 @@ body.your-walk-modal-open {
 /* ============================================================
    Ministry Impact Section — homepage counter + slideshow
    ============================================================ */
-.ministry-impact-section { padding: 4rem 0 5rem; background: var(--cream, #fdf3e3); }
+.ministry-impact-section {
+  padding: 4rem 0 5rem;
+  background: linear-gradient(180deg, #0a0a0d 0%, #14131a 50%, #0a0a0d 100%);
+  color: rgba(255,255,255,0.92);
+}
 
 /* Counter card */
 .impact-counter-wrap { margin-bottom: 2.5rem; }
@@ -12313,8 +12317,10 @@ body.your-walk-modal-open {
   padding: 2.25rem 2.5rem;
   border-radius: 20px;
   border-left: 5px solid var(--green, #2C5F2E);
-  background: #ffffff;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-left: 5px solid var(--green, #2C5F2E);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   align-items: start;
 }
 @media(max-width:700px){ .impact-counter{ grid-template-columns:1fr; gap:1.5rem; } }

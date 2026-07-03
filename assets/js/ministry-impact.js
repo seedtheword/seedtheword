@@ -11,34 +11,30 @@
 
   // ── Counter ─────────────────────────────────────────────────
   async function initCounter() {
-    var numEl   = document.getElementById('hp-counter-num');
-    var barEl   = document.getElementById('hp-counter-bar');
-    var goalEl  = document.getElementById('hp-counter-goal');
-    var langEl  = document.getElementById('hp-languages-msg');
-    var stockEl = document.getElementById('hp-stock-list');
-    if (!numEl) return;
+    // Support multiple counter mounts across pages
+    var mounts = document.querySelectorAll('#homepage-counter');
+    if (!mounts.length) return;
 
     var CACHE_KEY = 'stw_ministry_stats';
-
-    // Load cached fallback from localStorage
     var cached = {};
     try { cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}'); } catch (_) {}
 
-    var count = cached.total || 123;
-    var goal  = cached.goal  || 70000;
+    var count   = cached.total   || 123;
+    var goal    = cached.goal    || 70000;
     var inStock = cached.inStock || [];
 
-    // Apply cached values immediately so page never shows 0 on reload
-    renderCounter(numEl, barEl, goalEl, langEl, stockEl, count, goal, inStock, false);
+    // Render the full counter card into each mount
+    mounts.forEach(function(mount) { buildCounterHTML(mount, count, goal, inStock); });
+    // Animate with cached values immediately
+    animateCounters(count, goal);
 
-    // Fetch live from Apps Script (getMinistryStats) then fall back to site-config.json
+    // Fetch live data
     var orderHandlerUrl = '';
     try {
       var cfgRes = await fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' });
       if (cfgRes.ok) {
         var cfg = await cfgRes.json();
         orderHandlerUrl = cfg.orderHandlerUrl || '';
-        // Use site-config as baseline fallback
         if (!cached.total) {
           count   = typeof cfg.biblesGivenAway === 'number' ? cfg.biblesGivenAway : count;
           goal    = typeof cfg.biblesGoal2026  === 'number' ? cfg.biblesGoal2026  : goal;
@@ -47,7 +43,6 @@
       }
     } catch (_) {}
 
-    // Try live Apps Script endpoint
     if (orderHandlerUrl) {
       try {
         var liveRes = await fetch(orderHandlerUrl + '?action=getMinistryStats', { cache: 'no-store' });
@@ -57,38 +52,62 @@
             count   = live.total   || count;
             goal    = live.goal    || goal;
             inStock = live.inStock || inStock;
-            // Cache the fresh live data
             try { localStorage.setItem(CACHE_KEY, JSON.stringify({ total: count, goal: goal, inStock: inStock, ts: Date.now() })); } catch (_) {}
           }
         }
       } catch (_) {}
     }
 
-    // Animate to live count
-    renderCounter(numEl, barEl, goalEl, langEl, stockEl, count, goal, inStock, true);
+    // Update stock tags and animate to live count
+    document.querySelectorAll('.impact-counter__stock').forEach(function(stockEl) {
+      updateStockTags(stockEl, inStock);
+    });
+    animateCounters(count, goal);
   }
 
-  function renderCounter(numEl, barEl, goalEl, langEl, stockEl, count, goal, inStock, animate) {
+  function buildCounterHTML(mount, count, goal, inStock) {
     var pct = Math.min(100, Math.round(count / goal * 1000) / 10);
-    if (goalEl) goalEl.textContent = 'and counting \u2014 goal: ' + goal.toLocaleString('en-US') + ' for 2026';
-    if (langEl) langEl.style.display = 'none'; // hide languages msg, show stock only
-    if (stockEl) {
-      var items = inStock.filter(function(i) { return i && i.language && (i.count === undefined || i.count > 0); });
-      if (items.length) {
-        stockEl.innerHTML = items.map(function(i) { return '<span class="stock-tag">' + esc(i.language) + '</span>'; }).join('');
-        var label = stockEl.closest('.impact-counter__right') && stockEl.closest('.impact-counter__right').querySelector('.impact-counter__stock-label');
-        if (label) label.style.display = '';
-        stockEl.style.display = '';
-      } else {
-        var label2 = stockEl.closest('.impact-counter__right') && stockEl.closest('.impact-counter__right').querySelector('.impact-counter__stock-label');
-        if (label2) label2.style.display = 'none';
-        stockEl.style.display = 'none';
-      }
+    var stockHTML = inStock.filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); })
+      .map(function(i){ return '<span class="stock-tag">' + esc(i.language) + '</span>'; }).join('');
+
+    mount.innerHTML =
+      '<div class="impact-counter glass-morphism">' +
+        '<div class="impact-counter__left">' +
+          '<p class="impact-counter__eyebrow">Bibles Given Away</p>' +
+          '<div class="impact-counter__number">' +
+            '<span class="impact-counter__num">' + count.toLocaleString('en-US') + '</span>' +
+            '<span class="impact-counter__plus">+</span>' +
+          '</div>' +
+          '<p class="impact-counter__sub">and counting \u2014 updated live from our outreach records</p>' +
+          '<div class="impact-counter__bar-wrap"><div class="impact-counter__bar" style="width:' + pct + '%"></div></div>' +
+          '<p class="impact-counter__goal">Goal: ' + goal.toLocaleString('en-US') + ' for 2026</p>' +
+        '</div>' +
+        '<div class="impact-counter__right">' +
+          '<span class="impact-counter__stock-label">In Stock Now</span>' +
+          '<div class="impact-counter__stock">' + (stockHTML || '<span class="stock-tag">Restocking soon</span>') + '</div>' +
+          '<div class="impact-counter__actions">' +
+            '<a href="store.html" class="btn btn-primary btn-sm">\uD83C\uDF81 Gift a Bible</a>' +
+            '<a href="news.html#ministry-outreach" class="btn btn-secondary btn-sm">See Outreach</a>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function updateStockTags(stockEl, inStock) {
+    if (!stockEl) return;
+    var items = inStock.filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); });
+    if (items.length) {
+      stockEl.innerHTML = items.map(function(i){ return '<span class="stock-tag">' + esc(i.language) + '</span>'; }).join('');
     }
-    if (animate) {
+  }
+
+  function animateCounters(count, goal) {
+    var pct = Math.min(100, Math.round(count / goal * 1000) / 10);
+    document.querySelectorAll('.impact-counter__num').forEach(function(numEl) {
+      var from = parseInt(numEl.textContent.replace(/,/g,''), 10) || 0;
+      if (from === count) return;
       numEl.style.animation = 'counter-strobe 0.22s steps(1) infinite';
       var start = performance.now(), dur = 1600;
-      var from = parseInt(numEl.textContent.replace(/,/g,''), 10) || 0;
       function step(now) {
         var prog = Math.min((now - start) / dur, 1);
         var eased = 1 - Math.pow(1 - prog, 3);
@@ -97,14 +116,14 @@
         else {
           numEl.textContent = count.toLocaleString('en-US');
           numEl.style.animation = 'counter-glow-store 3s ease-in-out infinite';
-          if (barEl) { barEl.style.transition = 'width 1.4s cubic-bezier(0.25,1,0.5,1)'; barEl.style.width = pct + '%'; }
         }
       }
       requestAnimationFrame(step);
-    } else {
-      numEl.textContent = count.toLocaleString('en-US');
-      if (barEl) barEl.style.width = pct + '%';
-    }
+    });
+    document.querySelectorAll('.impact-counter__bar').forEach(function(barEl) {
+      barEl.style.transition = 'width 1.4s cubic-bezier(0.25,1,0.5,1)';
+      barEl.style.width = pct + '%';
+    });
   }
 
   // ── Outreach Slideshow ───────────────────────────────────────

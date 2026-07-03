@@ -101,39 +101,23 @@
        posts, and daily Bible content (verses, tips, facts, encouragement) ── -->
 <section class="ministry-impact-section" id="showcase">
   <div class="container">
-    <!-- Bible Counter -->
+    <!-- Section heading -->
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <p style="font-size:0.72rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--green,#2C5F2E);margin:0 0 0.5rem;">Ministry Impact</p>
+      <h2 style="font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;color:#fff;margin:0 0 0.4rem;line-height:1.2;">Bibles Changing Lives</h2>
+      <p style="font-size:0.95rem;color:rgba(255,255,255,0.6);margin:0;">Tracking every Bible we give away — updated live from our outreach records.</p>
+    </div>
+
+    <!-- Bible Counter — populated by ministry-impact.js -->
     <div class="impact-counter-wrap">
-      <div class="impact-counter glass-morphism" id="homepage-counter">
-        <div class="impact-counter__left">
-          <p class="impact-counter__eyebrow">&#128218; Bibles Given Away</p>
-          <div class="impact-counter__number">
-            <span class="impact-counter__num" id="hp-counter-num">0</span>
-            <span class="impact-counter__plus">+</span>
-          </div>
-          <p class="impact-counter__sub" id="hp-languages-msg">Available in 2,000+ languages through Gideon's International</p>
-          <div class="impact-counter__bar-wrap">
-            <div class="impact-counter__bar" id="hp-counter-bar" style="width:0%"></div>
-          </div>
-          <p class="impact-counter__goal" id="hp-counter-goal">and counting — goal: 70,000 for 2026</p>
-        </div>
-        <div class="impact-counter__right">
-          <p class="impact-counter__stock-label">In Stock Now</p>
-          <div class="impact-counter__stock" id="hp-stock-list">
-            <span class="stock-tag">English KJV NT</span>
-            <span class="stock-tag">Spanish NT</span>
-            <span class="stock-tag">Hindi</span>
-            <span class="stock-tag">Mandarin</span>
-            <span class="stock-tag">Urdu</span>
-          </div>
-          <div class="impact-counter__actions">
-            <a href="store.html" class="btn btn-primary btn-sm">&#127873; Gift a Bible</a>
-            <a href="news.html#ministry-outreach" class="btn btn-secondary btn-sm">See Outreach</a>
-          </div>
-        </div>
-      </div>
+      <div id="homepage-counter"></div>
     </div>
 
     <!-- Outreach Slideshow -->
+    <div style="margin-top:3rem;margin-bottom:1rem;text-align:center;">
+      <p style="font-size:0.72rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--green,#2C5F2E);margin:0 0 0.3rem;">Outreach Stories</p>
+      <h3 style="font-size:1.4rem;font-weight:800;color:#fff;margin:0;">Where We've Been</h3>
+    </div>
     <div class="outreach-slideshow" id="outreach-slideshow" aria-label="Ministry outreach highlights">
       <div class="outreach-slideshow__track" id="oss-track"></div>
       <div class="outreach-slideshow__controls">

@@ -12307,6 +12307,10 @@ body.your-walk-modal-open {
   background: linear-gradient(180deg, #0a0a0d 0%, #14131a 50%, #0a0a0d 100%);
   color: rgba(255,255,255,0.92);
 }
+.ministry-impact-section .impact-counter__sub,
+.ministry-impact-section .impact-counter__goal {
+  color: rgba(255,255,255,0.68);
+}
 
 /* Counter card */
 .impact-counter-wrap { margin-bottom: 2.5rem; }

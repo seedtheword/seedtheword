@@ -12430,6 +12430,7 @@ body.your-walk-modal-open {
 }
 /* On light backgrounds (store, news) — white card, green left border */
 .section--light .impact-counter,
+.section--white .impact-counter,
 .bible-counter-store .impact-counter {
   background: #fff;
   border: 1px solid rgba(44,95,46,0.18);
@@ -12437,6 +12438,7 @@ body.your-walk-modal-open {
   box-shadow: 0 8px 32px rgba(31,38,135,0.12), 0 2px 8px rgba(44,95,46,0.08);
 }
 .section--light .impact-counter:hover,
+.section--white .impact-counter:hover,
 .bible-counter-store .impact-counter:hover {
   transform: translateY(-3px);
   box-shadow: 0 16px 48px rgba(31,38,135,0.18), 0 4px 16px rgba(44,95,46,0.12);
@@ -12455,8 +12457,10 @@ body.your-walk-modal-open {
 }
 /* On light bg: gold eyebrow becomes green */
 .section--light .impact-counter__eyebrow,
+.section--white .impact-counter__eyebrow,
 .bible-counter-store .impact-counter__eyebrow { color: var(--green, #2C5F2E); }
 .section--light .impact-counter__eyebrow::before,
+.section--white .impact-counter__eyebrow::before,
 .bible-counter-store .impact-counter__eyebrow::before { background: var(--green, #2C5F2E); }
 .impact-counter__number { display: flex; align-items: baseline; gap: 3px; line-height: 1; margin-bottom: 0.3rem; }
 .impact-counter__num {
@@ -12468,6 +12472,7 @@ body.your-walk-modal-open {
 .impact-counter__sub { font-size: 0.85rem; color: rgba(255,255,255,0.75); margin: 0 0 1rem; line-height: 1.55; }
 /* On light bg: white sub text becomes dark */
 .section--light .impact-counter__sub,
+.section--white .impact-counter__sub,
 .bible-counter-store .impact-counter__sub { color: var(--muted, #666); }
 .impact-counter__bar-wrap {
   height: 8px; background: rgba(44,95,46,0.2); border-radius: 99px;
@@ -12477,6 +12482,7 @@ body.your-walk-modal-open {
 .impact-counter__goal { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin: 0; }
 /* On light bg: white goal text becomes dark */
 .section--light .impact-counter__goal,
+.section--white .impact-counter__goal,
 .bible-counter-store .impact-counter__goal { color: var(--muted, #666); }
 .impact-counter__stock-label {
   font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em;
@@ -12485,6 +12491,7 @@ body.your-walk-modal-open {
 }
 /* On light bg: gold stock label becomes green */
 .section--light .impact-counter__stock-label,
+.section--white .impact-counter__stock-label,
 .bible-counter-store .impact-counter__stock-label { color: var(--green, #2C5F2E); }
 .impact-counter__gideon {
   font-size: 0.75rem; color: rgba(255,255,255,0.5);
@@ -12492,6 +12499,7 @@ body.your-walk-modal-open {
 }
 /* On light bg: white gideon note becomes dark */
 .section--light .impact-counter__gideon,
+.section--white .impact-counter__gideon,
 .bible-counter-store .impact-counter__gideon { color: var(--muted, #666); }
 .impact-counter__stock { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1rem; }
 .stock-tag {

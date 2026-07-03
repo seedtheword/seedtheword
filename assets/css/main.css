@@ -12399,6 +12399,13 @@ body.your-walk-modal-open {
   box-shadow: 0 18px 42px rgba(0,0,0,0.35);
   align-items: start;
 }
+/* On light backgrounds (store, news) the counter card uses light solid bg + dark text */
+.section--light .impact-counter,
+.bible-counter-store .impact-counter {
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(44,95,46,0.2);
+  box-shadow: 0 8px 32px rgba(31,38,135,0.12);
+}
 @media(max-width:700px){ .impact-counter{ grid-template-columns:1fr; gap:1.5rem; } }
 .impact-counter__left {}
 .impact-counter__right { display:flex; flex-direction:column; gap:1.25rem; min-width:190px; }
@@ -12411,6 +12418,11 @@ body.your-walk-modal-open {
   content: ''; display: inline-block; width: 18px; height: 2px;
   background: rgba(212,165,116,0.92); flex-shrink: 0;
 }
+/* On light bg: gold eyebrow becomes green */
+.section--light .impact-counter__eyebrow,
+.bible-counter-store .impact-counter__eyebrow { color: var(--green, #2C5F2E); }
+.section--light .impact-counter__eyebrow::before,
+.bible-counter-store .impact-counter__eyebrow::before { background: var(--green, #2C5F2E); }
 .impact-counter__number { display: flex; align-items: baseline; gap: 3px; line-height: 1; margin-bottom: 0.3rem; }
 .impact-counter__num {
   font-size: clamp(3rem, 7vw, 4.5rem); font-weight: 800;
@@ -12419,28 +12431,33 @@ body.your-walk-modal-open {
 }
 .impact-counter__plus { font-size: 2rem; font-weight: 800; color: var(--green, #2C5F2E); margin-bottom: 0.2rem; }
 .impact-counter__sub { font-size: 0.85rem; color: rgba(255,255,255,0.75); margin: 0 0 1rem; line-height: 1.55; }
+/* On light bg: white sub text becomes dark */
+.section--light .impact-counter__sub,
+.bible-counter-store .impact-counter__sub { color: var(--muted, #666); }
 .impact-counter__bar-wrap {
   height: 8px; background: rgba(44,95,46,0.2); border-radius: 99px;
   overflow: hidden; margin-bottom: 0.4rem;
 }
 .impact-counter__bar { height: 100%; background: linear-gradient(90deg, var(--green, #2C5F2E), #52b788); border-radius: 99px; width: 0; transition: width 1.4s cubic-bezier(0.25,1,0.5,1); }
 .impact-counter__goal { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin: 0; }
+/* On light bg: white goal text becomes dark */
+.section--light .impact-counter__goal,
+.bible-counter-store .impact-counter__goal { color: var(--muted, #666); }
 .impact-counter__stock-label {
   font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em;
   text-transform: uppercase; color: rgba(212,165,116,0.92);
   margin-bottom: 0.25rem; display: block;
 }
+/* On light bg: gold stock label becomes green */
+.section--light .impact-counter__stock-label,
+.bible-counter-store .impact-counter__stock-label { color: var(--green, #2C5F2E); }
 .impact-counter__gideon {
   font-size: 0.75rem; color: rgba(255,255,255,0.5);
   margin: 0 0 0.6rem; line-height: 1.4; font-style: italic;
 }
-/* On light-bg pages (store, news) override colors back to dark */
+/* On light bg: white gideon note becomes dark */
+.section--light .impact-counter__gideon,
 .bible-counter-store .impact-counter__gideon { color: var(--muted, #666); }
-.bible-counter-store .impact-counter__eyebrow { color: var(--green, #2C5F2E); }
-.bible-counter-store .impact-counter__eyebrow::before { background: var(--green, #2C5F2E); }
-.bible-counter-store .impact-counter__sub  { color: var(--muted, #666); }
-.bible-counter-store .impact-counter__goal { color: var(--muted, #666); }
-.bible-counter-store .impact-counter__stock-label { color: var(--green, #2C5F2E); }
 .impact-counter__stock { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1rem; }
 .stock-tag {
   background: var(--green, #2C5F2E); color: #fff;
@@ -12463,6 +12480,7 @@ body.your-walk-modal-open {
   border-color: rgba(212,165,116,0.85);
   color: #fff;
 }
+/* On light bg: secondary button uses standard red outline (already in global .btn-secondary) */
 @media(max-width:480px){ .impact-counter__actions{ flex-direction:row; flex-wrap:wrap; } .impact-counter__actions .btn{ width:auto; } }
 
 /* Outreach slideshow — matches news.html outreach card style */

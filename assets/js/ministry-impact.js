@@ -1,79 +1,42 @@
 /* ============================================================
-   Ministry Impact — homepage Bible counter + outreach slideshow
-   Replaces the heavy showcase-carousel.js with a fast, focused
-   section showing:
-   1. Live Bible giveaway counter (from site-config.json,
-      upgradeable to Apps Script getMinistryStats endpoint)
-   2. Outreach photo slideshow with event titles and stories
+   Ministry Impact — Bible counter + outreach slideshow
+   Performance: counter loads immediately from cache/config,
+   live Apps Script fetch is deferred. Slideshow loads lazily
+   via IntersectionObserver so it never blocks first paint.
    ============================================================ */
 (function () {
   'use strict';
 
-  // ── Counter ─────────────────────────────────────────────────
-  async function initCounter() {
-    // Support multiple counter mounts across pages
-    var mounts = document.querySelectorAll('#homepage-counter');
-    if (!mounts.length) return;
+  var CACHE_KEY   = 'stw_ministry_stats';
+  var CACHE_TTL   = 5 * 60 * 1000; // 5 min
 
-    var CACHE_KEY = 'stw_ministry_stats';
-    var cached = {};
-    try { cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}'); } catch (_) {}
-
-    var count   = cached.total   || 123;
-    var goal    = cached.goal    || 70000;
-    var inStock = cached.inStock || [];
-
-    // Render the full counter card into each mount
-    mounts.forEach(function(mount) { buildCounterHTML(mount, count, goal, inStock); });
-    // Animate with cached values immediately
-    animateCounters(count, goal);
-
-    // Fetch live data
-    var orderHandlerUrl = '';
-    try {
-      var cfgRes = await fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' });
-      if (cfgRes.ok) {
-        var cfg = await cfgRes.json();
-        orderHandlerUrl = cfg.orderHandlerUrl || '';
-        if (!cached.total) {
-          count   = typeof cfg.biblesGivenAway === 'number' ? cfg.biblesGivenAway : count;
-          goal    = typeof cfg.biblesGoal2026  === 'number' ? cfg.biblesGoal2026  : goal;
-          inStock = Array.isArray(cfg.biblesInStock) ? cfg.biblesInStock : inStock;
-        }
-      }
-    } catch (_) {}
-
-    if (orderHandlerUrl) {
-      try {
-        var liveRes = await fetch(orderHandlerUrl + '?action=getMinistryStats', { cache: 'no-store' });
-        if (liveRes.ok) {
-          var live = await liveRes.json();
-          if (live.ok) {
-            count   = live.total   || count;
-            goal    = live.goal    || goal;
-            inStock = live.inStock || inStock;
-            try { localStorage.setItem(CACHE_KEY, JSON.stringify({ total: count, goal: goal, inStock: inStock, ts: Date.now() })); } catch (_) {}
-          }
-        }
-      } catch (_) {}
-    }
-
-    // Update stock tags and animate to live count
-    document.querySelectorAll('.impact-counter__stock').forEach(function(stockEl) {
-      updateStockTags(stockEl, inStock);
+  // ── Helpers ─────────────────────────────────────────────────
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
-    animateCounters(count, goal);
   }
 
+  function readCache() {
+    try { return JSON.parse(localStorage.getItem(CACHE_KEY) || '{}'); } catch (_) { return {}; }
+  }
+
+  function writeCache(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (_) {}
+  }
+
+  // ── Counter HTML builder ─────────────────────────────────────
   function buildCounterHTML(mount, count, goal, inStock) {
-    var pct = Math.min(100, Math.round(count / goal * 1000) / 10);
-    var stockHTML = inStock.filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); })
-      .map(function(i){ return '<span class="stock-tag">' + esc(i.language) + '</span>'; }).join('');
+    var pct      = Math.min(100, Math.round(count / goal * 1000) / 10);
+    var stockHTML = inStock
+      .filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); })
+      .map(function(i){ return '<span class="stock-tag">' + esc(i.language) + '</span>'; })
+      .join('');
 
     mount.innerHTML =
-      '<div class="impact-counter glass-morphism">' +
+      '<div class="impact-counter">' +
         '<div class="impact-counter__left">' +
-          '<p class="impact-counter__eyebrow">Bibles Given Away</p>' +
+          '<p class="impact-counter__eyebrow">&#128218; Bibles Given Away</p>' +
           '<div class="impact-counter__number">' +
             '<span class="impact-counter__num">' + count.toLocaleString('en-US') + '</span>' +
             '<span class="impact-counter__plus">+</span>' +
@@ -84,32 +47,24 @@
         '</div>' +
         '<div class="impact-counter__right">' +
           '<span class="impact-counter__stock-label">In Stock Now</span>' +
+          '<p class="impact-counter__gideon">Available in 2,000+ languages via Gideon\'s International</p>' +
           '<div class="impact-counter__stock">' + (stockHTML || '<span class="stock-tag">Restocking soon</span>') + '</div>' +
           '<div class="impact-counter__actions">' +
-            '<a href="store.html" class="btn btn-primary btn-sm">\uD83C\uDF81 Gift a Bible</a>' +
+            '<a href="store.html" class="btn btn-primary btn-sm">&#127873; Gift a Bible</a>' +
             '<a href="news.html#ministry-outreach" class="btn btn-secondary btn-sm">See Outreach</a>' +
           '</div>' +
         '</div>' +
       '</div>';
   }
 
-  function updateStockTags(stockEl, inStock) {
-    if (!stockEl) return;
-    var items = inStock.filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); });
-    if (items.length) {
-      stockEl.innerHTML = items.map(function(i){ return '<span class="stock-tag">' + esc(i.language) + '</span>'; }).join('');
-    }
-  }
-
   function animateCounters(count, goal) {
     var pct = Math.min(100, Math.round(count / goal * 1000) / 10);
     document.querySelectorAll('.impact-counter__num').forEach(function(numEl) {
-      var from = parseInt(numEl.textContent.replace(/,/g,''), 10) || 0;
+      var from = parseInt(numEl.textContent.replace(/,/g, ''), 10) || 0;
       if (from === count) return;
-      numEl.style.animation = 'counter-strobe 0.22s steps(1) infinite';
       var start = performance.now(), dur = 1600;
       function step(now) {
-        var prog = Math.min((now - start) / dur, 1);
+        var prog  = Math.min((now - start) / dur, 1);
         var eased = 1 - Math.pow(1 - prog, 3);
         numEl.textContent = Math.round(from + (count - from) * eased).toLocaleString('en-US');
         if (prog < 1) { requestAnimationFrame(step); }
@@ -121,85 +76,167 @@
       requestAnimationFrame(step);
     });
     document.querySelectorAll('.impact-counter__bar').forEach(function(barEl) {
-      barEl.style.transition = 'width 1.4s cubic-bezier(0.25,1,0.5,1)';
       barEl.style.width = pct + '%';
     });
   }
 
-  // ── Outreach Slideshow ───────────────────────────────────────
+  function updateStockTags(inStock) {
+    document.querySelectorAll('.impact-counter__stock').forEach(function(el) {
+      var items = inStock.filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); });
+      if (items.length) {
+        el.innerHTML = items.map(function(i){ return '<span class="stock-tag">' + esc(i.language) + '</span>'; }).join('');
+      }
+    });
+  }
+
+  // ── Counter init ─────────────────────────────────────────────
+  async function initCounter() {
+    var mounts = document.querySelectorAll('#homepage-counter');
+    if (!mounts.length) return;
+
+    // 1. Load from cache first for instant render
+    var cached  = readCache();
+    var count   = cached.total   || 123;
+    var goal    = cached.goal    || 70000;
+    var inStock = cached.inStock || [];
+
+    mounts.forEach(function(m) { buildCounterHTML(m, count, goal, inStock); });
+    animateCounters(count, goal);
+
+    // 2. Fetch config for Apps Script URL (no-store but not blocking render)
+    var orderHandlerUrl = '';
+    try {
+      var cfgRes = await fetch('assets/data/site-config.json', { cache: 'no-store' });
+      if (cfgRes.ok) {
+        var cfg = await cfgRes.json();
+        orderHandlerUrl = cfg.orderHandlerUrl || '';
+        // Only use config values if cache is stale/empty
+        if (!cached.total) {
+          count   = typeof cfg.biblesGivenAway === 'number' ? cfg.biblesGivenAway : count;
+          goal    = typeof cfg.biblesGoal2026  === 'number' ? cfg.biblesGoal2026  : goal;
+          inStock = Array.isArray(cfg.biblesInStock)        ? cfg.biblesInStock   : inStock;
+          mounts.forEach(function(m) { buildCounterHTML(m, count, goal, inStock); });
+          animateCounters(count, goal);
+        }
+      }
+    } catch (_) {}
+
+    // 3. Fetch live stats — but only if cache is older than TTL
+    var cacheAge = cached.ts ? Date.now() - cached.ts : Infinity;
+    if (orderHandlerUrl && cacheAge > CACHE_TTL) {
+      try {
+        var liveRes = await fetch(orderHandlerUrl + '?action=getMinistryStats', { cache: 'no-store' });
+        if (liveRes.ok) {
+          var live = await liveRes.json();
+          if (live.ok) {
+            count   = live.total   || count;
+            goal    = live.goal    || goal;
+            inStock = live.inStock || inStock;
+            writeCache({ total: count, goal: goal, inStock: inStock, ts: Date.now() });
+            updateStockTags(inStock);
+            animateCounters(count, goal);
+          }
+        }
+      } catch (_) {}
+    }
+  }
+
+  // ── Slideshow (lazy — only loads when section is visible) ────
   var SLIDES = [];
   var currentSlide = 0;
-  var autoTimer = null;
-  var AUTO_MS = 6000;
+  var autoTimer    = null;
+  var AUTO_MS      = 6000;
+  var slideshowReady = false;
 
-  async function initSlideshow() {
-    var track = document.getElementById('oss-track');
-    var dots  = document.getElementById('oss-dots');
-    var prev  = document.getElementById('oss-prev');
-    var next  = document.getElementById('oss-next');
-    if (!track) return;
+  var FALLBACK_SLIDES = [
+    { img: 'assets/images/ministry-highlights/stw-bibles-giveaway.jpg',   title: 'Bibles Going Out',   location: 'Pacific Northwest', body: 'Every Bible packed with prayer and a handwritten note.' },
+    { img: 'assets/images/ministry-highlights/bible-ministry-1.jpg',       title: 'Pack & Ship Nights', location: 'Seed the Word HQ',   body: 'Volunteers gather to pack, pray, and ship.' },
+    { img: 'assets/images/backgrounds/gideon-background.jpg',              title: 'Out in the Field',   location: 'Streets & Campuses', body: 'We bring the Gospel wherever God opens a door.' }
+  ];
 
-    // Load outreach events
+  async function loadSlides() {
+    if (slideshowReady) return;
+    slideshowReady = true;
     try {
-      var res = await fetch('assets/data/ministry-outreach.json?t=' + Date.now(), { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      var data = await res.json();
-      var events = Array.isArray(data.events) ? data.events : [];
+      var res = await fetch('assets/data/ministry-outreach.json', { cache: 'default' });
+      if (!res.ok) throw new Error();
+      var data   = await res.json();
+      var events = Array.isArray(data.events) ? data.events.slice(0, 5) : [];
 
-      // Load first photo from each event
-      var loaded = await Promise.all(events.slice(0, 6).map(async function(ev) {
+      // Load image manifests in parallel but cap at 5 events
+      var loaded = await Promise.all(events.map(async function(ev) {
         try {
-          var mr = await fetch('assets/images/ministry-outreach/' + ev.folder + '/images.json?t=' + Date.now(), { cache: 'no-store' });
+          var mr = await fetch('assets/images/ministry-outreach/' + ev.folder + '/images.json', { cache: 'default' });
           if (!mr.ok) return null;
-          var m = await mr.json();
-          var photos = Array.isArray(m.media) ? m.media.filter(function(x) { return x && x.file && x.type === 'photo'; }) : [];
+          var m      = await mr.json();
+          var photos = Array.isArray(m.media) ? m.media.filter(function(x){ return x && x.file && x.type === 'photo'; }) : [];
           if (!photos.length) return null;
           return {
-            img: 'assets/images/ministry-outreach/' + ev.folder + '/' + encodeURIComponent(photos[0].file),
-            title: ev.title || 'Outreach',
-            date: ev.date || '',
+            img:      'assets/images/ministry-outreach/' + ev.folder + '/' + encodeURIComponent(photos[0].file),
+            title:    ev.title    || 'Outreach',
+            date:     ev.date     || '',
             location: ev.location || '',
-            body: ev.body || '',
-            folder: ev.folder,
+            body:     ev.body     || '',
+            folder:   ev.folder
           };
         } catch (_) { return null; }
       }));
-
       SLIDES = loaded.filter(Boolean);
     } catch (_) {}
 
-    // Fallback slides if no outreach data
-    if (!SLIDES.length) {
-      SLIDES = [
-        { img: 'assets/images/ministry-highlights/stw-bibles-giveaway.jpg', title: 'Bibles Going Out', date: '', location: 'Pacific Northwest', body: 'Every Bible packed with prayer and a handwritten note.' },
-        { img: 'assets/images/ministry-highlights/bible-ministry-1.jpg', title: 'Pack & Ship Nights', date: '', location: 'Seed the Word HQ', body: 'Volunteers gather to pack, pray, and ship.' },
-        { img: 'assets/images/backgrounds/gideon-background.jpg', title: 'Out in the Field', date: '', location: 'Streets & Campuses', body: 'We bring the Gospel wherever God opens a door.' },
-      ];
-    }
+    if (!SLIDES.length) SLIDES = FALLBACK_SLIDES;
 
+    var track = document.getElementById('oss-track');
+    var dots  = document.getElementById('oss-dots');
+    if (!track) return;
     renderSlides(track, dots);
-    if (prev) prev.addEventListener('click', function() { go(-1); });
-    if (next) next.addEventListener('click', function() { go(1); });
     startAuto();
+  }
+
+  function initSlideshow() {
+    var section = document.getElementById('outreach-slideshow');
+    if (!section) return;
+
+    // Wire up controls immediately (they're empty but harmless)
+    var prev = document.getElementById('oss-prev');
+    var next = document.getElementById('oss-next');
+    if (prev) prev.addEventListener('click', function(){ go(-1); });
+    if (next) next.addEventListener('click', function(){ go(1);  });
+
+    // Lazy-load slide data when slideshow scrolls into view
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) { io.disconnect(); loadSlides(); }
+      }, { rootMargin: '200px' });
+      io.observe(section);
+    } else {
+      // Fallback: load after 1s idle
+      setTimeout(loadSlides, 1000);
+    }
   }
 
   function renderSlides(track, dots) {
     track.innerHTML = SLIDES.map(function(s, i) {
-      return '<div class="oss-slide' + (i === 0 ? ' active' : '') + '" data-index="' + i + '">' +
-        '<div class="oss-slide__img" style="background-image:url(\'' + esc(s.img) + '\')">' +
-          '<div class="oss-slide__content">' +
-            '<p class="oss-slide__date">' + esc((s.date ? s.date + (s.location ? ' \xb7 ' : '') : '') + (s.location || '')) + '</p>' +
-            '<h3 class="oss-slide__title">' + esc(s.title) + '</h3>' +
-            '<p class="oss-slide__body">' + esc(s.body.slice(0, 120) + (s.body.length > 120 ? '\u2026' : '')) + '</p>' +
-            (s.folder ? '<a class="oss-slide__link" href="news.html#ministry-outreach">Read the full story \u2192</a>' : '') +
+      var dateLine = (s.date ? s.date + (s.location ? ' \xb7 ' : '') : '') + (s.location || '');
+      var bodyText = s.body ? s.body.slice(0, 120) + (s.body.length > 120 ? '\u2026' : '') : '';
+      return (
+        '<div class="oss-slide' + (i === 0 ? ' active' : '') + '" data-index="' + i + '">' +
+          '<div class="oss-slide__img" style="background-image:url(\'' + esc(s.img) + '\')">' +
+            '<div class="oss-slide__content">' +
+              (dateLine ? '<p class="oss-slide__date">' + esc(dateLine) + '</p>' : '') +
+              '<h3 class="oss-slide__title">' + esc(s.title) + '</h3>' +
+              (bodyText ? '<p class="oss-slide__body">' + esc(bodyText) + '</p>' : '') +
+              (s.folder ? '<a class="oss-slide__link" href="news.html#ministry-outreach">Read the full story \u2192</a>' : '') +
+            '</div>' +
           '</div>' +
-        '</div>' +
-      '</div>';
+        '</div>'
+      );
     }).join('');
 
     if (dots) {
       dots.innerHTML = SLIDES.map(function(_, i) {
-        return '<button class="oss-dot' + (i === 0 ? ' active' : '') + '" data-index="' + i + '" aria-label="Slide ' + (i+1) + '"></button>';
+        return '<button class="oss-dot' + (i === 0 ? ' active' : '') + '" data-index="' + i +
+               '" aria-label="Slide ' + (i + 1) + '"></button>';
       }).join('');
       dots.addEventListener('click', function(e) {
         var btn = e.target.closest('.oss-dot');
@@ -208,29 +245,22 @@
     }
   }
 
-  function go(dir) { goTo((currentSlide + dir + SLIDES.length) % SLIDES.length); }
-
+  function go(dir)  { goTo((currentSlide + dir + SLIDES.length) % SLIDES.length); }
   function goTo(idx) {
     var track = document.getElementById('oss-track');
     var dots  = document.getElementById('oss-dots');
-    if (!track) return;
-    track.querySelectorAll('.oss-slide').forEach(function(el, i) { el.classList.toggle('active', i === idx); });
-    if (dots) dots.querySelectorAll('.oss-dot').forEach(function(el, i) { el.classList.toggle('active', i === idx); });
+    if (!track || !SLIDES.length) return;
+    track.querySelectorAll('.oss-slide').forEach(function(el, i){ el.classList.toggle('active', i === idx); });
+    if (dots) dots.querySelectorAll('.oss-dot').forEach(function(el, i){ el.classList.toggle('active', i === idx); });
     currentSlide = idx;
     resetAuto();
   }
-
-  function startAuto() { autoTimer = setInterval(function() { go(1); }, AUTO_MS); }
+  function startAuto() { if (SLIDES.length > 1) autoTimer = setInterval(function(){ go(1); }, AUTO_MS); }
   function resetAuto() { clearInterval(autoTimer); startAuto(); }
 
-  function esc(s) {
-    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
-  }
-
+  // ── Boot ─────────────────────────────────────────────────────
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() { initCounter(); initSlideshow(); });
+    document.addEventListener('DOMContentLoaded', function(){ initCounter(); initSlideshow(); });
   } else {
     initCounter(); initSlideshow();
   }

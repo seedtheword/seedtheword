@@ -12304,8 +12304,34 @@ body.your-walk-modal-open {
    ============================================================ */
 .ministry-impact-section {
   padding: 4rem 0 5rem;
-  background: linear-gradient(180deg, #0a0a0d 0%, #14131a 50%, #0a0a0d 100%);
+  position: relative;
+  overflow: hidden;
   color: rgba(255,255,255,0.92);
+  /* Same layered night-sky backdrop as the-path */
+  background:
+    radial-gradient(ellipse at 20% 15%, rgba(212, 165, 116, 0.18), transparent 55%),
+    radial-gradient(ellipse at 80% 85%, rgba(44, 95, 46, 0.18), transparent 55%),
+    linear-gradient(180deg, #0a0a0d 0%, #14131a 50%, #0a0a0d 100%);
+}
+.ministry-impact-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 15% 25%, rgba(255, 255, 255, 0.7), transparent 60%),
+    radial-gradient(1px 1px at 72% 18%, rgba(255, 255, 255, 0.55), transparent 60%),
+    radial-gradient(1px 1px at 28% 78%, rgba(255, 255, 255, 0.6), transparent 60%),
+    radial-gradient(1px 1px at 85% 65%, rgba(255, 255, 255, 0.5), transparent 60%),
+    radial-gradient(1px 1px at 48% 35%, rgba(255, 255, 255, 0.45), transparent 60%),
+    radial-gradient(1px 1px at 35% 88%, rgba(255, 255, 255, 0.5), transparent 60%),
+    radial-gradient(1px 1px at 88% 12%, rgba(255, 255, 255, 0.4), transparent 60%);
+  opacity: 0.6;
+  z-index: 0;
+}
+.ministry-impact-section .container {
+  position: relative;
+  z-index: 1;
 }
 .ministry-impact-section .impact-counter__sub,
 .ministry-impact-section .impact-counter__goal {
@@ -12356,8 +12382,14 @@ body.your-walk-modal-open {
 .impact-counter__stock-label {
   font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em;
   text-transform: uppercase; color: var(--green, #2C5F2E);
-  margin-bottom: 0.6rem; display: block;
+  margin-bottom: 0.25rem; display: block;
 }
+.impact-counter__gideon {
+  font-size: 0.75rem; color: rgba(255,255,255,0.5);
+  margin: 0 0 0.6rem; line-height: 1.4; font-style: italic;
+}
+/* On light-bg pages (store, news) gideon note is dark */
+.bible-counter-store .impact-counter__gideon { color: var(--muted, #666); }
 .impact-counter__stock { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1rem; }
 .stock-tag {
   background: var(--green, #2C5F2E); color: #fff;

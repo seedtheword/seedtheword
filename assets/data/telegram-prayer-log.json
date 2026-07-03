@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615593,
-  "lastModified": "2026-07-03T22:25:29Z",
+  "lastUpdateId": 669615595,
+  "lastModified": "2026-07-03T22:40:29Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -181,6 +181,26 @@
       "kind": "telegram",
       "text": "Hey y’all do you mind just praying for me. I’ve really not been in the right head space lately and I really want to get back on track with everything, but it’s been really hard and it’s been effecting me and how productive and efficient I am at work, at home, and in ministry. I don’t know how noticeable it is, but I am aware of it and I just want Jesus to pull me out. Thank you all",
       "ts": "2026-07-03T22:25:13Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4933,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Absolutely and no, you're doing great sister! I only see you shining like Jesus. Keep it up!",
+      "ts": "2026-07-03T22:26:09Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4934,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Also pray that my dad would have more understanding and grace, slower to anger, for what I’m feeling and going through, I don’t mean to mess up at all, but I do still, and it makes me feel ashamed and like a terrible person. I just want Jesus to keep reminding me it’s gonna be okay",
+      "ts": "2026-07-03T22:26:31Z"
     }
   ]
 }

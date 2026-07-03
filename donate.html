@@ -1205,6 +1205,7 @@
 
     <!-- Bible count — inside the poster, loud and celebratory -->
     <div class="poster-count" id="poster-bible-count">
+      <span class="poster-count__num" id="poster-count-num">123</span>
       <span class="poster-count__label">BIBLES GIVEN AWAY &amp; COUNTING</span>
       <span class="poster-count__partner">with Gideon's International · 70,000 goal for 2026</span>
     </div>
@@ -1428,7 +1429,7 @@
   (function () {
     var CACHE_KEY = 'stw_ministry_stats';
     function updatePosterNum(count) {
-      var el = document.querySelector('.poster-count__num');
+      var el = document.getElementById('poster-count-num') || document.querySelector('.poster-count__num');
       if (!el) return;
       var from = parseInt(el.textContent.replace(/,/g,''), 10) || 0;
       if (from === count) { el.textContent = count.toLocaleString('en-US'); return; }

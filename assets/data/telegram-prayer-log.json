@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615595,
-  "lastModified": "2026-07-03T22:40:29Z",
+  "lastUpdateId": 669615596,
+  "lastModified": "2026-07-04T01:25:30Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -201,6 +201,16 @@
       "kind": "telegram",
       "text": "Also pray that my dad would have more understanding and grace, slower to anger, for what I’m feeling and going through, I don’t mean to mess up at all, but I do still, and it makes me feel ashamed and like a terrible person. I just want Jesus to keep reminding me it’s gonna be okay",
       "ts": "2026-07-03T22:26:31Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4936,
+      "userId": 8045440327,
+      "displayName": "✝️🙏PRAYER DOG🐺🥀",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for Vanessa",
+      "ts": "2026-07-04T01:12:24Z"
     }
   ]
 }

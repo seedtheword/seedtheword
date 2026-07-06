@@ -28,6 +28,7 @@
   // ── Counter HTML builder ─────────────────────────────────────
   function buildCounterHTML(mount, count, goal, inStock) {
     var pct      = Math.min(100, Math.round(count / goal * 1000) / 10);
+    var stockCount = inStock.filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); }).length;
     var stockHTML = inStock
       .filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); })
       .map(function(i){ return '<span class="stock-tag">' + esc(i.language) + '</span>'; })
@@ -53,6 +54,16 @@
             '<a href="store.html" class="btn btn-primary btn-sm">&#127873; Gift a Bible</a>' +
             '<a href="news.html#ministry-outreach" class="btn btn-secondary btn-sm">See Outreach</a>' +
           '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="impact-stats-row">' +
+        '<div class="impact-stats-row__stat">' +
+          '<span class="impact-stats-row__num">' + stockCount + '</span>' +
+          '<span class="impact-stats-row__label">Languages In Stock</span>' +
+        '</div>' +
+        '<div class="impact-stats-row__stat">' +
+          '<span class="impact-stats-row__num">2,000+</span>' +
+          '<span class="impact-stats-row__label">Translations via Gideon\'s</span>' +
         '</div>' +
       '</div>';
   }

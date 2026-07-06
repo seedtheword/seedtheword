@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615614,
-  "lastModified": "2026-07-06T19:55:29Z",
+  "lastUpdateId": 669615615,
+  "lastModified": "2026-07-06T22:55:28Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -223,6 +223,16 @@
       "kind": "telegram",
       "text": "Prayer for Vanessa",
       "ts": "2026-07-04T01:12:24Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 4959,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request 7/6/2026:\n\nI'm at Jimmy Johns here in Bellevue and a gentleman named Bryan came up, asking to pray so God helps him make the right decisions and help him also get a job.\n\nHe grew up non denominational but wants a good spiritual leader and I recommended Sam Petrov's church for him (Pursuit Kirkland)",
+      "ts": "2026-07-06T22:48:42Z"
     }
   ]
 }

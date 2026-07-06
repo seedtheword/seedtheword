@@ -1,0 +1,215 @@
+/* ============================================================
+   Homepage — Gideons-inspired layout styles
+   ============================================================ */
+
+/* ── Hero ───────────────────────────────────────────────── */
+.hp-hero__content {
+  position: relative; z-index: 2;
+  text-align: center; max-width: 800px;
+  margin: 0 auto; padding: 0 1.5rem;
+}
+.hp-hero__overline {
+  font-size: 0.78rem; font-weight: 700; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--gold, #d4a574);
+  margin: 0 0 1rem; text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+.hp-hero__title {
+  font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 800;
+  color: #fff; margin: 0 0 1.25rem; line-height: 1.1;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+.hp-hero__sub {
+  font-size: clamp(1rem, 2vw, 1.2rem); color: rgba(255,255,255,0.88);
+  line-height: 1.7; max-width: 600px; margin: 0 auto 2rem;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+.hp-hero__actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.hp-hero__btn-outline {
+  background: transparent; color: #fff;
+  border: 2px solid rgba(255,255,255,0.6);
+  padding: 0.875rem 2rem; border-radius: 12px;
+  font-weight: 600; font-size: 1rem;
+  transition: all 0.3s ease;
+}
+.hp-hero__btn-outline:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: #fff; transform: translateY(-2px);
+}
+
+/* ── Section helpers ────────────────────────────────────── */
+.hp-section__eyebrow {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--green, #2C5F2E);
+  text-align: center; margin: 0 0 0.75rem;
+}
+.hp-section__eyebrow--gold { color: var(--gold, #d4a574); }
+.hp-section__title {
+  font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800;
+  text-align: center; color: var(--text, #2b2b2b);
+  margin: 0 0 1rem; line-height: 1.2;
+}
+.hp-section__title--white { color: #fff; text-shadow: 0 2px 18px rgba(0,0,0,0.5); }
+.hp-section__desc {
+  text-align: center; font-size: 1rem; color: var(--muted, #666);
+  max-width: 640px; margin: 0 auto 2.5rem; line-height: 1.7;
+}
+
+/* ── Gospel section (3 cards) ──────────────────────────── */
+.hp-gospel { padding: 5rem 0; }
+.hp-gospel__grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem; margin-top: 2.5rem;
+}
+.hp-gospel__card {
+  background: var(--glass-bg, rgba(255,255,255,0.85));
+  border: 1px solid var(--glass-border, rgba(255,255,255,0.7));
+  border-radius: 18px; padding: 2.25rem 2rem;
+  box-shadow: var(--shadow-soft); text-align: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.hp-gospel__card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-medium);
+}
+.hp-gospel__icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.hp-gospel__card h3 {
+  font-size: 1.2rem; font-weight: 800; color: var(--green, #2C5F2E);
+  margin: 0 0 0.75rem;
+}
+.hp-gospel__card p {
+  font-size: 0.95rem; color: var(--muted, #666); line-height: 1.7; margin: 0 0 1rem;
+}
+.hp-link {
+  font-size: 0.88rem; font-weight: 700; color: var(--green, #2C5F2E);
+  text-decoration: none; transition: color 0.2s;
+}
+.hp-link:hover { color: var(--gold, #d4a574); }
+
+/* ── Stats section ─────────────────────────────────────── */
+.hp-stats { padding-top: 5rem; padding-bottom: 5rem; }
+.hp-stats__sub {
+  text-align: center; font-size: 0.95rem;
+  color: rgba(255,255,255,0.65); margin: 0 0 2.5rem;
+}
+.hp-stats__trio {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem; margin-top: 3rem; text-align: center;
+}
+.hp-stats__stat {
+  padding: 2rem 1.5rem; border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(212,165,116,0.25);
+  backdrop-filter: blur(10px);
+}
+.hp-stats__num {
+  display: block; font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800; color: var(--gold, #d4a574);
+  margin-bottom: 0.4rem;
+}
+.hp-stats__label {
+  font-size: 0.85rem; color: rgba(255,255,255,0.7);
+  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;
+}
+
+/* ── Mission section (4 cards) ─────────────────────────── */
+.hp-mission { padding: 5rem 0; }
+.hp-mission__grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.75rem; margin-top: 2.5rem;
+}
+.hp-mission__card {
+  background: var(--glass-bg, rgba(255,255,255,0.85));
+  border: 1px solid var(--glass-border, rgba(255,255,255,0.7));
+  border-radius: 18px; padding: 2rem 1.75rem; text-align: center;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.hp-mission__card:hover {
+  transform: translateY(-4px); box-shadow: var(--shadow-medium);
+}
+.hp-mission__card--featured {
+  border-color: var(--green, #2C5F2E);
+  box-shadow: 0 0 0 2px rgba(44,95,46,0.15), var(--shadow-soft);
+}
+.hp-mission__icon { font-size: 2.25rem; margin-bottom: 0.75rem; }
+.hp-mission__card h3 {
+  font-size: 1.1rem; font-weight: 800; color: var(--green, #2C5F2E);
+  margin: 0 0 0.6rem;
+}
+.hp-mission__card p {
+  font-size: 0.9rem; color: var(--muted, #666); line-height: 1.7;
+  margin: 0 0 1.25rem;
+}
+
+/* ── Testimonies section ───────────────────────────────── */
+.hp-testimonies { padding: 5rem 0; }
+.hp-testimonies__grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.75rem; margin-top: 2.5rem;
+}
+.hp-testimony__card {
+  background: var(--glass-bg, rgba(255,255,255,0.85));
+  border: 1px solid var(--glass-border, rgba(255,255,255,0.7));
+  border-radius: 18px; padding: 2rem 2rem;
+  box-shadow: var(--shadow-soft);
+  border-left: 4px solid var(--gold, #d4a574);
+}
+.hp-testimony__quote {
+  font-size: 3rem; font-weight: 800; color: var(--gold, #d4a574);
+  line-height: 0.8; margin-bottom: 0.75rem;
+}
+.hp-testimony__body {
+  font-size: 0.95rem; color: var(--text, #2b2b2b); line-height: 1.75;
+  font-style: italic; margin: 0 0 1rem;
+}
+.hp-testimony__name {
+  font-size: 0.82rem; font-weight: 700; color: var(--green, #2C5F2E);
+  margin: 0;
+}
+
+/* ── Outreach section override (keep starfield from ministry-impact) ── */
+.hp-outreach-section { padding: 4rem 0 5rem; }
+
+/* ── Final CTA ─────────────────────────────────────────── */
+.hp-final-cta {
+  position: relative; padding: 6rem 0;
+  background: url('../images/backgrounds/stw-background-1920x1080.jpg') center/cover no-repeat;
+  min-height: 380px; display: flex; align-items: center;
+}
+.hp-final-cta__overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.6);
+}
+.hp-final-cta__inner {
+  position: relative; z-index: 2; text-align: center;
+}
+.hp-final-cta__title {
+  font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 800;
+  color: #fff; margin: 0 0 1rem; max-width: 700px;
+  margin-left: auto; margin-right: auto;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.5);
+}
+.hp-final-cta__sub {
+  font-size: 1rem; color: rgba(255,255,255,0.75);
+  margin: 0 0 2rem;
+}
+.hp-final-cta__actions {
+  display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+}
+
+/* ── Nav CTA button ────────────────────────────────────── */
+.nav-links__cta {
+  background: linear-gradient(135deg, var(--green) 0%, #3a7d3c 100%) !important;
+  color: #fff !important; border-radius: 8px !important;
+  padding: 6px 16px !important;
+}
+.nav-links__cta:hover {
+  box-shadow: 0 4px 12px rgba(44,95,46,0.4) !important;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hp-hero__title { font-size: clamp(1.8rem, 8vw, 2.8rem); }
+  .hp-stats__trio { grid-template-columns: 1fr; }
+  .hp-mission__grid { grid-template-columns: 1fr; }
+}

@@ -61,9 +61,10 @@
           '<span class="impact-stats-row__num">' + stockCount + '</span>' +
           '<span class="impact-stats-row__label">Languages In Stock</span>' +
         '</div>' +
-        '<div class="impact-stats-row__stat">' +
-          '<span class="impact-stats-row__num">2,000+</span>' +
-          '<span class="impact-stats-row__label">Translations via Gideon\'s</span>' +
+        '<div class="impact-stats-row__stat impact-stats-row__stat--apps">' +
+          '<span class="impact-stats-row__label" style="margin-bottom:0.5rem;font-size:0.72rem;">Read &amp; Listen Digitally</span>' +
+          '<a href="https://gideons.org/find-hope#bibleapp" target="_blank" rel="noopener" class="impact-stats-row__app-link">\uD83C\uDFA7 Gideons Bible App (Audio)</a>' +
+          '<a href="https://www.bible.com/bible/59/GEN.1.ESV" target="_blank" rel="noopener" class="impact-stats-row__app-link">\uD83D\uDCD6 YouVersion (Read Online)</a>' +
         '</div>' +
       '</div>';
   }

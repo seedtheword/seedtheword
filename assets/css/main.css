@@ -12555,6 +12555,29 @@ body.your-walk-modal-open {
 .section--light .impact-stats-row__label,
 .section--white .impact-stats-row__label { color: var(--muted, #666); }
 @media(max-width:480px){ .impact-stats-row{ grid-template-columns:1fr; } }
+.impact-stats-row__stat--apps {
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+}
+.impact-stats-row__app-link {
+  display: inline-block; font-size: 0.82rem; font-weight: 600;
+  color: var(--gold, #d4a574); text-decoration: none;
+  padding: 0.3rem 0.75rem; border-radius: 8px;
+  border: 1px solid rgba(212,165,116,0.3);
+  transition: all 0.2s ease;
+}
+.impact-stats-row__app-link:hover {
+  background: rgba(212,165,116,0.12); border-color: var(--gold, #d4a574);
+  transform: translateY(-1px);
+}
+/* Light bg app links */
+.section--light .impact-stats-row__app-link,
+.section--white .impact-stats-row__app-link {
+  color: var(--green, #2C5F2E); border-color: rgba(44,95,46,0.25);
+}
+.section--light .impact-stats-row__app-link:hover,
+.section--white .impact-stats-row__app-link:hover {
+  background: rgba(44,95,46,0.08); border-color: var(--green, #2C5F2E);
+}
 
 /* Outreach slideshow — matches news.html outreach card style */
 .outreach-slideshow { position: relative; }

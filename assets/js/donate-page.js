@@ -546,19 +546,20 @@
           var url = cfg.orderHandlerUrl;
           if (!url) throw new Error('No handler URL configured');
 
-          var params = new URLSearchParams();
-          params.append('action', 'receiveBible');
-          params.append('name', name);
-          params.append('email', email);
-          params.append('phone', phone);
-          params.append('language', language);
-          params.append('address', address);
-          if (donateToo) params.append('donateToo', 'yes');
+          var body = JSON.stringify({
+            action: 'requestBible',
+            name: name,
+            email: email,
+            phone: phone,
+            language: language,
+            address: address,
+            donateToo: donateToo ? 'yes' : ''
+          });
 
           return fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString()
+            headers: { 'Content-Type': 'application/json' },
+            body: body
           });
         })
         .then(function (r) { return r.json(); })

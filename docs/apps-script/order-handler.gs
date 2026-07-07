@@ -1730,6 +1730,7 @@ function getMinistryStats_() {
       ok: true,
       total: 0,
       goal: 70000,
+      events: 0,
       languagesMessage: 'Available in 2,000+ languages through Gideon\'s International',
       inStock: [],
       lastUpdated: new Date().toISOString(),
@@ -1740,6 +1741,7 @@ function getMinistryStats_() {
       if (!key) continue;
       if (key === 'total')            result.total = parseInt(val, 10) || 0;
       else if (key === 'goal')        result.goal  = parseInt(val, 10) || 70000;
+      else if (key === 'events')      result.events = parseInt(val, 10) || 0;
       else if (key === 'languagesmessage') result.languagesMessage = String(val || '');
       else if (key === 'lastupdated') result.lastUpdated = String(val || '');
       else if (key === 'stock') {

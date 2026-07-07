@@ -95,7 +95,7 @@
     available.forEach(function (item) {
       var opt = document.createElement('option');
       opt.value = item.language;
-      opt.textContent = item.language + (item.format ? ' (' + item.format + ')' : '');
+      opt.textContent = item.language;
       select.appendChild(opt);
     });
   }
@@ -524,8 +524,10 @@
 
       var name = form.querySelector('#receive-name').value.trim();
       var email = form.querySelector('#receive-email').value.trim();
+      var phone = form.querySelector('#receive-phone') ? form.querySelector('#receive-phone').value.trim() : '';
       var language = form.querySelector('#receive-language').value;
       var address = form.querySelector('#receive-address').value.trim();
+      var donateToo = form.querySelector('#receive-donate-too') ? form.querySelector('#receive-donate-too').checked : false;
 
       if (!name || !email || !language || !address) {
         if (status) {
@@ -548,8 +550,10 @@
           params.append('action', 'receiveBible');
           params.append('name', name);
           params.append('email', email);
+          params.append('phone', phone);
           params.append('language', language);
           params.append('address', address);
+          if (donateToo) params.append('donateToo', 'yes');
 
           return fetch(url, {
             method: 'POST',

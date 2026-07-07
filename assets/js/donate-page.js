@@ -526,10 +526,13 @@
       var email = form.querySelector('#receive-email').value.trim();
       var phone = form.querySelector('#receive-phone') ? form.querySelector('#receive-phone').value.trim() : '';
       var language = form.querySelector('#receive-language').value;
-      var address = form.querySelector('#receive-address').value.trim();
+      var city = form.querySelector('#receive-city') ? form.querySelector('#receive-city').value.trim() : '';
+      var state = form.querySelector('#receive-state') ? form.querySelector('#receive-state').value : '';
+      var zip = form.querySelector('#receive-zip') ? form.querySelector('#receive-zip').value.trim() : '';
+      var story = form.querySelector('#receive-story') ? form.querySelector('#receive-story').value.trim() : '';
       var donateToo = form.querySelector('#receive-donate-too') ? form.querySelector('#receive-donate-too').checked : false;
 
-      if (!name || !email || !language || !address) {
+      if (!name || !email || !language || !city || !story) {
         if (status) {
           status.textContent = 'Please fill in all fields.';
           status.className = 'donate-receive-form__status is-error';
@@ -551,8 +554,11 @@
             name: name,
             email: email,
             phone: phone,
+            city: city,
+            state: state,
+            zip: zip,
             language: language,
-            address: address,
+            story: story,
             donateToo: donateToo ? 'yes' : ''
           });
 

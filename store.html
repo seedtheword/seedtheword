@@ -18,7 +18,7 @@
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/store.jpg">
   <title>Store — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/main.css?v=29">
-  <link rel="stylesheet" href="assets/css/store-catalog.css?v=3">
+  <link rel="stylesheet" href="assets/css/store-catalog.css?v=4">
 </head>
 <body>
 
@@ -62,81 +62,71 @@
   </div>
 </header>
 
-<!-- Store Header — professional, clean -->
-<section class="store-header">
+<!-- Impact Stats — light theme ministry pitch -->
+<section style="padding: 3rem 0; background: #fff;">
   <div class="container">
-    <div class="store-header__top">
-      <h1 class="store-header__title">Store</h1>
-      <p class="store-header__tagline">Bibles, tracts, merch, and curated picks — every item supports the mission.</p>
+    <div style="max-width:800px; margin:0 auto; text-align:center;">
+      <h2 style="font-size:1.8rem; font-weight:800; color:var(--dark); margin:0 0 0.5rem;">Every Bible We Give Is a Seed Planted</h2>
+      <p style="color:var(--muted); line-height:1.7; margin:0 0 2rem;">Your support goes towards buying Bibles, hosting outreach events, and building community. Here's our impact so far.</p>
     </div>
-    <!-- Impact stats embedded elegantly as a slim strip -->
-    <div class="store-header__stats">
-      <div id="homepage-counter"></div>
-    </div>
-    <!-- Giving strip -->
-    <div class="store-giving-strip">
-      <h3 class="store-giving-strip__title">Support the Mission</h3>
-      <p class="store-giving-strip__sub">Every gift helps us buy Bibles, host outreach events, and build community.</p>
-      <div class="store-giving-strip__methods">
-        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener" class="store-giving-strip__pill">Venmo</a>
-        <a href="https://cash.app/$Vanessamind" target="_blank" rel="noopener" class="store-giving-strip__pill">Cash App</a>
-        <a href="https://paypal.me/vanessamind" target="_blank" rel="noopener" class="store-giving-strip__pill">PayPal</a>
-        <a href="donate.html" class="store-giving-strip__pill store-giving-strip__pill--gold">Give →</a>
-      </div>
+    <div id="homepage-counter" style="margin-bottom:1.5rem;"></div>
+    <div style="text-align:center; margin-top:1.5rem;">
+      <a href="donate.html" style="display:inline-block; padding:0.75rem 2rem; background:var(--green); color:#fff; border-radius:10px; font-weight:600; text-decoration:none;">Support the Mission →</a>
     </div>
   </div>
 </section>
 
-<!-- Category Tiles (Lockheed Martin store style) -->
-<section class="store-categories">
+<!-- Choose Your Bundle -->
+<section style="padding: 3rem 0; background: var(--light, #f9f6f1);">
   <div class="container">
-    <div class="store-categories__grid">
-      <a href="#bibles" class="store-category-tile" data-cat="bibles">
-        <div class="store-category-tile__bg" style="background: linear-gradient(135deg, #2C5F2E 0%, #1a3d1b 100%);"></div>
-        <div class="store-category-tile__content">
-          <span class="store-category-tile__icon">📖</span>
-          <h3 class="store-category-tile__name">Bibles</h3>
-          <p class="store-category-tile__desc">Pocket Gideon NTs in 8+ languages</p>
+    <div style="text-align:center; margin-bottom:2rem;">
+      <h2 style="font-size:1.6rem; font-weight:800; color:var(--dark); margin:0 0 0.5rem;">Choose Your Bundle</h2>
+      <p style="color:var(--muted); font-size:0.95rem; margin:0;">Curated packages for every stage of faith — customize in our builder.</p>
+    </div>
+    <div class="bundle-cards">
+      <!-- Essentials -->
+      <a href="bundle-builder.html" class="bundle-card-v2 bundle-card-v2--essentials" data-bundle-pick="essentials">
+        <span class="bundle-card-v2__eyebrow">Essentials</span>
+        <div class="bundle-slideshow" data-bundle="essentials"></div>
+        <div class="bundle-card-v2__overlay">
+          <h3 class="bundle-card-v2__title">Essentials Welcome</h3>
+          <p class="bundle-card-v2__pitch">A pocket New Testament, a welcome tract, and everything a newcomer needs to start their walk.</p>
+          <span class="bundle-card-v2__see-more">Build yours <span class="bundle-card-v2__see-more-arrow">→</span></span>
         </div>
       </a>
-      <a href="#amazon" class="store-category-tile" data-cat="amazon">
-        <div class="store-category-tile__bg" style="background: linear-gradient(135deg, #ff9900 0%, #cc7700 100%);"></div>
-        <div class="store-category-tile__content">
-          <span class="store-category-tile__icon">📦</span>
-          <h3 class="store-category-tile__name">Amazon Picks</h3>
-          <p class="store-category-tile__desc">Curated items from faith sellers</p>
+      <!-- Life Group -->
+      <a href="bundle-builder.html" class="bundle-card-v2 bundle-card-v2--lifegroup bundle-card-v2--featured" data-bundle-pick="lifegroup">
+        <span class="bundle-card-v2__flag">Most Given</span>
+        <span class="bundle-card-v2__eyebrow">Life Group</span>
+        <div class="bundle-slideshow" data-bundle="lifegroup"></div>
+        <div class="bundle-card-v2__overlay">
+          <h3 class="bundle-card-v2__title">Life Group Starter</h3>
+          <p class="bundle-card-v2__pitch">2–5 Bibles with personalized name labels — perfect for a small group, family, or Bible study.</p>
+          <span class="bundle-card-v2__see-more">Build yours <span class="bundle-card-v2__see-more-arrow">→</span></span>
         </div>
       </a>
-      <a href="#tracts" class="store-category-tile" data-cat="tracts">
-        <div class="store-category-tile__bg" style="background: linear-gradient(135deg, #d4a574 0%, #b8860b 100%);"></div>
-        <div class="store-category-tile__content">
-          <span class="store-category-tile__icon">📜</span>
-          <h3 class="store-category-tile__name">Tracts</h3>
-          <p class="store-category-tile__desc">Evangelism literature</p>
-        </div>
-      </a>
-      <a href="#merch" class="store-category-tile" data-cat="merch">
-        <div class="store-category-tile__bg" style="background: linear-gradient(135deg, #6b4d1d 0%, #3a2a0f 100%);"></div>
-        <div class="store-category-tile__content">
-          <span class="store-category-tile__icon">🎁</span>
-          <h3 class="store-category-tile__name">Merch</h3>
-          <p class="store-category-tile__desc">Ministry merchandise</p>
-        </div>
-      </a>
-      <a href="bundle-builder.html" class="store-category-tile store-category-tile--wide">
-        <div class="store-category-tile__bg" style="background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);"></div>
-        <div class="store-category-tile__content">
-          <span class="store-category-tile__icon">🎁</span>
-          <h3 class="store-category-tile__name">Build a Bundle</h3>
-          <p class="store-category-tile__desc">Customize an Essentials, Life Group, or Ministry package</p>
+      <!-- Ministry Calling -->
+      <a href="bundle-builder.html" class="bundle-card-v2 bundle-card-v2--ministry" data-bundle-pick="ministry">
+        <span class="bundle-card-v2__eyebrow">Ministry</span>
+        <div class="bundle-slideshow" data-bundle="ministry"></div>
+        <div class="bundle-card-v2__overlay">
+          <span class="bundle-card-v2__verse-line">"Go ye therefore, and teach all nations…"</span>
+          <h3 class="bundle-card-v2__title">Ministry Calling</h3>
+          <p class="bundle-card-v2__pitch">Bulk Bibles at our $2 ministry rate — plan your outreach, name your event, and share the Word.</p>
+          <span class="bundle-card-v2__see-more">Build yours <span class="bundle-card-v2__see-more-arrow">→</span></span>
         </div>
       </a>
     </div>
   </div>
 </section>
 
-<!-- Product Catalog -->
-<section class="store-catalog-section">
+<!-- Product Catalog — Lockheed Martin style -->
+<section class="store-catalog-section" style="padding:3rem 0; background: var(--light, #f9f6f1);">
+  <div class="container">
+    <h2 style="font-size:1.6rem; font-weight:800; margin:0 0 0.25rem;">Shop</h2>
+    <p style="font-size:0.85rem; color:var(--muted); margin:0 0 2rem;">Home / <strong>Shop</strong></p>
+  </div>
+
   <div style="max-width: 1200px; margin: 0 auto; padding: 0 32px;">
     <button class="store-sidebar-toggle" id="store-sidebar-toggle" aria-label="Open category menu">
       <span class="store-sidebar-toggle__icon">☰</span>
@@ -148,10 +138,10 @@
   <div class="store-sidebar-overlay" id="store-sidebar-overlay"></div>
 
   <div class="store-layout">
-    <!-- Sidebar -->
+    <!-- Left sidebar -->
     <aside class="store-sidebar" id="store-sidebar" aria-label="Product categories"></aside>
 
-    <!-- Main content -->
+    <!-- Right: search + product grid -->
     <div class="store-main">
       <!-- Search bar -->
       <div class="store-search">
@@ -236,7 +226,7 @@
 </footer>
 
 <script src="assets/js/main.js?v=9"></script>
-<script src="assets/js/store-catalog.js?v=1"></script>
+<script src="assets/js/store-catalog.js?v=2"></script>
 <script src="assets/js/bundle-slideshow.js?v=1"></script>
 <script src="assets/js/bundle-item-catalog.js?v=1"></script>
 <script src="assets/js/bundle-journey.js?v=4"></script>

@@ -176,15 +176,12 @@
 
   // ── Render sidebar ──────────────────────────────────────────
   function renderSidebar() {
-    var html = '<p class="store-sidebar__title">Categories</p><ul class="store-sidebar__list">';
+    var html = '<p class="store-sidebar__title">BROWSE</p><ul class="store-sidebar__list">';
     categories.forEach(function (cat) {
-      var count = filterProducts(products, cat.key, searchResultIds).length;
       var activeClass = cat.key === activeCategory ? ' is-active' : '';
       html +=
         '<li class="store-sidebar__item' + activeClass + '" data-category="' + esc(cat.key) + '">' +
-          '<span class="store-sidebar__icon">' + cat.icon + '</span>' +
           '<span class="store-sidebar__label">' + esc(cat.label) + '</span>' +
-          '<span class="store-sidebar__count">' + count + '</span>' +
         '</li>';
     });
     html += '</ul>';

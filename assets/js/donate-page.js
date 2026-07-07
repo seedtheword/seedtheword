@@ -2,11 +2,12 @@
    donate-page.js — Interactive logic for the storytelling
    donate page redesign. Handles:
    1. Live stats fetch + counter animation (ALL 3 stats)
-   2. Outreach slideshow (full-size with text overlay)
+   2. Outreach story cards with per-card slideshows
    3. Donation amount selector + Bible equivalence + glow
    4. Copy-to-clipboard for Zelle
    5. IntersectionObserver scroll animations
-   6. Receive a Bible form submission
+   6. Receive a Bible modal form
+   7. Dynamic language population from site-config
    ============================================================ */
 (function () {
   'use strict';
@@ -25,13 +26,80 @@
   function boot() {
     hydrateStatsFromCache();
     fetchLiveStats();
-    initOutreachSlideshow();
+    initStoryCards();
     initDonationAmounts();
     initClipboard();
     initScrollAnimations();
     initStatsObserver();
+    initReceiveModal();
     initReceiveForm();
   }
+
+  // ── Modal: Receive a Bible ──────────────────────────────────
+  function initReceiveModal() {
+    var modal = document.getElementById('receive-bible');
+    var openBtn = document.querySelector('[data-open-receive]');
+    var closeBtn = modal ? modal.querySelector('.donate-receive-form__close') : null;
+
+    if (!modal || !openBtn) return;
+
+    function openModal(e) {
+      if (e) e.preventDefault();
+      modal.classList.add('is-open');
+      document.body.classList.add('modal-open');
+      if (closeBtn) closeBtn.focus();
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      document.body.classList.remove('modal-open');
+      openBtn.focus();
+    }
+
+    openBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    // Close on backdrop click
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) {
+        closeModal();
+      }
+    });
+  }
+
+
+  // ── Dynamic Language Population ─────────────────────────────
+  function populateLanguages(biblesInStock) {
+    var select = document.getElementById('receive-language');
+    if (!select || !biblesInStock || !biblesInStock.length) return;
+
+    var available = biblesInStock.filter(function (item) {
+      return item.count > 0;
+    });
+    if (!available.length) return; // keep static fallback
+
+    // Clear existing options and rebuild
+    select.innerHTML = '';
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select a language';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    select.appendChild(placeholder);
+
+    available.forEach(function (item) {
+      var opt = document.createElement('option');
+      opt.value = item.language;
+      opt.textContent = item.language + (item.format ? ' (' + item.format + ')' : '');
+      select.appendChild(opt);
+    });
+  }
+
 
   // ── Stats: cache hydration ──────────────────────────────────
   function hydrateStatsFromCache() {
@@ -48,6 +116,17 @@
     fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : {}; })
       .then(function (cfg) {
+        // Populate languages dynamically
+        if (cfg.biblesInStock) {
+          populateLanguages(cfg.biblesInStock);
+          // Update languages count for stats
+          var inStockCount = cfg.biblesInStock.filter(function (b) { return b.count > 0; }).length;
+          window.__stwLanguagesCount = inStockCount;
+          if (statsAnimated) {
+            animateCounter('impact-languages', inStockCount, 1200);
+          }
+        }
+
         var url = cfg.orderHandlerUrl || '';
         var fallback = typeof cfg.biblesGivenAway === 'number' ? cfg.biblesGivenAway : 123;
         if (!url) {
@@ -91,14 +170,21 @@
     }
   }
 
-  // ── Counter animation (cubic ease-out) ──────────────────────
+
+  // ── Counter animation (cubic ease-out) — FIXED ──────────────
   function animateCounter(elementId, target, duration) {
     duration = duration || 1600;
     var el = document.getElementById(elementId);
     if (!el) return;
 
+    // FIX: Store plus span reference BEFORE reading textContent
     var plusSpan = el.querySelector('.donate-impact__plus');
-    var from = parseInt(el.textContent.replace(/[,+]/g, ''), 10) || 0;
+
+    // Reset to 0, preserving the plus span
+    el.textContent = '0';
+    if (plusSpan) el.appendChild(plusSpan);
+
+    var from = 0;
     if (from === target) {
       el.textContent = target.toLocaleString('en-US');
       if (plusSpan) el.appendChild(plusSpan);
@@ -130,8 +216,8 @@
     if (!section || !window.IntersectionObserver) {
       statsAnimated = true;
       if (window.__stwLiveCount) animateCounter('impact-count', window.__stwLiveCount);
-      animateCounter('impact-languages', 8, 1200);
-      animateCounter('impact-events', 4, 1200);
+      animateCounter('impact-languages', window.__stwLanguagesCount || 6, 1200);
+      animateCounter('impact-events', window.__stwEventsCount || 4, 1200);
       return;
     }
 
@@ -140,9 +226,10 @@
         if (entry.isIntersecting && !statsAnimated) {
           statsAnimated = true;
           var bibleTarget = window.__stwLiveCount ||
-            parseInt(document.getElementById('impact-count').textContent.replace(/[,+]/g, ''), 10) || 123;
+            parseInt(document.getElementById('impact-count').textContent.replace(/[,+\s]/g, ''), 10) || 123;
           animateCounter('impact-count', bibleTarget);
-          animateCounter('impact-languages', 8, 1200);
+          var langTarget = window.__stwLanguagesCount || 6;
+          animateCounter('impact-languages', langTarget, 1200);
           var eventsTarget = window.__stwEventsCount || 4;
           animateCounter('impact-events', eventsTarget, 1200);
           observer.disconnect();
@@ -153,92 +240,114 @@
     observer.observe(section);
   }
 
-  // ── Outreach Slideshow (homepage-style) ─────────────────────
-  function initOutreachSlideshow() {
-    var track = document.getElementById('oss-track');
-    var dotsWrap = document.getElementById('oss-dots');
-    if (!track || !dotsWrap) return;
+
+  // ── Story Cards with individual slideshows ─────────────────
+  function initStoryCards() {
+    var container = document.getElementById('story-events');
+    if (!container) return;
 
     fetch('assets/data/ministry-outreach.json?t=' + Date.now())
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
-        if (!data || !data.events || !data.events.length) {
-          var wrapper = document.getElementById('outreach-slideshow');
-          if (wrapper) wrapper.style.display = 'none';
-          return;
+        if (!data || !data.events || !data.events.length) return;
+        buildStoryCards(data.events, container);
+        // Update events count for stats
+        window.__stwEventsCount = data.events.length;
+        if (statsAnimated) {
+          animateCounter('impact-events', data.events.length, 1200);
         }
-        buildSlideshow(data.events, track, dotsWrap);
       })
-      .catch(function () {
-        var wrapper = document.getElementById('outreach-slideshow');
-        if (wrapper) wrapper.style.display = 'none';
-      });
+      .catch(function () {});
   }
 
-  function buildSlideshow(events, track, dotsWrap) {
-    // Build slides
+  function buildStoryCards(events, container) {
     var html = events.map(function (ev, i) {
-      var imgSrc = 'assets/images/ministry-outreach/' + ev.folder + '/01.jpg';
-      return '<div class="oss-track__item' + (i === 0 ? ' is-active' : '') + '">' +
-        '<img src="' + escAttr(imgSrc) + '" alt="' + escAttr(ev.title) + '" loading="' + (i === 0 ? 'eager' : 'lazy') + '">' +
-        '<div class="oss-track__overlay"></div>' +
-        '<div class="oss-track__caption">' +
-          '<h3 class="oss-track__caption-title">' + esc(ev.title) + '</h3>' +
-          '<p class="oss-track__caption-meta">' + esc(ev.date) + ' · ' + esc(ev.location) + '</p>' +
-          '<p class="oss-track__caption-body">' + esc(ev.body) + '</p>' +
+      var reversed = i % 2 !== 0 ? ' story-card--reversed' : '';
+      return '<div class="story-card' + reversed + '" data-animate>' +
+        '<div class="story-card__image">' +
+          '<div class="story-card__slideshow" data-folder="' + escAttr(ev.folder) + '">' +
+            '<img class="is-active" src="assets/images/ministry-outreach/' + escAttr(ev.folder) + '/01.jpg" alt="' + escAttr(ev.title) + '">' +
+          '</div>' +
+          '<div class="story-card__dots"></div>' +
+        '</div>' +
+        '<div class="story-card__content">' +
+          '<span class="story-card__date">' + esc(ev.date) + (ev.location ? ' · ' + esc(ev.location) : '') + '</span>' +
+          '<h3 class="story-card__title">' + esc(ev.title) + '</h3>' +
+          '<p class="story-card__body">' + esc(ev.body) + '</p>' +
         '</div>' +
       '</div>';
     }).join('');
-    track.innerHTML = html;
+    container.innerHTML = html;
 
-    // Build dots
-    var dotsHtml = events.map(function (_, i) {
-      return '<button type="button" class="oss-dots__dot' + (i === 0 ? ' is-active' : '') + '" data-idx="' + i + '" aria-label="Show slide ' + (i + 1) + '"></button>';
-    }).join('');
-    dotsWrap.innerHTML = dotsHtml;
-
-    var slides = track.querySelectorAll('.oss-track__item');
-    var dots = dotsWrap.querySelectorAll('.oss-dots__dot');
-    var current = 0;
-    var total = slides.length;
-
-    function goTo(idx) {
-      slides[current].classList.remove('is-active');
-      dots[current].classList.remove('is-active');
-      current = idx;
-      slides[current].classList.add('is-active');
-      dots[current].classList.add('is-active');
-    }
-
-    // Dot clicks
-    dots.forEach(function (dot) {
-      dot.addEventListener('click', function () {
-        var idx = parseInt(dot.getAttribute('data-idx'), 10);
-        if (idx !== current) {
-          goTo(idx);
-          resetInterval();
-        }
-      });
+    // Load images.json for each card and build per-card slideshow
+    var slideshows = container.querySelectorAll('.story-card__slideshow');
+    slideshows.forEach(function (ss) {
+      var folder = ss.getAttribute('data-folder');
+      loadCardSlideshow(ss, folder);
     });
 
-    // Auto-advance
-    var timer = setInterval(function () {
-      goTo((current + 1) % total);
-    }, 5000);
-
-    function resetInterval() {
-      clearInterval(timer);
-      timer = setInterval(function () {
-        goTo((current + 1) % total);
-      }, 5000);
-    }
-
-    // Update events count for stats
-    window.__stwEventsCount = events.length;
-    if (statsAnimated) {
-      animateCounter('impact-events', events.length, 1200);
-    }
+    // Re-init scroll animations for new cards
+    initScrollAnimations();
   }
+
+  function loadCardSlideshow(slideEl, folder) {
+    var dotsContainer = slideEl.parentElement.querySelector('.story-card__dots');
+    fetch('assets/images/ministry-outreach/' + folder + '/images.json?t=' + Date.now())
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (manifest) {
+        if (!manifest || !manifest.images || manifest.images.length < 2) return;
+
+        var images = manifest.images;
+        // Build all image elements
+        var imgHtml = images.map(function (img, i) {
+          var src = 'assets/images/ministry-outreach/' + folder + '/' + img.file;
+          return '<img class="' + (i === 0 ? 'is-active' : '') + '" src="' + escAttr(src) + '" alt="' + escAttr(img.alt || folder + ' photo ' + (i + 1)) + '" loading="lazy">';
+        }).join('');
+        slideEl.innerHTML = imgHtml;
+
+        // Build dots
+        var dotsHtml = images.map(function (_, i) {
+          return '<button type="button" class="story-card__dot' + (i === 0 ? ' is-active' : '') + '" data-idx="' + i + '" aria-label="Show photo ' + (i + 1) + '"></button>';
+        }).join('');
+        if (dotsContainer) dotsContainer.innerHTML = dotsHtml;
+
+        // Slideshow logic
+        var imgEls = slideEl.querySelectorAll('img');
+        var dots = dotsContainer ? dotsContainer.querySelectorAll('.story-card__dot') : [];
+        var current = 0;
+        var total = imgEls.length;
+
+        function goTo(idx) {
+          imgEls[current].classList.remove('is-active');
+          if (dots[current]) dots[current].classList.remove('is-active');
+          current = idx;
+          imgEls[current].classList.add('is-active');
+          if (dots[current]) dots[current].classList.add('is-active');
+        }
+
+        // Dot clicks
+        dots.forEach(function (dot) {
+          dot.addEventListener('click', function () {
+            var idx = parseInt(dot.getAttribute('data-idx'), 10);
+            if (idx !== current) { goTo(idx); resetTimer(); }
+          });
+        });
+
+        // Auto-advance every 3.5s
+        var timer = setInterval(function () {
+          goTo((current + 1) % total);
+        }, 3500);
+
+        function resetTimer() {
+          clearInterval(timer);
+          timer = setInterval(function () {
+            goTo((current + 1) % total);
+          }, 3500);
+        }
+      })
+      .catch(function () { /* keep single image fallback */ });
+  }
+
 
   // ── Donation amount selector + glow ─────────────────────────
   function initDonationAmounts() {
@@ -330,6 +439,7 @@
     }
   }
 
+
   // ── Clipboard (Zelle copy) ──────────────────────────────────
   function initClipboard() {
     var copyBtns = document.querySelectorAll('[data-copy]');
@@ -397,9 +507,10 @@
       });
     }, { threshold: 0.15 });
 
-    var animElements = document.querySelectorAll('[data-animate]');
+    var animElements = document.querySelectorAll('[data-animate]:not(.is-visible)');
     animElements.forEach(function (el) { observer.observe(el); });
   }
+
 
   // ── Receive a Bible form ─────────────────────────────────────
   function initReceiveForm() {

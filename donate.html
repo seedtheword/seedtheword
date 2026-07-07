@@ -93,8 +93,8 @@
     .story-card__date { display: block; font-size: 0.82rem; color: var(--muted, #666); letter-spacing: 0.04em; margin-bottom: 0.5rem; }
     .story-card__title { font-family: 'Anton', Impact, sans-serif; font-size: clamp(1.2rem, 3vw, 1.6rem); font-weight: 400; text-transform: uppercase; color: var(--dark, #1a1a1a); margin: 0 0 0.6rem; line-height: 1.2; }
     .story-card__body { font-size: 0.95rem; line-height: 1.7; color: #555; margin: 0; }
-    .donate-story-v2__more { display: inline-block; text-align: center; margin: 2rem auto 0; color: var(--gold, #d4a574); font-weight: 700; font-size: 1.1rem; text-decoration: none; padding: 0.75rem 2rem; min-height: 44px; background: transparent; border: 2px solid var(--gold, #d4a574); border-radius: 8px; transition: background 0.2s ease, color 0.2s ease, transform 0.12s ease; }
-    .donate-story-v2__more:hover { background: var(--gold, #d4a574); color: #fff; transform: translateY(-2px); text-decoration: none; }
+    .donate-story-v2__more { display: inline-block; text-align: center; margin: 2rem auto 0; font-weight: 700; font-size: 1rem; color: var(--green, #2C5F2E); text-decoration: none; border-bottom: 2px solid var(--green, #2C5F2E); padding-bottom: 2px; transition: opacity 0.2s ease; min-height: 44px; line-height: 44px; }
+    .donate-story-v2__more:hover { opacity: 0.75; text-decoration: none; }
     .donate-story-v2__static { max-width: 700px; margin: 0 auto; text-align: center; font-size: 1rem; line-height: 1.7; color: #555; }
 
     .donate-giving { padding: 5rem 1.5rem; background: radial-gradient(ellipse at 20% 15%, rgba(212, 165, 116, 0.18), transparent 55%), radial-gradient(ellipse at 80% 85%, rgba(44, 95, 46, 0.18), transparent 55%), linear-gradient(180deg, #0a0a0d 0%, #14131a 50%, #0a0a0d 100%); color: rgba(255,255,255,0.92); }
@@ -165,9 +165,13 @@
       .donate-giving__amounts .donate-giving__amount:last-child { grid-column: auto; }
     }
 
-    /* Receive a Bible form */
-    .donate-receive-form { padding: 5rem 1.5rem; background: linear-gradient(180deg, #fff 0%, #f9f6f1 100%); }
-    .donate-receive-form__inner { max-width: 600px; margin: 0 auto; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border: 1.5px solid rgba(212,165,116,0.3); border-radius: var(--radius, 16px); padding: 2.5rem 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.08); }
+    /* Receive a Bible form — modal overlay */
+    .donate-receive-form { position: fixed; inset: 0; z-index: 1000; display: none; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
+    .donate-receive-form.is-open { display: flex; }
+    .donate-receive-form__inner { position: relative; max-width: 600px; width: 90%; margin: 0 auto; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border: 1.5px solid rgba(212,165,116,0.3); border-radius: var(--radius, 16px); padding: 2.5rem 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+    .donate-receive-form__close { position: absolute; top: 1rem; right: 1rem; width: 36px; height: 36px; border: none; background: rgba(0,0,0,0.08); border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--dark, #1a1a1a); transition: background 0.2s ease; }
+    .donate-receive-form__close:hover { background: rgba(0,0,0,0.15); }
+    body.modal-open { overflow: hidden; }
     .donate-receive-form__title { font-family: 'Anton', Impact, sans-serif; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 400; text-transform: uppercase; color: var(--dark, #1a1a1a); margin: 0 0 0.5rem; text-align: center; }
     .donate-receive-form__desc { text-align: center; font-size: 1rem; line-height: 1.6; color: var(--muted, #666); margin: 0 0 2rem; }
     .donate-receive-form__field { margin-bottom: 1.25rem; }
@@ -242,7 +246,7 @@
       <a class="donate-hero__scroll-cta donate-hero__scroll-cta--solid" href="#impact" aria-label="See our ministry impact">
         See our impact <span class="donate-hero__scroll-arrow" aria-hidden="true">↓</span>
       </a>
-      <a class="donate-hero__scroll-cta donate-hero__scroll-cta--outline" href="#receive-bible" aria-label="Request a free Bible">
+      <a class="donate-hero__scroll-cta donate-hero__scroll-cta--outline" href="#" data-open-receive aria-label="Request a free Bible">
         Get Your Free Bible →
       </a>
     </div>
@@ -266,6 +270,14 @@
       </div>
     </div>
     <div class="donate-impact__socials">
+      <a class="donate-impact__social-link donate-impact__social-link--telegram" href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram community">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+        Telegram
+      </a>
+      <a class="donate-impact__social-link donate-impact__social-link--instagram" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+        Instagram
+      </a>
       <a class="donate-impact__social-link donate-impact__social-link--gideons" href="https://www.gideons.org/app" target="_blank" rel="noopener" aria-label="Gideons Bible App">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6zm1 3h10v1H7V5zm0 3h10v1H7V8zm0 3h7v1H7v-1z"/></svg>
         Gideons App
@@ -284,11 +296,8 @@
     <h2>Every Bible is a seed.<br>Every seed has a story.</h2>
     <p>From cookouts to college campuses — here's where your support shows up.</p>
   </div>
-  <div class="donate-outreach-slideshow" id="outreach-slideshow">
-    <div class="oss-slide">
-      <div class="oss-track" id="oss-track"></div>
-    </div>
-    <div class="oss-dots" id="oss-dots"></div>
+  <div class="donate-story-v2__events" id="story-events">
+    <!-- Cards injected by JS -->
   </div>
   <noscript>
     <div class="donate-story-v2__static">
@@ -300,8 +309,9 @@
   </div>
 </section>
 
-<section class="donate-receive-form" id="receive-bible" aria-label="Request a free Bible">
+<div class="donate-receive-form" id="receive-bible" aria-label="Request a free Bible" role="dialog" aria-modal="true">
   <div class="donate-receive-form__inner">
+    <button type="button" class="donate-receive-form__close" aria-label="Close">&times;</button>
     <h2 class="donate-receive-form__title">Receive a Free Bible</h2>
     <p class="donate-receive-form__desc">We'd love to get a Bible into your hands — totally free, shipped to you, no strings attached.</p>
     <form class="donate-receive-form__form" id="receive-bible-form" autocomplete="on">
@@ -335,7 +345,7 @@
       <p class="donate-receive-form__status" id="receive-form-status" aria-live="polite"></p>
     </form>
   </div>
-</section>
+</div>
 
 <section class="donate-giving" id="give" aria-label="Support the ministry">
   <div class="donate-giving__inner">
@@ -408,23 +418,6 @@
     <p class="donate-footer__signature">Sincerely, The Seed the Word team</p>
     <p class="donate-footer__email"><a href="mailto:seedthewordministry@gmail.com">seedthewordministry@gmail.com</a></p>
 
-    <div class="donate-footer__socials">
-      <a class="donate-social-btn" href="https://t.me/seedtheword" target="_blank" rel="noopener">
-        <svg class="donate-social-btn__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-        <span class="donate-social-btn__text">
-          <strong>Telegram</strong>
-          <small>Join our community</small>
-        </span>
-      </a>
-      <a class="donate-social-btn" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">
-        <svg class="donate-social-btn__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
-        <span class="donate-social-btn__text">
-          <strong>Instagram</strong>
-          <small>Follow our journey</small>
-        </span>
-      </a>
-    </div>
-
     <nav class="donate-footer__nav" aria-label="Site navigation">
       <a href="about.html">About</a>
       <a href="store.html">Store</a>
@@ -438,6 +431,6 @@
 
 <script src="assets/js/donate.js?v=5"></script>
 <script src="assets/js/ministry-impact.js?v=2" defer></script>
-<script src="assets/js/donate-page.js?v=2"></script>
+<script src="assets/js/donate-page.js?v=3"></script>
 </body>
 </html>

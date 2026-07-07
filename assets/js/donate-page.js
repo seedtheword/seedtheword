@@ -93,9 +93,12 @@
     var el = document.getElementById(elementId);
     if (!el) return;
 
-    var from = parseInt(el.textContent.replace(/,/g, ''), 10) || 0;
+    // Preserve the "+" span if present
+    var plusSpan = el.querySelector('.donate-impact__plus');
+    var from = parseInt(el.textContent.replace(/[,+]/g, ''), 10) || 0;
     if (from === target) {
       el.textContent = target.toLocaleString('en-US');
+      if (plusSpan) el.appendChild(plusSpan);
       return;
     }
 
@@ -107,11 +110,13 @@
       var eased = 1 - Math.pow(1 - progress, 3);
       var current = Math.round(from + (target - from) * eased);
       el.textContent = current.toLocaleString('en-US');
+      if (plusSpan) el.appendChild(plusSpan);
 
       if (progress < 1) {
         requestAnimationFrame(step);
       } else {
         el.textContent = target.toLocaleString('en-US');
+        if (plusSpan) el.appendChild(plusSpan);
       }
     }
 
@@ -176,45 +181,125 @@
   }
 
   function renderOutreachCards(events, container) {
-    var html = events.map(function (event, index) {
-      var isReversed = index % 2 === 1;
-      var imageUrl = 'assets/images/ministry-outreach/' + escAttr(event.folder) + '/01.jpg';
-
-      return '<article class="story-card' + (isReversed ? ' story-card--reversed' : '') + '"' +
-        ' data-animate="fade-up">' +
-        '<div class="story-card__image">' +
-          '<img src="' + escAttr(imageUrl) + '"' +
-          ' alt="' + escAttr(event.title) + '"' +
-          ' loading="lazy"' +
-          ' onerror="this.style.display=\'none\'">' +
-        '</div>' +
-        '<div class="story-card__content">' +
-          '<span class="story-card__date">' + esc(event.date) + ' · ' + esc(event.location) + '</span>' +
-          '<h3 class="story-card__title">' + esc(event.title) + '</h3>' +
-          '<p class="story-card__body">' + esc(event.body) + '</p>' +
-        '</div>' +
-      '</article>';
-    }).join('');
-
-    container.innerHTML = html;
-
-    // Register new elements for scroll animation
-    var cards = container.querySelectorAll('[data-animate]');
-    if (window.IntersectionObserver) {
-      var cardObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            cardObserver.unobserve(entry.target);
+    // For each event, try to fetch its images.json for slideshow
+    var promises = events.map(function (event) {
+      return fetch('assets/images/ministry-outreach/' + event.folder + '/images.json?t=' + Date.now())
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (manifest) {
+          var images = [];
+          if (manifest && manifest.images && manifest.images.length) {
+            images = manifest.images.slice(0, 5).map(function (img) {
+              return 'assets/images/ministry-outreach/' + event.folder + '/' + (img.file || img);
+            });
           }
+          if (!images.length) {
+            images = ['assets/images/ministry-outreach/' + event.folder + '/01.jpg'];
+          }
+          return { event: event, images: images };
+        })
+        .catch(function () {
+          return { event: event, images: ['assets/images/ministry-outreach/' + event.folder + '/01.jpg'] };
         });
-      }, { threshold: 0.15 });
+    });
 
-      cards.forEach(function (card) { cardObserver.observe(card); });
-    } else {
-      // Fallback: show all immediately
-      cards.forEach(function (card) { card.classList.add('is-visible'); });
-    }
+    Promise.all(promises).then(function (results) {
+      var html = results.map(function (item, index) {
+        var event = item.event;
+        var images = item.images;
+        var isReversed = index % 2 === 1;
+
+        var imageHtml;
+        if (images.length > 1) {
+          var slides = images.map(function (src, i) {
+            return '<img src="' + escAttr(src) + '"' +
+              ' alt="' + escAttr(event.title) + ' photo ' + (i + 1) + '"' +
+              ' loading="lazy"' +
+              ' class="' + (i === 0 ? 'is-active' : '') + '"' +
+              ' onerror="this.style.display=\'none\'">';
+          }).join('');
+          var dots = images.map(function (_, i) {
+            return '<button type="button" class="story-card__dot' + (i === 0 ? ' is-active' : '') + '" data-slide="' + i + '" aria-label="Show photo ' + (i + 1) + '"></button>';
+          }).join('');
+          imageHtml = '<div class="story-card__slideshow" data-slideshow>' + slides + '<div class="story-card__dots">' + dots + '</div></div>';
+        } else {
+          imageHtml = '<img src="' + escAttr(images[0]) + '"' +
+            ' alt="' + escAttr(event.title) + '"' +
+            ' loading="lazy"' +
+            ' onerror="this.style.display=\'none\'">';
+        }
+
+        return '<article class="story-card' + (isReversed ? ' story-card--reversed' : '') + '"' +
+          ' data-animate="fade-up">' +
+          '<div class="story-card__image">' + imageHtml + '</div>' +
+          '<div class="story-card__content">' +
+            '<span class="story-card__date">' + esc(event.date) + ' · ' + esc(event.location) + '</span>' +
+            '<h3 class="story-card__title">' + esc(event.title) + '</h3>' +
+            '<p class="story-card__body">' + esc(event.body) + '</p>' +
+          '</div>' +
+        '</article>';
+      }).join('');
+
+      container.innerHTML = html;
+      initSlideshows(container);
+
+      // Register new elements for scroll animation
+      var cards = container.querySelectorAll('[data-animate]');
+      if (window.IntersectionObserver) {
+        var cardObserver = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              cardObserver.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.15 });
+
+        cards.forEach(function (card) { cardObserver.observe(card); });
+      } else {
+        cards.forEach(function (card) { card.classList.add('is-visible'); });
+      }
+    });
+  }
+
+  // ── Slideshow auto-cycle ────────────────────────────────────
+  function initSlideshows(container) {
+    var slideshows = container.querySelectorAll('[data-slideshow]');
+    slideshows.forEach(function (el) {
+      var imgs = el.querySelectorAll('img');
+      var dots = el.querySelectorAll('.story-card__dot');
+      if (imgs.length < 2) return;
+
+      var current = 0;
+      var interval = setInterval(function () {
+        imgs[current].classList.remove('is-active');
+        dots[current].classList.remove('is-active');
+        current = (current + 1) % imgs.length;
+        imgs[current].classList.add('is-active');
+        dots[current].classList.add('is-active');
+      }, 3500);
+
+      // Allow dot clicks
+      dots.forEach(function (dot) {
+        dot.addEventListener('click', function () {
+          var idx = parseInt(dot.getAttribute('data-slide'), 10);
+          if (idx === current) return;
+          imgs[current].classList.remove('is-active');
+          dots[current].classList.remove('is-active');
+          current = idx;
+          imgs[current].classList.add('is-active');
+          dots[current].classList.add('is-active');
+          // Reset interval
+          clearInterval(interval);
+          interval = setInterval(function () {
+            imgs[current].classList.remove('is-active');
+            dots[current].classList.remove('is-active');
+            current = (current + 1) % imgs.length;
+            imgs[current].classList.add('is-active');
+            dots[current].classList.add('is-active');
+          }, 3500);
+        });
+      });
+    });
   }
 
   // ── Donation amount selector ────────────────────────────────
@@ -234,7 +319,7 @@
       }
       var bibles = Math.floor(dollars / COST_PER_BIBLE);
       if (bibles > 0) {
-        equivDisplay.textContent = 'Your gift of $' + dollars + ' provides ' + bibles + ' Bible' + (bibles !== 1 ? 's' : '') + ' to people who need them.';
+        equivDisplay.textContent = 'Your $' + dollars + ' supports ' + bibles + ' Bible' + (bibles !== 1 ? 's' : '') + ' and our outreach mission.';
       } else {
         equivDisplay.textContent = 'Every dollar brings us closer to our next Bible.';
       }
@@ -281,6 +366,15 @@
           updateEquivalence(val);
         } else {
           if (equivDisplay) equivDisplay.textContent = '';
+        }
+      });
+      customInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          var val = parseInt(customInput.value, 10);
+          if (val > 0) {
+            window.open('https://venmo.com/u/Vanessamind', '_blank');
+          }
         }
       });
     }

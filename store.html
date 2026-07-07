@@ -18,7 +18,7 @@
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/store.jpg">
   <title>Store — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/main.css?v=29">
-  <link rel="stylesheet" href="assets/css/store-catalog.css?v=2">
+  <link rel="stylesheet" href="assets/css/store-catalog.css?v=3">
 </head>
 <body>
 
@@ -62,13 +62,18 @@
   </div>
 </header>
 
-<!-- Impact Stats + Giving Strip (first section after header) -->
-<section class="store-impact-section" style="background: var(--dark, #1a1a1a); padding: 3rem 0;">
+<!-- Store Header — professional, clean -->
+<section class="store-header">
   <div class="container">
-    <!-- Impact stats counter -->
-    <div id="homepage-counter" style="margin-bottom:2rem;"></div>
-
-    <!-- Support the Ministry (giving strip) -->
+    <div class="store-header__top">
+      <h1 class="store-header__title">Store</h1>
+      <p class="store-header__tagline">Bibles, tracts, merch, and curated picks — every item supports the mission.</p>
+    </div>
+    <!-- Impact stats embedded elegantly as a slim strip -->
+    <div class="store-header__stats">
+      <div id="homepage-counter"></div>
+    </div>
+    <!-- Giving strip -->
     <div class="store-giving-strip">
       <h3 class="store-giving-strip__title">Support the Mission</h3>
       <p class="store-giving-strip__sub">Every gift helps us buy Bibles, host outreach events, and build community.</p>
@@ -82,79 +87,57 @@
   </div>
 </section>
 
-<div class="store-page-bg">
-
-<!-- Bundle Builder + Product Catalog (continuous flow) -->
-<section class="section section--white" style="padding: 2rem 0 3rem;">
+<!-- Category Tiles (Lockheed Martin store style) -->
+<section class="store-categories">
   <div class="container">
-    <h2 class="section-title">Choose Your Bundle</h2>
-    <p style="text-align: center; max-width: 720px; margin: -1.5rem auto 3rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
-      Pick the tier that fits how you want to give — for yourself, for a friend, or as an outpouring
-      for the ministry.
-    </p>
-
-    <div class="bundle-cards">
-
-      <!-- Bundle 1: Essentials -->
-      <article class="bundle-card-v2 bundle-card-v2--essentials">
-        <span class="bundle-card-v2__eyebrow">Starter · For a Friend</span>
-        <div class="bundle-slideshow" data-bundle="essentials" aria-label="Photos of the Essentials bundle"></div>
-        <div class="bundle-card-v2__overlay">
-          <h3 class="bundle-card-v2__title">Essentials</h3>
-          <p class="bundle-card-v2__pitch">
-            Everything a newcomer needs to crack open the Word for the first time —
-            warmly packed, hand-signed, ready to spark a study anywhere.
-          </p>
-          <p class="bundle-card-v2__price">From <strong>$2</strong> per Bible · + shipping &amp; items</p>
-          <a href="bundle-builder.html?bundle=essentials" class="bundle-card-v2__see-more">
-            Start customizing <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
-          </a>
+    <div class="store-categories__grid">
+      <a href="#bibles" class="store-category-tile" data-cat="bibles">
+        <div class="store-category-tile__bg" style="background: linear-gradient(135deg, #2C5F2E 0%, #1a3d1b 100%);"></div>
+        <div class="store-category-tile__content">
+          <span class="store-category-tile__icon">📖</span>
+          <h3 class="store-category-tile__name">Bibles</h3>
+          <p class="store-category-tile__desc">Pocket Gideon NTs in 8+ languages</p>
         </div>
-      </article>
-
-      <!-- Bundle 2: Life Group + Friends Starter — FEATURED -->
-      <article class="bundle-card-v2 bundle-card-v2--lifegroup bundle-card-v2--featured">
-        <div class="bundle-card-v2__flag">⭐ Most Given</div>
-        <span class="bundle-card-v2__eyebrow">Life Group · For Your Circle</span>
-        <div class="bundle-slideshow" data-bundle="lifegroup" aria-label="Photos of the Life Group bundle"></div>
-        <div class="bundle-card-v2__overlay">
-          <h3 class="bundle-card-v2__title">Life Group + Friends Starter</h3>
-          <p class="bundle-card-v2__pitch">
-            Start a Bible study the way we started ours. Up to five Essentials sets, with
-            optional full-size upgrades — every gift above cost supports our ministry's mission.
-          </p>
-          <p class="bundle-card-v2__price">From <strong>$2</strong> per Bible · up to 5 Bibles</p>
-          <a href="bundle-builder.html?bundle=lifegroup" class="bundle-card-v2__see-more">
-            Build your group set <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
-          </a>
+      </a>
+      <a href="#amazon" class="store-category-tile" data-cat="amazon">
+        <div class="store-category-tile__bg" style="background: linear-gradient(135deg, #ff9900 0%, #cc7700 100%);"></div>
+        <div class="store-category-tile__content">
+          <span class="store-category-tile__icon">📦</span>
+          <h3 class="store-category-tile__name">Amazon Picks</h3>
+          <p class="store-category-tile__desc">Curated items from faith sellers</p>
         </div>
-      </article>
-
-      <!-- Bundle 3: Jesus' Favorite Disciple / Ministry Needs — INVITATION CARD -->
-      <article class="bundle-card-v2 bundle-card-v2--ministry">
-        <span class="bundle-card-v2__eyebrow">Calling · Not a Purchase</span>
-        <div class="bundle-slideshow" data-bundle="ministry" aria-label="Photos from our ministry"></div>
-        <div class="bundle-card-v2__overlay">
-          <span class="bundle-card-v2__verse-line">"Deny himself, take up his cross, and follow me." — Matthew 16:24</span>
-          <h3 class="bundle-card-v2__title">
-            Jesus' Favorite Disciple
-            <span class="bundle-card-v2__title-sub">— or — Ministry Needs</span>
-          </h3>
-          <p class="bundle-card-v2__pitch">
-            This one isn't a product. It's a posture. If the Spirit is stirring you
-            to go further, tell us your story — we'll walk with you.
-          </p>
-          <a href="bundle-builder.html?bundle=ministry" class="bundle-card-v2__see-more">
-            Tell us your story <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
-          </a>
+      </a>
+      <a href="#tracts" class="store-category-tile" data-cat="tracts">
+        <div class="store-category-tile__bg" style="background: linear-gradient(135deg, #d4a574 0%, #b8860b 100%);"></div>
+        <div class="store-category-tile__content">
+          <span class="store-category-tile__icon">📜</span>
+          <h3 class="store-category-tile__name">Tracts</h3>
+          <p class="store-category-tile__desc">Evangelism literature</p>
         </div>
-      </article>
-
+      </a>
+      <a href="#merch" class="store-category-tile" data-cat="merch">
+        <div class="store-category-tile__bg" style="background: linear-gradient(135deg, #6b4d1d 0%, #3a2a0f 100%);"></div>
+        <div class="store-category-tile__content">
+          <span class="store-category-tile__icon">🎁</span>
+          <h3 class="store-category-tile__name">Merch</h3>
+          <p class="store-category-tile__desc">Ministry merchandise</p>
+        </div>
+      </a>
+      <a href="bundle-builder.html" class="store-category-tile store-category-tile--wide">
+        <div class="store-category-tile__bg" style="background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);"></div>
+        <div class="store-category-tile__content">
+          <span class="store-category-tile__icon">🎁</span>
+          <h3 class="store-category-tile__name">Build a Bundle</h3>
+          <p class="store-category-tile__desc">Customize an Essentials, Life Group, or Ministry package</p>
+        </div>
+      </a>
     </div>
   </div>
+</section>
 
-  <!-- Product Catalog (continuous flow, no section break) -->
-  <div style="max-width: 1200px; margin: 2rem auto 0; padding: 0 32px;">
+<!-- Product Catalog -->
+<section class="store-catalog-section">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 0 32px;">
     <button class="store-sidebar-toggle" id="store-sidebar-toggle" aria-label="Open category menu">
       <span class="store-sidebar-toggle__icon">☰</span>
       <span>Categories</span>
@@ -193,8 +176,6 @@
     </div>
   </div>
 </section>
-
-</div><!-- /.store-page-bg -->
 
 <footer class="site-footer">
   <div class="container">

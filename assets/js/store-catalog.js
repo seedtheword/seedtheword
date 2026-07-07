@@ -322,6 +322,15 @@
     searchInput.addEventListener('input', debouncedSearch);
     clearBtn.addEventListener('click', clearSearch);
 
+    // Wire category tiles
+    document.querySelectorAll('.store-category-tile[data-cat]').forEach(function(tile) {
+      tile.addEventListener('click', function(e) {
+        e.preventDefault();
+        var cat = tile.getAttribute('data-cat');
+        setCategory(cat);
+      });
+    });
+
     // Wire mobile sidebar toggle
     var toggleBtn = document.getElementById('store-sidebar-toggle');
     if (toggleBtn) {

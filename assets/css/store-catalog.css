@@ -2,6 +2,60 @@
    Store Catalog — Sidebar + Grid + Search
    ============================================================ */
 
+/* ── Store Header ── */
+.store-header {
+  background: radial-gradient(ellipse at 20% 15%, rgba(212, 165, 116, 0.15), transparent 55%),
+              radial-gradient(ellipse at 80% 85%, rgba(44, 95, 46, 0.15), transparent 55%),
+              linear-gradient(180deg, #0a0a0d 0%, #14131a 50%, #0a0a0d 100%);
+  color: #fff;
+  padding: 3rem 0 2.5rem;
+}
+.store-header__top { text-align: center; margin-bottom: 2rem; }
+.store-header__title { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: #fff; margin: 0 0 0.5rem; }
+.store-header__tagline { font-size: 1rem; color: rgba(255,255,255,0.65); margin: 0; max-width: 500px; margin-left: auto; margin-right: auto; }
+.store-header__stats { margin-bottom: 2rem; }
+
+/* ── Category Tiles Grid (Lockheed Martin style) ── */
+.store-categories { padding: 3rem 0; background: var(--light, #f9f6f1); }
+.store-categories__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+.store-category-tile {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: #fff;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.store-category-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+}
+.store-category-tile--wide { grid-column: span 2; }
+@media(max-width:600px) { .store-category-tile--wide { grid-column: span 1; } }
+.store-category-tile__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.store-category-tile__content {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem;
+  width: 100%;
+  background: linear-gradient(transparent 0%, rgba(0,0,0,0.5) 100%);
+}
+.store-category-tile__icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+.store-category-tile__name { font-size: 1.2rem; font-weight: 700; margin: 0 0 0.25rem; }
+.store-category-tile__desc { font-size: 0.82rem; color: rgba(255,255,255,0.8); margin: 0; }
+
 /* ── Layout ── */
 .store-layout {
   display: flex;

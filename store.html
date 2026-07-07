@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Gift a Bible. Start a life group. Or walk deeper with us. Hand-packed bundles from Seed the Word Ministry.">
+  <meta name="description" content="Browse Bibles, tracts, merch, and curated Amazon picks from Seed the Word Ministry. Every purchase supports Bible distribution and outreach.">
   <!-- Open Graph (Telegram, WhatsApp, Facebook, LinkedIn link previews) -->
   <meta property="og:site_name" content="Seed the Word Ministry">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Love. Gift. Repeat — Seed the Word Ministry">
-  <meta property="og:description" content="Three bundles. Hand-packed, prayed over, and shipped with a handwritten note. Every gift supports our ministry's work.">
+  <meta property="og:title" content="Store — Seed the Word Ministry">
+  <meta property="og:description" content="Browse Bibles, tracts, merch, and curated Amazon picks. Every purchase supports Bible distribution and outreach.">
   <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/store.jpg">
   <meta property="og:url" content="https://seedtheword.org/store.html">
-  <!-- Twitter card (mirrors OG for some Telegram clients + X) -->
+  <!-- Twitter card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Love. Gift. Repeat — Seed the Word Ministry">
-  <meta name="twitter:description" content="Three bundles. Hand-packed, prayed over, and shipped with a handwritten note.">
+  <meta name="twitter:title" content="Store — Seed the Word Ministry">
+  <meta name="twitter:description" content="Browse Bibles, tracts, merch, and curated Amazon picks. Every purchase supports Bible distribution and outreach.">
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/store.jpg">
-  <title>Love. Gift. Repeat — Seed the Word Ministry</title>
+  <title>Store — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/main.css?v=29">
+  <link rel="stylesheet" href="assets/css/store-catalog.css?v=1">
 </head>
 <body>
 
@@ -64,14 +65,58 @@
 <section class="hero hero--short hero--bundles">
   <div class="hero__overlay"></div>
   <div class="hero__content">
-    <h1 class="hero__title">Love. Gift. Repeat — that's Jesus</h1>
-    <p class="hero__tagline">Gift a Bible to a newcomer. Start a life group with friends. Or walk deeper with us.</p>
+    <h1 class="hero__title">Store</h1>
+    <p class="hero__tagline">Bibles, tracts, merch, and curated picks — every item supports the mission.</p>
   </div>
 </section>
 
 <div class="store-page-bg">
 
-<!-- Transparency note -->
+<!-- Product Catalog Section -->
+<section class="store-catalog-section">
+
+  <!-- Mobile sidebar toggle -->
+  <div style="max-width: 1200px; margin: 0 auto; padding: 0 32px;">
+    <button class="store-sidebar-toggle" id="store-sidebar-toggle" aria-label="Open category menu">
+      <span class="store-sidebar-toggle__icon">☰</span>
+      <span>Categories</span>
+    </button>
+  </div>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="store-sidebar-overlay" id="store-sidebar-overlay"></div>
+
+  <div class="store-layout">
+    <!-- Sidebar -->
+    <aside class="store-sidebar" id="store-sidebar" aria-label="Product categories"></aside>
+
+    <!-- Main content -->
+    <div class="store-main">
+      <!-- Search bar -->
+      <div class="store-search">
+        <span class="store-search__icon">🔍</span>
+        <input
+          type="search"
+          id="store-search-input"
+          class="store-search__input"
+          placeholder="Search products..."
+          autocomplete="off"
+          aria-label="Search products"
+        >
+        <span class="store-search__count" id="store-search-count"></span>
+        <button class="store-search__clear" id="store-search-clear" aria-label="Clear search">✕</button>
+      </div>
+
+      <!-- Category header -->
+      <div id="store-category-header" class="store-category-header"></div>
+
+      <!-- Product grid -->
+      <div class="store-grid" id="store-grid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Support the Ministry — Impact Stats -->
 <section class="section section--light" style="padding: 3rem 0 2rem;">
   <div class="container">
     <div class="store-honesty glass-morphism">
@@ -85,65 +130,7 @@
   </div>
 </section>
 
-<!-- Bible donate / receive initiative card — paired alternative path
-     to the outbound bundle catalog. Same Bible-distribution mission,
-     opposite direction. Sits high (above the catalog) so it reads as
-     an equal half of the store's distribution work, not a footer link. -->
-<section class="section" style="padding: 0 0 1.5rem; background: var(--cream, #fdf3e3);">
-  <div class="container">
-    <div style="
-      max-width: 880px;
-      margin: 0 auto;
-      padding: 1.75rem 1.5rem;
-      background: #fff;
-      border-radius: 14px;
-      border-left: 5px solid var(--green, #2C5F2E);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-      flex-wrap: wrap;
-    ">
-      <div aria-hidden="true" style="font-size: 2.4rem; line-height: 1;">📚📖</div>
-      <div style="flex: 1; min-width: 260px;">
-        <p style="
-          font-size: 0.78rem;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          font-weight: 700;
-          color: var(--gold, #c79a3a);
-          margin: 0 0 0.4rem;
-        ">Initiative — paired with the bundles</p>
-        <h3 style="
-          font-family: Georgia, 'Times New Roman', serif;
-          font-size: 1.4rem;
-          font-weight: 600;
-          color: var(--text);
-          margin: 0 0 0.5rem;
-          line-height: 1.3;
-        ">Donate or receive a Bible</h3>
-        <p style="
-          font-size: 0.97rem;
-          line-height: 1.6;
-          color: var(--muted);
-          margin: 0;
-        ">If you have a Bible to share, we'll get it to someone who'll read it. If you'd like one, tell us a little about why and our team will be in touch. Same distribution mission as the bundles below — just running in the opposite direction.</p>
-      </div>
-      <a href="donate.html" style="
-        display: inline-block;
-        padding: 0.85rem 1.6rem;
-        background: var(--green, #2C5F2E);
-        color: #fff;
-        font-weight: 700;
-        text-decoration: none;
-        border-radius: 10px;
-        white-space: nowrap;
-      ">Open the donate page →</a>
-    </div>
-  </div>
-</section>
-
-<!-- Three bundles -->
+<!-- Bundle Builder Section -->
 <section class="section section--white" style="padding: 2rem 0 4rem;">
   <div class="container">
     <h2 class="section-title">Choose Your Bundle</h2>
@@ -311,6 +298,7 @@
 </footer>
 
 <script src="assets/js/main.js?v=9"></script>
+<script src="assets/js/store-catalog.js?v=1"></script>
 <script src="assets/js/bundle-slideshow.js?v=1"></script>
 <script src="assets/js/bundle-item-catalog.js?v=1"></script>
 <script src="assets/js/bundle-journey.js?v=4"></script>

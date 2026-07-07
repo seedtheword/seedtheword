@@ -18,7 +18,7 @@
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/store.jpg">
   <title>Store — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/main.css?v=29">
-  <link rel="stylesheet" href="assets/css/store-catalog.css?v=1">
+  <link rel="stylesheet" href="assets/css/store-catalog.css?v=2">
 </head>
 <body>
 
@@ -62,21 +62,99 @@
   </div>
 </header>
 
-<section class="hero hero--short hero--bundles">
-  <div class="hero__overlay"></div>
-  <div class="hero__content">
-    <h1 class="hero__title">Store</h1>
-    <p class="hero__tagline">Bibles, tracts, merch, and curated picks — every item supports the mission.</p>
+<!-- Impact Stats + Giving Strip (first section after header) -->
+<section class="store-impact-section" style="background: var(--dark, #1a1a1a); padding: 3rem 0;">
+  <div class="container">
+    <!-- Impact stats counter -->
+    <div id="homepage-counter" style="margin-bottom:2rem;"></div>
+
+    <!-- Support the Ministry (giving strip) -->
+    <div class="store-giving-strip">
+      <h3 class="store-giving-strip__title">Support the Mission</h3>
+      <p class="store-giving-strip__sub">Every gift helps us buy Bibles, host outreach events, and build community.</p>
+      <div class="store-giving-strip__methods">
+        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener" class="store-giving-strip__pill">Venmo</a>
+        <a href="https://cash.app/$Vanessamind" target="_blank" rel="noopener" class="store-giving-strip__pill">Cash App</a>
+        <a href="https://paypal.me/vanessamind" target="_blank" rel="noopener" class="store-giving-strip__pill">PayPal</a>
+        <a href="donate.html" class="store-giving-strip__pill store-giving-strip__pill--gold">Give →</a>
+      </div>
+    </div>
   </div>
 </section>
 
 <div class="store-page-bg">
 
-<!-- Product Catalog Section -->
-<section class="store-catalog-section">
+<!-- Bundle Builder + Product Catalog (continuous flow) -->
+<section class="section section--white" style="padding: 2rem 0 3rem;">
+  <div class="container">
+    <h2 class="section-title">Choose Your Bundle</h2>
+    <p style="text-align: center; max-width: 720px; margin: -1.5rem auto 3rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
+      Pick the tier that fits how you want to give — for yourself, for a friend, or as an outpouring
+      for the ministry.
+    </p>
 
-  <!-- Mobile sidebar toggle -->
-  <div style="max-width: 1200px; margin: 0 auto; padding: 0 32px;">
+    <div class="bundle-cards">
+
+      <!-- Bundle 1: Essentials -->
+      <article class="bundle-card-v2 bundle-card-v2--essentials">
+        <span class="bundle-card-v2__eyebrow">Starter · For a Friend</span>
+        <div class="bundle-slideshow" data-bundle="essentials" aria-label="Photos of the Essentials bundle"></div>
+        <div class="bundle-card-v2__overlay">
+          <h3 class="bundle-card-v2__title">Essentials</h3>
+          <p class="bundle-card-v2__pitch">
+            Everything a newcomer needs to crack open the Word for the first time —
+            warmly packed, hand-signed, ready to spark a study anywhere.
+          </p>
+          <p class="bundle-card-v2__price">From <strong>$2</strong> per Bible · + shipping &amp; items</p>
+          <a href="bundle-builder.html?bundle=essentials" class="bundle-card-v2__see-more">
+            Start customizing <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Bundle 2: Life Group + Friends Starter — FEATURED -->
+      <article class="bundle-card-v2 bundle-card-v2--lifegroup bundle-card-v2--featured">
+        <div class="bundle-card-v2__flag">⭐ Most Given</div>
+        <span class="bundle-card-v2__eyebrow">Life Group · For Your Circle</span>
+        <div class="bundle-slideshow" data-bundle="lifegroup" aria-label="Photos of the Life Group bundle"></div>
+        <div class="bundle-card-v2__overlay">
+          <h3 class="bundle-card-v2__title">Life Group + Friends Starter</h3>
+          <p class="bundle-card-v2__pitch">
+            Start a Bible study the way we started ours. Up to five Essentials sets, with
+            optional full-size upgrades — every gift above cost supports our ministry's mission.
+          </p>
+          <p class="bundle-card-v2__price">From <strong>$2</strong> per Bible · up to 5 Bibles</p>
+          <a href="bundle-builder.html?bundle=lifegroup" class="bundle-card-v2__see-more">
+            Build your group set <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Bundle 3: Jesus' Favorite Disciple / Ministry Needs — INVITATION CARD -->
+      <article class="bundle-card-v2 bundle-card-v2--ministry">
+        <span class="bundle-card-v2__eyebrow">Calling · Not a Purchase</span>
+        <div class="bundle-slideshow" data-bundle="ministry" aria-label="Photos from our ministry"></div>
+        <div class="bundle-card-v2__overlay">
+          <span class="bundle-card-v2__verse-line">"Deny himself, take up his cross, and follow me." — Matthew 16:24</span>
+          <h3 class="bundle-card-v2__title">
+            Jesus' Favorite Disciple
+            <span class="bundle-card-v2__title-sub">— or — Ministry Needs</span>
+          </h3>
+          <p class="bundle-card-v2__pitch">
+            This one isn't a product. It's a posture. If the Spirit is stirring you
+            to go further, tell us your story — we'll walk with you.
+          </p>
+          <a href="bundle-builder.html?bundle=ministry" class="bundle-card-v2__see-more">
+            Tell us your story <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+
+  <!-- Product Catalog (continuous flow, no section break) -->
+  <div style="max-width: 1200px; margin: 2rem auto 0; padding: 0 32px;">
     <button class="store-sidebar-toggle" id="store-sidebar-toggle" aria-label="Open category menu">
       <span class="store-sidebar-toggle__icon">☰</span>
       <span>Categories</span>
@@ -112,127 +190,6 @@
 
       <!-- Product grid -->
       <div class="store-grid" id="store-grid"></div>
-    </div>
-  </div>
-</section>
-
-<!-- Support the Ministry — Impact Stats -->
-<section class="section section--light" style="padding: 3rem 0 2rem;">
-  <div class="container">
-    <div class="store-honesty glass-morphism">
-      <div class="store-honesty__icon" aria-hidden="true">💚</div>
-      <div class="store-honesty__text">
-        <p><strong>How this works:</strong> Pocket Gideon New Testaments cost us <strong>$2 each</strong> at our ministry rate. Shipping, packaging, and bundle items add roughly <strong>$7–$15</strong> more depending on what's included. Every gift beyond cost supports our ministry's mission — Bible distribution, outreach events, and community fellowship. <em>Give as you feel led.</em></p>
-      </div>
-    </div>
-    <!-- Full Impact Stats — populated by ministry-impact.js -->
-    <div id="homepage-counter" style="margin-top:1.5rem;margin-bottom:0;"></div>
-  </div>
-</section>
-
-<!-- Bundle Builder Section -->
-<section class="section section--white" style="padding: 2rem 0 4rem;">
-  <div class="container">
-    <h2 class="section-title">Choose Your Bundle</h2>
-    <p style="text-align: center; max-width: 720px; margin: -1.5rem auto 3rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
-      Pick the tier that fits how you want to give — for yourself, for a friend, or as an outpouring
-      for the ministry.
-    </p>
-
-    <div class="bundle-cards">
-
-      <!-- Bundle 1: Essentials -->
-      <article class="bundle-card-v2 bundle-card-v2--essentials">
-        <span class="bundle-card-v2__eyebrow">Starter · For a Friend</span>
-        <div class="bundle-slideshow" data-bundle="essentials" aria-label="Photos of the Essentials bundle"></div>
-        <div class="bundle-card-v2__overlay">
-          <h3 class="bundle-card-v2__title">Essentials</h3>
-          <p class="bundle-card-v2__pitch">
-            Everything a newcomer needs to crack open the Word for the first time —
-            warmly packed, hand-signed, ready to spark a study anywhere.
-          </p>
-          <p class="bundle-card-v2__price">From <strong>$2</strong> per Bible · + shipping &amp; items</p>
-          <button type="button" class="bundle-card-v2__see-more" data-bundle-pick="essentials">
-            Start customizing <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
-          </button>
-        </div>
-      </article>
-
-      <!-- Bundle 2: Life Group + Friends Starter — FEATURED -->
-      <article class="bundle-card-v2 bundle-card-v2--lifegroup bundle-card-v2--featured">
-        <div class="bundle-card-v2__flag">⭐ Most Given</div>
-        <span class="bundle-card-v2__eyebrow">Life Group · For Your Circle</span>
-        <div class="bundle-slideshow" data-bundle="lifegroup" aria-label="Photos of the Life Group bundle"></div>
-        <div class="bundle-card-v2__overlay">
-          <h3 class="bundle-card-v2__title">Life Group + Friends Starter</h3>
-          <p class="bundle-card-v2__pitch">
-            Start a Bible study the way we started ours. Up to five Essentials sets, with
-            optional full-size upgrades — every gift above cost supports our ministry's mission.
-          </p>
-          <p class="bundle-card-v2__price">From <strong>$2</strong> per Bible · up to 5 Bibles</p>
-          <button type="button" class="bundle-card-v2__see-more" data-bundle-pick="lifegroup">
-            Build your group set <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
-          </button>
-        </div>
-      </article>
-
-      <!-- Bundle 3: Jesus' Favorite Disciple / Ministry Needs — INVITATION CARD -->
-      <article class="bundle-card-v2 bundle-card-v2--ministry">
-        <span class="bundle-card-v2__eyebrow">Calling · Not a Purchase</span>
-        <div class="bundle-slideshow" data-bundle="ministry" aria-label="Photos from our ministry"></div>
-        <div class="bundle-card-v2__overlay">
-          <span class="bundle-card-v2__verse-line">"Deny himself, take up his cross, and follow me." — Matthew 16:24</span>
-          <h3 class="bundle-card-v2__title">
-            Jesus' Favorite Disciple
-            <span class="bundle-card-v2__title-sub">— or — Ministry Needs</span>
-          </h3>
-          <p class="bundle-card-v2__pitch">
-            This one isn't a product. It's a posture. If the Spirit is stirring you
-            to go further, tell us your story — we'll walk with you.
-          </p>
-          <button type="button" class="bundle-card-v2__see-more" data-bundle-pick="ministry">
-            Tell us your story <span class="bundle-card-v2__see-more-arrow" aria-hidden="true">→</span>
-          </button>
-        </div>
-      </article>
-
-    </div>
-
-    <div id="journey-root" aria-live="polite"></div>
-  </div>
-</section>
-
-<!-- Support the Ministry (general donation, not tied to a bundle) -->
-<section class="section section--light" id="support" style="padding: 3rem 0 4rem;">
-  <div class="container">
-    <div class="support-panel glass-morphism">
-      <div class="support-panel__left">
-        <h2 class="support-panel__title">Support the Ministry</h2>
-        <p class="support-panel__blurb">
-          Not looking for a bundle? Your gift supports Seed the Word Ministry's
-          mission — Bible distribution, outreach events, fellowship gatherings,
-          and community care. You choose how you'd like to give.
-        </p>
-        <ul class="support-panel__bullets">
-          <li>📖 Supports Bible distribution &amp; outreach</li>
-          <li>🤝 Funds community events &amp; fellowship</li>
-          <li>🙏 You'll be prayed for by name, as a team</li>
-          <li>📬 Give any amount — monthly or one-time</li>
-        </ul>
-      </div>
-      <div class="support-panel__right">
-        <p class="support-panel__label">Quick give</p>
-        <div class="support-panel__amounts">
-          <a class="support-pill" href="https://www.paypal.com/paypalme/DAgeyev/10" target="_blank" rel="noopener">$10</a>
-          <a class="support-pill" href="https://www.paypal.com/paypalme/DAgeyev/25" target="_blank" rel="noopener">$25</a>
-          <a class="support-pill" href="https://www.paypal.com/paypalme/DAgeyev/50" target="_blank" rel="noopener">$50</a>
-          <a class="support-pill" href="https://www.paypal.com/paypalme/DAgeyev/100" target="_blank" rel="noopener">$100</a>
-          <a class="support-pill support-pill--open" href="https://www.paypal.me/DAgeyev" target="_blank" rel="noopener">
-            Custom amount →
-          </a>
-        </div>
-        <p class="support-panel__note">Payments go through PayPal. No account required — use any card.</p>
-      </div>
     </div>
   </div>
 </section>

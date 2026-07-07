@@ -470,3 +470,27 @@
   cursor: pointer;
   border: none;
 }
+
+
+/* ── Store giving strip ── */
+.store-giving-strip { text-align: center; margin-top: 2rem; padding: 1.5rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,165,116,0.2); }
+.store-giving-strip__title { font-size: 1.1rem; font-weight: 700; color: #fff; margin: 0 0 0.4rem; }
+.store-giving-strip__sub { font-size: 0.9rem; color: rgba(255,255,255,0.65); margin: 0 0 1rem; }
+.store-giving-strip__methods { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; }
+.store-giving-strip__pill { display: inline-flex; align-items: center; padding: 0.5rem 1.25rem; border-radius: 20px; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.2); color: #fff; text-decoration: none; font-size: 0.88rem; font-weight: 600; transition: transform 0.12s, border-color 0.2s, background 0.2s; min-height: 44px; }
+.store-giving-strip__pill:hover { transform: translateY(-2px); border-color: var(--gold); background: rgba(255,255,255,0.12); }
+.store-giving-strip__pill--gold { background: var(--gold, #d4a574); border-color: var(--gold); color: #fff; }
+.store-giving-strip__pill--gold:hover { background: #c99560; }
+
+/* ── Store impact section overrides ── */
+.store-impact-section .impact-counter { background: rgba(255,255,255,0.06); border: 1px solid rgba(212,165,116,0.25); border-left: 4px solid var(--gold, #d4a574); }
+.store-impact-section .impact-counter__sub,
+.store-impact-section .impact-counter__goal { color: rgba(255,255,255,0.65); }
+.store-impact-section .impact-counter__eyebrow { color: rgba(212,165,116,0.9); }
+.store-impact-section .impact-counter__eyebrow::before { background: rgba(212,165,116,0.9); }
+.store-impact-section .impact-counter__stock-label { color: rgba(212,165,116,0.9); }
+.store-impact-section .impact-counter__gideon { color: rgba(255,255,255,0.5); }
+.store-impact-section .impact-stats-row__stat { background: rgba(255,255,255,0.04); border-color: rgba(212,165,116,0.2); }
+.store-impact-section .impact-stats-row__num { color: var(--gold); }
+.store-impact-section .impact-stats-row__label { color: rgba(255,255,255,0.65); }
+.store-impact-section .impact-stats-row__app-link { color: var(--gold); border-color: rgba(212,165,116,0.3); }

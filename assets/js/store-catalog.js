@@ -126,7 +126,7 @@
     if (p.category === 'amazon' && p.url) {
       actionHTML = '<a href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" class="store-card__action store-card__action--amazon">View on Amazon →</a>';
     } else if (p.category === 'bibles') {
-      actionHTML = '<button type="button" class="store-card__action store-card__action--primary" onclick="document.getElementById(\'journey-root\').scrollIntoView({behavior:\'smooth\'})">Add to Bundle</button>';
+      actionHTML = '<a href="bundle-builder.html?bundle=essentials" class="store-card__action store-card__action--primary">Add to Bundle</a>';
     } else {
       actionHTML = '<span class="store-card__action store-card__action--secondary">Learn More</span>';
     }
@@ -207,9 +207,9 @@
     renderSidebar();
     renderGrid();
     // Scroll to top of catalog
-    var catalogSection = document.querySelector('.store-catalog-section');
-    if (catalogSection) {
-      catalogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var catalogArea = document.querySelector('.store-layout');
+    if (catalogArea) {
+      catalogArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 

@@ -402,6 +402,7 @@
 /* ── Section spacing ── */
 .store-catalog-section {
   padding: 2.5rem 0 3rem;
+  background: var(--light, #f9f6f1);
 }
 
 /* ── Error state ── */
@@ -474,3 +475,51 @@
     display: none !important;
   }
 }
+
+
+/* ── Store Hero Impact (combined impact + giving section) ── */
+.store-hero-impact {
+  position: relative;
+  padding: 4rem 0 5rem;
+  color: #fff;
+  overflow: hidden;
+}
+.store-hero-impact__bg {
+  position: absolute; inset: 0;
+  background: url('../images/backgrounds/stw-background-1920x1080.jpg') center/cover no-repeat;
+}
+.store-hero-impact__overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.7);
+}
+.store-hero-impact__fade {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+  background: linear-gradient(transparent, var(--light, #f9f6f1));
+  z-index: 1;
+}
+.store-hero-impact__content { position: relative; z-index: 2; text-align: center; }
+.store-hero-impact__title { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; margin: 0 0 0.5rem; }
+.store-hero-impact__sub { font-size: 1rem; color: rgba(255,255,255,0.75); max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.7; }
+.store-hero-impact__giving { margin-top: 2rem; }
+.store-hero-impact__amounts { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin-bottom: 1.5rem; }
+.store-hero-impact__amount {
+  display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+  padding: 0.75rem 1.25rem; border-radius: 10px;
+  background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.25);
+  color: #fff; text-decoration: none; font-size: 1.1rem; font-weight: 700;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s;
+  min-width: 80px;
+}
+.store-hero-impact__amount span { font-size: 0.7rem; font-weight: 600; color: var(--gold, #d4a574); }
+.store-hero-impact__amount:hover { transform: translateY(-2px); background: rgba(255,255,255,0.12); border-color: var(--gold); }
+.store-hero-impact__amount--gold { background: var(--gold, #d4a574); border-color: var(--gold); }
+.store-hero-impact__amount--gold:hover { background: #c99560; }
+.store-hero-impact__methods { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.store-hero-impact__methods a {
+  padding: 0.5rem 1rem; border-radius: 20px;
+  background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.2);
+  color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 600;
+  transition: transform 0.12s, border-color 0.2s;
+}
+.store-hero-impact__methods a:hover { transform: translateY(-1px); border-color: var(--gold); }
+@media(max-width:600px) { .store-hero-impact__amounts { flex-direction: column; align-items: center; } }

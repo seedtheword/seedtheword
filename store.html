@@ -18,7 +18,7 @@
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/store.jpg">
   <title>Store — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/main.css?v=29">
-  <link rel="stylesheet" href="assets/css/store-catalog.css?v=4">
+  <link rel="stylesheet" href="assets/css/store-catalog.css?v=5">
 </head>
 <body>
 
@@ -62,16 +62,34 @@
   </div>
 </header>
 
-<!-- Impact Stats — light theme ministry pitch -->
-<section style="padding: 3rem 0; background: #fff;">
-  <div class="container">
-    <div style="max-width:800px; margin:0 auto; text-align:center;">
-      <h2 style="font-size:1.8rem; font-weight:800; color:var(--dark); margin:0 0 0.5rem;">Every Bible We Give Is a Seed Planted</h2>
-      <p style="color:var(--muted); line-height:1.7; margin:0 0 2rem;">Your support goes towards buying Bibles, hosting outreach events, and building community. Here's our impact so far.</p>
-    </div>
-    <div id="homepage-counter" style="margin-bottom:1.5rem;"></div>
-    <div style="text-align:center; margin-top:1.5rem;">
-      <a href="donate.html" style="display:inline-block; padding:0.75rem 2rem; background:var(--green); color:#fff; border-radius:10px; font-weight:600; text-decoration:none;">Support the Mission →</a>
+<!-- Impact Stats + Giving (combined hero section with bg image) -->
+<section class="store-hero-impact">
+  <div class="store-hero-impact__bg"></div>
+  <div class="store-hero-impact__overlay"></div>
+  <div class="store-hero-impact__fade"></div>
+  <div class="container store-hero-impact__content">
+    <h2 class="store-hero-impact__title">Every Bible We Give Is a Seed Planted</h2>
+    <p class="store-hero-impact__sub">Your support goes towards buying Bibles, hosting outreach events, and building community.</p>
+    
+    <!-- Live counter -->
+    <div id="homepage-counter" style="margin:2rem 0;"></div>
+    
+    <!-- Giving section (from donate page) -->
+    <div class="store-hero-impact__giving">
+      <h3 style="color:#fff; font-size:1.3rem; font-weight:700; margin:0 0 0.5rem; text-align:center;">Your Generosity Fuels the Mission</h3>
+      <div class="store-hero-impact__amounts">
+        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener" class="store-hero-impact__amount">$10<span>5 Bibles</span></a>
+        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener" class="store-hero-impact__amount">$25<span>12 Bibles</span></a>
+        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener" class="store-hero-impact__amount">$50<span>25 Bibles</span></a>
+        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener" class="store-hero-impact__amount">$100<span>50 Bibles</span></a>
+        <a href="donate.html#give" class="store-hero-impact__amount store-hero-impact__amount--gold">Other →</a>
+      </div>
+      <div class="store-hero-impact__methods">
+        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener">Venmo</a>
+        <a href="https://cash.app/$Vanessamind" target="_blank" rel="noopener">Cash App</a>
+        <a href="https://paypal.me/vanessamind" target="_blank" rel="noopener">PayPal</a>
+        <a href="donate.html#give" >Full Donate Page →</a>
+      </div>
     </div>
   </div>
 </section>

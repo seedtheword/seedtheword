@@ -530,7 +530,10 @@
       var state = form.querySelector('#receive-state') ? form.querySelector('#receive-state').value : '';
       var zip = form.querySelector('#receive-zip') ? form.querySelector('#receive-zip').value.trim() : '';
       var story = form.querySelector('#receive-story') ? form.querySelector('#receive-story').value.trim() : '';
-      var donateToo = form.querySelector('#receive-donate-too') ? form.querySelector('#receive-donate-too').checked : false;
+      var wantPrayer = form.querySelector('[name="wantPrayer"]') ? form.querySelector('[name="wantPrayer"]').checked : false;
+      var wantStudy = form.querySelector('[name="wantStudy"]') ? form.querySelector('[name="wantStudy"]').checked : false;
+      var wantVolunteer = form.querySelector('[name="wantVolunteer"]') ? form.querySelector('[name="wantVolunteer"]').checked : false;
+      var wantSupport = form.querySelector('[name="wantSupport"]') ? form.querySelector('[name="wantSupport"]').checked : false;
 
       if (!name || !email || !language || !city || !story) {
         if (status) {
@@ -559,7 +562,12 @@
             zip: zip,
             language: language,
             story: story,
-            donateToo: donateToo ? 'yes' : ''
+            interests: [
+              wantPrayer ? 'prayer' : '',
+              wantStudy ? 'study' : '',
+              wantVolunteer ? 'volunteer' : '',
+              wantSupport ? 'support' : ''
+            ].filter(Boolean).join(',')
           });
 
           return fetch(url, {
@@ -577,6 +585,27 @@
               status.className = 'donate-receive-form__status is-success';
             }
             form.reset();
+            // Show contextual recommendations based on interests
+            var recommendations = [];
+            if (wantPrayer) recommendations.push('<a href="https://t.me/seedtheword" target="_blank" rel="noopener" style="color:var(--green);font-weight:600;">Join our Telegram prayer community →</a>');
+            if (wantStudy) recommendations.push('<a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" style="color:var(--green);font-weight:600;">Follow us on Instagram for Bible study announcements →</a>');
+            if (wantVolunteer) recommendations.push('<span style="color:var(--green);font-weight:600;">We\'ll reach out about volunteer opportunities!</span>');
+            if (wantSupport) recommendations.push('<a href="#give" style="color:var(--gold);font-weight:600;">See ways to support the mission →</a>');
+            if (recommendations.length && status) {
+              status.innerHTML += '<div style="margin-top:0.75rem;font-size:0.88rem;line-height:1.8;">' + recommendations.join('<br>') + '</div>';
+            }
+            // If they want to support, scroll to giving after a short delay
+            if (wantSupport) {
+              setTimeout(function() {
+                var giveSection = document.getElementById('give');
+                if (giveSection) {
+                  // Close the modal first
+                  var modal = document.getElementById('receive-bible');
+                  if (modal) { modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); }
+                  giveSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }, 3000);
+            }
           } else {
             throw new Error(res.error || 'Something went wrong');
           }

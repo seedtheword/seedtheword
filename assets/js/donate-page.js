@@ -144,6 +144,18 @@
             } else {
               window.__stwLiveCount = count;
             }
+            // Update events from live data
+            if (live.events) {
+              window.__stwEventsCount = live.events;
+              if (statsAnimated) animateCounter('impact-events', live.events, 1200);
+            }
+            // Update languages from live inStock
+            if (live.inStock && live.inStock.length) {
+              populateLanguages(live.inStock);
+              var liveInStockCount = live.inStock.filter(function(b) { return b.count > 0; }).length;
+              window.__stwLanguagesCount = liveInStockCount;
+              if (statsAnimated) animateCounter('impact-languages', liveInStockCount, 1200);
+            }
           })
           .catch(function () {
             setCounterText('impact-count', fallback);

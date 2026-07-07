@@ -1,11 +1,12 @@
 /* ============================================================
    donate-page.js — Interactive logic for the storytelling
    donate page redesign. Handles:
-   1. Live stats fetch + counter animation
-   2. Outreach card rendering from ministry-outreach.json
-   3. Donation amount selector + Bible equivalence
+   1. Live stats fetch + counter animation (ALL 3 stats)
+   2. Outreach slideshow (full-size with text overlay)
+   3. Donation amount selector + Bible equivalence + glow
    4. Copy-to-clipboard for Zelle
    5. IntersectionObserver scroll animations
+   6. Receive a Bible form submission
    ============================================================ */
 (function () {
   'use strict';
@@ -24,11 +25,12 @@
   function boot() {
     hydrateStatsFromCache();
     fetchLiveStats();
-    fetchOutreachEvents();
+    initOutreachSlideshow();
     initDonationAmounts();
     initClipboard();
     initScrollAnimations();
     initStatsObserver();
+    initReceiveForm();
   }
 
   // ── Stats: cache hydration ──────────────────────────────────
@@ -58,11 +60,9 @@
           .then(function (live) {
             var count = (live.ok && live.total) ? live.total : fallback;
             updateCache(count);
-            // If stats section is already visible, animate now
             if (statsAnimated) {
               animateCounter('impact-count', count);
             } else {
-              // Store for later animation trigger
               window.__stwLiveCount = count;
             }
           })
@@ -84,16 +84,19 @@
 
   function setCounterText(id, value) {
     var el = document.getElementById(id);
-    if (el) el.textContent = Number(value).toLocaleString('en-US');
+    if (el) {
+      var plus = el.querySelector('.donate-impact__plus');
+      el.textContent = Number(value).toLocaleString('en-US');
+      if (plus) el.appendChild(plus);
+    }
   }
 
-  // ── Counter animation ───────────────────────────────────────
+  // ── Counter animation (cubic ease-out) ──────────────────────
   function animateCounter(elementId, target, duration) {
     duration = duration || 1600;
     var el = document.getElementById(elementId);
     if (!el) return;
 
-    // Preserve the "+" span if present
     var plusSpan = el.querySelector('.donate-impact__plus');
     var from = parseInt(el.textContent.replace(/[,+]/g, ''), 10) || 0;
     if (from === target) {
@@ -106,12 +109,10 @@
 
     function step(now) {
       var progress = Math.min((now - start) / duration, 1);
-      // Cubic ease-out
       var eased = 1 - Math.pow(1 - progress, 3);
       var current = Math.round(from + (target - from) * eased);
       el.textContent = current.toLocaleString('en-US');
       if (plusSpan) el.appendChild(plusSpan);
-
       if (progress < 1) {
         requestAnimationFrame(step);
       } else {
@@ -123,15 +124,14 @@
     requestAnimationFrame(step);
   }
 
-  // ── Stats IntersectionObserver ──────────────────────────────
+  // ── Stats IntersectionObserver — animates ALL 3 stats ──────
   function initStatsObserver() {
     var section = document.getElementById('impact');
     if (!section || !window.IntersectionObserver) {
-      // Fallback: animate immediately
       statsAnimated = true;
-      if (window.__stwLiveCount) {
-        animateCounter('impact-count', window.__stwLiveCount);
-      }
+      if (window.__stwLiveCount) animateCounter('impact-count', window.__stwLiveCount);
+      animateCounter('impact-languages', 8, 1200);
+      animateCounter('impact-events', 4, 1200);
       return;
     }
 
@@ -139,11 +139,12 @@
       entries.forEach(function (entry) {
         if (entry.isIntersecting && !statsAnimated) {
           statsAnimated = true;
-          var target = window.__stwLiveCount ||
-            parseInt(document.getElementById('impact-count').textContent.replace(/,/g, ''), 10) || 123;
-          animateCounter('impact-count', target);
-          // Animate events count too
-          animateCounter('impact-events', 4, 1200);
+          var bibleTarget = window.__stwLiveCount ||
+            parseInt(document.getElementById('impact-count').textContent.replace(/[,+]/g, ''), 10) || 123;
+          animateCounter('impact-count', bibleTarget);
+          animateCounter('impact-languages', 8, 1200);
+          var eventsTarget = window.__stwEventsCount || 4;
+          animateCounter('impact-events', eventsTarget, 1200);
           observer.disconnect();
         }
       });
@@ -152,162 +153,100 @@
     observer.observe(section);
   }
 
-  // ── Outreach events: fetch and render ───────────────────────
-  function fetchOutreachEvents() {
-    var container = document.getElementById('outreach-events');
-    var section = document.querySelector('.donate-story-v2');
-    if (!container || !section) return;
+  // ── Outreach Slideshow (homepage-style) ─────────────────────
+  function initOutreachSlideshow() {
+    var track = document.getElementById('oss-track');
+    var dotsWrap = document.getElementById('oss-dots');
+    if (!track || !dotsWrap) return;
 
     fetch('assets/data/ministry-outreach.json?t=' + Date.now())
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
         if (!data || !data.events || !data.events.length) {
-          section.style.display = 'none';
+          var wrapper = document.getElementById('outreach-slideshow');
+          if (wrapper) wrapper.style.display = 'none';
           return;
         }
-        renderOutreachCards(data.events.slice(0, 4), container);
-        // Update events count
-        var eventsEl = document.getElementById('impact-events');
-        if (eventsEl) {
-          window.__stwEventsCount = data.events.length;
-          if (statsAnimated) {
-            animateCounter('impact-events', data.events.length, 1200);
-          }
-        }
+        buildSlideshow(data.events, track, dotsWrap);
       })
       .catch(function () {
-        section.style.display = 'none';
+        var wrapper = document.getElementById('outreach-slideshow');
+        if (wrapper) wrapper.style.display = 'none';
       });
   }
 
-  function renderOutreachCards(events, container) {
-    // For each event, try to fetch its images.json for slideshow
-    var promises = events.map(function (event) {
-      return fetch('assets/images/ministry-outreach/' + event.folder + '/images.json?t=' + Date.now())
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (manifest) {
-          var images = [];
-          if (manifest && manifest.images && manifest.images.length) {
-            images = manifest.images.slice(0, 5).map(function (img) {
-              return 'assets/images/ministry-outreach/' + event.folder + '/' + (img.file || img);
-            });
-          }
-          if (!images.length) {
-            images = ['assets/images/ministry-outreach/' + event.folder + '/01.jpg'];
-          }
-          return { event: event, images: images };
-        })
-        .catch(function () {
-          return { event: event, images: ['assets/images/ministry-outreach/' + event.folder + '/01.jpg'] };
-        });
-    });
+  function buildSlideshow(events, track, dotsWrap) {
+    // Build slides
+    var html = events.map(function (ev, i) {
+      var imgSrc = 'assets/images/ministry-outreach/' + ev.folder + '/01.jpg';
+      return '<div class="oss-track__item' + (i === 0 ? ' is-active' : '') + '">' +
+        '<img src="' + escAttr(imgSrc) + '" alt="' + escAttr(ev.title) + '" loading="' + (i === 0 ? 'eager' : 'lazy') + '">' +
+        '<div class="oss-track__overlay"></div>' +
+        '<div class="oss-track__caption">' +
+          '<h3 class="oss-track__caption-title">' + esc(ev.title) + '</h3>' +
+          '<p class="oss-track__caption-meta">' + esc(ev.date) + ' · ' + esc(ev.location) + '</p>' +
+          '<p class="oss-track__caption-body">' + esc(ev.body) + '</p>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    track.innerHTML = html;
 
-    Promise.all(promises).then(function (results) {
-      var html = results.map(function (item, index) {
-        var event = item.event;
-        var images = item.images;
-        var isReversed = index % 2 === 1;
+    // Build dots
+    var dotsHtml = events.map(function (_, i) {
+      return '<button type="button" class="oss-dots__dot' + (i === 0 ? ' is-active' : '') + '" data-idx="' + i + '" aria-label="Show slide ' + (i + 1) + '"></button>';
+    }).join('');
+    dotsWrap.innerHTML = dotsHtml;
 
-        var imageHtml;
-        if (images.length > 1) {
-          var slides = images.map(function (src, i) {
-            return '<img src="' + escAttr(src) + '"' +
-              ' alt="' + escAttr(event.title) + ' photo ' + (i + 1) + '"' +
-              ' loading="lazy"' +
-              ' class="' + (i === 0 ? 'is-active' : '') + '"' +
-              ' onerror="this.style.display=\'none\'">';
-          }).join('');
-          var dots = images.map(function (_, i) {
-            return '<button type="button" class="story-card__dot' + (i === 0 ? ' is-active' : '') + '" data-slide="' + i + '" aria-label="Show photo ' + (i + 1) + '"></button>';
-          }).join('');
-          imageHtml = '<div class="story-card__slideshow" data-slideshow>' + slides + '<div class="story-card__dots">' + dots + '</div></div>';
-        } else {
-          imageHtml = '<img src="' + escAttr(images[0]) + '"' +
-            ' alt="' + escAttr(event.title) + '"' +
-            ' loading="lazy"' +
-            ' onerror="this.style.display=\'none\'">';
+    var slides = track.querySelectorAll('.oss-track__item');
+    var dots = dotsWrap.querySelectorAll('.oss-dots__dot');
+    var current = 0;
+    var total = slides.length;
+
+    function goTo(idx) {
+      slides[current].classList.remove('is-active');
+      dots[current].classList.remove('is-active');
+      current = idx;
+      slides[current].classList.add('is-active');
+      dots[current].classList.add('is-active');
+    }
+
+    // Dot clicks
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        var idx = parseInt(dot.getAttribute('data-idx'), 10);
+        if (idx !== current) {
+          goTo(idx);
+          resetInterval();
         }
-
-        return '<article class="story-card' + (isReversed ? ' story-card--reversed' : '') + '"' +
-          ' data-animate="fade-up">' +
-          '<div class="story-card__image">' + imageHtml + '</div>' +
-          '<div class="story-card__content">' +
-            '<span class="story-card__date">' + esc(event.date) + ' · ' + esc(event.location) + '</span>' +
-            '<h3 class="story-card__title">' + esc(event.title) + '</h3>' +
-            '<p class="story-card__body">' + esc(event.body) + '</p>' +
-          '</div>' +
-        '</article>';
-      }).join('');
-
-      container.innerHTML = html;
-      initSlideshows(container);
-
-      // Register new elements for scroll animation
-      var cards = container.querySelectorAll('[data-animate]');
-      if (window.IntersectionObserver) {
-        var cardObserver = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-visible');
-              cardObserver.unobserve(entry.target);
-            }
-          });
-        }, { threshold: 0.15 });
-
-        cards.forEach(function (card) { cardObserver.observe(card); });
-      } else {
-        cards.forEach(function (card) { card.classList.add('is-visible'); });
-      }
-    });
-  }
-
-  // ── Slideshow auto-cycle ────────────────────────────────────
-  function initSlideshows(container) {
-    var slideshows = container.querySelectorAll('[data-slideshow]');
-    slideshows.forEach(function (el) {
-      var imgs = el.querySelectorAll('img');
-      var dots = el.querySelectorAll('.story-card__dot');
-      if (imgs.length < 2) return;
-
-      var current = 0;
-      var interval = setInterval(function () {
-        imgs[current].classList.remove('is-active');
-        dots[current].classList.remove('is-active');
-        current = (current + 1) % imgs.length;
-        imgs[current].classList.add('is-active');
-        dots[current].classList.add('is-active');
-      }, 3500);
-
-      // Allow dot clicks
-      dots.forEach(function (dot) {
-        dot.addEventListener('click', function () {
-          var idx = parseInt(dot.getAttribute('data-slide'), 10);
-          if (idx === current) return;
-          imgs[current].classList.remove('is-active');
-          dots[current].classList.remove('is-active');
-          current = idx;
-          imgs[current].classList.add('is-active');
-          dots[current].classList.add('is-active');
-          // Reset interval
-          clearInterval(interval);
-          interval = setInterval(function () {
-            imgs[current].classList.remove('is-active');
-            dots[current].classList.remove('is-active');
-            current = (current + 1) % imgs.length;
-            imgs[current].classList.add('is-active');
-            dots[current].classList.add('is-active');
-          }, 3500);
-        });
       });
     });
+
+    // Auto-advance
+    var timer = setInterval(function () {
+      goTo((current + 1) % total);
+    }, 5000);
+
+    function resetInterval() {
+      clearInterval(timer);
+      timer = setInterval(function () {
+        goTo((current + 1) % total);
+      }, 5000);
+    }
+
+    // Update events count for stats
+    window.__stwEventsCount = events.length;
+    if (statsAnimated) {
+      animateCounter('impact-events', events.length, 1200);
+    }
   }
 
-  // ── Donation amount selector ────────────────────────────────
+  // ── Donation amount selector + glow ─────────────────────────
   function initDonationAmounts() {
     var buttons = document.querySelectorAll('.donate-giving__amount');
     var equivDisplay = document.getElementById('bible-equiv-msg');
     var customWrap = document.getElementById('custom-amount-wrap');
     var customInput = document.getElementById('custom-amount-input');
+    var methodsWrap = document.querySelector('.donate-giving__methods');
 
     if (!buttons.length) return;
 
@@ -322,6 +261,15 @@
         equivDisplay.textContent = 'Your $' + dollars + ' supports ' + bibles + ' Bible' + (bibles !== 1 ? 's' : '') + ' and our outreach mission.';
       } else {
         equivDisplay.textContent = 'Every dollar brings us closer to our next Bible.';
+      }
+    }
+
+    function setGlow(active) {
+      if (!methodsWrap) return;
+      if (active) {
+        methodsWrap.classList.add('is-glowing');
+      } else {
+        methodsWrap.classList.remove('is-glowing');
       }
     }
 
@@ -340,17 +288,17 @@
           customInput.focus();
           var val = parseInt(customInput.value, 10);
           updateEquivalence(val > 0 ? val : 0);
+          setGlow(val > 0);
         }
       } else {
         if (customWrap) customWrap.classList.remove('is-visible');
         updateEquivalence(parseInt(amount, 10));
+        setGlow(true);
       }
     }
 
     buttons.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        selectButton(btn);
-      });
+      btn.addEventListener('click', function () { selectButton(btn); });
       btn.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -364,8 +312,10 @@
         var val = parseInt(customInput.value, 10);
         if (val > 0) {
           updateEquivalence(val);
+          setGlow(true);
         } else {
           if (equivDisplay) equivDisplay.textContent = '';
+          setGlow(false);
         }
       });
       customInput.addEventListener('keydown', function (e) {
@@ -433,7 +383,6 @@
   // ── Scroll animations (IntersectionObserver) ────────────────
   function initScrollAnimations() {
     if (!window.IntersectionObserver) {
-      // No IO support: show everything
       var els = document.querySelectorAll('[data-animate]');
       els.forEach(function (el) { el.classList.add('is-visible'); });
       return;
@@ -450,6 +399,75 @@
 
     var animElements = document.querySelectorAll('[data-animate]');
     animElements.forEach(function (el) { observer.observe(el); });
+  }
+
+  // ── Receive a Bible form ─────────────────────────────────────
+  function initReceiveForm() {
+    var form = document.getElementById('receive-bible-form');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var status = document.getElementById('receive-form-status');
+      var submitBtn = form.querySelector('.donate-receive-form__submit');
+
+      var name = form.querySelector('#receive-name').value.trim();
+      var email = form.querySelector('#receive-email').value.trim();
+      var language = form.querySelector('#receive-language').value;
+      var address = form.querySelector('#receive-address').value.trim();
+
+      if (!name || !email || !language || !address) {
+        if (status) {
+          status.textContent = 'Please fill in all fields.';
+          status.className = 'donate-receive-form__status is-error';
+        }
+        return;
+      }
+
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending...'; }
+      if (status) { status.textContent = ''; status.className = 'donate-receive-form__status'; }
+
+      fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (cfg) {
+          var url = cfg.orderHandlerUrl;
+          if (!url) throw new Error('No handler URL configured');
+
+          var params = new URLSearchParams();
+          params.append('action', 'receiveBible');
+          params.append('name', name);
+          params.append('email', email);
+          params.append('language', language);
+          params.append('address', address);
+
+          return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (res.ok || res.success) {
+            if (status) {
+              status.textContent = '🎉 Your Bible is on its way! Check your email for confirmation.';
+              status.className = 'donate-receive-form__status is-success';
+            }
+            form.reset();
+          } else {
+            throw new Error(res.error || 'Something went wrong');
+          }
+        })
+        .catch(function (err) {
+          if (status) {
+            status.textContent = err.message || 'Something went wrong. Please try again.';
+            status.className = 'donate-receive-form__status is-error';
+          }
+        })
+        .finally(function () {
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send My Free Bible →'; }
+        });
+    });
   }
 
   // ── Helpers ─────────────────────────────────────────────────

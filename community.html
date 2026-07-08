@@ -18,6 +18,7 @@
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-ministry-1.jpg">
   <title>Community — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/main.css?v=29">
+  <link rel="stylesheet" href="assets/css/store-catalog.css?v=1">
 </head>
 <body>
 
@@ -229,66 +230,28 @@
   <div class="container">
     <h2 class="section-title">✨ Friends in Jesus</h2>
 
-    <div class="featured-elsewhere__sub">
-      <h3 class="featured-elsewhere__subtitle">🎧 What We're Listening To</h3>
-      <div id="listening-container"></div>
+    <!-- Topic Catalog -->
+    <div style="max-width: 1200px; margin: 1.5rem auto 0; padding: 0 32px;">
+      <button class="store-sidebar-toggle" id="community-sidebar-toggle" aria-label="Open topic menu">
+        <span class="store-sidebar-toggle__icon">☰</span>
+        <span>Topics</span>
+      </button>
     </div>
 
-    <div class="featured-elsewhere__sub">
-      <h3 class="featured-elsewhere__subtitle">🤝 Partner Ministries</h3>
+    <div class="store-sidebar-overlay" id="community-sidebar-overlay"></div>
 
-      <!-- Permanent friend-message card (Why the Church Can't Be
-           Neutral Anymore) — hosted on Drive because the file is too
-           large to ship through GitHub Pages directly. The Drive file
-           must be shared "Anyone with the link → Viewer" for the iframe
-           to load. -->
-      <article class="friend-message glass-morphism">
-        <div class="friend-message__video friend-message__video--landscape">
-          <iframe
-            src="https://drive.google.com/file/d/1JjsvIWyNxXVowOwFY_DmpS7-N_Jj4Zag/preview"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowfullscreen
-            loading="lazy"
-            title="Why the Church Can't Be Neutral Anymore — HungryGen, Pastor Vlad">
-          </iframe>
+    <div class="store-layout">
+      <aside class="store-sidebar" id="community-sidebar" aria-label="Content topics"></aside>
+      <div class="store-main">
+        <div class="store-search">
+          <span class="store-search__icon">🔍</span>
+          <input type="search" id="community-search-input" class="store-search__input" placeholder="Search community content..." autocomplete="off" aria-label="Search community content">
+          <span class="store-search__count" id="community-search-count"></span>
+          <button class="store-search__clear" id="community-search-clear" aria-label="Clear search">✕</button>
         </div>
-        <div class="friend-message__body">
-          <p class="friend-message__eyebrow">A Word from a Friend</p>
-          <h4 class="friend-message__title">Why the Church Can't Be Neutral Anymore</h4>
-          <p class="friend-message__from">HungryGen — Pastor Vlad</p>
-          <p>
-            A challenge to keep walking the line our ministry was built on:
-            there is no neutral ground when it comes to Jesus. Sit with this one.
-          </p>
-        </div>
-      </article>
-
-      <!-- Permanent friend-message card (Ruslan Y.) -->
-      <article class="friend-message glass-morphism">
-        <div class="friend-message__video">
-          <video
-            src="assets/videos/ruslan-y-message.mp4"
-            controls
-            preload="metadata"
-            playsinline
-            aria-label="A message from our friend, Ruslan Y.">
-            Your browser doesn't support embedded video.
-            <a href="assets/videos/ruslan-y-message.mp4">Download the video</a>.
-          </video>
-        </div>
-        <div class="friend-message__body">
-          <p class="friend-message__eyebrow">A Word from a Brother</p>
-          <h4 class="friend-message__title">A message from our friend, Ruslan Y.</h4>
-          <p class="friend-message__from">Sent to Seed the Word with love.</p>
-          <p>
-            A short encouragement from our friend Ruslan — one of the voices
-            who has walked alongside our ministry. We're grateful for his
-            heart for the Gospel and wanted to share his words with you.
-          </p>
-        </div>
-      </article>
-
-      <div id="partners-container"></div>
+        <div id="community-category-header" class="store-category-header"></div>
+        <div class="store-grid" id="community-grid"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -713,6 +676,7 @@
 <script src="assets/js/instagram-feed.js?v=2"></script>
 <script src="assets/js/telegram-stats.js?v=1"></script>
 <script src="assets/js/recommendations.js?v=3"></script>
+<script src="assets/js/community-catalog.js?v=1" defer></script>
 <script src="assets/js/study-saturday.js?v=7" defer></script>
 <script src="assets/js/prayer-intake.js?v=2"></script>
 

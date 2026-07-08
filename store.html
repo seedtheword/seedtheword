@@ -18,6 +18,9 @@
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/store.jpg">
   <title>Store — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/main.css?v=29">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/store-catalog.css?v=5">
 </head>
 <body>
@@ -68,8 +71,8 @@
   <div class="store-hero-impact__overlay"></div>
   <div class="store-hero-impact__fade"></div>
   <div class="container store-hero-impact__content">
-    <h2 class="store-hero-impact__title">Browse, Gift, and Equip</h2>
-    <p class="store-hero-impact__sub">Bibles in 8+ languages, curated resources, and everything your outreach needs — all in one place.</p>
+    <h2 class="store-hero-impact__title">The Word Goes Out From Here</h2>
+    <p class="store-hero-impact__sub">Every Bible, tract, and resource you see below is part of our mission. Pick something up for yourself, gift it to someone, or fuel the next outreach.</p>
     
     <!-- Donate-page-style impact stats (exact copy) -->
     <div class="donate-impact__wrapper" style="margin: 2rem auto; max-width: 900px;">
@@ -105,7 +108,7 @@
           YouVersion
         </a>
       </div>
-      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center; margin-top:1.5rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.08);">
+      <div id="store-lang-tags" style="display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center; margin-top:1.5rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.08);">
         <span class="store-lang-tag">English</span>
         <span class="store-lang-tag">Spanish</span>
         <span class="store-lang-tag">Hindi</span>
@@ -121,18 +124,18 @@
     <div class="store-hero-impact__giving">
       <h3 style="color:#fff; font-size:1.3rem; font-weight:700; margin:0 0 0.5rem; text-align:center;">Your Generosity Fuels the Mission</h3>
       <div class="store-hero-impact__amounts">
-        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener" class="store-hero-impact__amount">$10<span>5 Bibles</span></a>
-        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener" class="store-hero-impact__amount">$25<span>12 Bibles</span></a>
-        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener" class="store-hero-impact__amount">$50<span>25 Bibles</span></a>
-        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener" class="store-hero-impact__amount">$100<span>50 Bibles</span></a>
+        <a href="donate.html#give" class="store-hero-impact__amount">$10<span>5 Bibles</span></a>
+        <a href="donate.html#give" class="store-hero-impact__amount">$25<span>12 Bibles</span></a>
+        <a href="donate.html#give" class="store-hero-impact__amount">$50<span>25 Bibles</span></a>
+        <a href="donate.html#give" class="store-hero-impact__amount">$100<span>50 Bibles</span></a>
         <a href="donate.html#give" class="store-hero-impact__amount store-hero-impact__amount--gold">Other →</a>
       </div>
       <div class="store-hero-impact__methods">
-        <a href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener">Venmo</a>
-        <a href="https://cash.app/$Vanessamind" target="_blank" rel="noopener">Cash App</a>
-        <a href="https://paypal.me/vanessamind" target="_blank" rel="noopener">PayPal</a>
+        <a href="donate.html#give">Venmo</a>
+        <a href="donate.html#give">Cash App</a>
+        <a href="donate.html#give">PayPal</a>
         <a href="donate.html#give">Zelle</a>
-        <a href="donate.html#give" >Full Donate Page →</a>
+        <a href="donate.html#give">Full Donate Page →</a>
       </div>
     </div>
   </div>
@@ -295,6 +298,7 @@
 <script src="assets/js/ministry-impact.js?v=3" defer></script>
 <script>
 (function() {
+  var CACHE_KEY = 'stw_ministry_stats';
   function animateNum(id, target, dur) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -311,13 +315,61 @@
     }
     requestAnimationFrame(step);
   }
-  var done = false;
+
+  function updateLangs(inStock) {
+    var container = document.getElementById('store-lang-tags');
+    if (!container || !inStock || !inStock.length) return;
+    var available = inStock.filter(function(b) { return b.count > 0; });
+    if (!available.length) return;
+    container.innerHTML = available.map(function(b) {
+      return '<span class="store-lang-tag">' + b.language + '</span>';
+    }).join('');
+  }
+
+  var statsAnimated = false;
+  var liveTotal = 276, liveLangs = 8, liveEvents = 5;
+
+  // Fetch live data
+  fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : {}; })
+    .then(function(cfg) {
+      liveTotal = cfg.biblesGivenAway || 276;
+      liveEvents = cfg.outreachEvents || 5;
+      if (cfg.biblesInStock) {
+        var inStockCount = cfg.biblesInStock.filter(function(b) { return b.count > 0; }).length;
+        liveLangs = inStockCount;
+        updateLangs(cfg.biblesInStock);
+      }
+      var url = cfg.orderHandlerUrl;
+      if (url) {
+        return fetch(url + '?action=getMinistryStats', { cache: 'no-store' })
+          .then(function(r) { return r.ok ? r.json() : {}; })
+          .then(function(live) {
+            if (live.ok) {
+              liveTotal = live.total || liveTotal;
+              liveEvents = live.events || liveEvents;
+              if (live.inStock) {
+                liveLangs = live.inStock.filter(function(b) { return b.count > 0; }).length;
+                updateLangs(live.inStock);
+              }
+            }
+            if (statsAnimated) {
+              animateNum('store-impact-count', liveTotal, 1600);
+              animateNum('store-impact-languages', liveLangs, 1200);
+              animateNum('store-impact-events', liveEvents, 1200);
+            }
+          });
+      }
+    })
+    .catch(function() {});
+
+  // Animate on scroll into view
   var obs = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting && !done) {
-      done = true;
-      animateNum('store-impact-count', 276, 1600);
-      animateNum('store-impact-languages', 8, 1200);
-      animateNum('store-impact-events', 5, 1200);
+    if (entries[0].isIntersecting && !statsAnimated) {
+      statsAnimated = true;
+      animateNum('store-impact-count', liveTotal, 1600);
+      animateNum('store-impact-languages', liveLangs, 1200);
+      animateNum('store-impact-events', liveEvents, 1200);
       obs.disconnect();
     }
   }, { threshold: 0.2 });

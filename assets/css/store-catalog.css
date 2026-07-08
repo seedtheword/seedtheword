@@ -480,7 +480,7 @@
 /* ── Store Hero Impact (combined impact + giving section) ── */
 .store-hero-impact {
   position: relative;
-  padding: 4rem 0 5rem;
+  padding: 4rem 0 7rem;
   color: #fff;
   overflow: hidden;
 }
@@ -493,7 +493,7 @@
   background: rgba(0,0,0,0.7);
 }
 .store-hero-impact__fade {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+  position: absolute; bottom: 0; left: 0; right: 0; height: 150px;
   background: linear-gradient(transparent, var(--light, #f9f6f1));
   z-index: 1;
 }
@@ -521,7 +521,7 @@
   color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 600;
   transition: transform 0.12s, border-color 0.2s;
 }
-.store-hero-impact__methods a:hover { transform: translateY(-1px); border-color: var(--gold); }
+.store-hero-impact__methods a:hover { transform: translateY(-1px); border-color: var(--gold, #d4a574); background: var(--gold, #d4a574); color: #fff; }
 @media(max-width:600px) { .store-hero-impact__amounts { flex-direction: column; align-items: center; } }
 
 

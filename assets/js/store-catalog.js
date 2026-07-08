@@ -117,16 +117,24 @@
     var sellerHTML = p.seller ? '<span class="store-card__seller">' + esc(p.seller) + '</span>' : '';
 
     var stockHTML = '';
-    if (p.stockCount !== null && p.stockCount !== undefined && p.category === 'bibles') {
-      var stockClass = p.stockCount <= 5 ? 'store-card__stock store-card__stock--low' : 'store-card__stock';
-      stockHTML = '<span class="' + stockClass + '">' + p.stockCount + ' in stock</span>';
+    if (p.category === 'bibles' && p.stockCount !== null && p.stockCount !== undefined) {
+      if (p.stockCount === 0) {
+        stockHTML = '<span class="store-card__stock store-card__stock--out">Out of Stock</span>';
+      } else {
+        var stockClass = p.stockCount <= 5 ? 'store-card__stock store-card__stock--low' : 'store-card__stock';
+        stockHTML = '<span class="' + stockClass + '">' + p.stockCount + ' in stock</span>';
+      }
     }
 
     var actionHTML;
     if (p.category === 'amazon' && p.url) {
       actionHTML = '<a href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" class="store-card__action store-card__action--amazon">View on Amazon →</a>';
     } else if (p.category === 'bibles') {
-      actionHTML = '<a href="bundle-builder.html?bundle=essentials" class="store-card__action store-card__action--primary">Add to Bundle</a>';
+      if (p.stockCount === 0) {
+        actionHTML = '<span class="store-card__action store-card__action--disabled">Out of Stock</span>';
+      } else {
+        actionHTML = '<a href="bundle-builder.html?bundle=essentials" class="store-card__action store-card__action--primary">Add to Bundle</a>';
+      }
     } else {
       actionHTML = '<span class="store-card__action store-card__action--secondary">Learn More</span>';
     }
@@ -388,6 +396,46 @@
         renderGrid();
       }
     });
+
+    // Fetch live stock data
+    updateLiveStock();
+  }
+
+  // ── Live stock update for Bible products ────────────────────
+  async function updateLiveStock() {
+    try {
+      var cfgRes = await fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!cfgRes.ok) return;
+      var cfg = await cfgRes.json();
+      var inStock = cfg.biblesInStock || [];
+      
+      // Try live API
+      if (cfg.orderHandlerUrl) {
+        try {
+          var liveRes = await fetch(cfg.orderHandlerUrl + '?action=getMinistryStats', { cache: 'no-store' });
+          if (liveRes.ok) {
+            var live = await liveRes.json();
+            if (live.ok && live.inStock) inStock = live.inStock;
+          }
+        } catch(_) {}
+      }
+      
+      // Update products array with live stock counts
+      if (inStock.length) {
+        products.forEach(function(p) {
+          if (p.category !== 'bibles' || !p.language) return;
+          var match = inStock.find(function(s) {
+            return s.language && s.language.toLowerCase() === p.language.toLowerCase();
+          });
+          if (match) {
+            p.stockCount = match.count;
+            p.inStock = match.count > 0;
+          }
+        });
+        // Re-render if currently viewing Bibles
+        if (activeCategory === 'bibles') renderGrid();
+      }
+    } catch(_) {}
   }
 
   // ── Public API ──────────────────────────────────────────────

@@ -171,7 +171,25 @@
       return;
     }
 
-    gridEl.innerHTML = filtered.map(renderProductCard).join('');
+    var bundleHtml = '';
+    if (activeCategory === 'bibles') {
+      bundleHtml = '<div class="store-bundle-promo">' +
+        '<h3 class="store-bundle-promo__title">Build a Bundle</h3>' +
+        '<p class="store-bundle-promo__desc">Curated Bible packages for every stage of faith</p>' +
+        '<div class="store-bundle-promo__cards">' +
+          '<a href="bundle-builder.html?bundle=essentials" class="store-bundle-promo__card">' +
+            '<strong>Essentials</strong><span>Starter · For a Friend</span>' +
+          '</a>' +
+          '<a href="bundle-builder.html?bundle=lifegroup" class="store-bundle-promo__card store-bundle-promo__card--featured">' +
+            '<strong>Life Group</strong><span>⭐ Most Given</span>' +
+          '</a>' +
+          '<a href="bundle-builder.html?bundle=ministry" class="store-bundle-promo__card">' +
+            '<strong>Ministry</strong><span>Bulk · Outreach</span>' +
+          '</a>' +
+        '</div>' +
+      '</div>';
+    }
+    gridEl.innerHTML = bundleHtml + filtered.map(renderProductCard).join('');
   }
 
   // ── Render sidebar ──────────────────────────────────────────

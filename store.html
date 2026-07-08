@@ -74,6 +74,42 @@
     <!-- Live counter -->
     <div id="homepage-counter" style="margin:2rem 0;"></div>
     
+    <!-- Donate-page-style impact stats (exact copy) -->
+    <div class="donate-impact__wrapper" style="margin: 2rem auto; max-width: 900px;">
+      <div class="donate-impact__inner">
+        <div class="donate-impact__stat">
+          <span class="donate-impact__num" id="store-impact-count">0<span class="donate-impact__plus">+</span></span>
+          <span class="donate-impact__label">Bibles Given Away</span>
+        </div>
+        <div class="donate-impact__stat">
+          <span class="donate-impact__num" id="store-impact-languages">0<span class="donate-impact__plus">+</span></span>
+          <span class="donate-impact__label">Languages in Stock</span>
+        </div>
+        <div class="donate-impact__stat">
+          <span class="donate-impact__num" id="store-impact-events">0<span class="donate-impact__plus">+</span></span>
+          <span class="donate-impact__label">Outreach Events</span>
+        </div>
+      </div>
+      <div class="donate-impact__socials">
+        <a class="donate-impact__social-link" href="https://t.me/seedtheword" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="20" height="20"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+          Telegram
+        </a>
+        <a class="donate-impact__social-link" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="20" height="20"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/></svg>
+          Instagram
+        </a>
+        <a class="donate-impact__social-link" href="https://gideons.org/find-hope#bibleapp" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6zm1 3h10v1H7V5zm0 3h10v1H7V8zm0 3h7v1H7v-1z"/></svg>
+          Gideons App
+        </a>
+        <a class="donate-impact__social-link" href="https://www.bible.com/app" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+          YouVersion
+        </a>
+      </div>
+    </div>
+
     <!-- Giving section (from donate page) -->
     <div class="store-hero-impact__giving">
       <h3 style="color:#fff; font-size:1.3rem; font-weight:700; margin:0 0 0.5rem; text-align:center;">Your Generosity Fuels the Mission</h3>
@@ -250,5 +286,37 @@
 <script src="assets/js/bundle-item-catalog.js?v=1"></script>
 <script src="assets/js/bundle-journey.js?v=4"></script>
 <script src="assets/js/ministry-impact.js?v=3" defer></script>
+<script>
+(function() {
+  function animateNum(id, target, dur) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var plus = el.querySelector('.donate-impact__plus');
+    el.textContent = '0';
+    if (plus) el.appendChild(plus);
+    var start = performance.now();
+    function step(now) {
+      var p = Math.min((now - start) / dur, 1);
+      var e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * e).toLocaleString('en-US');
+      if (plus) el.appendChild(plus);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var done = false;
+  var obs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !done) {
+      done = true;
+      animateNum('store-impact-count', 276, 1600);
+      animateNum('store-impact-languages', 8, 1200);
+      animateNum('store-impact-events', 5, 1200);
+      obs.disconnect();
+    }
+  }, { threshold: 0.2 });
+  var target = document.querySelector('.donate-impact__wrapper');
+  if (target) obs.observe(target);
+})();
+</script>
 </body>
 </html>

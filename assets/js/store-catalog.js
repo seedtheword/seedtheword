@@ -173,21 +173,45 @@
 
     var bundleHtml = '';
     if (activeCategory === 'bibles') {
-      bundleHtml = '<div class="store-bundle-promo">' +
-        '<h3 class="store-bundle-promo__title">Build a Bundle</h3>' +
-        '<p class="store-bundle-promo__desc">Curated Bible packages for every stage of faith</p>' +
-        '<div class="store-bundle-promo__cards">' +
-          '<a href="bundle-builder.html?bundle=essentials" class="store-bundle-promo__card">' +
-            '<strong>Essentials</strong><span>Starter · For a Friend</span>' +
+      bundleHtml = '<div class="store-bundle-section" style="grid-column:1/-1; margin-bottom:1.5rem;">' +
+        '<h3 style="font-size:1.3rem; font-weight:800; color:var(--dark); margin:0 0 0.5rem; text-align:center;">Choose Your Bundle</h3>' +
+        '<p style="color:var(--muted); font-size:0.9rem; margin:0 0 1.5rem; text-align:center;">Curated packages for every stage of faith — customize in our builder.</p>' +
+        '<div class="bundle-cards">' +
+          '<a href="bundle-builder.html?bundle=essentials" class="bundle-card-v2 bundle-card-v2--essentials">' +
+            '<span class="bundle-card-v2__eyebrow">Essentials</span>' +
+            '<div class="bundle-slideshow" data-bundle="essentials"></div>' +
+            '<div class="bundle-card-v2__overlay">' +
+              '<h3 class="bundle-card-v2__title">Essentials Welcome</h3>' +
+              '<p class="bundle-card-v2__pitch">A pocket New Testament, a welcome tract, and everything a newcomer needs to start their walk.</p>' +
+              '<span class="bundle-card-v2__see-more">Build yours <span class="bundle-card-v2__see-more-arrow">\u2192</span></span>' +
+            '</div>' +
           '</a>' +
-          '<a href="bundle-builder.html?bundle=lifegroup" class="store-bundle-promo__card store-bundle-promo__card--featured">' +
-            '<strong>Life Group</strong><span>⭐ Most Given</span>' +
+          '<a href="bundle-builder.html?bundle=lifegroup" class="bundle-card-v2 bundle-card-v2--lifegroup bundle-card-v2--featured">' +
+            '<span class="bundle-card-v2__flag">Most Given</span>' +
+            '<span class="bundle-card-v2__eyebrow">Life Group</span>' +
+            '<div class="bundle-slideshow" data-bundle="lifegroup"></div>' +
+            '<div class="bundle-card-v2__overlay">' +
+              '<h3 class="bundle-card-v2__title">Life Group Starter</h3>' +
+              '<p class="bundle-card-v2__pitch">2\u20135 Bibles with personalized name labels \u2014 perfect for a small group, family, or Bible study.</p>' +
+              '<span class="bundle-card-v2__see-more">Build yours <span class="bundle-card-v2__see-more-arrow">\u2192</span></span>' +
+            '</div>' +
           '</a>' +
-          '<a href="bundle-builder.html?bundle=ministry" class="store-bundle-promo__card">' +
-            '<strong>Ministry</strong><span>Bulk · Outreach</span>' +
+          '<a href="bundle-builder.html?bundle=ministry" class="bundle-card-v2 bundle-card-v2--ministry">' +
+            '<span class="bundle-card-v2__eyebrow">Ministry</span>' +
+            '<div class="bundle-slideshow" data-bundle="ministry"></div>' +
+            '<div class="bundle-card-v2__overlay">' +
+              '<span class="bundle-card-v2__verse-line">\u201cGo ye therefore, and teach all nations\u2026\u201d</span>' +
+              '<h3 class="bundle-card-v2__title">Ministry Calling</h3>' +
+              '<p class="bundle-card-v2__pitch">Bulk Bibles at our $2 ministry rate \u2014 plan your outreach, name your event, and share the Word.</p>' +
+              '<span class="bundle-card-v2__see-more">Build yours <span class="bundle-card-v2__see-more-arrow">\u2192</span></span>' +
+            '</div>' +
           '</a>' +
         '</div>' +
       '</div>';
+      // Re-init bundle slideshows after render
+      setTimeout(function() {
+        if (window.initBundleSlideshows) window.initBundleSlideshows();
+      }, 100);
     }
     gridEl.innerHTML = bundleHtml + filtered.map(renderProductCard).join('');
   }

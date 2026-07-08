@@ -79,3 +79,11 @@ function escapeHtml(s) {
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.bundle-slideshow').forEach(initBundleSlideshow);
 });
+
+// Expose globally so dynamically-injected bundle cards can re-init
+window.initBundleSlideshows = function() {
+  document.querySelectorAll('.bundle-slideshow:not([data-initialized])').forEach(function(el) {
+    el.setAttribute('data-initialized', 'true');
+    initBundleSlideshow(el);
+  });
+};

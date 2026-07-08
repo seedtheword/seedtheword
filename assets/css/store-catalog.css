@@ -619,3 +619,16 @@
   transform: none;
   box-shadow: none;
 }
+
+
+/* Cursive language tags inside golden impact wrapper */
+.store-lang-tag {
+  font-family: 'Caveat', cursive;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold, #d4a574);
+  padding: 0.35rem 1rem;
+  border: 1.5px solid rgba(212,165,116,0.35);
+  border-radius: 20px;
+  display: inline-block;
+}

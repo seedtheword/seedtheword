@@ -1,31 +1,7 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-07-07T02:25:55+00:00",
+  "updated": "2026-07-09T14:26:01+00:00",
   "events": {
-    "04j5nci29hveafd1ecv1g2achj@google.com": {
-      "title": "FIFA 2026 Evangelism",
-      "start": "2026-06-24T15:00:00+00:00",
-      "lastPosted": "2026-06-24T15:25:55+00:00",
-      "upcomingPosted": true,
-      "reminderPosted": true,
-      "livePosted": true
-    },
-    "040000008200E00074C5B7101A82E00800000000CAAB293E6F02DD0100000000000000001000000027426B4FCCDEEE4D81A0B6300B98315C": {
-      "title": "Meet with Seed the Word",
-      "start": "2026-06-24T20:00:00+00:00",
-      "lastPosted": "2026-06-24T20:25:57+00:00",
-      "upcomingPosted": true,
-      "reminderPosted": true,
-      "livePosted": true
-    },
-    "2jmguh13o1icrafr1mcet11p53@google.com": {
-      "title": "ICC Bonfire and Worship!",
-      "start": "2026-06-25T00:00:00+00:00",
-      "lastPosted": "2026-06-25T00:25:59+00:00",
-      "upcomingPosted": true,
-      "reminderPosted": true,
-      "livePosted": true
-    },
     "n2nfgktikql6bucteto0dn0ajk@google.com": {
       "title": "Canyon Hills WORSHIP NIGHT",
       "start": "2026-06-26T02:00:00+00:00",
@@ -138,6 +114,12 @@
       "upcomingPosted": true,
       "reminderPosted": true,
       "livePosted": true
+    },
+    "4m1jf7lji8853igqq9u0i1rpnc@google.com": {
+      "title": "Gideon's International/Seed the Word Arlington State Fair Outreach",
+      "start": "2026-07-10T22:00:00+00:00",
+      "lastPosted": "2026-07-09T14:26:01+00:00",
+      "upcomingPosted": true
     }
   }
 }

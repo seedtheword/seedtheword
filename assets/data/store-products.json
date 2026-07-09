@@ -13,6 +13,13 @@
       "description": "A red pocket Gideon NT designed for personal testimony. Hand-packed with prayer and a handwritten note.",
       "price": "$2 each",
       "image": "assets/images/store/PXL_20260709_021023550.PORTRAIT.ORIGINAL.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_021023550.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_045735659.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_050003867~2.jpg",
+        "assets/images/store/PXL_20260709_051515546.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
       "url": null,
       "tags": ["english", "new testament", "gideon", "pocket", "red", "personal testimony"],
       "seller": null,
@@ -27,6 +34,13 @@
       "description": "A grey pocket Gideon NT perfect for gifting to a friend. Share the Gospel through personal connection.",
       "price": "$2 each",
       "image": "assets/images/store/PXL_20260709_021124320.PORTRAIT.ORIGINAL.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_021124320.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_051613338.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_051748268.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_051853466.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
       "url": null,
       "tags": ["english", "new testament", "gideon", "pocket", "grey", "friend testimony"],
       "seller": null,
@@ -41,6 +55,13 @@
       "description": "A large print Gideon NT in brown cover. Easy-to-read text for those who prefer larger font.",
       "price": "$2 each",
       "image": "assets/images/store/PXL_20260709_021221329.PORTRAIT.ORIGINAL.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_021221329.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_054832306.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_054924271.PORTRAIT.ORIGINAL~2.jpg",
+        "assets/images/store/PXL_20260709_055051757.jpg",
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
       "url": null,
       "tags": ["english", "new testament", "gideon", "large print", "brown"],
       "seller": null,
@@ -55,6 +76,13 @@
       "description": "New Testament in Hindi for South Asian communities. Reaching people with the Gospel in their heart language.",
       "price": "$2 each",
       "image": "assets/images/store/PXL_20260709_021322355.PORTRAIT.ORIGINAL.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_021322355.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_045022070.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_045117824.jpg",
+        "assets/images/store/PXL_20260709_045238324.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
       "url": null,
       "tags": ["hindi", "india", "south asian", "new testament", "blue"],
       "seller": null,
@@ -69,6 +97,13 @@
       "description": "New Testament in Russian for the Slavic community. A familiar translation trusted by Russian-speaking believers.",
       "price": "$2 each",
       "image": "assets/images/store/PXL_20260709_021420893.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_021420893.jpg",
+        "assets/images/store/PXL_20260709_055557240.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_055629661.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_055727709.jpg",
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
       "url": null,
       "tags": ["russian", "slavic", "new testament"],
       "seller": null,
@@ -83,6 +118,13 @@
       "description": "New Testament in Ukrainian for those seeking the Word in their mother tongue.",
       "price": "$2 each",
       "image": "assets/images/store/PXL_20260709_021516241.PORTRAIT.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_021516241.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_055846789.PORTRAIT~2.jpg",
+        "assets/images/store/PXL_20260709_060057524.jpg",
+        "assets/images/store/PXL_20260709_060218502.MP.jpg",
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
       "url": null,
       "tags": ["ukrainian", "slavic", "new testament"],
       "seller": null,
@@ -97,6 +139,16 @@
       "description": "New Testament in Farsi (Persian) for Middle Eastern and Iranian communities.",
       "price": "$2 each",
       "image": "assets/images/store/PXL_20260709_021826939.PORTRAIT.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_021826939.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_055126580.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_055325910.jpg",
+        "assets/images/store/PXL_20260709_055510589.jpg",
+        "assets/images/store/PXL_20260709_044634073.jpg",
+        "assets/images/store/PXL_20260709_044831124.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_044916655.jpg",
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
       "url": null,
       "tags": ["farsi", "persian", "middle east", "iran", "new testament", "blue"],
       "seller": null,
@@ -111,6 +163,17 @@
       "description": "Complete Bible — New and Old Testament in the New International Version. For deeper study and daily reading.",
       "price": "$5 each",
       "image": "assets/images/store/PXL_20260709_024015658.PORTRAIT.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_024015658.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_023920949.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_044420864.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_060541461.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_060943933.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_043945890.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_044109846.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_060719999.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
       "url": null,
       "tags": ["english", "niv", "full bible", "old testament", "new testament"],
       "seller": null,
@@ -125,6 +188,13 @@
       "description": "Bilingual Thai and English New Testament. Perfect for Thai-speaking communities and bilingual outreach.",
       "price": "$2 each",
       "image": "assets/images/store/PXL_20260709_030636146.PORTRAIT.ORIGINAL.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_030636146.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_061653480.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_061747140.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_061913530.jpg",
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
       "url": null,
       "tags": ["thai", "english", "bilingual", "new testament", "blue"],
       "seller": null,
@@ -139,6 +209,13 @@
       "description": "The Life Book — a full evangelism tract that walks readers through the Gospel story. Great for outreach events and one-on-one conversations.",
       "price": "Free with outreach",
       "image": "assets/images/store/PXL_20260709_024738195.PORTRAIT.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_024738195.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_043220653.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_043519822.PORTRAIT~2.jpg",
+        "assets/images/store/PXL_20260709_043744441.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_043901076.jpg"
+      ],
       "url": null,
       "tags": ["life book", "tract", "english", "evangelism", "gospel"],
       "seller": null,
@@ -153,6 +230,9 @@
       "description": "The Life Book in Spanish — same powerful evangelism content for Spanish-speaking communities.",
       "price": "Free with outreach",
       "image": "assets/images/store/PXL_20260709_024849193.PORTRAIT.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_024849193.PORTRAIT.jpg"
+      ],
       "url": null,
       "tags": ["life book", "tract", "spanish", "evangelism", "gospel", "español"],
       "seller": null,
@@ -167,6 +247,17 @@
       "description": "Compact flip-style evangelism booklets. Quick, visual, and effective for street outreach and campus ministry.",
       "price": "Free with outreach",
       "image": "assets/images/store/PXL_20260709_025407931.PORTRAIT.ORIGINAL.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_025407931.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_025655099.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_030036828.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_053247372.jpg",
+        "assets/images/store/PXL_20260709_052951423.jpg",
+        "assets/images/store/PXL_20260709_053422536~2.jpg",
+        "assets/images/store/PXL_20260709_052536612.jpg",
+        "assets/images/store/PXL_20260709_052621070.jpg",
+        "assets/images/store/PXL_20260709_053128036.jpg"
+      ],
       "url": null,
       "tags": ["flip book", "tract", "english", "evangelism", "compact", "visual"],
       "seller": null,
@@ -181,6 +272,11 @@
       "description": "Faith-inspired notebooks for journaling, prayer notes, and Bible study. Perfect companion to your reading plan.",
       "price": "$5",
       "image": "assets/images/store/PXL_20260709_053613900.PORTRAIT.ORIGINAL.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_053613900.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_053851731.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_053745476.jpg"
+      ],
       "url": null,
       "tags": ["notebook", "journal", "prayer", "bible study", "merch"],
       "seller": null,
@@ -195,6 +291,9 @@
       "description": "Faith-themed keychains and bracelets. A daily reminder of God's promises wherever you go.",
       "price": "$3",
       "image": "assets/images/store/PXL_20260709_054327797.PORTRAIT.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_054327797.PORTRAIT.jpg"
+      ],
       "url": null,
       "tags": ["keychain", "bracelet", "accessory", "faith", "merch"],
       "seller": null,
@@ -209,6 +308,9 @@
       "description": "Vinyl faith-based stickers. Waterproof, UV-resistant — perfect for laptops, bottles, and journals.",
       "price": "$3",
       "image": "assets/images/store/PXL_20260709_054557487.PORTRAIT~2.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_054557487.PORTRAIT~2.jpg"
+      ],
       "url": null,
       "tags": ["sticker", "vinyl", "faith", "merch", "laptop"],
       "seller": null,
@@ -223,6 +325,11 @@
       "description": "Miniature Jesus figurines in a variety of styles. A fun conversation starter and desk companion.",
       "price": "$5",
       "image": "assets/images/store/PXL_20260709_053851731.PORTRAIT.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_053851731.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_054557487.PORTRAIT~2.jpg",
+        "assets/images/store/PXL_20260709_054327797.PORTRAIT.jpg"
+      ],
       "url": null,
       "tags": ["figurine", "jesus", "mini", "variety", "merch", "gift"],
       "seller": null,
@@ -237,6 +344,9 @@
       "description": "Scripture bookmarks included free with every Bible order. A study companion for your daily reading.",
       "price": "Free with Bible order",
       "image": "assets/images/store/PXL_20260709_052250058.MP.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
       "url": null,
       "tags": ["bookmark", "scripture", "free", "bible study", "merch"],
       "seller": null,

@@ -229,18 +229,99 @@
 
 .store-card__image {
   width: 100%;
-  height: 160px;
-  object-fit: cover;
-  background: linear-gradient(135deg, #e8f5e9 0%, #fff3e0 100%);
+  height: 220px;
+  background: #f5f2ed;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 3rem;
+  overflow: hidden;
 }
 .store-card__image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 0.5rem;
+}
+
+/* Product card slideshow */
+.store-card__slideshow {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  background: #f5f2ed;
+  overflow: hidden;
+}
+.store-card__slideshow img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.store-card__slideshow img.is-active {
+  opacity: 1;
+}
+.store-card__dots {
+  position: absolute;
+  bottom: 0.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.3rem;
+  z-index: 2;
+}
+.store-card__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.store-card__dot.is-active {
+  background: var(--gold, #d4a574);
+}
+
+/* Lightbox */
+.store-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.store-lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+.store-lightbox__close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.store-lightbox__close:hover {
+  background: rgba(255,255,255,0.2);
 }
 
 .store-card__body {
@@ -466,7 +547,10 @@
   }
 
   .store-card__image {
-    height: 120px;
+    height: 180px;
+  }
+  .store-card__slideshow {
+    height: 180px;
   }
 }
 

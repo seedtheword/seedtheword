@@ -108,8 +108,17 @@
 
   function renderProductCard(p) {
     var imageHTML;
-    if (p.image) {
-      imageHTML = '<div class="store-card__image"><img src="' + esc(p.image) + '" alt="' + esc(p.name) + '" loading="lazy"></div>';
+    var gallery = p.gallery || (p.image ? [p.image] : []);
+    if (gallery.length > 1) {
+      var slides = gallery.map(function(src, i) {
+        return '<img class="' + (i === 0 ? 'is-active' : '') + '" src="' + esc(src) + '" alt="' + esc(p.name) + ' photo ' + (i+1) + '" loading="lazy" data-lightbox="' + esc(src) + '">';
+      }).join('');
+      var dots = gallery.map(function(_, i) {
+        return '<span class="store-card__dot' + (i === 0 ? ' is-active' : '') + '" data-idx="' + i + '"></span>';
+      }).join('');
+      imageHTML = '<div class="store-card__slideshow" data-product-slideshow>' + slides + '<div class="store-card__dots">' + dots + '</div></div>';
+    } else if (gallery.length === 1) {
+      imageHTML = '<div class="store-card__image"><img src="' + esc(gallery[0]) + '" alt="' + esc(p.name) + '" loading="lazy" data-lightbox="' + esc(gallery[0]) + '"></div>';
     } else {
       imageHTML = '<div class="store-card__image">' + getCategoryPlaceholder(p.category) + '</div>';
     }
@@ -222,6 +231,66 @@
       }, 100);
     }
     gridEl.innerHTML = bundleHtml + filtered.map(renderProductCard).join('');
+    initProductSlideshows();
+  }
+
+  // ── Render sidebar ──────────────────────────────────────────
+  function initProductSlideshows() {
+    document.querySelectorAll('[data-product-slideshow]').forEach(function(el) {
+      if (el.dataset.initialized) return;
+      el.dataset.initialized = 'true';
+      var imgs = el.querySelectorAll('img');
+      var dots = el.querySelectorAll('.store-card__dot');
+      if (imgs.length < 2) return;
+      var current = 0;
+      var timer = setInterval(function() {
+        imgs[current].classList.remove('is-active');
+        if (dots[current]) dots[current].classList.remove('is-active');
+        current = (current + 1) % imgs.length;
+        imgs[current].classList.add('is-active');
+        if (dots[current]) dots[current].classList.add('is-active');
+      }, 3500);
+      dots.forEach(function(dot) {
+        dot.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var idx = parseInt(dot.dataset.idx, 10);
+          imgs[current].classList.remove('is-active');
+          if (dots[current]) dots[current].classList.remove('is-active');
+          current = idx;
+          imgs[current].classList.add('is-active');
+          if (dots[current]) dots[current].classList.add('is-active');
+          clearInterval(timer);
+          timer = setInterval(function() {
+            imgs[current].classList.remove('is-active');
+            if (dots[current]) dots[current].classList.remove('is-active');
+            current = (current + 1) % imgs.length;
+            imgs[current].classList.add('is-active');
+            if (dots[current]) dots[current].classList.add('is-active');
+          }, 3500);
+        });
+      });
+    });
+
+    // Lightbox
+    document.querySelectorAll('[data-lightbox]').forEach(function(img) {
+      if (img.dataset.lightboxBound) return;
+      img.dataset.lightboxBound = 'true';
+      img.style.cursor = 'pointer';
+      img.addEventListener('click', function() {
+        var src = img.dataset.lightbox;
+        var overlay = document.createElement('div');
+        overlay.className = 'store-lightbox';
+        overlay.innerHTML = '<img src="' + src + '" alt="Full size"><button class="store-lightbox__close">&times;</button>';
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        overlay.addEventListener('click', function(e) {
+          if (e.target === overlay || e.target.classList.contains('store-lightbox__close')) {
+            overlay.remove();
+            document.body.style.overflow = '';
+          }
+        });
+      });
+    });
   }
 
   // ── Render sidebar ──────────────────────────────────────────

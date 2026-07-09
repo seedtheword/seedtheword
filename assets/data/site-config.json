@@ -16,7 +16,9 @@
     { "language": "Arabic", "count": 10 },
     { "language": "French", "count": 0 },
     { "language": "Russian", "count": 1 },
-    { "language": "Ukrainian", "count": 1 }
+    { "language": "Ukrainian", "count": 1 },
+    { "language": "Farsi", "count": 5 },
+    { "language": "Thai", "count": 3 }
   ],
   "_biblesNote": "Update biblesGivenAway manually via GitHub Actions or admin editor after each outreach. Stock counts updated by leadership team."
 }

@@ -546,11 +546,17 @@
     gap: 1rem;
   }
 
+  .store-card__slideshow,
   .store-card__image {
-    height: 180px;
+    height: 200px;
   }
-  .store-card__slideshow {
-    height: 180px;
+  .store-card__arrow {
+    opacity: 1; /* Always show on mobile since no hover */
+    width: 32px;
+    height: 32px;
+  }
+  .store-card__body {
+    padding: 1rem;
   }
 }
 

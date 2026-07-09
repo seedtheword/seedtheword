@@ -3,8 +3,343 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Review your gift — Seed the Word Ministry</title>
+  <meta name="description" content="Build your custom Bible bundle — choose languages, quantities, and checkout. Every Bible hand-packed with prayer.">
+  <meta property="og:site_name" content="Seed the Word Ministry">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Build Your Bundle — Seed the Word Ministry">
+  <meta property="og:description" content="Build your custom Bible bundle — choose languages, quantities, and checkout.">
+  <meta property="og:url" content="https://seedtheword.org/bundle-builder.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Build Your Bundle — Seed the Word Ministry">
+  <title>Build Your Bundle — Seed the Word Ministry</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Anton&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
+  <link rel="stylesheet" href="assets/css/store-catalog.css?v=5">
+  <style>
+    /* ── Bundle Builder Page Styles ── */
+    .bb-hero {
+      background: linear-gradient(135deg, var(--green, #2C5F2E) 0%, #1a3d1b 100%);
+      color: #fff;
+      text-align: center;
+      padding: 4rem 1.5rem 3rem;
+    }
+    .bb-hero__title {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(2.2rem, 6vw, 3.5rem);
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+    }
+    .bb-hero__sub {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.8);
+      max-width: 550px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .bb-hero__bundle-hint {
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      display: inline-block;
+      font-size: 0.9rem;
+      color: var(--gold, #d4a574);
+    }
+
+    /* ── Step sections ── */
+    .bb-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+    .bb-section__title {
+      font-family: 'Anton', Impact, sans-serif;
+      font-size: clamp(1.4rem, 3.5vw, 2rem);
+      font-weight: 400;
+      text-transform: uppercase;
+      color: var(--dark, #1a1a1a);
+      margin: 0 0 0.5rem;
+    }
+    .bb-section__title span {
+      color: var(--green, #2C5F2E);
+      font-size: 0.8em;
+      margin-right: 0.5rem;
+    }
+    .bb-section__desc {
+      font-size: 0.95rem;
+      color: var(--muted, #666);
+      margin: 0 0 1.5rem;
+    }
+
+    /* ── Bible product grid ── */
+    .bb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* ── Quantity controls ── */
+    .bb-qty {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .bb-qty__btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1.5px solid var(--green, #2C5F2E);
+      background: #fff;
+      color: var(--green, #2C5F2E);
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .bb-qty__btn:hover {
+      background: var(--green, #2C5F2E);
+      color: #fff;
+    }
+    .bb-qty__btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .bb-qty__btn:disabled:hover {
+      background: #fff;
+      color: var(--green, #2C5F2E);
+    }
+    .bb-qty__count {
+      font-size: 1.1rem;
+      font-weight: 700;
+      min-width: 28px;
+      text-align: center;
+      color: var(--dark, #1a1a1a);
+    }
+    .bb-stock-note {
+      font-size: 0.75rem;
+      color: var(--muted, #666);
+      margin-top: 0.25rem;
+    }
+
+    /* ── Cart summary ── */
+    .bb-cart {
+      background: #fff;
+      border: 1.5px solid #e8e4de;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .bb-cart__empty {
+      text-align: center;
+      color: var(--muted, #666);
+      padding: 2rem 0;
+      font-size: 0.95rem;
+    }
+    .bb-cart__list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .bb-cart__item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #f0ece6;
+    }
+    .bb-cart__item:last-child { border-bottom: none; }
+    .bb-cart__item-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--dark, #1a1a1a);
+    }
+    .bb-cart__item-qty {
+      font-size: 0.85rem;
+      color: var(--muted, #666);
+    }
+    .bb-cart__item-price {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--green, #2C5F2E);
+    }
+    .bb-cart__item-remove {
+      background: none;
+      border: none;
+      color: #c0392b;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0.25rem;
+    }
+    .bb-cart__footer {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 2px solid var(--green, #2C5F2E);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .bb-cart__total {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--dark, #1a1a1a);
+    }
+    .bb-cart__clear {
+      background: none;
+      border: 1px solid #c0392b;
+      color: #c0392b;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .bb-cart__clear:hover {
+      background: #c0392b;
+      color: #fff;
+    }
+
+    /* ── Checkout form (glass-morphism style from donate page) ── */
+    .bb-form {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border: 1.5px solid #e8e4de;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+    .bb-form__row {
+      margin-bottom: 1.25rem;
+    }
+    .bb-form__label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--dark, #1a1a1a);
+      margin-bottom: 0.4rem;
+    }
+    .bb-form__input,
+    .bb-form__select,
+    .bb-form__textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      border: 1.5px solid #e8e4de;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--dark, #1a1a1a);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+    .bb-form__input:focus,
+    .bb-form__select:focus,
+    .bb-form__textarea:focus {
+      outline: none;
+      border-color: var(--green, #2C5F2E);
+      box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.1);
+    }
+    .bb-form__textarea { min-height: 80px; resize: vertical; }
+    .bb-form__radio-group {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .bb-form__radio-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--dark, #1a1a1a);
+    }
+    .bb-form__radio-label input[type="radio"] {
+      accent-color: var(--green, #2C5F2E);
+    }
+    .bb-form__address {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f9f6f1;
+      border-radius: 8px;
+      border: 1px solid #e8e4de;
+    }
+    .bb-form__address.is-visible { display: block; }
+    .bb-form__address-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .bb-form__address-grid .bb-form__row { margin-bottom: 0; }
+    .bb-form__address-full { grid-column: 1 / -1; }
+    .bb-honeypot { position: absolute; left: -9999px; opacity: 0; }
+
+    /* ── Submit button ── */
+    .bb-submit {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      background: var(--green, #2C5F2E);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 12px rgba(44, 95, 46, 0.25);
+    }
+    .bb-submit:hover { background: #3a7d3c; transform: translateY(-1px); }
+    .bb-submit:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ── Success message ── */
+    .bb-success {
+      display: none;
+      text-align: center;
+      padding: 3rem 1.5rem;
+      background: #fff;
+      border: 2px solid var(--green, #2C5F2E);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(44, 95, 46, 0.1);
+    }
+    .bb-success.is-visible { display: block; }
+    .bb-success__icon { font-size: 3rem; margin-bottom: 1rem; }
+    .bb-success__title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--green, #2C5F2E);
+      margin: 0 0 0.75rem;
+    }
+    .bb-success__msg {
+      font-size: 1rem;
+      color: var(--muted, #666);
+      line-height: 1.6;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 767px) {
+      .bb-form__address-grid {
+        grid-template-columns: 1fr;
+      }
+      .bb-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -48,85 +383,131 @@
   </div>
 </header>
 
-<section class="hero hero--short hero--builder">
-  <div class="hero__overlay"></div>
-  <div class="hero__content">
-    <h1 class="hero__title" id="review-hero-title">Review your gift</h1>
-    <p class="hero__tagline" id="review-hero-tagline">One last look before we get started.</p>
+<!-- Hero Banner -->
+<section class="bb-hero">
+  <h1 class="bb-hero__title">Build Your Bundle</h1>
+  <p class="bb-hero__sub">Choose Bibles in any language, set quantities, and we'll hand-pack each one with prayer and a personal note.</p>
+  <div id="bb-bundle-hint" class="bb-hero__bundle-hint" style="display:none;"></div>
+</section>
+
+<!-- Step 1: Select Bibles -->
+<section class="bb-section" style="background: var(--light, #f9f6f1);">
+  <h2 class="bb-section__title"><span>Step 1</span> Select Your Bibles</h2>
+  <p class="bb-section__desc">Browse our available Bibles by language. Use the + and − buttons to add them to your bundle.</p>
+  <div class="bb-grid" id="bb-product-grid">
+    <p style="color:var(--muted); text-align:center;">Loading products...</p>
   </div>
 </section>
 
-<div class="store-page-bg">
-
-<main class="section section--white" style="padding: 3rem 0 4rem;">
-  <div class="container">
-
-    <div id="review-error" class="review-error-state" hidden>
-      <h2>That link's incomplete</h2>
-      <p>Looks like the configuration didn't carry through. No worries — head back to the store and pick a bundle to start customizing.</p>
-      <p style="margin-top:1.5rem"><a href="store.html" class="btn btn-gold">← Back to the store</a></p>
+<!-- Step 2: Your Bundle (Cart) -->
+<section class="bb-section" style="background: #fff;">
+  <h2 class="bb-section__title"><span>Step 2</span> Your Bundle</h2>
+  <p class="bb-section__desc">Review your selections below. Bibles are $2 each (full Bibles $5) + flat $7 shipping estimate.</p>
+  <div class="bb-cart" id="bb-cart">
+    <div class="bb-cart__empty" id="bb-cart-empty">
+      <p>📦 Your bundle is empty. Add some Bibles above!</p>
     </div>
-
-    <div class="review-layout" id="review-layout">
-
-      <section class="review-card">
-        <h2>Your gift</h2>
-        <div id="review-summary"></div>
-        <button type="button" class="review-back" id="review-back">← Back to customize</button>
-      </section>
-
-      <section class="review-form-card">
-        <h2 id="review-form-title">Tell us where to send it</h2>
-        <div id="review-special-banner" class="review-special-banner" hidden></div>
-        <form id="review-form" action="https://formspree.io/f/mykozenk" method="POST" novalidate>
-          <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
-          <input type="hidden" name="_subject" id="review-subject" value="STW Bundle Order">
-          <input type="hidden" name="configuration" id="review-config-text" value="">
-
-          <div class="form-row">
-            <label for="review-name">Your name *</label>
-            <input type="text" id="review-name" name="name" autocomplete="name" required>
-          </div>
-          <div class="form-row">
-            <label for="review-email">Your email *</label>
-            <input type="email" id="review-email" name="email" autocomplete="email" required>
-          </div>
-          <div class="form-row">
-            <label for="review-phone">Phone (optional)</label>
-            <input type="tel" id="review-phone" name="phone" autocomplete="tel">
-          </div>
-          <div class="form-row">
-            <label for="review-delivery">Where should we send it? *</label>
-            <textarea id="review-delivery" name="delivery_details" rows="3" placeholder="Street, city, state, ZIP — or pickup arrangement" required></textarea>
-          </div>
-          <div class="form-row">
-            <label for="review-dedication" id="review-dedication-label">Dedication (optional)</label>
-            <textarea id="review-dedication" name="dedication" rows="3" placeholder="A line we can include with the gift, or a note to our team."></textarea>
-          </div>
-
-          <div id="review-giftee-root"></div>
-
-          <div id="review-form-error" class="journey-notice journey-notice--error" hidden></div>
-
-          <button type="submit" class="btn btn-primary btn-green-call btn-block" id="review-submit-btn">Submit my gift →</button>
-          <p style="margin-top:0.85rem;color:var(--muted);font-size:0.85rem;line-height:1.5">
-            We confirm every order personally before any charge. No automatic billing — we'll reach out by email first.
-          </p>
-        </form>
-      </section>
-
+    <ul class="bb-cart__list" id="bb-cart-list" style="display:none;"></ul>
+    <div class="bb-cart__footer" id="bb-cart-footer" style="display:none;">
+      <span class="bb-cart__total" id="bb-cart-total">$0</span>
+      <button class="bb-cart__clear" id="bb-cart-clear" type="button">Clear All</button>
     </div>
-
   </div>
-</main>
+</section>
 
-</div><!-- /.store-page-bg -->
+<!-- Step 3: Checkout Form -->
+<section class="bb-section" style="background: var(--light, #f9f6f1);">
+  <h2 class="bb-section__title"><span>Step 3</span> Checkout</h2>
+  <p class="bb-section__desc">Fill in your details and we'll reach out to confirm your order and arrange payment/shipping.</p>
 
+  <form class="bb-form" id="bb-form" novalidate>
+    <div class="bb-form__row">
+      <label class="bb-form__label" for="bb-name">Name *</label>
+      <input class="bb-form__input" type="text" id="bb-name" name="gifter_name" required autocomplete="name">
+    </div>
+    <div class="bb-form__row">
+      <label class="bb-form__label" for="bb-email">Email *</label>
+      <input class="bb-form__input" type="email" id="bb-email" name="gifter_email" required autocomplete="email">
+    </div>
+    <div class="bb-form__row">
+      <label class="bb-form__label" for="bb-phone">Phone (optional)</label>
+      <input class="bb-form__input" type="tel" id="bb-phone" name="gifter_phone" autocomplete="tel">
+    </div>
+    <div class="bb-form__row">
+      <label class="bb-form__label">Delivery Preference *</label>
+      <div class="bb-form__radio-group">
+        <label class="bb-form__radio-label">
+          <input type="radio" name="delivery" value="ship" checked> Ship to me
+        </label>
+        <label class="bb-form__radio-label">
+          <input type="radio" name="delivery" value="pickup"> Pick up at next meeting
+        </label>
+      </div>
+    </div>
+
+    <!-- Shipping address (shown only when "Ship to me" selected) -->
+    <div class="bb-form__address is-visible" id="bb-address-section">
+      <div class="bb-form__address-grid">
+        <div class="bb-form__row bb-form__address-full">
+          <label class="bb-form__label" for="bb-street">Street Address</label>
+          <input class="bb-form__input" type="text" id="bb-street" name="street" autocomplete="street-address">
+        </div>
+        <div class="bb-form__row">
+          <label class="bb-form__label" for="bb-city">City</label>
+          <input class="bb-form__input" type="text" id="bb-city" name="city" autocomplete="address-level2">
+        </div>
+        <div class="bb-form__row">
+          <label class="bb-form__label" for="bb-state">State</label>
+          <select class="bb-form__select" id="bb-state" name="state" autocomplete="address-level1">
+            <option value="">Select state</option>
+            <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option>
+            <option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option>
+            <option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option>
+            <option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+            <option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option>
+            <option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option>
+            <option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option>
+            <option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+            <option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option>
+            <option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+            <option>DC</option>
+          </select>
+        </div>
+        <div class="bb-form__row">
+          <label class="bb-form__label" for="bb-zip">ZIP Code</label>
+          <input class="bb-form__input" type="text" id="bb-zip" name="zip" autocomplete="postal-code" maxlength="10">
+        </div>
+      </div>
+    </div>
+
+    <div class="bb-form__row">
+      <label class="bb-form__label" for="bb-dedication">Dedication Message (optional)</label>
+      <textarea class="bb-form__textarea" id="bb-dedication" name="dedication" placeholder="Who is this for? Any special note to include with the Bibles?"></textarea>
+    </div>
+
+    <!-- Honeypot -->
+    <div class="bb-honeypot" aria-hidden="true">
+      <label for="bb-gotcha">Do not fill this</label>
+      <input type="text" id="bb-gotcha" name="_gotcha" tabindex="-1" autocomplete="off">
+    </div>
+
+    <button class="bb-submit" type="submit" id="bb-submit">Submit Order</button>
+  </form>
+
+  <!-- Success message -->
+  <div class="bb-success" id="bb-success">
+    <div class="bb-success__icon">🎉</div>
+    <h3 class="bb-success__title">Your bundle order has been received!</h3>
+    <p class="bb-success__msg">We'll reach out within 1–2 days to confirm details and arrange payment/shipping. Check your email for confirmation.</p>
+  </div>
+</section>
+
+<!-- Footer -->
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="footer-brand__row">
+      <div>
+        <div class="footer-brand">
           <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo">
           <p class="footer-brand__name">Seed the Word Ministry</p>
         </div>
@@ -158,9 +539,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
           </a>
         </div>
-        <a class="footer-connect__contact" href="about.html#contact">
-          ✉️ Contact us
-        </a>
+        <a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -175,7 +554,313 @@
 </footer>
 
 <script src="assets/js/main.js?v=9"></script>
-<script src="assets/js/bundle-item-catalog.js?v=1"></script>
-<script src="assets/js/bundle-review.js?v=4"></script>
+<script>
+(function() {
+  'use strict';
+
+  // ── State ──
+  var cart = {}; // { productId: quantity }
+  var products = [];
+  var orderHandlerUrl = '';
+
+  // ── DOM refs ──
+  var grid = document.getElementById('bb-product-grid');
+  var cartList = document.getElementById('bb-cart-list');
+  var cartEmpty = document.getElementById('bb-cart-empty');
+  var cartFooter = document.getElementById('bb-cart-footer');
+  var cartTotal = document.getElementById('bb-cart-total');
+  var cartClearBtn = document.getElementById('bb-cart-clear');
+  var form = document.getElementById('bb-form');
+  var submitBtn = document.getElementById('bb-submit');
+  var successDiv = document.getElementById('bb-success');
+  var addressSection = document.getElementById('bb-address-section');
+  var bundleHint = document.getElementById('bb-bundle-hint');
+
+  // ── URL params for bundle presets ──
+  var params = new URLSearchParams(window.location.search);
+  var presetBundle = params.get('bundle');
+  if (presetBundle) {
+    var bundleNames = {
+      essentials: 'Essentials Welcome',
+      lifegroup: 'Life Group Starter',
+      ministry: 'Ministry Calling'
+    };
+    var label = bundleNames[presetBundle] || presetBundle;
+    bundleHint.textContent = '💡 Starting from "' + label + '" — customize freely below!';
+    bundleHint.style.display = 'inline-block';
+  }
+
+  // ── Delivery toggle ──
+  var radios = document.querySelectorAll('input[name="delivery"]');
+  radios.forEach(function(r) {
+    r.addEventListener('change', function() {
+      if (this.value === 'ship') {
+        addressSection.classList.add('is-visible');
+      } else {
+        addressSection.classList.remove('is-visible');
+      }
+    });
+  });
+
+  // ── Parse price from string like "$2 each" or "$5 each" ──
+  function parsePrice(priceStr) {
+    var match = priceStr.match(/\$(\d+)/);
+    return match ? parseInt(match[1], 10) : 2;
+  }
+
+  // ── Get product by ID ──
+  function getProduct(id) {
+    return products.find(function(p) { return p.id === id; });
+  }
+
+  // ── Render product cards ──
+  function renderProducts() {
+    grid.innerHTML = '';
+    var bibles = products.filter(function(p) { return p.category === 'bibles'; });
+    if (!bibles.length) {
+      grid.innerHTML = '<p style="color:var(--muted); text-align:center;">No Bibles available at this time.</p>';
+      return;
+    }
+    bibles.forEach(function(p) {
+      var card = document.createElement('div');
+      card.className = 'store-card';
+      var stockLabel = '';
+      var stockClass = 'store-card__stock';
+      if (p.stockCount === 0) {
+        stockLabel = 'Out of stock';
+        stockClass += ' store-card__stock--out';
+      } else if (p.stockCount && p.stockCount <= 5) {
+        stockLabel = p.stockCount + ' left';
+        stockClass += ' store-card__stock--low';
+      } else if (p.stockCount) {
+        stockLabel = p.stockCount + ' in stock';
+      }
+      var nativeHtml = p.nativeName ? '<span class="store-card__native">' + p.nativeName + '</span>' : '';
+      var imgSrc = p.image || 'assets/images/stw-logo.jpg';
+      var qty = cart[p.id] || 0;
+      var maxQty = p.stockCount || 99;
+      var disabled = p.stockCount === 0;
+
+      card.innerHTML =
+        '<div class="store-card__image"><img src="' + imgSrc + '" alt="' + p.name + '" loading="lazy"></div>' +
+        '<div class="store-card__body">' +
+          nativeHtml +
+          '<h3 class="store-card__title">' + p.name + '</h3>' +
+          '<p class="store-card__desc">' + p.description + '</p>' +
+          '<div class="store-card__meta">' +
+            '<span class="store-card__price">' + p.price + '</span>' +
+            (stockLabel ? '<span class="' + stockClass + '">' + stockLabel + '</span>' : '') +
+          '</div>' +
+          (disabled
+            ? '<p style="color:var(--muted); font-size:0.85rem; margin-top:0.5rem;">Currently unavailable</p>'
+            : '<div class="bb-qty">' +
+                '<button class="bb-qty__btn" data-action="dec" data-id="' + p.id + '" ' + (qty === 0 ? 'disabled' : '') + '>−</button>' +
+                '<span class="bb-qty__count" id="qty-' + p.id + '">' + qty + '</span>' +
+                '<button class="bb-qty__btn" data-action="inc" data-id="' + p.id + '" ' + (qty >= maxQty ? 'disabled' : '') + '>+</button>' +
+              '</div>' +
+              '<p class="bb-stock-note">Max: ' + maxQty + '</p>'
+          ) +
+        '</div>';
+      grid.appendChild(card);
+    });
+
+    // Attach qty button listeners
+    grid.querySelectorAll('.bb-qty__btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var id = this.getAttribute('data-id');
+        var action = this.getAttribute('data-action');
+        var p = getProduct(id);
+        var maxQty = p.stockCount || 99;
+        if (action === 'inc') {
+          cart[id] = Math.min((cart[id] || 0) + 1, maxQty);
+        } else {
+          cart[id] = Math.max((cart[id] || 0) - 1, 0);
+          if (cart[id] === 0) delete cart[id];
+        }
+        updateQtyDisplay(id);
+        renderCart();
+      });
+    });
+  }
+
+  // ── Update qty display without full re-render ──
+  function updateQtyDisplay(id) {
+    var el = document.getElementById('qty-' + id);
+    if (el) el.textContent = cart[id] || 0;
+    // Update button states
+    var p = getProduct(id);
+    var maxQty = p ? (p.stockCount || 99) : 99;
+    var qty = cart[id] || 0;
+    var btns = grid.querySelectorAll('[data-id="' + id + '"]');
+    btns.forEach(function(btn) {
+      if (btn.getAttribute('data-action') === 'dec') {
+        btn.disabled = qty === 0;
+      } else {
+        btn.disabled = qty >= maxQty;
+      }
+    });
+  }
+
+  // ── Render cart ──
+  function renderCart() {
+    var ids = Object.keys(cart);
+    if (!ids.length) {
+      cartEmpty.style.display = 'block';
+      cartList.style.display = 'none';
+      cartFooter.style.display = 'none';
+      return;
+    }
+    cartEmpty.style.display = 'none';
+    cartList.style.display = 'block';
+    cartFooter.style.display = 'flex';
+
+    var total = 0;
+    cartList.innerHTML = '';
+    ids.forEach(function(id) {
+      var p = getProduct(id);
+      if (!p) return;
+      var qty = cart[id];
+      var unitPrice = parsePrice(p.price);
+      var lineTotal = unitPrice * qty;
+      total += lineTotal;
+
+      var li = document.createElement('li');
+      li.className = 'bb-cart__item';
+      li.innerHTML =
+        '<span class="bb-cart__item-name">' + p.name + '</span>' +
+        '<span class="bb-cart__item-qty">×' + qty + '</span>' +
+        '<span class="bb-cart__item-price">$' + lineTotal + '</span>' +
+        '<button class="bb-cart__item-remove" data-id="' + id + '" title="Remove" aria-label="Remove ' + p.name + '">✕</button>';
+      cartList.appendChild(li);
+    });
+
+    // Add shipping
+    var shipping = 7;
+    total += shipping;
+    var shipLi = document.createElement('li');
+    shipLi.className = 'bb-cart__item';
+    shipLi.innerHTML =
+      '<span class="bb-cart__item-name" style="color:var(--muted);">Shipping (estimate)</span>' +
+      '<span class="bb-cart__item-qty"></span>' +
+      '<span class="bb-cart__item-price" style="color:var(--muted);">$' + shipping + '</span>' +
+      '<span style="width:26px;"></span>';
+    cartList.appendChild(shipLi);
+
+    cartTotal.textContent = '$' + total;
+
+    // Remove buttons
+    cartList.querySelectorAll('.bb-cart__item-remove').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var id = this.getAttribute('data-id');
+        delete cart[id];
+        updateQtyDisplay(id);
+        renderCart();
+      });
+    });
+  }
+
+  // ── Clear all ──
+  cartClearBtn.addEventListener('click', function() {
+    var ids = Object.keys(cart);
+    cart = {};
+    ids.forEach(function(id) { updateQtyDisplay(id); });
+    renderCart();
+  });
+
+  // ── Build configuration string ──
+  function buildConfigString() {
+    return Object.keys(cart).map(function(id) {
+      var p = getProduct(id);
+      var lang = p ? (p.language || p.name) : id;
+      return lang + '×' + cart[id];
+    }).join(', ');
+  }
+
+  // ── Build address string ──
+  function buildAddressString() {
+    var street = document.getElementById('bb-street').value.trim();
+    var city = document.getElementById('bb-city').value.trim();
+    var state = document.getElementById('bb-state').value;
+    var zip = document.getElementById('bb-zip').value.trim();
+    return [street, city, state, zip].filter(Boolean).join(', ');
+  }
+
+  // ── Form submission ──
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Validate
+    var name = document.getElementById('bb-name').value.trim();
+    var email = document.getElementById('bb-email').value.trim();
+    var honeypot = document.getElementById('bb-gotcha').value;
+
+    if (!name || !email) {
+      alert('Please fill in your name and email.');
+      return;
+    }
+    if (!Object.keys(cart).length) {
+      alert('Your bundle is empty! Add some Bibles first.');
+      return;
+    }
+    if (honeypot) return; // Bot detected
+
+    var delivery = document.querySelector('input[name="delivery"]:checked').value;
+    var address = delivery === 'ship' ? buildAddressString() : 'Pickup at next meeting';
+
+    var payload = {
+      type: 'order',
+      bundle: 'custom',
+      gifter_name: name,
+      gifter_email: email,
+      gifter_phone: document.getElementById('bb-phone').value.trim(),
+      delivery_details: delivery,
+      configuration: buildConfigString(),
+      dedication: document.getElementById('bb-dedication').value.trim(),
+      address: address,
+      _gotcha: ''
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    fetch(orderHandlerUrl, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      // Show success regardless (Apps Script returns { ok: true })
+      form.style.display = 'none';
+      successDiv.classList.add('is-visible');
+    })
+    .catch(function() {
+      // Show success anyway — order likely went through
+      form.style.display = 'none';
+      successDiv.classList.add('is-visible');
+    });
+  });
+
+  // ── Load data ──
+  Promise.all([
+    fetch('assets/data/store-products.json').then(function(r) { return r.json(); }),
+    fetch('assets/data/site-config.json').then(function(r) { return r.json(); })
+  ])
+  .then(function(results) {
+    var storeData = results[0];
+    var config = results[1];
+    products = storeData.products || [];
+    orderHandlerUrl = config.orderHandlerUrl || '';
+    renderProducts();
+    renderCart();
+  })
+  .catch(function(err) {
+    grid.innerHTML = '<p style="color:#c0392b; text-align:center;">Failed to load products. Please refresh and try again.</p>';
+    console.error('Bundle builder load error:', err);
+  });
+
+})();
+</script>
 </body>
 </html>

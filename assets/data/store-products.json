@@ -9,6 +9,7 @@
     {
       "id": "bible-red-personal-testimony-nt",
       "name": "Personal Testimony New Testament (Red)",
+      "nativeName": null,
       "category": "bibles",
       "description": "A red pocket Gideon NT designed for personal testimony. Hand-packed with prayer and a handwritten note.",
       "price": "$2 each",
@@ -30,6 +31,7 @@
     {
       "id": "bible-grey-friend-testimony-nt",
       "name": "Friend Testimony New Testament (Grey)",
+      "nativeName": null,
       "category": "bibles",
       "description": "A grey pocket Gideon NT perfect for gifting to a friend. Share the Gospel through personal connection.",
       "price": "$2 each",
@@ -51,6 +53,7 @@
     {
       "id": "bible-brown-large-print-nt",
       "name": "New Testament Large Print (Brown)",
+      "nativeName": null,
       "category": "bibles",
       "description": "A large print Gideon NT in brown cover. Easy-to-read text for those who prefer larger font.",
       "price": "$2 each",
@@ -72,6 +75,7 @@
     {
       "id": "bible-hindi-nt",
       "name": "Hindi New Testament India (Blue)",
+      "nativeName": "हिन्दी",
       "category": "bibles",
       "description": "New Testament in Hindi for South Asian communities. Reaching people with the Gospel in their heart language.",
       "price": "$2 each",
@@ -93,6 +97,7 @@
     {
       "id": "bible-russian-nt",
       "name": "Russian New Testament",
+      "nativeName": "Русский",
       "category": "bibles",
       "description": "New Testament in Russian for the Slavic community. A familiar translation trusted by Russian-speaking believers.",
       "price": "$2 each",
@@ -114,6 +119,7 @@
     {
       "id": "bible-ukrainian-nt",
       "name": "Ukrainian New Testament",
+      "nativeName": "Українська",
       "category": "bibles",
       "description": "New Testament in Ukrainian for those seeking the Word in their mother tongue.",
       "price": "$2 each",
@@ -135,6 +141,7 @@
     {
       "id": "bible-farsi-nt",
       "name": "Farsi New Testament Persian (Blue)",
+      "nativeName": "فارسی",
       "category": "bibles",
       "description": "New Testament in Farsi (Persian) for Middle Eastern and Iranian communities.",
       "price": "$2 each",
@@ -159,6 +166,7 @@
     {
       "id": "bible-niv-full",
       "name": "Full Bible NT & OT (NIV)",
+      "nativeName": null,
       "category": "bibles",
       "description": "Complete Bible — New and Old Testament in the New International Version. For deeper study and daily reading.",
       "price": "$5 each",
@@ -184,6 +192,7 @@
     {
       "id": "bible-thai-english-nt",
       "name": "Thai + English New Testament (Blue)",
+      "nativeName": "ไทย / English",
       "category": "bibles",
       "description": "Bilingual Thai and English New Testament. Perfect for Thai-speaking communities and bilingual outreach.",
       "price": "$2 each",

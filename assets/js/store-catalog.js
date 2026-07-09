@@ -111,17 +111,22 @@
     var gallery = p.gallery || (p.image ? [p.image] : []);
     if (gallery.length > 1) {
       var slides = gallery.map(function(src, i) {
-        return '<img class="' + (i === 0 ? 'is-active' : '') + '" src="' + esc(src) + '" alt="' + esc(p.name) + ' photo ' + (i+1) + '" loading="lazy" data-lightbox="' + esc(src) + '">';
+        return '<img class="' + (i === 0 ? 'is-active' : '') + '" src="' + esc(src) + '" alt="' + esc(p.name) + ' photo ' + (i+1) + '" loading="lazy">';
       }).join('');
       var dots = gallery.map(function(_, i) {
         return '<span class="store-card__dot' + (i === 0 ? ' is-active' : '') + '" data-idx="' + i + '"></span>';
       }).join('');
-      imageHTML = '<div class="store-card__slideshow" data-product-slideshow>' + slides + '<div class="store-card__dots">' + dots + '</div></div>';
+      imageHTML = '<div class="store-card__slideshow" data-product-slideshow>' + slides +
+        '<button class="store-card__arrow store-card__arrow--prev" data-dir="-1" aria-label="Previous">&lsaquo;</button>' +
+        '<button class="store-card__arrow store-card__arrow--next" data-dir="1" aria-label="Next">&rsaquo;</button>' +
+        '<div class="store-card__dots">' + dots + '</div></div>';
     } else if (gallery.length === 1) {
-      imageHTML = '<div class="store-card__image"><img src="' + esc(gallery[0]) + '" alt="' + esc(p.name) + '" loading="lazy" data-lightbox="' + esc(gallery[0]) + '"></div>';
+      imageHTML = '<div class="store-card__image"><img src="' + esc(gallery[0]) + '" alt="' + esc(p.name) + '" loading="lazy"></div>';
     } else {
       imageHTML = '<div class="store-card__image">' + getCategoryPlaceholder(p.category) + '</div>';
     }
+
+    var nativeHTML = p.nativeName ? '<span class="store-card__native">' + esc(p.nativeName) + '</span>' : '';
 
     var sellerHTML = p.seller ? '<span class="store-card__seller">' + esc(p.seller) + '</span>' : '';
 
@@ -149,10 +154,11 @@
     }
 
     return (
-      '<article class="store-card">' +
+      '<article class="store-card" data-product-id="' + esc(p.id) + '">' +
         imageHTML +
         '<div class="store-card__body">' +
           '<h3 class="store-card__title">' + esc(p.name) + '</h3>' +
+          nativeHTML +
           '<p class="store-card__desc">' + esc(p.description) + '</p>' +
           '<div class="store-card__meta">' +
             '<span class="store-card__price">' + esc(p.price || 'Free') + '</span>' +
@@ -232,6 +238,7 @@
     }
     gridEl.innerHTML = bundleHtml + filtered.map(renderProductCard).join('');
     initProductSlideshows();
+    initProductDetailClicks();
   }
 
   // ── Render sidebar ──────────────────────────────────────────
@@ -243,13 +250,16 @@
       var dots = el.querySelectorAll('.store-card__dot');
       if (imgs.length < 2) return;
       var current = 0;
-      var timer = setInterval(function() {
-        imgs[current].classList.remove('is-active');
-        if (dots[current]) dots[current].classList.remove('is-active');
-        current = (current + 1) % imgs.length;
-        imgs[current].classList.add('is-active');
-        if (dots[current]) dots[current].classList.add('is-active');
-      }, 3500);
+      var timer;
+      setTimeout(function() {
+        timer = setInterval(function() {
+          imgs[current].classList.remove('is-active');
+          if (dots[current]) dots[current].classList.remove('is-active');
+          current = (current + 1) % imgs.length;
+          imgs[current].classList.add('is-active');
+          if (dots[current]) dots[current].classList.add('is-active');
+        }, 6000);
+      }, 3000);
       dots.forEach(function(dot) {
         dot.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -260,36 +270,113 @@
           imgs[current].classList.add('is-active');
           if (dots[current]) dots[current].classList.add('is-active');
           clearInterval(timer);
-          timer = setInterval(function() {
-            imgs[current].classList.remove('is-active');
-            if (dots[current]) dots[current].classList.remove('is-active');
-            current = (current + 1) % imgs.length;
-            imgs[current].classList.add('is-active');
-            if (dots[current]) dots[current].classList.add('is-active');
-          }, 3500);
+          timer = null;
+        });
+      });
+      el.querySelectorAll('.store-card__arrow').forEach(function(arrow) {
+        arrow.addEventListener('click', function(e) {
+          e.stopPropagation();
+          clearInterval(timer); timer = null; // stop auto-cycle
+          var dir = parseInt(arrow.dataset.dir, 10);
+          imgs[current].classList.remove('is-active');
+          if (dots[current]) dots[current].classList.remove('is-active');
+          current = (current + dir + imgs.length) % imgs.length;
+          imgs[current].classList.add('is-active');
+          if (dots[current]) dots[current].classList.add('is-active');
         });
       });
     });
 
-    // Lightbox
-    document.querySelectorAll('[data-lightbox]').forEach(function(img) {
-      if (img.dataset.lightboxBound) return;
-      img.dataset.lightboxBound = 'true';
-      img.style.cursor = 'pointer';
-      img.addEventListener('click', function() {
-        var src = img.dataset.lightbox;
-        var overlay = document.createElement('div');
-        overlay.className = 'store-lightbox';
-        overlay.innerHTML = '<img src="' + src + '" alt="Full size"><button class="store-lightbox__close">&times;</button>';
-        document.body.appendChild(overlay);
-        document.body.style.overflow = 'hidden';
-        overlay.addEventListener('click', function(e) {
-          if (e.target === overlay || e.target.classList.contains('store-lightbox__close')) {
-            overlay.remove();
-            document.body.style.overflow = '';
-          }
-        });
+    // Lightbox — click opens current active image full-size
+    document.querySelectorAll('.store-card__slideshow, .store-card__image').forEach(function(container) {
+      if (container.dataset.lightboxBound) return;
+      container.dataset.lightboxBound = 'true';
+      container.style.cursor = 'pointer';
+      container.addEventListener('click', function(e) {
+        if (e.target.closest('.store-card__dot') || e.target.closest('.store-card__arrow')) return; // don't open on dot/arrow click
+        var activeImg = container.querySelector('img.is-active') || container.querySelector('img');
+        if (!activeImg) return;
+        openLightbox(activeImg.src);
       });
+    });
+  }
+
+  function openLightbox(src) {
+    var overlay = document.createElement('div');
+    overlay.className = 'store-lightbox';
+    overlay.innerHTML = '<img src="' + src + '" alt="Full size"><button class="store-lightbox__close">&times;</button>';
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay || e.target.classList.contains('store-lightbox__close')) {
+        overlay.remove();
+        document.body.style.overflow = '';
+      }
+    });
+    document.addEventListener('keydown', function handler(e) {
+      if (e.key === 'Escape') { overlay.remove(); document.body.style.overflow = ''; document.removeEventListener('keydown', handler); }
+    });
+  }
+
+  function initProductDetailClicks() {
+    document.querySelectorAll('.store-card[data-product-id]').forEach(function(card) {
+      if (card.dataset.detailBound) return;
+      card.dataset.detailBound = 'true';
+      card.querySelector('.store-card__body').addEventListener('click', function() {
+        var id = card.dataset.productId;
+        var product = products.find(function(p) { return p.id === id; });
+        if (product) openProductDetail(product);
+      });
+    });
+  }
+
+  function openProductDetail(p) {
+    var gallery = p.gallery || (p.image ? [p.image] : []);
+    var galleryHTML = gallery.length ? gallery.map(function(src, i) {
+      return '<img class="' + (i === 0 ? 'is-active' : '') + '" src="' + esc(src) + '" alt="' + esc(p.name) + '" style="width:100%;height:350px;object-fit:contain;position:absolute;inset:0;opacity:' + (i===0?'1':'0') + ';transition:opacity 0.5s;">';
+    }).join('') : '<div style="font-size:4rem;text-align:center;padding:3rem;">' + getCategoryPlaceholder(p.category) + '</div>';
+
+    var nativeName = p.nativeName ? '<span style="color:var(--gold);font-size:1rem;font-style:italic;display:block;margin-top:0.25rem;">' + esc(p.nativeName) + '</span>' : '';
+
+    var overlay = document.createElement('div');
+    overlay.className = 'store-lightbox';
+    overlay.style.alignItems = 'center';
+    overlay.innerHTML =
+      '<div style="background:#fff;border-radius:16px;max-width:700px;width:90%;max-height:90vh;overflow-y:auto;box-shadow:0 16px 60px rgba(0,0,0,0.4);position:relative;">' +
+        '<button class="store-lightbox__close" style="position:absolute;top:1rem;right:1rem;z-index:10;background:rgba(0,0,0,0.6);">&times;</button>' +
+        '<div style="position:relative;width:100%;height:350px;background:#f5f2ed;border-radius:16px 16px 0 0;overflow:hidden;">' + galleryHTML + '</div>' +
+        '<div style="padding:2rem;">' +
+          '<h2 style="font-size:1.5rem;font-weight:700;color:var(--dark);margin:0 0 0.25rem;">' + esc(p.name) + '</h2>' +
+          nativeName +
+          '<p style="font-size:1rem;color:var(--muted);line-height:1.7;margin:1rem 0;">' + esc(p.description) + '</p>' +
+          '<div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">' +
+            '<span style="font-size:1.2rem;font-weight:700;color:var(--green);">' + esc(p.price || 'Free') + '</span>' +
+            (p.stockCount !== null && p.stockCount !== undefined ? '<span style="font-size:0.85rem;color:' + (p.stockCount === 0 ? '#c0392b' : 'var(--green)') + ';">' + (p.stockCount === 0 ? 'Out of Stock' : p.stockCount + ' in stock') + '</span>' : '') +
+          '</div>' +
+          (p.category === 'bibles' && p.stockCount !== 0 ? '<a href="bundle-builder.html?bundle=essentials" style="display:inline-block;margin-top:1.25rem;padding:0.75rem 2rem;background:var(--green);color:#fff;border-radius:10px;font-weight:600;text-decoration:none;">Add to Bundle</a>' : '') +
+          (p.category === 'amazon' && p.url ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:1.25rem;padding:0.75rem 2rem;background:#ff9900;color:#111;border-radius:10px;font-weight:600;text-decoration:none;">View on Amazon →</a>' : '') +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+
+    // Gallery cycling in detail modal
+    var detailImgs = overlay.querySelectorAll('img');
+    if (detailImgs.length > 1) {
+      var idx = 0;
+      setInterval(function() {
+        detailImgs[idx].style.opacity = '0';
+        idx = (idx + 1) % detailImgs.length;
+        detailImgs[idx].style.opacity = '1';
+      }, 4000);
+    }
+
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay || e.target.classList.contains('store-lightbox__close')) {
+        overlay.remove();
+        document.body.style.overflow = '';
+      }
     });
   }
 

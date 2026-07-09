@@ -859,3 +859,39 @@
   transform: none;
   box-shadow: none;
 }
+
+
+/* ── Slideshow arrows ── */
+.store-card__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: var(--dark, #1a1a1a);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.store-card__slideshow:hover .store-card__arrow { opacity: 1; }
+.store-card__arrow--prev { left: 0.4rem; }
+.store-card__arrow--next { right: 0.4rem; }
+.store-card__arrow:hover { background: #fff; }
+
+/* ── Native language name ── */
+.store-card__native {
+  display: block;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--gold, #d4a574);
+  margin-bottom: 0.3rem;
+}

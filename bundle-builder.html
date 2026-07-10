@@ -852,8 +852,43 @@
     var config = results[1];
     products = storeData.products || [];
     orderHandlerUrl = config.orderHandlerUrl || '';
+
+    // Update stock from site-config biblesInStock
+    if (config.biblesInStock) {
+      config.biblesInStock.forEach(function(stock) {
+        products.forEach(function(p) {
+          if (p.category === 'bibles' && p.language && stock.language &&
+              p.language.toLowerCase() === stock.language.toLowerCase()) {
+            p.stockCount = stock.count;
+            p.inStock = stock.count > 0;
+          }
+        });
+      });
+    }
+
     renderProducts();
     renderCart();
+
+    // Try live API for most current stock
+    if (config.orderHandlerUrl) {
+      fetch(config.orderHandlerUrl + '?action=getMinistryStats', { cache: 'no-store' })
+        .then(function(r) { return r.ok ? r.json() : {}; })
+        .then(function(live) {
+          if (live.ok && live.inStock) {
+            live.inStock.forEach(function(stock) {
+              products.forEach(function(p) {
+                if (p.category === 'bibles' && p.language && stock.language &&
+                    p.language.toLowerCase() === stock.language.toLowerCase()) {
+                  p.stockCount = stock.count;
+                  p.inStock = stock.count > 0;
+                }
+              });
+            });
+            renderProducts();
+          }
+        })
+        .catch(function() {});
+    }
   })
   .catch(function(err) {
     grid.innerHTML = '<p style="color:#c0392b; text-align:center;">Failed to load products. Please refresh and try again.</p>';

@@ -415,9 +415,160 @@
   </div>
 </section>
 
-<!-- Step 3: Checkout Form -->
+<!-- Step 3: Who's This For? (Recipient) -->
 <section class="bb-section" style="background: var(--light, #f9f6f1);">
-  <h2 class="bb-section__title"><span>Step 3</span> Checkout</h2>
+  <h2 class="bb-section__title"><span>Step 3</span> Who's This For?</h2>
+  <p class="bb-section__desc">This helps us tailor the warmth and tone of the message included.</p>
+  <div class="bb-form__radio-group" id="bb-recipient-group" style="justify-content:center; gap:1rem;">
+    <label class="bb-form__radio-label" style="padding:0.75rem 1.5rem; border:1.5px solid #e8e4de; border-radius:10px; cursor:pointer;">
+      <input type="radio" name="recipient" value="self" checked> For myself
+    </label>
+    <label class="bb-form__radio-label" style="padding:0.75rem 1.5rem; border:1.5px solid #e8e4de; border-radius:10px; cursor:pointer;">
+      <input type="radio" name="recipient" value="friend"> For a specific friend
+    </label>
+    <label class="bb-form__radio-label" style="padding:0.75rem 1.5rem; border:1.5px solid #e8e4de; border-radius:10px; cursor:pointer;">
+      <input type="radio" name="recipient" value="newcomer"> For a newcomer
+    </label>
+    <label class="bb-form__radio-label" style="padding:0.75rem 1.5rem; border:1.5px solid #e8e4de; border-radius:10px; cursor:pointer;">
+      <input type="radio" name="recipient" value="outreach"> For an outreach event
+    </label>
+  </div>
+
+  <!-- Outreach details (hidden unless "outreach" selected) -->
+  <div id="bb-outreach-details" style="display:none; margin-top:1.5rem; padding:1.5rem; background:#fff; border:1.5px solid #e8e4de; border-radius:12px; max-width:600px; margin-left:auto; margin-right:auto;">
+    <h4 style="font-size:1rem; font-weight:700; margin:0 0 1rem; color:var(--green);">Outreach Event Details</h4>
+    <div class="bb-form__row">
+      <label class="bb-form__label" for="bb-event-name">Event Name</label>
+      <input class="bb-form__input" type="text" id="bb-event-name" placeholder="e.g. Community Cookout">
+    </div>
+    <div class="bb-form__row">
+      <label class="bb-form__label" for="bb-event-date">Date</label>
+      <input class="bb-form__input" type="text" id="bb-event-date" placeholder="e.g. July 20, 2026">
+    </div>
+    <div class="bb-form__row">
+      <label class="bb-form__label" for="bb-event-location">Location</label>
+      <input class="bb-form__input" type="text" id="bb-event-location" placeholder="e.g. Wiggums Hollow Park, Everett WA">
+    </div>
+    <div class="bb-form__row">
+      <label class="bb-form__label" for="bb-event-contact">Contact Person</label>
+      <input class="bb-form__input" type="text" id="bb-event-contact" placeholder="Who's organizing?">
+    </div>
+    <div class="bb-form__row">
+      <label class="bb-form__label" for="bb-event-story">Brief Description</label>
+      <textarea class="bb-form__textarea" id="bb-event-story" placeholder="What are you planning? How can we help?"></textarea>
+    </div>
+  </div>
+</section>
+
+<!-- Step 4: Add-ons & Personalization -->
+<section class="bb-section" style="background: #fff;">
+  <h2 class="bb-section__title"><span>Step 4</span> Add-ons & Personalization</h2>
+  <p class="bb-section__desc">Customize your bundle with extras. All optional.</p>
+  
+  <div style="max-width:700px; margin:0 auto;">
+    <!-- Personalization (name labels) -->
+    <div id="bb-name-labels-section" style="display:none; margin-bottom:1.5rem; padding:1.25rem; background:var(--light,#f9f6f1); border-radius:10px; border:1px solid #e8e4de;">
+      <h4 style="font-size:0.95rem; font-weight:700; color:var(--green); margin:0 0 0.75rem;">📝 Name Labels (for 2+ Bibles)</h4>
+      <p style="font-size:0.85rem; color:var(--muted); margin:0 0 0.75rem;">Add a personalized name label to each Bible.</p>
+      <div id="bb-name-labels-inputs"></div>
+    </div>
+
+    <!-- Add-on items -->
+    <h4 style="font-size:0.95rem; font-weight:700; color:var(--dark); margin:0 0 0.75rem;">Include with your bundle:</h4>
+    <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem;">
+      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
+        <input type="checkbox" name="addon" value="reading-plan" style="accent-color:var(--green); width:18px; height:18px;">
+        <span>📅 20-Day Reading Plan Booklet (free)</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
+        <input type="checkbox" name="addon" value="bookmarks" checked style="accent-color:var(--green); width:18px; height:18px;">
+        <span>📑 Scripture Bookmarks (free with every Bible)</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
+        <input type="checkbox" name="addon" value="tracts" style="accent-color:var(--green); width:18px; height:18px;">
+        <span>📜 Gospel Tracts / Flip Books (free)</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
+        <input type="checkbox" name="addon" value="life-book" style="accent-color:var(--green); width:18px; height:18px;">
+        <span>📖 The Life Book (free)</span>
+      </label>
+    </div>
+
+    <!-- Packaging -->
+    <h4 style="font-size:0.95rem; font-weight:700; color:var(--dark); margin:0 0 0.75rem;">Packaging preference:</h4>
+    <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem;">
+      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
+        <input type="radio" name="packaging" value="standard" checked style="accent-color:var(--green);">
+        <span>Standard ministry packaging (hand-signed, prayer note)</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
+        <input type="radio" name="packaging" value="burlap" style="accent-color:var(--green);">
+        <span>🧵 Burlap wrap (rustic, handmade feel) — +$3</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
+        <input type="radio" name="packaging" value="gift-box" style="accent-color:var(--green);">
+        <span>🎁 Gift box (premium presentation) — +$5</span>
+      </label>
+    </div>
+
+    <!-- Special-order options (collapsible) -->
+    <details style="margin-bottom:1.5rem; border:1px solid #e8e4de; border-radius:10px; padding:0;">
+      <summary style="padding:1rem 1.25rem; cursor:pointer; font-size:0.9rem; font-weight:600; color:var(--green); list-style:none; display:flex; align-items:center; gap:0.5rem;">
+        🛎 Special-order options <span style="color:var(--muted); font-weight:400; margin-left:auto;">— talk with our team</span>
+      </summary>
+      <div style="padding:0 1.25rem 1.25rem; font-size:0.85rem; color:var(--muted);">
+        <p style="margin:0 0 0.75rem;">These require coordination with our team. Check any you're interested in and we'll follow up:</p>
+        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
+          <input type="checkbox" name="special" value="engraving" style="accent-color:var(--gold);"> Engraving
+        </label>
+        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
+          <input type="checkbox" name="special" value="cover-painting" style="accent-color:var(--gold);"> Cover painting
+        </label>
+        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
+          <input type="checkbox" name="special" value="edge-spray" style="accent-color:var(--gold);"> Edge spray painting
+        </label>
+        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
+          <input type="checkbox" name="special" value="verse-highlighting" style="accent-color:var(--gold);"> Verse highlighting
+        </label>
+        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
+          <input type="checkbox" name="special" value="pressed-flowers" style="accent-color:var(--gold);"> Pressed flowers
+        </label>
+        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
+          <input type="checkbox" name="special" value="dedication-page" style="accent-color:var(--gold);"> Custom dedication page
+        </label>
+        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
+          <input type="checkbox" name="special" value="study-notes" style="accent-color:var(--gold);"> Study notes added
+        </label>
+      </div>
+    </details>
+
+    <!-- Outreach extra materials (shown when "outreach" recipient selected) -->
+    <div id="bb-outreach-materials" style="display:none; padding:1.25rem; background:rgba(44,95,46,0.04); border:1.5px solid rgba(44,95,46,0.15); border-radius:10px;">
+      <h4 style="font-size:0.95rem; font-weight:700; color:var(--green); margin:0 0 0.75rem;">📢 Extra Outreach Materials</h4>
+      <p style="font-size:0.85rem; color:var(--muted); margin:0 0 0.75rem;">We'll throw these in with your outreach order:</p>
+      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.4rem 0;">
+        <input type="checkbox" name="outreach-material" value="extra-tracts" checked style="accent-color:var(--green); width:18px; height:18px;">
+        <span>Extra Gospel tracts (assorted)</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.4rem 0;">
+        <input type="checkbox" name="outreach-material" value="flip-books" checked style="accent-color:var(--green); width:18px; height:18px;">
+        <span>Flip Books for street evangelism</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.4rem 0;">
+        <input type="checkbox" name="outreach-material" value="life-books" style="accent-color:var(--green); width:18px; height:18px;">
+        <span>Life Books (bulk)</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.4rem 0;">
+        <input type="checkbox" name="outreach-material" value="stickers" style="accent-color:var(--green); width:18px; height:18px;">
+        <span>Ministry stickers for attendees</span>
+      </label>
+    </div>
+  </div>
+</section>
+
+<!-- Step 5: Checkout Form -->
+<section class="bb-section" style="background: var(--light, #f9f6f1);">
+  <h2 class="bb-section__title"><span>Step 5</span> Checkout</h2>
   <p class="bb-section__desc">Fill in your details and we'll reach out to confirm your order and arrange payment/shipping.</p>
 
   <form class="bb-form" id="bb-form" novalidate>
@@ -757,6 +908,8 @@
         renderCart();
       });
     });
+
+    updateNameLabels();
   }
 
   // ── Clear all ──
@@ -819,6 +972,45 @@
       address: address,
       _gotcha: ''
     };
+
+    // Collect customization options
+    var recipient = document.querySelector('input[name="recipient"]:checked');
+    payload.recipient = recipient ? recipient.value : 'self';
+    
+    // Add-ons
+    var addons = [];
+    document.querySelectorAll('input[name="addon"]:checked').forEach(function(cb) { addons.push(cb.value); });
+    payload.addons = addons.join(', ');
+    
+    // Packaging
+    var packaging = document.querySelector('input[name="packaging"]:checked');
+    payload.packaging = packaging ? packaging.value : 'standard';
+    
+    // Special orders
+    var specials = [];
+    document.querySelectorAll('input[name="special"]:checked').forEach(function(cb) { specials.push(cb.value); });
+    payload.specialOrders = specials.join(', ');
+    
+    // Name labels
+    var nameLabels = [];
+    document.querySelectorAll('input[name^="name-label-"]').forEach(function(input) {
+      if (input.value.trim()) nameLabels.push(input.value.trim());
+    });
+    if (nameLabels.length) payload.nameLabels = nameLabels.join(', ');
+    
+    // Outreach details
+    if (payload.recipient === 'outreach') {
+      payload.outreachEvent = {
+        name: (document.getElementById('bb-event-name') || {}).value || '',
+        date: (document.getElementById('bb-event-date') || {}).value || '',
+        location: (document.getElementById('bb-event-location') || {}).value || '',
+        contact: (document.getElementById('bb-event-contact') || {}).value || '',
+        story: (document.getElementById('bb-event-story') || {}).value || ''
+      };
+      var materials = [];
+      document.querySelectorAll('input[name="outreach-material"]:checked').forEach(function(cb) { materials.push(cb.value); });
+      payload.outreachMaterials = materials.join(', ');
+    }
 
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting...';
@@ -904,6 +1096,40 @@
     grid.innerHTML = '<p style="color:#c0392b; text-align:center;">Failed to load products. Please refresh and try again.</p>';
     console.error('Bundle builder load error:', err);
   });
+
+  // ── Recipient toggle → show/hide outreach details + materials ──
+  document.querySelectorAll('input[name="recipient"]').forEach(function(r) {
+    r.addEventListener('change', function() {
+      var outreachDetails = document.getElementById('bb-outreach-details');
+      var outreachMaterials = document.getElementById('bb-outreach-materials');
+      if (this.value === 'outreach') {
+        if (outreachDetails) outreachDetails.style.display = 'block';
+        if (outreachMaterials) outreachMaterials.style.display = 'block';
+      } else {
+        if (outreachDetails) outreachDetails.style.display = 'none';
+        if (outreachMaterials) outreachMaterials.style.display = 'none';
+      }
+    });
+  });
+
+  // ── Name labels: show when total qty >= 2 ──
+  function updateNameLabels() {
+    var totalQty = Object.values(cart).reduce(function(sum, q) { return sum + q; }, 0);
+    var section = document.getElementById('bb-name-labels-section');
+    var inputsDiv = document.getElementById('bb-name-labels-inputs');
+    if (!section || !inputsDiv) return;
+    if (totalQty >= 2) {
+      section.style.display = 'block';
+      // Generate input fields for each Bible
+      var html = '';
+      for (var i = 0; i < totalQty; i++) {
+        html += '<input class="bb-form__input" type="text" name="name-label-' + i + '" placeholder="Name for Bible ' + (i+1) + ' (optional)" style="margin-bottom:0.5rem;">';
+      }
+      inputsDiv.innerHTML = html;
+    } else {
+      section.style.display = 'none';
+    }
+  }
 
 })();
 </script>

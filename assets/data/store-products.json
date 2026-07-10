@@ -145,12 +145,8 @@
       "category": "bibles",
       "description": "New Testament in Farsi (Persian) for Middle Eastern and Iranian communities.",
       "price": "$2 each",
-      "image": "assets/images/store/PXL_20260709_021826939.PORTRAIT.jpg",
+      "image": "assets/images/store/PXL_20260709_044634073.jpg",
       "gallery": [
-        "assets/images/store/PXL_20260709_021826939.PORTRAIT.jpg",
-        "assets/images/store/PXL_20260709_055126580.PORTRAIT.ORIGINAL.jpg",
-        "assets/images/store/PXL_20260709_055325910.jpg",
-        "assets/images/store/PXL_20260709_055510589.jpg",
         "assets/images/store/PXL_20260709_044634073.jpg",
         "assets/images/store/PXL_20260709_044831124.PORTRAIT.ORIGINAL.jpg",
         "assets/images/store/PXL_20260709_044916655.jpg",
@@ -162,6 +158,28 @@
       "inStock": true,
       "language": "Farsi",
       "stockCount": 5
+    },
+    {
+      "id": "large-print-nt-urdu-blue",
+      "name": "Urdu New Testament (Blue)",
+      "nativeName": "اردو",
+      "category": "bibles",
+      "description": "New Testament in Urdu for Pakistani and South Asian communities. Right-to-left text, beautifully typeset.",
+      "price": "$2 each",
+      "image": "assets/images/store/PXL_20260709_021826939.PORTRAIT.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_021826939.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_055126580.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_055325910.jpg",
+        "assets/images/store/PXL_20260709_055510589.jpg",
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
+      "url": null,
+      "tags": ["urdu", "pakistan", "south asian", "new testament", "blue", "large print"],
+      "seller": null,
+      "inStock": true,
+      "language": "Urdu",
+      "stockCount": 6
     },
     {
       "id": "full-bible-large-print-niv",

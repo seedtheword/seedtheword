@@ -557,44 +557,35 @@
     updateLiveStock();
   }
 
-  // ── Live stock update for Bible products ────────────────────
+  // ── Live stock update for all products ───────────────────────
   async function updateLiveStock() {
     try {
       var cfgRes = await fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' });
       if (!cfgRes.ok) return;
       var cfg = await cfgRes.json();
-      var inStock = cfg.biblesInStock || [];
-      
-      // Try live API
+      var items = [];
+
+      // Use items from site-config if available
+      if (cfg.items && cfg.items.length) {
+        items = cfg.items;
+      }
+
+      // Try live API for most current stock
       if (cfg.orderHandlerUrl) {
         try {
           var liveRes = await fetch(cfg.orderHandlerUrl + '?action=getMinistryStats', { cache: 'no-store' });
           if (liveRes.ok) {
             var live = await liveRes.json();
-            if (live.ok && live.inStock) inStock = live.inStock;
+            if (live.ok && live.items && live.items.length) {
+              items = live.items;
+            }
           }
         } catch(_) {}
       }
-      
-      // Update products array with live stock counts
-      if (inStock.length) {
-        products.forEach(function(p) {
-          if (p.category !== 'bibles' || !p.language) return;
-          var match = inStock.find(function(s) {
-            return s.language && s.language.toLowerCase() === p.language.toLowerCase();
-          });
-          if (match) {
-            p.stockCount = match.count;
-            p.inStock = match.count > 0;
-          }
-        });
-        // Re-render if currently viewing Bibles
-        if (activeCategory === 'bibles') renderGrid();
-      }
 
-      // Update tracts/merch by product ID
-      if (live && live.items && live.items.length) {
-        live.items.forEach(function(item) {
+      // Update products by ID
+      if (items.length) {
+        items.forEach(function(item) {
           var match = products.find(function(p) { return p.id === item.id; });
           if (match) {
             match.stockCount = item.count;

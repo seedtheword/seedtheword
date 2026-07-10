@@ -1718,6 +1718,46 @@ function onStoryFormSubmit(e) {
 // Falls back to site-config.json values if the sheet is unavailable.
 const MINISTRY_STATS_TAB = 'MinistryStats';
 
+const INVENTORY_TAB = 'Inventory';
+const INVENTORY_HEADERS = [
+  'date', 'type', 'item_id', 'item_name', 'qty', 'direction',
+  'event_source', 'cost_per_unit', 'total_cost', 'notes', 'order_id'
+];
+
+/**
+ * Logs an inventory movement (in or out) to the Inventory tab.
+ * Called when orders are packed/shipped, or manually via the sheet.
+ */
+function logInventoryMovement_(entries) {
+  // entries = [{ itemId, itemName, qty, direction, eventSource, costPerUnit, notes, orderId }]
+  if (!entries || !entries.length) return;
+  try {
+    var sheet = openTab(INVENTORY_TAB, INVENTORY_HEADERS);
+    var now = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    var rows = entries.map(function(e) {
+      var totalCost = (e.costPerUnit || 2) * (e.qty || 0);
+      return [
+        now,
+        e.type || 'order',
+        e.itemId || '',
+        e.itemName || '',
+        e.qty || 0,
+        e.direction || 'out',
+        e.eventSource || '',
+        e.costPerUnit || 2,
+        totalCost,
+        e.notes || '',
+        e.orderId || ''
+      ];
+    });
+    rows.forEach(function(row) {
+      sheet.appendRow(row);
+    });
+  } catch (err) {
+    console.log('logInventoryMovement_ error (non-fatal):', err);
+  }
+}
+
 function getMinistryStats_() {
   try {
     var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);

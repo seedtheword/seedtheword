@@ -1023,14 +1023,19 @@
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      // Show success regardless (Apps Script returns { ok: true })
-      form.style.display = 'none';
-      successDiv.classList.add('is-visible');
+      if (data && data.ok) {
+        form.style.display = 'none';
+        successDiv.classList.add('is-visible');
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Order';
+        alert('Order error: ' + (data.error || 'Unknown error. Please try again or contact us.'));
+      }
     })
-    .catch(function() {
-      // Show success anyway — order likely went through
-      form.style.display = 'none';
-      successDiv.classList.add('is-visible');
+    .catch(function(err) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Order';
+      alert('Order submission failed: ' + (err.message || 'Network error. Please try again.'));
     });
   });
 
@@ -1045,16 +1050,14 @@
     products = storeData.products || [];
     orderHandlerUrl = config.orderHandlerUrl || '';
 
-    // Update stock from site-config biblesInStock
-    if (config.biblesInStock) {
-      config.biblesInStock.forEach(function(stock) {
-        products.forEach(function(p) {
-          if (p.category === 'bibles' && p.language && stock.language &&
-              p.language.toLowerCase() === stock.language.toLowerCase()) {
-            p.stockCount = stock.count;
-            p.inStock = stock.count > 0;
-          }
-        });
+    // Update stock from site-config items by ID
+    if (config.items) {
+      config.items.forEach(function(item) {
+        var match = products.find(function(p) { return p.id === item.id; });
+        if (match) {
+          match.stockCount = item.count;
+          match.inStock = item.count > 0;
+        }
       });
     }
 
@@ -1066,26 +1069,14 @@
       fetch(config.orderHandlerUrl + '?action=getMinistryStats', { cache: 'no-store' })
         .then(function(r) { return r.ok ? r.json() : {}; })
         .then(function(live) {
-          if (live.ok && live.inStock) {
-            live.inStock.forEach(function(stock) {
-              products.forEach(function(p) {
-                if (p.category === 'bibles' && p.language && stock.language &&
-                    p.language.toLowerCase() === stock.language.toLowerCase()) {
-                  p.stockCount = stock.count;
-                  p.inStock = stock.count > 0;
-                }
-              });
+          if (live.ok && live.items && live.items.length) {
+            live.items.forEach(function(item) {
+              var match = products.find(function(p) { return p.id === item.id; });
+              if (match) {
+                match.stockCount = item.count;
+                match.inStock = item.count > 0;
+              }
             });
-            // Update tracts/merch by product ID
-            if (live.items && live.items.length) {
-              live.items.forEach(function(item) {
-                var match = products.find(function(p) { return p.id === item.id; });
-                if (match) {
-                  match.stockCount = item.count;
-                  match.inStock = item.count > 0;
-                }
-              });
-            }
             renderProducts();
           }
         })

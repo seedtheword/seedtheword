@@ -7,7 +7,7 @@
   ],
   "products": [
     {
-      "id": "bible-red-personal-testimony-nt",
+      "id": "pocket-nt-red",
       "name": "Personal Testimony New Testament (Red)",
       "nativeName": null,
       "category": "bibles",
@@ -29,7 +29,7 @@
       "stockCount": 100
     },
     {
-      "id": "bible-grey-friend-testimony-nt",
+      "id": "pocket-nt-grey",
       "name": "Friend Testimony New Testament (Grey)",
       "nativeName": null,
       "category": "bibles",
@@ -51,7 +51,7 @@
       "stockCount": 100
     },
     {
-      "id": "bible-brown-large-print-nt",
+      "id": "large-print-nt-brown",
       "name": "New Testament Large Print (Brown)",
       "nativeName": null,
       "category": "bibles",
@@ -73,7 +73,7 @@
       "stockCount": 5
     },
     {
-      "id": "bible-hindi-nt",
+      "id": "pocket-nt-hindi-blue",
       "name": "Hindi New Testament India (Blue)",
       "nativeName": "हिन्दी",
       "category": "bibles",
@@ -95,7 +95,7 @@
       "stockCount": 10
     },
     {
-      "id": "bible-russian-nt",
+      "id": "pocket-nt-russian",
       "name": "Russian New Testament",
       "nativeName": "Русский",
       "category": "bibles",
@@ -117,7 +117,7 @@
       "stockCount": 1
     },
     {
-      "id": "bible-ukrainian-nt",
+      "id": "pocket-nt-ukrainian",
       "name": "Ukrainian New Testament",
       "nativeName": "Українська",
       "category": "bibles",
@@ -139,7 +139,7 @@
       "stockCount": 1
     },
     {
-      "id": "bible-farsi-nt",
+      "id": "pocket-nt-farsi-blue",
       "name": "Farsi New Testament Persian (Blue)",
       "nativeName": "فارسی",
       "category": "bibles",
@@ -164,7 +164,7 @@
       "stockCount": 5
     },
     {
-      "id": "bible-niv-full",
+      "id": "full-bible-large-print-niv",
       "name": "Full Bible NT & OT (NIV)",
       "nativeName": null,
       "category": "bibles",
@@ -190,7 +190,7 @@
       "stockCount": 10
     },
     {
-      "id": "bible-thai-english-nt",
+      "id": "pocket-nt-thai-english-blue",
       "name": "Thai + English New Testament (Blue)",
       "nativeName": "ไทย / English",
       "category": "bibles",

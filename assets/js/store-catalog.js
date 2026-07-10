@@ -591,6 +591,18 @@
         // Re-render if currently viewing Bibles
         if (activeCategory === 'bibles') renderGrid();
       }
+
+      // Update tracts/merch by product ID
+      if (live && live.items && live.items.length) {
+        live.items.forEach(function(item) {
+          var match = products.find(function(p) { return p.id === item.id; });
+          if (match) {
+            match.stockCount = item.count;
+            match.inStock = item.count > 0;
+          }
+        });
+        renderGrid();
+      }
     } catch(_) {}
   }
 

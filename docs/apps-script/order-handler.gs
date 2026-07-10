@@ -1733,6 +1733,7 @@ function getMinistryStats_() {
       events: 0,
       languagesMessage: 'Available in 2,000+ languages through Gideon\'s International',
       inStock: [],
+      items: [],
       lastUpdated: new Date().toISOString(),
     };
     for (var i = 1; i < rows.length; i++) {
@@ -1748,6 +1749,12 @@ function getMinistryStats_() {
         try {
           var item = typeof val === 'string' ? JSON.parse(val) : val;
           if (item && item.language) result.inStock.push(item);
+        } catch (_) {}
+      }
+      else if (key === 'item') {
+        try {
+          var itemData = typeof val === 'string' ? JSON.parse(val) : val;
+          if (itemData && itemData.id) result.items.push(itemData);
         } catch (_) {}
       }
     }

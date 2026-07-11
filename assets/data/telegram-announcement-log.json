@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-07-11T18:56:03+00:00",
+  "updated": "2026-07-11T20:25:59+00:00",
   "events": {
     "ptsugtf95v1rrlbp9nnjk1vf08@google.com": {
       "title": "SEED THE WORD BIBLE STUDY",
@@ -86,9 +86,10 @@
     "4gaonbcn3f7q8lna1iqeirrfrc@google.com": {
       "title": "Gideon's International/Seed the Word Arlington State Fair Outreach",
       "start": "2026-07-11T20:00:00+00:00",
-      "lastPosted": "2026-07-11T18:56:03+00:00",
+      "lastPosted": "2026-07-11T20:25:59+00:00",
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "livePosted": true
     }
   }
 }

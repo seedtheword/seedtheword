@@ -924,9 +924,9 @@
   function buildConfigString() {
     return Object.keys(cart).map(function(id) {
       var p = getProduct(id);
-      var lang = p ? (p.language || p.name) : id;
-      return lang + '×' + cart[id];
-    }).join(', ');
+      var name = p ? p.name : id;
+      return cart[id] + '× ' + name + ' (' + id + ')';
+    }).join('\n');
   }
 
   // ── Build address string ──
@@ -966,7 +966,7 @@
       gifter_name: name,
       gifter_email: email,
       gifter_phone: document.getElementById('bb-phone').value.trim(),
-      delivery_details: delivery,
+      delivery_details: delivery === 'ship' ? address : 'Pickup at next meeting',
       configuration: buildConfigString(),
       dedication: document.getElementById('bb-dedication').value.trim(),
       address: address,

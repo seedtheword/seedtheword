@@ -95,7 +95,7 @@
       "stockCount": 10
     },
     {
-      "id": "pocket-nt-russian",
+      "id": "large-print-nt-russian",
       "name": "Russian New Testament",
       "nativeName": "Русский",
       "category": "bibles",
@@ -117,7 +117,7 @@
       "stockCount": 1
     },
     {
-      "id": "pocket-nt-ukrainian",
+      "id": "large-print-nt-ukrainian",
       "name": "Ukrainian New Testament",
       "nativeName": "Українська",
       "category": "bibles",
@@ -191,12 +191,9 @@
       "image": "assets/images/store/PXL_20260709_024015658.PORTRAIT.jpg",
       "gallery": [
         "assets/images/store/PXL_20260709_024015658.PORTRAIT.jpg",
-        "assets/images/store/PXL_20260709_023920949.PORTRAIT.ORIGINAL.jpg",
         "assets/images/store/PXL_20260709_044420864.PORTRAIT.jpg",
         "assets/images/store/PXL_20260709_060541461.PORTRAIT.ORIGINAL.jpg",
         "assets/images/store/PXL_20260709_060943933.PORTRAIT.jpg",
-        "assets/images/store/PXL_20260709_043945890.PORTRAIT.ORIGINAL.jpg",
-        "assets/images/store/PXL_20260709_044109846.PORTRAIT.jpg",
         "assets/images/store/PXL_20260709_060719999.PORTRAIT.jpg",
         "assets/images/store/PXL_20260709_052250058.MP.jpg"
       ],
@@ -206,6 +203,28 @@
       "inStock": true,
       "language": "English",
       "stockCount": 10
+    },
+    {
+      "id": "full-bible-pocket",
+      "name": "Full Bible Pocket NT & OT",
+      "nativeName": null,
+      "category": "bibles",
+      "description": "Complete Bible — New and Old Testament in a compact pocket format. Carry the full Word of God with you everywhere.",
+      "price": "$5 each",
+      "image": "assets/images/store/PXL_20260709_023920949.PORTRAIT.ORIGINAL.jpg",
+      "gallery": [
+        "assets/images/store/PXL_20260709_023920949.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_043945890.PORTRAIT.ORIGINAL.jpg",
+        "assets/images/store/PXL_20260709_044109846.PORTRAIT.jpg",
+        "assets/images/store/PXL_20260709_044241697.jpg",
+        "assets/images/store/PXL_20260709_052250058.MP.jpg"
+      ],
+      "url": null,
+      "tags": ["english", "full bible", "pocket", "old testament", "new testament"],
+      "seller": null,
+      "inStock": true,
+      "language": "English",
+      "stockCount": 1
     },
     {
       "id": "pocket-nt-thai-english-blue",
@@ -228,6 +247,86 @@
       "inStock": true,
       "language": "Thai",
       "stockCount": 3
+    },
+    {
+      "id": "pocket-nt-mandarin",
+      "name": "Mandarin New Testament",
+      "nativeName": "中文",
+      "category": "bibles",
+      "description": "Chinese Simplified New Testament for Mandarin speakers. Perfect for campus ministry and international outreach.",
+      "price": "$2 each",
+      "image": null,
+      "gallery": [],
+      "url": null,
+      "tags": ["mandarin", "chinese", "simplified", "campus", "new testament"],
+      "seller": null,
+      "inStock": false,
+      "language": "Mandarin",
+      "stockCount": 0
+    },
+    {
+      "id": "large-print-nt-spanish-english",
+      "name": "Spanish + English New Testament",
+      "nativeName": "Español / English",
+      "category": "bibles",
+      "description": "Bilingual Spanish and English New Testament. Perfect for bilingual communities and language learners.",
+      "price": "$2 each",
+      "image": null,
+      "gallery": [],
+      "url": null,
+      "tags": ["spanish", "english", "bilingual", "new testament"],
+      "seller": null,
+      "inStock": false,
+      "language": "Spanish/English",
+      "stockCount": 0
+    },
+    {
+      "id": "large-print-nt-arabic-english",
+      "name": "Arabic + English New Testament",
+      "nativeName": "العربية / English",
+      "category": "bibles",
+      "description": "Bilingual Arabic and English New Testament. For Arabic-speaking communities with English alongside.",
+      "price": "$2 each",
+      "image": null,
+      "gallery": [],
+      "url": null,
+      "tags": ["arabic", "english", "bilingual", "new testament", "large print"],
+      "seller": null,
+      "inStock": false,
+      "language": "Arabic/English",
+      "stockCount": 0
+    },
+    {
+      "id": "pocket-nt-arabic",
+      "name": "Arabic New Testament",
+      "nativeName": "العربية",
+      "category": "bibles",
+      "description": "Arabic New Testament for Middle Eastern outreach. Right-to-left text with clear, readable formatting.",
+      "price": "$2 each",
+      "image": null,
+      "gallery": [],
+      "url": null,
+      "tags": ["arabic", "middle east", "rtl", "new testament"],
+      "seller": null,
+      "inStock": false,
+      "language": "Arabic",
+      "stockCount": 0
+    },
+    {
+      "id": "pocket-nt-french",
+      "name": "French New Testament",
+      "nativeName": "Français",
+      "category": "bibles",
+      "description": "New Testament in French for Francophone communities. A familiar translation for French speakers worldwide.",
+      "price": "$2 each",
+      "image": null,
+      "gallery": [],
+      "url": null,
+      "tags": ["french", "francophone", "new testament"],
+      "seller": null,
+      "inStock": false,
+      "language": "French",
+      "stockCount": 0
     },
     {
       "id": "tract-life-book-english",
@@ -346,7 +445,7 @@
       "stockCount": null
     },
     {
-      "id": "merch-mini-jesus",
+      "id": "merch-mini-fig",
       "name": "Mini Jesus (Variety)",
       "category": "merch",
       "description": "Miniature Jesus figurines in a variety of styles. A fun conversation starter and desk companion.",

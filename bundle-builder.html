@@ -922,11 +922,81 @@
 
   // ── Build configuration string ──
   function buildConfigString() {
-    return Object.keys(cart).map(function(id) {
+    var lines = [];
+    
+    // Cart items with IDs
+    Object.keys(cart).forEach(function(id) {
       var p = getProduct(id);
       var name = p ? p.name : id;
-      return cart[id] + '× ' + name + ' (' + id + ')';
-    }).join('\n');
+      lines.push(cart[id] + '× ' + name + ' (' + id + ')');
+    });
+    
+    // Add-ons
+    var addons = [];
+    document.querySelectorAll('input[name="addon"]:checked').forEach(function(cb) {
+      addons.push(cb.parentElement.querySelector('span').textContent.trim());
+    });
+    if (addons.length) {
+      lines.push('');
+      lines.push('ADD-ONS: ' + addons.join(', '));
+    }
+    
+    // Packaging
+    var packaging = document.querySelector('input[name="packaging"]:checked');
+    if (packaging && packaging.value !== 'standard') {
+      lines.push('PACKAGING: ' + packaging.value);
+    }
+    
+    // Recipient type
+    var recipient = document.querySelector('input[name="recipient"]:checked');
+    if (recipient) {
+      lines.push('RECIPIENT: ' + recipient.value);
+    }
+    
+    // Dedication
+    var dedication = document.getElementById('bb-dedication');
+    if (dedication && dedication.value.trim()) {
+      lines.push('DEDICATION: ' + dedication.value.trim());
+    }
+    
+    // Outreach materials
+    var outreachMaterials = [];
+    document.querySelectorAll('input[name="outreach-material"]:checked').forEach(function(cb) {
+      outreachMaterials.push(cb.parentElement.querySelector('span').textContent.trim());
+    });
+    if (outreachMaterials.length) {
+      lines.push('OUTREACH MATERIALS: ' + outreachMaterials.join(', '));
+    }
+    
+    // Outreach event details
+    var eventName = document.getElementById('bb-event-name');
+    if (eventName && eventName.value.trim()) {
+      lines.push('EVENT: ' + eventName.value.trim());
+      var eventDate = document.getElementById('bb-event-date');
+      var eventLocation = document.getElementById('bb-event-location');
+      if (eventDate && eventDate.value) lines.push('EVENT DATE: ' + eventDate.value);
+      if (eventLocation && eventLocation.value.trim()) lines.push('EVENT LOCATION: ' + eventLocation.value.trim());
+    }
+    
+    // Special orders
+    var specials = [];
+    document.querySelectorAll('input[name="special"]:checked').forEach(function(cb) {
+      specials.push(cb.parentElement.querySelector('span').textContent.trim());
+    });
+    if (specials.length) {
+      lines.push('SPECIAL REQUESTS: ' + specials.join(', '));
+    }
+    
+    // Name labels
+    var nameLabels = [];
+    document.querySelectorAll('input[name^="name-label-"]').forEach(function(input) {
+      if (input.value.trim()) nameLabels.push(input.value.trim());
+    });
+    if (nameLabels.length) {
+      lines.push('NAME LABELS: ' + nameLabels.join(', '));
+    }
+    
+    return lines.join('\n');
   }
 
   // ── Build address string ──

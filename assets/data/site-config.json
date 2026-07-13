@@ -4,21 +4,20 @@
   "_orderHandlerUrlNote": "Google Apps Script Web App URL that receives bundle-builder orders. When empty, the form falls back to Formspree. See admin-help.html → How-to → Set up the order email handler.",
   "biblesGivenAway": 276,
   "biblesGoal2026": 70000,
-  "outreachEvents": 4,
+  "outreachEvents": 17,
   "biblesLanguagesMessage": "Available in 2,000+ languages through our Gideon's International partnership",
   "biblesInStock": [
-    { "language": "English", "count": 100 },
-    { "language": "Spanish", "count": 5 },
+    { "language": "English", "count": 134 },
     { "language": "Hindi", "count": 10 },
-    { "language": "Mandarin", "count": 5 },
+    { "language": "Russian", "count": 3 },
+    { "language": "Ukrainian", "count": 3 },
+    { "language": "Farsi", "count": 25 },
     { "language": "Urdu", "count": 6 },
-    { "language": "Spanish / English", "count": 0 },
-    { "language": "Arabic", "count": 10 },
-    { "language": "French", "count": 0 },
-    { "language": "Russian", "count": 1 },
-    { "language": "Ukrainian", "count": 1 },
-    { "language": "Farsi", "count": 5 },
-    { "language": "Thai", "count": 3 }
+    { "language": "Thai", "count": 1 },
+    { "language": "Mandarin", "count": 0 },
+    { "language": "Spanish", "count": 0 },
+    { "language": "Arabic", "count": 0 },
+    { "language": "French", "count": 0 }
   ],
-  "_biblesNote": "Update biblesGivenAway manually via GitHub Actions or admin editor after each outreach. Stock counts updated by leadership team."
+  "_biblesNote": "Update biblesGivenAway manually via GitHub Actions or admin editor after each outreach. Stock counts synced from STW Order Ledger spreadsheet."
 }

@@ -26,7 +26,7 @@
       "seller": null,
       "inStock": true,
       "language": "English",
-      "stockCount": 100
+      "stockCount": 25
     },
     {
       "id": "pocket-nt-grey",
@@ -114,7 +114,7 @@
       "seller": null,
       "inStock": true,
       "language": "Russian",
-      "stockCount": 1
+      "stockCount": 3
     },
     {
       "id": "large-print-nt-ukrainian",
@@ -136,7 +136,7 @@
       "seller": null,
       "inStock": true,
       "language": "Ukrainian",
-      "stockCount": 1
+      "stockCount": 3
     },
     {
       "id": "pocket-nt-farsi-blue",
@@ -157,7 +157,7 @@
       "seller": null,
       "inStock": true,
       "language": "Farsi",
-      "stockCount": 5
+      "stockCount": 25
     },
     {
       "id": "large-print-nt-urdu-blue",
@@ -182,11 +182,11 @@
       "stockCount": 6
     },
     {
-      "id": "full-bible-large-print-niv",
-      "name": "Full Bible NT & OT (NIV)",
+      "id": "full-bible-large-print",
+      "name": "Full Bible NT & OT",
       "nativeName": null,
       "category": "bibles",
-      "description": "Complete Bible — New and Old Testament in the New International Version. For deeper study and daily reading.",
+      "description": "Complete Bible — New and Old Testament. For deeper study and daily reading.",
       "price": "$5 each",
       "image": "assets/images/store/PXL_20260709_024015658.PORTRAIT.jpg",
       "gallery": [
@@ -198,11 +198,11 @@
         "assets/images/store/PXL_20260709_052250058.MP.jpg"
       ],
       "url": null,
-      "tags": ["english", "niv", "full bible", "old testament", "new testament"],
+      "tags": ["english", "full bible", "large print", "old testament", "new testament"],
       "seller": null,
       "inStock": true,
       "language": "English",
-      "stockCount": 10
+      "stockCount": 3
     },
     {
       "id": "full-bible-pocket",
@@ -246,7 +246,7 @@
       "seller": null,
       "inStock": true,
       "language": "Thai",
-      "stockCount": 3
+      "stockCount": 1
     },
     {
       "id": "pocket-nt-mandarin",
@@ -347,7 +347,7 @@
       "seller": null,
       "inStock": true,
       "language": "English",
-      "stockCount": null
+      "stockCount": 15
     },
     {
       "id": "tract-life-book-spanish",
@@ -364,7 +364,7 @@
       "seller": null,
       "inStock": true,
       "language": "Spanish",
-      "stockCount": null
+      "stockCount": 5
     },
     {
       "id": "tract-flip-books-english",
@@ -389,7 +389,7 @@
       "seller": null,
       "inStock": true,
       "language": "English",
-      "stockCount": null
+      "stockCount": 25
     },
     {
       "id": "merch-notebooks",
@@ -408,7 +408,7 @@
       "seller": null,
       "inStock": true,
       "language": null,
-      "stockCount": null
+      "stockCount": 10
     },
     {
       "id": "merch-keychains-bracelets",
@@ -425,7 +425,7 @@
       "seller": null,
       "inStock": true,
       "language": null,
-      "stockCount": null
+      "stockCount": 10
     },
     {
       "id": "merch-stickers",
@@ -442,7 +442,7 @@
       "seller": null,
       "inStock": true,
       "language": null,
-      "stockCount": null
+      "stockCount": 50
     },
     {
       "id": "merch-mini-fig",
@@ -461,7 +461,7 @@
       "seller": null,
       "inStock": true,
       "language": null,
-      "stockCount": null
+      "stockCount": 25
     },
     {
       "id": "merch-bookmarks",
@@ -478,7 +478,7 @@
       "seller": null,
       "inStock": true,
       "language": null,
-      "stockCount": null
+      "stockCount": 500
     },
     {
       "id": "amazon-gods-love-journal",

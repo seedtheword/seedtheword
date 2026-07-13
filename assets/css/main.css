@@ -12583,6 +12583,100 @@ body.your-walk-modal-open {
   margin-top: 0.75rem; grid-template-columns: none;
 }
 
+/* ── Impact Progress Strip (minimal redesign) ───────────────── */
+.impact-strip {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(44,95,46,0.12);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  max-width: 600px;
+  margin: 0 auto;
+}
+.impact-strip__header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+.impact-strip__count {
+  font-family: 'Anton', Impact, sans-serif;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  font-weight: 400;
+  color: var(--green, #2C5F2E);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.impact-strip__separator {
+  font-size: 1.2rem;
+  color: var(--muted, #999);
+  margin: 0 0.15rem;
+}
+.impact-strip__goal {
+  font-size: 1.2rem;
+  color: var(--muted, #666);
+  font-weight: 600;
+}
+.impact-strip__label {
+  font-size: 0.8rem;
+  color: var(--muted, #999);
+  letter-spacing: 0.04em;
+  margin-left: 0.5rem;
+}
+.impact-strip__bar {
+  height: 6px;
+  background: rgba(44,95,46,0.12);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+.impact-strip__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green, #2C5F2E), var(--gold, #d4a574));
+  border-radius: 99px;
+  transition: width 1.4s cubic-bezier(0.25,1,0.5,1);
+}
+.impact-strip__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--muted, #666);
+}
+.impact-strip__dot {
+  color: var(--border, #ccc);
+}
+.impact-strip__cta {
+  margin-left: auto;
+  font-weight: 700;
+  color: var(--green, #2C5F2E);
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.75rem;
+  border: 1.5px solid var(--green, #2C5F2E);
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+.impact-strip__cta:hover {
+  background: var(--green, #2C5F2E);
+  color: #fff;
+}
+/* Dark section variant */
+.ministry-impact-section .impact-strip {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(212,165,116,0.2);
+}
+.ministry-impact-section .impact-strip__count { color: var(--gold, #d4a574); }
+.ministry-impact-section .impact-strip__goal { color: rgba(255,255,255,0.7); }
+.ministry-impact-section .impact-strip__separator { color: rgba(255,255,255,0.4); }
+.ministry-impact-section .impact-strip__label { color: rgba(255,255,255,0.5); }
+.ministry-impact-section .impact-strip__footer { color: rgba(255,255,255,0.6); }
+.ministry-impact-section .impact-strip__cta { color: var(--gold, #d4a574); border-color: var(--gold, #d4a574); }
+.ministry-impact-section .impact-strip__cta:hover { background: var(--gold, #d4a574); color: #1a1a1a; }
+
 /* Outreach slideshow — matches news.html outreach card style */
 .outreach-slideshow { position: relative; }
 .outreach-slideshow__track { position: relative; min-height: 420px; }

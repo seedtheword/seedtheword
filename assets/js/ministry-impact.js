@@ -27,56 +27,30 @@
 
   // ── Counter HTML builder ─────────────────────────────────────
   function buildCounterHTML(mount, count, goal, inStock) {
-    var pct      = Math.min(100, Math.round(count / goal * 1000) / 10);
+    var pct = Math.min(100, Math.round(count / goal * 1000) / 10);
     var stockCount = inStock.filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); }).length;
-    var stockHTML = inStock
-      .filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); })
-      .map(function(i){ return '<span class="stock-tag">' + esc(i.language) + '</span>'; })
-      .join('');
 
     mount.innerHTML =
-      '<div class="impact-counter">' +
-        '<div class="impact-counter__left">' +
-          '<p class="impact-counter__eyebrow">&#128218; Bibles Given Away</p>' +
-          '<div class="impact-counter__number">' +
-            '<span class="impact-counter__num">' + count.toLocaleString('en-US') + '</span>' +
-            '<span class="impact-counter__plus">+</span>' +
-          '</div>' +
-          '<p class="impact-counter__sub">and counting \u2014 updated live from our outreach records</p>' +
-          '<div class="impact-counter__bar-wrap"><div class="impact-counter__bar" style="width:' + pct + '%"></div></div>' +
-          '<p class="impact-counter__goal">Goal: ' + goal.toLocaleString('en-US') + ' for 2026</p>' +
+      '<div class="impact-strip">' +
+        '<div class="impact-strip__header">' +
+          '<span class="impact-strip__count">' + count.toLocaleString('en-US') + '</span>' +
+          '<span class="impact-strip__separator">/</span>' +
+          '<span class="impact-strip__goal">' + goal.toLocaleString('en-US') + '</span>' +
+          '<span class="impact-strip__label">Bibles for 2026</span>' +
         '</div>' +
-        '<div class="impact-counter__right">' +
-          '<span class="impact-counter__stock-label">In Stock Now</span>' +
-          '<p class="impact-counter__gideon">Available in 2,000+ languages via Gideon\'s International</p>' +
-          '<div class="impact-counter__stock">' + (stockHTML || '<span class="stock-tag">Restocking soon</span>') + '</div>' +
-          '<div class="impact-counter__actions">' +
-            '<a href="store.html" class="btn btn-primary btn-sm">&#127873; Gift a Bible</a>' +
-            '<a href="news.html#ministry-outreach" class="btn btn-secondary btn-sm">See Outreach</a>' +
-          '</div>' +
+        '<div class="impact-strip__bar"><div class="impact-strip__fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="impact-strip__footer">' +
+          '<span class="impact-strip__stat">' + stockCount + ' languages in stock</span>' +
+          '<span class="impact-strip__dot">\u00b7</span>' +
+          '<span class="impact-strip__stat">Updated live</span>' +
+          '<a href="donate.html#give" class="impact-strip__cta">Give \u2192</a>' +
         '</div>' +
-      '</div>' +
-      '<div class="impact-stats-row">' +
-        '<div class="impact-stats-row__stat">' +
-          '<span class="impact-stats-row__num">' + stockCount + '</span>' +
-          '<span class="impact-stats-row__label">Languages In Stock</span>' +
-        '</div>' +
-        '<div class="impact-stats-row__stat">' +
-          '<span class="impact-stats-row__num">4+</span>' +
-          '<span class="impact-stats-row__label">Outreach Events</span>' +
-        '</div>' +
-      '</div>' +
-      '<div class="impact-stats-row impact-stats-row--links">' +
-        '<a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="impact-stats-row__app-link">\uD83D\uDCAC Telegram</a>' +
-        '<a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="impact-stats-row__app-link">\uD83D\uDCF8 Instagram</a>' +
-        '<a href="https://gideons.org/find-hope#bibleapp" target="_blank" rel="noopener" class="impact-stats-row__app-link">\uD83C\uDFA7 Gideons App</a>' +
-        '<a href="https://www.bible.com/bible/59/GEN.1.ESV" target="_blank" rel="noopener" class="impact-stats-row__app-link">\uD83D\uDCD6 YouVersion</a>' +
       '</div>';
   }
 
   function animateCounters(count, goal) {
     var pct = Math.min(100, Math.round(count / goal * 1000) / 10);
-    document.querySelectorAll('.impact-counter__num').forEach(function(numEl) {
+    document.querySelectorAll('.impact-strip__count').forEach(function(numEl) {
       var from = parseInt(numEl.textContent.replace(/,/g, ''), 10) || 0;
       if (from === count) return;
       var start = performance.now(), dur = 1600;
@@ -92,16 +66,16 @@
       }
       requestAnimationFrame(step);
     });
-    document.querySelectorAll('.impact-counter__bar').forEach(function(barEl) {
+    document.querySelectorAll('.impact-strip__fill').forEach(function(barEl) {
       barEl.style.width = pct + '%';
     });
   }
 
   function updateStockTags(inStock) {
-    document.querySelectorAll('.impact-counter__stock').forEach(function(el) {
-      var items = inStock.filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); });
-      if (items.length) {
-        el.innerHTML = items.map(function(i){ return '<span class="stock-tag">' + esc(i.language) + '</span>'; }).join('');
+    var items = inStock.filter(function(i){ return i && i.language && (i.count === undefined || i.count > 0); });
+    document.querySelectorAll('.impact-strip__stat').forEach(function(el) {
+      if (el.textContent.indexOf('languages') !== -1) {
+        el.textContent = items.length + ' languages in stock';
       }
     });
   }

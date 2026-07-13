@@ -52,6 +52,7 @@ const BUNDLE_DISPLAY = {
   essentials: 'Essentials Welcome',
   lifegroup: 'Life Group Starter',
   ministry: 'Ministry Calling',
+  custom: 'Custom Order',
 };
 
 const LEDGER_HEADERS = [
@@ -196,6 +197,9 @@ function doPost(e) {
   }
   if ((payload && payload.action) === 'walkRevoke') {
     return handleWalkRevoke_(payload);
+  }
+  if ((payload && payload.action) === 'inventory-log') {
+    return handleInventoryLog_(payload);
   }
   return handleOrder(payload);
 }
@@ -380,8 +384,51 @@ function parseDripTemplatesPicks_(submissionId, templates) {
   };
 }
 
+/**
+ * Normalizes a flat-format order payload (from the bundle-builder frontend)
+ * into the nested format expected by validatePayload/appendLedgerRow/sendEmails.
+ *
+ * Frontend sends:  { bundle: 'custom', gifter_name, gifter_email, gifter_phone,
+ *                    delivery_details, configuration, dedication, ... }
+ * Backend expects: { bundle: 'essentials'|...|'custom', gifter: { name, email,
+ *                    phone, deliveryDetails, dedication }, configText, ... }
+ *
+ * If the payload already has a nested gifter object, returns it unchanged.
+ */
+function normalizeOrderPayload_(p) {
+  if (!p || typeof p !== 'object') return p;
+  // Already in nested format — pass through
+  if (p.gifter && typeof p.gifter === 'object' && p.gifter.name) return p;
+
+  // Flat → nested conversion
+  var normalized = {};
+  for (var key in p) { normalized[key] = p[key]; }
+
+  normalized.gifter = {
+    name: p.gifter_name || p.name || '',
+    email: p.gifter_email || p.email || '',
+    phone: p.gifter_phone || p.phone || '',
+    deliveryDetails: p.delivery_details || p.address || '',
+    dedication: p.dedication || '',
+  };
+
+  // configText is what appendLedgerRow writes to the Sheet
+  if (!normalized.configText && p.configuration) {
+    normalized.configText = p.configuration;
+  }
+
+  // Bundle: accept 'custom' as valid (the builder doesn't use the old tier system)
+  if (!normalized.bundle) normalized.bundle = 'custom';
+
+  return normalized;
+}
+
 // ── Order handler (existing flow, unchanged) ────────────────────
 function handleOrder(payload) {
+  // Normalize flat-format payloads from the bundle-builder frontend
+  // into the nested format the rest of the order pipeline expects.
+  payload = normalizeOrderPayload_(payload);
+
   const valid = validatePayload(payload);
   if (!valid.ok) {
     console.log('Validation failed:', valid.reason);
@@ -439,7 +486,7 @@ function handleOrder(payload) {
 // ── Validation ───────────────────────────────────────────────────
 function validatePayload(p) {
   if (!p || typeof p !== 'object') return { ok: false, reason: 'not-object' };
-  if (['essentials', 'lifegroup', 'ministry'].indexOf(p.bundle) === -1) {
+  if (['essentials', 'lifegroup', 'ministry', 'custom'].indexOf(p.bundle) === -1) {
     return { ok: false, reason: 'bad-bundle' };
   }
   if (!p.gifter || typeof p.gifter !== 'object') return { ok: false, reason: 'no-gifter' };
@@ -447,14 +494,14 @@ function validatePayload(p) {
   if (typeof p.gifter.email !== 'string' || p.gifter.email.indexOf('@') === -1) return { ok: false, reason: 'bad-email' };
   if (typeof p.gifter.deliveryDetails !== 'string') return { ok: false, reason: 'no-delivery' };
   // Empty delivery is allowed for ministry; required for the others.
-  if (p.bundle !== 'ministry' && !p.gifter.deliveryDetails.trim()) {
+  if (p.bundle !== 'ministry' && p.bundle !== 'custom' && !p.gifter.deliveryDetails.trim()) {
     return { ok: false, reason: 'empty-delivery' };
   }
   if (typeof p.configText !== 'string' || !p.configText.trim()) {
     return { ok: false, reason: 'no-config-text' };
   }
-  if (p.bundle === 'ministry') {
-    if (p.giftee !== null && p.giftee !== undefined) {
+  if (p.bundle === 'ministry' || p.bundle === 'custom') {
+    if (p.bundle === 'ministry' && p.giftee !== null && p.giftee !== undefined) {
       return { ok: false, reason: 'ministry-with-giftee' };
     }
   } else {
@@ -1758,6 +1805,208 @@ function logInventoryMovement_(entries) {
   }
 }
 
+/**
+ * Parses an order's configuration text to extract item IDs and quantities
+ * for inventory logging. The configText typically looks like:
+ *   "2× Pocket NT Red (pocket-nt-red)\n1× Hindi NT (pocket-nt-hindi-blue)"
+ * or JSON-like: [{"id":"pocket-nt-red","qty":2},...]
+ *
+ * Returns an array of entry objects for logInventoryMovement_.
+ */
+function parseOrderConfigForInventory_(configText, orderId) {
+  var entries = [];
+  if (!configText) return entries;
+
+  // Try JSON parse first (newer order format may embed structured data).
+  try {
+    var parsed = JSON.parse(configText);
+    if (Array.isArray(parsed)) {
+      for (var i = 0; i < parsed.length; i++) {
+        var item = parsed[i];
+        if (item && item.id) {
+          entries.push({
+            type: 'order',
+            itemId: item.id,
+            itemName: item.name || item.id,
+            qty: parseInt(item.qty, 10) || parseInt(item.count, 10) || 1,
+            direction: 'out',
+            eventSource: 'Web Order',
+            costPerUnit: item.price || 2,
+            notes: '',
+            orderId: orderId,
+          });
+        }
+      }
+      return entries;
+    }
+  } catch (_) {
+    // Not JSON — fall through to text parsing.
+  }
+
+  // Text parsing: look for lines like "2× Item Name (item-id)" or "Item Name ×2"
+  var lines = configText.split(/\n/);
+  for (var j = 0; j < lines.length; j++) {
+    var line = lines[j].trim();
+    if (!line) continue;
+
+    // Pattern: "N× Name (id)" or "N x Name (id)"
+    var match = line.match(/^(\d+)\s*[×x]\s*(.+?)\s*\(([a-z0-9\-]+)\)/i);
+    if (match) {
+      entries.push({
+        type: 'order',
+        itemId: match[3],
+        itemName: match[2].trim(),
+        qty: parseInt(match[1], 10) || 1,
+        direction: 'out',
+        eventSource: 'Web Order',
+        costPerUnit: 2,
+        notes: '',
+        orderId: orderId,
+      });
+      continue;
+    }
+
+    // Pattern: "Name (id) ×N" or "Name (id) x N"
+    var match2 = line.match(/^(.+?)\s*\(([a-z0-9\-]+)\)\s*[×x]\s*(\d+)/i);
+    if (match2) {
+      entries.push({
+        type: 'order',
+        itemId: match2[2],
+        itemName: match2[1].trim(),
+        qty: parseInt(match2[3], 10) || 1,
+        direction: 'out',
+        eventSource: 'Web Order',
+        costPerUnit: 2,
+        notes: '',
+        orderId: orderId,
+      });
+      continue;
+    }
+
+    // Pattern: just "(item-id)" somewhere in the line — assume qty 1
+    var match3 = line.match(/\(([a-z0-9\-]+)\)/i);
+    if (match3) {
+      entries.push({
+        type: 'order',
+        itemId: match3[1],
+        itemName: line.replace(/\([^)]+\)/, '').replace(/^\d+\s*[×x]\s*/, '').trim(),
+        qty: 1,
+        direction: 'out',
+        eventSource: 'Web Order',
+        costPerUnit: 2,
+        notes: '',
+        orderId: orderId,
+      });
+    }
+  }
+
+  return entries;
+}
+
+/**
+ * POST action: inventory-log
+ * Allows admin to log field giveaways, restocks, and other inventory
+ * movements via the Apps Script endpoint.
+ *
+ * Payload shape:
+ *   { action: "inventory-log", entries: [
+ *       { itemId, itemName, qty, direction, type, eventSource, costPerUnit, notes }
+ *   ]}
+ *
+ * Used by admin forms or CLI scripts to record:
+ * - outreach giveaways (direction: "out", type: "outreach")
+ * - restocks from Gideons/suppliers (direction: "in", type: "restock")
+ * - adjustments/corrections (direction: "in" or "out", type: "adjustment")
+ */
+function handleInventoryLog_(payload) {
+  var entries = payload && payload.entries;
+  if (!Array.isArray(entries) || entries.length === 0) {
+    return jsonResponse({ ok: false, error: 'no-entries' });
+  }
+  // Validate each entry
+  for (var i = 0; i < entries.length; i++) {
+    var e = entries[i];
+    if (!e || !e.itemId) {
+      return jsonResponse({ ok: false, error: 'entry-' + i + '-missing-itemId' });
+    }
+    if (!e.qty || e.qty <= 0) {
+      return jsonResponse({ ok: false, error: 'entry-' + i + '-invalid-qty' });
+    }
+    if (['in', 'out'].indexOf(e.direction) === -1) {
+      return jsonResponse({ ok: false, error: 'entry-' + i + '-invalid-direction' });
+    }
+  }
+  try {
+    logInventoryMovement_(entries.map(function(e) {
+      return {
+        type: e.type || 'outreach',
+        itemId: e.itemId,
+        itemName: e.itemName || e.itemId,
+        qty: e.qty,
+        direction: e.direction,
+        eventSource: e.eventSource || '',
+        costPerUnit: e.costPerUnit || 2,
+        notes: e.notes || '',
+        orderId: e.orderId || '',
+      };
+    }));
+    return jsonResponse({ ok: true, logged: entries.length, route: 'inventory-log' });
+  } catch (err) {
+    console.log('handleInventoryLog_ error:', err);
+    return jsonResponse({ ok: false, error: 'sheet-write-failed' });
+  }
+}
+
+/**
+ * GET action: getInventory
+ * Returns inventory movements filtered by optional month (YYYY-MM).
+ * If no month is provided, returns the current month's movements.
+ *
+ * Usage: ?action=getInventory&month=2026-07
+ */
+function getInventoryReport_(params) {
+  var month = (params && params.month) || '';
+  if (!month) {
+    var now = new Date();
+    month = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  }
+  try {
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName(INVENTORY_TAB);
+    if (!sheet || sheet.getLastRow() <= 1) {
+      return { ok: true, month: month, entries: [], totals: {} };
+    }
+    var data = sheet.getDataRange().getValues();
+    var headers = data[0];
+    var entries = [];
+    var totals = { totalOut: 0, totalIn: 0, totalCostOut: 0, totalCostIn: 0 };
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
+      var dateStr = String(row[0] || '');
+      // Filter by month prefix (YYYY-MM)
+      if (dateStr.substring(0, 7) !== month) continue;
+      var entry = {};
+      for (var j = 0; j < headers.length; j++) {
+        entry[headers[j]] = row[j];
+      }
+      entries.push(entry);
+      var qty = parseInt(row[4], 10) || 0;
+      var cost = parseFloat(row[8]) || 0;
+      if (String(row[5]) === 'out') {
+        totals.totalOut += qty;
+        totals.totalCostOut += cost;
+      } else {
+        totals.totalIn += qty;
+        totals.totalCostIn += cost;
+      }
+    }
+    return { ok: true, month: month, entries: entries, totals: totals };
+  } catch (err) {
+    console.log('getInventoryReport_ error:', err);
+    return { ok: false, error: String(err) };
+  }
+}
+
 function getMinistryStats_() {
   // ID → language mapping for aggregating item-level stock into
   // language-level "inStock" array (used by ministry-impact.js).
@@ -2189,6 +2438,22 @@ function onOrderStatusEdit(e) {
     // Executions panel.
     console.log('[onOrderStatusEdit] mail send failed for row ' + row + ': ' + err);
   }
+
+  // ── Inventory auto-log on "packing" ──────────────────────────
+  // When an order transitions to "packing", parse the configuration
+  // column for item IDs and log them as inventory movements (out).
+  if (newStatus === 'packing') {
+    try {
+      var configText = String(order.configuration || '');
+      var invEntries = parseOrderConfigForInventory_(configText, order.order_id || '');
+      if (invEntries.length > 0) {
+        logInventoryMovement_(invEntries);
+        console.log('[onOrderStatusEdit] logged ' + invEntries.length + ' inventory out entries for ' + order.order_id);
+      }
+    } catch (invErr) {
+      console.log('[onOrderStatusEdit] inventory logging failed (non-fatal): ' + invErr);
+    }
+  }
 }
 
 // ── One-time setup helpers (run from the Apps Script editor) ────
@@ -2527,6 +2792,15 @@ function doGet(e) {
     } catch (err) {
       console.log('getMinistryStats failed:', err);
       return jsonResponse({ ok: false, error: 'stats-read-failed' });
+    }
+  }
+
+  if (action === 'getInventory') {
+    try {
+      return jsonResponse(getInventoryReport_(e && e.parameter));
+    } catch (err) {
+      console.log('getInventory failed:', err);
+      return jsonResponse({ ok: false, error: 'inventory-read-failed' });
     }
   }
 

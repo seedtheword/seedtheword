@@ -300,6 +300,10 @@
 
     // Re-init scroll animations for new cards
     initScrollAnimations();
+
+    // Fix: after dynamic content loads, re-scroll to hash target
+    // (story cards push sections below them further down the page)
+    correctHashScroll();
   }
 
   function loadCardSlideshow(slideEl, folder) {
@@ -651,6 +655,22 @@
       .replace(/'/g, '&#39;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  }
+
+  // ── Hash scroll correction ──────────────────────────────────
+  // After dynamic content (story cards) finishes loading and pushes
+  // sections further down, re-scroll to the URL hash target so that
+  // e.g. donate.html#give lands on the actual Giving section.
+  function correctHashScroll() {
+    var hash = window.location.hash;
+    if (!hash) return;
+    // Small delay to let layout settle after DOM injection
+    setTimeout(function () {
+      var target = document.querySelector(hash);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   }
 
 })();

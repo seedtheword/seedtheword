@@ -1759,6 +1759,27 @@ function logInventoryMovement_(entries) {
 }
 
 function getMinistryStats_() {
+  // ID → language mapping for aggregating item-level stock into
+  // language-level "inStock" array (used by ministry-impact.js).
+  var ID_LANGUAGE_MAP = {
+    'pocket-nt-red': 'English',
+    'pocket-nt-grey': 'English',
+    'large-print-nt-brown': 'English',
+    'full-bible-large-print': 'English',
+    'full-bible-pocket': 'English',
+    'pocket-nt-hindi-blue': 'Hindi',
+    'large-print-nt-russian': 'Russian',
+    'large-print-nt-ukrainian': 'Ukrainian',
+    'pocket-nt-farsi-blue': 'Farsi',
+    'large-print-nt-urdu-blue': 'Urdu',
+    'pocket-nt-thai-english-blue': 'Thai',
+    'pocket-nt-mandarin': 'Mandarin',
+    'large-print-nt-spanish-english': 'Spanish',
+    'large-print-nt-arabic-english': 'Arabic',
+    'pocket-nt-arabic': 'Arabic',
+    'pocket-nt-french': 'French',
+  };
+
   try {
     var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
     var sheet = ss.getSheetByName(MINISTRY_STATS_TAB);
@@ -1798,6 +1819,24 @@ function getMinistryStats_() {
         } catch (_) {}
       }
     }
+
+    // If no legacy 'stock' rows exist, derive inStock from items
+    // by aggregating counts per language using ID_LANGUAGE_MAP.
+    if (result.inStock.length === 0 && result.items.length > 0) {
+      var langTotals = {};
+      for (var j = 0; j < result.items.length; j++) {
+        var it = result.items[j];
+        var lang = ID_LANGUAGE_MAP[it.id];
+        if (!lang) continue; // skip non-Bible items (tracts, merch)
+        if (!langTotals[lang]) langTotals[lang] = 0;
+        langTotals[lang] += (parseInt(it.count, 10) || 0);
+      }
+      var langKeys = Object.keys(langTotals);
+      for (var k = 0; k < langKeys.length; k++) {
+        result.inStock.push({ language: langKeys[k], count: langTotals[langKeys[k]] });
+      }
+    }
+
     return result;
   } catch (err) {
     console.log('getMinistryStats_ error:', err);

@@ -12677,6 +12677,71 @@ body.your-walk-modal-open {
 .ministry-impact-section .impact-strip__cta { color: var(--gold, #d4a574); border-color: var(--gold, #d4a574); }
 .ministry-impact-section .impact-strip__cta:hover { background: var(--gold, #d4a574); color: #1a1a1a; }
 
+/* ── Career cards (Boeing-style job listings) ── */
+.career-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border, #e8e4de);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.career-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+}
+.career-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+.career-card__body {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.career-card__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--green, #2C5F2E);
+  margin: 0 0 0.75rem;
+}
+.career-card__desc {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text, #2b2b2b);
+  margin: 0 0 0.75rem;
+}
+.career-card__quals {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--muted, #666);
+  margin: 0 0 1rem;
+}
+.career-card__learn {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--green, #2C5F2E);
+  text-decoration: none;
+  margin-top: auto;
+}
+.career-card__learn:hover { text-decoration: underline; }
+.career-card__apply {
+  display: block;
+  background: var(--green, #2C5F2E);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+  padding: 0.9rem;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.career-card__apply:hover { background: #245226; }
+
 /* Outreach slideshow — matches news.html outreach card style */
 .outreach-slideshow { position: relative; }
 .outreach-slideshow__track { position: relative; min-height: 420px; }

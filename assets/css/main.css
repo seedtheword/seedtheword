@@ -12759,8 +12759,11 @@ body.your-walk-modal-open {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0 0 2.5rem;
+  padding: 1rem 1.5rem;
   flex-wrap: wrap;
+  border: 1px solid rgba(212,165,116,0.25);
+  border-radius: 12px;
+  margin-bottom: 2.5rem;
 }
 .showcase-search {
   position: relative;
@@ -12784,24 +12787,24 @@ body.your-walk-modal-open {
 .showcase-search__toggle[aria-expanded="true"] { background: rgba(255,255,255,0.15); border-color: var(--gold); }
 .showcase-search__input {
   position: absolute;
-  left: 48px;
-  width: 220px;
+  top: 48px;
+  left: 0;
+  width: 260px;
   padding: 0.5rem 0.75rem;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(20,20,30,0.95);
+  border: 1px solid rgba(212,165,116,0.4);
   border-radius: 8px;
   color: #fff;
   font-size: 0.85rem;
   outline: none;
-  transition: opacity 0.2s;
+  backdrop-filter: blur(12px);
 }
 .showcase-search__input::placeholder { color: rgba(255,255,255,0.4); }
 .showcase-search__input:focus { border-color: var(--gold, #d4a574); }
 .showcase-search__results {
   position: absolute;
-  top: 100%;
+  top: 96px;
   left: 0;
-  margin-top: 0.5rem;
   width: 320px;
   max-height: 300px;
   overflow-y: auto;
@@ -12865,26 +12868,25 @@ body.your-walk-modal-open {
 }
 
 /* ── Careers carousel ── */
+.careers-carousel {
+  border: 1px solid rgba(212,165,116,0.25);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+}
 .careers-carousel__wrap {
   position: relative;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  overflow: hidden;
 }
 .careers-carousel__track {
   display: flex;
   gap: 1.5rem;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  padding: 0.5rem 0;
+  transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
-.careers-carousel__track::-webkit-scrollbar { display: none; }
 .careers-carousel__track .glass-role {
   flex: 0 0 300px;
-  scroll-snap-align: start;
 }
 .careers-carousel__arrow {
   flex-shrink: 0;

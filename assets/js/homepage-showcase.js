@@ -112,14 +112,17 @@
 
     SEARCH_INDEX = buildSearchIndex();
 
+    input.style.display = 'none';
+    results.style.display = 'none';
+
     toggle.addEventListener('click', function() {
       var expanded = toggle.getAttribute('aria-expanded') === 'true';
       if (expanded) {
-        input.hidden = true;
-        results.hidden = true;
+        input.style.display = 'none';
+        results.style.display = 'none';
         toggle.setAttribute('aria-expanded', 'false');
       } else {
-        input.hidden = false;
+        input.style.display = 'block';
         input.focus();
         toggle.setAttribute('aria-expanded', 'true');
       }
@@ -127,7 +130,7 @@
 
     input.addEventListener('input', function() {
       var q = input.value.trim().toLowerCase();
-      if (q.length < 2) { results.hidden = true; return; }
+      if (q.length < 2) { results.style.display = 'none'; return; }
       var matches = SEARCH_INDEX.filter(function(item) {
         return item.title.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q);
       });
@@ -138,14 +141,14 @@
           return '<a href="' + m.url + '"><strong>' + m.title + '</strong><small>' + m.desc + '</small></a>';
         }).join('');
       }
-      results.hidden = false;
+      results.style.display = 'block';
     });
 
     // Close on click outside
     document.addEventListener('click', function(e) {
       if (!e.target.closest('.showcase-search')) {
-        input.hidden = true;
-        results.hidden = true;
+        input.style.display = 'none';
+        results.style.display = 'none';
         toggle.setAttribute('aria-expanded', 'false');
       }
     });
@@ -153,8 +156,8 @@
     // Close on Escape
     input.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        input.hidden = true;
-        results.hidden = true;
+        input.style.display = 'none';
+        results.style.display = 'none';
         toggle.setAttribute('aria-expanded', 'false');
       }
     });
@@ -167,9 +170,35 @@
     var rightBtn = document.querySelector('.careers-carousel__arrow--right');
     if (!track || !leftBtn || !rightBtn) return;
 
-    var scrollAmount = 320;
-    leftBtn.addEventListener('click', function() { track.scrollBy({ left: -scrollAmount, behavior: 'smooth' }); });
-    rightBtn.addEventListener('click', function() { track.scrollBy({ left: scrollAmount, behavior: 'smooth' }); });
+    var currentOffset = 0;
+    var cardWidth = 316; // 300px card + 16px gap
+    var cards = track.querySelectorAll('.glass-role');
+    var maxOffset = Math.max(0, (cards.length * cardWidth) - track.parentElement.clientWidth + 100);
+
+    // Apply CSS transition for smooth gliding
+    track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)';
+    track.style.display = 'flex';
+    track.style.gap = '1.5rem';
+
+    function updatePosition() {
+      track.style.transform = 'translateX(' + (-currentOffset) + 'px)';
+    }
+
+    leftBtn.addEventListener('click', function() {
+      currentOffset = Math.max(0, currentOffset - cardWidth);
+      updatePosition();
+    });
+
+    rightBtn.addEventListener('click', function() {
+      currentOffset = Math.min(maxOffset, currentOffset + cardWidth);
+      updatePosition();
+    });
+
+    // Recalculate on resize
+    window.addEventListener('resize', function() {
+      maxOffset = Math.max(0, (cards.length * cardWidth) - track.parentElement.clientWidth + 100);
+      if (currentOffset > maxOffset) { currentOffset = maxOffset; updatePosition(); }
+    });
   }
 
   // ── Boot ──

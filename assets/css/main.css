@@ -12753,6 +12753,166 @@ body.your-walk-modal-open {
   .careers-glass__grid { grid-template-columns: 1fr; }
 }
 
+/* ── Showcase topbar (search + verse + quicklinks) ── */
+.showcase-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 0 2.5rem;
+  flex-wrap: wrap;
+}
+.showcase-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.showcase-search__toggle {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.showcase-search__toggle:hover { background: rgba(255,255,255,0.12); border-color: var(--gold, #d4a574); }
+.showcase-search__toggle[aria-expanded="true"] { background: rgba(255,255,255,0.15); border-color: var(--gold); }
+.showcase-search__input {
+  position: absolute;
+  left: 48px;
+  width: 220px;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.85rem;
+  outline: none;
+  transition: opacity 0.2s;
+}
+.showcase-search__input::placeholder { color: rgba(255,255,255,0.4); }
+.showcase-search__input:focus { border-color: var(--gold, #d4a574); }
+.showcase-search__results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
+  width: 320px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  z-index: 100;
+  padding: 0.5rem;
+}
+.showcase-search__results a {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+.showcase-search__results a:hover { background: rgba(255,255,255,0.08); }
+.showcase-search__results a small { display: block; color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-top: 0.2rem; }
+
+.showcase-verse {
+  text-align: center;
+  flex: 1;
+  min-width: 200px;
+}
+.showcase-verse__text {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.92rem;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.5;
+}
+.showcase-verse__ref {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--gold, #d4a574);
+  margin-top: 0.3rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.showcase-quicklinks {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.showcase-quicklinks__link {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.showcase-quicklinks__link:hover {
+  color: #fff;
+  border-color: var(--gold, #d4a574);
+  background: rgba(212,165,116,0.1);
+}
+
+/* ── Careers carousel ── */
+.careers-carousel__wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.careers-carousel__track {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 0.5rem 0;
+}
+.careers-carousel__track::-webkit-scrollbar { display: none; }
+.careers-carousel__track .glass-role {
+  flex: 0 0 300px;
+  scroll-snap-align: start;
+}
+.careers-carousel__arrow {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.careers-carousel__arrow:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--gold, #d4a574);
+}
+
+@media(max-width:768px) {
+  .showcase-topbar { flex-direction: column; align-items: stretch; text-align: center; }
+  .showcase-search { justify-content: center; }
+  .showcase-quicklinks { justify-content: center; }
+  .careers-carousel__track .glass-role { flex: 0 0 260px; }
+}
+
 /* ── Career cards (Boeing-style job listings — about page) ── */
 .career-card {
   background: #fff;

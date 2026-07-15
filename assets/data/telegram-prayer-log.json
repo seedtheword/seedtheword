@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615651,
-  "lastModified": "2026-07-15T18:40:35Z",
+  "lastUpdateId": 669615652,
+  "lastModified": "2026-07-15T19:25:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -251,6 +251,16 @@
       "kind": "telegram",
       "text": "Prayer Request:\n1. Healing from sickness.\n2. Safety and opportunity to share God's Word as well as build each other up in the upcoming trip to Canada with friends. (This coming Friday to Tuesday.)",
       "ts": "2026-07-15T04:13:46Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5011,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thanksgiving Announcement 7/15/2026:\n\nI wanted to thank Jesus for everything He's been providing me and our ministry so just a shout out to God.\n\nI've been extended another job opportunity that is in line with what I've always wanted to do and I'm visiting my old workplace and a lot of the employees there were happy to see me (even the baristas remember my coffee order and it's been almost 2 months!) just goes to show that if you walk with Jesus faithfully, people will remember the work that you did and it is so much more valuable seeing relationships built upon Jesus",
+      "ts": "2026-07-15T19:22:54Z"
     }
   ]
 }

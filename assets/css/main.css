@@ -12936,6 +12936,32 @@ body.your-walk-modal-open {
   .careers-carousel__track .glass-role { flex: 0 0 260px; }
 }
 
+/* Light-mode carousel variant (about page) */
+.careers-carousel--light {
+  border-color: var(--border, #e8e4de);
+  background: rgba(44,95,46,0.02);
+}
+.careers-carousel__arrow--light {
+  background: #fff;
+  border-color: var(--border, #e8e4de);
+  color: var(--green, #2C5F2E);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.careers-carousel__arrow--light:hover {
+  background: var(--green, #2C5F2E);
+  color: #fff;
+  border-color: var(--green, #2C5F2E);
+}
+.glass-role--light {
+  background: #fff;
+  border-color: var(--border, #e8e4de);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.glass-role--light:hover {
+  border-color: var(--green, #2C5F2E);
+  box-shadow: 0 6px 20px rgba(44,95,46,0.1);
+}
+
 /* ── Career cards (Boeing-style job listings — about page) ── */
 .career-card {
   background: #fff;

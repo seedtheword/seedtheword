@@ -111,18 +111,17 @@
     if (!toggle || !input || !results) return;
 
     SEARCH_INDEX = buildSearchIndex();
-
-    input.style.display = 'none';
     results.style.display = 'none';
 
     toggle.addEventListener('click', function() {
       var expanded = toggle.getAttribute('aria-expanded') === 'true';
       if (expanded) {
-        input.style.display = 'none';
+        input.classList.remove('is-expanded');
+        input.value = '';
         results.style.display = 'none';
         toggle.setAttribute('aria-expanded', 'false');
       } else {
-        input.style.display = 'block';
+        input.classList.add('is-expanded');
         input.focus();
         toggle.setAttribute('aria-expanded', 'true');
       }
@@ -144,19 +143,19 @@
       results.style.display = 'block';
     });
 
-    // Close on click outside
     document.addEventListener('click', function(e) {
       if (!e.target.closest('.showcase-search')) {
-        input.style.display = 'none';
+        input.classList.remove('is-expanded');
+        input.value = '';
         results.style.display = 'none';
         toggle.setAttribute('aria-expanded', 'false');
       }
     });
 
-    // Close on Escape
     input.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        input.style.display = 'none';
+        input.classList.remove('is-expanded');
+        input.value = '';
         results.style.display = 'none';
         toggle.setAttribute('aria-expanded', 'false');
       }
@@ -166,19 +165,15 @@
   // ── Careers Carousel ──
   function initCarousel() {
     var track = document.querySelector('.careers-carousel__track');
+    var wrap = document.querySelector('.careers-carousel__wrap');
     var leftBtn = document.querySelector('.careers-carousel__arrow--left');
     var rightBtn = document.querySelector('.careers-carousel__arrow--right');
-    if (!track || !leftBtn || !rightBtn) return;
+    if (!track || !wrap || !leftBtn || !rightBtn) return;
 
     var currentOffset = 0;
     var cardWidth = 316; // 300px card + 16px gap
     var cards = track.querySelectorAll('.glass-role');
-    var maxOffset = Math.max(0, (cards.length * cardWidth) - track.parentElement.clientWidth + 100);
-
-    // Apply CSS transition for smooth gliding
-    track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)';
-    track.style.display = 'flex';
-    track.style.gap = '1.5rem';
+    var maxOffset = Math.max(0, (cards.length * cardWidth) - wrap.clientWidth);
 
     function updatePosition() {
       track.style.transform = 'translateX(' + (-currentOffset) + 'px)';
@@ -194,9 +189,8 @@
       updatePosition();
     });
 
-    // Recalculate on resize
     window.addEventListener('resize', function() {
-      maxOffset = Math.max(0, (cards.length * cardWidth) - track.parentElement.clientWidth + 100);
+      maxOffset = Math.max(0, (cards.length * cardWidth) - wrap.clientWidth);
       if (currentOffset > maxOffset) { currentOffset = maxOffset; updatePosition(); }
     });
   }

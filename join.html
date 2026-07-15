@@ -6,121 +6,110 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="description" content="Volunteer with Seed the Word Ministry — join our team as a social media admin, greeter, worship singer, drummer, or sound tech.">
+  <meta name="description" content="Apply to volunteer with Seed the Word Ministry — social media, hospitality, worship, drums, or sound tech.">
   <!-- Open Graph -->
   <meta property="og:site_name" content="Seed the Word Ministry">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Join Our Team — Seed the Word Ministry">
-  <meta property="og:description" content="Serve alongside a ministry making real impact. Volunteer roles in social media, hospitality, worship, and audio production.">
+  <meta property="og:title" content="Apply to Volunteer — Seed the Word Ministry">
+  <meta property="og:description" content="Serve alongside a ministry making real impact. Submit your volunteer application.">
   <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <meta property="og:url" content="https://seedtheword.org/join.html">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Join Our Team — Seed the Word Ministry">
-  <meta name="twitter:description" content="Serve alongside a ministry making real impact. Volunteer roles available now.">
+  <meta name="twitter:title" content="Apply to Volunteer — Seed the Word Ministry">
+  <meta name="twitter:description" content="Serve alongside a ministry making real impact.">
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
-  <title>Join Our Team — Seed the Word Ministry</title>
+  <title>Apply to Volunteer — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <style>
-    /* ── Join page styles ── */
     .join-hero {
       position: relative;
-      padding: 6rem 1.5rem 4rem;
+      padding: 5rem 1.5rem 3.5rem;
       text-align: center;
-      background: linear-gradient(135deg, rgba(44,95,46,0.92), rgba(44,95,46,0.78)), url('assets/images/backgrounds/bible-in-background.jpg') center/cover no-repeat;
+      background: linear-gradient(135deg, rgba(44,95,46,0.92), rgba(44,95,46,0.78)),
+                  url('assets/images/backgrounds/bible-in-background.jpg') center/cover no-repeat;
     }
     .join-hero__title {
-      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-size: clamp(1.8rem, 4.5vw, 2.8rem);
       color: #fff;
-      margin: 0 0 1rem;
+      margin: 0 0 0.75rem;
       font-weight: 800;
     }
     .join-hero__subtitle {
-      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      font-size: clamp(0.95rem, 2.2vw, 1.15rem);
       color: rgba(255,255,255,0.9);
-      max-width: 600px;
+      max-width: 550px;
       margin: 0 auto;
       line-height: 1.6;
     }
-
-    .join-note {
-      text-align: center;
-      padding: 2rem 1.5rem 0;
-      color: var(--muted, #666);
-      font-size: 0.95rem;
-      font-style: italic;
-    }
-
-    .join-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 2rem;
-      max-width: 1100px;
+    .volunteer-form-wrap {
+      max-width: 640px;
       margin: 0 auto;
       padding: 2.5rem 1.5rem 4rem;
     }
-
-    .join-card {
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border, #e8e4de);
-      border-radius: 16px;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .join-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(44,95,46,0.12);
-    }
-    .join-card__title {
-      font-size: 1.25rem;
+    .volunteer-form-wrap h2 {
+      font-size: 1.4rem;
       font-weight: 700;
       color: var(--green, #2C5F2E);
-      margin: 0 0 1rem;
+      margin: 0 0 1.5rem;
+      text-align: center;
     }
-    .join-card__list {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 1rem;
-      flex: 1;
-    }
-    .join-card__list li {
-      position: relative;
-      padding-left: 1.4rem;
-      margin-bottom: 0.6rem;
-      font-size: 0.95rem;
-      line-height: 1.5;
+    .vol-field { margin-bottom: 1.25rem; }
+    .vol-field label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.35rem;
       color: var(--text, #2b2b2b);
     }
-    .join-card__list li::before {
-      content: "✦";
-      position: absolute;
-      left: 0;
-      color: var(--gold, #d4a574);
+    .vol-field input,
+    .vol-field select,
+    .vol-field textarea {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1.5px solid var(--border, #e8e4de);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #fff;
+      transition: border-color 0.2s;
     }
-    .join-card__commitment {
-      font-size: 0.85rem;
-      color: var(--muted, #666);
-      border-top: 1px solid var(--border, #e8e4de);
-      padding-top: 0.75rem;
-      margin: 0.5rem 0 1.25rem;
+    .vol-field input:focus,
+    .vol-field select:focus,
+    .vol-field textarea:focus {
+      outline: none;
+      border-color: var(--green, #2C5F2E);
+      box-shadow: 0 0 0 3px rgba(44,95,46,0.1);
     }
-    .join-card__cta {
-      display: inline-block;
-      background: var(--gold, #d4a574);
-      color: #fff;
-      font-weight: 600;
-      padding: 0.7rem 1.5rem;
-      border-radius: 30px;
-      text-decoration: none;
-      text-align: center;
-      transition: background 0.2s ease;
-      min-height: 44px;
-      line-height: 1.6;
+    .vol-field textarea { min-height: 90px; resize: vertical; }
+    .vol-checkbox-group {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.35rem;
     }
-    .join-card__cta:hover {
-      background: var(--green, #2C5F2E);
+    .vol-checkbox-group label {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-weight: 400; font-size: 0.9rem; cursor: pointer;
+    }
+    .vol-checkbox-group input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: var(--green, #2C5F2E);
+    }
+    .vol-submit {
+      display: block; width: 100%;
+      padding: 0.9rem; margin-top: 1.5rem;
+      background: var(--green, #2C5F2E); color: #fff;
+      font-size: 1rem; font-weight: 700;
+      border: none; border-radius: 30px; cursor: pointer;
+      transition: background 0.2s; min-height: 48px;
+    }
+    .vol-submit:hover { background: var(--gold, #d4a574); }
+    .vol-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .vol-msg {
+      text-align: center; padding: 1rem; margin-top: 1rem;
+      border-radius: 8px; font-size: 0.95rem; display: none;
+    }
+    .vol-msg--success { background: rgba(44,95,46,0.08); color: var(--green, #2C5F2E); }
+    .vol-msg--error { background: rgba(200,50,50,0.08); color: #a33; }
+    .vol-note {
+      text-align: center; color: var(--muted, #666);
+      font-size: 0.85rem; font-style: italic; margin-top: 1.5rem;
     }
   </style>
 </head>
@@ -144,7 +133,6 @@
         <li><a href="about.html">About</a></li>
         <li><a href="news.html">News</a></li>
         <li><a href="community.html">Community</a></li>
-        <li><a href="join.html">Join</a></li>
       </ul>
     </nav>
     <div class="header-social">
@@ -169,70 +157,62 @@
 
 <!-- Hero -->
 <section class="join-hero">
-  <h1 class="join-hero__title">Join Our Team</h1>
-  <p class="join-hero__subtitle">Serve alongside a ministry making real impact in people's lives — one Bible, one conversation, one gathering at a time.</p>
+  <h1 class="join-hero__title">Volunteer Application</h1>
+  <p class="join-hero__subtitle">Serve alongside a ministry making real impact — one Bible, one conversation, one gathering at a time.</p>
 </section>
 
-<p class="join-note">All positions below are volunteer / unpaid ministry roles.</p>
-
-<!-- Volunteer Role Cards -->
-<div class="join-grid">
-
-  <!-- 1. Social Media Admin -->
-  <article class="join-card glass-morphism">
-    <h2 class="join-card__title">Social Media Admin</h2>
-    <ul class="join-card__list">
-      <li>Help manage Instagram, Telegram, and other platforms</li>
-      <li>Create content, respond to messages, schedule posts</li>
-    </ul>
-    <p class="join-card__commitment">⏱ 5–10 hours/week · Flexible schedule</p>
-    <a class="join-card__cta" href="mailto:seedthewordministry@gmail.com?subject=Volunteer%20Application%20%E2%80%94%20Social%20Media%20Admin">Apply</a>
-  </article>
-
-  <!-- 2. Greeter / Hospitality Team -->
-  <article class="join-card glass-morphism">
-    <h2 class="join-card__title">Greeter / Hospitality Team</h2>
-    <ul class="join-card__list">
-      <li>Welcome newcomers at outreach events and gatherings</li>
-      <li>Help set up and break down event spaces</li>
-    </ul>
-    <p class="join-card__commitment">⏱ Available for weekend events</p>
-    <a class="join-card__cta" href="mailto:seedthewordministry@gmail.com?subject=Volunteer%20Application%20%E2%80%94%20Greeter%20%2F%20Hospitality%20Team">Apply</a>
-  </article>
-
-  <!-- 3. Worship Band — Singer -->
-  <article class="join-card glass-morphism">
-    <h2 class="join-card__title">Worship Band — Singer</h2>
-    <ul class="join-card__list">
-      <li>Lead or support vocals during worship gatherings</li>
-      <li>Heart for worship and community</li>
-    </ul>
-    <p class="join-card__commitment">⏱ Weekly rehearsal + Sunday worship</p>
-    <a class="join-card__cta" href="mailto:seedthewordministry@gmail.com?subject=Volunteer%20Application%20%E2%80%94%20Worship%20Band%20%E2%80%94%20Singer">Apply</a>
-  </article>
-
-  <!-- 4. Worship Band — Drummer -->
-  <article class="join-card glass-morphism">
-    <h2 class="join-card__title">Worship Band — Drummer</h2>
-    <ul class="join-card__list">
-      <li>Provide percussion for worship team</li>
-      <li>Own kit preferred but not required</li>
-    </ul>
-    <p class="join-card__commitment">⏱ Weekly rehearsal + Sunday worship</p>
-    <a class="join-card__cta" href="mailto:seedthewordministry@gmail.com?subject=Volunteer%20Application%20%E2%80%94%20Worship%20Band%20%E2%80%94%20Drummer">Apply</a>
-  </article>
-
-  <!-- 5. Worship Band — Audio/Sound Tech -->
-  <article class="join-card glass-morphism">
-    <h2 class="join-card__title">Worship Band — Audio/Sound Tech</h2>
-    <ul class="join-card__list">
-      <li>Run sound board, manage microphones, monitor levels</li>
-      <li>Experience with live sound preferred</li>
-    </ul>
-    <p class="join-card__commitment">⏱ Available for rehearsals + Sunday worship</p>
-    <a class="join-card__cta" href="mailto:seedthewordministry@gmail.com?subject=Volunteer%20Application%20%E2%80%94%20Worship%20Band%20%E2%80%94%20Audio%2FSound%20Tech">Apply</a>
-  </article>
-
+<!-- Application Form -->
+<div class="volunteer-form-wrap">
+  <h2>Apply to Serve</h2>
+  <form id="volunteer-form" novalidate>
+    <div class="vol-field">
+      <label for="vol-role">Role you're applying for *</label>
+      <select id="vol-role" name="role" required>
+        <option value="">— Select a role —</option>
+        <option value="social-media-admin">Social Media Admin</option>
+        <option value="greeter-hospitality">Greeter / Hospitality</option>
+        <option value="worship-singer">Worship Singer</option>
+        <option value="worship-drummer">Worship Drummer</option>
+        <option value="audio-sound-tech">Audio / Sound Tech</option>
+      </select>
+    </div>
+    <div class="vol-field">
+      <label for="vol-name">Full name *</label>
+      <input type="text" id="vol-name" name="name" required autocomplete="name">
+    </div>
+    <div class="vol-field">
+      <label for="vol-email">Email *</label>
+      <input type="email" id="vol-email" name="email" required autocomplete="email">
+    </div>
+    <div class="vol-field">
+      <label for="vol-phone">Phone (optional)</label>
+      <input type="tel" id="vol-phone" name="phone" autocomplete="tel">
+    </div>
+    <div class="vol-field">
+      <label for="vol-city">City *</label>
+      <input type="text" id="vol-city" name="city" required autocomplete="address-level2">
+    </div>
+    <div class="vol-field">
+      <label for="vol-motivation">Why do you want to serve? *</label>
+      <textarea id="vol-motivation" name="motivation" required placeholder="A few sentences is great."></textarea>
+    </div>
+    <div class="vol-field">
+      <label for="vol-experience">Any relevant experience? (optional)</label>
+      <textarea id="vol-experience" name="experience" placeholder="E.g. previous worship team, social media work, etc."></textarea>
+    </div>
+    <div class="vol-field">
+      <label>Availability *</label>
+      <div class="vol-checkbox-group">
+        <label><input type="checkbox" name="availability" value="weekdays"> Weekdays</label>
+        <label><input type="checkbox" name="availability" value="weekends"> Weekends</label>
+        <label><input type="checkbox" name="availability" value="flexible"> Flexible</label>
+      </div>
+    </div>
+    <button type="submit" class="vol-submit" id="vol-submit-btn">Submit Application</button>
+    <div class="vol-msg vol-msg--success" id="vol-success">🎉 Application received! We'll be in touch soon.</div>
+    <div class="vol-msg vol-msg--error" id="vol-error">Something went wrong. Opening email fallback…</div>
+  </form>
+  <p class="vol-note">All positions are volunteer / unpaid ministry roles.</p>
 </div>
 
 <!-- Footer -->
@@ -258,7 +238,6 @@
           <li><a href="about.html">About</a></li>
           <li><a href="news.html">News</a></li>
           <li><a href="community.html">Community</a></li>
-          <li><a href="join.html">Join</a></li>
         </ul>
       </div>
 
@@ -296,5 +275,106 @@
 </footer>
 
 <script src="assets/js/main.js?v=20"></script>
+<script>
+(function() {
+  // Pre-select role from URL query param
+  var params = new URLSearchParams(window.location.search);
+  var roleParam = params.get('role');
+  if (roleParam) {
+    var select = document.getElementById('vol-role');
+    var opts = select.options;
+    for (var i = 0; i < opts.length; i++) {
+      if (opts[i].value === roleParam) {
+        select.value = roleParam;
+        break;
+      }
+    }
+  }
+
+  var form = document.getElementById('volunteer-form');
+  var btn = document.getElementById('vol-submit-btn');
+  var successEl = document.getElementById('vol-success');
+  var errorEl = document.getElementById('vol-error');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    successEl.style.display = 'none';
+    errorEl.style.display = 'none';
+
+    // Validate availability
+    var avail = [];
+    var checks = form.querySelectorAll('input[name="availability"]:checked');
+    checks.forEach(function(c) { avail.push(c.value); });
+    if (avail.length === 0) {
+      alert('Please select at least one availability option.');
+      return;
+    }
+
+    var payload = {
+      action: 'volunteer-application',
+      role: form.role.value,
+      name: form.name.value.trim(),
+      email: form.email.value.trim(),
+      phone: form.phone.value.trim(),
+      city: form.city.value.trim(),
+      motivation: form.motivation.value.trim(),
+      experience: form.experience.value.trim(),
+      availability: avail.join(', ')
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    // Load site config to get handler URL
+    fetch('assets/data/site-config.json', { cache: 'no-store' })
+      .then(function(r) { return r.ok ? r.json() : {}; })
+      .then(function(cfg) {
+        var url = cfg.orderHandlerUrl;
+        if (!url) throw new Error('No handler URL');
+        return fetch(url, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(payload)
+        });
+      })
+      .then(function(res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function() {
+        successEl.style.display = 'block';
+        form.reset();
+        // Re-apply role param if present
+        if (roleParam) {
+          var sel = document.getElementById('vol-role');
+          sel.value = roleParam;
+        }
+      })
+      .catch(function() {
+        // Fallback: open mailto
+        errorEl.style.display = 'block';
+        var subject = encodeURIComponent('Volunteer Application — ' + payload.role);
+        var body = encodeURIComponent(
+          'Role: ' + payload.role + '\n' +
+          'Name: ' + payload.name + '\n' +
+          'Email: ' + payload.email + '\n' +
+          'Phone: ' + payload.phone + '\n' +
+          'City: ' + payload.city + '\n' +
+          'Motivation: ' + payload.motivation + '\n' +
+          'Experience: ' + payload.experience + '\n' +
+          'Availability: ' + payload.availability
+        );
+        setTimeout(function() {
+          window.location.href = 'mailto:seedthewordministry@gmail.com?subject=' + subject + '&body=' + body;
+        }, 1500);
+      })
+      .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Submit Application';
+      });
+  });
+})();
+</script>
 </body>
 </html>

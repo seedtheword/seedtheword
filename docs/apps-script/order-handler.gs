@@ -201,6 +201,9 @@ function doPost(e) {
   if ((payload && payload.action) === 'inventory-log') {
     return handleInventoryLog_(payload);
   }
+  if ((payload && payload.action) === 'volunteer-application') {
+    return handleVolunteerApplication_(payload);
+  }
   return handleOrder(payload);
 }
 
@@ -1954,6 +1957,74 @@ function handleInventoryLog_(payload) {
   } catch (err) {
     console.log('handleInventoryLog_ error:', err);
     return jsonResponse({ ok: false, error: 'sheet-write-failed' });
+  }
+}
+
+/**
+ * POST action: volunteer-application
+ * Receives volunteer applications from join.html and emails them to the team.
+ *
+ * Payload shape:
+ *   { action: "volunteer-application", role, name, email, phone, city,
+ *     motivation, experience, availability }
+ */
+function handleVolunteerApplication_(payload) {
+  var role = String(payload.role || '').trim();
+  var name = String(payload.name || '').trim();
+  var email = String(payload.email || '').trim();
+  var phone = String(payload.phone || '').trim();
+  var city = String(payload.city || '').trim();
+  var motivation = String(payload.motivation || '').trim();
+  var experience = String(payload.experience || '').trim();
+  var availability = String(payload.availability || '').trim();
+
+  if (!name || !email || !role) {
+    return jsonResponse({ ok: false, error: 'missing-required-fields' });
+  }
+
+  try {
+    var subject = '🙋 Volunteer Application — ' + role + ' — ' + name;
+    var body = 'New volunteer application received!\n\n' +
+      'ROLE: ' + role + '\n' +
+      'NAME: ' + name + '\n' +
+      'EMAIL: ' + email + '\n' +
+      'PHONE: ' + (phone || 'Not provided') + '\n' +
+      'CITY: ' + (city || 'Not provided') + '\n\n' +
+      'WHY THEY WANT TO SERVE:\n' + (motivation || 'Not provided') + '\n\n' +
+      'RELEVANT EXPERIENCE:\n' + (experience || 'Not provided') + '\n\n' +
+      'AVAILABILITY: ' + (availability || 'Not specified') + '\n\n' +
+      '---\nThis application was submitted via seedtheword.org/join.html';
+
+    var html = '<h2>🙋 New Volunteer Application</h2>' +
+      '<table style="border-collapse:collapse;width:100%;max-width:600px;">' +
+      '<tr><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Role</td><td style="padding:8px;">' + escapeHtml(role) + '</td></tr>' +
+      '<tr style="background:#f9f6f1;"><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Name</td><td style="padding:8px;">' + escapeHtml(name) + '</td></tr>' +
+      '<tr><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Email</td><td style="padding:8px;"><a href="mailto:' + escapeHtml(email) + '">' + escapeHtml(email) + '</a></td></tr>' +
+      '<tr style="background:#f9f6f1;"><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Phone</td><td style="padding:8px;">' + escapeHtml(phone || 'Not provided') + '</td></tr>' +
+      '<tr><td style="padding:8px;font-weight:bold;color:#2C5F2E;">City</td><td style="padding:8px;">' + escapeHtml(city || 'Not provided') + '</td></tr>' +
+      '</table>' +
+      '<h3 style="color:#2C5F2E;margin-top:1.5em;">Why they want to serve</h3>' +
+      '<p>' + escapeHtml(motivation || 'Not provided').replace(/\n/g, '<br>') + '</p>' +
+      '<h3 style="color:#2C5F2E;">Relevant experience</h3>' +
+      '<p>' + escapeHtml(experience || 'Not provided').replace(/\n/g, '<br>') + '</p>' +
+      '<h3 style="color:#2C5F2E;">Availability</h3>' +
+      '<p>' + escapeHtml(availability || 'Not specified') + '</p>' +
+      '<hr style="border:none;border-top:1px solid #e8e4de;margin:2em 0;">' +
+      '<p style="color:#666;font-size:0.85em;">Submitted via seedtheword.org/join.html</p>';
+
+    MailApp.sendEmail({
+      to: TEAM_INBOX,
+      subject: subject,
+      body: body,
+      htmlBody: html,
+      replyTo: email,
+      name: 'STW Volunteer Bot',
+    });
+
+    return jsonResponse({ ok: true, route: 'volunteer-application' });
+  } catch (err) {
+    console.log('handleVolunteerApplication_ error:', err);
+    return jsonResponse({ ok: false, error: 'mail-send-failed' });
   }
 }
 

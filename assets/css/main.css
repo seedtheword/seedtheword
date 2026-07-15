@@ -12678,16 +12678,6 @@ body.your-walk-modal-open {
 .ministry-impact-section .impact-strip__cta:hover { background: var(--gold, #d4a574); color: #1a1a1a; }
 
 /* ── Careers glassmorphism cards (homepage) ── */
-.careers-glass {
-  background:
-    radial-gradient(ellipse at 20% 15%, rgba(212, 165, 116, 0.18), transparent 55%),
-    radial-gradient(ellipse at 80% 85%, rgba(44, 95, 46, 0.18), transparent 55%),
-    linear-gradient(180deg, #0a0a0d 0%, #14131a 50%, #0a0a0d 100%);
-  position: relative;
-  overflow: hidden;
-  padding: 4rem 1.5rem;
-  color: rgba(255,255,255,0.92);
-}
 .careers-glass__inner {
   position: relative;
   z-index: 1;

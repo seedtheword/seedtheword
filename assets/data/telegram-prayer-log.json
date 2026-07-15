@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615647,
-  "lastModified": "2026-07-15T03:40:35Z",
+  "lastUpdateId": 669615648,
+  "lastModified": "2026-07-15T04:25:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -241,6 +241,16 @@
       "kind": "telegram",
       "text": "Ignore my previous message, I just remembered the verse about nobody but the father knowing about the return (facepalm, haha) Thank you for the wisdom God of your word so I wouldn't have my faith led astray)",
       "ts": "2026-07-12T22:23:42Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5006,
+      "userId": 8583445613,
+      "displayName": "Edward Wei",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request:\n1. Healing from sickness.\n2. Safety and opportunity to share God's Word as well as build each other up in the upcoming trip to Canada with friends. (This coming Friday to Tuesday.)",
+      "ts": "2026-07-15T04:13:46Z"
     }
   ]
 }

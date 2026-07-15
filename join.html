@@ -176,6 +176,8 @@
         <option value="audio-sound-tech">Audio / Sound Tech</option>
       </select>
     </div>
+    <div id="role-details" style="display:none; background:rgba(44,95,46,0.04); border:1px solid rgba(44,95,46,0.15); border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:1.5rem; font-size:0.9rem; line-height:1.7; color:var(--text,#2b2b2b);">
+    </div>
     <div class="vol-field">
       <label for="vol-name">Full name *</label>
       <input type="text" id="vol-name" name="name" required autocomplete="name">
@@ -277,11 +279,60 @@
 <script src="assets/js/main.js?v=20"></script>
 <script>
 (function() {
+  // Role descriptions
+  var ROLE_DETAILS = {
+    'social-media-admin': '<strong>Social Media Admin</strong><br><br>' +
+      '<em>Flexible schedule · Mostly remote · Must be available for field trips</em><br><br>' +
+      '<strong>What you\'ll do:</strong><br>' +
+      '• Lead and manage our Instagram, Telegram, and other social platforms<br>' +
+      '• Post daily devotionals / Bible verses to engage the audience<br>' +
+      '• Create trendy video clips, Reels, and visual content for the ministry<br>' +
+      '• Capture photography and videography at outreach events and field trips<br>' +
+      '• Give creative direction to other team members<br>' +
+      '• Challenge ideas, push content boundaries, and engage the audience boldly<br>' +
+      '• Be ready for spontaneous changes and on-the-fly content creation<br>' +
+      '• Work closely with the leadership team and take creative directive<br><br>' +
+      '<strong>Who you are:</strong><br>' +
+      '• Fun, exciting, and not afraid of posting bold or controversial Christian content<br>' +
+      '• A creative thinker with great content ideas who pushes things to their limits<br>' +
+      '• Someone who acts like Christ and wants to make a directive impact<br>' +
+      '• A partner people look up to — but most importantly, someone Jesus wants you to be<br>' +
+      '• Works well with teams and can give/receive creative feedback<br><br>' +
+      '<strong>Nice to have:</strong> Photography skills, video editing, Instagram Reels experience, graphic design',
+    'greeter-hospitality': '<strong>Greeter / Hospitality Team</strong><br><br>' +
+      '<em>Weekend events · Flexible</em><br><br>' +
+      'Welcome newcomers at outreach events and gatherings. Help set up and break down event spaces. ' +
+      'Be the warm, approachable first face people see. Reliable, punctual, and genuinely friendly.',
+    'worship-singer': '<strong>Worship Band — Singer</strong><br><br>' +
+      '<em>Weekly rehearsal + Sunday worship</em><br><br>' +
+      'Lead or support vocals during worship gatherings. Must have vocal ability (lead or harmony), ' +
+      'a heart for worship, and commitment to weekly practice. Help create an atmosphere where people encounter God.',
+    'worship-drummer': '<strong>Worship Band — Drummer</strong><br><br>' +
+      '<em>Weekly rehearsal + Sunday worship</em><br><br>' +
+      'Provide rhythm and energy for our worship team. Drumming experience on kit or cajon required. ' +
+      'Own equipment preferred but not required. Keep the beat that helps the congregation engage in praise.',
+    'audio-sound-tech': '<strong>Audio / Sound Tech</strong><br><br>' +
+      '<em>Rehearsals + Sunday worship</em><br><br>' +
+      'Run the sound board, manage microphones, and monitor levels. Experience with live sound/mixing preferred. ' +
+      'Detail-oriented, you\'re the invisible hero behind great sound at every gathering.'
+  };
+
   // Pre-select role from URL query param
   var params = new URLSearchParams(window.location.search);
   var roleParam = params.get('role');
-  if (roleParam) {
-    var select = document.getElementById('vol-role');
+  var select = document.getElementById('vol-role');
+  var detailsEl = document.getElementById('role-details');
+
+  function showRoleDetails(role) {
+    if (role && ROLE_DETAILS[role]) {
+      detailsEl.innerHTML = ROLE_DETAILS[role];
+      detailsEl.style.display = 'block';
+    } else {
+      detailsEl.style.display = 'none';
+    }
+  }
+
+  if (roleParam && select) {
     var opts = select.options;
     for (var i = 0; i < opts.length; i++) {
       if (opts[i].value === roleParam) {
@@ -289,7 +340,10 @@
         break;
       }
     }
+    showRoleDetails(roleParam);
   }
+
+  select.addEventListener('change', function() { showRoleDetails(select.value); });
 
   var form = document.getElementById('volunteer-form');
   var btn = document.getElementById('vol-submit-btn');

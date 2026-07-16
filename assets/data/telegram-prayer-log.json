@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615652,
-  "lastModified": "2026-07-15T19:25:32Z",
+  "lastModified": "2026-07-16T14:55:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -132,16 +132,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4913,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I just wanna say a thanksgiving announcement today.\n\nSo much thanks to God for introducing and blessing me with the opportunity to go to the ICC girls Bible study and be accepted and loved by them. I’d like to say I had a really great time last night with them and even got prayed over for healing. What a beautiful group of girls to connect with, truly a prayer answered.",
-      "ts": "2026-07-02T14:40:58Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4929,

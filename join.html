@@ -169,12 +169,12 @@
       <label for="vol-role">Role you're applying for *</label>
       <select id="vol-role" name="role" required>
         <option value="">— Select a role —</option>
-        <option value="social-media-admin">Social Media Admin</option>
-        <option value="greeter-hospitality">Greeter / Hospitality Team</option>
+        <option value="social-media-admin">Social Media Admin *</option>
+        <option value="greeter-hospitality">Greeter / Hospitality Team *</option>
         <option value="worship-singer">Worship Singer</option>
         <option value="worship-musician">Worship Musician (Any Instrument)</option>
-        <option value="media-sound-tech">Media &amp; Sound Tech</option>
-        <option value="evangelism-team">Evangelism Team</option>
+        <option value="media-sound-tech">Sound Tech / Visual Media *</option>
+        <option value="evangelism-team">Evangelism Team *</option>
         <option value="logistics-coordinator">Logistics Coordinator / Director</option>
       </select>
     </div>
@@ -216,6 +216,7 @@
     <div class="vol-msg vol-msg--success" id="vol-success">🎉 Application received! We'll be in touch soon.</div>
     <div class="vol-msg vol-msg--error" id="vol-error">Something went wrong. Opening email fallback…</div>
   </form>
+  <p class="vol-note" style="font-style:italic; margin-top:0.75rem;">* Training provided for select roles</p>
   <p class="vol-note">All positions are volunteer / unpaid ministry roles.</p>
 </div>
 
@@ -283,7 +284,7 @@
 (function() {
   // Role descriptions
   var ROLE_DETAILS = {
-    'social-media-admin': '<strong>Social Media Admin</strong><br>' +
+    'social-media-admin': '<strong>Social Media Admin *</strong><br>' +
       '<em>Flexible schedule · Mostly remote · Available for field trips</em><br><br>' +
       '<strong>What you\'ll do:</strong><br>' +
       '• Lead and manage our Instagram, Telegram, and other social platforms<br>' +
@@ -304,7 +305,7 @@
       '• Photography skills, video editing, Instagram Reels experience, graphic design<br><br>' +
       '<strong>Oversight:</strong> Vanessa Arent, David Ageyev',
 
-    'greeter-hospitality': '<strong>Greeter / Hospitality Team</strong><br>' +
+    'greeter-hospitality': '<strong>Greeter / Hospitality Team *</strong><br>' +
       '<em>Mondays 6:00–10:00pm · Available for traveling outreach events</em><br><br>' +
       '<strong>What you\'ll do:</strong><br>' +
       '• First priority: greet guests, engage them in conversation, show them around<br>' +
@@ -351,7 +352,7 @@
       '• Sheet music reading, metronome skills, familiarity with modern worship technology<br><br>' +
       '<strong>Oversight:</strong> Edward Wei, David Lepesha',
 
-    'media-sound-tech': '<strong>Media &amp; Sound Tech</strong><br>' +
+    'media-sound-tech': '<strong>Sound Tech / Visual Media *</strong><br>' +
       '<em>Mondays + events as needed</em><br><br>' +
       '<strong>What you\'ll do:</strong><br>' +
       '• Run live sound board, manage microphones, monitor audio levels<br>' +
@@ -366,7 +367,7 @@
       '• Experience with live mixing, DAW software, streaming platforms (OBS), podcast editing<br><br>' +
       '<strong>Oversight:</strong> Vanessa Arent, David Lepesha',
 
-    'evangelism-team': '<strong>Evangelism Team</strong><br>' +
+    'evangelism-team': '<strong>Evangelism Team *</strong><br>' +
       '<em>Mondays + outreach events (Saturdays, special events)</em><br><br>' +
       '<strong>What you\'ll do:</strong><br>' +
       '• Share the Gospel on the street, at events, in everyday conversations<br>' +

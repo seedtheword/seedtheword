@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="description" content="Apply to volunteer with Seed the Word Ministry — social media, hospitality, worship, drums, or sound tech.">
+  <meta name="description" content="Apply to volunteer with Seed the Word Ministry — social media, hospitality, worship, musicians, sound tech, evangelism, or logistics.">
   <!-- Open Graph -->
   <meta property="og:site_name" content="Seed the Word Ministry">
   <meta property="og:type" content="website">
@@ -170,10 +170,12 @@
       <select id="vol-role" name="role" required>
         <option value="">— Select a role —</option>
         <option value="social-media-admin">Social Media Admin</option>
-        <option value="greeter-hospitality">Greeter / Hospitality</option>
+        <option value="greeter-hospitality">Greeter / Hospitality Team</option>
         <option value="worship-singer">Worship Singer</option>
-        <option value="worship-drummer">Worship Drummer</option>
-        <option value="audio-sound-tech">Audio / Sound Tech</option>
+        <option value="worship-musician">Worship Musician (Any Instrument)</option>
+        <option value="media-sound-tech">Media &amp; Sound Tech</option>
+        <option value="evangelism-team">Evangelism Team</option>
+        <option value="logistics-coordinator">Logistics Coordinator / Director</option>
       </select>
     </div>
     <div id="role-details" style="display:none; background:rgba(44,95,46,0.04); border:1px solid rgba(44,95,46,0.15); border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:1.5rem; font-size:0.9rem; line-height:1.7; color:var(--text,#2b2b2b);">
@@ -299,22 +301,94 @@
       '• A partner people look up to — but most importantly, someone Jesus wants you to be<br>' +
       '• Works well with teams and can give/receive creative feedback<br><br>' +
       '<strong>Nice to have:</strong> Photography skills, video editing, Instagram Reels experience, graphic design',
+
     'greeter-hospitality': '<strong>Greeter / Hospitality Team</strong><br><br>' +
-      '<em>Weekend events · Flexible</em><br><br>' +
-      'Welcome newcomers at outreach events and gatherings. Help set up and break down event spaces. ' +
-      'Be the warm, approachable first face people see. Reliable, punctual, and genuinely friendly.',
-    'worship-singer': '<strong>Worship Band — Singer</strong><br><br>' +
-      '<em>Weekly rehearsal + Sunday worship</em><br><br>' +
-      'Lead or support vocals during worship gatherings. Must have vocal ability (lead or harmony), ' +
-      'a heart for worship, and commitment to weekly practice. Help create an atmosphere where people encounter God.',
-    'worship-drummer': '<strong>Worship Band — Drummer</strong><br><br>' +
-      '<em>Weekly rehearsal + Sunday worship</em><br><br>' +
-      'Provide rhythm and energy for our worship team. Drumming experience on kit or cajon required. ' +
-      'Own equipment preferred but not required. Keep the beat that helps the congregation engage in praise.',
-    'audio-sound-tech': '<strong>Audio / Sound Tech</strong><br><br>' +
-      '<em>Rehearsals + Sunday worship</em><br><br>' +
-      'Run the sound board, manage microphones, and monitor levels. Experience with live sound/mixing preferred. ' +
-      'Detail-oriented, you\'re the invisible hero behind great sound at every gathering.'
+      '<em>Mondays 6:00–10:00pm · Available for traveling outreach events</em><br><br>' +
+      '<strong>What you\'ll do:</strong><br>' +
+      '• First priority: greet guests, engage them in conversation, show them around<br>' +
+      '• Set up chairs, tables, assist with food prep/catering as requested by leadership<br>' +
+      '• Create a warm, welcoming atmosphere for every guest at Maple Park<br>' +
+      '• Help with cleanup and teardown after service<br><br>' +
+      '<strong>Who you are:</strong><br>' +
+      '• Warm, approachable, genuinely enjoy meeting new people<br>' +
+      '• Reliable and punctual — you\'re the first face guests see<br>' +
+      '• Willing to travel for outreach events when available<br><br>' +
+      '<strong>Note:</strong> Can bring helpers with leadership permission. Seed the Word takes full responsibility for the guest experience.<br><br>' +
+      '<strong>Oversight:</strong> David Lepesha (HR, Vice President, Secretary, Chair of Board of Directors)',
+
+    'worship-singer': '<strong>Worship Singer</strong><br><br>' +
+      '<em>Mondays + rehearsals as scheduled by Edward Wei (Worship Leader)</em><br><br>' +
+      '<strong>What you\'ll do:</strong><br>' +
+      '• Lead or support vocals during worship gatherings<br>' +
+      '• Rehearse weekly with the worship team<br>' +
+      '• Be flexible to contemporary, hymns, gospel, or mixed style as directed<br>' +
+      '• Strongly encouraged to help with setup/teardown and assist other departments<br><br>' +
+      '<strong>Who you are:</strong><br>' +
+      '• Vocal ability (lead or harmony), heart for worship<br>' +
+      '• Flexible to leadership direction on style and song selection<br>' +
+      '• Team player — willing to serve beyond just singing<br><br>' +
+      '<strong>Nice to have:</strong> Ability to read sheet music, follow metronome, familiarity with modern worship tech (in-ear monitors, click tracks, etc.)<br><br>' +
+      '<strong>Oversight:</strong> Edward Wei (Worship Leader), David Lepesha (overall oversight)',
+
+    'worship-musician': '<strong>Worship Musician (Any Instrument)</strong><br><br>' +
+      '<em>Mondays + rehearsals as scheduled by Edward Wei (Worship Leader)</em><br><br>' +
+      '<strong>What you\'ll do:</strong><br>' +
+      '• Play your instrument (drums, guitar, keys, bass, etc.) for worship services<br>' +
+      '• Rehearse weekly, learn new songs as selected by worship leader<br>' +
+      '• Be flexible to style changes — contemporary, hymns, gospel, concert-style<br>' +
+      '• Strongly encouraged to help with setup/teardown<br><br>' +
+      '<strong>Who you are:</strong><br>' +
+      '• Proficient on your instrument with a heart for worship<br>' +
+      '• Flexible and teachable — open to creative direction<br>' +
+      '• Reliable for weekly rehearsal + Monday commitment<br><br>' +
+      '<strong>Note:</strong> You may bring your own equipment (encouraged) but the ministry cannot be held liable for personal gear. Ministry will do its best to help compensate or find replacements if anything happens.<br><br>' +
+      '<strong>Nice to have:</strong> Sheet music reading, metronome skills, familiarity with modern worship technology<br><br>' +
+      '<strong>Oversight:</strong> Edward Wei (Worship Leader), David Lepesha',
+
+    'media-sound-tech': '<strong>Media &amp; Sound Tech</strong><br><br>' +
+      '<em>Mondays + events as needed</em><br><br>' +
+      '<strong>What you\'ll do:</strong><br>' +
+      '• Run live sound board, manage microphones, monitor audio levels<br>' +
+      '• Set up and operate PA system, speakers, monitors<br>' +
+      '• Eventually: recording, live streaming, podcast production<br>' +
+      '• Handle media equipment setup and teardown<br><br>' +
+      '<strong>Who you are:</strong><br>' +
+      '• Detail-oriented, technically minded, comfortable with audio equipment<br>' +
+      '• Calm under pressure — live sound means real-time problem solving<br>' +
+      '• Interested in growing into recording/streaming/podcast production<br><br>' +
+      '<strong>Nice to have:</strong> Experience with live mixing, DAW software, streaming platforms (OBS), podcast editing<br><br>' +
+      '<strong>Future growth:</strong> As budget allows, this role will expand into full media production — podcasts, live streams, video editing, content creation<br><br>' +
+      '<strong>Oversight:</strong> David Lepesha',
+
+    'evangelism-team': '<strong>Evangelism Team</strong><br><br>' +
+      '<em>Mondays + outreach events (Saturdays, special events)</em><br><br>' +
+      '<strong>What you\'ll do:</strong><br>' +
+      '• Share the Gospel on the street, at events, in everyday conversations<br>' +
+      '• Distribute Bibles, tracts, and ministry materials during outreach<br>' +
+      '• Lead or support evangelism conversations at community events<br>' +
+      '• Pray with people, follow up with new contacts<br><br>' +
+      '<strong>Who you are:</strong><br>' +
+      '• Bold in faith — not afraid to start spiritual conversations with strangers<br>' +
+      '• Compassionate, patient, and a good listener<br>' +
+      '• Heart for the lost — you genuinely care about people knowing Jesus<br>' +
+      '• Willing to go wherever God opens a door<br><br>' +
+      '<strong>No formal theological training required</strong> — just a heart for sharing and willingness to learn<br><br>' +
+      '<strong>Under:</strong> David Ageyev (Evangelism Department), with oversight by David Lepesha',
+
+    'logistics-coordinator': '<strong>Logistics Coordinator / Director</strong><br><br>' +
+      '<em>Mondays + event planning days as needed</em><br><br>' +
+      '<strong>What you\'ll do:</strong><br>' +
+      '• Help plan and set up outreach events — scout locations, coordinate logistics<br>' +
+      '• Manage arrangements, equipment transport, vendor coordination<br>' +
+      '• Schedule and organize ministry resources for events<br>' +
+      '• Work directly with David Ageyev on evangelism event logistics<br>' +
+      '• Handle operational support as requested by leadership<br><br>' +
+      '<strong>Who you are:</strong><br>' +
+      '• Organized, detail-oriented, good at planning ahead<br>' +
+      '• Proactive — can anticipate what\'s needed before being asked<br>' +
+      '• Reliable with scheduling and follow-through<br>' +
+      '• Works well under David Ageyev\'s directive with David Lepesha\'s approval/oversight<br><br>' +
+      '<strong>Nice to have:</strong> Event planning experience, own vehicle for transport, project management skills'
   };
 
   // Pre-select role from URL query param

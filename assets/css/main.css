@@ -926,6 +926,49 @@ ul { margin: 0; padding: 0; list-style: none; }
   font-style: italic;
 }
 
+/* Gospel accordion (condensed view) */
+.gospel-accordion {
+  border: 1px solid var(--border, #e8e4de);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  background: #fff;
+}
+.gospel-accordion[open] {
+  border-color: var(--green, #2C5F2E);
+}
+.gospel-accordion__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  list-style: none;
+}
+.gospel-accordion__trigger::-webkit-details-marker { display: none; }
+.gospel-accordion__trigger h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--green, #2C5F2E);
+}
+.gospel-accordion__icon {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--gold, #d4a574);
+  transition: transform 0.3s ease;
+}
+.gospel-accordion[open] .gospel-accordion__icon {
+  transform: rotate(45deg);
+}
+.gospel-accordion .gospel-stage {
+  margin-bottom: 0;
+  padding: 0 1.5rem 1.5rem;
+}
+.gospel-accordion .gospel-stage__media img {
+  max-height: 300px;
+  object-fit: cover;
+}
+
 /* Mobile: single column, image height capped at 50vh (Requirement 6.7, 6.8) */
 @media (max-width: 767px) {
   .gospel-stage {

@@ -12308,11 +12308,11 @@ body.your-walk-modal-open {
   position: relative;
   overflow: hidden;
   color: rgba(255,255,255,0.92);
-  /* Reversed gradient: dark top (blends with video) → warm bottom (flows into Path of Light) */
+  /* Dark top (video blend) → same dark bottom (seamless into The Path) */
   background:
-    radial-gradient(ellipse at 80% 85%, rgba(212, 165, 116, 0.22), transparent 55%),
-    radial-gradient(ellipse at 20% 15%, rgba(44, 95, 46, 0.12), transparent 55%),
-    linear-gradient(180deg, #0a0a0d 0%, #0f0e14 30%, #1a1610 70%, #1f1a12 100%);
+    radial-gradient(ellipse at 50% 90%, rgba(212, 165, 116, 0.12), transparent 50%),
+    radial-gradient(ellipse at 20% 20%, rgba(44, 95, 46, 0.1), transparent 50%),
+    linear-gradient(180deg, #0a0a0d 0%, #12110f 40%, #0f0e0c 70%, #0a0a0d 100%);
 }
 .ministry-impact-section::before {
   content: '';

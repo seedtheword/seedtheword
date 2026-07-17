@@ -255,6 +255,13 @@
       <div class="gospel-stage gospel-stage--respond">
         <h3>Do you want to personally encounter Jesus?</h3>
         <p class="invitation-cta__lead">
+          He is not far. If your heart is stirring, even a little, that is Him calling you home.
+        </p>
+        <button type="button" class="btn btn-primary btn-green-call" id="reveal-encounter-btn" style="margin:1rem auto;display:block;font-size:1rem;padding:0.9rem 2rem;border-radius:30px;">
+          I want to encounter Jesus
+        </button>
+        <div id="encounter-reveal" style="display:none;">
+        <p class="invitation-cta__lead">
           Hear His own voice, the voice of the Good Shepherd who came looking for you:
         </p>
         <blockquote class="invitation-cta__voice">
@@ -294,6 +301,7 @@
         <p class="invitation-cta__fallback">
           A real person on our team will answer &mdash; please text if calling is hard. You are not a number to us, you are family. Jesus loves you.
         </p>
+        </div><!-- end encounter-reveal -->
       </div>
 
       <!-- Image credits — collapsed by default. Provides attribution
@@ -915,6 +923,19 @@
   leftBtn.addEventListener('click', function() { offset = Math.max(0, offset - cardW); go(); });
   rightBtn.addEventListener('click', function() { offset = Math.min(maxOff, offset + cardW); go(); });
   window.addEventListener('resize', function() { maxOff = Math.max(0, (cards.length * cardW) - wrap.clientWidth); if (offset > maxOff) { offset = maxOff; go(); } });
+})();
+
+// Encounter Jesus reveal button
+(function() {
+  var btn = document.getElementById('reveal-encounter-btn');
+  var content = document.getElementById('encounter-reveal');
+  if (btn && content) {
+    btn.addEventListener('click', function() {
+      content.style.display = 'block';
+      btn.style.display = 'none';
+      content.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 })();
 </script>
 </body>

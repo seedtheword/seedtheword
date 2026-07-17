@@ -2008,49 +2008,126 @@ function handleVolunteerApplication_(payload) {
       }
     }
 
-    var subject = '\uD83D\uDE4B Volunteer Application \u2014 ' + role + ' \u2014 ' + name;
-    var body = 'New volunteer application received!\n\n' +
-      'ROLE: ' + role + '\n' +
-      'NAME: ' + name + '\n' +
-      'EMAIL: ' + email + '\n' +
-      'PHONE: ' + (phone || 'Not provided') + '\n' +
-      'CITY: ' + (city || 'Not provided') + '\n\n' +
-      'WHY THEY WANT TO SERVE:\n' + (motivation || 'Not provided') + '\n\n' +
-      'RELEVANT EXPERIENCE:\n' + (experience || 'Not provided') + '\n\n' +
-      'AVAILABILITY: ' + (availability || 'Not specified') + '\n' +
-      (resumeLink ? '\nRESUME: ' + resumeLink + '\n' : '') +
-      '\n---\nThis application was submitted via seedtheword.org/join.html';
-
-    var resumeHtml = resumeLink
-      ? '<tr style="background:#f9f6f1;"><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Resume</td><td style="padding:8px;"><a href="' + escapeHtml(resumeLink) + '">View on Google Drive</a></td></tr>'
-      : '';
-
-    var html = '<h2>\uD83D\uDE4B New Volunteer Application</h2>' +
-      '<table style="border-collapse:collapse;width:100%;max-width:600px;">' +
-      '<tr><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Role</td><td style="padding:8px;">' + escapeHtml(role) + '</td></tr>' +
-      '<tr style="background:#f9f6f1;"><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Name</td><td style="padding:8px;">' + escapeHtml(name) + '</td></tr>' +
-      '<tr><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Email</td><td style="padding:8px;"><a href="mailto:' + escapeHtml(email) + '">' + escapeHtml(email) + '</a></td></tr>' +
-      '<tr style="background:#f9f6f1;"><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Phone</td><td style="padding:8px;">' + escapeHtml(phone || 'Not provided') + '</td></tr>' +
-      '<tr><td style="padding:8px;font-weight:bold;color:#2C5F2E;">City</td><td style="padding:8px;">' + escapeHtml(city || 'Not provided') + '</td></tr>' +
-      resumeHtml +
+    // ── Team notification email (modern branded design) ──
+    var teamSubject = '\uD83D\uDE4B Volunteer Application \u2014 ' + role + ' \u2014 ' + name;
+    
+    var teamHtml = '' +
+      // Top color band
+      '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">' +
+        '<tr><td style="height:6px;background:linear-gradient(90deg,' + STW_GREEN + ',' + STW_GOLD + ');font-size:0;line-height:0;">&nbsp;</td></tr>' +
       '</table>' +
-      '<h3 style="color:#2C5F2E;margin-top:1.5em;">Why they want to serve</h3>' +
-      '<p>' + escapeHtml(motivation || 'Not provided').replace(/\n/g, '<br>') + '</p>' +
-      '<h3 style="color:#2C5F2E;">Relevant experience</h3>' +
-      '<p>' + escapeHtml(experience || 'Not provided').replace(/\n/g, '<br>') + '</p>' +
-      '<h3 style="color:#2C5F2E;">Availability</h3>' +
-      '<p>' + escapeHtml(availability || 'Not specified') + '</p>' +
-      '<hr style="border:none;border-top:1px solid #e8e4de;margin:2em 0;">' +
-      '<p style="color:#666;font-size:0.85em;">Submitted via seedtheword.org/join.html</p>';
+      // Header
+      '<div style="background:' + STW_GREEN + ';padding:28px 36px;text-align:center;">' +
+        '<h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;letter-spacing:0.02em;">New Volunteer Application</h1>' +
+        '<p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:13px;">Submitted via seedtheword.org/join.html</p>' +
+      '</div>' +
+      // Body
+      '<div style="padding:32px 36px;background:#fff;">' +
+        // Role badge
+        '<div style="text-align:center;margin-bottom:24px;">' +
+          '<span style="display:inline-block;background:' + STW_CREAM + ';border:1.5px solid ' + STW_GOLD + ';border-radius:20px;padding:8px 20px;font-size:14px;font-weight:700;color:' + STW_GREEN + ';">' + escapeHtml(role) + '</span>' +
+        '</div>' +
+        // Info table
+        '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;border:1px solid ' + STW_BORDER + ';border-radius:8px;overflow:hidden;">' +
+          '<tr><td style="padding:12px 16px;font-weight:600;color:' + STW_GREEN + ';width:120px;font-size:13px;background:' + STW_CREAM + ';">Name</td><td style="padding:12px 16px;font-size:14px;color:' + STW_TEXT + ';">' + escapeHtml(name) + '</td></tr>' +
+          '<tr><td style="padding:12px 16px;font-weight:600;color:' + STW_GREEN + ';font-size:13px;">Email</td><td style="padding:12px 16px;font-size:14px;"><a href="mailto:' + escapeHtml(email) + '" style="color:' + STW_GREEN + ';">' + escapeHtml(email) + '</a></td></tr>' +
+          '<tr><td style="padding:12px 16px;font-weight:600;color:' + STW_GREEN + ';font-size:13px;background:' + STW_CREAM + ';">Phone</td><td style="padding:12px 16px;font-size:14px;background:' + STW_CREAM + ';">' + escapeHtml(phone || 'Not provided') + '</td></tr>' +
+          '<tr><td style="padding:12px 16px;font-weight:600;color:' + STW_GREEN + ';font-size:13px;">City</td><td style="padding:12px 16px;font-size:14px;">' + escapeHtml(city || 'Not provided') + '</td></tr>' +
+          '<tr><td style="padding:12px 16px;font-weight:600;color:' + STW_GREEN + ';font-size:13px;background:' + STW_CREAM + ';">Availability</td><td style="padding:12px 16px;font-size:14px;background:' + STW_CREAM + ';">' + escapeHtml(availability || 'Not specified') + '</td></tr>' +
+          (resumeLink ? '<tr><td style="padding:12px 16px;font-weight:600;color:' + STW_GREEN + ';font-size:13px;">Resume</td><td style="padding:12px 16px;font-size:14px;"><a href="' + escapeHtml(resumeLink) + '" style="color:' + STW_GREEN + ';font-weight:600;">View on Google Drive \u2192</a></td></tr>' : '') +
+        '</table>' +
+        // Sections
+        '<div style="margin-top:24px;padding:16px 20px;background:' + STW_CREAM + ';border-radius:8px;border-left:4px solid ' + STW_GOLD + ';">' +
+          '<h3 style="margin:0 0 8px;color:' + STW_GREEN + ';font-size:14px;">Why they want to serve</h3>' +
+          '<p style="margin:0;font-size:14px;line-height:1.6;color:' + STW_TEXT + ';">' + escapeHtml(motivation || 'Not provided').replace(/\n/g, '<br>') + '</p>' +
+        '</div>' +
+        '<div style="margin-top:16px;padding:16px 20px;background:#f8f9fa;border-radius:8px;border-left:4px solid ' + STW_GREEN + ';">' +
+          '<h3 style="margin:0 0 8px;color:' + STW_GREEN + ';font-size:14px;">Relevant experience</h3>' +
+          '<p style="margin:0;font-size:14px;line-height:1.6;color:' + STW_TEXT + ';">' + escapeHtml(experience || 'Not provided').replace(/\n/g, '<br>') + '</p>' +
+        '</div>' +
+        // Action button
+        '<div style="text-align:center;margin-top:28px;">' +
+          '<a href="mailto:' + escapeHtml(email) + '?subject=Re: Your Volunteer Application - ' + escapeHtml(role) + '" style="display:inline-block;background:' + STW_GREEN + ';color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">Reply to Applicant</a>' +
+        '</div>' +
+      '</div>' +
+      // Footer
+      '<div style="padding:20px 36px;background:#f8f9fa;text-align:center;border-top:1px solid ' + STW_BORDER + ';">' +
+        '<p style="margin:0;font-size:12px;color:' + STW_MUTED + ';">Seed the Word Ministry \u2022 seedtheword.org \u2022 WA Nonprofit (UBI 606 261 509)</p>' +
+      '</div>';
+
+    var teamBody = 'New volunteer application:\nRole: ' + role + '\nName: ' + name + '\nEmail: ' + email + '\nPhone: ' + (phone || 'N/A') + '\nCity: ' + (city || 'N/A') + '\nMotivation: ' + motivation + '\nExperience: ' + experience + '\nAvailability: ' + availability + (resumeLink ? '\nResume: ' + resumeLink : '');
 
     MailApp.sendEmail({
       to: TEAM_INBOX,
-      subject: subject,
-      body: body,
-      htmlBody: html,
+      subject: teamSubject,
+      body: teamBody,
+      htmlBody: teamHtml,
       replyTo: email,
       name: 'STW Volunteer Bot',
     });
+
+    // ── Applicant confirmation email ──
+    var applicantHtml = '' +
+      '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">' +
+        '<tr><td style="height:6px;background:linear-gradient(90deg,' + STW_GREEN + ',' + STW_GOLD + ');font-size:0;line-height:0;">&nbsp;</td></tr>' +
+      '</table>' +
+      '<div style="background:' + STW_GREEN + ';padding:28px 36px;text-align:center;">' +
+        '<h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;">Application Received!</h1>' +
+        '<p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:13px;">Seed the Word Ministry</p>' +
+      '</div>' +
+      '<div style="padding:32px 36px;background:#fff;">' +
+        '<p style="font-size:15px;color:' + STW_TEXT + ';line-height:1.7;margin:0 0 16px;">Hi ' + escapeHtml(name.split(' ')[0]) + ',</p>' +
+        '<p style="font-size:15px;color:' + STW_TEXT + ';line-height:1.7;margin:0 0 16px;">Thank you for applying to serve as <strong>' + escapeHtml(role) + '</strong> with Seed the Word Ministry! We\u2019ve received your application and our leadership team will review it shortly.</p>' +
+        '<p style="font-size:15px;color:' + STW_TEXT + ';line-height:1.7;margin:0 0 16px;"><strong>What happens next:</strong></p>' +
+        '<ol style="font-size:14px;color:' + STW_TEXT + ';line-height:2;padding-left:20px;margin:0 0 20px;">' +
+          '<li>Our team reviews your application (typically within a few days)</li>' +
+          '<li>We\u2019ll reach out to schedule an interview</li>' +
+          '<li>After the interview, we pray over and formally onboard approved volunteers</li>' +
+        '</ol>' +
+        '<p style="font-size:15px;color:' + STW_TEXT + ';line-height:1.7;margin:0 0 16px;">In the meantime, feel free to check out our <a href="' + SITE_URL + 'community.html" style="color:' + STW_GREEN + ';font-weight:600;">community page</a> or join us on <a href="https://t.me/seedtheword" style="color:' + STW_GREEN + ';font-weight:600;">Telegram</a>.</p>' +
+        '<p style="font-size:15px;color:' + STW_TEXT + ';line-height:1.7;margin:24px 0 0;">God bless,<br><strong style="color:' + STW_GREEN + ';">The Seed the Word Team</strong></p>' +
+      '</div>' +
+      '<div style="padding:20px 36px;background:#f8f9fa;text-align:center;border-top:1px solid ' + STW_BORDER + ';">' +
+        '<p style="margin:0;font-size:12px;color:' + STW_MUTED + ';">Seed the Word Ministry \u2022 seedtheword.org \u2022 WA Nonprofit (UBI 606 261 509)</p>' +
+      '</div>';
+
+    MailApp.sendEmail({
+      to: email,
+      subject: 'We received your application \u2014 Seed the Word Ministry',
+      body: 'Hi ' + name.split(' ')[0] + ', thank you for applying to serve as ' + role + ' with Seed the Word Ministry! We\'ve received your application and our leadership team will review it shortly. We\'ll be in touch to schedule an interview. God bless, The Seed the Word Team',
+      htmlBody: applicantHtml,
+      noReply: true,
+      name: 'Seed the Word Ministry',
+    });
+
+    // ── SMS confirmation (if phone provided) ──
+    if (phone) {
+      try {
+        // Normalize phone to digits only
+        var digits = phone.replace(/\D/g, '');
+        if (digits.length === 10) digits = '1' + digits; // US prefix
+        if (digits.length === 11 && digits.charAt(0) === '1') {
+          // Try common US carriers — best-effort, not guaranteed
+          var smsGateways = [
+            digits + '@vtext.com',       // Verizon
+            digits + '@txt.att.net',     // AT&T
+            digits + '@tmomail.net',     // T-Mobile
+            digits + '@messaging.sprintpcs.com', // Sprint
+          ];
+          // We only try the first gateway (Verizon) for cost/simplicity
+          // TODO: detect carrier or let user select
+          var smsBody = 'Seed the Word: Hi ' + name.split(' ')[0] + '! We received your volunteer application for ' + role + '. Our team will be in touch soon. God bless!';
+          MailApp.sendEmail({
+            to: smsGateways[0],
+            subject: '',
+            body: smsBody.slice(0, 140),
+            noReply: true,
+          });
+        }
+      } catch (smsErr) {
+        console.log('SMS confirmation failed (non-fatal):', smsErr);
+      }
+    }
 
     return jsonResponse({ ok: true, route: 'volunteer-application' });
   } catch (err) {

@@ -212,6 +212,11 @@
         <label><input type="checkbox" name="availability" value="flexible"> Flexible</label>
       </div>
     </div>
+    <div class="vol-field">
+      <label for="vol-resume">Resume (optional — PDF or DOC, max 5MB)</label>
+      <input type="file" id="vol-resume" name="resume" accept=".pdf,.doc,.docx" style="padding:0.5rem 0;">
+      <small style="color:var(--muted,#666); font-size:0.8rem;">Uploaded securely to our Google Drive for leadership review.</small>
+    </div>
     <button type="submit" class="vol-submit" id="vol-submit-btn">Submit Application</button>
     <div class="vol-msg vol-msg--success" id="vol-success">🎉 Application received! We'll be in touch soon.</div>
     <div class="vol-msg vol-msg--error" id="vol-error">Something went wrong. Opening email fallback…</div>
@@ -462,8 +467,34 @@
     btn.disabled = true;
     btn.textContent = 'Submitting…';
 
+    // Read resume file as Base64 if provided
+    var resumeInput = document.getElementById('vol-resume');
+    var filePromise = Promise.resolve(null);
+    if (resumeInput && resumeInput.files && resumeInput.files[0]) {
+      var file = resumeInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Resume file is too large (max 5MB). Please choose a smaller file.');
+        btn.disabled = false;
+        btn.textContent = 'Submit Application';
+        return;
+      }
+      filePromise = new Promise(function(resolve) {
+        var reader = new FileReader();
+        reader.onload = function() {
+          resolve({ data: reader.result.split(',')[1], name: file.name, type: file.type });
+        };
+        reader.onerror = function() { resolve(null); };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    filePromise.then(function(resumeFile) {
+      if (resumeFile) {
+        payload.resume = resumeFile;
+      }
+
     // Load site config to get handler URL
-    fetch('assets/data/site-config.json', { cache: 'no-store' })
+    return fetch('assets/data/site-config.json', { cache: 'no-store' })
       .then(function(r) { return r.ok ? r.json() : {}; })
       .then(function(cfg) {
         var url = cfg.orderHandlerUrl;
@@ -510,6 +541,7 @@
         btn.disabled = false;
         btn.textContent = 'Submit Application';
       });
+    }); // end filePromise.then
   });
 })();
 </script>

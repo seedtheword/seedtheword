@@ -1983,7 +1983,32 @@ function handleVolunteerApplication_(payload) {
   }
 
   try {
-    var subject = '🙋 Volunteer Application — ' + role + ' — ' + name;
+    // Upload resume to Google Drive if provided
+    var resumeLink = '';
+    if (payload.resume && payload.resume.data && payload.resume.name) {
+      try {
+        var folder;
+        var folders = DriveApp.getFoldersByName('Volunteer Applications');
+        if (folders.hasNext()) {
+          folder = folders.next();
+        } else {
+          folder = DriveApp.createFolder('Volunteer Applications');
+        }
+        var fileName = name.replace(/[^a-zA-Z0-9 ]/g, '') + ' - ' + role + ' - ' + payload.resume.name;
+        var blob = Utilities.newBlob(
+          Utilities.base64Decode(payload.resume.data),
+          payload.resume.type || 'application/pdf',
+          fileName
+        );
+        var file = folder.createFile(blob);
+        resumeLink = file.getUrl();
+      } catch (driveErr) {
+        console.log('Resume upload failed (non-fatal):', driveErr);
+        resumeLink = '(upload failed)';
+      }
+    }
+
+    var subject = '\uD83D\uDE4B Volunteer Application \u2014 ' + role + ' \u2014 ' + name;
     var body = 'New volunteer application received!\n\n' +
       'ROLE: ' + role + '\n' +
       'NAME: ' + name + '\n' +
@@ -1992,16 +2017,22 @@ function handleVolunteerApplication_(payload) {
       'CITY: ' + (city || 'Not provided') + '\n\n' +
       'WHY THEY WANT TO SERVE:\n' + (motivation || 'Not provided') + '\n\n' +
       'RELEVANT EXPERIENCE:\n' + (experience || 'Not provided') + '\n\n' +
-      'AVAILABILITY: ' + (availability || 'Not specified') + '\n\n' +
-      '---\nThis application was submitted via seedtheword.org/join.html';
+      'AVAILABILITY: ' + (availability || 'Not specified') + '\n' +
+      (resumeLink ? '\nRESUME: ' + resumeLink + '\n' : '') +
+      '\n---\nThis application was submitted via seedtheword.org/join.html';
 
-    var html = '<h2>🙋 New Volunteer Application</h2>' +
+    var resumeHtml = resumeLink
+      ? '<tr style="background:#f9f6f1;"><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Resume</td><td style="padding:8px;"><a href="' + escapeHtml(resumeLink) + '">View on Google Drive</a></td></tr>'
+      : '';
+
+    var html = '<h2>\uD83D\uDE4B New Volunteer Application</h2>' +
       '<table style="border-collapse:collapse;width:100%;max-width:600px;">' +
       '<tr><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Role</td><td style="padding:8px;">' + escapeHtml(role) + '</td></tr>' +
       '<tr style="background:#f9f6f1;"><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Name</td><td style="padding:8px;">' + escapeHtml(name) + '</td></tr>' +
       '<tr><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Email</td><td style="padding:8px;"><a href="mailto:' + escapeHtml(email) + '">' + escapeHtml(email) + '</a></td></tr>' +
       '<tr style="background:#f9f6f1;"><td style="padding:8px;font-weight:bold;color:#2C5F2E;">Phone</td><td style="padding:8px;">' + escapeHtml(phone || 'Not provided') + '</td></tr>' +
       '<tr><td style="padding:8px;font-weight:bold;color:#2C5F2E;">City</td><td style="padding:8px;">' + escapeHtml(city || 'Not provided') + '</td></tr>' +
+      resumeHtml +
       '</table>' +
       '<h3 style="color:#2C5F2E;margin-top:1.5em;">Why they want to serve</h3>' +
       '<p>' + escapeHtml(motivation || 'Not provided').replace(/\n/g, '<br>') + '</p>' +

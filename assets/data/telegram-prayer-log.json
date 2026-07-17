@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615655,
-  "lastModified": "2026-07-17T20:55:32Z",
+  "lastModified": "2026-07-17T22:25:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -138,16 +138,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4932,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey y’all do you mind just praying for me. I’ve really not been in the right head space lately and I really want to get back on track with everything, but it’s been really hard and it’s been effecting me and how productive and efficient I am at work, at home, and in ministry. I don’t know how noticeable it is, but I am aware of it and I just want Jesus to pull me out. Thank you all",
-      "ts": "2026-07-03T22:25:13Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4933,

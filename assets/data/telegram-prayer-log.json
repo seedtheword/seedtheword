@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615655,
-  "lastModified": "2026-07-17T22:25:34Z",
+  "lastModified": "2026-07-17T22:40:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -138,26 +138,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4933,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Absolutely and no, you're doing great sister! I only see you shining like Jesus. Keep it up!",
-      "ts": "2026-07-03T22:26:09Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 4934,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Also pray that my dad would have more understanding and grace, slower to anger, for what I’m feeling and going through, I don’t mean to mess up at all, but I do still, and it makes me feel ashamed and like a terrible person. I just want Jesus to keep reminding me it’s gonna be okay",
-      "ts": "2026-07-03T22:26:31Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4936,

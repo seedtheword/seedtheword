@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-07-17T14:26:04+00:00",
+  "updated": "2026-07-17T23:13:47+00:00",
   "events": {
     "il2nnkhkqce0sluqo4cd82k64k@google.com": {
       "title": "Identity Young Adults",
@@ -59,8 +59,9 @@
     "tm2f2oeo65teeefeb7gp2l8r0c@google.com": {
       "title": "Identity Young Adults",
       "start": "2026-07-18T02:00:00+00:00",
-      "lastPosted": "2026-07-16T14:18:27+00:00",
-      "upcomingPosted": true
+      "lastPosted": "2026-07-17T23:13:47+00:00",
+      "upcomingPosted": true,
+      "reminderPosted": true
     },
     "558k5baf74mu4n80vurfc4ctgi@google.com": {
       "title": "COMMUNITY COOKOUT!",

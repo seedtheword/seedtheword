@@ -885,16 +885,51 @@
 <script src="assets/js/study-saturday.js?v=7" defer></script>
 <script src="assets/js/prayer-intake.js?v=2"></script>
 <script>
-// Dashboard sidebar navigation
-document.querySelectorAll('.community-sidebar__link[href^="#"]').forEach(function(link) {
-  link.addEventListener('click', function(e) {
-    e.preventDefault();
-    document.querySelectorAll('.community-sidebar__link').forEach(function(l) { l.classList.remove('is-active'); });
-    link.classList.add('is-active');
-    var target = document.querySelector(link.getAttribute('href'));
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+// Dashboard sidebar navigation — show/hide sections
+(function() {
+  var links = document.querySelectorAll('.community-sidebar__link[href^="#"]');
+  var sections = document.querySelectorAll('.community-feed .section, .community-feed .stay-sub, .community-feed .your-walk-section, .community-feed .inspired-section, .community-feed > section, .community-feed > hr');
+  var activeSection = null;
+
+  function showAll() {
+    sections.forEach(function(s) { s.style.display = ''; });
+    activeSection = null;
+  }
+
+  function showOnly(targetId) {
+    sections.forEach(function(s) {
+      // Show the section if its ID matches, or if it contains an element with that ID
+      if (s.id === targetId || s.querySelector('#' + targetId)) {
+        s.style.display = '';
+      } else {
+        s.style.display = 'none';
+      }
+    });
+    activeSection = targetId;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  links.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      var targetId = link.getAttribute('href').slice(1); // remove #
+
+      // Toggle: if clicking the already-active topic, show all
+      if (activeSection === targetId) {
+        showAll();
+        links.forEach(function(l) { l.classList.remove('is-active'); });
+        return;
+      }
+
+      // Highlight active link
+      links.forEach(function(l) { l.classList.remove('is-active'); });
+      link.classList.add('is-active');
+
+      // Show only the relevant section
+      showOnly(targetId);
+    });
   });
-});
+})();
 
 // Dashboard search filter
 var dashSearch = document.getElementById('community-dashboard-search');

@@ -19,6 +19,165 @@
   <title>Community — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <link rel="stylesheet" href="assets/css/store-catalog.css?v=1">
+  <style>
+/* Community Dashboard Layout */
+.community-dashboard {
+  display: grid;
+  grid-template-columns: 220px 1fr 280px;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  min-height: 80vh;
+}
+
+/* Left Sidebar */
+.community-sidebar {
+  position: sticky;
+  top: 80px;
+  height: fit-content;
+  background: #fff;
+  border: 1px solid var(--border, #e8e4de);
+  border-radius: 12px;
+  padding: 1.25rem 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.community-sidebar__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted, #666);
+  padding: 0 1.25rem;
+  margin: 1rem 0 0.5rem;
+}
+.community-sidebar__title:first-child { margin-top: 0; }
+.community-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text, #2b2b2b);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  border-left: 3px solid transparent;
+}
+.community-sidebar__link:hover {
+  background: rgba(44,95,46,0.04);
+  color: var(--green, #2C5F2E);
+}
+.community-sidebar__link.is-active {
+  background: rgba(44,95,46,0.08);
+  color: var(--green, #2C5F2E);
+  border-left-color: var(--green, #2C5F2E);
+  font-weight: 700;
+}
+
+/* Center Feed */
+.community-feed {
+  min-width: 0;
+}
+.community-feed__search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border: 1.5px solid var(--border, #e8e4de);
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.community-feed__search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: transparent;
+}
+.community-feed__search svg {
+  color: var(--muted, #999);
+  flex-shrink: 0;
+}
+
+/* Right Panel */
+.community-panel {
+  position: sticky;
+  top: 80px;
+  height: fit-content;
+}
+.community-panel__card {
+  background: #fff;
+  border: 1px solid var(--border, #e8e4de);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.community-panel__card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green, #2C5F2E);
+  margin: 0 0 0.75rem;
+}
+.community-panel__link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  font-size: 0.85rem;
+  color: var(--text, #2b2b2b);
+  text-decoration: none;
+}
+.community-panel__link:hover { color: var(--green, #2C5F2E); }
+
+/* Dashboard feed sections override — give existing sections card styling */
+.community-feed .section {
+  background: #fff;
+  border: 1px solid var(--border, #e8e4de);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+/* Mobile: collapse to single column */
+@media (max-width: 1024px) {
+  .community-dashboard {
+    grid-template-columns: 1fr;
+  }
+  .community-sidebar {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 10px;
+  }
+  .community-sidebar__title { display: none; }
+  .community-sidebar__link {
+    padding: 0.5rem 0.9rem;
+    border-radius: 20px;
+    border-left: none;
+    background: rgba(44,95,46,0.05);
+    font-size: 0.82rem;
+  }
+  .community-sidebar__link.is-active {
+    background: var(--green, #2C5F2E);
+    color: #fff;
+    border-left: none;
+  }
+  .community-panel { display: none; }
+}
+@media (max-width: 768px) {
+  .community-dashboard { padding: 1rem; }
+}
+  </style>
 </head>
 <body>
 
@@ -62,13 +221,30 @@
   </div>
 </header>
 
-<section class="hero hero--short" style="background-image:url('assets/images/backgrounds/bible-in-background.jpg');background-position:center">
-  <div class="hero__overlay"></div>
-  <div class="hero__content">
-    <h1 class="hero__title">Join Our Community</h1>
-    <p class="hero__tagline">Connect, grow, and serve together in faith.</p>
-  </div>
-</section>
+<main class="community-dashboard">
+  <!-- Left Sidebar -->
+  <aside class="community-sidebar">
+    <p class="community-sidebar__title">Browse</p>
+    <a href="#bible-reading" class="community-sidebar__link is-active">📖 Bible Reading</a>
+    <a href="#ministry-feed" class="community-sidebar__link">🎙️ Ministry Feed</a>
+    <a href="#friends-in-jesus" class="community-sidebar__link">✨ Friends in Jesus</a>
+    <a href="#discussion" class="community-sidebar__link">💬 Discussion</a>
+    <p class="community-sidebar__title">Connect</p>
+    <a href="#platforms" class="community-sidebar__link">🚀 Platforms</a>
+    <a href="#how-to" class="community-sidebar__link">📋 How-To Guides</a>
+    <p class="community-sidebar__title">More</p>
+    <a href="donate.html" class="community-sidebar__link">🙏 Prayer</a>
+    <a href="start-here.html" class="community-sidebar__link">🌱 Start Here</a>
+    <a href="news.html" class="community-sidebar__link">📰 News</a>
+  </aside>
+
+  <!-- Center Feed -->
+  <div class="community-feed">
+    <!-- Search -->
+    <div class="community-feed__search">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" placeholder="Search topics, readings, discussions..." id="community-dashboard-search">
+    </div>
 
 <!-- 0. Your Walk — personal reading-tracker panel. Hidden until
      yourWalk.enabled flips true in assets/data/telegram-bot.json
@@ -82,7 +258,7 @@
 
 <!-- Livestream -->
 <!-- 1. This Week in God's Word — reading plan with per-chapter Spotify pills -->
-<section class="section section--light" style="padding: 4rem 0;">
+<section class="section section--light" id="bible-reading" style="padding: 4rem 0;">
   <div class="container">
     <h2 class="section-title">📖 This Week in God's Word</h2>
     <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
@@ -110,7 +286,7 @@
      the live-streamed companion to the recorded podcast in the same Spotify
      feed. "This week we're studying" is folded into the livestream card
      itself as an inspirational overlay, not a separate banner. -->
-<section class="section section--white" style="padding: 4rem 0;">
+<section class="section section--white" id="ministry-feed" style="padding: 4rem 0;">
   <div class="container">
     <h2 class="section-title">🎙️ Our Ministry Feed</h2>
     <p style="text-align: center; max-width: 720px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
@@ -286,7 +462,7 @@
     </p>
 
     <!-- Discussion quick-start cards — pre-filled Telegram deep links -->
-    <div class="stay-sub">
+    <div class="stay-sub" id="discussion">
       <div class="discussion">
         <div class="discussion__stats" id="telegram-stats" aria-live="polite">
           <div class="discussion__stat">
@@ -336,7 +512,7 @@
          / Twitch / Instagram) gives each platform equal billing with an icon,
          blurb, bullet points, and CTA. The Instagram photo grid sits below it
          as a visual preview of what's on the feed. -->
-    <div class="stay-sub">
+    <div class="stay-sub" id="platforms">
       <h3 class="stay-sub__title">🌐 Learn more about us online</h3>
       <p class="stay-sub__desc">Where we post, share, and keep members around the world in the loop.</p>
 
@@ -448,7 +624,7 @@
     </div>
 
     <!-- How-to cards: step-by-step for each platform + ways to get involved -->
-    <div class="stay-sub">
+    <div class="stay-sub" id="how-to">
       <h3 class="stay-sub__title">🧭 Step-by-step &amp; ways to help</h3>
       <p class="stay-sub__desc">
         Tap any card for a walkthrough — whether it's joining a platform for the first
@@ -610,6 +786,30 @@
   </div>
 </section>
 
+  </div><!-- /.community-feed -->
+
+  <!-- Right Panel -->
+  <aside class="community-panel">
+    <div class="community-panel__card">
+      <p class="community-panel__card-title">Today's Reading</p>
+      <div id="panel-today-reading" style="font-size:0.9rem;color:var(--text);">Loading...</div>
+    </div>
+    <div class="community-panel__card">
+      <p class="community-panel__card-title">Quick Links</p>
+      <a href="https://t.me/seedtheword" class="community-panel__link" target="_blank" rel="noopener">💬 Telegram Community</a>
+      <a href="https://www.instagram.com/seedtheword/" class="community-panel__link" target="_blank" rel="noopener">📸 Instagram</a>
+      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" class="community-panel__link" target="_blank" rel="noopener">🎧 Spotify Podcast</a>
+      <a href="https://twitch.tv/seedtheword" class="community-panel__link" target="_blank" rel="noopener">🎮 Twitch</a>
+    </div>
+    <div class="community-panel__card">
+      <p class="community-panel__card-title">Upcoming</p>
+      <p style="font-size:0.85rem;color:var(--muted);margin:0 0 0.5rem;">Mondays 6:30pm — Fellowship & Worship</p>
+      <p style="font-size:0.85rem;color:var(--muted);margin:0 0 0.5rem;">Saturdays — Study & Outreach</p>
+      <a href="news.html" style="font-size:0.85rem;color:var(--green, #2C5F2E);font-weight:600;text-decoration:none;">See all events →</a>
+    </div>
+  </aside>
+</main>
+
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
@@ -684,6 +884,58 @@
 <script src="assets/js/community-catalog.js?v=1" defer></script>
 <script src="assets/js/study-saturday.js?v=7" defer></script>
 <script src="assets/js/prayer-intake.js?v=2"></script>
+<script>
+// Dashboard sidebar navigation
+document.querySelectorAll('.community-sidebar__link[href^="#"]').forEach(function(link) {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('.community-sidebar__link').forEach(function(l) { l.classList.remove('is-active'); });
+    link.classList.add('is-active');
+    var target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Dashboard search filter
+var dashSearch = document.getElementById('community-dashboard-search');
+if (dashSearch) {
+  dashSearch.addEventListener('input', function() {
+    var q = dashSearch.value.toLowerCase();
+    document.querySelectorAll('.community-feed .section, .community-feed .stay-sub').forEach(function(sec) {
+      if (!q || sec.textContent.toLowerCase().includes(q)) {
+        sec.style.display = '';
+      } else {
+        sec.style.display = 'none';
+      }
+    });
+  });
+}
+
+// Right panel — show today's reading (mirrors bible-plan.js data)
+(function() {
+  var panel = document.getElementById('panel-today-reading');
+  if (!panel) return;
+  // Try to grab today's reading from the bible plan once it renders
+  function updatePanel() {
+    var today = new Date().getDay(); // 0=Sun, 1=Mon...5=Fri, 6=Sat
+    var dayCards = document.querySelectorAll('#bible-plan-container .bible-day-card');
+    if (dayCards.length === 0) {
+      panel.textContent = 'Check the reading plan below.';
+      return;
+    }
+    // Map Mon-Fri to indices 0-4
+    var idx = today >= 1 && today <= 5 ? today - 1 : -1;
+    if (idx >= 0 && dayCards[idx]) {
+      var title = dayCards[idx].querySelector('.bible-day-card__title, h3, strong');
+      panel.textContent = title ? title.textContent : 'See today\'s chapter below ↓';
+    } else {
+      panel.textContent = 'Rest day — catch up or revisit a chapter.';
+    }
+  }
+  // Wait for bible-plan.js to render
+  setTimeout(updatePanel, 1500);
+})();
+</script>
 
 <style>
 /* Instagram preview grid — visual photo feed below the 4-up platform

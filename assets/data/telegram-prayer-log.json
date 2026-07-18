@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615655,
-  "lastModified": "2026-07-17T22:40:33Z",
+  "lastModified": "2026-07-18T01:25:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -138,16 +138,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4936,
-      "userId": 8045440327,
-      "displayName": "✝️🙏PRAYER DOG🐺🥀",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer for Vanessa",
-      "ts": "2026-07-04T01:12:24Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4959,

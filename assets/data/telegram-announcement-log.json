@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-07-18T02:25:59+00:00",
+  "updated": "2026-07-18T16:09:17+00:00",
   "events": {
     "r1qg142mql1nv6t0p5aspnlapo@google.com": {
       "title": "FIFA 2026 Evangelism",
@@ -53,8 +53,9 @@
     "558k5baf74mu4n80vurfc4ctgi@google.com": {
       "title": "COMMUNITY COOKOUT!",
       "start": "2026-07-18T19:00:00+00:00",
-      "lastPosted": "2026-07-17T14:26:04+00:00",
-      "upcomingPosted": true
+      "lastPosted": "2026-07-18T16:09:17+00:00",
+      "upcomingPosted": true,
+      "reminderPosted": true
     }
   }
 }

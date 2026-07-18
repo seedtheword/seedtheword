@@ -1198,7 +1198,7 @@ if (document.readyState === 'loading') {
   btn.href = 'donate.html#support';
   btn.className = 'floating-donate';
   btn.setAttribute('aria-label', 'Give to the ministry');
-  btn.innerHTML = '<span class="floating-donate__icon" aria-hidden="true">&#10084;&#65039;</span><span class="floating-donate__label">Give</span>';
+  btn.innerHTML = '<span class="floating-donate__icon" aria-hidden="true">&#10084;&#65039;</span><span class="floating-donate__label">Give</span><span class="floating-donate__hint">Tap to give</span>';
   document.body.appendChild(btn);
 
   var style = document.createElement('style');
@@ -1216,7 +1216,19 @@ if (document.readyState === 'loading') {
     '.floating-donate:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 8px 24px rgba(44,95,46,0.55);}',
     '.floating-donate--hidden{opacity:0;pointer-events:none;transform:translateY(8px);}',
     '.floating-donate__icon{font-size:1rem;line-height:1;}',
-    '@media(max-width:480px){.floating-donate__label{display:none;}.floating-donate{padding:0.8rem;}}',
+    '.floating-donate__hint{display:none;}',
+    '@media(max-width:480px){',
+      '.floating-donate__label{display:none;}',
+      '.floating-donate{padding:0.8rem;}',
+      '.floating-donate__hint{',
+        'display:inline-block;position:absolute;right:100%;top:50%;transform:translateY(-50%);',
+        'white-space:nowrap;margin-right:0.5rem;',
+        'background:rgba(0,0,0,0.85);color:#fff;padding:0.4rem 0.75rem;border-radius:6px;',
+        'font-size:0.75rem;font-weight:600;letter-spacing:0.02em;',
+        'animation:hintFade 4s ease-in-out forwards;',
+      '}',
+    '}',
+    '@keyframes hintFade{0%{opacity:0;transform:translateY(-50%) translateX(5px);}15%{opacity:1;transform:translateY(-50%) translateX(0);}70%{opacity:1;}100%{opacity:0;pointer-events:none;}}',
   ].join('');
   document.head.appendChild(style);
 

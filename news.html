@@ -158,6 +158,113 @@
     .highlights-section .outreach-subheading {
       margin-bottom: 1.5rem;
     }
+
+    /* News Dashboard Layout — 2-column (no right panel) */
+    .news-dashboard {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      min-height: 80vh;
+    }
+    .news-sidebar {
+      position: sticky;
+      top: 80px;
+      height: fit-content;
+      background: #fff;
+      border: 1px solid var(--border, #e8e4de);
+      border-radius: 12px;
+      padding: 1.25rem 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .news-sidebar__title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted, #666);
+      padding: 0 1.25rem;
+      margin: 0 0 0.5rem;
+    }
+    .news-sidebar__link {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 1.25rem;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text, #2b2b2b);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      border-left: 3px solid transparent;
+    }
+    .news-sidebar__link:hover {
+      background: rgba(44,95,46,0.04);
+      color: var(--green, #2C5F2E);
+    }
+    .news-sidebar__link.is-active {
+      background: rgba(44,95,46,0.08);
+      color: var(--green, #2C5F2E);
+      border-left-color: var(--green, #2C5F2E);
+      font-weight: 700;
+    }
+    .news-feed {
+      min-width: 0;
+    }
+    .news-feed__search {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #fff;
+      border: 1.5px solid var(--border, #e8e4de);
+      border-radius: 10px;
+      padding: 0.7rem 1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .news-feed__search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: transparent;
+    }
+    .news-feed__search svg {
+      color: var(--muted, #999);
+      flex-shrink: 0;
+    }
+    @media (max-width: 1024px) {
+      .news-dashboard {
+        grid-template-columns: 1fr;
+      }
+      .news-sidebar {
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 1rem;
+        border-radius: 10px;
+      }
+      .news-sidebar__title { display: none; }
+      .news-sidebar__link {
+        padding: 0.5rem 0.9rem;
+        border-radius: 20px;
+        border-left: none;
+        background: rgba(44,95,46,0.05);
+        font-size: 0.82rem;
+      }
+      .news-sidebar__link.is-active {
+        background: var(--green, #2C5F2E);
+        color: #fff;
+        border-left: none;
+      }
+    }
+    @media (max-width: 768px) {
+      .news-dashboard { padding: 1rem; }
+    }
   </style>
 </head>
 <body>
@@ -202,16 +309,26 @@
   </div>
 </header>
 
-<section class="hero hero--short hero--testimonies">
-  <div class="hero__overlay"></div>
-  <div class="hero__content">
-    <h1 class="hero__title">News &amp; Testimonies</h1>
-    <p class="hero__tagline">Read stories of lives transformed by faith — and discover how you can help.</p>
-  </div>
-</section>
+<main class="news-dashboard">
+  <!-- Left Sidebar -->
+  <aside class="news-sidebar">
+    <p class="news-sidebar__title">Topics</p>
+    <a href="#announcements" class="news-sidebar__link is-active">📢 Announcements</a>
+    <a href="#ministry-outreach" class="news-sidebar__link">🙌 Outreach Stories</a>
+    <a href="#share-your-story" class="news-sidebar__link">✝️ Testimonies</a>
+    <a href="#ministry-highlights" class="news-sidebar__link">📸 Highlights</a>
+    <a href="#calendar-section" class="news-sidebar__link">📅 Calendar</a>
+  </aside>
+
+  <!-- Feed -->
+  <div class="news-feed">
+    <div class="news-feed__search">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" placeholder="Search news, outreach, testimonies..." id="news-dashboard-search">
+    </div>
 
 <!-- 1. Announcements -->
-<section class="section section--light" style="padding: 3rem 0;">
+<section class="section section--light" id="announcements" style="padding: 3rem 0;">
   <div class="container">
     <h2 class="section-title">📢 Announcements</h2>
     <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">Stay connected with what's happening in our ministry community</p>
@@ -500,6 +617,9 @@
 
 <!-- Ways to Help section removed per team decision -->
 
+  </div><!-- /.news-feed -->
+</main>
+
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
@@ -570,5 +690,69 @@
 <script src="assets/js/ministry-impact.js?v=3" defer></script>
 <script src="assets/js/share-story.js?v=1" defer></script>
 <script src="assets/js/testimonies.js?v=4" defer></script>
+<script>
+// News dashboard sidebar — show/hide sections
+(function() {
+  var links = document.querySelectorAll('.news-sidebar__link[href^="#"]');
+  var sections = document.querySelectorAll('.news-feed > section, .news-feed > .section');
+  var activeSection = null;
+
+  function showOnly(targetId) {
+    sections.forEach(function(s) {
+      if (s.id === targetId || s.querySelector('#' + targetId)) {
+        s.style.display = '';
+      } else {
+        s.style.display = 'none';
+      }
+    });
+    activeSection = targetId;
+  }
+
+  function showAll() {
+    sections.forEach(function(s) { s.style.display = ''; });
+    activeSection = null;
+  }
+
+  // Default to first active link's section
+  var initialLink = document.querySelector('.news-sidebar__link.is-active');
+  if (initialLink) {
+    showOnly(initialLink.getAttribute('href').slice(1));
+  }
+
+  links.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      var targetId = link.getAttribute('href').slice(1);
+      if (activeSection === targetId) {
+        showAll();
+        links.forEach(function(l) { l.classList.remove('is-active'); });
+        return;
+      }
+      links.forEach(function(l) { l.classList.remove('is-active'); });
+      link.classList.add('is-active');
+      showOnly(targetId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Search filter
+  var searchInput = document.getElementById('news-dashboard-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      var q = searchInput.value.toLowerCase();
+      if (!q) {
+        // Restore filtered view
+        if (activeSection) showOnly(activeSection);
+        else showAll();
+        return;
+      }
+      // When searching, show all matching sections regardless of sidebar
+      sections.forEach(function(s) {
+        s.style.display = s.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  }
+})();
+</script>
 </body>
 </html>

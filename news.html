@@ -159,48 +159,81 @@
       margin-bottom: 1.5rem;
     }
 
-    /* News Editorial — Category Pills */
-    .news-categories {
-      position: sticky;
-      top: 60px;
-      z-index: 40;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border, #e8e4de);
-      padding: 0.75rem 0;
-    }
-    .news-categories__inner {
+    /* News Editorial Magazine — continuous staggered layout */
+    .news-editorial {
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 1.5rem;
+    }
+
+    /* Hero feature — large image + overlaid text */
+    .news-hero-feature {
+      position: relative;
+      margin: 2rem 0 3rem;
+      border-radius: 16px;
+      overflow: hidden;
+      min-height: 400px;
       display: flex;
-      gap: 0.5rem;
-      overflow-x: auto;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+      align-items: flex-end;
+      background: #111;
     }
-    .news-categories__inner::-webkit-scrollbar { display: none; }
-    .news-cat-pill {
-      flex-shrink: 0;
-      padding: 0.5rem 1.1rem;
-      border: 1.5px solid var(--border, #e8e4de);
-      border-radius: 20px;
-      background: #fff;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--text, #2b2b2b);
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
+    .news-hero-feature img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.7;
     }
-    .news-cat-pill:hover {
-      border-color: var(--green, #2C5F2E);
-      color: var(--green, #2C5F2E);
+    .news-hero-feature__content {
+      position: relative;
+      z-index: 2;
+      padding: 3rem;
+      color: #fff;
+      max-width: 600px;
     }
-    .news-cat-pill.is-active {
+    .news-hero-feature__tag {
+      display: inline-block;
       background: var(--green, #2C5F2E);
       color: #fff;
-      border-color: var(--green, #2C5F2E);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.7rem;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+    .news-hero-feature__title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 0 0 0.75rem;
+    }
+    .news-hero-feature__desc {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.85);
+      margin: 0;
+    }
+
+    /* Section dividers with label */
+    .news-section-label {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 3rem 0 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted, #666);
+    }
+    .news-section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border, #e8e4de);
     }
   </style>
 </head>
@@ -246,27 +279,20 @@
   </div>
 </header>
 
-<section class="hero hero--short hero--testimonies">
-  <div class="hero__overlay"></div>
-  <div class="hero__content">
-    <h1 class="hero__title">News &amp; Testimonies</h1>
-    <p class="hero__tagline">Read stories of lives transformed by faith — and discover how you can help.</p>
-  </div>
-</section>
-
-<!-- Category filter pills -->
-<div class="news-categories" id="news-categories">
-  <div class="news-categories__inner">
-    <button class="news-cat-pill is-active" data-target="all">All</button>
-    <button class="news-cat-pill" data-target="announcements">📢 Announcements</button>
-    <button class="news-cat-pill" data-target="ministry-outreach">🙌 Outreach</button>
-    <button class="news-cat-pill" data-target="share-your-story">✝️ Testimonies</button>
-    <button class="news-cat-pill" data-target="ministry-highlights">📸 Highlights</button>
-    <button class="news-cat-pill" data-target="calendar-section">📅 Calendar</button>
+<!-- Editorial Hero Feature -->
+<div class="news-editorial">
+  <div class="news-hero-feature">
+    <img src="assets/images/ministry-outreach/one-heart-mvmt-cookout-2026/01.jpg" alt="Community outreach" loading="eager">
+    <div class="news-hero-feature__content">
+      <span class="news-hero-feature__tag">Latest Outreach</span>
+      <h1 class="news-hero-feature__title">Ministry Outreach & Community News</h1>
+      <p class="news-hero-feature__desc">Stories from the field, announcements, testimonies, and moments that matter.</p>
+    </div>
   </div>
 </div>
 
 <!-- 1. Announcements -->
+<div class="news-editorial"><p class="news-section-label">📢 Announcements</p></div>
 <section class="section section--light" id="announcements" style="padding: 3rem 0;">
   <div class="container">
     <h2 class="section-title">📢 Announcements</h2>
@@ -317,6 +343,7 @@
      The historical "Highlights from the field" grid now lives as section 4
      (Ministry Highlights, directly under Share Your Story) so members can
      browse outreach stories without wading through the whole archive first. -->
+<div class="news-editorial"><p class="news-section-label">🙌 Ministry Outreach</p></div>
 <section class="section section--white outreach-section" id="ministry-outreach">
   <div class="container">
     <h2 class="section-title">🙌 Ministry Outreach</h2>
@@ -343,6 +370,7 @@
      + alt channels), wording preserved exactly. The id "share-your-story"
      stays on this section so email links and admin-help docs keep
      resolving. Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
+<div class="news-editorial"><p class="news-section-label">✝️ Testimonies</p></div>
 <section class="section section--light testimonies-section" id="share-your-story">
   <div class="container">
     <h2 class="section-title">✝️ My Testimony of How I Met Jesus</h2>
@@ -410,6 +438,7 @@
      "View full gallery →" link to the lightbox gallery on Testimonies.
      The highlight tiles are the big visual statement; the gallery is where
      every photo lives at full size. -->
+<div class="news-editorial"><p class="news-section-label">📸 Ministry Highlights</p></div>
 <section class="section section--white highlights-section" id="ministry-highlights">
   <div class="container">
     <h2 class="section-title">📸 Ministry Highlights</h2>
@@ -495,6 +524,7 @@
 <!-- 5. Calendar — full schedule sits at the bottom of the page as
      the "anything else you want to check" landing spot. The scroll
      button in the Announcements section still targets #calendar-section. -->
+<div class="news-editorial"><p class="news-section-label">📅 Calendar</p></div>
 <section class="section section--white" id="calendar-section">
   <div class="container">
     <h2 class="section-title">📅 Ministry Calendar</h2>
@@ -626,41 +656,6 @@
 <script src="assets/js/ministry-impact.js?v=3" defer></script>
 <script src="assets/js/share-story.js?v=1" defer></script>
 <script src="assets/js/testimonies.js?v=4" defer></script>
-<script>
-// News category filter
-(function() {
-  var pills = document.querySelectorAll('.news-cat-pill');
-  var sections = document.querySelectorAll('main > section, main > .section');
-  // If no <main>, try body > section after the categories bar
-  if (!sections.length) {
-    sections = document.querySelectorAll('#news-categories ~ section');
-  }
 
-  pills.forEach(function(pill) {
-    pill.addEventListener('click', function() {
-      var target = pill.dataset.target;
-      
-      // Update active pill
-      pills.forEach(function(p) { p.classList.remove('is-active'); });
-      pill.classList.add('is-active');
-      
-      // Show/hide sections
-      if (target === 'all') {
-        sections.forEach(function(s) { s.style.display = ''; });
-      } else {
-        sections.forEach(function(s) {
-          if (s.id === target) {
-            s.style.display = '';
-          } else {
-            s.style.display = 'none';
-          }
-        });
-      }
-      
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
-})();
-</script>
 </body>
 </html>

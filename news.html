@@ -159,111 +159,48 @@
       margin-bottom: 1.5rem;
     }
 
-    /* News Dashboard Layout — 2-column (no right panel) */
-    .news-dashboard {
-      display: grid;
-      grid-template-columns: 220px 1fr;
-      gap: 2rem;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
-      min-height: 80vh;
-    }
-    .news-sidebar {
+    /* News Editorial — Category Pills */
+    .news-categories {
       position: sticky;
-      top: 80px;
-      height: fit-content;
-      background: #fff;
-      border: 1px solid var(--border, #e8e4de);
-      border-radius: 12px;
-      padding: 1.25rem 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      top: 60px;
+      z-index: 40;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border, #e8e4de);
+      padding: 0.75rem 0;
     }
-    .news-sidebar__title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted, #666);
-      padding: 0 1.25rem;
-      margin: 0 0 0.5rem;
-    }
-    .news-sidebar__link {
+    .news-categories__inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
       display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0.6rem 1.25rem;
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--text, #2b2b2b);
-      text-decoration: none;
-      transition: background 0.15s, color 0.15s;
-      border-left: 3px solid transparent;
-    }
-    .news-sidebar__link:hover {
-      background: rgba(44,95,46,0.04);
-      color: var(--green, #2C5F2E);
-    }
-    .news-sidebar__link.is-active {
-      background: rgba(44,95,46,0.08);
-      color: var(--green, #2C5F2E);
-      border-left-color: var(--green, #2C5F2E);
-      font-weight: 700;
-    }
-    .news-feed {
-      min-width: 0;
-    }
-    .news-feed__search {
-      display: flex;
-      align-items: center;
       gap: 0.5rem;
-      background: #fff;
-      border: 1.5px solid var(--border, #e8e4de);
-      border-radius: 10px;
-      padding: 0.7rem 1rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      overflow-x: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
-    .news-feed__search input {
-      flex: 1;
-      border: none;
-      outline: none;
-      font-size: 0.9rem;
-      font-family: inherit;
-      background: transparent;
-    }
-    .news-feed__search svg {
-      color: var(--muted, #999);
+    .news-categories__inner::-webkit-scrollbar { display: none; }
+    .news-cat-pill {
       flex-shrink: 0;
+      padding: 0.5rem 1.1rem;
+      border: 1.5px solid var(--border, #e8e4de);
+      border-radius: 20px;
+      background: #fff;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text, #2b2b2b);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
     }
-    @media (max-width: 1024px) {
-      .news-dashboard {
-        grid-template-columns: 1fr;
-      }
-      .news-sidebar {
-        position: static;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        padding: 1rem;
-        border-radius: 10px;
-      }
-      .news-sidebar__title { display: none; }
-      .news-sidebar__link {
-        padding: 0.5rem 0.9rem;
-        border-radius: 20px;
-        border-left: none;
-        background: rgba(44,95,46,0.05);
-        font-size: 0.82rem;
-      }
-      .news-sidebar__link.is-active {
-        background: var(--green, #2C5F2E);
-        color: #fff;
-        border-left: none;
-      }
+    .news-cat-pill:hover {
+      border-color: var(--green, #2C5F2E);
+      color: var(--green, #2C5F2E);
     }
-    @media (max-width: 768px) {
-      .news-dashboard { padding: 1rem; }
+    .news-cat-pill.is-active {
+      background: var(--green, #2C5F2E);
+      color: #fff;
+      border-color: var(--green, #2C5F2E);
     }
   </style>
 </head>
@@ -309,23 +246,25 @@
   </div>
 </header>
 
-<main class="news-dashboard">
-  <!-- Left Sidebar -->
-  <aside class="news-sidebar">
-    <p class="news-sidebar__title">Topics</p>
-    <a href="#announcements" class="news-sidebar__link is-active">📢 Announcements</a>
-    <a href="#ministry-outreach" class="news-sidebar__link">🙌 Outreach</a>
-    <a href="#share-your-story" class="news-sidebar__link">✝️ Testimonies</a>
-    <a href="#ministry-highlights" class="news-sidebar__link">📸 Highlights</a>
-    <a href="#calendar-section" class="news-sidebar__link">📅 Calendar</a>
-  </aside>
+<section class="hero hero--short hero--testimonies">
+  <div class="hero__overlay"></div>
+  <div class="hero__content">
+    <h1 class="hero__title">News &amp; Testimonies</h1>
+    <p class="hero__tagline">Read stories of lives transformed by faith — and discover how you can help.</p>
+  </div>
+</section>
 
-  <!-- Feed -->
-  <div class="news-feed">
-    <div class="news-feed__search">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="search" placeholder="Search news, outreach, testimonies..." id="news-search">
-    </div>
+<!-- Category filter pills -->
+<div class="news-categories" id="news-categories">
+  <div class="news-categories__inner">
+    <button class="news-cat-pill is-active" data-target="all">All</button>
+    <button class="news-cat-pill" data-target="announcements">📢 Announcements</button>
+    <button class="news-cat-pill" data-target="ministry-outreach">🙌 Outreach</button>
+    <button class="news-cat-pill" data-target="share-your-story">✝️ Testimonies</button>
+    <button class="news-cat-pill" data-target="ministry-highlights">📸 Highlights</button>
+    <button class="news-cat-pill" data-target="calendar-section">📅 Calendar</button>
+  </div>
+</div>
 
 <!-- 1. Announcements -->
 <section class="section section--light" id="announcements" style="padding: 3rem 0;">
@@ -617,9 +556,6 @@
 
 <!-- Ways to Help section removed per team decision -->
 
-  </div><!-- /.news-feed -->
-</main>
-
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
@@ -691,67 +627,39 @@
 <script src="assets/js/share-story.js?v=1" defer></script>
 <script src="assets/js/testimonies.js?v=4" defer></script>
 <script>
-// News dashboard sidebar — show/hide sections
+// News category filter
 (function() {
-  var links = document.querySelectorAll('.news-sidebar__link[href^="#"]');
-  var sections = document.querySelectorAll('.news-feed > section, .news-feed > .section');
-  var activeSection = null;
+  var pills = document.querySelectorAll('.news-cat-pill');
+  var sections = document.querySelectorAll('main > section, main > .section');
+  // If no <main>, try body > section after the categories bar
+  if (!sections.length) {
+    sections = document.querySelectorAll('#news-categories ~ section');
+  }
 
-  function showOnly(targetId) {
-    sections.forEach(function(s) {
-      if (s.id === targetId || s.querySelector('#' + targetId)) {
-        s.style.display = '';
+  pills.forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      var target = pill.dataset.target;
+      
+      // Update active pill
+      pills.forEach(function(p) { p.classList.remove('is-active'); });
+      pill.classList.add('is-active');
+      
+      // Show/hide sections
+      if (target === 'all') {
+        sections.forEach(function(s) { s.style.display = ''; });
       } else {
-        s.style.display = 'none';
+        sections.forEach(function(s) {
+          if (s.id === target) {
+            s.style.display = '';
+          } else {
+            s.style.display = 'none';
+          }
+        });
       }
-    });
-    activeSection = targetId;
-  }
-
-  function showAll() {
-    sections.forEach(function(s) { s.style.display = ''; });
-    activeSection = null;
-  }
-
-  // Default to first active link's section
-  var initialLink = document.querySelector('.news-sidebar__link.is-active');
-  if (initialLink) {
-    showOnly(initialLink.getAttribute('href').slice(1));
-  }
-
-  links.forEach(function(link) {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      var targetId = link.getAttribute('href').slice(1);
-      if (activeSection === targetId) {
-        showAll();
-        links.forEach(function(l) { l.classList.remove('is-active'); });
-        return;
-      }
-      links.forEach(function(l) { l.classList.remove('is-active'); });
-      link.classList.add('is-active');
-      showOnly(targetId);
+      
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
-
-  // Search filter
-  var searchInput = document.getElementById('news-search');
-  if (searchInput) {
-    searchInput.addEventListener('input', function() {
-      var q = searchInput.value.toLowerCase();
-      if (!q) {
-        // Restore filtered view
-        if (activeSection) showOnly(activeSection);
-        else showAll();
-        return;
-      }
-      // When searching, show all matching sections regardless of sidebar
-      sections.forEach(function(s) {
-        s.style.display = s.textContent.toLowerCase().includes(q) ? '' : 'none';
-      });
-    });
-  }
 })();
 </script>
 </body>

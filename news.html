@@ -277,6 +277,16 @@
       .outreach-grid { grid-template-columns: 1fr; }
     }
 
+    /* 2-column announcements layout (was 3-col before Ongoing Ministries removal) */
+    .announcements-3col-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 600px) {
+      .announcements-3col-layout { grid-template-columns: 1fr; }
+    }
+
 
   </style>
 </head>
@@ -334,7 +344,7 @@
       </div>
     </div>
     <div class="news-hero-slide">
-      <img src="assets/images/ministry-outreach/slavic-christian-awakening-evangelism/01.jpg" alt="Slavic Christian Awakening" loading="lazy">
+      <img src="assets/images/ministry-outreach/slavic-awakening-bellevue-may-2026/01.jpg" alt="Slavic Christian Awakening" loading="lazy">
       <div class="news-hero-feature__content">
         <span class="news-hero-feature__tag">Evangelism</span>
         <h2 class="news-hero-feature__title">Slavic Christian Awakening</h2>
@@ -342,7 +352,7 @@
       </div>
     </div>
     <div class="news-hero-slide">
-      <img src="assets/images/ministry-outreach/for-zion-ministries-lgbtq/01.jpg" alt="For Zion Ministries" loading="lazy">
+      <img src="assets/images/ministry-outreach/for-zion-lgbtq-outreach-june-2026/01.jpg" alt="For Zion Ministries" loading="lazy">
       <div class="news-hero-feature__content">
         <span class="news-hero-feature__tag">Community</span>
         <h2 class="news-hero-feature__title">LGBTQ+ Community Outreach</h2>
@@ -383,13 +393,7 @@
         </div>
       </div>
 
-      <!-- Column 3: Ongoing Ministries -->
-      <div class="announcements-column">
-        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">💝 Ongoing Ministries</h3>
-        <div class="announcements-list" id="ongoing-ministries-container">
-          <!-- Ongoing ministries will be populated by JavaScript from Google Calendar -->
-        </div>
-      </div>
+
 
     </div>
     
@@ -405,6 +409,10 @@
   </div>
 </section>
 
+<div style="max-width:700px;margin:0 auto;padding:1.5rem;">
+  <div id="homepage-counter"></div>
+</div>
+
 <!-- 2. Ministry Outreach — event cards + "Your story belongs here too" callout.
      The historical "Highlights from the field" grid now lives as section 4
      (Ministry Highlights, directly under Share Your Story) so members can
@@ -418,9 +426,6 @@
       our team has walked together.
     </p>
 
-    <!-- Bible counter — populated by ministry-impact.js -->
-    <div id="homepage-counter" style="margin-bottom:2rem;"></div>
-
     <!-- Outreach event cards with their own carousels -->
     <div class="outreach-grid" id="ministry-outreach-cards" aria-live="polite">
       <!-- Populated by assets/js/ministry-outreach.js -->
@@ -428,79 +433,7 @@
   </div>
 </section>
 
-<!-- 2.5. Testimonies + Share your story — combined into one section per
-     user preference. Top half is the testimonies grid (renderer hides it
-     on empty state). A "Read every testimony →" archive link sits below
-     the grid when more than 6 entries are published. Bottom half is the
-     existing Share your story CTA (eyebrow heading + lead + modal launcher
-     + alt channels), wording preserved exactly. The id "share-your-story"
-     stays on this section so email links and admin-help docs keep
-     resolving. Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
-
-<section class="section section--light testimonies-section" id="share-your-story">
-  <div class="container">
-    <h2 class="section-title">✝️ My Testimony of How I Met Jesus</h2>
-    <p class="outreach-subheading">
-      Real people. Real encounters with Jesus Christ. Shared with permission,
-      lightly edited for clarity.
-    </p>
-    <div class="testimonies-grid" id="testimonies-grid" aria-live="polite">
-      <!-- Populated by assets/js/testimonies.js -->
-    </div>
-    <div class="testimonies-archive-link" id="testimonies-archive-link" hidden>
-      <a href="testimonies.html" class="btn btn-secondary">
-        Read every testimony →
-      </a>
-    </div>
-
-    <!-- Share your story — eyebrow + CTA tagged onto the same section.
-         Wording preserved verbatim from the original Share-your-story
-         section. Telegram button removed per user request. -->
-    <div class="share-story-section share-story-section--inline">
-      <h3 class="section-title section-title--sub">✨ Share your story</h3>
-      <p class="share-story__lead">
-        Has God used our ministry to meet you in your walk with Jesus? Have you
-        watched Him move through an outreach &mdash; or captured a moment out in
-        the field? Drop your testimony, photos, or videos. We&rsquo;d love to
-        feature them to encourage someone else on their way to the cross.
-      </p>
-
-      <div class="share-story__actions">
-        <button type="button" class="btn btn-primary btn-block share-story__primary" id="share-story-open">
-          📤 Share photos, video &amp; testimony
-        </button>
-        <div class="share-story__alts">
-          <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team directly</a>
-          <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a>
-        </div>
-        <p class="share-story__privacy">
-          Your submission lands in our ministry team&rsquo;s private review inbox.
-          Nothing goes public without your ok.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Share-story modal. Opens when the primary button above is clicked.
-     Body is a sandboxed iframe embedding the Google Form URL from
-     assets/data/media-drop.json. If that URL is not configured, the
-     modal shows a fallback message pointing to the email path. -->
-<div class="share-story-modal" id="share-story-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="share-story-modal-title">
-  <div class="share-story-modal__backdrop" id="share-story-modal-backdrop"></div>
-  <div class="share-story-modal__content">
-    <header class="share-story-modal__head">
-      <h3 class="share-story-modal__title" id="share-story-modal-title">Share your story</h3>
-      <button type="button" class="share-story-modal__close" id="share-story-modal-close" aria-label="Close">&times;</button>
-    </header>
-    <div class="share-story-modal__body" id="share-story-modal-body">
-      <!-- Google Form iframe (or a fallback message) injected by
-           assets/js/share-story.js when the modal opens. -->
-    </div>
-  </div>
-</div>
-
-<!-- 4. Ministry Highlights — bold featured photos from the field, with a
+<!-- 2.5. Ministry Highlights — bold featured photos from the field, with a
      "View full gallery →" link to the lightbox gallery on Testimonies.
      The highlight tiles are the big visual statement; the gallery is where
      every photo lives at full size. -->
@@ -586,6 +519,78 @@
     </div>
   </div>
 </section>
+
+<!-- 3. Testimonies + Share your story — combined into one section per
+     user preference. Top half is the testimonies grid (renderer hides it
+     on empty state). A "Read every testimony →" archive link sits below
+     the grid when more than 6 entries are published. Bottom half is the
+     existing Share your story CTA (eyebrow heading + lead + modal launcher
+     + alt channels), wording preserved exactly. The id "share-your-story"
+     stays on this section so email links and admin-help docs keep
+     resolving. Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
+
+<section class="section section--light testimonies-section" id="share-your-story">
+  <div class="container">
+    <h2 class="section-title">✝️ My Testimony of How I Met Jesus</h2>
+    <p class="outreach-subheading">
+      Real people. Real encounters with Jesus Christ. Shared with permission,
+      lightly edited for clarity.
+    </p>
+    <div class="testimonies-grid" id="testimonies-grid" aria-live="polite">
+      <!-- Populated by assets/js/testimonies.js -->
+    </div>
+    <div class="testimonies-archive-link" id="testimonies-archive-link" hidden>
+      <a href="testimonies.html" class="btn btn-secondary">
+        Read every testimony →
+      </a>
+    </div>
+
+    <!-- Share your story — eyebrow + CTA tagged onto the same section.
+         Wording preserved verbatim from the original Share-your-story
+         section. Telegram button removed per user request. -->
+    <div class="share-story-section share-story-section--inline">
+      <h3 class="section-title section-title--sub">✨ Share your story</h3>
+      <p class="share-story__lead">
+        Has God used our ministry to meet you in your walk with Jesus? Have you
+        watched Him move through an outreach &mdash; or captured a moment out in
+        the field? Drop your testimony, photos, or videos. We&rsquo;d love to
+        feature them to encourage someone else on their way to the cross.
+      </p>
+
+      <div class="share-story__actions">
+        <button type="button" class="btn btn-primary btn-block share-story__primary" id="share-story-open">
+          📤 Share photos, video &amp; testimony
+        </button>
+        <div class="share-story__alts">
+          <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team directly</a>
+          <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a>
+        </div>
+        <p class="share-story__privacy">
+          Your submission lands in our ministry team&rsquo;s private review inbox.
+          Nothing goes public without your ok.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Share-story modal. Opens when the primary button above is clicked.
+     Body is a sandboxed iframe embedding the Google Form URL from
+     assets/data/media-drop.json. If that URL is not configured, the
+     modal shows a fallback message pointing to the email path. -->
+<div class="share-story-modal" id="share-story-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="share-story-modal-title">
+  <div class="share-story-modal__backdrop" id="share-story-modal-backdrop"></div>
+  <div class="share-story-modal__content">
+    <header class="share-story-modal__head">
+      <h3 class="share-story-modal__title" id="share-story-modal-title">Share your story</h3>
+      <button type="button" class="share-story-modal__close" id="share-story-modal-close" aria-label="Close">&times;</button>
+    </header>
+    <div class="share-story-modal__body" id="share-story-modal-body">
+      <!-- Google Form iframe (or a fallback message) injected by
+           assets/js/share-story.js when the modal opens. -->
+    </div>
+  </div>
+</div>
 
 <!-- 5. Calendar — full schedule sits at the bottom of the page as
      the "anything else you want to check" landing spot. The scroll

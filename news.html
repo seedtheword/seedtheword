@@ -513,15 +513,14 @@
 
 <section class="section section--light" id="announcements" style="padding: 3rem 0;">
   <div class="container">
-    <h2 class="section-title">📢 Announcements</h2>
-    <p style="text-align:center;color:var(--muted);max-width:600px;margin:0 auto 2rem;font-size:1rem;line-height:1.7">Stay connected with what's happening in our ministry community</p>
-    
+    <div id="homepage-counter" style="margin-bottom:2rem;"></div>
+
     <!-- Compact 3-Column Announcements Layout -->
     <div class="announcements-3col-layout" style="margin-bottom: 2rem;">
       
       <!-- Column 1: Live & Current Events -->
       <div class="announcements-column">
-        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">🔴 Live & Current</h3>
+        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">🔴 Live</h3>
         <div class="announcements-list" id="live-events-container">
           <!-- Live events will be populated by JavaScript from Google Calendar -->
         </div>
@@ -529,7 +528,7 @@
 
       <!-- Column 2: Upcoming Events -->
       <div class="announcements-column">
-        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">📅 Upcoming Events</h3>
+        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">📅 Upcoming</h3>
         <div class="announcements-list" id="upcoming-events-container">
           <!-- Upcoming events will be populated by JavaScript from Google Calendar -->
         </div>
@@ -551,105 +550,9 @@
   </div>
 </section>
 
-<div style="max-width:700px;margin:0 auto;padding:1.5rem;">
-  <div id="homepage-counter"></div>
-</div>
 
-<!-- 2.5. Ministry Highlights — bold featured photos from the field, with a
-     "View full gallery →" link to the lightbox gallery on Testimonies.
-     The highlight tiles are the big visual statement; the gallery is where
-     every photo lives at full size. -->
 
-<section class="section section--white highlights-section" id="ministry-highlights">
-  <div class="container">
-    <h2 class="section-title">📸 Ministry Highlights</h2>
-    <p class="outreach-subheading">
-      Moments from the field — worship, outreach, fellowship, and the stories behind them.
-      <a class="highlights-gallery-link" href="testimonies.html#ministry-gallery">
-        View the full photo gallery <span aria-hidden="true">→</span>
-      </a>
-    </p>
-
-    <div class="highlight-grid">
-      <!-- 1: Worship / Prayer (video) -->
-      <article class="highlight-tile highlight-tile--video">
-        <video controls poster="assets/images/ministry-highlights/stw-ministry-team.jpg">
-          <source src="assets/videos/worship-composing.mp4" type="video/mp4">
-        </video>
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">▶ Video</span>
-          <h3 class="highlight-tile__title">Worship / Prayer</h3>
-        </div>
-      </article>
-
-      <!-- 2: Encountering the Word (video) -->
-      <article class="highlight-tile highlight-tile--video">
-        <video controls poster="assets/images/ministry-highlights/bible-ministry-1.jpg">
-          <source src="assets/videos/bible-flip.mp4" type="video/mp4">
-        </video>
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">▶ Video</span>
-          <h3 class="highlight-tile__title">Encountering the Word</h3>
-        </div>
-      </article>
-
-      <!-- 3: Bible giveaway photo tile -->
-      <article class="highlight-tile highlight-tile--photo">
-        <img src="assets/images/ministry-highlights/stw-bibles-giveaway.jpg" alt="Volunteers handing personalized Bibles to newcomers">
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">Bibles Going Out</h3>
-        </div>
-      </article>
-
-      <!-- 4: Personal hand-off photo tile -->
-      <article class="highlight-tile highlight-tile--photo">
-        <img src="assets/images/ministry-highlights/bible-ministry-gift-zander.jpg" alt="A personalized Bible handed to a friend">
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">One Life, One Bible</h3>
-        </div>
-      </article>
-
-      <!-- 5: Outreach photo tile -->
-      <article class="highlight-tile highlight-tile--photo">
-        <img src="assets/images/ministry-highlights/photo_4909333866749823932_w.jpg" alt="Outreach moment from a recent ministry day">
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">Outreach in Action</h3>
-        </div>
-      </article>
-
-      <!-- 6: Fellowship photo tile -->
-      <article class="highlight-tile highlight-tile--photo">
-        <img src="assets/images/ministry-highlights/photo_5172494948291513310_w.jpg" alt="Friends gathered around the Word">
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">Friends in the Word</h3>
-        </div>
-      </article>
-
-      <!-- 7: Full gallery CTA tile -->
-      <article class="highlight-tile highlight-tile--gallery-cta">
-        <a href="testimonies.html#ministry-gallery" class="highlight-gallery-cta">
-          <span class="highlight-gallery-cta__icon" aria-hidden="true">🖼️</span>
-          <h3 class="highlight-gallery-cta__title">Full Photo Gallery</h3>
-          <p class="highlight-gallery-cta__desc">Every photo from every outreach and ministry event — full size, searchable by event.</p>
-          <span class="highlight-gallery-cta__action">Open gallery <span aria-hidden="true">→</span></span>
-        </a>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- 3. Testimonies + Share your story — combined into one section per
-     user preference. Top half is the testimonies grid (renderer hides it
-     on empty state). A "Read every testimony →" archive link sits below
-     the grid when more than 6 entries are published. Bottom half is the
-     existing Share your story CTA (eyebrow heading + lead + modal launcher
-     + alt channels), wording preserved exactly. The id "share-your-story"
-     stays on this section so email links and admin-help docs keep
-     resolving. Spec: .kiro/specs/ministry-ops-and-testimonies/ -->
+<!-- 3. Testimonies + Share your story -->
 
 <section class="section section--light testimonies-section" id="share-your-story">
   <div class="container">
@@ -713,6 +616,87 @@
     </div>
   </div>
 </div>
+
+<!-- 2.5. Ministry Highlights — bold featured photos from the field, with a
+     "View full gallery →" link to the lightbox gallery on Testimonies.
+     The highlight tiles are the big visual statement; the gallery is where
+     every photo lives at full size. -->
+
+<section class="section section--white highlights-section" id="ministry-highlights">
+  <div class="container">
+    <h2 class="section-title">📸 Ministry Highlights</h2>
+
+
+    <div class="highlight-grid">
+      <!-- 1: Worship / Prayer (video) -->
+      <article class="highlight-tile highlight-tile--video">
+        <video controls poster="assets/images/ministry-highlights/stw-ministry-team.jpg">
+          <source src="assets/videos/worship-composing.mp4" type="video/mp4">
+        </video>
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">▶ Video</span>
+          <h3 class="highlight-tile__title">Worship / Prayer</h3>
+        </div>
+      </article>
+
+      <!-- 2: Encountering the Word (video) -->
+      <article class="highlight-tile highlight-tile--video">
+        <video controls poster="assets/images/ministry-highlights/bible-ministry-1.jpg">
+          <source src="assets/videos/bible-flip.mp4" type="video/mp4">
+        </video>
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">▶ Video</span>
+          <h3 class="highlight-tile__title">Encountering the Word</h3>
+        </div>
+      </article>
+
+      <!-- 3: Bible giveaway photo tile -->
+      <article class="highlight-tile highlight-tile--photo">
+        <img src="assets/images/ministry-highlights/stw-bibles-giveaway.jpg" alt="Volunteers handing personalized Bibles to newcomers">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">Bibles Going Out</h3>
+        </div>
+      </article>
+
+      <!-- 4: Personal hand-off photo tile -->
+      <article class="highlight-tile highlight-tile--photo">
+        <img src="assets/images/ministry-highlights/bible-ministry-gift-zander.jpg" alt="A personalized Bible handed to a friend">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">One Life, One Bible</h3>
+        </div>
+      </article>
+
+      <!-- 5: Outreach photo tile -->
+      <article class="highlight-tile highlight-tile--photo">
+        <img src="assets/images/ministry-highlights/photo_4909333866749823932_w.jpg" alt="Outreach moment from a recent ministry day">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">Outreach in Action</h3>
+        </div>
+      </article>
+
+      <!-- 6: Fellowship photo tile -->
+      <article class="highlight-tile highlight-tile--photo">
+        <img src="assets/images/ministry-highlights/photo_5172494948291513310_w.jpg" alt="Friends gathered around the Word">
+        <div class="highlight-tile__overlay">
+          <span class="highlight-tile__type">📸 Photo</span>
+          <h3 class="highlight-tile__title">Friends in the Word</h3>
+        </div>
+      </article>
+
+      <!-- Share your story tile -->
+      <article class="highlight-tile highlight-tile--photo" style="background:var(--green,#2C5F2E);">
+        <div style="position:relative;z-index:2;padding:2rem;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;height:100%;">
+          <h3 style="color:#fff;font-size:1.2rem;font-weight:800;margin:0 0 0.5rem;">✨ Share Your Story</h3>
+          <p style="color:rgba(255,255,255,0.8);font-size:0.85rem;margin:0 0 1rem;line-height:1.5;">Has God moved in your life? Drop your testimony, photos, or videos.</p>
+          <button type="button" class="btn btn-primary" id="share-story-open-alt" style="background:#fff;color:var(--green,#2C5F2E);font-size:0.85rem;padding:0.6rem 1.2rem;" onclick="document.getElementById('share-story-open').click()">📤 Share Now</button>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
 
 <!-- 5. Calendar — full schedule sits at the bottom of the page as
      the "anything else you want to check" landing spot. The scroll

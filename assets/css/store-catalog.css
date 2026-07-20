@@ -929,33 +929,20 @@
 
 /* ================================================================
    Friends in Jesus — Serif Editorial Design System
-   Playfair Display, gold accents, rule lines, warm whitespace
+   Inherits tokens from .community-dashboard parent
    ================================================================ */
 
-/* ── Scoped design tokens ─────────────────────────────────────── */
+/* ── Section styling ──────────────────────────────────────────── */
 #friends-in-jesus {
-  --serif: 'Playfair Display', Georgia, serif;
-  --sans: 'Source Sans 3', system-ui, sans-serif;
-  --mono: 'IBM Plex Mono', monospace;
-  --bg-ivory: #FAFAF8;
-  --fg: #1A1A1A;
-  --fg-muted: #6B6B6B;
-  --accent-gold: #B8860B;
-  --accent-gold-light: #D4A84B;
-  --border-warm: #E8E4DF;
-  --card-bg: #FFFFFF;
-  --surface-muted: #F5F3F0;
-  font-family: var(--sans);
-  background: var(--bg-ivory) !important;
-  color: var(--fg);
-  padding: 4rem 0 !important;
+  background: transparent !important;
+  padding: 3rem 0 !important;
 }
 
-/* ── Section title override ────────────────────────────────────── */
+/* ── Section title ────────────────────────────────────────────── */
 #friends-in-jesus .section-title {
   font-family: var(--serif);
   font-weight: 400;
-  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
   color: var(--fg);
   letter-spacing: -0.01em;
   margin-bottom: 0.5rem;

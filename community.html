@@ -19,38 +19,60 @@
   <title>Community — Seed the Word Ministry</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
-  <link rel="stylesheet" href="assets/css/store-catalog.css?v=8">
+  <link rel="stylesheet" href="assets/css/store-catalog.css?v=9">
   <style>
-/* Community Dashboard Layout */
+/* ================================================================
+   Community Page — Serif Editorial Design System
+   Playfair Display, gold accents, rule lines, warm whitespace
+   ================================================================ */
+
+/* ── Page-level tokens ─────────────────────────────────────────── */
 .community-dashboard {
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'Source Sans 3', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --bg-ivory: #FAFAF8;
+  --fg: #1A1A1A;
+  --fg-muted: #6B6B6B;
+  --accent-gold: #B8860B;
+  --accent-gold-light: #D4A84B;
+  --border-warm: #E8E4DF;
+  --card-bg: #FFFFFF;
+  --surface-muted: #F5F3F0;
+
   display: grid;
   grid-template-columns: 220px 1fr 280px;
-  gap: 2rem;
+  gap: 2.5rem;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 3rem 2rem;
   min-height: 80vh;
+  font-family: var(--sans);
+  color: var(--fg);
+  background: var(--bg-ivory);
 }
 
-/* Left Sidebar */
+/* ── Left Sidebar ──────────────────────────────────────────────── */
 .community-sidebar {
   position: sticky;
-  top: 80px;
+  top: 90px;
   height: fit-content;
-  background: #fff;
-  border: 1px solid var(--border, #e8e4de);
-  border-radius: 12px;
-  padding: 1.25rem 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  background: var(--card-bg);
+  border: 1px solid var(--border-warm);
+  border-top: 2px solid var(--accent-gold);
+  border-radius: 8px;
+  padding: 1.5rem 0;
+  box-shadow: 0 1px 2px rgba(26,26,26,0.04);
 }
 .community-sidebar__title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--muted, #666);
+  color: var(--fg-muted);
   padding: 0 1.25rem;
-  margin: 1rem 0 0.5rem;
+  margin: 1.25rem 0 0.5rem;
 }
 .community-sidebar__title:first-child { margin-top: 0; }
 .community-sidebar__link {
@@ -58,25 +80,26 @@
   align-items: center;
   gap: 0.6rem;
   padding: 0.6rem 1.25rem;
+  font-family: var(--sans);
   font-size: 0.88rem;
   font-weight: 500;
-  color: var(--text, #2b2b2b);
+  color: var(--fg);
   text-decoration: none;
-  transition: background 0.15s, color 0.15s;
+  transition: all 0.2s ease-out;
   border-left: 3px solid transparent;
 }
 .community-sidebar__link:hover {
-  background: rgba(44,95,46,0.04);
-  color: var(--green, #2C5F2E);
+  background: rgba(184,134,11,0.04);
+  color: var(--accent-gold);
 }
 .community-sidebar__link.is-active {
-  background: rgba(44,95,46,0.08);
-  color: var(--green, #2C5F2E);
-  border-left-color: var(--green, #2C5F2E);
-  font-weight: 700;
+  background: rgba(184,134,11,0.06);
+  color: var(--accent-gold);
+  border-left-color: var(--accent-gold);
+  font-weight: 600;
 }
 
-/* Center Feed */
+/* ── Center Feed ───────────────────────────────────────────────── */
 .community-feed {
   min-width: 0;
 }
@@ -84,99 +107,123 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: #fff;
-  border: 1.5px solid var(--border, #e8e4de);
-  border-radius: 10px;
-  padding: 0.7rem 1rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  background: var(--card-bg);
+  border: 1px solid var(--border-warm);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 2px rgba(26,26,26,0.04);
+  transition: border-color 0.2s ease-out;
+}
+.community-feed__search:focus-within {
+  border-color: var(--accent-gold);
 }
 .community-feed__search input {
   flex: 1;
   border: none;
   outline: none;
+  font-family: var(--sans);
   font-size: 0.9rem;
-  font-family: inherit;
+  color: var(--fg);
   background: transparent;
 }
+.community-feed__search input::placeholder {
+  color: var(--fg-muted);
+  opacity: 0.6;
+}
 .community-feed__search svg {
-  color: var(--muted, #999);
+  color: var(--fg-muted);
   flex-shrink: 0;
 }
 
-/* Right Panel */
+/* ── Right Panel ───────────────────────────────────────────────── */
 .community-panel {
   position: sticky;
-  top: 80px;
+  top: 90px;
   height: fit-content;
 }
 .community-panel__card {
-  background: #fff;
-  border: 1px solid var(--border, #e8e4de);
-  border-radius: 12px;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  background: var(--card-bg);
+  border: 1px solid var(--border-warm);
+  border-top: 2px solid var(--accent-gold);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 1px 2px rgba(26,26,26,0.04);
 }
 .community-panel__card-title {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--green, #2C5F2E);
-  margin: 0 0 0.75rem;
+  color: var(--accent-gold);
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border-warm);
 }
 .community-panel__link {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4rem 0;
+  padding: 0.45rem 0;
+  font-family: var(--sans);
   font-size: 0.85rem;
-  color: var(--text, #2b2b2b);
+  color: var(--fg);
   text-decoration: none;
+  transition: color 0.2s ease-out;
 }
-.community-panel__link:hover { color: var(--green, #2C5F2E); }
+.community-panel__link:hover { color: var(--accent-gold); }
 
-/* Dashboard feed sections override — give existing sections card styling */
+/* ── Feed sections (card styling) ──────────────────────────────── */
 .community-feed .section {
-  background: #fff;
-  border: 1px solid var(--border, #e8e4de);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  background: var(--card-bg);
+  border: 1px solid var(--border-warm);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 2px rgba(26,26,26,0.04);
+}
+.community-feed .section .section-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
-/* Mobile: collapse to single column */
+/* ── Mobile: collapse to single column ─────────────────────────── */
 @media (max-width: 1024px) {
   .community-dashboard {
     grid-template-columns: 1fr;
+    padding: 2rem 1.5rem;
+    gap: 1.5rem;
   }
   .community-sidebar {
     position: static;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    padding: 1rem;
-    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    border-top: 2px solid var(--accent-gold);
   }
   .community-sidebar__title { display: none; }
   .community-sidebar__link {
     padding: 0.5rem 0.9rem;
-    border-radius: 20px;
+    border-radius: 4px;
     border-left: none;
-    background: rgba(44,95,46,0.05);
+    background: var(--surface-muted);
     font-size: 0.82rem;
   }
   .community-sidebar__link.is-active {
-    background: var(--green, #2C5F2E);
+    background: var(--fg);
     color: #fff;
     border-left: none;
   }
   .community-panel { display: none; }
 }
 @media (max-width: 768px) {
-  .community-dashboard { padding: 1rem; }
+  .community-dashboard { padding: 1.25rem; }
+  .community-feed .section { padding: 1.5rem; }
 }
   </style>
 </head>

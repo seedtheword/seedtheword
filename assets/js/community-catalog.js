@@ -355,10 +355,15 @@
       thumbClass = ' store-card__image--loading';
       if (item.kind === 'spotify' && item.spotifyId) {
         thumbAttr = ' data-spotify-id="' + esc(item.spotifyId) + '" data-spotify-type="' + esc(item.type) + '"';
-      } else if (item.kind === 'youtube' && item.youtubeId) {
-        thumbAttr = ' data-youtube-id="' + esc(item.youtubeId) + '"';
+        thumbContent = '🎧';
+      } else if (item.kind === 'youtube') {
+        // Styled initial letter for YouTube channels (no reliable public avatar URL)
+        var initial = (item.title || 'Y').charAt(0).toUpperCase();
+        thumbContent = '<span class="listen-card__initial">' + initial + '</span>';
+        thumbClass = ' listen-card__thumb--initial';
+      } else {
+        thumbContent = '🔗';
       }
-      thumbContent = item.kind === 'spotify' ? '🎧' : '📺';
     }
 
     var kindPill = item.kind === 'spotify'

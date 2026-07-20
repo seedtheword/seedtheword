@@ -261,13 +261,11 @@
     section.section { padding: 2.5rem 0; }
 
     /* Alternating warm section backgrounds for visual rhythm */
-    #announcements { background: #faf9f7; border-top: 3px solid var(--gold, #d4a574); }
-    #ministry-outreach { background: #fff; border-top: none; color: var(--text, #2b2b2b); padding: 2.5rem 0 3rem; }
-    #ministry-outreach .section-title { color: var(--text, #2b2b2b); }
-    #ministry-outreach .outreach-subheading { color: var(--muted, #666); }
-    #share-your-story { background: #fdf8f3; border-top: 3px solid #c0392b; }
-    #ministry-highlights { background: #fff; border-top: 3px solid var(--gold, #d4a574); }
-    #calendar-section { background: #f8faf8; border-top: 3px solid var(--green, #2C5F2E); }
+    #announcements { background: #fff; }
+    #ministry-outreach { background: #fff; padding: 2.5rem 0 3rem; }
+    #share-your-story { background: #fff; }
+    #ministry-highlights { background: #fff; }
+    #calendar-section { background: #f8faf8; }
 
     /* Outreach cards — magazine 3-across full-image cards with text overlay */
     .outreach-grid {
@@ -417,6 +415,14 @@
       .announcements-3col-layout { grid-template-columns: 1fr; }
     }
 
+    #announcements .impact-strip { max-width: 100%; }
+
+    @media (max-width: 768px) {
+      .news-hero-carousel { min-height: 300px; height: 45vh; }
+      .news-hero-feature__content { padding: 1.5rem; }
+      .news-hero-feature__title { font-size: 1.5rem; }
+    }
+
 
   </style>
 </head>
@@ -513,7 +519,7 @@
 
 <section class="section section--light" id="announcements" style="padding: 3rem 0;">
   <div class="container">
-    <div id="homepage-counter" style="margin-bottom:2rem;"></div>
+    <div id="homepage-counter" style="margin-bottom:2rem;max-width:100%;"></div>
 
     <!-- Compact 3-Column Announcements Layout -->
     <div class="announcements-3col-layout" style="margin-bottom: 2rem;">
@@ -570,32 +576,6 @@
       </a>
     </div>
 
-    <!-- Share your story — eyebrow + CTA tagged onto the same section.
-         Wording preserved verbatim from the original Share-your-story
-         section. Telegram button removed per user request. -->
-    <div class="share-story-section share-story-section--inline">
-      <h3 class="section-title section-title--sub">✨ Share your story</h3>
-      <p class="share-story__lead">
-        Has God used our ministry to meet you in your walk with Jesus? Have you
-        watched Him move through an outreach &mdash; or captured a moment out in
-        the field? Drop your testimony, photos, or videos. We&rsquo;d love to
-        feature them to encourage someone else on their way to the cross.
-      </p>
-
-      <div class="share-story__actions">
-        <button type="button" class="btn btn-primary btn-block share-story__primary" id="share-story-open">
-          📤 Share photos, video &amp; testimony
-        </button>
-        <div class="share-story__alts">
-          <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team directly</a>
-          <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a>
-        </div>
-        <p class="share-story__privacy">
-          Your submission lands in our ministry team&rsquo;s private review inbox.
-          Nothing goes public without your ok.
-        </p>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -686,14 +666,31 @@
         </div>
       </article>
 
-      <!-- Share your story tile -->
-      <article class="highlight-tile highlight-tile--photo" style="background:var(--green,#2C5F2E);">
-        <div style="position:relative;z-index:2;padding:2rem;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;height:100%;">
-          <h3 style="color:#fff;font-size:1.2rem;font-weight:800;margin:0 0 0.5rem;">✨ Share Your Story</h3>
-          <p style="color:rgba(255,255,255,0.8);font-size:0.85rem;margin:0 0 1rem;line-height:1.5;">Has God moved in your life? Drop your testimony, photos, or videos.</p>
-          <button type="button" class="btn btn-primary" id="share-story-open-alt" style="background:#fff;color:var(--green,#2C5F2E);font-size:0.85rem;padding:0.6rem 1.2rem;" onclick="document.getElementById('share-story-open').click()">📤 Share Now</button>
+    </div>
+
+    <!-- Share your story — eyebrow + CTA moved here from testimonies section -->
+    <div class="share-story-section share-story-section--inline">
+      <h3 class="section-title section-title--sub">✨ Share your story</h3>
+      <p class="share-story__lead">
+        Has God used our ministry to meet you in your walk with Jesus? Have you
+        watched Him move through an outreach &mdash; or captured a moment out in
+        the field? Drop your testimony, photos, or videos. We&rsquo;d love to
+        feature them to encourage someone else on their way to the cross.
+      </p>
+
+      <div class="share-story__actions">
+        <button type="button" class="btn btn-primary btn-block share-story__primary" id="share-story-open">
+          📤 Share photos, video &amp; testimony
+        </button>
+        <div class="share-story__alts">
+          <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team directly</a>
+          <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a>
         </div>
-      </article>
+        <p class="share-story__privacy">
+          Your submission lands in our ministry team&rsquo;s private review inbox.
+          Nothing goes public without your ok.
+        </p>
+      </div>
     </div>
   </div>
 </section>

@@ -926,3 +926,361 @@
   color: var(--gold, #d4a574);
   margin-bottom: 0.3rem;
 }
+
+/* ================================================================
+   Netflix-style Listening Layout — Friends in Jesus
+   ================================================================ */
+
+/* Container override for listening mode */
+.listen-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ── Featured Hero Card ──────────────────────────────────────── */
+.listen-hero {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #111;
+  min-height: 280px;
+  display: flex;
+  align-items: flex-end;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.listen-hero:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+.listen-hero__thumb {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+.listen-hero__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.listen-hero__gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+  z-index: 1;
+}
+.listen-hero__badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(255, 215, 0, 0.9);
+  color: #111;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  z-index: 2;
+  text-transform: uppercase;
+}
+
+.listen-hero__content {
+  position: relative;
+  z-index: 2;
+  padding: 2rem 2rem 1.75rem;
+  width: 100%;
+}
+.listen-hero__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1DB954;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.listen-hero__title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.5rem;
+  line-height: 1.25;
+}
+.listen-hero__desc {
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 1.1rem;
+  line-height: 1.55;
+  max-width: 520px;
+}
+.listen-hero__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #1DB954;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+  box-shadow: 0 4px 14px rgba(29, 185, 84, 0.35);
+}
+.listen-hero__btn:hover {
+  background: #17a449;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(29, 185, 84, 0.5);
+  color: #fff;
+}
+
+/* ── Shelf rows (horizontal scroll) ─────────────────────────── */
+.listen-shelf {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.listen-shelf__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text, #0a0a0a);
+  margin: 0;
+  padding-left: 0.25rem;
+}
+.listen-shelf__scroll {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(44, 95, 46, 0.3) transparent;
+}
+.listen-shelf__scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.listen-shelf__scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.listen-shelf__scroll::-webkit-scrollbar-thumb {
+  background: rgba(44, 95, 46, 0.3);
+  border-radius: 3px;
+}
+
+/* ── Shelf Card (individual channel/podcast card) ────────────── */
+.listen-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  max-width: 220px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  background: #fff;
+  border: 1px solid var(--border, #e8e4de);
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.listen-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: rgba(44, 95, 46, 0.3);
+}
+
+.listen-card__thumb {
+  width: 100%;
+  height: 140px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3443 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  overflow: hidden;
+}
+.listen-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.listen-card__info {
+  padding: 0.85rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+.listen-card__name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text, #0a0a0a);
+  margin: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.listen-card__source {
+  font-size: 0.8rem;
+  color: var(--muted, #666);
+  margin: 0;
+  line-height: 1.4;
+}
+.listen-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.4rem;
+  flex-wrap: wrap;
+}
+.listen-card__pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.listen-card__pill--spotify {
+  background: rgba(29, 185, 84, 0.12);
+  color: #1DB954;
+}
+.listen-card__pill--youtube {
+  background: rgba(255, 0, 0, 0.08);
+  color: #c00;
+}
+.listen-card__tag {
+  font-size: 0.7rem;
+  color: var(--muted, #666);
+  font-weight: 600;
+}
+
+/* ── Social Promo Banner ─────────────────────────────────────── */
+.listen-social-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(44, 95, 46, 0.06) 0%, rgba(0, 136, 204, 0.06) 100%);
+  border: 1px solid rgba(44, 95, 46, 0.15);
+}
+.listen-social-banner__text {
+  flex: 1;
+  min-width: 0;
+}
+.listen-social-banner__lead {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text, #0a0a0a);
+  margin: 0 0 0.2rem;
+}
+.listen-social-banner__sub {
+  font-size: 0.82rem;
+  color: var(--muted, #666);
+  margin: 0;
+  line-height: 1.45;
+}
+.listen-social-banner__links {
+  display: flex;
+  gap: 0.65rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.listen-social-banner__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.listen-social-banner__link:hover {
+  transform: translateY(-1px);
+}
+.listen-social-banner__link--telegram {
+  background: #0088cc;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(0, 136, 204, 0.3);
+}
+.listen-social-banner__link--telegram:hover {
+  box-shadow: 0 5px 16px rgba(0, 136, 204, 0.45);
+  color: #fff;
+}
+.listen-social-banner__link--instagram {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(225, 48, 108, 0.3);
+}
+.listen-social-banner__link--instagram:hover {
+  box-shadow: 0 5px 16px rgba(225, 48, 108, 0.45);
+  color: #fff;
+}
+
+/* ── Responsive: listening layout ────────────────────────────── */
+@media (max-width: 768px) {
+  .listen-hero {
+    min-height: 220px;
+  }
+  .listen-hero__title {
+    font-size: 1.25rem;
+  }
+  .listen-hero__content {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+  .listen-card {
+    min-width: 170px;
+    max-width: 180px;
+  }
+  .listen-card__thumb {
+    height: 110px;
+  }
+  .listen-social-banner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 1rem;
+  }
+  .listen-social-banner__links {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .listen-hero {
+    min-height: 200px;
+    border-radius: 12px;
+  }
+  .listen-hero__title {
+    font-size: 1.1rem;
+  }
+  .listen-hero__desc {
+    font-size: 0.84rem;
+  }
+  .listen-hero__btn {
+    padding: 0.6rem 1.1rem;
+    font-size: 0.84rem;
+  }
+  .listen-card {
+    min-width: 155px;
+    max-width: 165px;
+  }
+  .listen-shelf__title {
+    font-size: 1rem;
+  }
+}

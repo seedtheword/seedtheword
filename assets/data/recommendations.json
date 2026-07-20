@@ -7,7 +7,9 @@
       "title": "Not our way, it's Yahweh",
       "source": "After the Heart Podcast by Sam Petrov — Episode 21",
       "note": "Sam Petrov is our friend from the One Heart MVMT.",
-      "thumbnail": ""
+      "thumbnail": "",
+      "featured": true,
+      "shelf": "featured"
     },
     {
       "kind": "spotify",
@@ -15,7 +17,8 @@
       "source": "by Sam Petrov",
       "type": "show",
       "id": "0D88O8K0Yx3pDFBqbnoDX8",
-      "thumbnail": ""
+      "thumbnail": "",
+      "shelf": "podcasts"
     },
     {
       "kind": "youtube",
@@ -24,7 +27,9 @@
       "title": "HungryGen",
       "id": "UC1DuOQg0-nr99t17Ca8Hlag",
       "handle": "@vladhungrygen",
-      "thumbnail": ""
+      "thumbnail": "",
+      "shelf": "channels",
+      "tag": "teaching"
     },
     {
       "kind": "youtube",
@@ -33,7 +38,39 @@
       "title": "Encounter the Spirit",
       "handle": "@DavidDigaHernandez",
       "id": "UCgtFFXZoUxZy3PE_dyhWDhQ",
-      "thumbnail": ""
+      "thumbnail": "",
+      "shelf": "channels",
+      "tag": "teaching"
+    },
+    {
+      "kind": "youtube",
+      "feedType": "channel",
+      "source": "Nils Glenn",
+      "title": "Nils Glenn",
+      "handle": "@NilsGlenn",
+      "thumbnail": "",
+      "shelf": "channels",
+      "tag": "teaching"
+    },
+    {
+      "kind": "youtube",
+      "feedType": "channel",
+      "source": "Bible Animations",
+      "title": "Bible Animations",
+      "handle": "@bible.animations",
+      "thumbnail": "",
+      "shelf": "channels",
+      "tag": "entertainment"
+    },
+    {
+      "kind": "youtube",
+      "feedType": "channel",
+      "source": "Forrest Frank",
+      "title": "Forrest Frank",
+      "handle": "@hiforrest",
+      "thumbnail": "",
+      "shelf": "channels",
+      "tag": "worship"
     }
   ],
   "partners": [

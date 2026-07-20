@@ -272,15 +272,27 @@
   function renderFeaturedHero(item) {
     var kindLabel = item.kind === 'spotify' ? 'Spotify' : 'YouTube';
     var thumbAttr = '';
-    if (item.kind === 'spotify' && item.spotifyId) {
-      thumbAttr = ' data-spotify-id="' + esc(item.spotifyId) + '" data-spotify-type="' + esc(item.type) + '"';
-    } else if (item.kind === 'youtube' && item.youtubeId) {
-      thumbAttr = ' data-youtube-id="' + esc(item.youtubeId) + '"';
+    var thumbClass = '';
+    if (item.thumbnail) {
+      // Static thumbnail — render img directly
+      thumbClass = '';
+    } else {
+      thumbClass = ' store-card__image--loading';
+      if (item.kind === 'spotify' && item.spotifyId) {
+        thumbAttr = ' data-spotify-id="' + esc(item.spotifyId) + '" data-spotify-type="' + esc(item.type) + '"';
+      } else if (item.kind === 'youtube' && item.youtubeId) {
+        thumbAttr = ' data-youtube-id="' + esc(item.youtubeId) + '"';
+      }
     }
+
+    var thumbContent = item.thumbnail
+      ? '<img src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy">'
+      : '';
 
     return (
       '<div class="listen-hero">' +
-        '<div class="listen-hero__thumb store-card__image--loading"' + thumbAttr + '>' +
+        '<div class="listen-hero__thumb' + thumbClass + '"' + thumbAttr + '>' +
+          thumbContent +
           '<div class="listen-hero__gradient"></div>' +
           '<div class="listen-hero__badge">⭐ Featured</div>' +
         '</div>' +
@@ -334,13 +346,21 @@
 
   function renderShelfCard(item) {
     var thumbAttr = '';
-    if (item.kind === 'spotify' && item.spotifyId) {
-      thumbAttr = ' data-spotify-id="' + esc(item.spotifyId) + '" data-spotify-type="' + esc(item.type) + '"';
-    } else if (item.kind === 'youtube' && item.youtubeId) {
-      thumbAttr = ' data-youtube-id="' + esc(item.youtubeId) + '"';
+    var thumbClass = '';
+    var thumbContent = '';
+
+    if (item.thumbnail) {
+      thumbContent = '<img src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy">';
+    } else {
+      thumbClass = ' store-card__image--loading';
+      if (item.kind === 'spotify' && item.spotifyId) {
+        thumbAttr = ' data-spotify-id="' + esc(item.spotifyId) + '" data-spotify-type="' + esc(item.type) + '"';
+      } else if (item.kind === 'youtube' && item.youtubeId) {
+        thumbAttr = ' data-youtube-id="' + esc(item.youtubeId) + '"';
+      }
+      thumbContent = item.kind === 'spotify' ? '🎧' : '📺';
     }
 
-    var fallbackIcon = item.kind === 'spotify' ? '🎧' : '📺';
     var kindPill = item.kind === 'spotify'
       ? '<span class="listen-card__pill listen-card__pill--spotify">Spotify</span>'
       : '<span class="listen-card__pill listen-card__pill--youtube">YouTube</span>';
@@ -352,8 +372,8 @@
 
     return (
       '<a href="' + esc(item.url) + '" target="_blank" rel="noopener" class="listen-card">' +
-        '<div class="listen-card__thumb store-card__image--loading"' + thumbAttr + '>' +
-          fallbackIcon +
+        '<div class="listen-card__thumb' + thumbClass + '"' + thumbAttr + '>' +
+          thumbContent +
         '</div>' +
         '<div class="listen-card__info">' +
           '<h5 class="listen-card__name">' + esc(item.title) + '</h5>' +

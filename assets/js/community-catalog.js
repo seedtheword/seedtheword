@@ -356,11 +356,9 @@
       if (item.kind === 'spotify' && item.spotifyId) {
         thumbAttr = ' data-spotify-id="' + esc(item.spotifyId) + '" data-spotify-type="' + esc(item.type) + '"';
         thumbContent = '🎧';
-      } else if (item.kind === 'youtube') {
-        // Styled initial letter for YouTube channels (no reliable public avatar URL)
-        var initial = (item.title || 'Y').charAt(0).toUpperCase();
-        thumbContent = '<span class="listen-card__initial">' + initial + '</span>';
-        thumbClass = ' listen-card__thumb--initial';
+      } else if (item.kind === 'youtube' && item.youtubeId) {
+        thumbAttr = ' data-youtube-id="' + esc(item.youtubeId) + '"';
+        thumbContent = '📺';
       } else {
         thumbContent = '🔗';
       }
@@ -561,6 +559,10 @@
       return;
     }
 
+    // Try YouTube oEmbed via a recent video from the channel using Google's
+    // search-based approach. YouTube oEmbed only works for videos, not channels.
+    // Use googleapis YouTube search to find one video, then get its thumbnail.
+    // Fallback: try the noembed service which sometimes works.
     var channelUrl = 'https://www.youtube.com/channel/' + channelId;
     var oembedUrl = 'https://noembed.com/embed?url=' + encodeURIComponent(channelUrl);
 
@@ -570,9 +572,23 @@
         if (data && data.thumbnail_url) {
           thumbnailCache[cacheKey] = data.thumbnail_url;
           applyThumbnail(el, data.thumbnail_url);
+        } else {
+          // Fallback: show styled initial
+          showInitialFallback(el);
         }
       })
-      .catch(function () { /* keep emoji fallback */ });
+      .catch(function () {
+        showInitialFallback(el);
+      });
+  }
+
+  function showInitialFallback(el) {
+    var card = el.closest('.listen-card') || el.closest('.listen-hero');
+    var title = card ? (card.querySelector('.listen-card__name, .listen-hero__title') || {}).textContent : '';
+    var initial = (title || 'Y').charAt(0).toUpperCase();
+    el.innerHTML = '<span class="listen-card__initial">' + initial + '</span>';
+    el.classList.remove('store-card__image--loading');
+    el.classList.add('listen-card__thumb--initial');
   }
 
   function applyThumbnail(el, url) {

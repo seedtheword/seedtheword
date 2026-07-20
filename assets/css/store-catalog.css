@@ -932,6 +932,57 @@
    Clean, responsive shelf layout matching the dashboard theme
    ================================================================ */
 
+/* Override store-layout inside Friends in Jesus to be full-width */
+#friends-in-jesus .store-layout {
+  flex-direction: column;
+  gap: 1rem;
+  max-width: none;
+  padding: 0;
+}
+#friends-in-jesus .store-sidebar {
+  position: static;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+#friends-in-jesus .store-sidebar__title {
+  width: 100%;
+  display: none;
+}
+#friends-in-jesus .store-sidebar__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+#friends-in-jesus .store-sidebar__item {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: rgba(44, 95, 46, 0.06);
+  border: 1px solid var(--border, #e8e4de);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+#friends-in-jesus .store-sidebar__item:hover {
+  background: rgba(44, 95, 46, 0.1);
+  border-color: var(--green, #2C5F2E);
+}
+#friends-in-jesus .store-sidebar__item.is-active {
+  background: var(--green, #2C5F2E);
+  color: #fff;
+  border-color: var(--green, #2C5F2E);
+}
+#friends-in-jesus .store-main {
+  width: 100%;
+  min-width: 0;
+}
+#friends-in-jesus .store-search {
+  margin-bottom: 1rem;
+}
+
 /* Container override for listening mode */
 .listen-layout {
   display: flex;
@@ -1254,7 +1305,7 @@
   }
   .listen-card {
     min-width: 155px;
-    width: 45%;
+    width: 44%;
   }
   .listen-social-banner {
     flex-direction: column;
@@ -1269,6 +1320,10 @@
   .listen-social-banner__links {
     justify-content: center;
   }
+  #friends-in-jesus .store-sidebar__item {
+    font-size: 0.78rem;
+    padding: 0.4rem 0.8rem;
+  }
 }
 @media (max-width: 480px) {
   .listen-hero {
@@ -1280,9 +1335,13 @@
   }
   .listen-card {
     min-width: 145px;
-    width: 70%;
+    width: 65%;
   }
   .listen-shelf__scroll {
     gap: 0.7rem;
+  }
+  .listen-social-banner__link {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.74rem;
   }
 }

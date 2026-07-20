@@ -116,7 +116,10 @@
         kind: item.kind || 'link',
         type: item.type || item.feedType || '',
         url: url,
-        note: item.note || ''
+        note: item.note || '',
+        thumbnail: item.thumbnail || '',
+        spotifyId: item.id || '',
+        youtubeId: item.id || ''
       });
     });
 
@@ -224,9 +227,26 @@
       ? '<a href="' + esc(item.url) + '" target="_blank" rel="noopener" class="store-card__action store-card__action--primary">Open ' + esc(item.kind) + ' →</a>'
       : '<span class="store-card__action store-card__action--secondary">Coming soon</span>';
 
+    // Build image HTML — show thumbnail if available, otherwise show a
+    // placeholder that will be replaced by oEmbed fetch
+    var imageHTML;
+    if (item.thumbnail) {
+      imageHTML = '<div class="store-card__image store-card__image--thumb"><img src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy"></div>';
+    } else {
+      // Placeholder with data attributes for lazy thumbnail fetching
+      var dataAttr = '';
+      if (item.kind === 'spotify' && item.spotifyId) {
+        dataAttr = ' data-spotify-id="' + esc(item.spotifyId) + '" data-spotify-type="' + esc(item.type) + '"';
+      } else if (item.kind === 'youtube' && item.youtubeId) {
+        dataAttr = ' data-youtube-id="' + esc(item.youtubeId) + '"';
+      }
+      var fallbackIcon = item.kind === 'spotify' ? '🎧' : '📺';
+      imageHTML = '<div class="store-card__image store-card__image--thumb store-card__image--loading"' + dataAttr + '>' + fallbackIcon + '</div>';
+    }
+
     return (
       '<article class="store-card">' +
-        '<div class="store-card__image">' + (item.kind === 'spotify' ? '🎧' : '📺') + '</div>' +
+        imageHTML +
         '<div class="store-card__body">' +
           '<h3 class="store-card__title">' + esc(item.title) + '</h3>' +
           '<p class="store-card__desc">' + esc(item.source) + (item.note ? ' — ' + esc(item.note) : '') + '</p>' +
@@ -346,6 +366,86 @@
     }
 
     gridEl.innerHTML = filtered.map(renderCard).join('');
+
+    // Fetch thumbnails for listening cards without a static image
+    fetchMissingThumbnails();
+  }
+
+  // ── Fetch missing thumbnails via oEmbed ─────────────────────
+  var thumbnailCache = {};
+
+  function fetchMissingThumbnails() {
+    var cards = gridEl.querySelectorAll('.store-card__image--loading');
+    cards.forEach(function (el) {
+      var spotifyId = el.getAttribute('data-spotify-id');
+      var spotifyType = el.getAttribute('data-spotify-type');
+      var youtubeId = el.getAttribute('data-youtube-id');
+
+      if (spotifyId) {
+        fetchSpotifyThumbnail(el, spotifyId, spotifyType);
+      } else if (youtubeId) {
+        fetchYouTubeThumbnail(el, youtubeId);
+      }
+    });
+  }
+
+  function fetchSpotifyThumbnail(el, id, type) {
+    var cacheKey = 'spotify-' + id;
+    if (thumbnailCache[cacheKey]) {
+      applyThumbnail(el, thumbnailCache[cacheKey]);
+      return;
+    }
+
+    var spotifyUrl = 'https://open.spotify.com/' + (type || 'episode') + '/' + id;
+    var oembedUrl = 'https://open.spotify.com/oembed?url=' + encodeURIComponent(spotifyUrl);
+
+    fetch(oembedUrl)
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        if (data && data.thumbnail_url) {
+          thumbnailCache[cacheKey] = data.thumbnail_url;
+          applyThumbnail(el, data.thumbnail_url);
+        }
+      })
+      .catch(function () { /* keep emoji fallback */ });
+  }
+
+  function fetchYouTubeThumbnail(el, channelId) {
+    var cacheKey = 'youtube-' + channelId;
+    if (thumbnailCache[cacheKey]) {
+      applyThumbnail(el, thumbnailCache[cacheKey]);
+      return;
+    }
+
+    // YouTube oEmbed for channels doesn't reliably return thumbnails,
+    // so we use the channel's default avatar URL pattern or try oembed
+    // with a video URL. For channels, we'll try the noembed.com service
+    // which wraps YouTube's oEmbed.
+    var handle = el.closest('.store-card') && el.closest('.store-card').querySelector('.store-card__title');
+    var channelUrl = 'https://www.youtube.com/channel/' + channelId;
+    var oembedUrl = 'https://noembed.com/embed?url=' + encodeURIComponent(channelUrl);
+
+    fetch(oembedUrl)
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        if (data && data.thumbnail_url) {
+          thumbnailCache[cacheKey] = data.thumbnail_url;
+          applyThumbnail(el, data.thumbnail_url);
+        }
+      })
+      .catch(function () { /* keep emoji fallback */ });
+  }
+
+  function applyThumbnail(el, url) {
+    var img = document.createElement('img');
+    img.src = url;
+    img.alt = '';
+    img.loading = 'lazy';
+    img.onload = function () {
+      el.textContent = '';
+      el.appendChild(img);
+      el.classList.remove('store-card__image--loading');
+    };
   }
 
   // ── Render sidebar ──────────────────────────────────────────

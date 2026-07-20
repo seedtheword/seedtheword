@@ -928,83 +928,16 @@
 }
 
 /* ================================================================
-   Netflix-style Listening Layout — Friends in Jesus
-   Dark theme dashboard for the entire section
+   Friends in Jesus — Listening Layout
+   Clean, responsive shelf layout matching the dashboard theme
    ================================================================ */
-
-/* Dark theme wrapper for entire Friends in Jesus section */
-#friends-in-jesus {
-  background: #0d0d0d !important;
-  color: #e8e8e8;
-  padding: 3rem 0 !important;
-}
-#friends-in-jesus .section-title {
-  color: #fff;
-}
-#friends-in-jesus .store-layout {
-  gap: 1.5rem;
-}
-
-/* Dark sidebar within section */
-#friends-in-jesus .store-sidebar {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 12px;
-  color: #ccc;
-}
-#friends-in-jesus .store-sidebar__title {
-  color: #888;
-}
-#friends-in-jesus .store-sidebar__item {
-  color: #ccc;
-  border-radius: 8px;
-  padding: 0.6rem 0.85rem;
-  transition: background 0.15s, color 0.15s;
-}
-#friends-in-jesus .store-sidebar__item:hover {
-  background: rgba(29, 185, 84, 0.1);
-  color: #1DB954;
-}
-#friends-in-jesus .store-sidebar__item.is-active {
-  background: rgba(29, 185, 84, 0.15);
-  color: #1DB954;
-  font-weight: 700;
-}
-
-/* Dark search bar */
-#friends-in-jesus .store-search {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 10px;
-}
-#friends-in-jesus .store-search__input {
-  background: transparent;
-  color: #e8e8e8;
-}
-#friends-in-jesus .store-search__input::placeholder {
-  color: #666;
-}
-
-/* Dark category header */
-#friends-in-jesus .store-category-header__title {
-  color: #fff;
-}
-#friends-in-jesus .store-category-header__desc {
-  color: #999;
-}
-
-/* Dark toggle button */
-#friends-in-jesus .store-sidebar-toggle {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  color: #ccc;
-}
 
 /* Container override for listening mode */
 .listen-layout {
   display: flex;
   flex-direction: column;
-  gap: 2.25rem;
+  gap: 2rem;
+  width: 100%;
 }
 
 /* ── Featured Hero Card ──────────────────────────────────────── */
@@ -1013,15 +946,16 @@
   border-radius: 16px;
   overflow: hidden;
   background: #111;
-  min-height: 300px;
+  min-height: 260px;
   display: flex;
   align-items: flex-end;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  width: 100%;
 }
 .listen-hero:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 50px rgba(0, 0, 0, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.22);
 }
 .listen-hero__thumb {
   position: absolute;
@@ -1029,7 +963,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 4rem;
+  font-size: 3.5rem;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 }
 .listen-hero__thumb img {
@@ -1040,51 +974,51 @@
 .listen-hero__gradient {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 40%, transparent 100%);
+  background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.45) 45%, transparent 100%);
   z-index: 1;
 }
 .listen-hero__badge {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
+  top: 0.85rem;
+  left: 0.85rem;
   background: rgba(255, 215, 0, 0.92);
   color: #111;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.06em;
-  padding: 0.35rem 0.75rem;
-  border-radius: 6px;
+  padding: 0.3rem 0.65rem;
+  border-radius: 5px;
   z-index: 2;
   text-transform: uppercase;
 }
 .listen-hero__content {
   position: relative;
   z-index: 2;
-  padding: 2.5rem 2rem 2rem;
+  padding: 2rem 1.75rem 1.5rem;
   width: 100%;
 }
 .listen-hero__eyebrow {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #1DB954;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   display: block;
 }
 .listen-hero__title {
-  font-size: 1.75rem;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
   font-weight: 800;
   color: #fff;
-  margin: 0 0 0.5rem;
-  line-height: 1.25;
+  margin: 0 0 0.4rem;
+  line-height: 1.3;
 }
 .listen-hero__desc {
-  font-size: 0.92rem;
-  color: rgba(255, 255, 255, 0.75);
-  margin: 0 0 1.25rem;
+  font-size: clamp(0.82rem, 1.5vw, 0.92rem);
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 1rem;
   line-height: 1.6;
-  max-width: 520px;
+  max-width: 480px;
 }
 .listen-hero__btn {
   display: inline-flex;
@@ -1092,18 +1026,18 @@
   gap: 0.4rem;
   background: #1DB954;
   color: #fff;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 700;
-  padding: 0.75rem 1.6rem;
+  padding: 0.65rem 1.4rem;
   border-radius: 999px;
   text-decoration: none;
   transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
-  box-shadow: 0 4px 18px rgba(29, 185, 84, 0.4);
+  box-shadow: 0 3px 12px rgba(29, 185, 84, 0.3);
 }
 .listen-hero__btn:hover {
   background: #17a449;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(29, 185, 84, 0.55);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(29, 185, 84, 0.45);
   color: #fff;
 }
 
@@ -1111,25 +1045,25 @@
 .listen-shelf {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
+  width: 100%;
 }
 .listen-shelf__title {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text, #2b2b2b);
   margin: 0;
-  padding-left: 0.25rem;
 }
 .listen-shelf__scroll {
   display: flex;
-  gap: 1rem;
+  gap: 0.85rem;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
 }
 .listen-shelf__scroll::-webkit-scrollbar {
   height: 5px;
@@ -1138,40 +1072,41 @@
   background: transparent;
 }
 .listen-shelf__scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 3px;
 }
 
-/* ── Shelf Card (individual channel/podcast card) ────────────── */
+/* ── Shelf Card ──────────────────────────────────────────────── */
 .listen-card {
   display: flex;
   flex-direction: column;
-  min-width: 210px;
+  min-width: 180px;
+  width: 22%;
   max-width: 240px;
   flex-shrink: 0;
   scroll-snap-align: start;
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  background: #fff;
+  border: 1px solid var(--border, #e8e4de);
   border-radius: 12px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 .listen-card:hover {
-  transform: translateY(-5px) scale(1.03);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
-  border-color: #1DB954;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  border-color: var(--green, #2C5F2E);
 }
 .listen-card__thumb {
   width: 100%;
-  height: 140px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #0f3443 100%);
+  aspect-ratio: 16 / 10;
+  background: #f0ede8;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
+  font-size: 2rem;
   overflow: hidden;
 }
 .listen-card__thumb img {
@@ -1180,16 +1115,16 @@
   object-fit: cover;
 }
 .listen-card__info {
-  padding: 0.9rem 1rem 1.1rem;
+  padding: 0.75rem 0.85rem 0.85rem;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.25rem;
   flex: 1;
 }
 .listen-card__name {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text, #2b2b2b);
   margin: 0;
   line-height: 1.3;
   display: -webkit-box;
@@ -1198,188 +1133,156 @@
   overflow: hidden;
 }
 .listen-card__source {
-  font-size: 0.8rem;
-  color: #999;
+  font-size: 0.76rem;
+  color: var(--muted, #666);
   margin: 0;
   line-height: 1.4;
 }
 .listen-card__meta {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   margin-top: auto;
-  padding-top: 0.5rem;
+  padding-top: 0.4rem;
   flex-wrap: wrap;
 }
 .listen-card__pill {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  padding: 0.22rem 0.55rem;
+  padding: 0.18rem 0.45rem;
   border-radius: 4px;
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 .listen-card__pill--spotify {
-  background: rgba(29, 185, 84, 0.18);
+  background: rgba(29, 185, 84, 0.1);
   color: #1DB954;
 }
 .listen-card__pill--youtube {
-  background: rgba(255, 0, 0, 0.12);
-  color: #ff4444;
+  background: rgba(255, 0, 0, 0.07);
+  color: #cc0000;
 }
 .listen-card__tag {
-  font-size: 0.7rem;
-  color: #777;
+  font-size: 0.67rem;
+  color: var(--muted, #666);
   font-weight: 600;
 }
 
-/* ── Social Promo Banner (dark theme) ────────────────────────── */
+/* ── Social Promo Banner ─────────────────────────────────────── */
 .listen-social-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
-  padding: 1.35rem 1.75rem;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(29, 185, 84, 0.08) 0%, rgba(0, 136, 204, 0.08) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 1.25rem;
+  padding: 1.1rem 1.5rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(44, 95, 46, 0.05) 0%, rgba(0, 136, 204, 0.05) 100%);
+  border: 1px solid var(--border, #e8e4de);
+  width: 100%;
+  box-sizing: border-box;
 }
 .listen-social-banner__text {
   flex: 1;
-  min-width: 0;
+  min-width: 200px;
 }
 .listen-social-banner__lead {
-  font-size: 1rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  color: #fff;
-  margin: 0 0 0.25rem;
-  white-space: normal;
+  color: var(--text, #2b2b2b);
+  margin: 0 0 0.15rem;
 }
 .listen-social-banner__sub {
-  font-size: 0.85rem;
-  color: #999;
+  font-size: 0.82rem;
+  color: var(--muted, #666);
   margin: 0;
   line-height: 1.5;
-  white-space: normal;
 }
 .listen-social-banner__links {
   display: flex;
-  gap: 0.65rem;
+  gap: 0.5rem;
   flex-shrink: 0;
-  flex-wrap: wrap;
 }
 .listen-social-banner__link {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.6rem 1.1rem;
+  gap: 0.35rem;
+  padding: 0.5rem 0.9rem;
   border-radius: 999px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .listen-social-banner__link:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 .listen-social-banner__link--telegram {
   background: #0088cc;
   color: #fff;
-  box-shadow: 0 4px 14px rgba(0, 136, 204, 0.35);
+  box-shadow: 0 2px 8px rgba(0, 136, 204, 0.25);
 }
 .listen-social-banner__link--telegram:hover {
-  box-shadow: 0 6px 20px rgba(0, 136, 204, 0.5);
+  box-shadow: 0 4px 14px rgba(0, 136, 204, 0.4);
   color: #fff;
 }
 .listen-social-banner__link--instagram {
   background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(225, 48, 108, 0.35);
+  box-shadow: 0 2px 8px rgba(225, 48, 108, 0.25);
 }
 .listen-social-banner__link--instagram:hover {
-  box-shadow: 0 6px 20px rgba(225, 48, 108, 0.5);
+  box-shadow: 0 4px 14px rgba(225, 48, 108, 0.4);
   color: #fff;
+}
+.listen-social-banner__link svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
-/* ── Dark store-grid for non-listening categories ────────────── */
-#friends-in-jesus .store-grid .store-card {
-  background: #1a1a1a;
-  border-color: #2a2a2a;
-  color: #e8e8e8;
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .listen-card {
+    min-width: 170px;
+    width: 40%;
+  }
 }
-#friends-in-jesus .store-grid .store-card:hover {
-  border-color: #1DB954;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
-}
-#friends-in-jesus .store-grid .store-card__title {
-  color: #fff;
-}
-#friends-in-jesus .store-grid .store-card__desc {
-  color: #999;
-}
-#friends-in-jesus .store-grid .store-card__price {
-  color: #bbb;
-}
-#friends-in-jesus .store-grid .store-card__image {
-  background: #111;
-  color: #666;
-}
-#friends-in-jesus .store-grid .store-card__action--primary {
-  background: #1DB954;
-  color: #fff;
-}
-
-/* ── Responsive: listening layout ────────────────────────────── */
 @media (max-width: 768px) {
   .listen-hero {
-    min-height: 240px;
-  }
-  .listen-hero__title {
-    font-size: 1.3rem;
-  }
-  .listen-hero__content {
-    padding: 1.5rem 1.25rem 1.25rem;
+    min-height: 200px;
   }
   .listen-card {
-    min-width: 175px;
-    max-width: 195px;
-  }
-  .listen-card__thumb {
-    height: 115px;
+    min-width: 155px;
+    width: 45%;
   }
   .listen-social-banner {
     flex-direction: column;
     align-items: stretch;
     text-align: center;
-    gap: 1rem;
-    padding: 1.25rem;
+    gap: 0.85rem;
+    padding: 1rem;
+  }
+  .listen-social-banner__text {
+    min-width: 0;
   }
   .listen-social-banner__links {
     justify-content: center;
   }
 }
-
 @media (max-width: 480px) {
   .listen-hero {
-    min-height: 200px;
-    border-radius: 12px;
+    min-height: 180px;
+    border-radius: 10px;
   }
-  .listen-hero__title {
-    font-size: 1.1rem;
-  }
-  .listen-hero__desc {
-    font-size: 0.84rem;
-  }
-  .listen-hero__btn {
-    padding: 0.6rem 1.1rem;
-    font-size: 0.84rem;
+  .listen-hero__content {
+    padding: 1.25rem 1rem 1rem;
   }
   .listen-card {
-    min-width: 160px;
-    max-width: 175px;
+    min-width: 145px;
+    width: 70%;
   }
-  .listen-shelf__title {
-    font-size: 1rem;
+  .listen-shelf__scroll {
+    gap: 0.7rem;
   }
 }

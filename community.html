@@ -190,6 +190,61 @@
   letter-spacing: -0.01em;
 }
 
+/* ── Compact platform social cards ─────────────────────────────── */
+.community-dashboard .platform-cta {
+  min-height: auto;
+  padding: 1.25rem 1.1rem 1.1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-warm);
+  border-top: 2px solid var(--platform-color);
+  background: var(--card-bg);
+}
+.community-dashboard .platform-cta__glow { display: none; }
+.community-dashboard .platform-cta__icon {
+  width: 38px;
+  height: 38px;
+  margin-bottom: 0.7rem;
+  box-shadow: none;
+}
+.community-dashboard .platform-cta__icon svg {
+  width: 18px;
+  height: 18px;
+}
+.community-dashboard .platform-cta__title {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.community-dashboard .platform-cta__blurb {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin-bottom: 0.65rem;
+}
+.community-dashboard .platform-cta__points {
+  margin-bottom: 0.85rem;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+}
+.community-dashboard .platform-cta__dot {
+  width: 5px;
+  height: 5px;
+  margin-top: 0.35rem;
+  box-shadow: none;
+}
+.community-dashboard .platform-cta__btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+}
+.community-dashboard .platform-cta__foot {
+  font-size: 0.68rem;
+  margin-top: 0.4rem;
+}
+.community-dashboard .community-feeds-grid {
+  gap: 0.85rem;
+}
+
 /* ── Mobile: collapse to single column ─────────────────────────── */
 @media (max-width: 1024px) {
   .community-dashboard {

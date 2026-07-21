@@ -20,7 +20,76 @@
   <meta name="twitter:description" content="The Gospel in seven movements, the team that tells it, and the SEED rhythm that keeps us walking.">
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <title>About — Seed the Word Ministry</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
+  <style>
+    /* ── Serif Editorial Design System (About page) ─────────────── */
+    :root {
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'Source Sans 3', system-ui, sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+      --bg-ivory: #FAFAF8;
+      --fg: #1A1A1A;
+      --fg-muted: #6B6B6B;
+      --accent-gold: #B8860B;
+      --accent-gold-light: #D4A84B;
+      --border-warm: #E8E4DF;
+      --card-bg: #FFFFFF;
+      --surface-muted: #F5F3F0;
+    }
+    body {
+      font-family: var(--sans);
+      background: var(--bg-ivory);
+    }
+    .section-title {
+      font-family: var(--serif);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+    .section-title--sub {
+      font-family: var(--serif);
+      font-weight: 400;
+    }
+    /* Section eyebrow labels */
+    .section .container > p[style*="uppercase"],
+    .section .container > p[style*="letter-spacing"] {
+      font-family: var(--mono);
+    }
+    /* Cards and panels get editorial border treatment */
+    .glass-morphism,
+    .team-card,
+    .value-card {
+      border: 1px solid var(--border-warm);
+      border-top: 2px solid var(--accent-gold);
+      border-radius: 8px;
+      background: var(--card-bg);
+      backdrop-filter: none;
+    }
+    /* Headings inside cards */
+    .team-card h3,
+    .value-card h3 {
+      font-family: var(--serif);
+      font-weight: 600;
+    }
+    /* Buttons — gold accent */
+    .btn-primary {
+      background: var(--accent-gold);
+      border-radius: 6px;
+    }
+    .btn-primary:hover {
+      background: var(--accent-gold-light);
+    }
+    /* Contact form inputs */
+    input, select, textarea {
+      font-family: var(--sans);
+      border: 1px solid var(--border-warm);
+      border-radius: 6px;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 0 3px rgba(184,134,11,0.08);
+    }
+  </style>
 </head>
 <body>
 

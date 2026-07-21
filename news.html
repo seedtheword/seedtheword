@@ -17,7 +17,7 @@
   <meta name="twitter:title" content="News — Seed the Word Ministry">
   <meta name="twitter:description" content="Live calendar, ministry outreach, and stories from the field.">
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <style>
     /* ── Serif Editorial Tokens (News page) ─────────────────────── */
@@ -83,6 +83,31 @@
       font-family: var(--serif);
       font-weight: 400;
       font-size: 1.2rem;
+    }
+
+    /* ── Outreach card text visibility on dark backgrounds ───────── */
+    .outreach-card {
+      background: #111;
+    }
+    .outreach-card__body {
+      color: #fff;
+    }
+    .outreach-card__title {
+      color: #fff !important;
+    }
+    .outreach-card__location {
+      color: rgba(255, 255, 255, 0.75) !important;
+    }
+    .outreach-card__body-text {
+      color: rgba(255, 255, 255, 0.88) !important;
+    }
+    .outreach-card__testimony {
+      color: rgba(255, 255, 255, 0.85) !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+    .outreach-card__actions a {
+      color: var(--accent-gold-light, #D4A84B) !important;
     }
 
     /* ── Tighter newsletter flow ────────────────────────────────── */
@@ -493,6 +518,7 @@
 <section class="section section--white outreach-section" id="ministry-outreach">
   <div class="container">
     <h2 class="section-title" style="text-align:left;font-size:clamp(1.5rem,3vw,2rem);text-transform:uppercase;letter-spacing:0.04em;">Latest from the Field</h2>
+    <p style="font-family:'Caveat',cursive;font-size:1.4rem;color:var(--accent-gold, #B8860B);margin:-0.5rem 0 1.75rem;text-align:left;font-weight:700;">Seed the Word — one Bible at a time</p>
 
     <!-- Outreach event cards with their own carousels -->
     <div class="outreach-grid" id="ministry-outreach-cards" aria-live="polite">

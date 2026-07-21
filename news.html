@@ -425,7 +425,18 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Announcements grid + responsive — defined in editorial overrides above */
+    /* Announcements grid + responsive */
+    .announcements-3col-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .announcements-3col-layout .announcements-column {
+      min-width: 0;
+    }
+    @media (max-width: 600px) {
+      .announcements-3col-layout { grid-template-columns: 1fr; }
+    }
     #announcements .impact-strip { max-width: 100%; }
 
     @media (max-width: 768px) {
@@ -517,8 +528,7 @@
 <!-- Ministry Outreach — magazine-style photo cards, placed right after the hero -->
 <section class="section section--white outreach-section" id="ministry-outreach">
   <div class="container">
-    <h2 class="section-title" style="text-align:left;font-size:clamp(1.5rem,3vw,2rem);text-transform:uppercase;letter-spacing:0.04em;">Latest from the Field</h2>
-    <p style="font-family:'Caveat',cursive;font-size:1.4rem;color:var(--accent-gold, #B8860B);margin:-0.5rem 0 1.75rem;text-align:left;font-weight:700;">Seed the Word — one Bible at a time</p>
+    <h2 class="section-title" style="text-align:left;font-size:clamp(1.5rem,3vw,2rem);text-transform:uppercase;letter-spacing:0.04em;display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap;">Latest from the Field <span style="font-family:'Caveat',cursive;font-size:1.3rem;color:var(--accent-gold, #B8860B);font-weight:700;text-transform:none;letter-spacing:normal;margin-left:auto;">Seed the Word</span></h2>
 
     <!-- Outreach event cards with their own carousels -->
     <div class="outreach-grid" id="ministry-outreach-cards" aria-live="polite">

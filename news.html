@@ -17,19 +17,89 @@
   <meta name="twitter:title" content="News — Seed the Word Ministry">
   <meta name="twitter:description" content="Live calendar, ministry outreach, and stories from the field.">
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <style>
-    /* ==== Share-your-story section + modal (news.html reorg) =============
-       Scoped to news.html so main.css stays untouched for this rollout.
-       If these styles graduate out of "new", fold them into main.css. */
+    /* ── Serif Editorial Tokens (News page) ─────────────────────── */
+    :root {
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'Source Sans 3', system-ui, sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+      --bg-ivory: #FAFAF8;
+      --fg: #1A1A1A;
+      --fg-muted: #6B6B6B;
+      --accent-gold: #B8860B;
+      --accent-gold-light: #D4A84B;
+      --border-warm: #E8E4DF;
+      --card-bg: #FFFFFF;
+      --surface-muted: #F5F3F0;
+    }
+    body { font-family: var(--sans); background: var(--bg-ivory); }
+
+    /* ── Editorial typography overrides ──────────────────────────── */
+    .section-title {
+      font-family: var(--serif);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Hero carousel editorial treatment ──────────────────────── */
+    .news-hero-feature__tag {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      background: var(--accent-gold);
+    }
+    .news-hero-feature__title {
+      font-family: var(--serif);
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .news-hero-feature__desc {
+      font-family: var(--sans);
+      line-height: 1.75;
+    }
+
+    /* ── Section backgrounds — warm ivory tones ─────────────────── */
+    #announcements { background: var(--card-bg); }
+    #ministry-outreach { background: var(--card-bg); padding: 2.5rem 0 3rem; }
+    #share-your-story { background: var(--bg-ivory); }
+    #ministry-highlights { background: var(--card-bg); }
+    #calendar-section { background: var(--surface-muted); }
+
+    /* ── Outreach card editorial styling ────────────────────────── */
+    #ministry-outreach .outreach-card__tag {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      background: var(--accent-gold);
+    }
+    #ministry-outreach .outreach-card__title,
+    #ministry-outreach .outreach-event-card__title {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 1.2rem;
+    }
+
+    /* ── Tighter newsletter flow ────────────────────────────────── */
+    .news-editorial + section,
+    section + section { margin-top: 0; }
+    section.section { padding: 2.5rem 0; }
+
+    /* ==== Share-your-story section + modal ========================= */
 
     .share-story-section { padding: 3rem 0; }
     .share-story__lead {
       max-width: 680px;
       margin: 0 auto 1.5rem;
       text-align: center;
-      color: var(--muted);
-      line-height: 1.7;
+      color: var(--fg-muted);
+      font-family: var(--sans);
+      line-height: 1.75;
       font-size: 1rem;
     }
     .share-story__actions {
@@ -38,10 +108,14 @@
       text-align: center;
     }
     .share-story__primary {
-      font-size: 1.05rem;
-      padding: 0.95rem 1.4rem;
+      font-size: 1rem;
+      font-family: var(--sans);
+      padding: 0.85rem 1.4rem;
       margin-bottom: 0.85rem;
+      background: var(--accent-gold);
+      border-radius: 6px;
     }
+    .share-story__primary:hover { background: var(--accent-gold-light); }
     .share-story__alts {
       display: flex;
       gap: 0.5rem;
@@ -51,7 +125,7 @@
     }
     .share-story__privacy {
       font-size: 0.82rem;
-      color: var(--muted);
+      color: var(--fg-muted);
       margin: 0.75rem 0 0;
       font-style: italic;
     }
@@ -91,15 +165,16 @@
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
-      padding: 0.9rem 1.1rem;
-      border-bottom: 1px solid #ebebeb;
-      background: #fafafa;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border-warm);
+      background: var(--surface-muted);
     }
     .share-story-modal__title {
       margin: 0;
+      font-family: var(--serif);
       font-size: 1.1rem;
-      font-weight: 800;
-      color: #0a0a0a;
+      font-weight: 400;
+      color: var(--fg);
     }
     .share-story-modal__close {
       background: none;
@@ -207,22 +282,24 @@
     }
     .news-hero-feature__tag {
       display: inline-block;
-      background: var(--gold, #d4a574);
+      background: var(--accent-gold);
       color: #fff;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      padding: 0.35rem 0.8rem;
-      border-radius: 4px;
+      padding: 0.35rem 0.85rem;
+      border-radius: 3px;
       margin-bottom: 1rem;
     }
     .news-hero-feature__title {
       font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 900;
-      line-height: 1.05;
+      font-family: var(--serif);
+      font-weight: 400;
+      line-height: 1.1;
       margin: 0 0 1rem;
-      text-transform: uppercase;
+      text-transform: none;
       letter-spacing: -0.02em;
     }
     .news-hero-feature__desc {
@@ -253,88 +330,6 @@
     .news-hero-dot.is-active {
       background: #fff;
       border-color: #fff;
-    }
-
-    /* Tighter newsletter flow — reduce gaps between sections */
-    .news-editorial + section,
-    section + section { margin-top: 0; }
-    section.section { padding: 2.5rem 0; }
-
-    /* Alternating warm section backgrounds for visual rhythm */
-    #announcements { background: #fff; }
-    #ministry-outreach { background: #fff; padding: 2.5rem 0 3rem; }
-    #share-your-story { background: #fff; }
-    #ministry-highlights { background: #fff; }
-    #calendar-section { background: #f8faf8; }
-
-    /* Outreach cards — magazine 3-across full-image cards with text overlay */
-    .outreach-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
-    }
-    .outreach-grid .outreach-card {
-      position: relative;
-      border-radius: 0;
-      overflow: hidden;
-      min-height: 350px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      background: #111;
-      border: none;
-      box-shadow: none;
-    }
-    .outreach-grid .outreach-card__media {
-      position: absolute;
-      inset: 0;
-    }
-    .outreach-grid .outreach-card__media img,
-    .outreach-grid .outreach-card__media .outreach-slide {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .outreach-grid .outreach-card__body {
-      position: relative;
-      z-index: 2;
-      padding: 1.5rem;
-      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
-    }
-    .outreach-grid .outreach-card__date {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.7);
-      margin: 0 0 0.35rem;
-    }
-    .outreach-grid .outreach-card__title {
-      color: #fff;
-      font-size: 1.1rem;
-      font-weight: 800;
-      margin: 0 0 0.25rem;
-      line-height: 1.2;
-    }
-    .outreach-grid .outreach-card__location {
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.6);
-      margin: 0;
-    }
-    .outreach-grid .outreach-card__body-text,
-    .outreach-grid .outreach-card__testimony,
-    .outreach-grid .outreach-card__actions {
-      display: none;
-    }
-    .outreach-grid .outreach-slide-dots {
-      position: absolute;
-      bottom: 0.5rem;
-      right: 0.75rem;
-      z-index: 3;
-    }
-    @media (max-width: 900px) {
-      .outreach-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 600px) {
-      .outreach-grid { grid-template-columns: 1fr; }
-      .outreach-grid .outreach-card { min-height: 280px; }
     }
 
     /* Magazine-style outreach cards — full photo with overlaid text */
@@ -405,16 +400,7 @@
       margin-bottom: 0.5rem;
     }
 
-    /* 2-column announcements layout (was 3-col before Ongoing Ministries removal) */
-    .announcements-3col-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-    @media (max-width: 600px) {
-      .announcements-3col-layout { grid-template-columns: 1fr; }
-    }
-
+    /* Announcements grid + responsive — defined in editorial overrides above */
     #announcements .impact-strip { max-width: 100%; }
 
     @media (max-width: 768px) {

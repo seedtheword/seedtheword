@@ -19,97 +19,193 @@
   <meta name="twitter:description" content="Serve alongside a ministry making real impact.">
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <title>Apply to Volunteer — Seed the Word Ministry</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <style>
+    /* ── Serif Editorial Tokens ─────────────────────────────────── */
+    :root {
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'Source Sans 3', system-ui, sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+      --bg-ivory: #FAFAF8;
+      --fg: #1A1A1A;
+      --fg-muted: #6B6B6B;
+      --accent-gold: #B8860B;
+      --accent-gold-light: #D4A84B;
+      --border-warm: #E8E4DF;
+      --card-bg: #FFFFFF;
+      --surface-muted: #F5F3F0;
+    }
+    body {
+      font-family: var(--sans);
+      background: var(--bg-ivory);
+    }
+
+    /* ── Hero ───────────────────────────────────────────────────── */
     .join-hero {
       position: relative;
-      padding: 5rem 1.5rem 3.5rem;
+      padding: 6rem 2rem 4rem;
       text-align: center;
-      background: linear-gradient(135deg, rgba(44,95,46,0.92), rgba(44,95,46,0.78)),
+      background: linear-gradient(135deg, rgba(26,26,26,0.88), rgba(26,26,26,0.72)),
                   url('assets/images/backgrounds/bible-in-background.jpg') center/cover no-repeat;
     }
     .join-hero__title {
-      font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+      font-family: var(--serif);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 400;
       color: #fff;
-      margin: 0 0 0.75rem;
-      font-weight: 800;
+      margin: 0 0 0.85rem;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
     }
     .join-hero__subtitle {
-      font-size: clamp(0.95rem, 2.2vw, 1.15rem);
-      color: rgba(255,255,255,0.9);
-      max-width: 550px;
+      font-family: var(--sans);
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      color: rgba(255,255,255,0.78);
+      max-width: 520px;
       margin: 0 auto;
-      line-height: 1.6;
+      line-height: 1.75;
     }
+
+    /* ── Form Container ─────────────────────────────────────────── */
     .volunteer-form-wrap {
-      max-width: 640px;
+      max-width: 620px;
       margin: 0 auto;
-      padding: 2.5rem 1.5rem 4rem;
+      padding: 3.5rem 2rem 5rem;
     }
     .volunteer-form-wrap h2 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--green, #2C5F2E);
-      margin: 0 0 1.5rem;
+      font-family: var(--serif);
+      font-size: 1.6rem;
+      font-weight: 400;
+      color: var(--fg);
+      margin: 0 0 0.5rem;
       text-align: center;
+      letter-spacing: -0.01em;
     }
-    .vol-field { margin-bottom: 1.25rem; }
+    .volunteer-form-wrap h2::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: var(--accent-gold);
+      margin: 0.75rem auto 2rem;
+    }
+
+    /* ── Form Fields ────────────────────────────────────────────── */
+    .vol-field { margin-bottom: 1.5rem; }
     .vol-field label {
       display: block;
+      font-family: var(--sans);
       font-weight: 600;
-      font-size: 0.9rem;
-      margin-bottom: 0.35rem;
-      color: var(--text, #2b2b2b);
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+      color: var(--fg);
+      letter-spacing: 0.01em;
     }
     .vol-field input,
     .vol-field select,
     .vol-field textarea {
       width: 100%;
-      padding: 0.7rem 0.9rem;
-      border: 1.5px solid var(--border, #e8e4de);
-      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-warm);
+      border-radius: 6px;
+      font-family: var(--sans);
       font-size: 0.95rem;
-      font-family: inherit;
-      background: #fff;
-      transition: border-color 0.2s;
+      color: var(--fg);
+      background: var(--card-bg);
+      transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
     }
     .vol-field input:focus,
     .vol-field select:focus,
     .vol-field textarea:focus {
       outline: none;
-      border-color: var(--green, #2C5F2E);
-      box-shadow: 0 0 0 3px rgba(44,95,46,0.1);
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 0 3px rgba(184,134,11,0.08);
     }
-    .vol-field textarea { min-height: 90px; resize: vertical; }
+    .vol-field input::placeholder,
+    .vol-field textarea::placeholder {
+      color: var(--fg-muted);
+      opacity: 0.6;
+    }
+    .vol-field textarea { min-height: 100px; resize: vertical; }
+
+    /* ── Checkbox Group ─────────────────────────────────────────── */
     .vol-checkbox-group {
-      display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.35rem;
+      display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.4rem;
     }
     .vol-checkbox-group label {
-      display: inline-flex; align-items: center; gap: 0.4rem;
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-family: var(--sans);
       font-weight: 400; font-size: 0.9rem; cursor: pointer;
+      color: var(--fg);
     }
     .vol-checkbox-group input[type="checkbox"] {
-      width: 18px; height: 18px; accent-color: var(--green, #2C5F2E);
+      width: 18px; height: 18px; accent-color: var(--accent-gold);
     }
+
+    /* ── Submit Button ──────────────────────────────────────────── */
     .vol-submit {
       display: block; width: 100%;
-      padding: 0.9rem; margin-top: 1.5rem;
-      background: var(--green, #2C5F2E); color: #fff;
-      font-size: 1rem; font-weight: 700;
-      border: none; border-radius: 30px; cursor: pointer;
-      transition: background 0.2s; min-height: 48px;
+      padding: 0.9rem; margin-top: 2rem;
+      background: var(--accent-gold); color: #fff;
+      font-family: var(--sans);
+      font-size: 0.95rem; font-weight: 600;
+      letter-spacing: 0.02em;
+      border: none; border-radius: 6px; cursor: pointer;
+      transition: all 0.2s ease-out;
+      min-height: 48px;
+      box-shadow: 0 2px 8px rgba(184,134,11,0.2);
     }
-    .vol-submit:hover { background: var(--gold, #d4a574); }
+    .vol-submit:hover {
+      background: var(--accent-gold-light);
+      box-shadow: 0 4px 14px rgba(184,134,11,0.3);
+    }
     .vol-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── Messages ───────────────────────────────────────────────── */
     .vol-msg {
-      text-align: center; padding: 1rem; margin-top: 1rem;
-      border-radius: 8px; font-size: 0.95rem; display: none;
+      text-align: center; padding: 1rem; margin-top: 1.25rem;
+      border-radius: 6px; font-family: var(--sans);
+      font-size: 0.92rem; display: none;
     }
-    .vol-msg--success { background: rgba(44,95,46,0.08); color: var(--green, #2C5F2E); }
-    .vol-msg--error { background: rgba(200,50,50,0.08); color: #a33; }
+    .vol-msg--success {
+      background: rgba(184,134,11,0.06);
+      color: var(--accent-gold);
+      border: 1px solid rgba(184,134,11,0.2);
+    }
+    .vol-msg--error {
+      background: rgba(200,50,50,0.06);
+      color: #a33;
+      border: 1px solid rgba(200,50,50,0.15);
+    }
+
+    /* ── Notes ──────────────────────────────────────────────────── */
     .vol-note {
-      text-align: center; color: var(--muted, #666);
-      font-size: 0.85rem; font-style: italic; margin-top: 1.5rem;
+      text-align: center;
+      font-family: var(--sans);
+      color: var(--fg-muted);
+      font-size: 0.82rem;
+      font-style: italic;
+      margin-top: 1.25rem;
+    }
+
+    /* ── Role Details Panel ─────────────────────────────────────── */
+    #role-details {
+      background: var(--surface-muted) !important;
+      border: 1px solid var(--border-warm) !important;
+      border-top: 2px solid var(--accent-gold) !important;
+      border-radius: 8px !important;
+      padding: 1.5rem 1.75rem !important;
+      font-family: var(--sans) !important;
+      font-size: 0.88rem !important;
+      color: var(--fg) !important;
+      line-height: 1.7 !important;
+    }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .join-hero { padding: 4rem 1.25rem 2.5rem; }
+      .volunteer-form-wrap { padding: 2.5rem 1.25rem 3.5rem; }
     }
   </style>
 </head>

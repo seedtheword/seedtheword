@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-07-21T02:26:35+00:00",
+  "updated": "2026-07-21T22:26:04+00:00",
   "events": {
     "4m1jf7lji8853igqq9u0i1rpnc@google.com": {
       "title": "Gideon's International/Seed the Word Arlington State Fair Outreach",
@@ -61,8 +61,9 @@
     "9i1b9raka8l8ivl09dpv0sljf4@google.com": {
       "title": "WORSHIP NIGHT one heart MVMT",
       "start": "2026-07-22T01:00:00+00:00",
-      "lastPosted": "2026-07-20T14:26:07+00:00",
-      "upcomingPosted": true
+      "lastPosted": "2026-07-21T22:26:04+00:00",
+      "upcomingPosted": true,
+      "reminderPosted": true
     }
   }
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615672,
-  "lastModified": "2026-07-23T15:17:32Z",
+  "lastModified": "2026-07-23T17:40:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -156,16 +156,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 4975,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "So thankful for God and His eternal abounding peace. From the storm comes rest and peace and healing, I’m so grateful for every single person He has placed into my life and how much love I feel from Him every day just because of the blessings I undeservingly already have.\n\nThank you my loving Holy Jesus 💞",
-      "ts": "2026-07-09T17:38:32Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 4976,

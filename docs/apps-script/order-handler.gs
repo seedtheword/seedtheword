@@ -204,6 +204,9 @@ function doPost(e) {
   if ((payload && payload.action) === 'volunteer-application') {
     return handleVolunteerApplication_(payload);
   }
+  if ((payload && payload.action) === 'rsvp') {
+    return handleRsvp_(payload);
+  }
   return handleOrder(payload);
 }
 
@@ -2134,6 +2137,53 @@ function handleVolunteerApplication_(payload) {
     console.log('handleVolunteerApplication_ error:', err);
     return jsonResponse({ ok: false, error: 'mail-send-failed' });
   }
+}
+
+// ── RSVP handler ─────────────────────────────────────────────────
+// Writes to the "RSVP" tab of the STW Order Ledger spreadsheet.
+// Payload: { action:'rsvp', name, date, phone?, notes? }
+const RSVP_TAB = 'RSVP';
+const RSVP_HEADERS = ['submitted_at', 'name', 'date', 'phone', 'notes', 'event'];
+
+function handleRsvp_(payload) {
+  var name = String(payload.name || '').trim();
+  var date = String(payload.date || '').trim();
+  var phone = String(payload.phone || '').trim();
+  var notes = String(payload.notes || '').trim();
+  var event = String(payload.event || 'Young Adults Service — Mondays').trim();
+
+  if (!name) return jsonResponse({ ok: false, error: 'name-required' });
+  if (!date) return jsonResponse({ ok: false, error: 'date-required' });
+
+  try {
+    var sheet = openTab(RSVP_TAB, RSVP_HEADERS);
+    sheet.appendRow([new Date(), name, date, phone, notes, event]);
+  } catch (err) {
+    console.log('handleRsvp_ sheet write error:', err);
+    return jsonResponse({ ok: false, error: 'sheet-write-failed' });
+  }
+
+  try {
+    var subject = '📅 RSVP: ' + name + ' — ' + event + ' on ' + date;
+    var bodyHtml = '' +
+      '<p>A new RSVP just came in for <strong>' + escapeHtml(event) + '</strong>.</p>' +
+      '<table cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-size:14px;">' +
+        '<tr><td><strong>Name</strong></td><td>' + escapeHtml(name) + '</td></tr>' +
+        '<tr><td><strong>Date</strong></td><td>' + escapeHtml(date) + '</td></tr>' +
+        (phone ? '<tr><td><strong>Phone</strong></td><td>' + escapeHtml(phone) + '</td></tr>' : '') +
+        (notes ? '<tr><td><strong>Notes</strong></td><td>' + escapeHtml(notes) + '</td></tr>' : '') +
+        '<tr><td><strong>Submitted</strong></td><td>' + new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }) + '</td></tr>' +
+      '</table>';
+    MailApp.sendEmail({
+      to: TEAM_INBOX,
+      subject: subject,
+      htmlBody: emailShell({ headerTitle: 'New RSVP', headerSubtitle: '📅', bodyHtml: bodyHtml, footerHtml: '<p>— Seed the Word website</p>' })
+    });
+  } catch (err) {
+    console.log('handleRsvp_ email error (non-fatal):', err);
+  }
+
+  return jsonResponse({ ok: true, route: 'rsvp' });
 }
 
 /**

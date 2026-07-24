@@ -122,11 +122,121 @@
       </div>
     </div>
 
-    <!-- Young Adults Service Launch -->
+    <!-- Young Adults Service Launch — RSVP Banner -->
     <div style="text-align:center;margin-bottom:2rem;">
-      <img src="assets/images/backgrounds/maple_park_flyer.jpg" alt="Young Adults Service — Mondays at Maple Park" style="max-width:100%;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
-      <p style="margin-top:1rem;font-size:1.1rem;color:rgba(255,255,255,0.9);font-weight:600;">We're preparing to launch Young Adults Service on Mondays</p>
+      <p style="font-size:1.05rem;color:rgba(255,255,255,0.85);margin:0 0 0.75rem;font-weight:500;letter-spacing:0.01em;">
+        Joining us for Young Adults Service on Mondays?
+      </p>
+      <button id="rsvp-open-btn" style="display:inline-flex;align-items:center;gap:0.4rem;background:#B8860B;color:#fff;border:none;border-radius:6px;padding:0.7rem 1.5rem;font-size:0.95rem;font-weight:700;cursor:pointer;letter-spacing:0.02em;box-shadow:0 3px 12px rgba(184,134,11,0.35);transition:background 0.2s,box-shadow 0.2s;">
+        RSVP Now →
+      </button>
+      <img src="assets/images/backgrounds/maple_park_flyer.jpg" alt="Young Adults Service — Mondays at Maple Park" style="max-width:100%;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.3);margin-top:1.25rem;display:block;">
     </div>
+
+    <!-- RSVP Modal -->
+    <div id="rsvp-modal" style="display:none;position:fixed;inset:0;z-index:2000;align-items:center;justify-content:center;padding:1rem;">
+      <div id="rsvp-backdrop" style="position:absolute;inset:0;background:rgba(10,10,10,0.65);backdrop-filter:blur(4px);"></div>
+      <div style="position:relative;background:#fff;border-radius:12px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.35);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.35rem;border-bottom:1px solid #E8E4DF;background:#FAFAF8;">
+          <h3 style="margin:0;font-family:'Playfair Display',Georgia,serif;font-size:1.15rem;font-weight:400;color:#1A1A1A;">RSVP — Young Adults Service</h3>
+          <button id="rsvp-close-btn" style="background:none;border:none;font-size:1.6rem;color:#666;cursor:pointer;padding:0.2rem 0.5rem;line-height:1;min-width:44px;min-height:44px;" aria-label="Close">×</button>
+        </div>
+        <div style="padding:1.5rem 1.5rem 1.75rem;">
+          <p style="font-size:0.9rem;color:#6B6B6B;margin:0 0 1.25rem;line-height:1.65;">Let us know you're coming so we can prepare. Mondays at Maple Park — we'd love to see you.</p>
+          <form id="rsvp-form" novalidate>
+            <div style="margin-bottom:1rem;">
+              <label style="display:block;font-size:0.85rem;font-weight:600;color:#1A1A1A;margin-bottom:0.35rem;">Full Name *</label>
+              <input type="text" id="rsvp-name" required autocomplete="name" placeholder="Your name" style="width:100%;padding:0.7rem 0.9rem;border:1px solid #E8E4DF;border-radius:6px;font-size:0.95rem;box-sizing:border-box;transition:border-color 0.2s;">
+            </div>
+            <div style="margin-bottom:1rem;">
+              <label style="display:block;font-size:0.85rem;font-weight:600;color:#1A1A1A;margin-bottom:0.35rem;">Date you're coming *</label>
+              <input type="date" id="rsvp-date" required style="width:100%;padding:0.7rem 0.9rem;border:1px solid #E8E4DF;border-radius:6px;font-size:0.95rem;box-sizing:border-box;transition:border-color 0.2s;">
+            </div>
+            <div style="margin-bottom:1rem;">
+              <label style="display:block;font-size:0.85rem;font-weight:600;color:#1A1A1A;margin-bottom:0.35rem;">Phone (optional)</label>
+              <input type="tel" id="rsvp-phone" autocomplete="tel" placeholder="(555) 123-4567" style="width:100%;padding:0.7rem 0.9rem;border:1px solid #E8E4DF;border-radius:6px;font-size:0.95rem;box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:1.25rem;">
+              <label style="display:block;font-size:0.85rem;font-weight:600;color:#1A1A1A;margin-bottom:0.35rem;">Anything you'd like us to know?</label>
+              <textarea id="rsvp-notes" rows="2" placeholder="First time coming, bringing friends, etc." style="width:100%;padding:0.7rem 0.9rem;border:1px solid #E8E4DF;border-radius:6px;font-size:0.95rem;box-sizing:border-box;resize:vertical;"></textarea>
+            </div>
+            <button type="submit" id="rsvp-submit-btn" style="display:block;width:100%;padding:0.85rem;background:#B8860B;color:#fff;border:none;border-radius:6px;font-size:0.95rem;font-weight:700;cursor:pointer;transition:background 0.2s;min-height:48px;">Count Me In →</button>
+            <p id="rsvp-status" style="text-align:center;margin-top:0.85rem;font-size:0.88rem;display:none;"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script>
+    (function() {
+      var openBtn = document.getElementById('rsvp-open-btn');
+      var closeBtn = document.getElementById('rsvp-close-btn');
+      var modal = document.getElementById('rsvp-modal');
+      var backdrop = document.getElementById('rsvp-backdrop');
+      var form = document.getElementById('rsvp-form');
+      var submitBtn = document.getElementById('rsvp-submit-btn');
+      var status = document.getElementById('rsvp-status');
+
+      function openModal() { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+      function closeModal() { modal.style.display = 'none'; document.body.style.overflow = ''; }
+
+      openBtn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+      backdrop.addEventListener('click', closeModal);
+      document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var name = document.getElementById('rsvp-name').value.trim();
+        var date = document.getElementById('rsvp-date').value;
+        var phone = document.getElementById('rsvp-phone').value.trim();
+        var notes = document.getElementById('rsvp-notes').value.trim();
+
+        if (!name || !date) {
+          status.textContent = 'Please fill in your name and the date.';
+          status.style.color = '#c0392b';
+          status.style.display = 'block';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        status.style.display = 'none';
+
+        fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
+          .then(function(r) { return r.ok ? r.json() : {}; })
+          .then(function(cfg) {
+            var url = cfg.orderHandlerUrl;
+            if (!url) throw new Error('No handler URL');
+            return fetch(url, {
+              method: 'POST',
+              mode: 'cors',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ action: 'rsvp', name: name, date: date, phone: phone, notes: notes })
+            });
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(res) {
+            if (res.ok) {
+              status.textContent = '🎉 You\'re on the list! See you Monday.';
+              status.style.color = '#B8860B';
+              status.style.display = 'block';
+              form.reset();
+            } else {
+              throw new Error(res.error || 'Something went wrong');
+            }
+          })
+          .catch(function(err) {
+            status.textContent = 'Something went wrong. Please try again.';
+            status.style.color = '#c0392b';
+            status.style.display = 'block';
+          })
+          .finally(function() {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Count Me In →';
+          });
+      });
+    })();
+    </script>
 
     <!-- Outreach Slideshow -->
     <div class="outreach-sub-heading">

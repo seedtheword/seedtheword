@@ -2141,12 +2141,13 @@ function handleVolunteerApplication_(payload) {
 
 // ── RSVP handler ─────────────────────────────────────────────────
 // Writes to the "RSVP" tab of the STW Order Ledger spreadsheet.
-// Payload: { action:'rsvp', name, date, phone?, notes? }
+// Payload: { action:'rsvp', name, email?, date, phone?, notes? }
 const RSVP_TAB = 'RSVP';
-const RSVP_HEADERS = ['submitted_at', 'name', 'date', 'phone', 'notes', 'event'];
+const RSVP_HEADERS = ['submitted_at', 'name', 'email', 'date', 'phone', 'notes', 'event'];
 
 function handleRsvp_(payload) {
   var name = String(payload.name || '').trim();
+  var email = String(payload.email || '').trim();
   var date = String(payload.date || '').trim();
   var phone = String(payload.phone || '').trim();
   var notes = String(payload.notes || '').trim();
@@ -2157,18 +2158,20 @@ function handleRsvp_(payload) {
 
   try {
     var sheet = openTab(RSVP_TAB, RSVP_HEADERS);
-    sheet.appendRow([new Date(), name, date, phone, notes, event]);
+    sheet.appendRow([new Date(), name, email, date, phone, notes, event]);
   } catch (err) {
     console.log('handleRsvp_ sheet write error:', err);
     return jsonResponse({ ok: false, error: 'sheet-write-failed' });
   }
 
+  // Team notification email
   try {
     var subject = '📅 RSVP: ' + name + ' — ' + event + ' on ' + date;
     var bodyHtml = '' +
       '<p>A new RSVP just came in for <strong>' + escapeHtml(event) + '</strong>.</p>' +
       '<table cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-size:14px;">' +
         '<tr><td><strong>Name</strong></td><td>' + escapeHtml(name) + '</td></tr>' +
+        (email ? '<tr><td><strong>Email</strong></td><td>' + escapeHtml(email) + '</td></tr>' : '') +
         '<tr><td><strong>Date</strong></td><td>' + escapeHtml(date) + '</td></tr>' +
         (phone ? '<tr><td><strong>Phone</strong></td><td>' + escapeHtml(phone) + '</td></tr>' : '') +
         (notes ? '<tr><td><strong>Notes</strong></td><td>' + escapeHtml(notes) + '</td></tr>' : '') +
@@ -2180,7 +2183,29 @@ function handleRsvp_(payload) {
       htmlBody: emailShell({ headerTitle: 'New RSVP', headerSubtitle: '📅', bodyHtml: bodyHtml, footerHtml: '<p>— Seed the Word website</p>' })
     });
   } catch (err) {
-    console.log('handleRsvp_ email error (non-fatal):', err);
+    console.log('handleRsvp_ team email error (non-fatal):', err);
+  }
+
+  // Confirmation email to visitor
+  if (email) {
+    try {
+      MailApp.sendEmail({
+        to: email,
+        subject: '\u2705 RSVP confirmed \u2014 Seed the Word Young Adults',
+        htmlBody: emailShell({
+          headerTitle: "You're on the list!",
+          headerSubtitle: '\ud83d\udcc5',
+          bodyHtml: '<p>Hi ' + escapeHtml(name) + ',</p>' +
+            '<p>We got your RSVP for <strong>' + escapeHtml(event) + '</strong> on <strong>' + escapeHtml(date) + '</strong>. We\'re excited to see you!</p>' +
+            '<p>We\'ll be in touch with any updates as we prepare to launch. In the meantime, join us on Telegram to stay connected:</p>' +
+            '<p style="text-align:center;margin:1.5rem 0;"><a href="https://t.me/seedtheword" style="display:inline-block;padding:12px 24px;background:#2C5F2E;color:#fff;font-weight:700;text-decoration:none;border-radius:6px;">Join Telegram \u2192</a></p>' +
+            '<p style="color:#666;font-size:0.88rem;">If anything changes, reply to this email and we\'ll update your RSVP.</p>',
+          footerHtml: '<p>— The Seed the Word team</p>'
+        })
+      });
+    } catch (err) {
+      console.log('handleRsvp_ confirmation email error (non-fatal):', err);
+    }
   }
 
   return jsonResponse({ ok: true, route: 'rsvp' });

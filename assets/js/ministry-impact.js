@@ -177,6 +177,16 @@
 
     if (!SLIDES.length) SLIDES = FALLBACK_SLIDES;
 
+    // Prepend milestone slide
+    SLIDES.unshift({
+      img:      'assets/images/backgrounds/bible-ministry-1.jpg',
+      title:    '500+ Bibles Given Away',
+      date:     'Since March 20, 2026',
+      location: 'Washington State',
+      body:     'From outreach events, cookouts, and street evangelism — every Bible in someone\'s hands. To God be the glory.',
+      milestone: true
+    });
+
     var track = document.getElementById('oss-track');
     var dots  = document.getElementById('oss-dots');
     if (!track) return;
@@ -217,7 +227,7 @@
               (dateLine ? '<p class="oss-slide__date">' + esc(dateLine) + '</p>' : '') +
               '<h3 class="oss-slide__title">' + esc(s.title) + '</h3>' +
               (bodyText ? '<p class="oss-slide__body">' + esc(bodyText) + '</p>' : '') +
-              (s.folder ? '<a class="oss-slide__link" href="news.html#ministry-outreach">Read the full story \u2192</a>' : '') +
+              (s.folder || s.milestone ? '<a class="oss-slide__link" href="' + (s.milestone ? 'testimonies.html#ministry-gallery' : 'news.html#ministry-outreach') + '">' + (s.milestone ? 'See the full story \u2192' : 'Read the full story \u2192') + '</a>' : '') +
             '</div>' +
           '</div>' +
         '</div>'

@@ -531,6 +531,30 @@
     <h2 class="section-title" style="text-align:center;font-size:clamp(1.5rem,3vw,2rem);text-transform:uppercase;letter-spacing:0.04em;">Latest from the Field</h2>
     <p style="font-family:'Caveat',cursive;font-size:1.3rem;color:var(--accent-gold, #B8860B);margin:-0.5rem 0 1.75rem;text-align:center;font-weight:700;">Seed the Word</p>
 
+    <!-- Ministry milestone celebration -->
+    <div style="margin:0 0 2.5rem;padding:2rem 2rem;background:linear-gradient(135deg,rgba(184,134,11,0.06) 0%,rgba(184,134,11,0.02) 100%);border:1px solid rgba(184,134,11,0.2);border-top:3px solid var(--accent-gold,#B8860B);border-radius:12px;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+      <!-- Badge -->
+      <div style="flex-shrink:0;text-align:center;">
+        <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#B8860B,#D4A84B);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(184,134,11,0.35);margin:0 auto 0.5rem;">
+          <span style="font-size:1.6rem;line-height:1;">📖</span>
+        </div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-gold,#B8860B);">Milestone</span>
+      </div>
+      <!-- Content -->
+      <div style="flex:1;min-width:220px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-gold,#B8860B);margin-bottom:0.4rem;">Since March 20, 2026 — Ministry Launch</div>
+        <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.5rem,3vw,2rem);font-weight:400;color:var(--fg,#1A1A1A);margin:0 0 0.4rem;letter-spacing:-0.01em;">Over 500 Bibles Given Away</h3>
+        <p style="font-family:'Source Sans 3',system-ui,sans-serif;font-size:0.95rem;color:var(--fg-muted,#6B6B6B);margin:0 0 1rem;line-height:1.65;">From outreach events, community cookouts, and street evangelism across Washington State — every Bible represents a person God placed in our path. To God be the glory.</p>
+        <a href="testimonies.html#ministry-gallery" style="display:inline-flex;align-items:center;gap:0.4rem;font-family:'Source Sans 3',system-ui,sans-serif;font-size:0.85rem;font-weight:600;color:var(--accent-gold,#B8860B);text-decoration:none;border-bottom:1px solid rgba(184,134,11,0.3);padding-bottom:1px;transition:border-color 0.2s;">Read the full story →</a>
+      </div>
+      <!-- Counter -->
+      <div style="flex-shrink:0;text-align:center;min-width:100px;">
+        <div id="news-bible-counter" style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(2.5rem,5vw,3.5rem);font-weight:700;color:var(--accent-gold,#B8860B);line-height:1;">517</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg-muted,#6B6B6B);margin-top:0.2rem;">Bibles given</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(184,134,11,0.6);margin-top:0.1rem;">Updated live</div>
+      </div>
+    </div>
+
     <!-- Outreach event cards with their own carousels -->
     <div class="outreach-grid" id="ministry-outreach-cards" aria-live="polite">
       <!-- Populated by assets/js/ministry-outreach.js -->
@@ -542,7 +566,6 @@
 
 <section class="section section--light" id="announcements" style="padding: 3rem 0;">
   <div class="container">
-    <div id="homepage-counter" style="margin-bottom:2rem;max-width:100%;"></div>
 
     <!-- Compact 3-Column Announcements Layout -->
     <div class="announcements-3col-layout" style="margin-bottom: 2rem;">
@@ -853,6 +876,69 @@
 <script src="assets/js/ministry-impact.js?v=3" defer></script>
 <script src="assets/js/share-story.js?v=1" defer></script>
 <script src="assets/js/testimonies.js?v=4" defer></script>
+
+<script>
+// Live Bible counter for milestone section
+(function() {
+  fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : {}; })
+    .then(function(cfg) {
+      var el = document.getElementById('news-bible-counter');
+      if (el && cfg.biblesGivenAway) {
+        // Animate count up
+        var target = parseInt(cfg.biblesGivenAway, 10);
+        var start = 0;
+        var duration = 1200;
+        var startTime = null;
+        function step(ts) {
+          if (!startTime) startTime = ts;
+          var progress = Math.min((ts - startTime) / duration, 1);
+          var eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.floor(eased * target);
+          if (progress < 1) requestAnimationFrame(step);
+          else el.textContent = target;
+        }
+        requestAnimationFrame(step);
+      }
+    })
+    .catch(function() {});
+
+  // Inject milestone card into outreach grid after JS populates it
+  function injectMilestoneCard() {
+    var grid = document.getElementById('ministry-outreach-cards');
+    if (!grid || grid.querySelector('.outreach-card--milestone')) return;
+    var card = document.createElement('article');
+    card.className = 'outreach-card outreach-card--milestone';
+    card.style.cssText = 'background:linear-gradient(135deg,#1A1A1A 0%,#2a1f0a 100%);position:relative;display:flex;flex-direction:column;border-radius:12px;overflow:hidden;min-height:280px;border:1px solid rgba(184,134,11,0.3);';
+    card.innerHTML = '' +
+      '<div style="position:absolute;inset:0;background:url(assets/images/backgrounds/bible-ministry-1.jpg) center/cover no-repeat;opacity:0.18;"></div>' +
+      '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(26,16,2,0.97) 0%,rgba(26,16,2,0.6) 60%,transparent 100%);"></div>' +
+      '<div style="position:relative;z-index:2;padding:1.5rem;display:flex;flex-direction:column;flex:1;">' +
+        '<div style="margin-bottom:auto;">' +
+          '<span style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:0.6rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;background:rgba(184,134,11,0.9);color:#fff;padding:0.25rem 0.6rem;border-radius:3px;margin-bottom:0.75rem;">🏆 Ministry Milestone</span>' +
+          '<div style="font-family:\'Playfair Display\',Georgia,serif;font-size:2.5rem;font-weight:700;color:#D4A84B;line-height:1;margin-bottom:0.2rem;">500+</div>' +
+          '<h3 style="font-family:\'Playfair Display\',Georgia,serif;font-size:1.15rem;font-weight:400;color:#fff;margin:0 0 0.4rem;line-height:1.25;">Bibles Given Away</h3>' +
+          '<p style="font-size:0.8rem;color:rgba(255,255,255,0.7);font-style:italic;margin:0 0 0.35rem;">Since March 20, 2026</p>' +
+          '<p style="font-size:0.82rem;color:rgba(255,255,255,0.65);line-height:1.5;margin:0;">Across outreach events, cookouts, and street evangelism in Washington State.</p>' +
+        '</div>' +
+        '<div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(184,134,11,0.25);">' +
+          '<a href="testimonies.html#ministry-gallery" style="display:inline-flex;align-items:center;gap:0.3rem;font-size:0.8rem;font-weight:600;color:#D4A84B;text-decoration:none;">📸 View all photos →</a>' +
+        '</div>' +
+      '</div>';
+    grid.insertBefore(card, grid.firstChild);
+  }
+
+  // Wait for ministry-outreach.js to populate the grid
+  var attempts = 0;
+  var interval = setInterval(function() {
+    var grid = document.getElementById('ministry-outreach-cards');
+    if ((grid && grid.children.length > 0) || attempts++ > 20) {
+      clearInterval(interval);
+      injectMilestoneCard();
+    }
+  }, 200);
+})();
+</script>
 
 <script>
 // News hero carousel

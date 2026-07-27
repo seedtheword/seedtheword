@@ -1763,10 +1763,18 @@ function onStoryFormSubmit(e) {
 //
 // Tab format (MinistryStats tab):
 //   Row 1: Headers [key, value, note]
-//   Row 2: total | 383 | Total Bibles given away
+//   Row 2: total | 383 | Total Bibles given away (all-time)
 //   Row 3: goal | 70000 | 2026 annual goal
 //   Row 4: languagesMessage | Available in 2,000+ languages... | ...
-//   Row 5+: inStock rows with key="stock", value=JSON string of {language,count,format}
+//   Row 5+: stock rows with key="stock", value=JSON string of:
+//     { language, count, format, in_storage, on_hand, donated_total }
+//     where:
+//       count         = total available right now (in_storage + on_hand)
+//       in_storage    = physically in boxes/storage location
+//       on_hand       = with team members, ready to distribute at events
+//       donated_total = cumulative given away for this language
+//   Row N+: item rows with key="item", value=JSON string of:
+//     { id, name, count, language, format, in_storage, on_hand, donated_total }
 //
 // Falls back to site-config.json values if the sheet is unavailable.
 const MINISTRY_STATS_TAB = 'MinistryStats';
@@ -2312,13 +2320,33 @@ function getMinistryStats_() {
       else if (key === 'stock') {
         try {
           var item = typeof val === 'string' ? JSON.parse(val) : val;
-          if (item && item.language) result.inStock.push(item);
+          if (item && item.language) {
+            result.inStock.push({
+              language:      item.language,
+              count:         item.count         || 0,
+              format:        item.format        || '',
+              in_storage:    item.in_storage    != null ? item.in_storage    : null,
+              on_hand:       item.on_hand       != null ? item.on_hand       : null,
+              donated_total: item.donated_total != null ? item.donated_total : null,
+            });
+          }
         } catch (_) {}
       }
       else if (key === 'item') {
         try {
           var itemData = typeof val === 'string' ? JSON.parse(val) : val;
-          if (itemData && itemData.id) result.items.push(itemData);
+          if (itemData && itemData.id) {
+            result.items.push({
+              id:            itemData.id,
+              name:          itemData.name          || '',
+              count:         itemData.count         || 0,
+              language:      itemData.language      || '',
+              format:        itemData.format        || '',
+              in_storage:    itemData.in_storage    != null ? itemData.in_storage    : null,
+              on_hand:       itemData.on_hand       != null ? itemData.on_hand       : null,
+              donated_total: itemData.donated_total != null ? itemData.donated_total : null,
+            });
+          }
         } catch (_) {}
       }
     }
@@ -2326,17 +2354,33 @@ function getMinistryStats_() {
     // If no legacy 'stock' rows exist, derive inStock from items
     // by aggregating counts per language using ID_LANGUAGE_MAP.
     if (result.inStock.length === 0 && result.items.length > 0) {
-      var langTotals = {};
+      var langTotals     = {};
+      var langStorage    = {};
+      var langOnHand     = {};
+      var langDonated    = {};
       for (var j = 0; j < result.items.length; j++) {
         var it = result.items[j];
-        var lang = ID_LANGUAGE_MAP[it.id];
-        if (!lang) continue; // skip non-Bible items (tracts, merch)
-        if (!langTotals[lang]) langTotals[lang] = 0;
-        langTotals[lang] += (parseInt(it.count, 10) || 0);
+        var lang = ID_LANGUAGE_MAP[it.id] || it.language;
+        if (!lang) continue;
+        if (!langTotals[lang])  langTotals[lang]  = 0;
+        if (!langStorage[lang]) langStorage[lang] = 0;
+        if (!langOnHand[lang])  langOnHand[lang]  = 0;
+        if (!langDonated[lang]) langDonated[lang] = 0;
+        langTotals[lang]  += (parseInt(it.count,         10) || 0);
+        langStorage[lang] += (parseInt(it.in_storage,    10) || 0);
+        langOnHand[lang]  += (parseInt(it.on_hand,       10) || 0);
+        langDonated[lang] += (parseInt(it.donated_total, 10) || 0);
       }
       var langKeys = Object.keys(langTotals);
       for (var k = 0; k < langKeys.length; k++) {
-        result.inStock.push({ language: langKeys[k], count: langTotals[langKeys[k]] });
+        var lk = langKeys[k];
+        result.inStock.push({
+          language:      lk,
+          count:         langTotals[lk],
+          in_storage:    langStorage[lk] || null,
+          on_hand:       langOnHand[lk]  || null,
+          donated_total: langDonated[lk] || null,
+        });
       }
     }
 

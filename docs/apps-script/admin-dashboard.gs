@@ -369,10 +369,8 @@ function getPlacementFormHtml_() {
           'cl.innerHTML=\'<div style="font-size:11px;color:#888;padding:4px 4px 8px;">Tip: select rows in the Inventory tab first for faster picking.</div>\';' +
         '}' +
         'var listHtml=rows.map(function(r,i){' +
-          'return \'<label class="chk-item"><input type="checkbox" class="row-chk" value="\'+i+\'"\''+(\'+(r.preselected?" checked":"")+\')+\'>\'+'
-            '\'<div class="chk-label"><span class="chk-id">\'+(r.row_id||"(no ID)")+\'</span> \'+'
-            '\'<span class="chk-name">\'+r.name+\' x\'+r.qty+\'</span><br>\'+'
-            '\'<span class="chk-meta">\'+r.date+(r.source?" · "+r.source:"")+\'</span></div></label>\';' +
+          'var chk=r.preselected?" checked":"";' +
+          'return \'<label class="chk-item"><input type="checkbox" class="row-chk" value="\'+i+\'"\'+chk+\'><div class="chk-label"><span class="chk-id">\'+(r.row_id||"(no ID)")+\'</span> <span class="chk-name">\'+r.name+\' x\'+r.qty+\'</span><br><span class="chk-meta">\'+r.date+(r.source?" · "+r.source:"")+\'</span></div></label>\';' +
         '}).join("");' +
         'cl.innerHTML+=listHtml;' +
       '})' +

@@ -248,7 +248,15 @@ function showPdfForm() {
   }
   var invSheet = ss.getSheetByName('Inventory');
   if (invSheet && invSheet.getLastRow() > 1) {
-    invSheet.getRange(2,11,invSheet.getLastRow()-1,1).getValues().forEach(function(r){
+    // Find order_id column by header name (more robust than hardcoding column 11)
+    var headers = invSheet.getRange(1, 1, 1, invSheet.getLastColumn()).getValues()[0];
+    var orderIdCol = -1;
+    for (var h = 0; h < headers.length; h++) {
+      if (String(headers[h]).toLowerCase().replace(/[^a-z_]/g,'') === 'order_id') { orderIdCol = h + 1; break; }
+    }
+    if (orderIdCol === -1) orderIdCol = 11; // fallback to column K
+    var lastInvRow = invSheet.getLastRow();
+    invSheet.getRange(2, orderIdCol, lastInvRow - 1, 1).getValues().forEach(function(r){
       var v = String(r[0]||'').trim();
       if (v && v.indexOf('PLR-') === 0) idsObj[v] = true;
     });
@@ -299,13 +307,18 @@ function generatePlacementPdfById(placementId, fromDate, toDate) {
     if (!invSheet) throw new Error('Inventory tab not found.');
 
     var invData = invSheet.getDataRange().getValues();
+    // Find order_id column by header
+    var invHeaders = invData[0];
+    var oidCol = 10; // default column K (0-based index 10)
+    for (var hh = 0; hh < invHeaders.length; hh++) {
+      if (String(invHeaders[hh]).toLowerCase().replace(/[^a-z_]/g,'') === 'order_id') { oidCol = hh; break; }
+    }
 
     // Build a map of placement_id -> inventory lines from the Inventory tab
-    // order_id is column index 10 (column K)
     var invByPlacement = {};
     for (var j = 1; j < invData.length; j++) {
       var inv = invData[j];
-      var invPid = String(inv[10]||'').trim();
+      var invPid = String(inv[oidCol]||'').trim();
       if (!invPid) continue;
       var invDate = String(inv[0]||'');
       // Date range filter when no specific placementId
@@ -508,4 +521,28 @@ function ensureTab_(ss, name, headers) {
 
 function esc_(s) {
   return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Debug helper — run this from Apps Script editor to check column K ──
+function debugPdfIds() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var invSheet = ss.getSheetByName('Inventory');
+  if (!invSheet) { Logger.log('No Inventory sheet found!'); return; }
+  var lastRow = invSheet.getLastRow();
+  Logger.log('Inventory rows: ' + lastRow);
+  // Find order_id column
+  var headers = invSheet.getRange(1,1,1,invSheet.getLastColumn()).getValues()[0];
+  Logger.log('Headers: ' + headers.join(' | '));
+  var oidCol = 10;
+  for (var h = 0; h < headers.length; h++) {
+    if (String(headers[h]).toLowerCase().replace(/[^a-z_]/g,'') === 'order_id') { oidCol = h; break; }
+  }
+  Logger.log('order_id column index (0-based): ' + oidCol + ' = column ' + String.fromCharCode(65+oidCol));
+  if (lastRow < 2) { Logger.log('No data rows yet.'); return; }
+  var vals = invSheet.getRange(2, oidCol+1, lastRow-1, 1).getValues();
+  var found = [];
+  vals.forEach(function(r){ var v = String(r[0]||'').trim(); if(v) found.push(v); });
+  Logger.log('Non-empty order_id values (' + found.length + '): ' + found.slice(0,15).join(', '));
+  var plrIds = found.filter(function(v){ return v.indexOf('PLR-') === 0; });
+  Logger.log('PLR- IDs found: ' + plrIds.length + ' -> ' + plrIds.join(', '));
 }

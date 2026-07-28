@@ -239,11 +239,21 @@ function getPlacementFormHtml_() {
 
 function showPdfForm() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Pull placement IDs from BOTH PlacementRecords AND Inventory order_id column
+  var idsObj = {};
   var plSheet = ss.getSheetByName(PLACEMENT_TAB);
-  var ids = [];
   if (plSheet && plSheet.getLastRow() > 1) {
-    plSheet.getRange(2,1,plSheet.getLastRow()-1,1).getValues().forEach(function(r){ if(r[0]) ids.push(r[0]); });
+    plSheet.getRange(2,1,plSheet.getLastRow()-1,1).getValues().forEach(function(r){ if(r[0]) idsObj[String(r[0])]=true; });
   }
+  var invSheet = ss.getSheetByName('Inventory');
+  if (invSheet && invSheet.getLastRow() > 1) {
+    invSheet.getRange(2,11,invSheet.getLastRow()-1,1).getValues().forEach(function(r){
+      var v = String(r[0]||'').trim();
+      if (v && v.indexOf('PLR-') === 0) idsObj[v] = true;
+    });
+  }
+  var ids = Object.keys(idsObj).sort().reverse();
   var opts = ids.map(function(id){ return '<option value="'+esc_(id)+'">'+esc_(id)+'</option>'; }).join('');
   var html = '<!DOCTYPE html><html><head><base target="_top"><style>' +
     'body{font-family:Segoe UI,sans-serif;font-size:13px;padding:14px;color:#1a1a1a;}' +
@@ -286,36 +296,75 @@ function generatePlacementPdfById(placementId, fromDate, toDate) {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var plSheet = ss.getSheetByName(PLACEMENT_TAB);
     var invSheet = ss.getSheetByName('Inventory');
-    if (!plSheet) throw new Error('PlacementRecords tab not found.');
     if (!invSheet) throw new Error('Inventory tab not found.');
-    var plData = plSheet.getDataRange().getValues();
+
     var invData = invSheet.getDataRange().getValues();
-    var events = [];
-    for (var i = 1; i < plData.length; i++) {
-      var row = plData[i];
-      var pid = String(row[0]||'');
-      var dpla = String(row[2]||'');
-      var match = false;
-      if (placementId && pid === placementId) match = true;
-      if (!placementId && fromDate && toDate && dpla >= fromDate && dpla <= toDate) match = true;
-      if (!placementId && fromDate && !toDate && dpla >= fromDate) match = true;
-      if (match) {
-        var ev = {};
-        PLACEMENT_HEADERS.forEach(function(h,idx){ ev[h]=row[idx]; });
-        events.push(ev);
+
+    // Build a map of placement_id -> inventory lines from the Inventory tab
+    // order_id is column index 10 (column K)
+    var invByPlacement = {};
+    for (var j = 1; j < invData.length; j++) {
+      var inv = invData[j];
+      var invPid = String(inv[10]||'').trim();
+      if (!invPid) continue;
+      var invDate = String(inv[0]||'');
+      // Date range filter when no specific placementId
+      if (!placementId && fromDate && toDate && !(invDate >= fromDate && invDate <= toDate)) continue;
+      if (!placementId && fromDate && !toDate && invDate < fromDate) continue;
+      if (placementId && invPid !== placementId) continue;
+      if (!invByPlacement[invPid]) invByPlacement[invPid] = [];
+      invByPlacement[invPid].push({
+        date_assigned:  invDate,
+        team_member:    String(inv[6]||''), // event_source used as proxy for team
+        scripture_type: String(inv[3]||''),
+        qty_needed:     inv[4]||0,
+        date_placed:    invDate
+      });
+    }
+
+    // Also try to get event metadata from PlacementRecords if it exists
+    var plEventMap = {};
+    if (plSheet && plSheet.getLastRow() > 1) {
+      var plData = plSheet.getDataRange().getValues();
+      for (var i = 1; i < plData.length; i++) {
+        var row = plData[i];
+        var pid = String(row[0]||'');
+        if (pid) {
+          var ev = {};
+          PLACEMENT_HEADERS.forEach(function(h,idx){ ev[h]=row[idx]; });
+          plEventMap[pid] = ev;
+        }
       }
     }
-    if (!events.length) throw new Error('No placement records found for the given selection.');
+
+    var pids = Object.keys(invByPlacement);
+    if (!pids.length) throw new Error('No inventory rows found for the given selection. Make sure the order_id column (K) contains the placement ID.');
+
+    var events = pids.map(function(pid) {
+      // Use PlacementRecords data if available, otherwise build from Inventory
+      if (plEventMap[pid]) return plEventMap[pid];
+      var firstRow = invByPlacement[pid][0];
+      return {
+        placement_id:     pid,
+        date_assigned:    firstRow.date_assigned,
+        date_placed:      firstRow.date_placed,
+        team_member:      firstRow.team_member,
+        institution:      firstRow.team_member, // best guess from event_source
+        address:          '',
+        official_name:    '',
+        contact_phone:    '',
+        contact_email:    '',
+        num_rooms_students: '',
+        event_source:     firstRow.team_member,
+        total_qty_placed: invByPlacement[pid].reduce(function(s,l){return s+(parseInt(l.qty_needed,10)||0);},0),
+        notes:            ''
+      };
+    });
     var folder = DriveApp.getRootFolder();
     try { var ff = DriveApp.getFoldersByName('STW Placement Records'); folder = ff.hasNext() ? ff.next() : DriveApp.createFolder('STW Placement Records'); } catch(_) {}
     var fileNames = [];
     events.forEach(function(ev) {
-      var lines = [];
-      for (var j = 1; j < invData.length; j++) {
-        if (String(invData[j][10]||'') === String(ev.placement_id)) {
-          lines.push({date_assigned:String(invData[j][0]||''), team_member:String(ev.team_member||''), scripture_type:String(invData[j][3]||''), qty_needed:invData[j][4]||0, date_placed:String(invData[j][0]||'')});
-        }
-      }
+      var lines = invByPlacement[ev.placement_id] || [];
       if (!lines.length) lines.push({date_assigned:String(ev.date_assigned||''), team_member:String(ev.team_member||''), scripture_type:'(see notes)', qty_needed:String(ev.total_qty_placed||''), date_placed:String(ev.date_placed||'')});
       var blob = HtmlService.createHtmlOutput(buildGideonsHtml_(ev, lines)).getAs('application/pdf').setName('PlacementRecord_'+ev.placement_id+'.pdf');
       folder.createFile(blob);

@@ -2275,6 +2275,7 @@ function getMinistryStats_() {
   var ID_LANGUAGE_MAP = {
     'pocket-nt-red': 'English',
     'pocket-nt-grey': 'English',
+    'pocket-nt-spanish': 'Spanish',
     'large-print-nt-brown': 'English',
     'full-bible-large-print': 'English',
     'full-bible-pocket': 'English',
@@ -2289,6 +2290,9 @@ function getMinistryStats_() {
     'large-print-nt-arabic-english': 'Arabic',
     'pocket-nt-arabic': 'Arabic',
     'pocket-nt-french': 'French',
+    'tract-life-book-english': 'English',
+    'tract-life-book-spanish': 'Spanish',
+    'tract-flip-books-english': 'English',
   };
 
   try {

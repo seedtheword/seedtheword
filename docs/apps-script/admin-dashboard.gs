@@ -21,25 +21,36 @@ const FINANCES_HEADERS = [
 ];
 
 const SCRIPTURE_ITEM_MAP = {
-  'Pocket NT (English - Red)':         'pocket-nt-red',
-  'Pocket NT (English - Grey)':        'pocket-nt-grey',
-  'Large Print NT (English - Brown)':  'large-print-nt-brown',
-  'Large Print NT (English - Camo)':   'large-print-nt-camo',
-  'Full Bible (Large Print)':          'full-bible-large-print',
-  'Full Bible (Pocket)':               'full-bible-pocket',
-  'Pocket NT (Hindi)':                 'pocket-nt-hindi-blue',
-  'Large Print NT (Russian)':          'large-print-nt-russian',
-  'Large Print NT (Ukrainian)':        'large-print-nt-ukrainian',
-  'Pocket NT (Farsi)':                 'pocket-nt-farsi-blue',
-  'Large Print NT (Urdu)':             'large-print-nt-urdu-blue',
-  'Pocket NT (Thai/English)':          'pocket-nt-thai-english-blue',
-  'Pocket NT (Mandarin)':              'pocket-nt-mandarin',
-  'Large Print NT (Spanish/English)':  'large-print-nt-spanish-english',
-  'Large Print NT (Arabic/English)':   'large-print-nt-arabic-english',
-  'Pocket NT (Arabic)':                'pocket-nt-arabic',
-  'Pocket NT (French)':                'pocket-nt-french',
-  'Bookmarks':                         'bookmarks',
-  'Tracts (Mixed)':                    'tracts-mixed'
+  // Bibles — Pocket NTs
+  'Pocket Personal Testimony Gideon Red':  'pocket-nt-red',
+  'Pocket Friend of Gideon Grey':          'pocket-nt-grey',
+  'Pocket Spanish':                        'pocket-nt-spanish',
+  'Pocket Hindi Gideon':                   'pocket-nt-hindi-blue',
+  'Pocket Farsi Persian':                  'pocket-nt-farsi-blue',
+  'Pocket Thai + English Gideon':          'pocket-nt-thai-english-blue',
+  'Pocket Mandarin Gideon':                'pocket-nt-mandarin',
+  'Pocket Arabic':                         'pocket-nt-arabic',
+  'Pocket French Gideon':                  'pocket-nt-french',
+  // Bibles — Large Print NTs
+  'Large Print Gideon Brown':              'large-print-nt-brown',
+  'Large Print Russian':                   'large-print-nt-russian',
+  'Large Print Ukrainian':                 'large-print-nt-ukrainian',
+  'Large Print Urdu Gideon':               'large-print-nt-urdu-blue',
+  'Large Print Spanish + English Gideon':  'large-print-nt-spanish-english',
+  'Large Print Arabic + English':          'large-print-nt-arabic-english',
+  // Bibles — Full
+  'Full Bible Large Print':                'full-bible-large-print',
+  'Full Bible Pocket':                     'full-bible-pocket',
+  // Tracts
+  'Life Book English':                     'tract-life-book-english',
+  'Life Book Spanish':                     'tract-life-book-spanish',
+  'Flip Books':                            'tract-flip-books-english',
+  // Merch / Ministry Materials
+  'Notebooks':                             'merch-notebooks',
+  'Keychains & Bracelets':                 'merch-keychains-bracelets',
+  'Stickers':                              'merch-stickers',
+  'Mini Jesus Figurines':                  'merch-mini-fig',
+  'Bookmarks':                             'merch-bookmarks'
 };
 
 function onOpen() {
@@ -93,11 +104,11 @@ function refreshMinistryStatsFormulas() {
   statsSheet.getRange(sumRow,1,1,4).setFontWeight('bold').setBackground('#E8E4DF');
   sumRow++;
   var langIdMap = {
-    'English':  ['pocket-nt-red','pocket-nt-grey','large-print-nt-brown','large-print-nt-camo','full-bible-large-print','full-bible-pocket'],
+    'English':  ['pocket-nt-red','pocket-nt-grey','pocket-nt-spanish','large-print-nt-brown','full-bible-large-print','full-bible-pocket'],
     'Hindi':    ['pocket-nt-hindi-blue'], 'Russian': ['large-print-nt-russian'],
     'Ukrainian':['large-print-nt-ukrainian'], 'Farsi': ['pocket-nt-farsi-blue'],
     'Urdu':     ['large-print-nt-urdu-blue'], 'Thai': ['pocket-nt-thai-english-blue'],
-    'Mandarin': ['pocket-nt-mandarin'], 'Spanish': ['large-print-nt-spanish-english'],
+    'Mandarin': ['pocket-nt-mandarin'], 'Spanish': ['pocket-nt-spanish','large-print-nt-spanish-english'],
     'Arabic':   ['large-print-nt-arabic-english','pocket-nt-arabic'], 'French': ['pocket-nt-french']
   };
   Object.keys(langIdMap).forEach(function(lang) {

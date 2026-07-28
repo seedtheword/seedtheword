@@ -176,44 +176,54 @@ function showPlacementForm() {
  * Appends a row to PlacementRecords and returns the new placement_id.
  */
 function submitPlacementRecord(data) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ensureTab_(ss, PLACEMENT_TAB, PLACEMENT_HEADERS);
-  var id = 'PLR-' + new Date().getTime();
-  sheet.appendRow([
-    id,
-    data.date_assigned   || new Date().toISOString().split('T')[0],
-    data.team_member     || '',
-    data.institution     || '',
-    data.address         || '',
-    data.official_name   || '',
-    data.contact_phone   || '',
-    data.contact_email   || '',
-    data.num_rooms       || '',
-    data.scripture_type  || '',
-    parseInt(data.qty_needed, 10)  || 0,
-    parseInt(data.qty_placed, 10)  || 0,
-    data.date_placed     || '',
-    data.event_source    || '',
-    data.notes           || ''
-  ]);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  // Also log to Inventory as an "out" movement
-  var inventorySheet = ensureTab_(ss, 'Inventory', ['date','type','item_id','item_name','qty','direction','event_source','cost_per_unit','total_cost','notes','order_id']);
-  inventorySheet.appendRow([
-    data.date_placed || new Date().toISOString().split('T')[0],
-    'placement',
-    data.item_id     || 'placement',
-    data.scripture_type || '',
-    parseInt(data.qty_placed, 10) || 0,
-    'out',
-    data.institution || data.event_source || '',
-    2,
-    (parseInt(data.qty_placed, 10) || 0) * 2,
-    data.notes || '',
-    id
-  ]);
+    // Get or create PlacementRecords tab
+    var sheet = ensureTab_(ss, PLACEMENT_TAB, PLACEMENT_HEADERS);
+    var id = 'PLR-' + new Date().getTime();
+    sheet.appendRow([
+      id,
+      data.date_assigned   || new Date().toISOString().split('T')[0],
+      data.team_member     || '',
+      data.institution     || '',
+      data.address         || '',
+      data.official_name   || '',
+      data.contact_phone   || '',
+      data.contact_email   || '',
+      data.num_rooms       || '',
+      data.scripture_type  || '',
+      parseInt(data.qty_needed, 10)  || 0,
+      parseInt(data.qty_placed, 10)  || 0,
+      data.date_placed     || '',
+      data.event_source    || '',
+      data.notes           || ''
+    ]);
 
-  return id;
+    // Also log to Inventory as an "out" movement
+    // Use getSheetByName first — Inventory already exists, don't recreate it
+    var inventorySheet = ss.getSheetByName('Inventory');
+    if (!inventorySheet) {
+      inventorySheet = ensureTab_(ss, 'Inventory', ['date','type','item_id','item_name','qty','direction','event_source','cost_per_unit','total_cost','notes','order_id']);
+    }
+    inventorySheet.appendRow([
+      data.date_placed || new Date().toISOString().split('T')[0],
+      'placement',
+      data.item_id        || 'mixed-assortment',
+      data.scripture_type || '',
+      parseInt(data.qty_placed, 10) || 0,
+      'out',
+      data.institution || data.event_source || '',
+      2,
+      (parseInt(data.qty_placed, 10) || 0) * 2,
+      data.notes || '',
+      id
+    ]);
+
+    return id;
+  } catch(err) {
+    throw new Error('submitPlacementRecord failed: ' + err.toString());
+  }
 }
 
 const PLACEMENT_FORM_HTML = `<!DOCTYPE html>
@@ -324,7 +334,7 @@ document.getElementById('f').addEventListener('submit', function(e) {
       btn.disabled = false; btn.textContent = 'Save Placement Record';
     })
     .withFailureHandler(function(err) {
-      document.getElementById('status').innerHTML = '<span style="color:#c00">❌ Error: ' + err.message + '</span>';
+      document.getElementById('status').innerHTML = '<span style="color:#c00">❌ Error: ' + (err.message || JSON.stringify(err)) + '</span>';
       btn.disabled = false; btn.textContent = 'Save Placement Record';
     })
     .submitPlacementRecord(data);
@@ -539,7 +549,7 @@ const FINANCE_FORM_HTML = `<!DOCTYPE html>
         btn.disabled = false; btn.textContent = 'Save Finance Entry';
       })
       .withFailureHandler(function(err) {
-        document.getElementById('status').innerHTML = '<span style="color:#c00">❌ ' + err.message + '</span>';
+        document.getElementById('status').innerHTML = '<span style="color:#c00">❌ ' + (err.message || JSON.stringify(err)) + '</span>';
         btn.disabled = false; btn.textContent = 'Save Finance Entry';
       })
       .submitFinanceEntry(data);

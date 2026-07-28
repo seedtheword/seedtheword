@@ -151,8 +151,10 @@ function showPlacementForm() {
 }
 
 /**
- * Called by the sidebar on load — returns recent "out" Inventory rows
- * with their row_id so the checklist can be populated.
+ * Returns all rows currently selected in the active sheet.
+ * This is the primary way to pick rows — select them in the Inventory tab,
+ * then open "Log Placement Record" and they appear pre-loaded.
+ * Falls back to recent "out" rows if nothing meaningful is selected.
  */
 function getInventoryOutRows() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -160,31 +162,93 @@ function getInventoryOutRows() {
   if (!sheet || sheet.getLastRow() < 2) return [];
 
   var data = sheet.getDataRange().getValues();
-  var rowIdCol = getInvRowIdCol_(data);
-  var result = [];
+  var headers = data[0];
 
+  // Find columns by header — case-insensitive, spaces/underscores normalised
+  function findCol(name) {
+    var n = name.toLowerCase().replace(/[\s_]/g,'');
+    for (var h = 0; h < headers.length; h++) {
+      if (String(headers[h]).toLowerCase().replace(/[\s_]/g,'') === n) return h;
+    }
+    return -1;
+  }
+
+  var rowIdCol   = findCol('row_id');
+  var dirCol     = findCol('direction');   // should be col F (index 5)
+  var dateCol    = 0;
+  var itemIdCol  = findCol('item_id');
+  var nameCol    = findCol('item_name');
+  var qtyCol     = findCol('qty');
+  var sourceCol  = findCol('event_source');
+  var orderCol   = findCol('order_id');
+
+  // If direction column not found fall back to index 5
+  if (dirCol === -1) dirCol = 5;
+  if (qtyCol === -1) qtyCol = 4;
+  if (sourceCol === -1) sourceCol = 6;
+  if (orderCol === -1) orderCol = 10;
+
+  // Check if user has rows selected in the Inventory sheet
+  var selectedRows = [];
+  try {
+    var active = ss.getActiveSheet();
+    if (active.getName() === 'Inventory') {
+      var sel = active.getActiveRange();
+      var selStart = sel.getRow();
+      var selEnd   = sel.getLastRow();
+      if (selStart > 1 && selEnd >= selStart) {
+        for (var s = selStart; s <= selEnd; s++) {
+          var row = data[s - 1]; // data is 0-based
+          if (!row) continue;
+          var dir = String(row[dirCol]||'').trim().toLowerCase();
+          if (dir !== 'out') continue;
+          var rowId = rowIdCol >= 0 ? String(row[rowIdCol]||'') : '';
+          var qty   = parseInt(row[qtyCol],10) || 0;
+          var src   = String(row[sourceCol]||'');
+          var nm    = String(row[nameCol >= 0 ? nameCol : 3]||'');
+          var dt    = String(row[dateCol]||'');
+          selectedRows.push({
+            row_id:   rowId,
+            date:     dt,
+            item_id:  String(row[itemIdCol >= 0 ? itemIdCol : 2]||''),
+            name:     nm,
+            qty:      qty,
+            source:   src,
+            order_id: String(row[orderCol]||''),
+            label:    (rowId ? '['+rowId+'] ' : '[row '+s+'] ') + (nm||'item') + ' x'+qty + (dt?' ('+dt+')':''),
+            preselected: true
+          });
+        }
+      }
+    }
+  } catch(_) {}
+
+  // If we got pre-selected rows from the spreadsheet selection, return those
+  if (selectedRows.length > 0) return selectedRows;
+
+  // Otherwise return the 100 most recent "out" rows for manual selection
+  var result = [];
   for (var i = data.length - 1; i >= 1; i--) {
     var row = data[i];
-    var dir = String(row[5]||'').trim().toLowerCase();
-    if (dir !== 'out') continue;
-    var rowId   = rowIdCol >= 0 ? String(row[rowIdCol]||'') : '';
-    var date    = String(row[0]||'');
-    var itemId  = String(row[2]||'');
-    var name    = String(row[3]||'');
-    var qty     = parseInt(row[4],10)||0;
-    var source  = String(row[6]||'');
-    var orderId = String(row[getInvOrderIdCol_(data)]||'');
+    var dir2 = String(row[dirCol]||'').trim().toLowerCase();
+    if (dir2 !== 'out') continue;
+    var rowId2   = rowIdCol >= 0 ? String(row[rowIdCol]||'') : '';
+    var qty2     = parseInt(row[qtyCol],10) || 0;
+    var src2     = String(row[sourceCol]||'');
+    var nm2      = String(row[nameCol >= 0 ? nameCol : 3]||'');
+    var dt2      = String(row[dateCol]||'');
     result.push({
-      row_id:   rowId,
-      date:     date,
-      item_id:  itemId,
-      name:     name || itemId,
-      qty:      qty,
-      source:   source,
-      order_id: orderId,
-      label:    (rowId ? '['+rowId+'] ' : '') + (name||itemId) + ' x'+qty + (date?' ('+date+')':'')
+      row_id:   rowId2,
+      date:     dt2,
+      item_id:  String(row[itemIdCol >= 0 ? itemIdCol : 2]||''),
+      name:     nm2,
+      qty:      qty2,
+      source:   src2,
+      order_id: String(row[orderCol]||''),
+      label:    (rowId2 ? '['+rowId2+'] ' : '[row '+(i+1)+'] ') + (nm2||'item') + ' x'+qty2 + (dt2?' ('+dt2+')':''),
+      preselected: false
     });
-    if (result.length >= 100) break; // cap at 100 most recent
+    if (result.length >= 100) break;
   }
   return result;
 }
@@ -294,13 +358,25 @@ function getPlacementFormHtml_() {
       '.withSuccessHandler(function(rows){' +
         'outRows=rows;' +
         'var cl=document.getElementById("checklist");' +
-        'if(!rows.length){cl.innerHTML=\'<div class="loading">No "out" rows found. Run "Tag Inventory Rows" first, or use the Add New Lines tab.</div>\';return;}' +
-        'cl.innerHTML=rows.map(function(r,i){' +
-          'return \'<label class="chk-item"><input type="checkbox" class="row-chk" value="\'+i+\'"><div class="chk-label"><span class="chk-id">\'+' +
-            '(r.row_id||"(no ID)")+\'</span> <span class="chk-name">\'+r.name+\' x\'+r.qty+\'</span><br><span class="chk-meta">\'+r.date+(r.source?" · "+r.source:"")+\'</span></div></label>\';' +
+        'var hasPresel=rows.some(function(r){return r.preselected;});' +
+        'if(!rows.length){' +
+          'cl.innerHTML=\'<div class="loading">No out rows found.<br>Run <b>Tag Inventory Rows</b> first, then select rows in the Inventory tab before opening this form.</div>\';' +
+          'return;' +
+        '}' +
+        'if(hasPresel){' +
+          'cl.innerHTML=\'<div style="font-size:11px;color:#2C5F2E;font-weight:700;padding:4px 4px 8px;">✅ \'+rows.length+\' row(s) pre-loaded from your spreadsheet selection:</div>\';' +
+        '} else {' +
+          'cl.innerHTML=\'<div style="font-size:11px;color:#888;padding:4px 4px 8px;">Tip: select rows in the Inventory tab first for faster picking.</div>\';' +
+        '}' +
+        'var listHtml=rows.map(function(r,i){' +
+          'return \'<label class="chk-item"><input type="checkbox" class="row-chk" value="\'+i+\'"\''+(\'+(r.preselected?" checked":"")+\')+\'>\'+'
+            '\'<div class="chk-label"><span class="chk-id">\'+(r.row_id||"(no ID)")+\'</span> \'+'
+            '\'<span class="chk-name">\'+r.name+\' x\'+r.qty+\'</span><br>\'+'
+            '\'<span class="chk-meta">\'+r.date+(r.source?" · "+r.source:"")+\'</span></div></label>\';' +
         '}).join("");' +
+        'cl.innerHTML+=listHtml;' +
       '})' +
-      '.withFailureHandler(function(){document.getElementById("checklist").innerHTML=\'<div class="loading">Failed to load rows.</div>\';})' +
+      '.withFailureHandler(function(e){document.getElementById("checklist").innerHTML=\'<div class="loading">Failed to load rows: \'+(e.message||e)+\'</div>\';})' +
       '.getInventoryOutRows();' +
 
     // Select all toggle

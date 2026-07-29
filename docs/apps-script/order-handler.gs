@@ -207,6 +207,9 @@ function doPost(e) {
   if ((payload && payload.action) === 'rsvp') {
     return handleRsvp_(payload);
   }
+  if ((payload && payload.action) === 'fieldLog') {
+    return handleFieldLog_(payload);
+  }
   return handleOrder(payload);
 }
 
@@ -2217,6 +2220,121 @@ function handleRsvp_(payload) {
   }
 
   return jsonResponse({ ok: true, route: 'rsvp' });
+}
+
+// ── Field Log handler ─────────────────────────────────────────────
+// Receives a POST from the mobile field-log admin page.
+// Writes one row per scripture item to the Inventory tab with an
+// auto-assigned INV-XXXX row_id, then emails a summary to the team.
+//
+// Payload: {
+//   action: 'fieldLog',
+//   date: 'YYYY-MM-DD',
+//   event_source: string,
+//   team_member: string,
+//   items: [{ item_id, item_name, qty, direction, cost_per_unit?, notes? }],
+//   passphrase_hash: string   // SHA-256(SALT + passphrase) verified server-side
+// }
+const FIELD_LOG_SALT          = 'stwm-2026-admin-gate';
+const FIELD_LOG_EXPECTED_HASH = '2e3df09a3a06ebdacb4cf637764073674243ed9497da164c94a955f7ae931440';
+
+function handleFieldLog_(payload) {
+  // 1. Verify passphrase hash
+  var clientHash = String(payload.passphrase_hash || '').toLowerCase().trim();
+  if (clientHash !== FIELD_LOG_EXPECTED_HASH) {
+    return jsonResponse({ ok: false, error: 'unauthorized' });
+  }
+
+  var items = Array.isArray(payload.items) ? payload.items : [];
+  if (!items.length) return jsonResponse({ ok: false, error: 'no-items' });
+
+  var date       = String(payload.date        || new Date().toISOString().split('T')[0]);
+  var source     = String(payload.event_source || '').trim();
+  var teamMember = String(payload.team_member  || '').trim();
+
+  try {
+    var ss    = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName('Inventory');
+    if (!sheet) throw new Error('Inventory tab not found');
+
+    // Find row_id column by header
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var rowIdColIdx = -1;
+    for (var h = 0; h < headers.length; h++) {
+      if (String(headers[h]).toLowerCase().replace(/[\s_]/g,'') === 'rowid') {
+        rowIdColIdx = h + 1; // 1-based
+        break;
+      }
+    }
+
+    // Find current max INV number
+    var maxNum = 0;
+    if (rowIdColIdx > 0 && sheet.getLastRow() > 1) {
+      sheet.getRange(2, rowIdColIdx, sheet.getLastRow() - 1, 1)
+        .getValues().forEach(function(r) {
+          var m = String(r[0]||'').match(/^INV-(\d+)$/);
+          if (m) maxNum = Math.max(maxNum, parseInt(m[1], 10));
+        });
+    }
+
+    var addedRows = [];
+    items.forEach(function(item) {
+      var qty       = parseInt(item.qty, 10)          || 0;
+      var direction = String(item.direction || 'out').toLowerCase();
+      var costUnit  = parseFloat(item.cost_per_unit)  || 2;
+      var totalCost = qty * costUnit;
+      var notes     = String(item.notes || teamMember || '').trim();
+
+      maxNum++;
+      var rowId = 'INV-' + String(maxNum).padStart(4, '0');
+
+      // Base 11 columns matching Inventory schema
+      var row = [
+        date,
+        'field-log',
+        String(item.item_id   || '').trim(),
+        String(item.item_name || '').trim(),
+        qty,
+        direction,
+        source,
+        costUnit,
+        totalCost,
+        notes,
+        ''  // order_id — blank, not a placement record
+      ];
+
+      // Append row_id if column exists, otherwise pad and append
+      if (rowIdColIdx > 0) {
+        while (row.length < rowIdColIdx - 1) row.push('');
+        row[rowIdColIdx - 1] = rowId;
+      } else {
+        row.push(rowId);
+      }
+
+      sheet.appendRow(row);
+      addedRows.push(rowId + ': ' + item.item_name + ' x' + qty + ' (' + direction + ')');
+    });
+
+    // Email summary to team
+    try {
+      MailApp.sendEmail({
+        to: TEAM_INBOX,
+        subject: '\uD83D\uDCF1 Field Log: ' + source + ' (' + date + ')',
+        body: 'Field log submitted by ' + (teamMember || 'field team') + ' on ' + date + '.\n\n' +
+              'Event: ' + source + '\n' +
+              'Items logged:\n' + addedRows.join('\n') + '\n\n' +
+              'View in spreadsheet: https://docs.google.com/spreadsheets/d/' + LEDGER_SHEET_ID
+      });
+    } catch(emailErr) {
+      console.log('handleFieldLog_ email failed (non-fatal):', emailErr);
+    }
+
+    return jsonResponse({ ok: true, route: 'fieldLog', added: addedRows.length, rows: addedRows });
+
+  } catch(err) {
+    console.log('handleFieldLog_ error:', err);
+    return jsonResponse({ ok: false, error: String(err) });
+  }
 }
 
 /**

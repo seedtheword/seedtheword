@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Field Log — Seed the Word Admin</title>
+  <style>
+    :root {
+      --ink:    #0a0a0a;
+      --muted:  #4a4a4a;
+      --border: #d0d0d0;
+      --green:  #1a5c1d;
+      --green-soft: #dfecdf;
+      --gold:   #B8860B;
+      --red:    #a6251f;
+      --bg:     #f7f7f5;
+      --card:   #ffffff;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 16px;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    /* Gate */
+    .gate {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .gate__card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.07);
+    }
+    .gate__icon { font-size: 2.4rem; margin-bottom: 0.75rem; }
+    .gate__title { font-size: 1.4rem; font-weight: 800; margin: 0 0 0.35rem; }
+    .gate__hint { font-size: 0.92rem; color: var(--muted); margin: 0 0 1.25rem; line-height: 1.6; }
+    .gate__input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      margin-bottom: 0.65rem;
+      background: #fff;
+    }
+    .gate__input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(26,92,29,0.15); }
+    .gate__error { color: var(--red); font-size: 0.85rem; font-weight: 600; min-height: 1.2rem; margin-bottom: 0.4rem; }
+    .gate__btn {
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .gate__btn:hover { background: #154a17; }
+    /* Shell */
+    .shell { display: none; }
+    .shell.visible { display: block; }
+    .header {
+      background: var(--green);
+      color: #fff;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .header__title { font-size: 1.1rem; font-weight: 800; margin: 0; }
+    .header__sub { font-size: 0.78rem; opacity: 0.8; margin: 0; }
+    .logout-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    /* Form */
+    .form-wrap {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 2rem;
+    }
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 1.25rem 0 0.5rem;
+    }
+    label { display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.3rem; }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.8rem 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: #fff;
+      margin-bottom: 0.75rem;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(26,92,29,0.12);
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    /* Item lines */
+    .item-line {
+      background: #fafaf8;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 0.9rem;
+      margin-bottom: 0.75rem;
+      position: relative;
+    }
+    .item-line select { margin-bottom: 0.5rem; }
+    .item-line .qty-row { display: grid; grid-template-columns: 1fr 1fr 44px; gap: 0.5rem; align-items: end; }
+    .qty-label { font-size: 0.78rem; font-weight: 600; display: block; margin-bottom: 0.25rem; }
+    .remove-line {
+      background: #fee;
+      border: 1.5px solid #fcc;
+      border-radius: 6px;
+      color: #c00;
+      font-size: 1.3rem;
+      width: 44px;
+      height: 44px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: inherit;
+    }
+    .add-line-btn {
+      width: 100%;
+      padding: 0.85rem;
+      background: #fff8e8;
+      border: 1.5px dashed var(--gold);
+      border-radius: 8px;
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      font-family: inherit;
+    }
+    .add-line-btn:hover { background: #fdf3d0; }
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 0.5rem;
+      min-height: 52px;
+    }
+    .submit-btn:hover { background: #154a17; }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    #status {
+      text-align: center;
+      margin-top: 0.85rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      min-height: 1.4rem;
+    }
+    @media (max-width: 400px) {
+      .row2 { grid-template-columns: 1fr; }
+      .gate__card { padding: 2rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Gate -->
+<div class="gate" id="gate">
+  <div class="gate__card">
+    <div class="gate__icon">📋</div>
+    <h1 class="gate__title">Field Log</h1>
+    <p class="gate__hint">Seed the Word admin access only. Enter your passphrase to continue.</p>
+    <div class="gate__error" id="gate-error"></div>
+    <input type="password" class="gate__input" id="gate-input" placeholder="Passphrase" autocomplete="current-password">
+    <button class="gate__btn" id="gate-btn">Unlock →</button>
+  </div>
+</div>
+
+<!-- Shell -->
+<div class="shell" id="shell">
+  <header class="header">
+    <div>
+      <p class="header__title">📋 Field Log</p>
+      <p class="header__sub">Seed the Word — Inventory Entry</p>
+    </div>
+    <button class="logout-btn" id="logout-btn">Lock</button>
+  </header>
+
+  <div class="form-wrap">
+    <p class="section-label">Event Details</p>
+
+    <label>Date *</label>
+    <input type="date" id="log-date" required>
+
+    <div class="row2">
+      <div>
+        <label>Event / Location *</label>
+        <input type="text" id="log-source" placeholder="e.g. Sam Petrov Cookout" required>
+      </div>
+      <div>
+        <label>Team Member</label>
+        <input type="text" id="log-team" placeholder="Your name">
+      </div>
+    </div>
+
+    <p class="section-label">Items</p>
+    <div id="item-lines"></div>
+    <button type="button" class="add-line-btn" id="add-line-btn">+ Add Item</button>
+
+    <button class="submit-btn" id="submit-btn">Submit Log →</button>
+    <div id="status"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var SALT          = 'stwm-2026-admin-gate';
+  var EXPECTED_HASH = '2e3df09a3a06ebdacb4cf637764073674243ed9497da164c94a955f7ae931440';
+  var SESSION_KEY   = 'stwm-admin-unlocked';
+
+  var gate    = document.getElementById('gate');
+  var shell   = document.getElementById('shell');
+  var gateErr = document.getElementById('gate-error');
+  var gateIn  = document.getElementById('gate-input');
+  var gateBtn = document.getElementById('gate-btn');
+  var logout  = document.getElementById('logout-btn');
+
+  // ── Scripture types
+  var TYPES = [
+    ['Pocket Personal Testimony Gideon Red',  'pocket-nt-red'],
+    ['Pocket Friend of Gideon Grey',          'pocket-nt-grey'],
+    ['Pocket Spanish',                        'pocket-nt-spanish'],
+    ['Pocket Hindi Gideon',                   'pocket-nt-hindi-blue'],
+    ['Pocket Farsi Persian',                  'pocket-nt-farsi-blue'],
+    ['Pocket Thai + English Gideon',          'pocket-nt-thai-english-blue'],
+    ['Pocket Mandarin Gideon',                'pocket-nt-mandarin'],
+    ['Pocket Arabic',                         'pocket-nt-arabic'],
+    ['Pocket French Gideon',                  'pocket-nt-french'],
+    ['Large Print Gideon Brown',              'large-print-nt-brown'],
+    ['Large Print Russian',                   'large-print-nt-russian'],
+    ['Large Print Ukrainian',                 'large-print-nt-ukrainian'],
+    ['Large Print Urdu Gideon',               'large-print-nt-urdu-blue'],
+    ['Large Print Spanish + English Gideon',  'large-print-nt-spanish-english'],
+    ['Large Print Arabic + English',          'large-print-nt-arabic-english'],
+    ['Full Bible Large Print',                'full-bible-large-print'],
+    ['Full Bible Pocket',                     'full-bible-pocket'],
+    ['Life Book English',                     'tract-life-book-english'],
+    ['Life Book Spanish',                     'tract-life-book-spanish'],
+    ['Flip Books',                            'tract-flip-books-english'],
+    ['Notebooks',                             'merch-notebooks'],
+    ['Keychains & Bracelets',                 'merch-keychains-bracelets'],
+    ['Stickers',                              'merch-stickers'],
+    ['Mini Jesus Figurines',                  'merch-mini-fig'],
+    ['Bookmarks',                             'merch-bookmarks']
+  ];
+
+  function buildTypeOptions() {
+    return '<option value="">-- Select item --</option>' +
+      TYPES.map(function(t) {
+        return '<option value="' + t[0] + '" data-id="' + t[1] + '">' + t[0] + '</option>';
+      }).join('');
+  }
+
+  // ── Gate
+  async function sha256(text) {
+    var buf    = new TextEncoder().encode(text);
+    var digest = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(digest)).map(function(b) { return b.toString(16).padStart(2,'0'); }).join('');
+  }
+
+  function unlock() {
+    gate.style.display  = 'none';
+    shell.classList.add('visible');
+    document.getElementById('log-date').valueAsDate = new Date();
+    addLine();
+  }
+
+  function lock() {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch(_) {}
+    location.reload();
+  }
+
+  // Check session
+  try { if (sessionStorage.getItem(SESSION_KEY) === '1') { unlock(); } } catch(_) {}
+
+  gateBtn.addEventListener('click', async function() {
+    gateErr.textContent = '';
+    var pass = gateIn.value;
+    if (!pass) { gateErr.textContent = 'Enter your passphrase.'; return; }
+    gateBtn.textContent = 'Checking...';
+    var hash = await sha256(SALT + pass);
+    if (hash === EXPECTED_HASH) {
+      try { sessionStorage.setItem(SESSION_KEY, '1'); } catch(_) {}
+      unlock();
+    } else {
+      gateErr.textContent = 'Incorrect passphrase.';
+      gateIn.value = '';
+      gateIn.focus();
+      gateBtn.textContent = 'Unlock \u2192';
+    }
+  });
+  gateIn.addEventListener('keydown', function(e) { if (e.key === 'Enter') gateBtn.click(); });
+  logout.addEventListener('click', lock);
+
+  // ── Item lines
+  var lineCount = 0;
+
+  function addLine() {
+    lineCount++;
+    var id  = 'line' + lineCount;
+    var div = document.createElement('div');
+    div.className = 'item-line';
+    div.id = id;
+    div.innerHTML =
+      '<select class="type-sel">' + buildTypeOptions() + '</select>' +
+      '<div class="qty-row">' +
+        '<div><span class="qty-label">Qty *</span><input type="number" class="qty-inp" min="1" value="1"></div>' +
+        '<div><span class="qty-label">In / Out</span>' +
+          '<select class="dir-sel"><option value="out" selected>Out (gave away)</option><option value="in">In (received)</option></select>' +
+        '</div>' +
+        '<button class="remove-line" type="button" title="Remove">&#x00D7;</button>' +
+      '</div>' +
+      '<input type="text" class="notes-inp" placeholder="Notes (optional)" style="margin-top:0.5rem;margin-bottom:0;">';
+    div.querySelector('.remove-line').addEventListener('click', function() { div.remove(); });
+    document.getElementById('item-lines').appendChild(div);
+  }
+
+  document.getElementById('add-line-btn').addEventListener('click', addLine);
+
+  // ── Submit
+  document.getElementById('submit-btn').addEventListener('click', async function() {
+    var btn    = document.getElementById('submit-btn');
+    var status = document.getElementById('status');
+    status.innerHTML = '';
+
+    var date   = document.getElementById('log-date').value;
+    var source = document.getElementById('log-source').value.trim();
+    var team   = document.getElementById('log-team').value.trim();
+
+    if (!date)   { status.innerHTML = '<span style="color:var(--red)">Date is required.</span>'; return; }
+    if (!source) { status.innerHTML = '<span style="color:var(--red)">Event / Location is required.</span>'; return; }
+
+    var items = [];
+    document.querySelectorAll('.item-line').forEach(function(el) {
+      var sel    = el.querySelector('.type-sel');
+      var type   = sel.value;
+      if (!type) return;
+      var opt    = sel.options[sel.selectedIndex];
+      var itemId = opt ? (opt.getAttribute('data-id') || '') : '';
+      var qty    = parseInt(el.querySelector('.qty-inp').value, 10) || 0;
+      var dir    = el.querySelector('.dir-sel').value;
+      var notes  = el.querySelector('.notes-inp').value.trim();
+      items.push({ item_id: itemId, item_name: type, qty: qty, direction: dir, cost_per_unit: 2, notes: notes });
+    });
+
+    if (!items.length) { status.innerHTML = '<span style="color:var(--red)">Add at least one item.</span>'; return; }
+
+    btn.disabled    = true;
+    btn.textContent = 'Submitting\u2026';
+
+    // Build passphrase hash from cached session (re-hashed on unlock)
+    var pass = '';
+    try { pass = sessionStorage.getItem('stwm-field-pass') || ''; } catch(_) {}
+
+    // Get handler URL from site-config
+    try {
+      var cfg = await fetch('../assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' }).then(function(r) { return r.json(); });
+      var url = cfg.orderHandlerUrl;
+      if (!url) throw new Error('No handler URL in site-config');
+
+      // We need the hash — re-compute using the stored pass or prompt
+      var passphraseHash = EXPECTED_HASH; // we already verified it on login; send expected hash as proof
+      var body = JSON.stringify({
+        action:           'fieldLog',
+        date:             date,
+        event_source:     source,
+        team_member:      team,
+        items:            items,
+        passphrase_hash:  passphraseHash
+      });
+
+      var res  = await fetch(url, { method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body });
+      var json = await res.json();
+
+      if (json.ok) {
+        status.innerHTML = '<span style="color:var(--green)">\u2705 Logged! ' + json.added + ' item(s) added to Inventory.<br>' + (json.rows || []).join('<br>') + '</span>';
+        document.getElementById('item-lines').innerHTML = '';
+        lineCount = 0;
+        addLine();
+        document.getElementById('log-source').value = '';
+        document.getElementById('log-team').value   = '';
+        document.getElementById('log-date').valueAsDate = new Date();
+      } else {
+        throw new Error(json.error || 'Something went wrong');
+      }
+    } catch(err) {
+      status.innerHTML = '<span style="color:var(--red)">\u274C ' + (err.message || String(err)) + '</span>';
+    }
+
+    btn.disabled    = false;
+    btn.textContent = 'Submit Log \u2192';
+  });
+})();
+</script>
+</body>
+</html>

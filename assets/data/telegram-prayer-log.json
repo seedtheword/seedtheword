@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615697,
-  "lastModified": "2026-07-29T00:10:39Z",
+  "lastModified": "2026-07-29T04:25:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -168,16 +168,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5006,
-      "userId": 8583445613,
-      "displayName": "Edward Wei",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer Request:\n1. Healing from sickness.\n2. Safety and opportunity to share God's Word as well as build each other up in the upcoming trip to Canada with friends. (This coming Friday to Tuesday.)",
-      "ts": "2026-07-15T04:13:46Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5011,

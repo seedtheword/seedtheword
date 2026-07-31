@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615701,
-  "lastModified": "2026-07-31T02:10:32Z",
+  "lastModified": "2026-07-31T02:25:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -174,16 +174,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5018,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey guys there’s a friend in my life who just had their car blow up while they were heading to the hospital for their friend, they’re asking for prayer, whatever trial or attack this is, let’s pray for strength and protection over them, in the name of Jesus!",
-      "ts": "2026-07-17T02:15:09Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5050,

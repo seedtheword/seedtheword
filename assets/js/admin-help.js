@@ -63,6 +63,9 @@
     document.body.classList.add('admin-unlocked');
     if (shell) shell.classList.add('visible');
     content.classList.add('visible');
+    // Show field tools quick-access strip
+    var fieldTools = document.getElementById('admin-field-tools');
+    if (fieldTools) fieldTools.removeAttribute('hidden');
     collectSections();
     safeRun('tabs',        initTabs);
     safeRun('alphabet',    initAlphabet);

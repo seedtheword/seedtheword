@@ -64,9 +64,66 @@ function onOpen() {
     .addItem('Log Placement Record', 'showPlacementForm')
     .addSeparator()
     .addItem('Log Finance Entry', 'showFinanceForm')
+    .addItem('Generate Monthly Finance Report', 'showMonthlyReportDialog')
     .addSeparator()
     .addItem('View Dashboard', 'showDashboard')
     .addToUi();
+}
+
+// ── Dynamic Categories from Lists tab ────────────────────────────
+/**
+ * Reads the "Lists" tab for finance categories.
+ * Expected layout:
+ *   Column A: "income_categories" header, followed by category values
+ *   Column B: "expense_categories" header, followed by category values
+ *   Column C: "payment_methods" header, followed by method values
+ *   Column D: "scripture_cost_per_unit" header, followed by a single number
+ * Falls back to hardcoded defaults if the Lists tab doesn't exist.
+ */
+function getFinanceCategories_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Lists');
+
+  var defaults = {
+    income: ['Donation - Venmo','Donation - Cash App','Donation - Zelle',
+             'Donation - PayPal','Donation - Cash/Check','Donation - Other',
+             'Scripture Fund Donation','Fundraiser'],
+    expense: ['Scripture Purchase','Ministry Materials','Event Costs',
+              'Shipping/Postage','Supplies','Travel','Food/Hospitality',
+              'Technology/Software','Other Expense'],
+    methods: ['Venmo','Cash App','Zelle','PayPal','Cash','Check','Card','Bank Transfer'],
+    scriptureCostPerUnit: 2
+  };
+
+  if (!sheet || sheet.getLastRow() < 2) return defaults;
+
+  var data = sheet.getDataRange().getValues();
+  var income = [], expense = [], methods = [];
+  var scriptureCost = 2;
+
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]||'').trim()) income.push(String(data[i][0]).trim());
+    if (String(data[i][1]||'').trim()) expense.push(String(data[i][1]).trim());
+    if (String(data[i][2]||'').trim()) methods.push(String(data[i][2]).trim());
+    if (i === 1 && data[i][3]) {
+      var parsed = parseFloat(data[i][3]);
+      if (!isNaN(parsed) && parsed > 0) scriptureCost = parsed;
+    }
+  }
+
+  return {
+    income:  income.length  ? income  : defaults.income,
+    expense: expense.length ? expense : defaults.expense,
+    methods: methods.length ? methods : defaults.methods,
+    scriptureCostPerUnit: scriptureCost
+  };
+}
+
+/**
+ * Returns category lists as JSON for the finance form sidebar.
+ */
+function getFinanceCategoriesForForm() {
+  return getFinanceCategories_();
 }
 
 // ── 1. Auto-tag Inventory rows with INV-XXXX ids ─────────────────
@@ -363,16 +420,27 @@ function getPlacementFormHtml_() {
           'cl.innerHTML=\'<div class="loading">No out rows found.<br>Run <b>Tag Inventory Rows</b> first, then select rows in the Inventory tab before opening this form.</div>\';' +
           'return;' +
         '}' +
+        'var fullHtml="";' +
         'if(hasPresel){' +
-          'cl.innerHTML=\'<div style="font-size:11px;color:#2C5F2E;font-weight:700;padding:4px 4px 8px;">✅ \'+rows.length+\' row(s) pre-loaded from your spreadsheet selection:</div>\';' +
+          'fullHtml+=\'<div style="font-size:11px;color:#2C5F2E;font-weight:700;padding:4px 4px 8px;">\\u2705 \'+rows.length+\' row(s) pre-loaded from your spreadsheet selection:</div>\';' +
         '} else {' +
-          'cl.innerHTML=\'<div style="font-size:11px;color:#888;padding:4px 4px 8px;">Tip: select rows in the Inventory tab first for faster picking.</div>\';' +
+          'fullHtml+=\'<div style="font-size:11px;color:#888;padding:4px 4px 8px;">Tip: select rows in the Inventory tab first for faster picking.</div>\';' +
         '}' +
-        'var listHtml=rows.map(function(r,i){' +
+        'rows.forEach(function(r,i){' +
           'var chk=r.preselected?" checked":"";' +
-          'return \'<label class="chk-item"><input type="checkbox" class="row-chk" value="\'+i+\'"\'+chk+\'><div class="chk-label"><span class="chk-id">\'+(r.row_id||"(no ID)")+\'</span> <span class="chk-name">\'+r.name+\' x\'+r.qty+\'</span><br><span class="chk-meta">\'+r.date+(r.source?" · "+r.source:"")+\'</span></div></label>\';' +
-        '}).join("");' +
-        'cl.innerHTML+=listHtml;' +
+          'var cls=r.preselected?" selected":"";' +
+          'fullHtml+=\'<label class="chk-item\'+cls+\'"><input type="checkbox" class="row-chk" value="\'+i+\'"\'+chk+\'><div class="chk-label"><span class="chk-id">\'+(r.row_id||"(no ID)")+\'</span> <span class="chk-name">\'+r.name+\' x\'+r.qty+\'</span><br><span class="chk-meta">\'+r.date+(r.source?" \\u00b7 "+r.source:"")+\'</span></div></label>\';' +
+        '});' +
+        'cl.innerHTML=fullHtml;' +
+        // Re-attach click handlers to make entire row toggle checkbox
+        'cl.querySelectorAll(".chk-item").forEach(function(label){' +
+          'label.addEventListener("click",function(e){' +
+            'if(e.target.type==="checkbox")return;' +
+            'var cb=label.querySelector("input[type=checkbox]");' +
+            'cb.checked=!cb.checked;' +
+            'label.classList.toggle("selected",cb.checked);' +
+          '});' +
+        '});' +
       '})' +
       '.withFailureHandler(function(e){document.getElementById("checklist").innerHTML=\'<div class="loading">Failed to load rows: \'+(e.message||e)+\'</div>\';})' +
       '.getInventoryOutRows();' +
@@ -521,9 +589,12 @@ function submitPlacementRecord(data) {
         // Refresh invData to include new column
         invData = invSheet.getDataRange().getValues();
       }
+      // Get scripture cost from Lists tab (dynamic)
+      var cats_ = getFinanceCategories_();
+      var scriptureCost = cats_.scriptureCostPerUnit || 2;
       newLines.forEach(function(line) {
         var qty  = parseInt(line.qty_placed,10) || 0;
-        var cost = 2;
+        var cost = scriptureCost;
         maxNum++;
         var newRowId = 'INV-' + String(maxNum).padStart(4,'0');
         // Build row matching Inventory columns, then append row_id at end
@@ -725,7 +796,7 @@ function refreshMinistryStatsFormulas() {
 // ── Finance form ──────────────────────────────────────────────────
 function showFinanceForm() {
   SpreadsheetApp.getUi().showSidebar(
-    HtmlService.createHtmlOutput(FINANCE_FORM_HTML_).setTitle('Log Finance Entry').setWidth(420)
+    HtmlService.createHtmlOutput(buildFinanceFormHtml_()).setTitle('Log Finance Entry').setWidth(420)
   );
 }
 
@@ -733,77 +804,348 @@ function submitFinanceEntry(data) {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ensureTab_(ss, FINANCES_TAB, FINANCES_HEADERS);
-    sheet.appendRow([data.date||new Date().toISOString().split('T')[0], data.type||'expense',
-      data.category||'', data.description||'', parseFloat(data.amount)||0,
-      data.payment_method||'', data.reference||'', data.recorded_by||'', data.notes||'']);
+    var category = data.category || '';
+    var type     = data.type || 'expense';
+    var amount   = parseFloat(data.amount) || 0;
+
+    // Scripture fund separation: if category is a scripture purchase,
+    // tag it so dashboard can separate scripture costs from general inventory
+    var isScriptureFund = /scripture/i.test(category);
+
+    sheet.appendRow([
+      data.date || new Date().toISOString().split('T')[0],
+      type,
+      category,
+      data.description || '',
+      amount,
+      data.payment_method || '',
+      data.reference || '',
+      data.recorded_by || '',
+      data.notes || (isScriptureFund ? '[SCRIPTURE_FUND]' : '')
+    ]);
     return 'ok';
-  } catch(err) { throw new Error('submitFinanceEntry failed: '+err.toString()); }
+  } catch(err) { throw new Error('submitFinanceEntry failed: ' + err.toString()); }
 }
 
-var FINANCE_FORM_HTML_ = '<!DOCTYPE html><html><head><base target="_top"><style>' +
-  '*{box-sizing:border-box;}body{font-family:Segoe UI,sans-serif;font-size:13px;padding:12px;color:#1a1a1a;}' +
-  'h2{font-size:14px;margin:0 0 12px;border-bottom:2px solid #2C5F2E;padding-bottom:5px;color:#2C5F2E;}' +
-  'label{display:block;font-weight:600;margin:9px 0 3px;font-size:12px;}' +
-  'input,select,textarea{width:100%;padding:7px 9px;border:1px solid #E8E4DF;border-radius:5px;font-size:13px;}' +
-  'input:focus,select:focus{outline:none;border-color:#2C5F2E;}' +
-  '.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}' +
-  'button{display:block;width:100%;margin-top:12px;padding:10px;background:#2C5F2E;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;cursor:pointer;}' +
-  'button:disabled{opacity:.6;cursor:not-allowed;}#st{text-align:center;margin-top:10px;font-size:12px;}' +
-  '</style></head><body>' +
-  '<h2>Log Finance Entry</h2>' +
-  '<form id="f" onsubmit="save(event)">' +
-  '<label>Type *</label><select id="tp" required><option value="income">Income</option><option value="expense" selected>Expense</option></select>' +
-  '<label>Category *</label><select id="cat" required><option value="">-- Select --</option>' +
-  '<optgroup label="Income"><option value="donation-venmo">Donation - Venmo</option><option value="donation-cashapp">Donation - Cash App</option><option value="donation-zelle">Donation - Zelle</option><option value="donation-paypal">Donation - PayPal</option><option value="donation-cash">Donation - Cash/Check</option><option value="donation-other">Donation - Other</option></optgroup>' +
-  '<optgroup label="Expense"><option value="bibles">Bible Purchase (Gideons)</option><option value="materials">Ministry Materials</option><option value="event">Event Costs</option><option value="shipping">Shipping/Postage</option><option value="supplies">Supplies</option><option value="other-expense">Other Expense</option></optgroup>' +
-  '</select>' +
-  '<label>Description *</label><input id="desc" placeholder="e.g. Venmo donation from John" required>' +
-  '<label>Amount ($) *</label><input id="amt" type="number" step="0.01" min="0" placeholder="0.00" required>' +
-  '<div class="r2"><div><label>Date</label><input id="dt" type="date"></div><div><label>Payment Method</label><select id="pm"><option value="">--</option><option>Venmo</option><option>Cash App</option><option>Zelle</option><option>PayPal</option><option>Cash</option><option>Check</option><option>Card</option></select></div></div>' +
-  '<label>Reference #</label><input id="ref" placeholder="Transaction ID, check #...">' +
-  '<label>Recorded By</label><input id="rb" placeholder="Your name">' +
-  '<label>Notes</label><textarea id="nt" rows="2" placeholder="Optional..."></textarea>' +
-  '<button type="submit" id="btn">Save Finance Entry</button><div id="st"></div></form>' +
-  '<script>document.getElementById("dt").valueAsDate=new Date();' +
-  'function save(e){e.preventDefault();var btn=document.getElementById("btn");btn.disabled=true;btn.textContent="Saving...";' +
-  'google.script.run' +
-  '.withSuccessHandler(function(){document.getElementById("st").innerHTML=\'<span style="color:#2C5F2E">Saved!</span>\';document.getElementById("f").reset();document.getElementById("dt").valueAsDate=new Date();btn.disabled=false;btn.textContent="Save Finance Entry";})' +
-  '.withFailureHandler(function(e){document.getElementById("st").innerHTML=\'<span style="color:#c00">\'+(e.message||JSON.stringify(e))+\'</span>\';btn.disabled=false;btn.textContent="Save Finance Entry";})' +
-  '.submitFinanceEntry({date:document.getElementById("dt").value,type:document.getElementById("tp").value,category:document.getElementById("cat").value,description:document.getElementById("desc").value,amount:document.getElementById("amt").value,payment_method:document.getElementById("pm").value,reference:document.getElementById("ref").value,recorded_by:document.getElementById("rb").value,notes:document.getElementById("nt").value});' +
-  '}<\/script></body></html>';
+/**
+ * Builds finance form HTML dynamically using categories from the Lists tab.
+ */
+function buildFinanceFormHtml_() {
+  var cats = getFinanceCategories_();
+  var incomeOpts = cats.income.map(function(c) {
+    var val = c.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    return '<option value="' + val + '">' + esc_(c) + '</option>';
+  }).join('');
+  var expenseOpts = cats.expense.map(function(c) {
+    var val = c.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    return '<option value="' + val + '">' + esc_(c) + '</option>';
+  }).join('');
+  var methodOpts = cats.methods.map(function(m) {
+    return '<option value="' + esc_(m) + '">' + esc_(m) + '</option>';
+  }).join('');
+
+  return '<!DOCTYPE html><html><head><base target="_top"><style>' +
+    '*{box-sizing:border-box;}body{font-family:Segoe UI,sans-serif;font-size:13px;padding:12px;color:#1a1a1a;}' +
+    'h2{font-size:14px;margin:0 0 12px;border-bottom:2px solid #2C5F2E;padding-bottom:5px;color:#2C5F2E;}' +
+    'label{display:block;font-weight:600;margin:9px 0 3px;font-size:12px;}' +
+    'input,select,textarea{width:100%;padding:7px 9px;border:1px solid #E8E4DF;border-radius:5px;font-size:13px;}' +
+    'input:focus,select:focus{outline:none;border-color:#2C5F2E;}' +
+    '.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}' +
+    '.hint{font-size:10px;color:#888;margin:2px 0 6px;}' +
+    'button{display:block;width:100%;margin-top:12px;padding:10px;background:#2C5F2E;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;cursor:pointer;}' +
+    'button:disabled{opacity:.6;cursor:not-allowed;}#st{text-align:center;margin-top:10px;font-size:12px;}' +
+    '</style></head><body>' +
+    '<h2>Log Finance Entry</h2>' +
+    '<p style="font-size:11px;color:#888;margin:0 0 10px;">Categories loaded from the <b>Lists</b> tab. Edit that tab to add/remove options.</p>' +
+    '<form id="f" onsubmit="save(event)">' +
+    '<label>Type *</label><select id="tp" required onchange="filterCats()">' +
+    '<option value="income">Income</option><option value="expense" selected>Expense</option></select>' +
+    '<label>Category *</label><select id="cat" required><option value="">-- Select --</option>' +
+    '<optgroup label="Income" id="og-income">' + incomeOpts + '</optgroup>' +
+    '<optgroup label="Expense" id="og-expense">' + expenseOpts + '</optgroup>' +
+    '</select>' +
+    '<p class="hint" id="scripture-hint" style="display:none;">💡 Scripture-related categories are tracked separately in the dashboard under "Scripture Fund".</p>' +
+    '<label>Description *</label><input id="desc" placeholder="e.g. Venmo donation from John" required>' +
+    '<label>Amount ($) *</label><input id="amt" type="number" step="0.01" min="0" placeholder="0.00" required>' +
+    '<div class="r2"><div><label>Date</label><input id="dt" type="date"></div>' +
+    '<div><label>Payment Method</label><select id="pm"><option value="">--</option>' + methodOpts + '</select></div></div>' +
+    '<label>Reference #</label><input id="ref" placeholder="Transaction ID, check #...">' +
+    '<label>Recorded By</label><input id="rb" placeholder="Your name">' +
+    '<label>Notes</label><textarea id="nt" rows="2" placeholder="Optional..."></textarea>' +
+    '<button type="submit" id="btn">Save Finance Entry</button><div id="st"></div></form>' +
+    '<script>' +
+    'document.getElementById("dt").valueAsDate=new Date();' +
+    'function filterCats(){' +
+    '  var tp=document.getElementById("tp").value;' +
+    '  document.getElementById("og-income").style.display=(tp==="expense")?"none":"";' +
+    '  document.getElementById("og-expense").style.display=(tp==="income")?"none":"";' +
+    '  document.getElementById("cat").value="";' +
+    '}' +
+    'filterCats();' +
+    'document.getElementById("cat").addEventListener("change",function(){' +
+    '  var v=this.value||"";' +
+    '  document.getElementById("scripture-hint").style.display=/scripture/i.test(v)?"block":"none";' +
+    '});' +
+    'function save(e){e.preventDefault();var btn=document.getElementById("btn");btn.disabled=true;btn.textContent="Saving...";' +
+    'google.script.run' +
+    '.withSuccessHandler(function(){document.getElementById("st").innerHTML=\'<span style="color:#2C5F2E">Saved!</span>\';document.getElementById("f").reset();document.getElementById("dt").valueAsDate=new Date();filterCats();btn.disabled=false;btn.textContent="Save Finance Entry";})' +
+    '.withFailureHandler(function(err){document.getElementById("st").innerHTML=\'<span style="color:#c00">\'+(err.message||JSON.stringify(err))+\'</span>\';btn.disabled=false;btn.textContent="Save Finance Entry";})' +
+    '.submitFinanceEntry({date:document.getElementById("dt").value,type:document.getElementById("tp").value,category:document.getElementById("cat").value,description:document.getElementById("desc").value,amount:document.getElementById("amt").value,payment_method:document.getElementById("pm").value,reference:document.getElementById("ref").value,recorded_by:document.getElementById("rb").value,notes:document.getElementById("nt").value});' +
+    '}' +
+    '<\/script></body></html>';
+}
 
 // ── Dashboard sidebar ─────────────────────────────────────────────
 function showDashboard() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var totalOut=0,totalIn=0,totalIncome=0,totalExp=0,rsvpCount=0,plCount=0;
-  var inv=ss.getSheetByName('Inventory');
-  if(inv){var d=inv.getDataRange().getValues();for(var i=1;i<d.length;i++){var q=parseInt(d[i][4],10)||0;var dr=String(d[i][5]||'').trim().toLowerCase();if(dr==='out')totalOut+=q;if(dr==='in')totalIn+=q;}}
-  var fin=ss.getSheetByName(FINANCES_TAB);
-  if(fin&&fin.getLastRow()>1){var f=fin.getRange(2,1,fin.getLastRow()-1,5).getValues();for(var j=0;j<f.length;j++){var t=String(f[j][1]||'').toLowerCase();var a=parseFloat(f[j][4])||0;if(t==='income')totalIncome+=a;if(t==='expense')totalExp+=a;}}
-  var rs=ss.getSheetByName('RSVP');if(rs)rsvpCount=Math.max(0,rs.getLastRow()-1);
-  var pl=ss.getSheetByName(PLACEMENT_TAB);if(pl)plCount=Math.max(0,pl.getLastRow()-1);
-  var bal=totalIncome-totalExp;var net=totalIn-totalOut;
-  function card(title,val,sub,cls){return '<div class="card"><div class="ct">'+title+'</div><div class="val '+(cls||'')+'">'+val+'</div><div class="sub">'+sub+'</div></div>';}
-  var html='<!DOCTYPE html><html><head><base target="_top"><style>' +
+  var totalOut=0, totalIn=0, totalIncome=0, totalExp=0;
+  var scriptureFundIncome=0, scriptureFundExp=0, generalExp=0;
+  var rsvpCount=0, plCount=0;
+
+  var inv = ss.getSheetByName('Inventory');
+  if (inv) {
+    var d = inv.getDataRange().getValues();
+    for (var i = 1; i < d.length; i++) {
+      var q = parseInt(d[i][4],10) || 0;
+      var dr = String(d[i][5]||'').trim().toLowerCase();
+      if (dr === 'out') totalOut += q;
+      if (dr === 'in')  totalIn  += q;
+    }
+  }
+
+  var fin = ss.getSheetByName(FINANCES_TAB);
+  if (fin && fin.getLastRow() > 1) {
+    var fData = fin.getRange(2, 1, fin.getLastRow()-1, fin.getLastColumn()).getValues();
+    for (var j = 0; j < fData.length; j++) {
+      var fType = String(fData[j][1]||'').toLowerCase();
+      var fCat  = String(fData[j][2]||'').toLowerCase();
+      var fAmt  = parseFloat(fData[j][4]) || 0;
+      var fNote = String(fData[j][8]||'').toLowerCase();
+      var isScripture = /scripture/i.test(fCat) || /\[scripture_fund\]/i.test(fNote);
+
+      if (fType === 'income') {
+        totalIncome += fAmt;
+        if (isScripture) scriptureFundIncome += fAmt;
+      }
+      if (fType === 'expense') {
+        totalExp += fAmt;
+        if (isScripture) scriptureFundExp += fAmt;
+        else generalExp += fAmt;
+      }
+    }
+  }
+
+  var rs = ss.getSheetByName('RSVP'); if (rs) rsvpCount = Math.max(0, rs.getLastRow()-1);
+  var pl = ss.getSheetByName(PLACEMENT_TAB); if (pl) plCount = Math.max(0, pl.getLastRow()-1);
+  var bal = totalIncome - totalExp;
+  var net = totalIn - totalOut;
+  var scriptureNet = scriptureFundIncome - scriptureFundExp;
+
+  function card(title,val,sub,cls) {
+    return '<div class="card"><div class="ct">'+title+'</div><div class="val '+(cls||'')+'">'+val+'</div><div class="sub">'+sub+'</div></div>';
+  }
+
+  var html = '<!DOCTYPE html><html><head><base target="_top"><style>' +
     'body{font-family:Segoe UI,sans-serif;font-size:13px;padding:12px;color:#1a1a1a;background:#FAFAF8;}' +
     'h2{font-size:14px;margin:0 0 12px;border-bottom:2px solid #B8860B;padding-bottom:5px;color:#B8860B;}' +
+    'h3{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#6B6B6B;margin:14px 0 6px;padding-top:8px;border-top:1px solid #E8E4DF;}' +
     '.g{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}' +
     '.card{background:#fff;border:1px solid #E8E4DF;border-radius:8px;padding:10px 12px;}' +
     '.ct{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#6B6B6B;margin-bottom:4px;}' +
     '.val{font-size:22px;font-weight:700;color:#1A1A1A;line-height:1.1;}' +
     '.sub{font-size:10px;color:#9a9a9a;margin-top:3px;}' +
-    '.gold{color:#B8860B;}.green{color:#2C5F2E;}.red{color:#c0392b;}' +
+    '.gold{color:#B8860B;}.green{color:#2C5F2E;}.red{color:#c0392b;}.purple{color:#5d3a8a;}' +
     '.full{grid-column:1/-1;}.ts{font-size:10px;color:#bbb;text-align:center;margin-top:10px;}' +
     '</style></head><body>' +
     '<h2>Ministry Dashboard</h2><div class="g">' +
-    card('Bibles Given Away',totalOut,'Total out movements','gold') +
-    card('Net Available',net,'Received - donated',net>=0?'green':'red') +
-    card('Total Income','$'+totalIncome.toFixed(2),'All donations','green') +
-    card('Total Expenses','$'+totalExp.toFixed(2),'All costs','red') +
-    '</div><div class="g"><div class="card full"><div class="ct">Current Balance</div><div class="val '+(bal>=0?'green':'red')+'">$'+bal.toFixed(2)+'</div><div class="sub">Income minus expenses</div></div></div>' +
-    '<div class="g">'+card('Placement Records',plCount,'Named placements')+card('Young Adults RSVPs',rsvpCount,'Confirmed attendees')+'</div>' +
-    '<div class="ts">Updated '+new Date().toLocaleString()+'</div></body></html>';
+    card('Bibles Given Away', totalOut, 'Total out movements', 'gold') +
+    card('Net Available', net, 'Received \u2212 donated', net >= 0 ? 'green' : 'red') +
+    card('Total Income', '$'+totalIncome.toFixed(2), 'All donations', 'green') +
+    card('Total Expenses', '$'+totalExp.toFixed(2), 'All costs', 'red') +
+    '</div>' +
+    '<div class="g"><div class="card full"><div class="ct">Current Balance</div><div class="val '+(bal>=0?'green':'red')+'">$'+bal.toFixed(2)+'</div><div class="sub">Income minus expenses</div></div></div>' +
+    '<h3>Scripture Fund (separated)</h3>' +
+    '<div class="g">' +
+    card('Scripture Donations', '$'+scriptureFundIncome.toFixed(2), 'Earmarked for Bibles', 'purple') +
+    card('Scripture Purchases', '$'+scriptureFundExp.toFixed(2), 'Bible/tract costs', 'red') +
+    '</div>' +
+    '<div class="g"><div class="card full"><div class="ct">Scripture Fund Balance</div><div class="val '+(scriptureNet>=0?'green':'red')+'">$'+scriptureNet.toFixed(2)+'</div><div class="sub">Scripture income \u2212 scripture expenses (excluded from general ops)</div></div></div>' +
+    '<div class="g"><div class="card full"><div class="ct">General Ops Expenses</div><div class="val">$'+generalExp.toFixed(2)+'</div><div class="sub">Non-scripture costs (materials, events, shipping, etc.)</div></div></div>' +
+    '<div class="g">' + card('Placement Records', plCount, 'Named placements') + card('Young Adults RSVPs', rsvpCount, 'Confirmed attendees') + '</div>' +
+    '<div class="ts">Updated ' + new Date().toLocaleString() + '</div></body></html>';
+
   SpreadsheetApp.getUi().showSidebar(HtmlService.createHtmlOutput(html).setTitle('STW Dashboard').setWidth(320));
+}
+
+// ── Monthly Finance PDF Report ────────────────────────────────────
+/**
+ * Shows a dialog asking which month/year to generate.
+ */
+function showMonthlyReportDialog() {
+  var now = new Date();
+  var monthOptions = '';
+  for (var m = 0; m < 12; m++) {
+    var sel = (m === now.getMonth()) ? ' selected' : '';
+    monthOptions += '<option value="' + m + '"' + sel + '>' +
+      ['January','February','March','April','May','June','July',
+       'August','September','October','November','December'][m] + '</option>';
+  }
+  var html = '<!DOCTYPE html><html><head><base target="_top"><style>' +
+    '*{box-sizing:border-box;}body{font-family:Segoe UI,sans-serif;font-size:13px;padding:16px;color:#1a1a1a;}' +
+    'h2{font-size:14px;margin:0 0 12px;color:#B8860B;border-bottom:2px solid #B8860B;padding-bottom:5px;}' +
+    'label{display:block;font-weight:600;margin:8px 0 3px;font-size:12px;}' +
+    'select,input{width:100%;padding:7px 9px;border:1px solid #E8E4DF;border-radius:5px;font-size:13px;}' +
+    'button{width:100%;margin-top:14px;padding:10px;background:#B8860B;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;cursor:pointer;}' +
+    'button:disabled{opacity:.6;cursor:not-allowed;}#st{text-align:center;margin-top:10px;font-size:12px;}' +
+    '</style></head><body>' +
+    '<h2>Monthly Finance Report</h2>' +
+    '<label>Month</label><select id="mo">' + monthOptions + '</select>' +
+    '<label>Year</label><input id="yr" type="number" value="' + now.getFullYear() + '" min="2020" max="2040">' +
+    '<button id="btn" onclick="gen()">Generate PDF Report</button><div id="st"></div>' +
+    '<script>function gen(){var btn=document.getElementById("btn");btn.disabled=true;btn.textContent="Generating...";' +
+    'google.script.run.withSuccessHandler(function(r){document.getElementById("st").innerHTML=\'<span style="color:#2C5F2E">\'+r+\'</span>\';btn.disabled=false;btn.textContent="Generate PDF Report";})' +
+    '.withFailureHandler(function(e){document.getElementById("st").innerHTML=\'<span style="color:#c00">\'+(e.message||e)+\'</span>\';btn.disabled=false;btn.textContent="Generate PDF Report";})' +
+    '.generateMonthlyFinanceReport(parseInt(document.getElementById("mo").value),parseInt(document.getElementById("yr").value));}<\/script>' +
+    '</body></html>';
+  SpreadsheetApp.getUi().showModalDialog(
+    HtmlService.createHtmlOutput(html).setWidth(340).setHeight(280),
+    'Monthly Finance Report'
+  );
+}
+
+/**
+ * Generates a monthly finance PDF, saves to Drive and emails to team.
+ * @param {number} month 0-indexed month
+ * @param {number} year  full year
+ */
+function generateMonthlyFinanceReport(month, year) {
+  var ss  = SpreadsheetApp.getActiveSpreadsheet();
+  var fin = ss.getSheetByName(FINANCES_TAB);
+  if (!fin || fin.getLastRow() < 2) throw new Error('No finance data found.');
+
+  var monthNames = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+  var monthName = monthNames[month] + ' ' + year;
+  var startDate = new Date(year, month, 1);
+  var endDate   = new Date(year, month + 1, 0); // last day of month
+
+  var data = fin.getRange(2, 1, fin.getLastRow()-1, fin.getLastColumn()).getValues();
+  var entries = [];
+  var totIncome = 0, totExpense = 0, totScriptureExp = 0, totGeneralExp = 0;
+  var catTotals = {};
+
+  for (var i = 0; i < data.length; i++) {
+    var rowDate = new Date(data[i][0]);
+    if (isNaN(rowDate.getTime())) continue;
+    if (rowDate < startDate || rowDate > endDate) continue;
+
+    var type    = String(data[i][1]||'').toLowerCase();
+    var cat     = String(data[i][2]||'');
+    var desc    = String(data[i][3]||'');
+    var amount  = parseFloat(data[i][4]) || 0;
+    var method  = String(data[i][5]||'');
+    var ref     = String(data[i][6]||'');
+    var note    = String(data[i][8]||'');
+    var isScripture = /scripture/i.test(cat) || /\[scripture_fund\]/i.test(note);
+
+    entries.push({ date: rowDate, type: type, category: cat, description: desc,
+                   amount: amount, method: method, ref: ref, isScripture: isScripture });
+
+    if (type === 'income') totIncome += amount;
+    if (type === 'expense') {
+      totExpense += amount;
+      if (isScripture) totScriptureExp += amount;
+      else totGeneralExp += amount;
+    }
+
+    var key = type + ':' + cat;
+    catTotals[key] = (catTotals[key] || 0) + amount;
+  }
+
+  // Build PDF HTML
+  var tableRows = entries.map(function(e) {
+    var d = e.date;
+    var ds = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
+    return '<tr><td>' + ds + '</td><td>' + esc_(e.type) + '</td><td>' + esc_(e.category) +
+           '</td><td>' + esc_(e.description) + '</td><td style="text-align:right">$' +
+           e.amount.toFixed(2) + '</td><td>' + esc_(e.method) + '</td></tr>';
+  }).join('');
+
+  var catRows = Object.keys(catTotals).sort().map(function(key) {
+    var parts = key.split(':');
+    return '<tr><td>' + esc_(parts[0]) + '</td><td>' + esc_(parts[1]) +
+           '</td><td style="text-align:right">$' + catTotals[key].toFixed(2) + '</td></tr>';
+  }).join('');
+
+  var bal = totIncome - totExpense;
+  var pdfHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
+    'body{font-family:Arial,sans-serif;font-size:10px;margin:28px 36px;color:#1a1a1a;}' +
+    'h1{font-size:16px;text-align:center;margin:0 0 4px;color:#B8860B;}' +
+    'h2{font-size:12px;margin:18px 0 6px;border-bottom:1px solid #ccc;padding-bottom:3px;}' +
+    '.subtitle{text-align:center;font-size:10px;color:#666;margin:0 0 16px;}' +
+    'table{width:100%;border-collapse:collapse;margin:6px 0 12px;}' +
+    'th{background:#f0ede8;font-weight:bold;font-size:9px;border:1px solid #ccc;padding:4px;text-align:left;}' +
+    'td{border:1px solid #ccc;padding:3px 5px;font-size:9px;}' +
+    '.summary{display:flex;gap:20px;margin:10px 0;}' +
+    '.sbox{border:1px solid #ccc;border-radius:4px;padding:8px 12px;flex:1;text-align:center;}' +
+    '.sbox .label{font-size:8px;text-transform:uppercase;color:#666;margin-bottom:2px;}' +
+    '.sbox .val{font-size:16px;font-weight:bold;}' +
+    '.green{color:#2C5F2E;}.red{color:#c0392b;}.gold{color:#B8860B;}' +
+    '.foot{font-size:8px;color:#999;margin-top:14px;text-align:center;}' +
+    '</style></head><body>' +
+    '<h1>Seed the Word — Monthly Finance Report</h1>' +
+    '<p class="subtitle">' + esc_(monthName) + '</p>' +
+
+    '<div class="summary">' +
+    '<div class="sbox"><div class="label">Total Income</div><div class="val green">$' + totIncome.toFixed(2) + '</div></div>' +
+    '<div class="sbox"><div class="label">Total Expenses</div><div class="val red">$' + totExpense.toFixed(2) + '</div></div>' +
+    '<div class="sbox"><div class="label">Net Balance</div><div class="val ' + (bal >= 0 ? 'green' : 'red') + '">$' + bal.toFixed(2) + '</div></div>' +
+    '</div>' +
+
+    '<div class="summary">' +
+    '<div class="sbox"><div class="label">Scripture Fund Expenses</div><div class="val gold">$' + totScriptureExp.toFixed(2) + '</div></div>' +
+    '<div class="sbox"><div class="label">General Ops Expenses</div><div class="val">$' + totGeneralExp.toFixed(2) + '</div></div>' +
+    '</div>' +
+
+    '<h2>Category Breakdown</h2>' +
+    '<table><thead><tr><th>Type</th><th>Category</th><th style="text-align:right">Total</th></tr></thead><tbody>' +
+    catRows + '</tbody></table>' +
+
+    '<h2>All Transactions (' + entries.length + ')</h2>' +
+    '<table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Description</th><th style="text-align:right">Amount</th><th>Method</th></tr></thead><tbody>' +
+    tableRows + '</tbody></table>' +
+
+    '<div class="foot">Generated ' + new Date().toLocaleString() + ' | Seed the Word Ministry</div>' +
+    '</body></html>';
+
+  var pdfBlob = HtmlService.createHtmlOutput(pdfHtml)
+    .getAs('application/pdf')
+    .setName('STW_Finance_' + monthName.replace(/\s/g,'_') + '.pdf');
+
+  // Save to Drive
+  var folder = DriveApp.getRootFolder();
+  try {
+    var ff = DriveApp.getFoldersByName('STW Finance Reports');
+    folder = ff.hasNext() ? ff.next() : DriveApp.createFolder('STW Finance Reports');
+  } catch(_) {}
+  folder.createFile(pdfBlob);
+
+  // Email to team
+  try {
+    MailApp.sendEmail({
+      to: TEAM_EMAIL,
+      subject: 'Monthly Finance Report: ' + monthName,
+      body: 'Finance report for ' + monthName + ' attached.\n\nIncome: $' + totIncome.toFixed(2) +
+            '\nExpenses: $' + totExpense.toFixed(2) + '\nNet: $' + bal.toFixed(2) +
+            '\n\nScripture Fund: $' + totScriptureExp.toFixed(2) +
+            '\nGeneral Ops: $' + totGeneralExp.toFixed(2),
+      attachments: [pdfBlob]
+    });
+  } catch(emailErr) {
+    Logger.log('Email failed (non-fatal): ' + emailErr);
+  }
+
+  return 'PDF generated and emailed! (' + entries.length + ' entries for ' + monthName + ')';
 }
 
 // ── Shared helpers ────────────────────────────────────────────────

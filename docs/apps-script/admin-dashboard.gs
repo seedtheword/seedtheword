@@ -78,20 +78,26 @@ function onOpen() {
  *   Column B: "expense_categories" header, followed by category values
  *   Column C: "payment_methods" header, followed by method values
  *   Column D: "scripture_cost_per_unit" header, followed by a single number
+ *   Column E: (reserved — categories reference)
+ *   Column F: (reserved — payment methods reference)
  * Falls back to hardcoded defaults if the Lists tab doesn't exist.
+ *
+ * NOTE: For income, the category IS the payment method (donation-zelle, etc.)
+ * so no separate payment_method field is needed. Payment methods only apply
+ * to expense entries.
  */
 function getFinanceCategories_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('Lists');
 
   var defaults = {
-    income: ['Donation - Venmo','Donation - Cash App','Donation - Zelle',
-             'Donation - PayPal','Donation - Cash/Check','Donation - Other',
-             'Scripture Fund Donation','Fundraiser'],
-    expense: ['Scripture Purchase','Ministry Materials','Event Costs',
-              'Shipping/Postage','Supplies','Travel','Food/Hospitality',
-              'Technology/Software','Other Expense'],
-    methods: ['Venmo','Cash App','Zelle','PayPal','Cash','Check','Card','Bank Transfer'],
+    income: ['donation-zelle','donation-venmo','donation-paypal',
+             'donation-cashapp','donation-cash','donation-card',
+             'donation-check/ACH'],
+    expense: ['ministry-supplies','misc-supplies','shipping/postage',
+              'designated-scripture-fund','other-expense'],
+    methods: ['Zelle','Venmo','CashApp','PayPal','Cash','Card',
+              'Apple/Google/Samsung Pay','Invoice/Unpaid'],
     scriptureCostPerUnit: 2
   };
 
@@ -829,16 +835,17 @@ function submitFinanceEntry(data) {
 
 /**
  * Builds finance form HTML dynamically using categories from the Lists tab.
+ * For INCOME: category IS the method (donation-zelle, donation-venmo, etc.)
+ *   so no separate payment method dropdown is shown.
+ * For EXPENSE: category is the cost type, payment method is how it was paid.
  */
 function buildFinanceFormHtml_() {
   var cats = getFinanceCategories_();
   var incomeOpts = cats.income.map(function(c) {
-    var val = c.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    return '<option value="' + val + '">' + esc_(c) + '</option>';
+    return '<option value="' + esc_(c) + '">' + esc_(c) + '</option>';
   }).join('');
   var expenseOpts = cats.expense.map(function(c) {
-    var val = c.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    return '<option value="' + val + '">' + esc_(c) + '</option>';
+    return '<option value="' + esc_(c) + '">' + esc_(c) + '</option>';
   }).join('');
   var methodOpts = cats.methods.map(function(m) {
     return '<option value="' + esc_(m) + '">' + esc_(m) + '</option>';
@@ -858,39 +865,48 @@ function buildFinanceFormHtml_() {
     '<h2>Log Finance Entry</h2>' +
     '<p style="font-size:11px;color:#888;margin:0 0 10px;">Categories loaded from the <b>Lists</b> tab. Edit that tab to add/remove options.</p>' +
     '<form id="f" onsubmit="save(event)">' +
-    '<label>Type *</label><select id="tp" required onchange="filterCats()">' +
-    '<option value="income">Income</option><option value="expense" selected>Expense</option></select>' +
+    '<label>Type *</label><select id="tp" required onchange="switchType()">' +
+    '<option value="income">Income (Donation)</option><option value="expense">Expense</option></select>' +
     '<label>Category *</label><select id="cat" required><option value="">-- Select --</option>' +
     '<optgroup label="Income" id="og-income">' + incomeOpts + '</optgroup>' +
     '<optgroup label="Expense" id="og-expense">' + expenseOpts + '</optgroup>' +
     '</select>' +
-    '<p class="hint" id="scripture-hint" style="display:none;">💡 Scripture-related categories are tracked separately in the dashboard under "Scripture Fund".</p>' +
+    '<p class="hint" id="scripture-hint" style="display:none;">This is tracked under the Scripture Fund in the dashboard.</p>' +
+    '<div id="pm-wrap">' +
+    '<label>Payment Method *</label><select id="pm"><option value="">-- Select --</option>' + methodOpts + '</select>' +
+    '<p class="hint">How this expense was paid.</p>' +
+    '</div>' +
     '<label>Description *</label><input id="desc" placeholder="e.g. Venmo donation from John" required>' +
     '<label>Amount ($) *</label><input id="amt" type="number" step="0.01" min="0" placeholder="0.00" required>' +
     '<div class="r2"><div><label>Date</label><input id="dt" type="date"></div>' +
-    '<div><label>Payment Method</label><select id="pm"><option value="">--</option>' + methodOpts + '</select></div></div>' +
+    '<div><label>Recorded By</label><input id="rb" placeholder="Your name"></div></div>' +
     '<label>Reference #</label><input id="ref" placeholder="Transaction ID, check #...">' +
-    '<label>Recorded By</label><input id="rb" placeholder="Your name">' +
     '<label>Notes</label><textarea id="nt" rows="2" placeholder="Optional..."></textarea>' +
     '<button type="submit" id="btn">Save Finance Entry</button><div id="st"></div></form>' +
     '<script>' +
     'document.getElementById("dt").valueAsDate=new Date();' +
-    'function filterCats(){' +
+    'function switchType(){' +
     '  var tp=document.getElementById("tp").value;' +
-    '  document.getElementById("og-income").style.display=(tp==="expense")?"none":"";' +
-    '  document.getElementById("og-expense").style.display=(tp==="income")?"none":"";' +
+    '  var isIncome=(tp==="income");' +
+    '  document.getElementById("og-income").style.display=isIncome?"":"none";' +
+    '  document.getElementById("og-expense").style.display=isIncome?"none":"";' +
+    '  document.getElementById("pm-wrap").style.display=isIncome?"none":"";' +
     '  document.getElementById("cat").value="";' +
+    '  if(isIncome){document.getElementById("pm").value="";}' +
     '}' +
-    'filterCats();' +
+    'switchType();' +
     'document.getElementById("cat").addEventListener("change",function(){' +
     '  var v=this.value||"";' +
     '  document.getElementById("scripture-hint").style.display=/scripture/i.test(v)?"block":"none";' +
     '});' +
     'function save(e){e.preventDefault();var btn=document.getElementById("btn");btn.disabled=true;btn.textContent="Saving...";' +
+    'var tp=document.getElementById("tp").value;' +
+    'var cat=document.getElementById("cat").value;' +
+    'var pm=(tp==="income")?cat:document.getElementById("pm").value;' +
     'google.script.run' +
-    '.withSuccessHandler(function(){document.getElementById("st").innerHTML=\'<span style="color:#2C5F2E">Saved!</span>\';document.getElementById("f").reset();document.getElementById("dt").valueAsDate=new Date();filterCats();btn.disabled=false;btn.textContent="Save Finance Entry";})' +
+    '.withSuccessHandler(function(){document.getElementById("st").innerHTML=\'<span style="color:#2C5F2E">Saved!</span>\';document.getElementById("f").reset();document.getElementById("dt").valueAsDate=new Date();switchType();btn.disabled=false;btn.textContent="Save Finance Entry";})' +
     '.withFailureHandler(function(err){document.getElementById("st").innerHTML=\'<span style="color:#c00">\'+(err.message||JSON.stringify(err))+\'</span>\';btn.disabled=false;btn.textContent="Save Finance Entry";})' +
-    '.submitFinanceEntry({date:document.getElementById("dt").value,type:document.getElementById("tp").value,category:document.getElementById("cat").value,description:document.getElementById("desc").value,amount:document.getElementById("amt").value,payment_method:document.getElementById("pm").value,reference:document.getElementById("ref").value,recorded_by:document.getElementById("rb").value,notes:document.getElementById("nt").value});' +
+    '.submitFinanceEntry({date:document.getElementById("dt").value,type:tp,category:cat,description:document.getElementById("desc").value,amount:document.getElementById("amt").value,payment_method:pm,reference:document.getElementById("ref").value,recorded_by:document.getElementById("rb").value,notes:document.getElementById("nt").value});' +
     '}' +
     '<\/script></body></html>';
 }

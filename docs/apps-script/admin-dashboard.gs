@@ -318,14 +318,13 @@ function getInventoryOutRows() {
   // If we got pre-selected rows from the spreadsheet selection, return those
   if (selectedRows.length > 0) return selectedRows;
 
-  // Otherwise return the 100 most recent "out" rows for manual selection
+  // Otherwise return ALL "out" rows for manual selection (newest first)
   var result = [];
   for (var i = data.length - 1; i >= 1; i--) {
     var row = data[i];
     var dir2 = String(row[dirCol]||'').trim().toLowerCase();
     if (dir2 !== 'out') continue;
     result.push(buildRow(row, i + 1, false));
-    if (result.length >= 100) break;
   }
   return result;
 }
@@ -346,16 +345,16 @@ function getPlacementFormHtml_() {
     '.r2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}' +
     'hr{border:none;border-top:1px solid #E8E4DF;margin:10px 0;}' +
     /* Checklist */
-    '.checklist{max-height:220px;overflow-y:auto;border:1px solid #E8E4DF;border-radius:4px;padding:6px;}' +
-    '.chk-item{display:flex;align-items:flex-start;gap:6px;padding:5px 4px;border-bottom:1px solid #f0ede8;font-size:11px;cursor:pointer;}' +
+    '.checklist{max-height:280px;overflow-y:auto;border:1px solid #E8E4DF;border-radius:4px;padding:4px;}' +
+    '.chk-item{display:grid;grid-template-columns:1fr 16px;align-items:center;gap:4px;padding:4px 5px;border-bottom:1px solid #f0ede8;font-size:11px;cursor:pointer;}' +
     '.chk-item:last-child{border-bottom:none;}' +
     '.chk-item:hover{background:#fffbf0;}' +
     '.chk-item.selected{background:#fff8e8;}' +
-    '.chk-item input[type=checkbox]{margin-top:2px;flex-shrink:0;accent-color:#B8860B;}' +
-    '.chk-label{flex:1;line-height:1.4;}' +
-    '.chk-id{font-size:10px;font-weight:700;color:#B8860B;min-width:70px;}' +
-    '.chk-name{color:#1a1a1a;}' +
-    '.chk-meta{font-size:10px;color:#888;}' +
+    '.chk-item input[type=checkbox]{width:14px;height:14px;margin:0;flex-shrink:0;accent-color:#B8860B;cursor:pointer;}' +
+    '.chk-label{line-height:1.3;overflow:hidden;}' +
+    '.chk-id{font-size:10px;font-weight:700;color:#B8860B;display:inline;}' +
+    '.chk-name{color:#1a1a1a;font-size:10px;}' +
+    '.chk-meta{font-size:9px;color:#888;display:block;margin-top:1px;}' +
     '.sel-all{font-size:11px;color:#B8860B;cursor:pointer;font-weight:600;margin-bottom:5px;display:inline-block;}' +
     /* Scripture lines (NEW entries not yet in Inventory) */
     '.line{background:#FAFAF8;border:1px solid #E8E4DF;border-radius:5px;padding:8px;margin-bottom:7px;}' +
@@ -449,7 +448,7 @@ function getPlacementFormHtml_() {
         'rows.forEach(function(r,i){' +
           'var chk=r.preselected?" checked":"";' +
           'var cls=r.preselected?" selected":"";' +
-          'fullHtml+=\'<label class="chk-item\'+cls+\'"><input type="checkbox" class="row-chk" value="\'+i+\'"\'+chk+\'><div class="chk-label"><span class="chk-id">\'+(r.row_id||"(no ID)")+\'</span> <span class="chk-name">\'+r.name+\' x\'+r.qty+\'</span><br><span class="chk-meta">\'+r.date+(r.source?" \\u00b7 "+r.source:"")+\'</span></div></label>\';' +
+          'fullHtml+=\'<label class="chk-item\'+cls+\'"><div class="chk-label"><span class="chk-id">\'+(r.row_id||"(no ID)")+\'</span> <span class="chk-name">\'+r.name+\' x\'+r.qty+\'</span><span class="chk-meta">\'+r.date+(r.source?" \\u00b7 "+r.source:"")+\'</span></div><input type="checkbox" class="row-chk" value="\'+i+\'"\'+chk+\'></label>\';' +
         '});' +
         'cl.innerHTML=fullHtml;' +
         // Re-attach click handlers to make entire row toggle checkbox

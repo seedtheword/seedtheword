@@ -227,29 +227,73 @@ function getInventoryOutRows() {
   var data = sheet.getDataRange().getValues();
   var headers = data[0];
 
-  // Find columns by header — case-insensitive, spaces/underscores normalised
+  // Find columns by header — case-insensitive, spaces/underscores/dashes normalised
   function findCol(name) {
-    var n = name.toLowerCase().replace(/[\s_]/g,'');
+    var n = name.toLowerCase().replace(/[\s_\-]/g,'');
     for (var h = 0; h < headers.length; h++) {
-      if (String(headers[h]).toLowerCase().replace(/[\s_]/g,'') === n) return h;
+      if (String(headers[h]).toLowerCase().replace(/[\s_\-]/g,'') === n) return h;
     }
     return -1;
   }
 
-  var rowIdCol   = findCol('row_id');
-  var dirCol     = findCol('direction');   // should be col F (index 5)
-  var dateCol    = 0;
-  var itemIdCol  = findCol('item_id');
-  var nameCol    = findCol('item_name');
-  var qtyCol     = findCol('qty');
-  var sourceCol  = findCol('event_source');
-  var orderCol   = findCol('order_id');
+  // Try to find by header name, fall back to known positions
+  var dateCol    = findCol('date');       if (dateCol === -1)    dateCol = 0;
+  var typeCol    = findCol('type');       if (typeCol === -1)    typeCol = 1;
+  var itemIdCol  = findCol('itemid');     if (itemIdCol === -1)  itemIdCol = 2;
+  var nameCol    = findCol('itemname');   if (nameCol === -1)    nameCol = 3;
+  var qtyCol     = findCol('qty');        if (qtyCol === -1)     qtyCol = 4;
+  var dirCol     = findCol('direction');  if (dirCol === -1)     dirCol = 5;
+  var sourceCol  = findCol('eventsource');if (sourceCol === -1)  sourceCol = 6;
+  var costCol    = findCol('costperunit');if (costCol === -1)    costCol = 7;
+  var totalCol   = findCol('totalcost');  if (totalCol === -1)   totalCol = 8;
+  var notesCol   = findCol('notes');      if (notesCol === -1)   notesCol = 9;
+  var orderCol   = findCol('orderid');    if (orderCol === -1)   orderCol = 10;
+  var rowIdCol   = findCol('rowid');
+  // row_id is often the last column — scan for it
+  if (rowIdCol === -1) {
+    for (var h = headers.length - 1; h >= 0; h--) {
+      var hv = String(headers[h]).toLowerCase().replace(/[\s_\-]/g,'');
+      if (hv === 'rowid') { rowIdCol = h; break; }
+    }
+  }
 
-  // If direction column not found fall back to index 5
-  if (dirCol === -1) dirCol = 5;
-  if (qtyCol === -1) qtyCol = 4;
-  if (sourceCol === -1) sourceCol = 6;
-  if (orderCol === -1) orderCol = 10;
+  // Helper: format date for display
+  function fmtDate(val) {
+    if (!val) return '';
+    if (val instanceof Date) {
+      return (val.getMonth()+1) + '/' + val.getDate() + '/' + val.getFullYear();
+    }
+    var s = String(val);
+    // If it looks like a long date string, try to shorten it
+    var d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      return (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
+    }
+    return s;
+  }
+
+  // Helper: build row object from a data row
+  function buildRow(row, rowNum, preselected) {
+    var rowId = rowIdCol >= 0 ? String(row[rowIdCol]||'').trim() : '';
+    var nm    = String(row[nameCol]||'').trim();
+    var qty   = parseInt(row[qtyCol],10) || 0;
+    var src   = String(row[sourceCol]||'').trim();
+    var dt    = fmtDate(row[dateCol]);
+    var itemId = String(row[itemIdCol]||'').trim();
+    // If item_name is empty, try to use item_id as fallback display name
+    if (!nm && itemId) nm = itemId;
+    return {
+      row_id:      rowId,
+      date:        dt,
+      item_id:     itemId,
+      name:        nm,
+      qty:         qty,
+      source:      src,
+      order_id:    String(row[orderCol]||'').trim(),
+      label:       (rowId ? '['+rowId+'] ' : '[row '+rowNum+'] ') + (nm||'(unnamed)') + ' x'+qty + (dt?' ('+dt+')':''),
+      preselected: preselected
+    };
+  }
 
   // Check if user has rows selected in the Inventory sheet
   var selectedRows = [];
@@ -265,22 +309,7 @@ function getInventoryOutRows() {
           if (!row) continue;
           var dir = String(row[dirCol]||'').trim().toLowerCase();
           if (dir !== 'out') continue;
-          var rowId = rowIdCol >= 0 ? String(row[rowIdCol]||'') : '';
-          var qty   = parseInt(row[qtyCol],10) || 0;
-          var src   = String(row[sourceCol]||'');
-          var nm    = String(row[nameCol >= 0 ? nameCol : 3]||'');
-          var dt    = String(row[dateCol]||'');
-          selectedRows.push({
-            row_id:   rowId,
-            date:     dt,
-            item_id:  String(row[itemIdCol >= 0 ? itemIdCol : 2]||''),
-            name:     nm,
-            qty:      qty,
-            source:   src,
-            order_id: String(row[orderCol]||''),
-            label:    (rowId ? '['+rowId+'] ' : '[row '+s+'] ') + (nm||'item') + ' x'+qty + (dt?' ('+dt+')':''),
-            preselected: true
-          });
+          selectedRows.push(buildRow(row, s, true));
         }
       }
     }
@@ -295,22 +324,7 @@ function getInventoryOutRows() {
     var row = data[i];
     var dir2 = String(row[dirCol]||'').trim().toLowerCase();
     if (dir2 !== 'out') continue;
-    var rowId2   = rowIdCol >= 0 ? String(row[rowIdCol]||'') : '';
-    var qty2     = parseInt(row[qtyCol],10) || 0;
-    var src2     = String(row[sourceCol]||'');
-    var nm2      = String(row[nameCol >= 0 ? nameCol : 3]||'');
-    var dt2      = String(row[dateCol]||'');
-    result.push({
-      row_id:   rowId2,
-      date:     dt2,
-      item_id:  String(row[itemIdCol >= 0 ? itemIdCol : 2]||''),
-      name:     nm2,
-      qty:      qty2,
-      source:   src2,
-      order_id: String(row[orderCol]||''),
-      label:    (rowId2 ? '['+rowId2+'] ' : '[row '+(i+1)+'] ') + (nm2||'item') + ' x'+qty2 + (dt2?' ('+dt2+')':''),
-      preselected: false
-    });
+    result.push(buildRow(row, i + 1, false));
     if (result.length >= 100) break;
   }
   return result;

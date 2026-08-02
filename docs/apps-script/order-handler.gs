@@ -2264,6 +2264,59 @@ function getItemCostMapFromLedger_() {
   return result;
 }
 
+/**
+ * Auto-logs a finance entry to the Finances tab when inventory items go out.
+ * Rules:
+ *   - pocket-*, full-*, large-* (Bibles) → category: designated-scripture-fund
+ *   - tract-*, merch-* (supplies) → category: ministry-supplies (needs payment_method)
+ *   - Items with cost=0 are skipped (no finance entry)
+ *   - Items marked skip_finance=true are skipped (bookkeeper already recorded)
+ *
+ * @param {object} params
+ * @param {string} params.date
+ * @param {string} params.event_source - used in description
+ * @param {Array} params.items - [{item_id, item_name, qty, cost_per_unit, payment_method, recorded_by, skip_finance}]
+ * @param {string} params.team_member - fallback for recorded_by
+ */
+function autoLogFinanceFromInventory_(params) {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var finSheet = ss.getSheetByName('Finances');
+  if (!finSheet) return; // Finances tab doesn't exist, skip silently
+
+  var date   = params.date || new Date().toISOString().split('T')[0];
+  var source = params.event_source || '';
+  var team   = params.team_member || '';
+
+  params.items.forEach(function(item) {
+    if (item.skip_finance) return; // bookkeeper already recorded
+    var itemId  = String(item.item_id || '').trim().toLowerCase();
+    var cost    = parseFloat(item.cost_per_unit) || 0;
+    var qty     = parseInt(item.qty, 10) || 0;
+    var total   = qty * cost;
+    if (total <= 0) return; // zero-cost items don't need finance entries
+
+    var isBible = itemId.indexOf('pocket-') === 0 || itemId.indexOf('full-') === 0 || itemId.indexOf('large-') === 0;
+    var category = isBible ? 'designated-scripture-fund' : 'ministry-supplies';
+    var description = (source ? source + ' \u2014 ' : '') + (item.item_name || itemId) + ' x' + qty;
+    var paymentMethod = isBible ? '' : (item.payment_method || '');
+    var recordedBy = isBible ? team : (item.recorded_by || team);
+
+    // Finances tab columns: date, type, category, description, amount, payment_method, reference, recorded_by, notes, receipt_link
+    finSheet.appendRow([
+      date,
+      'expense',
+      category,
+      description,
+      total,
+      paymentMethod,
+      '',  // reference
+      recordedBy,
+      'Auto-logged from inventory',  // notes
+      ''   // receipt_link
+    ]);
+  });
+}
+
 function handleFieldLog_(payload) {
   // 1. Verify passphrase hash
   var clientHash = String(payload.passphrase_hash || '').toLowerCase().trim();
@@ -2342,6 +2395,30 @@ function handleFieldLog_(payload) {
       sheet.appendRow(row);
       addedRows.push(rowId + ': ' + item.item_name + ' x' + qty + ' (' + direction + ')');
     });
+
+    // Auto-log finance entries for outgoing items
+    var outItems = items.filter(function(it) {
+      return String(it.direction || 'out').toLowerCase() === 'out';
+    }).map(function(it) {
+      var id = String(it.item_id || '').trim();
+      return {
+        item_id: id,
+        item_name: it.item_name || '',
+        qty: parseInt(it.qty, 10) || 0,
+        cost_per_unit: (costMap.costs[id] !== undefined) ? costMap.costs[id] : costMap.defaultCost,
+        payment_method: it.payment_method || '',
+        recorded_by: it.recorded_by || '',
+        skip_finance: !!it.skip_finance
+      };
+    });
+    if (outItems.length) {
+      autoLogFinanceFromInventory_({
+        date: date,
+        event_source: source,
+        items: outItems,
+        team_member: teamMember
+      });
+    }
 
     // Email summary to team
     try {
@@ -2458,6 +2535,28 @@ function handleFieldPlacement_(payload) {
 
       sheet.appendRow(row);
     });
+
+    // Auto-log finance entries for placed items
+    var finItems = items.map(function(it) {
+      var id = String(it.item_id || '').trim();
+      return {
+        item_id: id,
+        item_name: it.item_name || '',
+        qty: parseInt(it.qty, 10) || 0,
+        cost_per_unit: (costMap.costs[id] !== undefined) ? costMap.costs[id] : costMap.defaultCost,
+        payment_method: it.payment_method || '',
+        recorded_by: it.recorded_by || '',
+        skip_finance: !!it.skip_finance
+      };
+    });
+    if (finItems.length) {
+      autoLogFinanceFromInventory_({
+        date: datePlaced,
+        event_source: source,
+        items: finItems,
+        team_member: teamMember
+      });
+    }
 
     // Write to PlacementRecords tab
     var plHeaders = ['placement_id','placement_name','date_placed','team_member',

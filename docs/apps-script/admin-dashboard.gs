@@ -942,7 +942,8 @@ function buildFinanceFormHtml_() {
 // ── Dashboard sidebar ─────────────────────────────────────────────
 function showDashboard() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var totalOut=0, totalIn=0, totalIncome=0, totalExp=0;
+  var biblesOut=0, biblesIn=0, totalOut=0, totalIn=0;
+  var totalIncome=0, totalExp=0;
   var scriptureFundIncome=0, scriptureFundExp=0, generalExp=0;
   var rsvpCount=0, plCount=0;
 
@@ -952,8 +953,17 @@ function showDashboard() {
     for (var i = 1; i < d.length; i++) {
       var q = parseInt(d[i][4],10) || 0;
       var dr = String(d[i][5]||'').trim().toLowerCase();
-      if (dr === 'out') totalOut += q;
-      if (dr === 'in')  totalIn  += q;
+      var itemId = String(d[i][2]||'').trim().toLowerCase();
+      // Bibles = pocket-*, full-*, large-* only
+      var isBible = itemId.indexOf('pocket-') === 0 || itemId.indexOf('full-') === 0 || itemId.indexOf('large-') === 0;
+      if (dr === 'out') {
+        totalOut += q;
+        if (isBible) biblesOut += q;
+      }
+      if (dr === 'in') {
+        totalIn += q;
+        if (isBible) biblesIn += q;
+      }
     }
   }
 
@@ -964,8 +974,7 @@ function showDashboard() {
       var fType = String(fData[j][1]||'').toLowerCase();
       var fCat  = String(fData[j][2]||'').toLowerCase();
       var fAmt  = parseFloat(fData[j][4]) || 0;
-      var fNote = String(fData[j][8]||'').toLowerCase();
-      var isScripture = /scripture/i.test(fCat) || /\[scripture_fund\]/i.test(fNote);
+      var isScripture = /scripture/i.test(fCat);
 
       if (fType === 'income') {
         totalIncome += fAmt;
@@ -982,7 +991,7 @@ function showDashboard() {
   var rs = ss.getSheetByName('RSVP'); if (rs) rsvpCount = Math.max(0, rs.getLastRow()-1);
   var pl = ss.getSheetByName(PLACEMENT_TAB); if (pl) plCount = Math.max(0, pl.getLastRow()-1);
   var bal = totalIncome - totalExp;
-  var net = totalIn - totalOut;
+  var biblesNet = biblesIn - biblesOut;
   var scriptureNet = scriptureFundIncome - scriptureFundExp;
 
   function card(title,val,sub,cls) {
@@ -1002,19 +1011,24 @@ function showDashboard() {
     '.full{grid-column:1/-1;}.ts{font-size:10px;color:#bbb;text-align:center;margin-top:10px;}' +
     '</style></head><body>' +
     '<h2>Ministry Dashboard</h2><div class="g">' +
-    card('Bibles Given Away', totalOut, 'Total out movements', 'gold') +
-    card('Net Available', net, 'Received \u2212 donated', net >= 0 ? 'green' : 'red') +
+    card('Bibles Given Away', biblesOut, 'Pocket + Large Print + Full (out only)', 'gold') +
+    card('Bibles Net Stock', biblesNet >= 0 ? '+'+biblesNet : biblesNet, 'Received \u2212 given away', biblesNet >= 0 ? 'green' : 'red') +
+    card('Total Material Moved', totalOut, 'All items out (incl. tracts, merch)', '') +
+    card('All Items Received', totalIn, 'All items in (restocks)', 'green') +
+    '</div>' +
+    '<h3>Finances</h3>' +
+    '<div class="g">' +
     card('Total Income', '$'+totalIncome.toFixed(2), 'All donations', 'green') +
     card('Total Expenses', '$'+totalExp.toFixed(2), 'All costs', 'red') +
     '</div>' +
     '<div class="g"><div class="card full"><div class="ct">Current Balance</div><div class="val '+(bal>=0?'green':'red')+'">$'+bal.toFixed(2)+'</div><div class="sub">Income minus expenses</div></div></div>' +
-    '<h3>Scripture Fund (separated)</h3>' +
+    '<h3>Scripture Fund</h3>' +
     '<div class="g">' +
     card('Scripture Donations', '$'+scriptureFundIncome.toFixed(2), 'Earmarked for Bibles', 'purple') +
-    card('Scripture Purchases', '$'+scriptureFundExp.toFixed(2), 'Bible/tract costs', 'red') +
+    card('Scripture Purchases', '$'+scriptureFundExp.toFixed(2), 'Gideons orders', 'red') +
     '</div>' +
-    '<div class="g"><div class="card full"><div class="ct">Scripture Fund Balance</div><div class="val '+(scriptureNet>=0?'green':'red')+'">$'+scriptureNet.toFixed(2)+'</div><div class="sub">Scripture income \u2212 scripture expenses (excluded from general ops)</div></div></div>' +
-    '<div class="g"><div class="card full"><div class="ct">General Ops Expenses</div><div class="val">$'+generalExp.toFixed(2)+'</div><div class="sub">Non-scripture costs (materials, events, shipping, etc.)</div></div></div>' +
+    '<div class="g"><div class="card full"><div class="ct">Scripture Fund Balance</div><div class="val '+(scriptureNet>=0?'green':'red')+'">$'+scriptureNet.toFixed(2)+'</div><div class="sub">Scripture donations \u2212 purchases</div></div></div>' +
+    '<div class="g"><div class="card full"><div class="ct">General Ops Expenses</div><div class="val">$'+generalExp.toFixed(2)+'</div><div class="sub">Ministry supplies, misc, other</div></div></div>' +
     '<div class="g">' + card('Placement Records', plCount, 'Named placements') + card('Young Adults RSVPs', rsvpCount, 'Confirmed attendees') + '</div>' +
     '<div class="ts">Updated ' + new Date().toLocaleString() + '</div></body></html>';
 

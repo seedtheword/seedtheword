@@ -308,6 +308,50 @@
       border-radius: 8px;
       margin-bottom: 0.75rem;
     }
+    .pl-item__finance {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 0.5rem 0.7rem 0.4rem;
+      margin: -0.25rem 0 0.5rem;
+      background: #fff8e8;
+      border: 1px solid #f0e0b0;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+    .pl-item__finance select,
+    .pl-item__finance input {
+      padding: 0.4rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 0.8rem;
+      font-family: inherit;
+      flex: 1;
+      min-width: 100px;
+      margin: 0;
+    }
+    .pl-item__skip, .pl-item__unskip {
+      padding: 0.35rem 0.6rem;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .pl-item__skip:hover { background: #f5f3f0; }
+    .pl-item__unskip { color: var(--gold); border-color: var(--gold); }
+    .pl-item__skipped {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-style: italic;
+      flex: 1;
+    }
     @media (max-width: 400px) {
       .row2 { grid-template-columns: 1fr; }
       .gate__card { padding: 2rem 1.25rem; }
@@ -652,7 +696,14 @@
   });
 
   // ── Placement Record Logic ─────────────────────────────────────
-  var plItems = []; // [{item_id, item_name, qty}]
+  var plItems = []; // [{item_id, item_name, qty, payment_method, recorded_by, skip_finance}]
+
+  function isBible(itemId) {
+    var id = (itemId||'').toLowerCase();
+    return id.indexOf('pocket-') === 0 || id.indexOf('full-') === 0 || id.indexOf('large-') === 0;
+  }
+
+  var PAYMENT_METHODS = ['Cash','Card','Zelle','Venmo','CashApp','PayPal','Apple/Google/Samsung Pay','Invoice/Unpaid'];
 
   function renderPlItems() {
     var container = document.getElementById('pl-items');
@@ -664,12 +715,29 @@
     }
     empty.style.display = 'none';
     container.innerHTML = plItems.map(function(item, idx) {
-      return '<div class="pl-item">' +
-        '<div><div class="pl-item__name">' + item.item_name + '</div><div class="pl-item__id">' + item.item_id + '</div></div>' +
+      var needsFinanceFields = !isBible(item.item_id) && getItemCost(item.item_id) > 0;
+      var financeHtml = '';
+      if (needsFinanceFields && !item.skip_finance) {
+        var pmOpts = PAYMENT_METHODS.map(function(m) {
+          var sel = (item.payment_method === m) ? ' selected' : '';
+          return '<option value="'+m+'"'+sel+'>'+m+'</option>';
+        }).join('');
+        financeHtml = '<div class="pl-item__finance">' +
+          '<select class="pl-item__pm" data-idx="'+idx+'"><option value="">Payment method *</option>'+pmOpts+'</select>' +
+          '<input class="pl-item__rb" data-idx="'+idx+'" placeholder="Recorded by *" value="'+(item.recorded_by||'')+'">' +
+          '<button type="button" class="pl-item__skip" data-idx="'+idx+'">Skip (already recorded)</button>' +
+        '</div>';
+      } else if (needsFinanceFields && item.skip_finance) {
+        financeHtml = '<div class="pl-item__finance"><span class="pl-item__skipped">Skipped \u2014 bookkeeper recorded</span>' +
+          '<button type="button" class="pl-item__unskip" data-idx="'+idx+'">Undo skip</button></div>';
+      }
+      return '<div class="pl-item" style="grid-template-columns:1fr 60px 36px;">' +
+        '<div><div class="pl-item__name">' + item.item_name + '</div><div class="pl-item__id">' + item.item_id + ' \u2014 $' + getItemCost(item.item_id).toFixed(2) + '/ea</div></div>' +
         '<input type="number" class="pl-item__qty" min="1" value="' + item.qty + '" data-idx="' + idx + '">' +
         '<button type="button" class="pl-item__rm" data-idx="' + idx + '">\u00d7</button>' +
-      '</div>';
+      '</div>' + financeHtml;
     }).join('');
+    // Wire up event handlers
     container.querySelectorAll('.pl-item__qty').forEach(function(inp) {
       inp.addEventListener('change', function() {
         plItems[parseInt(this.getAttribute('data-idx'))].qty = parseInt(this.value) || 1;
@@ -678,6 +746,28 @@
     container.querySelectorAll('.pl-item__rm').forEach(function(btn) {
       btn.addEventListener('click', function() {
         plItems.splice(parseInt(this.getAttribute('data-idx')), 1);
+        renderPlItems();
+      });
+    });
+    container.querySelectorAll('.pl-item__pm').forEach(function(sel) {
+      sel.addEventListener('change', function() {
+        plItems[parseInt(this.getAttribute('data-idx'))].payment_method = this.value;
+      });
+    });
+    container.querySelectorAll('.pl-item__rb').forEach(function(inp) {
+      inp.addEventListener('input', function() {
+        plItems[parseInt(this.getAttribute('data-idx'))].recorded_by = this.value;
+      });
+    });
+    container.querySelectorAll('.pl-item__skip').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        plItems[parseInt(this.getAttribute('data-idx'))].skip_finance = true;
+        renderPlItems();
+      });
+    });
+    container.querySelectorAll('.pl-item__unskip').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        plItems[parseInt(this.getAttribute('data-idx'))].skip_finance = false;
         renderPlItems();
       });
     });
@@ -847,6 +937,17 @@
     if (!plDate)      { status.innerHTML = '<span style="color:var(--red)">Date Placed is required.</span>'; return; }
     if (!plItems.length) { status.innerHTML = '<span style="color:var(--red)">Add at least one scripture item (scan or add manually).</span>'; return; }
 
+    // Validate payment_method for merch/tract items that aren't skipped
+    for (var v = 0; v < plItems.length; v++) {
+      var vItem = plItems[v];
+      if (!isBible(vItem.item_id) && getItemCost(vItem.item_id) > 0 && !vItem.skip_finance) {
+        if (!vItem.payment_method) {
+          status.innerHTML = '<span style="color:var(--red)">Payment method required for "' + vItem.item_name + '" (or click Skip).</span>';
+          return;
+        }
+      }
+    }
+
     btn.disabled = true;
     btn.textContent = 'Saving & logging to Inventory\u2026';
 
@@ -872,7 +973,7 @@
           notes:           document.getElementById('pl-notes').value.trim()
         },
         items: plItems.map(function(it) {
-          return { item_id: it.item_id, item_name: it.item_name, qty: it.qty, direction: 'out', cost_per_unit: getItemCost(it.item_id) };
+          return { item_id: it.item_id, item_name: it.item_name, qty: it.qty, direction: 'out', cost_per_unit: getItemCost(it.item_id), payment_method: it.payment_method || '', recorded_by: it.recorded_by || '', skip_finance: !!it.skip_finance };
         })
       });
 

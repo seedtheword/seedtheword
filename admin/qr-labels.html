@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Scripture QR Labels — Print Sheet</title>
+  <style>
+    /* ── Screen styles ── */
+    :root {
+      --ink: #1a1a1a;
+      --muted: #6b6b6b;
+      --gold: #B8860B;
+      --border: #e8e4df;
+      --bg: #fafaf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    /* Screen header */
+    .screen-header {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 1rem;
+    }
+    .screen-header h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin: 0 0 0.5rem;
+      color: var(--gold);
+    }
+    .screen-header p {
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0 0 1rem;
+    }
+    .print-btn {
+      padding: 0.75rem 1.5rem;
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .print-btn:hover { background: #9a7209; }
+    .options {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .options label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .options select {
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: inherit;
+    }
+
+    /* ── Label grid ── */
+    .label-grid {
+      max-width: 900px;
+      margin: 1.5rem auto;
+      padding: 0 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(var(--label-w, 180px), 1fr));
+      gap: 0.75rem;
+    }
+    .label {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      text-align: center;
+      break-inside: avoid;
+    }
+    .label__qr {
+      width: var(--qr-size, 100px);
+      height: var(--qr-size, 100px);
+    }
+    .label__qr svg { width: 100%; height: 100%; }
+    .label__name {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.3;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .label__id {
+      font-size: 0.6rem;
+      color: var(--gold);
+      font-weight: 600;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+    }
+    .label__url {
+      font-size: 0.5rem;
+      color: var(--muted);
+      word-break: break-all;
+      line-height: 1.3;
+    }
+
+    /* ── Print styles ── */
+    @media print {
+      .screen-header { display: none; }
+      body { background: #fff; }
+      .label-grid {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+        gap: 2mm;
+        grid-template-columns: repeat(var(--cols, 5), 1fr);
+      }
+      .label {
+        border: 0.5px solid #ccc;
+        border-radius: 2px;
+        padding: 3mm;
+        page-break-inside: avoid;
+      }
+      .label__qr {
+        width: var(--qr-print-size, 18mm);
+        height: var(--qr-print-size, 18mm);
+      }
+      .label__name { font-size: 6pt; }
+      .label__id { font-size: 5pt; }
+      .label__url { display: none; }
+    }
+
+    /* Size presets */
+    .label-grid[data-size="small"] {
+      --label-w: 140px;
+      --qr-size: 80px;
+      --qr-print-size: 14mm;
+      --cols: 6;
+    }
+    .label-grid[data-size="medium"] {
+      --label-w: 180px;
+      --qr-size: 110px;
+      --qr-print-size: 20mm;
+      --cols: 5;
+    }
+    .label-grid[data-size="large"] {
+      --label-w: 240px;
+      --qr-size: 140px;
+      --qr-print-size: 28mm;
+      --cols: 4;
+    }
+  </style>
+</head>
+<body>
+
+<div class="screen-header">
+  <h1>Scripture QR Labels — Print Sheet</h1>
+  <p>
+    Each label contains a QR code that encodes a URL with the item ID.
+    When scanned with the Field Log app, the scripture type is automatically added to the placement list.
+    Print this page, cut the labels, and stick them on your Bible boxes or individual copies.
+  </p>
+  <div class="options">
+    <button class="print-btn" onclick="window.print()">🖨️ Print Labels</button>
+    <label>
+      Size:
+      <select id="size-select" onchange="setSize(this.value)">
+        <option value="small">Small (6/row, ~14mm QR)</option>
+        <option value="medium" selected>Medium (5/row, ~20mm QR)</option>
+        <option value="large">Large (4/row, ~28mm QR)</option>
+      </select>
+    </label>
+    <label>
+      <input type="checkbox" id="show-url" onchange="toggleUrls(this.checked)">
+      Show URLs on screen
+    </label>
+  </div>
+</div>
+
+<div class="label-grid" id="label-grid" data-size="medium"></div>
+
+<!-- QR Code generation library (lightweight, no dependencies) -->
+<script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  var BASE_URL = 'https://seedtheword.org/donate.html?item=';
+
+  // Same TYPES array as field-log.html
+  var TYPES = [
+    ['Pocket Personal Testimony Gideon Red',  'pocket-nt-red'],
+    ['Pocket Friend of Gideon Grey',          'pocket-nt-grey'],
+    ['Pocket Spanish',                        'pocket-nt-spanish'],
+    ['Pocket Hindi Gideon',                   'pocket-nt-hindi-blue'],
+    ['Pocket Farsi Persian',                  'pocket-nt-farsi-blue'],
+    ['Pocket Thai + English Gideon',          'pocket-nt-thai-english-blue'],
+    ['Pocket Mandarin Gideon',                'pocket-nt-mandarin'],
+    ['Pocket Arabic',                         'pocket-nt-arabic'],
+    ['Pocket French Gideon',                  'pocket-nt-french'],
+    ['Large Print Gideon Brown',              'large-print-nt-brown'],
+    ['Large Print Russian',                   'large-print-nt-russian'],
+    ['Large Print Ukrainian',                 'large-print-nt-ukrainian'],
+    ['Large Print Urdu Gideon',               'large-print-nt-urdu-blue'],
+    ['Large Print Spanish + English Gideon',  'large-print-nt-spanish-english'],
+    ['Large Print Arabic + English',          'large-print-nt-arabic-english'],
+    ['Full Bible Large Print',                'full-bible-large-print'],
+    ['Full Bible Pocket',                     'full-bible-pocket'],
+    ['Life Book English',                     'tract-life-book-english'],
+    ['Life Book Spanish',                     'tract-life-book-spanish'],
+    ['Flip Books',                            'tract-flip-books-english'],
+    ['Notebooks',                             'merch-notebooks'],
+    ['Keychains & Bracelets',                 'merch-keychains-bracelets'],
+    ['Stickers',                              'merch-stickers'],
+    ['Mini Jesus Figurines',                  'merch-mini-fig'],
+    ['Bookmarks',                             'merch-bookmarks']
+  ];
+
+  var grid = document.getElementById('label-grid');
+
+  function generateQrSvg(text) {
+    var qr = qrcode(0, 'M');
+    qr.addData(text);
+    qr.make();
+    return qr.createSvgTag({ scalable: true });
+  }
+
+  function render() {
+    grid.innerHTML = TYPES.map(function(type) {
+      var name   = type[0];
+      var id     = type[1];
+      var url    = BASE_URL + encodeURIComponent(id);
+      var svgTag = generateQrSvg(url);
+
+      return '<div class="label">' +
+        '<div class="label__qr">' + svgTag + '</div>' +
+        '<div class="label__name">' + name + '</div>' +
+        '<div class="label__id">' + id + '</div>' +
+        '<div class="label__url" style="display:none;">' + url + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  render();
+
+  // Expose helpers for the controls
+  window.setSize = function(size) {
+    grid.setAttribute('data-size', size);
+  };
+  window.toggleUrls = function(show) {
+    grid.querySelectorAll('.label__url').forEach(function(el) {
+      el.style.display = show ? '' : 'none';
+    });
+  };
+})();
+</script>
+</body>
+</html>

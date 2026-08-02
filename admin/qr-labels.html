@@ -94,6 +94,37 @@
       gap: 0.4rem;
       text-align: center;
       break-inside: avoid;
+      position: relative;
+    }
+    .label.unselected { opacity: 0.4; }
+    .label__check {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+    .label__qty-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-top: 0.2rem;
+    }
+    .label__qty-label {
+      font-size: 0.6rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .label__qty {
+      width: 40px;
+      padding: 0.2rem 0.3rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.7rem;
+      text-align: center;
+      font-family: inherit;
     }
     .label__qr {
       width: var(--qr-size, 100px);
@@ -139,6 +170,9 @@
         padding: 3mm;
         page-break-inside: avoid;
       }
+      .label.unselected { display: none !important; }
+      .label__check { display: none; }
+      .label__qty-wrap { display: none; }
       .label__qr {
         width: var(--qr-print-size, 18mm);
         height: var(--qr-print-size, 18mm);
@@ -179,7 +213,8 @@
     Print this page, cut the labels, and stick them on your Bible boxes or individual copies.
   </p>
   <div class="options">
-    <button class="print-btn" onclick="window.print()">🖨️ Print Labels</button>
+    <button class="print-btn" onclick="printSelected()">🖨️ Print Selected</button>
+    <button class="print-btn" style="background:#1a1a1a;" onclick="toggleAll()">☑️ Select All</button>
     <label>
       Size:
       <select id="size-select" onchange="setSize(this.value)">
@@ -192,6 +227,7 @@
       <input type="checkbox" id="show-url" onchange="toggleUrls(this.checked)">
       Show URLs on screen
     </label>
+    <span id="select-count" style="font-size:0.82rem;color:var(--gold);font-weight:700;">0 selected</span>
   </div>
 </div>
 
@@ -244,22 +280,85 @@
   }
 
   function render() {
-    grid.innerHTML = TYPES.map(function(type) {
+    grid.innerHTML = TYPES.map(function(type, idx) {
       var name   = type[0];
       var id     = type[1];
       var url    = BASE_URL + encodeURIComponent(id);
       var svgTag = generateQrSvg(url);
 
-      return '<div class="label">' +
+      return '<div class="label unselected" data-idx="' + idx + '">' +
+        '<input type="checkbox" class="label__check" data-idx="' + idx + '">' +
         '<div class="label__qr">' + svgTag + '</div>' +
         '<div class="label__name">' + name + '</div>' +
         '<div class="label__id">' + id + '</div>' +
+        '<div class="label__qty-wrap"><span class="label__qty-label">Copies:</span><input type="number" class="label__qty" min="1" value="1" data-idx="' + idx + '"></div>' +
         '<div class="label__url" style="display:none;">' + url + '</div>' +
       '</div>';
     }).join('');
+
+    // Wire checkboxes
+    grid.querySelectorAll('.label__check').forEach(function(cb) {
+      cb.addEventListener('change', function() {
+        var label = this.closest('.label');
+        label.classList.toggle('unselected', !this.checked);
+        updateCount();
+      });
+    });
+    // Click on label (not checkbox) toggles selection
+    grid.querySelectorAll('.label').forEach(function(label) {
+      label.addEventListener('click', function(e) {
+        if (e.target.classList.contains('label__check') || e.target.classList.contains('label__qty')) return;
+        var cb = label.querySelector('.label__check');
+        cb.checked = !cb.checked;
+        label.classList.toggle('unselected', !cb.checked);
+        updateCount();
+      });
+    });
+  }
+
+  function updateCount() {
+    var count = grid.querySelectorAll('.label__check:checked').length;
+    document.getElementById('select-count').textContent = count + ' selected';
   }
 
   render();
+
+  // Print only selected labels (duplicated by qty)
+  window.printSelected = function() {
+    var selected = grid.querySelectorAll('.label__check:checked');
+    if (!selected.length) { alert('Select at least one label to print.'); return; }
+    // For labels with qty > 1, duplicate them before printing
+    var dupeLabels = [];
+    selected.forEach(function(cb) {
+      var label = cb.closest('.label');
+      var qty = parseInt(label.querySelector('.label__qty').value, 10) || 1;
+      for (var i = 1; i < qty; i++) {
+        var clone = label.cloneNode(true);
+        clone.classList.remove('unselected');
+        clone.querySelector('.label__check').remove();
+        clone.querySelector('.label__qty-wrap').remove();
+        clone.classList.add('print-dupe');
+        grid.appendChild(clone);
+        dupeLabels.push(clone);
+      }
+    });
+    window.print();
+    // Remove duplicates after print dialog closes
+    setTimeout(function() {
+      dupeLabels.forEach(function(el) { el.remove(); });
+    }, 500);
+  };
+
+  // Toggle all
+  var allSelected = false;
+  window.toggleAll = function() {
+    allSelected = !allSelected;
+    grid.querySelectorAll('.label__check').forEach(function(cb) {
+      cb.checked = allSelected;
+      cb.closest('.label').classList.toggle('unselected', !allSelected);
+    });
+    updateCount();
+  };
 
   // Expose helpers for the controls
   window.setSize = function(size) {

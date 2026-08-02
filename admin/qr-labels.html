@@ -4,370 +4,159 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>Scripture QR Labels — Print Sheet</title>
+  <title>QR Labels — Seed the Word</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <style>
-    /* ── Screen styles ── */
     :root {
-      --ink: #1a1a1a;
-      --muted: #6b6b6b;
-      --gold: #B8860B;
-      --border: #e8e4df;
-      --bg: #fafaf8;
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'Source Sans 3', system-ui, sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+      --bg: #FAFAF8; --card: #FFFFFF; --ink: #1A1A1A;
+      --muted: #6B6B6B; --gold: #B8860B; --border: #E8E4DF;
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--sans); background: var(--bg); color: var(--ink); }
+    .page-header {
+      max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem 1rem;
     }
+    .page-header h1 { font-family: var(--serif); font-size: 1.6rem; font-weight: 400; margin: 0 0 0.5rem; }
+    .page-header p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; margin: 0 0 1.25rem; }
+    .toolbar {
+      display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;
+      padding: 0.85rem 1rem; background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; margin-bottom: 1.25rem;
+    }
+    .toolbar__btn {
+      padding: 0.6rem 1.1rem; background: var(--gold); color: #fff; border: none;
+      border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .toolbar__btn:hover { background: #9a7209; }
+    .toolbar__btn--outline { background: none; color: var(--ink); border: 1.5px solid var(--border); }
+    .toolbar__btn--outline:hover { border-color: var(--gold); color: var(--gold); background: none; }
+    .toolbar select {
+      padding: 0.45rem 0.7rem; border: 1px solid var(--border); border-radius: 6px;
+      font-size: 0.82rem; font-family: inherit; background: var(--card);
+    }
+    .toolbar__count { font-family: var(--mono); font-size: 0.78rem; color: var(--gold); font-weight: 500; }
 
-    /* Screen header */
-    .screen-header {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 1rem;
-    }
-    .screen-header h1 {
-      font-size: 1.4rem;
-      font-weight: 800;
-      margin: 0 0 0.5rem;
-      color: var(--gold);
-    }
-    .screen-header p {
-      font-size: 0.92rem;
-      color: var(--muted);
-      line-height: 1.6;
-      margin: 0 0 1rem;
-    }
-    .print-btn {
-      padding: 0.75rem 1.5rem;
-      background: var(--gold);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .print-btn:hover { background: #9a7209; }
-    .options {
-      margin-top: 1rem;
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .options label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .options select {
-      padding: 0.4rem 0.6rem;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-family: inherit;
-    }
-
-    /* ── Label grid ── */
     .label-grid {
-      max-width: 900px;
-      margin: 1.5rem auto;
-      padding: 0 1rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(var(--label-w, 180px), 1fr));
-      gap: 0.75rem;
+      max-width: 800px; margin: 0 auto; padding: 0 1rem 3rem;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--lw,160px), 1fr)); gap: 0.65rem;
     }
     .label {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
-      text-align: center;
-      break-inside: avoid;
-      position: relative;
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.75rem; display: flex; flex-direction: column; align-items: center;
+      gap: 0.35rem; text-align: center; cursor: pointer; position: relative;
+      transition: border-color 0.15s, opacity 0.15s; break-inside: avoid;
     }
+    .label:hover { border-color: var(--gold); }
+    .label.selected { border-color: var(--gold); background: #FFFCF5; }
     .label.unselected { opacity: 0.4; }
-    .label__check {
-      position: absolute;
-      top: 0.5rem;
-      left: 0.5rem;
-      width: 18px;
-      height: 18px;
-      accent-color: var(--gold);
-      cursor: pointer;
-    }
-    .label__qty-wrap {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      margin-top: 0.2rem;
-    }
-    .label__qty-label {
-      font-size: 0.6rem;
-      color: var(--muted);
-      font-weight: 600;
-    }
-    .label__qty {
-      width: 40px;
-      padding: 0.2rem 0.3rem;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-size: 0.7rem;
-      text-align: center;
-      font-family: inherit;
-    }
-    .label__qr {
-      width: var(--qr-size, 100px);
-      height: var(--qr-size, 100px);
-    }
-    .label__qr svg { width: 100%; height: 100%; }
-    .label__name {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--ink);
-      line-height: 1.3;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .label__id {
-      font-size: 0.6rem;
-      color: var(--gold);
-      font-weight: 600;
-      font-family: 'SFMono-Regular', Consolas, monospace;
-    }
-    .label__url {
-      font-size: 0.5rem;
-      color: var(--muted);
-      word-break: break-all;
-      line-height: 1.3;
-    }
-
-    /* ── Print styles ── */
+    .label__check { position: absolute; top: 0.5rem; right: 0.5rem; width: 16px; height: 16px; accent-color: var(--gold); }
+    .label__qr { width: var(--qs,90px); height: var(--qs,90px); } .label__qr svg { width:100%; height:100%; }
+    .label__name { font-size: 0.7rem; font-weight: 600; color: var(--ink); line-height: 1.3; }
+    .label__id { font-family: var(--mono); font-size: 0.6rem; color: var(--gold); }
+    .label__qty-wrap { display: flex; align-items: center; gap: 0.25rem; }
+    .label__qty-lbl { font-size: 0.6rem; color: var(--muted); }
+    .label__qty { width: 36px; padding: 0.2rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.7rem; text-align: center; }
     @media print {
-      .screen-header { display: none; }
+      .page-header, .toolbar { display: none; }
       body { background: #fff; }
-      .label-grid {
-        max-width: 100%;
-        padding: 0;
-        margin: 0;
-        gap: 2mm;
-        grid-template-columns: repeat(var(--cols, 5), 1fr);
-      }
-      .label {
-        border: 0.5px solid #ccc;
-        border-radius: 2px;
-        padding: 3mm;
-        page-break-inside: avoid;
-      }
-      .label.unselected { display: none !important; }
-      .label__check { display: none; }
-      .label__qty-wrap { display: none; }
-      .label__qr {
-        width: var(--qr-print-size, 18mm);
-        height: var(--qr-print-size, 18mm);
-      }
-      .label__name { font-size: 6pt; }
-      .label__id { font-size: 5pt; }
-      .label__url { display: none; }
+      .label-grid { max-width:100%; padding:0; margin:0; gap:2mm; grid-template-columns:repeat(var(--cols,5),1fr); }
+      .label { border:0.5px solid #ccc; border-radius:2px; padding:3mm; }
+      .label.unselected { display:none !important; }
+      .label__check, .label__qty-wrap { display:none; }
+      .label__qr { width:var(--pqs,18mm); height:var(--pqs,18mm); }
+      .label__name { font-size:6pt; } .label__id { font-size:5pt; }
     }
-
-    /* Size presets */
-    .label-grid[data-size="small"] {
-      --label-w: 140px;
-      --qr-size: 80px;
-      --qr-print-size: 14mm;
-      --cols: 6;
-    }
-    .label-grid[data-size="medium"] {
-      --label-w: 180px;
-      --qr-size: 110px;
-      --qr-print-size: 20mm;
-      --cols: 5;
-    }
-    .label-grid[data-size="large"] {
-      --label-w: 240px;
-      --qr-size: 140px;
-      --qr-print-size: 28mm;
-      --cols: 4;
-    }
+    .label-grid[data-size="small"] { --lw:120px; --qs:70px; --pqs:14mm; --cols:6; }
+    .label-grid[data-size="medium"] { --lw:160px; --qs:100px; --pqs:20mm; --cols:5; }
+    .label-grid[data-size="large"] { --lw:200px; --qs:130px; --pqs:28mm; --cols:4; }
   </style>
 </head>
 <body>
-
-<div class="screen-header">
-  <h1>Scripture QR Labels — Print Sheet</h1>
-  <p>
-    Each label contains a QR code that encodes a URL with the item ID.
-    When scanned with the Field Log app, the scripture type is automatically added to the placement list.
-    Print this page, cut the labels, and stick them on your Bible boxes or individual copies.
-  </p>
-  <div class="options">
-    <button class="print-btn" onclick="printSelected()">🖨️ Print Selected</button>
-    <button class="print-btn" style="background:#1a1a1a;" onclick="toggleAll()">☑️ Select All</button>
-    <label>
-      Size:
-      <select id="size-select" onchange="setSize(this.value)">
-        <option value="small">Small (6/row, ~14mm QR)</option>
-        <option value="medium" selected>Medium (5/row, ~20mm QR)</option>
-        <option value="large">Large (4/row, ~28mm QR)</option>
-      </select>
-    </label>
-    <label>
-      <input type="checkbox" id="show-url" onchange="toggleUrls(this.checked)">
-      Show URLs on screen
-    </label>
-    <span id="select-count" style="font-size:0.82rem;color:var(--gold);font-weight:700;">0 selected</span>
-  </div>
+<div class="page-header">
+  <h1>Scripture QR Labels</h1>
+  <p>Select the labels you need, set quantity, and print. Stick them on Bible boxes or individual copies. The Field Log app scans these to auto-build placement records.</p>
 </div>
-
-<div class="label-grid" id="label-grid" data-size="medium"></div>
-
-<!-- QR Code generation library (lightweight, no dependencies) -->
+<div class="toolbar">
+  <button class="toolbar__btn" onclick="printSelected()">Print Selected</button>
+  <button class="toolbar__btn--outline toolbar__btn" onclick="toggleAll()">Select All</button>
+  <select onchange="setSize(this.value)">
+    <option value="small">Small</option>
+    <option value="medium" selected>Medium</option>
+    <option value="large">Large</option>
+  </select>
+  <span class="toolbar__count" id="sel-count">0 selected</span>
+</div>
+<div class="label-grid" id="grid" data-size="medium"></div>
 <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
 <script>
-(function() {
-  'use strict';
-
-  var BASE_URL = 'https://seedtheword.org/donate.html?item=';
-
-  // Same TYPES array as field-log.html
-  var TYPES = [
-    ['Pocket Personal Testimony Gideon Red',  'pocket-nt-red'],
-    ['Pocket Friend of Gideon Grey',          'pocket-nt-grey'],
-    ['Pocket Spanish Gideon',                 'pocket-nt-spanish'],
-    ['Large Print Gideon Brown',              'large-print-nt-brown'],
-    ['Pocket Hindi Gideon',                   'pocket-nt-hindi-blue'],
-    ['Large Print Russian',                   'large-print-nt-russian'],
-    ['Large Print Ukranian',                  'large-print-nt-ukrainian'],
-    ['Pocket Farsi Persian',                  'pocket-nt-farsi-blue'],
-    ['Full Bible Large Print',                'full-bible-large-print'],
-    ['Full Bible Pocket',                     'full-bible-pocket'],
-    ['Large Print Thai + English Gideon',     'pocket-nt-thai-english-blue'],
-    ['Pocket Mandarin Gideon',                'pocket-nt-mandarin'],
-    ['Large Print Urdu Gideon',               'large-print-nt-urdu-blue'],
-    ['Large Print Spanish + English Gideon',  'large-print-nt-spanish-english'],
-    ['Large Print Arabic + English',          'large-print-nt-arabic-english'],
-    ['Pocket Arabic',                         'pocket-nt-arabic'],
-    ['Pocket French Gideon',                  'pocket-nt-french'],
-    ['Life Book English',                     'tract-life-book-english'],
-    ['Life Book Spanish',                     'tract-life-book-spanish'],
-    ['Flip Books',                            'tract-flip-books-english'],
-    ['Notebooks & Pens',                      'merch-notebooks-pens'],
-    ['Keychains & Bracelets',                 'merch-keychains-bracelets'],
-    ['Stickers',                              'merch-stickers'],
-    ['Mini Jesus figurines',                  'merch-mini-fig'],
-    ['Bookmarks',                             'merch-bookmarks']
+(function(){
+  var BASE='https://seedtheword.org/donate.html?item=';
+  var TYPES=[
+    ['Pocket Personal Testimony Gideon Red','pocket-nt-red'],['Pocket Friend of Gideon Grey','pocket-nt-grey'],
+    ['Pocket Spanish Gideon','pocket-nt-spanish'],['Large Print Gideon Brown','large-print-nt-brown'],
+    ['Pocket Hindi Gideon','pocket-nt-hindi-blue'],['Large Print Russian','large-print-nt-russian'],
+    ['Large Print Ukranian','large-print-nt-ukrainian'],['Pocket Farsi Persian','pocket-nt-farsi-blue'],
+    ['Full Bible Large Print','full-bible-large-print'],['Full Bible Pocket','full-bible-pocket'],
+    ['Large Print Thai + English Gideon','pocket-nt-thai-english-blue'],['Pocket Mandarin Gideon','pocket-nt-mandarin'],
+    ['Large Print Urdu Gideon','large-print-nt-urdu-blue'],['Large Print Spanish + English Gideon','large-print-nt-spanish-english'],
+    ['Large Print Arabic + English','large-print-nt-arabic-english'],['Pocket Arabic','pocket-nt-arabic'],
+    ['Pocket French Gideon','pocket-nt-french'],['Life Book English','tract-life-book-english'],
+    ['Life Book Spanish','tract-life-book-spanish'],['Flip Books','tract-flip-books-english'],
+    ['Notebooks & Pens','merch-notebooks-pens'],['Keychains & Bracelets','merch-keychains-bracelets'],
+    ['Stickers','merch-stickers'],['Mini Jesus figurines','merch-mini-fig'],['Bookmarks','merch-bookmarks']
   ];
-
-  var grid = document.getElementById('label-grid');
-
-  function generateQrSvg(text) {
-    var qr = qrcode(0, 'M');
-    qr.addData(text);
-    qr.make();
-    return qr.createSvgTag({ scalable: true });
-  }
-
-  function render() {
-    grid.innerHTML = TYPES.map(function(type, idx) {
-      var name   = type[0];
-      var id     = type[1];
-      var url    = BASE_URL + encodeURIComponent(id);
-      var svgTag = generateQrSvg(url);
-
-      return '<div class="label unselected" data-idx="' + idx + '">' +
-        '<input type="checkbox" class="label__check" data-idx="' + idx + '">' +
-        '<div class="label__qr">' + svgTag + '</div>' +
-        '<div class="label__name">' + name + '</div>' +
-        '<div class="label__id">' + id + '</div>' +
-        '<div class="label__qty-wrap"><span class="label__qty-label">Copies:</span><input type="number" class="label__qty" min="1" value="1" data-idx="' + idx + '"></div>' +
-        '<div class="label__url" style="display:none;">' + url + '</div>' +
+  var grid=document.getElementById('grid');
+  function genSvg(t){var q=qrcode(0,'M');q.addData(t);q.make();return q.createSvgTag({scalable:true});}
+  function render(){
+    grid.innerHTML=TYPES.map(function(t,i){
+      var url=BASE+encodeURIComponent(t[1]);
+      return '<div class="label unselected" data-i="'+i+'">' +
+        '<input type="checkbox" class="label__check" data-i="'+i+'">' +
+        '<div class="label__qr">'+genSvg(url)+'</div>' +
+        '<div class="label__name">'+t[0]+'</div><div class="label__id">'+t[1]+'</div>' +
+        '<div class="label__qty-wrap"><span class="label__qty-lbl">Qty</span><input type="number" class="label__qty" min="1" value="1"></div>' +
       '</div>';
     }).join('');
-
-    // Wire checkboxes
-    grid.querySelectorAll('.label__check').forEach(function(cb) {
-      cb.addEventListener('change', function() {
-        var label = this.closest('.label');
-        label.classList.toggle('unselected', !this.checked);
-        updateCount();
-      });
-    });
-    // Click on label (not checkbox) toggles selection
-    grid.querySelectorAll('.label').forEach(function(label) {
-      label.addEventListener('click', function(e) {
-        if (e.target.classList.contains('label__check') || e.target.classList.contains('label__qty')) return;
-        var cb = label.querySelector('.label__check');
-        cb.checked = !cb.checked;
-        label.classList.toggle('unselected', !cb.checked);
-        updateCount();
+    grid.querySelectorAll('.label').forEach(function(el){
+      el.addEventListener('click',function(e){
+        if(e.target.classList.contains('label__qty'))return;
+        var cb=el.querySelector('.label__check');
+        if(e.target!==cb)cb.checked=!cb.checked;
+        el.classList.toggle('unselected',!cb.checked);
+        el.classList.toggle('selected',cb.checked);
+        updCount();
       });
     });
   }
-
-  function updateCount() {
-    var count = grid.querySelectorAll('.label__check:checked').length;
-    document.getElementById('select-count').textContent = count + ' selected';
+  function updCount(){
+    var n=grid.querySelectorAll('.label__check:checked').length;
+    document.getElementById('sel-count').textContent=n+' selected';
   }
-
   render();
 
-  // Print only selected labels (duplicated by qty)
-  window.printSelected = function() {
-    var selected = grid.querySelectorAll('.label__check:checked');
-    if (!selected.length) { alert('Select at least one label to print.'); return; }
-    // For labels with qty > 1, duplicate them before printing
-    var dupeLabels = [];
-    selected.forEach(function(cb) {
-      var label = cb.closest('.label');
-      var qty = parseInt(label.querySelector('.label__qty').value, 10) || 1;
-      for (var i = 1; i < qty; i++) {
-        var clone = label.cloneNode(true);
-        clone.classList.remove('unselected');
-        clone.querySelector('.label__check').remove();
-        clone.querySelector('.label__qty-wrap').remove();
-        clone.classList.add('print-dupe');
-        grid.appendChild(clone);
-        dupeLabels.push(clone);
-      }
+  var allSel=false;
+  window.toggleAll=function(){
+    allSel=!allSel;
+    grid.querySelectorAll('.label').forEach(function(el){
+      el.querySelector('.label__check').checked=allSel;
+      el.classList.toggle('unselected',!allSel);
+      el.classList.toggle('selected',allSel);
+    });updCount();
+  };
+  window.setSize=function(s){grid.dataset.size=s;};
+  window.printSelected=function(){
+    var sel=grid.querySelectorAll('.label__check:checked');
+    if(!sel.length){alert('Select at least one label.');return;}
+    var dupes=[];
+    sel.forEach(function(cb){
+      var el=cb.closest('.label'),qty=+(el.querySelector('.label__qty').value)||1;
+      for(var i=1;i<qty;i++){var c=el.cloneNode(true);c.classList.remove('unselected');c.classList.add('selected');c.querySelector('.label__check').remove();c.querySelector('.label__qty-wrap').remove();grid.appendChild(c);dupes.push(c);}
     });
     window.print();
-    // Remove duplicates after print dialog closes
-    setTimeout(function() {
-      dupeLabels.forEach(function(el) { el.remove(); });
-    }, 500);
-  };
-
-  // Toggle all
-  var allSelected = false;
-  window.toggleAll = function() {
-    allSelected = !allSelected;
-    grid.querySelectorAll('.label__check').forEach(function(cb) {
-      cb.checked = allSelected;
-      cb.closest('.label').classList.toggle('unselected', !allSelected);
-    });
-    updateCount();
-  };
-
-  // Expose helpers for the controls
-  window.setSize = function(size) {
-    grid.setAttribute('data-size', size);
-  };
-  window.toggleUrls = function(show) {
-    grid.querySelectorAll('.label__url').forEach(function(el) {
-      el.style.display = show ? '' : 'none';
-    });
+    setTimeout(function(){dupes.forEach(function(d){d.remove();});},500);
   };
 })();
 </script>

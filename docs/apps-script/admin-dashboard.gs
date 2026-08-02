@@ -942,7 +942,7 @@ function buildFinanceFormHtml_() {
 // ── Dashboard sidebar ─────────────────────────────────────────────
 function showDashboard() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var biblesOut=0, biblesIn=0, totalOut=0, totalIn=0;
+  var biblesOut=0, biblesIn=0, totalOut=0, totalIn=0, inventoryCostOut=0;
   var totalIncome=0, totalExp=0;
   var scriptureFundIncome=0, scriptureFundExp=0, generalExp=0;
   var rsvpCount=0, plCount=0;
@@ -954,10 +954,11 @@ function showDashboard() {
       var q = parseInt(d[i][4],10) || 0;
       var dr = String(d[i][5]||'').trim().toLowerCase();
       var itemId = String(d[i][2]||'').trim().toLowerCase();
-      // Bibles = pocket-*, full-*, large-* only
+      var totalCostCell = parseFloat(d[i][8]) || 0; // col I = total_cost
       var isBible = itemId.indexOf('pocket-') === 0 || itemId.indexOf('full-') === 0 || itemId.indexOf('large-') === 0;
       if (dr === 'out') {
         totalOut += q;
+        inventoryCostOut += totalCostCell;
         if (isBible) biblesOut += q;
       }
       if (dr === 'in') {
@@ -1016,12 +1017,14 @@ function showDashboard() {
     card('Total Material Moved', totalOut, 'All items out (incl. tracts, merch)', '') +
     card('All Items Received', totalIn, 'All items in (restocks)', 'green') +
     '</div>' +
-    '<h3>Finances</h3>' +
+    '<h3>Finances (Finances Tab)</h3>' +
     '<div class="g">' +
-    card('Total Income', '$'+totalIncome.toFixed(2), 'All donations', 'green') +
-    card('Total Expenses', '$'+totalExp.toFixed(2), 'All costs', 'red') +
+    card('Total Income', '$'+totalIncome.toFixed(2), 'Finances tab \u2014 all donations', 'green') +
+    card('Total Expenses', '$'+totalExp.toFixed(2), 'Finances tab \u2014 recorded costs', 'red') +
     '</div>' +
-    '<div class="g"><div class="card full"><div class="ct">Current Balance</div><div class="val '+(bal>=0?'green':'red')+'">$'+bal.toFixed(2)+'</div><div class="sub">Income minus expenses</div></div></div>' +
+    '<div class="g"><div class="card full"><div class="ct">Current Balance</div><div class="val '+(bal>=0?'green':'red')+'">$'+bal.toFixed(2)+'</div><div class="sub">Income minus expenses (Finances tab)</div></div></div>' +
+    '<h3>Inventory Value (Cost Out)</h3>' +
+    '<div class="g"><div class="card full"><div class="ct">Total Inventory Cost Out</div><div class="val gold">$'+inventoryCostOut.toFixed(2)+'</div><div class="sub">Sum of total_cost where direction=out (matches cell O2)</div></div></div>' +
     '<h3>Scripture Fund</h3>' +
     '<div class="g">' +
     card('Scripture Donations', '$'+scriptureFundIncome.toFixed(2), 'Earmarked for Bibles', 'purple') +

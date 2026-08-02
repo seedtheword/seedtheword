@@ -2242,17 +2242,20 @@ const FIELD_LOG_SALT          = 'stwm-2026-admin-gate';
 const FIELD_LOG_EXPECTED_HASH = '2e3df09a3a06ebdacb4cf637764073674243ed9497da164c94a955f7ae931440';
 
 /**
- * Reads cost_per_unit for each item_id from the Lists tab (col D = item_id, col E = cost).
+ * Reads cost_per_unit for each item_id from the Lists tab.
+ * Lists tab has NO header row:
+ *   Column B (idx 1) = item_id
+ *   Column E (idx 4) = cost_per_unit
  * Returns { costs: {item_id: number}, defaultCost: 2 }
  */
 function getItemCostMapFromLedger_() {
   var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
   var sheet = ss.getSheetByName('Lists');
   var result = { costs: {}, defaultCost: 2 };
-  if (!sheet || sheet.getLastRow() < 2) return result;
+  if (!sheet || sheet.getLastRow() < 1) return result;
   var data = sheet.getDataRange().getValues();
-  for (var i = 1; i < data.length; i++) {
-    var itemId = String(data[i][3]||'').trim();  // Column D
+  for (var i = 0; i < data.length; i++) {
+    var itemId = String(data[i][1]||'').trim();  // Column B
     var cost   = parseFloat(data[i][4]);          // Column E
     if (itemId && !isNaN(cost) && cost >= 0) {
       result.costs[itemId] = cost;

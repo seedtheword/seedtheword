@@ -73,18 +73,15 @@ function onOpen() {
 // ── Dynamic Categories from Lists tab ────────────────────────────
 /**
  * Reads the "Lists" tab for finance categories and per-item costs.
- * Expected layout:
- *   Column A: "income_categories" header, followed by category values
- *   Column B: "expense_categories" header, followed by category values
- *   Column C: "payment_methods" header, followed by method values
- *   Column D: "item_id" header — scripture item_ids for cost lookup
- *   Column E: "cost_per_unit" header — per-item cost (paired with col D)
- *   Column F: (reserved — payment methods reference)
- * Falls back to hardcoded defaults if the Lists tab doesn't exist.
+ * Lists tab has NO header row. Data starts at row 1:
+ *   Column A (idx 0): inventory types (order, outreach, restock, adjustment) — rows 1-4
+ *   Column B (idx 1): item_ids (pocket-nt-red, etc.) — rows 1-25
+ *   Column C (idx 2): directions (out, in) — rows 1-2
+ *   Column D (idx 3): display names — rows 1-25
+ *   Column E (idx 4): cost_per_unit per item — rows 1-25
  *
- * NOTE: For income, the category IS the payment method (donation-zelle, etc.)
- * so no separate payment_method field is needed. Payment methods only apply
- * to expense entries.
+ * Finance categories (income/expense/methods) are derived from known values
+ * since they aren't stored in the Lists tab.
  */
 function getFinanceCategories_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -102,38 +99,26 @@ function getFinanceCategories_() {
     defaultCost: 2
   };
 
-  if (!sheet || sheet.getLastRow() < 2) return defaults;
+  if (!sheet || sheet.getLastRow() < 1) return defaults;
 
   var data = sheet.getDataRange().getValues();
-  var income = [], expense = [], methods = [];
   var itemCosts = {};
-  var defaultCost = 2;
 
-  for (var i = 1; i < data.length; i++) {
-    if (String(data[i][0]||'').trim()) income.push(String(data[i][0]).trim());
-    if (String(data[i][1]||'').trim()) expense.push(String(data[i][1]).trim());
-    if (String(data[i][2]||'').trim()) methods.push(String(data[i][2]).trim());
-    // Column D = item_id, Column E = cost_per_unit for that item
-    var itemId = String(data[i][3]||'').trim();
-    var cost   = parseFloat(data[i][4]);
+  // Read item_id from col B (idx 1) and cost from col E (idx 4)
+  for (var i = 0; i < data.length; i++) {
+    var itemId = String(data[i][1]||'').trim();  // Column B
+    var cost   = parseFloat(data[i][4]);          // Column E
     if (itemId && !isNaN(cost) && cost >= 0) {
       itemCosts[itemId] = cost;
     }
   }
 
-  // If first itemCosts entry exists, use the first one as default fallback
-  var costVals = Object.values(itemCosts);
-  if (costVals.length > 0) {
-    // Average or just keep 2 as default for unknown items
-    defaultCost = 2;
-  }
-
   return {
-    income:      income.length  ? income  : defaults.income,
-    expense:     expense.length ? expense : defaults.expense,
-    methods:     methods.length ? methods : defaults.methods,
+    income:      defaults.income,
+    expense:     defaults.expense,
+    methods:     defaults.methods,
     itemCosts:   itemCosts,
-    defaultCost: defaultCost
+    defaultCost: 2
   };
 }
 

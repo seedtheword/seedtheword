@@ -2410,7 +2410,7 @@ function handleFieldPlacement_(payload) {
 
       var row = [
         datePlaced,
-        'placement',
+        'outreach',
         String(item.item_id || '').trim(),
         String(item.item_name || '').trim(),
         qty,

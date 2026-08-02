@@ -29,28 +29,28 @@ const FINANCES_HEADERS = [
 const SCRIPTURE_ITEM_MAP = {
   'Pocket Personal Testimony Gideon Red':  'pocket-nt-red',
   'Pocket Friend of Gideon Grey':          'pocket-nt-grey',
-  'Pocket Spanish':                        'pocket-nt-spanish',
-  'Pocket Hindi Gideon':                   'pocket-nt-hindi-blue',
-  'Pocket Farsi Persian':                  'pocket-nt-farsi-blue',
-  'Pocket Thai + English Gideon':          'pocket-nt-thai-english-blue',
-  'Pocket Mandarin Gideon':                'pocket-nt-mandarin',
-  'Pocket Arabic':                         'pocket-nt-arabic',
-  'Pocket French Gideon':                  'pocket-nt-french',
+  'Pocket Spanish Gideon':                 'pocket-nt-spanish',
   'Large Print Gideon Brown':              'large-print-nt-brown',
+  'Pocket Hindi Gideon':                   'pocket-nt-hindi-blue',
   'Large Print Russian':                   'large-print-nt-russian',
-  'Large Print Ukrainian':                 'large-print-nt-ukrainian',
+  'Large Print Ukranian':                  'large-print-nt-ukrainian',
+  'Pocket Farsi Persian':                  'pocket-nt-farsi-blue',
+  'Full Bible Large Print':                'full-bible-large-print',
+  'Full Bible Pocket':                     'full-bible-pocket',
+  'Large Print Thai + English Gideon':     'pocket-nt-thai-english-blue',
+  'Pocket Mandarin Gideon':                'pocket-nt-mandarin',
   'Large Print Urdu Gideon':               'large-print-nt-urdu-blue',
   'Large Print Spanish + English Gideon':  'large-print-nt-spanish-english',
   'Large Print Arabic + English':          'large-print-nt-arabic-english',
-  'Full Bible Large Print':                'full-bible-large-print',
-  'Full Bible Pocket':                     'full-bible-pocket',
+  'Pocket Arabic':                         'pocket-nt-arabic',
+  'Pocket French Gideon':                  'pocket-nt-french',
   'Life Book English':                     'tract-life-book-english',
   'Life Book Spanish':                     'tract-life-book-spanish',
   'Flip Books':                            'tract-flip-books-english',
-  'Notebooks':                             'merch-notebooks',
+  'Notebooks & Pens':                      'merch-notebooks-pens',
   'Keychains & Bracelets':                 'merch-keychains-bracelets',
   'Stickers':                              'merch-stickers',
-  'Mini Jesus Figurines':                  'merch-mini-fig',
+  'Mini Jesus figurines':                  'merch-mini-fig',
   'Bookmarks':                             'merch-bookmarks'
 };
 
@@ -617,7 +617,7 @@ function submitPlacementRecord(data) {
         maxNum++;
         var newRowId = 'INV-' + String(maxNum).padStart(4,'0');
         // Build row matching Inventory columns, then append row_id at end
-        var newRow = [datePlaced, 'placement', line.item_id||'placement',
+        var newRow = [datePlaced, 'outreach', line.item_id||'outreach',
           line.type||'', qty, 'out', source, cost, qty*cost, ev.notes||'', placementId];
         // Pad to rowIdCol position if needed
         while (newRow.length < rowIdCol) newRow.push('');

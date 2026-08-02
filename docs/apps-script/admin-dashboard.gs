@@ -662,6 +662,47 @@ function submitPlacementRecord(data) {
       ev.event_source||'', totalQty, rowIdList, ev.notes||''
     ]);
 
+    // ── E2. Auto-log finance entries for outgoing items ──────────
+    // Bibles (pocket/full/large) → designated-scripture-fund
+    // Merch/tracts with cost > 0 → ministry-supplies
+    var finSheet = ss.getSheetByName(FINANCES_TAB) || ensureTab_(ss, FINANCES_TAB, FINANCES_HEADERS);
+    pdfLines.forEach(function(line) {
+      var itemId = String(line.scripture_type || '').trim();
+      // Look up cost from the Lists tab
+      var costPerUnit = getItemCost_(itemId);
+      var qty = parseInt(line.qty_needed, 10) || 0;
+      var totalLineCost = qty * costPerUnit;
+      if (totalLineCost <= 0) return; // skip zero-cost items
+
+      var isBible = itemId.indexOf('pocket-') === 0 || itemId.indexOf('Pocket') === 0 ||
+                    itemId.indexOf('full-') === 0 || itemId.indexOf('Full') === 0 ||
+                    itemId.indexOf('large-') === 0 || itemId.indexOf('Large') === 0;
+      // Also check the item_id from SCRIPTURE_ITEM_MAP values
+      var mappedId = '';
+      Object.keys(SCRIPTURE_ITEM_MAP).forEach(function(key) {
+        if (key === itemId || SCRIPTURE_ITEM_MAP[key] === itemId) mappedId = SCRIPTURE_ITEM_MAP[key];
+      });
+      if (mappedId) {
+        isBible = mappedId.indexOf('pocket-') === 0 || mappedId.indexOf('full-') === 0 || mappedId.indexOf('large-') === 0;
+      }
+
+      var category = isBible ? 'designated-scripture-fund' : 'ministry-supplies';
+      var description = (source ? source + ' \u2014 ' : '') + itemId + ' x' + qty;
+
+      finSheet.appendRow([
+        datePlaced,
+        'expense',
+        category,
+        description,
+        totalLineCost,
+        '',  // payment_method (Bibles don't need it; merch ideally would but form doesn't capture it yet)
+        '',  // reference
+        ev.team_member || '',
+        'Auto-logged from placement',
+        ''   // receipt_link
+      ]);
+    });
+
     // ── F. Build & send PDF ──────────────────────────────────────
     var evForPdf = {
       placement_id:     placementId,

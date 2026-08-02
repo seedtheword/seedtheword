@@ -2241,6 +2241,26 @@ function handleRsvp_(payload) {
 const FIELD_LOG_SALT          = 'stwm-2026-admin-gate';
 const FIELD_LOG_EXPECTED_HASH = '2e3df09a3a06ebdacb4cf637764073674243ed9497da164c94a955f7ae931440';
 
+/**
+ * Reads cost_per_unit for each item_id from the Lists tab (col D = item_id, col E = cost).
+ * Returns { costs: {item_id: number}, defaultCost: 2 }
+ */
+function getItemCostMapFromLedger_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName('Lists');
+  var result = { costs: {}, defaultCost: 2 };
+  if (!sheet || sheet.getLastRow() < 2) return result;
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    var itemId = String(data[i][3]||'').trim();  // Column D
+    var cost   = parseFloat(data[i][4]);          // Column E
+    if (itemId && !isNaN(cost) && cost >= 0) {
+      result.costs[itemId] = cost;
+    }
+  }
+  return result;
+}
+
 function handleFieldLog_(payload) {
   // 1. Verify passphrase hash
   var clientHash = String(payload.passphrase_hash || '').toLowerCase().trim();
@@ -2281,10 +2301,12 @@ function handleFieldLog_(payload) {
     }
 
     var addedRows = [];
+    var costMap = getItemCostMapFromLedger_();
     items.forEach(function(item) {
       var qty       = parseInt(item.qty, 10)          || 0;
       var direction = String(item.direction || 'out').toLowerCase();
-      var costUnit  = parseFloat(item.cost_per_unit)  || 2;
+      var itemId    = String(item.item_id || '').trim();
+      var costUnit  = (costMap.costs[itemId] !== undefined) ? costMap.costs[itemId] : (parseFloat(item.cost_per_unit) || costMap.defaultCost);
       var totalCost = qty * costUnit;
       var notes     = String(item.notes || teamMember || '').trim();
 
@@ -2398,10 +2420,12 @@ function handleFieldPlacement_(payload) {
     var placementId = 'PLR-' + new Date().getTime();
     var rowIds = [];
     var totalQty = 0;
+    var costMap = getItemCostMapFromLedger_();
 
     items.forEach(function(item) {
       var qty       = parseInt(item.qty, 10) || 0;
-      var costUnit  = parseFloat(item.cost_per_unit) || 2;
+      var itemId    = String(item.item_id || '').trim();
+      var costUnit  = (costMap.costs[itemId] !== undefined) ? costMap.costs[itemId] : (parseFloat(item.cost_per_unit) || costMap.defaultCost);
       totalQty += qty;
 
       maxNum++;

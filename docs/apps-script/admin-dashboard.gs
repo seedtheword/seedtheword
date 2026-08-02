@@ -72,13 +72,13 @@ function onOpen() {
 
 // ── Dynamic Categories from Lists tab ────────────────────────────
 /**
- * Reads the "Lists" tab for finance categories.
+ * Reads the "Lists" tab for finance categories and per-item costs.
  * Expected layout:
  *   Column A: "income_categories" header, followed by category values
  *   Column B: "expense_categories" header, followed by category values
  *   Column C: "payment_methods" header, followed by method values
- *   Column D: "scripture_cost_per_unit" header, followed by a single number
- *   Column E: (reserved — categories reference)
+ *   Column D: "item_id" header — scripture item_ids for cost lookup
+ *   Column E: "cost_per_unit" header — per-item cost (paired with col D)
  *   Column F: (reserved — payment methods reference)
  * Falls back to hardcoded defaults if the Lists tab doesn't exist.
  *
@@ -98,31 +98,62 @@ function getFinanceCategories_() {
               'designated-scripture-fund','other-expense'],
     methods: ['Zelle','Venmo','CashApp','PayPal','Cash','Card',
               'Apple/Google/Samsung Pay','Invoice/Unpaid'],
-    scriptureCostPerUnit: 2
+    itemCosts: {},
+    defaultCost: 2
   };
 
   if (!sheet || sheet.getLastRow() < 2) return defaults;
 
   var data = sheet.getDataRange().getValues();
   var income = [], expense = [], methods = [];
-  var scriptureCost = 2;
+  var itemCosts = {};
+  var defaultCost = 2;
 
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][0]||'').trim()) income.push(String(data[i][0]).trim());
     if (String(data[i][1]||'').trim()) expense.push(String(data[i][1]).trim());
     if (String(data[i][2]||'').trim()) methods.push(String(data[i][2]).trim());
-    if (i === 1 && data[i][3]) {
-      var parsed = parseFloat(data[i][3]);
-      if (!isNaN(parsed) && parsed > 0) scriptureCost = parsed;
+    // Column D = item_id, Column E = cost_per_unit for that item
+    var itemId = String(data[i][3]||'').trim();
+    var cost   = parseFloat(data[i][4]);
+    if (itemId && !isNaN(cost) && cost >= 0) {
+      itemCosts[itemId] = cost;
     }
   }
 
+  // If first itemCosts entry exists, use the first one as default fallback
+  var costVals = Object.values(itemCosts);
+  if (costVals.length > 0) {
+    // Average or just keep 2 as default for unknown items
+    defaultCost = 2;
+  }
+
   return {
-    income:  income.length  ? income  : defaults.income,
-    expense: expense.length ? expense : defaults.expense,
-    methods: methods.length ? methods : defaults.methods,
-    scriptureCostPerUnit: scriptureCost
+    income:      income.length  ? income  : defaults.income,
+    expense:     expense.length ? expense : defaults.expense,
+    methods:     methods.length ? methods : defaults.methods,
+    itemCosts:   itemCosts,
+    defaultCost: defaultCost
   };
+}
+
+/**
+ * Returns the cost_per_unit for a given item_id from the Lists tab.
+ * Falls back to defaultCost (2) if the item isn't listed.
+ */
+function getItemCost_(itemId) {
+  var cats = getFinanceCategories_();
+  var id = String(itemId||'').trim();
+  if (cats.itemCosts[id] !== undefined) return cats.itemCosts[id];
+  return cats.defaultCost;
+}
+
+/**
+ * Returns the full item cost map for use by the placement form sidebar.
+ */
+function getItemCostMap() {
+  var cats = getFinanceCategories_();
+  return { costs: cats.itemCosts, defaultCost: cats.defaultCost };
 }
 
 /**
@@ -608,12 +639,11 @@ function submitPlacementRecord(data) {
         // Refresh invData to include new column
         invData = invSheet.getDataRange().getValues();
       }
-      // Get scripture cost from Lists tab (dynamic)
+      // Get scripture cost from Lists tab (dynamic per item)
       var cats_ = getFinanceCategories_();
-      var scriptureCost = cats_.scriptureCostPerUnit || 2;
       newLines.forEach(function(line) {
         var qty  = parseInt(line.qty_placed,10) || 0;
-        var cost = scriptureCost;
+        var cost = (cats_.itemCosts[line.item_id] !== undefined) ? cats_.itemCosts[line.item_id] : cats_.defaultCost;
         maxNum++;
         var newRowId = 'INV-' + String(maxNum).padStart(4,'0');
         // Build row matching Inventory columns, then append row_id at end

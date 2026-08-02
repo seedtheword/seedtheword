@@ -470,6 +470,30 @@
     ['Bookmarks',                             'merch-bookmarks']
   ];
 
+  // Per-item cost map — matches Lists tab column D/E.
+  // The server does the authoritative lookup, but this provides
+  // correct values for display and as a fallback.
+  // Update these when costs change in the Lists tab.
+  var COST_MAP = {
+    'pocket-nt-red': 2, 'pocket-nt-grey': 2, 'pocket-nt-spanish': 2,
+    'large-print-nt-brown': 3, 'pocket-nt-hindi-blue': 2,
+    'large-print-nt-russian': 3, 'large-print-nt-ukrainian': 3,
+    'pocket-nt-farsi-blue': 2, 'full-bible-large-print': 5,
+    'full-bible-pocket': 4, 'pocket-nt-thai-english-blue': 2,
+    'pocket-nt-mandarin': 2, 'large-print-nt-urdu-blue': 3,
+    'large-print-nt-spanish-english': 3, 'large-print-nt-arabic-english': 3,
+    'pocket-nt-arabic': 2, 'pocket-nt-french': 2,
+    'tract-life-book-english': 1, 'tract-life-book-spanish': 1,
+    'tract-flip-books-english': 1, 'merch-notebooks-pens': 3,
+    'merch-keychains-bracelets': 2, 'merch-stickers': 1,
+    'merch-mini-fig': 2, 'merch-bookmarks': 1
+  };
+  var DEFAULT_COST = 2;
+
+  function getItemCost(itemId) {
+    return COST_MAP[itemId] !== undefined ? COST_MAP[itemId] : DEFAULT_COST;
+  }
+
   function buildTypeOptions() {
     return '<option value="">-- Select item --</option>' +
       TYPES.map(function(t) {
@@ -567,7 +591,7 @@
       var qty    = parseInt(el.querySelector('.qty-inp').value, 10) || 0;
       var dir    = el.querySelector('.dir-sel').value;
       var notes  = el.querySelector('.notes-inp').value.trim();
-      items.push({ item_id: itemId, item_name: type, qty: qty, direction: dir, cost_per_unit: 2, notes: notes });
+      items.push({ item_id: itemId, item_name: type, qty: qty, direction: dir, cost_per_unit: getItemCost(itemId), notes: notes });
     });
 
     if (!items.length) { status.innerHTML = '<span style="color:var(--red)">Add at least one item.</span>'; return; }
@@ -848,7 +872,7 @@
           notes:           document.getElementById('pl-notes').value.trim()
         },
         items: plItems.map(function(it) {
-          return { item_id: it.item_id, item_name: it.item_name, qty: it.qty, direction: 'out', cost_per_unit: 2 };
+          return { item_id: it.item_id, item_name: it.item_name, qty: it.qty, direction: 'out', cost_per_unit: getItemCost(it.item_id) };
         })
       });
 

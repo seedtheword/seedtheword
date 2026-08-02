@@ -259,6 +259,19 @@
       line-height: 1.7;
     }
 
+    /* ── Photo Gallery ── */
+    .newsletter-gallery {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+    }
+    .newsletter-gallery__header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid var(--nw-border);
+    }
+
     /* ── Responsive ── */
     @media (max-width: 600px) {
       .newsletter-masthead { padding: 2.5rem 1rem 2rem; }
@@ -308,12 +321,7 @@
   <hr class="newsletter-masthead__rule">
 </section>
 
-<!-- Article Feed — populated by JS from ministry-outreach.json -->
-<section class="newsletter-feed" id="newsletter-feed" aria-live="polite">
-  <div class="newsletter-empty" id="newsletter-loading">Loading stories...</div>
-</section>
-
-<!-- Personal Testimonies -->
+<!-- Personal Testimonies (top) -->
 <section class="newsletter-testimonies" id="newsletter-testimonies">
   <div class="newsletter-testimonies__header">
     <p class="newsletter-testimonies__kicker">Voices</p>
@@ -323,6 +331,20 @@
   <div class="newsletter-empty" id="testimonies-archive-empty" hidden>
     <p>No testimonies published yet. <a href="news.html#share-your-story">Share yours</a> — you might be the first.</p>
   </div>
+</section>
+
+<!-- Article Feed — populated by JS from ministry-outreach.json -->
+<section class="newsletter-feed" id="newsletter-feed" aria-live="polite">
+  <div class="newsletter-empty" id="newsletter-loading">Loading stories...</div>
+</section>
+
+<!-- Full Photo Gallery -->
+<section class="newsletter-gallery" id="ministry-gallery">
+  <div class="newsletter-gallery__header">
+    <p class="newsletter-testimonies__kicker">Every photo, full size</p>
+    <h2 class="newsletter-testimonies__title">Ministry Photo Gallery</h2>
+  </div>
+  <div class="ministry-gallery-grid" id="ministry-gallery-grid" aria-live="polite"></div>
 </section>
 <footer class="site-footer">
   <div class="container">
@@ -466,5 +488,6 @@
 })();
 </script>
 <script src="assets/js/testimonies.js?v=4" defer></script>
+<script src="assets/js/ministry-gallery.js?v=3" defer></script>
 </body>
 </html>

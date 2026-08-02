@@ -210,6 +210,9 @@ function doPost(e) {
   if ((payload && payload.action) === 'fieldLog') {
     return handleFieldLog_(payload);
   }
+  if ((payload && payload.action) === 'fieldPlacement') {
+    return handleFieldPlacement_(payload);
+  }
   return handleOrder(payload);
 }
 
@@ -2333,6 +2336,142 @@ function handleFieldLog_(payload) {
 
   } catch(err) {
     console.log('handleFieldLog_ error:', err);
+    return jsonResponse({ ok: false, error: String(err) });
+  }
+}
+
+// ── Field Placement handler ──────────────────────────────────────
+// Called from admin/field-log.html "Placement Record" tab.
+// Logs items to Inventory (direction=out) AND creates a PlacementRecord row.
+// Payload: {
+//   action: 'fieldPlacement',
+//   passphrase_hash: string,
+//   placement: { placementName, institution, address, official_name,
+//                contact_phone, contact_email, num_rooms, date_placed,
+//                team_member, event_source, notes },
+//   items: [{ item_id, item_name, qty, direction, cost_per_unit }]
+// }
+function handleFieldPlacement_(payload) {
+  var clientHash = String(payload.passphrase_hash || '').toLowerCase().trim();
+  if (clientHash !== FIELD_LOG_EXPECTED_HASH) {
+    return jsonResponse({ ok: false, error: 'unauthorized' });
+  }
+
+  var items = Array.isArray(payload.items) ? payload.items : [];
+  var pl    = payload.placement || {};
+  if (!items.length) return jsonResponse({ ok: false, error: 'no-items' });
+
+  var placementName = String(pl.placementName || '').trim();
+  var institution   = String(pl.institution || '').trim();
+  var datePlaced    = String(pl.date_placed || new Date().toISOString().split('T')[0]);
+  var teamMember    = String(pl.team_member || '').trim();
+  var source        = String(pl.event_source || institution || '').trim();
+
+  if (!placementName) return jsonResponse({ ok: false, error: 'Placement Name is required' });
+  if (!institution)   return jsonResponse({ ok: false, error: 'Institution is required' });
+
+  try {
+    var ss    = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName('Inventory');
+    if (!sheet) throw new Error('Inventory tab not found');
+
+    // Find row_id column
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var rowIdColIdx = -1;
+    for (var h = 0; h < headers.length; h++) {
+      if (String(headers[h]).toLowerCase().replace(/[\s_\-]/g,'') === 'rowid') {
+        rowIdColIdx = h + 1;
+        break;
+      }
+    }
+
+    // Find max INV number
+    var maxNum = 0;
+    if (rowIdColIdx > 0 && sheet.getLastRow() > 1) {
+      sheet.getRange(2, rowIdColIdx, sheet.getLastRow() - 1, 1)
+        .getValues().forEach(function(r) {
+          var m = String(r[0]||'').match(/^INV-(\d+)$/);
+          if (m) maxNum = Math.max(maxNum, parseInt(m[1], 10));
+        });
+    }
+
+    var placementId = 'PLR-' + new Date().getTime();
+    var rowIds = [];
+    var totalQty = 0;
+
+    items.forEach(function(item) {
+      var qty       = parseInt(item.qty, 10) || 0;
+      var costUnit  = parseFloat(item.cost_per_unit) || 2;
+      totalQty += qty;
+
+      maxNum++;
+      var rowId = 'INV-' + String(maxNum).padStart(4, '0');
+      rowIds.push(rowId);
+
+      var row = [
+        datePlaced,
+        'placement',
+        String(item.item_id || '').trim(),
+        String(item.item_name || '').trim(),
+        qty,
+        'out',
+        source,
+        costUnit,
+        qty * costUnit,
+        pl.notes || '',
+        placementId
+      ];
+
+      if (rowIdColIdx > 0) {
+        while (row.length < rowIdColIdx - 1) row.push('');
+        row[rowIdColIdx - 1] = rowId;
+      } else {
+        row.push(rowId);
+      }
+
+      sheet.appendRow(row);
+    });
+
+    // Write to PlacementRecords tab
+    var plHeaders = ['placement_id','placement_name','date_placed','team_member',
+      'institution','address','official_name','contact_phone','contact_email',
+      'num_rooms_students','event_source','total_qty_placed','row_ids','notes'];
+    var plSheet = ss.getSheetByName('PlacementRecords');
+    if (!plSheet) {
+      plSheet = ss.insertSheet('PlacementRecords');
+      plSheet.getRange(1,1,1,plHeaders.length).setValues([plHeaders]);
+      plSheet.getRange(1,1,1,plHeaders.length).setFontWeight('bold').setBackground('#E8E4DF');
+      plSheet.setFrozenRows(1);
+    }
+    plSheet.appendRow([
+      placementId, placementName, datePlaced, teamMember,
+      institution, pl.address || '', pl.official_name || '',
+      pl.contact_phone || '', pl.contact_email || '', pl.num_rooms || '',
+      source, totalQty, rowIds.join(', '), pl.notes || ''
+    ]);
+
+    // Email summary
+    try {
+      MailApp.sendEmail({
+        to: TEAM_INBOX,
+        subject: '\uD83D\uDCCD Placement: ' + placementName + ' (' + datePlaced + ')',
+        body: 'Placement record logged from Field Log app.\n\n' +
+              'Name: ' + placementName + '\n' +
+              'ID: ' + placementId + '\n' +
+              'Institution: ' + institution + '\n' +
+              'Team: ' + (teamMember || 'field team') + '\n' +
+              'Items: ' + totalQty + ' total (' + items.length + ' types)\n' +
+              'Row IDs: ' + rowIds.join(', ') + '\n\n' +
+              'View: https://docs.google.com/spreadsheets/d/' + LEDGER_SHEET_ID
+      });
+    } catch(emailErr) {
+      console.log('handleFieldPlacement_ email failed (non-fatal):', emailErr);
+    }
+
+    return jsonResponse({ ok: true, route: 'fieldPlacement', placement_id: placementId, added: items.length, row_ids: rowIds });
+
+  } catch(err) {
+    console.log('handleFieldPlacement_ error:', err);
     return jsonResponse({ ok: false, error: String(err) });
   }
 }

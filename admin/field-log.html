@@ -197,6 +197,117 @@
       line-height: 1.6;
       min-height: 1.4rem;
     }
+    /* Mode toggle */
+    .mode-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.25rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .mode-tab {
+      flex: 1;
+      padding: 0.75rem 0.5rem;
+      background: #fff;
+      border: none;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--muted);
+      transition: background 0.15s, color 0.15s;
+    }
+    .mode-tab + .mode-tab { border-left: 1.5px solid var(--border); }
+    .mode-tab.active { background: var(--gold); color: #fff; }
+    .mode-tab:hover:not(.active) { background: #fff8e8; color: var(--gold); }
+    .mode-panel { display: none; }
+    .mode-panel.visible { display: block; }
+    /* QR Scanner */
+    .qr-section {
+      margin-bottom: 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fafaf8;
+    }
+    .qr-toggle {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .qr-toggle:hover { background: #9a7209; }
+    #qr-reader {
+      width: 100%;
+      min-height: 200px;
+      display: none;
+    }
+    #qr-reader.active { display: block; }
+    .qr-status {
+      padding: 0.5rem 1rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-align: center;
+      min-height: 1.6rem;
+    }
+    .qr-status.success { color: var(--green); font-weight: 600; }
+    .qr-status.error { color: var(--red); }
+    /* Placement item list */
+    .pl-item {
+      display: grid;
+      grid-template-columns: 1fr 60px 36px;
+      gap: 0.4rem;
+      align-items: center;
+      padding: 0.55rem 0.7rem;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .pl-item__name { font-weight: 600; color: var(--ink); line-height: 1.3; }
+    .pl-item__id { font-size: 0.72rem; color: var(--gold); font-weight: 600; }
+    .pl-item__qty {
+      width: 100%;
+      padding: 0.4rem;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 0.9rem;
+      text-align: center;
+      font-family: inherit;
+    }
+    .pl-item__rm {
+      width: 36px;
+      height: 36px;
+      background: #fee;
+      border: 1px solid #fcc;
+      border-radius: 6px;
+      color: #c00;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pl-empty {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+      border: 1.5px dashed var(--border);
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+    }
     @media (max-width: 400px) {
       .row2 { grid-template-columns: 1fr; }
       .gate__card { padding: 2rem 1.25rem; }
@@ -228,6 +339,14 @@
   </header>
 
   <div class="form-wrap">
+    <!-- Mode tabs -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="inventory" type="button">📋 Inventory Log</button>
+      <button class="mode-tab" data-mode="placement" type="button">📍 Placement Record</button>
+    </div>
+
+    <!-- ═══ Panel 1: Inventory Log (existing) ═══ -->
+    <div class="mode-panel visible" id="panel-inventory">
     <p class="section-label">Event Details</p>
 
     <label>Date *</label>
@@ -250,6 +369,60 @@
 
     <button class="submit-btn" id="submit-btn">Submit Log →</button>
     <div id="status"></div>
+    </div><!-- /panel-inventory -->
+
+    <!-- ═══ Panel 2: Placement Record ═══ -->
+    <div class="mode-panel" id="panel-placement">
+    <p class="section-label">QR Scanner</p>
+    <div class="qr-section">
+      <button type="button" class="qr-toggle" id="qr-toggle-btn">📷 Scan Scripture QR Code</button>
+      <div id="qr-reader"></div>
+      <div class="qr-status" id="qr-status">Point camera at a scripture item QR code to auto-add it.</div>
+    </div>
+
+    <p class="section-label">Placement Details</p>
+
+    <label>Placement Name *</label>
+    <input type="text" id="pl-name" placeholder="e.g. Sam Petrov Community Cookout July 25" required>
+
+    <label>Institution / Location *</label>
+    <input type="text" id="pl-institution" placeholder="e.g. Wiggums Hollow Park" required>
+
+    <label>Address</label>
+    <input type="text" id="pl-address" placeholder="Street, City, State">
+
+    <label>Institution Official</label>
+    <input type="text" id="pl-official" placeholder="Name of contact">
+
+    <div class="row2">
+      <div><label>Phone</label><input type="tel" id="pl-phone"></div>
+      <div><label>Email</label><input type="email" id="pl-email"></div>
+    </div>
+
+    <label>Rooms / Students / People</label>
+    <input type="text" id="pl-rooms" placeholder="e.g. 200 students">
+
+    <div class="row2">
+      <div><label>Date Placed *</label><input type="date" id="pl-date" required></div>
+      <div><label>Team Member</label><input type="text" id="pl-team" placeholder="David Ageyev"></div>
+    </div>
+
+    <label>Event Source</label>
+    <input type="text" id="pl-event-source" placeholder="Community Cookout">
+
+    <label>Notes</label>
+    <textarea id="pl-notes" rows="2" placeholder="Optional..."></textarea>
+
+    <p class="section-label">Scriptures Placed</p>
+    <div id="pl-items"></div>
+    <div class="pl-empty" id="pl-empty">No items yet. Scan a QR code or add manually below.</div>
+
+    <button type="button" class="add-line-btn" id="pl-add-btn">+ Add Scripture Manually</button>
+
+    <button class="submit-btn" id="pl-submit-btn" style="background:var(--gold);">Save Placement & Log to Inventory →</button>
+    <div id="pl-status"></div>
+    </div><!-- /panel-placement -->
+
   </div>
 </div>
 
@@ -315,6 +488,7 @@
     gate.style.display  = 'none';
     shell.classList.add('visible');
     document.getElementById('log-date').valueAsDate = new Date();
+    document.getElementById('pl-date').valueAsDate = new Date();
     addLine();
   }
 
@@ -443,7 +617,266 @@
     btn.disabled    = false;
     btn.textContent = 'Submit Log \u2192';
   });
-})();
-</script>
+  // ── Mode tabs
+  document.querySelectorAll('.mode-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.mode-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.mode-panel').forEach(function(p) { p.classList.remove('visible'); });
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.getAttribute('data-mode')).classList.add('visible');
+    });
+  });
+
+  // ── Placement Record Logic ─────────────────────────────────────
+  var plItems = []; // [{item_id, item_name, qty}]
+
+  function renderPlItems() {
+    var container = document.getElementById('pl-items');
+    var empty = document.getElementById('pl-empty');
+    if (!plItems.length) {
+      container.innerHTML = '';
+      empty.style.display = '';
+      return;
+    }
+    empty.style.display = 'none';
+    container.innerHTML = plItems.map(function(item, idx) {
+      return '<div class="pl-item">' +
+        '<div><div class="pl-item__name">' + item.item_name + '</div><div class="pl-item__id">' + item.item_id + '</div></div>' +
+        '<input type="number" class="pl-item__qty" min="1" value="' + item.qty + '" data-idx="' + idx + '">' +
+        '<button type="button" class="pl-item__rm" data-idx="' + idx + '">\u00d7</button>' +
+      '</div>';
+    }).join('');
+    container.querySelectorAll('.pl-item__qty').forEach(function(inp) {
+      inp.addEventListener('change', function() {
+        plItems[parseInt(this.getAttribute('data-idx'))].qty = parseInt(this.value) || 1;
+      });
+    });
+    container.querySelectorAll('.pl-item__rm').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        plItems.splice(parseInt(this.getAttribute('data-idx')), 1);
+        renderPlItems();
+      });
+    });
+  }
+
+  function addPlItem(itemId, itemName, qty) {
+    // If already in list, increment qty
+    for (var i = 0; i < plItems.length; i++) {
+      if (plItems[i].item_id === itemId) {
+        plItems[i].qty += (qty || 1);
+        renderPlItems();
+        return;
+      }
+    }
+    plItems.push({ item_id: itemId, item_name: itemName, qty: qty || 1 });
+    renderPlItems();
+  }
+
+  // Look up item_id in TYPES array
+  function findTypeById(id) {
+    for (var i = 0; i < TYPES.length; i++) {
+      if (TYPES[i][1] === id) return TYPES[i];
+    }
+    return null;
+  }
+  function findTypeByName(name) {
+    for (var i = 0; i < TYPES.length; i++) {
+      if (TYPES[i][0] === name) return TYPES[i];
+    }
+    return null;
+  }
+
+  // Manual add button
+  document.getElementById('pl-add-btn').addEventListener('click', function() {
+    var opts = TYPES.map(function(t) {
+      return '<option value="' + t[1] + '">' + t[0] + '</option>';
+    }).join('');
+    var sel = prompt('Enter item number (1-' + TYPES.length + '):\n' +
+      TYPES.map(function(t, i) { return (i+1) + '. ' + t[0]; }).join('\n'));
+    if (!sel) return;
+    var idx = parseInt(sel) - 1;
+    if (idx >= 0 && idx < TYPES.length) {
+      addPlItem(TYPES[idx][1], TYPES[idx][0], 1);
+    }
+  });
+
+  // Pre-fill date
+  function initPlDates() {
+    var d = document.getElementById('pl-date');
+    if (d && !d.value) d.valueAsDate = new Date();
+  }
+
+  // ── QR Code Scanner ────────────────────────────────────────────
+  var qrScanner = null;
+  var qrActive  = false;
+
+  document.getElementById('qr-toggle-btn').addEventListener('click', function() {
+    var reader = document.getElementById('qr-reader');
+    if (qrActive) {
+      stopQr();
+      return;
+    }
+    // Load html5-qrcode library if not already loaded
+    if (!window.Html5Qrcode) {
+      var script = document.createElement('script');
+      script.src = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
+      script.onload = function() { startQr(); };
+      script.onerror = function() {
+        document.getElementById('qr-status').textContent = 'Failed to load scanner library.';
+        document.getElementById('qr-status').className = 'qr-status error';
+      };
+      document.head.appendChild(script);
+    } else {
+      startQr();
+    }
+  });
+
+  function startQr() {
+    var reader = document.getElementById('qr-reader');
+    var status = document.getElementById('qr-status');
+    var btn    = document.getElementById('qr-toggle-btn');
+    reader.classList.add('active');
+    btn.textContent = '\u23f9 Stop Scanner';
+    status.textContent = 'Initializing camera...';
+    status.className = 'qr-status';
+
+    qrScanner = new Html5Qrcode('qr-reader');
+    qrActive = true;
+
+    qrScanner.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 220, height: 220 } },
+      function onScanSuccess(decoded) {
+        // decoded could be item_id directly or a URL containing item_id
+        var itemId = decoded.trim();
+        // If it's a URL, try to extract item_id from query params or path
+        if (itemId.indexOf('http') === 0) {
+          try {
+            var u = new URL(itemId);
+            itemId = u.searchParams.get('item') || u.searchParams.get('id') || u.pathname.split('/').pop() || itemId;
+          } catch(_) {}
+        }
+        var found = findTypeById(itemId);
+        if (found) {
+          addPlItem(found[1], found[0], 1);
+          status.textContent = '\u2705 Added: ' + found[0];
+          status.className = 'qr-status success';
+          // Brief vibrate if available
+          if (navigator.vibrate) navigator.vibrate(100);
+        } else {
+          // Maybe the QR encodes the display name
+          var byName = findTypeByName(itemId);
+          if (byName) {
+            addPlItem(byName[1], byName[0], 1);
+            status.textContent = '\u2705 Added: ' + byName[0];
+            status.className = 'qr-status success';
+            if (navigator.vibrate) navigator.vibrate(100);
+          } else {
+            status.textContent = '\u26a0\ufe0f Unknown code: ' + itemId;
+            status.className = 'qr-status error';
+          }
+        }
+        // Brief pause to avoid duplicate scans
+        qrScanner.pause(true);
+        setTimeout(function() {
+          try { qrScanner.resume(); } catch(_) {}
+        }, 1500);
+      },
+      function onScanError() { /* ignore continuous scan misses */ }
+    ).catch(function(err) {
+      status.textContent = 'Camera error: ' + (err.message || err);
+      status.className = 'qr-status error';
+      qrActive = false;
+      reader.classList.remove('active');
+      btn.textContent = '\ud83d\udcf7 Scan Scripture QR Code';
+    });
+  }
+
+  function stopQr() {
+    var reader = document.getElementById('qr-reader');
+    var btn    = document.getElementById('qr-toggle-btn');
+    var status = document.getElementById('qr-status');
+    if (qrScanner) {
+      qrScanner.stop().then(function() {
+        qrScanner.clear();
+      }).catch(function() {});
+    }
+    qrActive = false;
+    reader.classList.remove('active');
+    btn.textContent = '\ud83d\udcf7 Scan Scripture QR Code';
+    status.textContent = 'Scanner stopped.';
+    status.className = 'qr-status';
+  }
+
+  // ── Placement Submit ───────────────────────────────────────────
+  document.getElementById('pl-submit-btn').addEventListener('click', async function() {
+    var btn    = document.getElementById('pl-submit-btn');
+    var status = document.getElementById('pl-status');
+    status.innerHTML = '';
+
+    var plName      = document.getElementById('pl-name').value.trim();
+    var institution = document.getElementById('pl-institution').value.trim();
+    var plDate      = document.getElementById('pl-date').value;
+
+    if (!plName)      { status.innerHTML = '<span style="color:var(--red)">Placement Name is required.</span>'; return; }
+    if (!institution) { status.innerHTML = '<span style="color:var(--red)">Institution / Location is required.</span>'; return; }
+    if (!plDate)      { status.innerHTML = '<span style="color:var(--red)">Date Placed is required.</span>'; return; }
+    if (!plItems.length) { status.innerHTML = '<span style="color:var(--red)">Add at least one scripture item (scan or add manually).</span>'; return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Saving & logging to Inventory\u2026';
+
+    try {
+      var cfg = await fetch('../assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' }).then(function(r) { return r.json(); });
+      var url = cfg.orderHandlerUrl;
+      if (!url) throw new Error('No handler URL in site-config');
+
+      var body = JSON.stringify({
+        action: 'fieldPlacement',
+        passphrase_hash: EXPECTED_HASH,
+        placement: {
+          placementName:   plName,
+          institution:     institution,
+          address:         document.getElementById('pl-address').value.trim(),
+          official_name:   document.getElementById('pl-official').value.trim(),
+          contact_phone:   document.getElementById('pl-phone').value.trim(),
+          contact_email:   document.getElementById('pl-email').value.trim(),
+          num_rooms:       document.getElementById('pl-rooms').value.trim(),
+          date_placed:     plDate,
+          team_member:     document.getElementById('pl-team').value.trim(),
+          event_source:    document.getElementById('pl-event-source').value.trim(),
+          notes:           document.getElementById('pl-notes').value.trim()
+        },
+        items: plItems.map(function(it) {
+          return { item_id: it.item_id, item_name: it.item_name, qty: it.qty, direction: 'out', cost_per_unit: 2 };
+        })
+      });
+
+      var res  = await fetch(url, { method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body });
+      var json = await res.json();
+
+      if (json.ok) {
+        status.innerHTML = '<span style="color:var(--green)">\u2705 Placement saved!<br>ID: ' + (json.placement_id || '') + '<br>' + plItems.length + ' item(s) logged to Inventory.</span>';
+        // Reset form
+        plItems = [];
+        renderPlItems();
+        ['pl-name','pl-institution','pl-address','pl-official','pl-phone','pl-email','pl-rooms','pl-team','pl-event-source','pl-notes'].forEach(function(id) {
+          document.getElementById(id).value = '';
+        });
+        document.getElementById('pl-date').valueAsDate = new Date();
+      } else {
+        throw new Error(json.error || 'Something went wrong');
+      }
+    } catch(err) {
+      status.innerHTML = '<span style="color:var(--red)">\u274c ' + (err.message || String(err)) + '</span>';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Save Placement & Log to Inventory \u2192';
+  });
+
+  // Init placement date on unlock is handled in unlock() above
+
+})();</script>
 </body>
 </html>

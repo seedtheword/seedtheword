@@ -330,6 +330,81 @@
       .newsletter-article { margin-bottom: 2.5rem; padding-bottom: 2rem; }
       .newsletter-article__media { border-radius: 8px; }
     }
+
+    /* ── Lightbox ── */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,0.92);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox__img {
+      max-width: 90vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 6px;
+      user-select: none;
+    }
+    .lightbox__video {
+      max-width: 90vw;
+      max-height: 80vh;
+      border-radius: 6px;
+    }
+    .lightbox__close {
+      position: absolute;
+      top: 1rem;
+      right: 1.25rem;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.5rem;
+      opacity: 0.8;
+    }
+    .lightbox__close:hover { opacity: 1; }
+    .lightbox__nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      transition: background 0.15s;
+    }
+    .lightbox__nav:hover { background: rgba(255,255,255,0.25); }
+    .lightbox__prev { left: 1rem; }
+    .lightbox__next { right: 1rem; }
+    .lightbox__counter {
+      color: rgba(255,255,255,0.7);
+      font-family: var(--nw-mono);
+      font-size: 0.75rem;
+      margin-top: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+    .lightbox__caption {
+      color: rgba(255,255,255,0.85);
+      font-family: var(--nw-sans);
+      font-size: 0.88rem;
+      margin-top: 0.4rem;
+      text-align: center;
+      max-width: 600px;
+    }
   </style>
 </head>
 <body>
@@ -388,6 +463,16 @@
 <section class="newsletter-feed" id="newsletter-feed" aria-live="polite">
   <div class="newsletter-empty" id="newsletter-loading">Loading stories...</div>
 </section>
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="lightbox__close" aria-label="Close">&times;</button>
+  <button class="lightbox__nav lightbox__prev" aria-label="Previous">&#8249;</button>
+  <button class="lightbox__nav lightbox__next" aria-label="Next">&#8250;</button>
+  <img class="lightbox__img" id="lightbox-img" src="" alt="">
+  <div class="lightbox__counter" id="lightbox-counter"></div>
+  <div class="lightbox__caption" id="lightbox-caption"></div>
+</div>
+
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
@@ -465,13 +550,16 @@
         return renderArticle(a.ev, a.media, idx);
       }).join('');
 
+      // Wire up lightbox + thumbnail interactions
+      initLightbox(articles);
+
     } catch(err) {
       feed.innerHTML = '<div class="newsletter-empty">Could not load stories.</div>';
     }
   }
 
   function renderArticle(ev, media, idx) {
-    // Hero slideshow — first 1 photo as the main image
+    // Hero image — first photo, clickable to open lightbox
     var heroHtml = '';
     if (media.length) {
       var firstMedia = media[0];
@@ -480,38 +568,38 @@
       if (isVideo) {
         heroHtml = '<div class="newsletter-article__media"><video src="' + heroPath + '" muted playsinline loop autoplay></video></div>';
       } else {
-        heroHtml = '<div class="newsletter-article__media" style="aspect-ratio:16/9;"><img src="' + heroPath + '" alt="' + ev.title + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:10px;"></div>';
+        heroHtml = '<div class="newsletter-article__media" data-article="' + idx + '"><img src="' + heroPath + '" alt="' + ev.title + '" loading="lazy" class="hero-img" data-article="' + idx + '" data-i="0" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:10px;cursor:pointer;"></div>';
       }
     }
 
-    // Photo mosaic — ALL photos in the event folder
+    // Photo mosaic — ALL photos, clickable to swap hero + open lightbox
     var photosHtml = '';
     if (media.length > 1) {
-      var photoItems = media.map(function(m) {
+      var photoItems = media.map(function(m, i) {
         var path = BASE_PATH + '/' + ev.folder + '/' + m.file;
         var isVid = /\.(mp4|webm|mov)$/i.test(m.file);
         if (isVid) return '<video src="' + path + '" muted playsinline loop onclick="this.paused?this.play():this.pause()"></video>';
-        return '<img src="' + path + '" alt="' + (m.caption || ev.title) + '" loading="lazy">';
+        return '<img src="' + path + '" alt="' + (m.caption || ev.title) + '" loading="lazy" data-article="' + idx + '" data-i="' + i + '" class="mosaic-thumb">';
       }).join('');
       photosHtml = '<div class="newsletter-article__photos">' + photoItems + '</div>';
     }
 
     // Stats row
     var statsHtml = '<div class="newsletter-article__stats">' +
-      '<span>📅 ' + ev.date + '</span>' +
-      '<span>📍 ' + ev.location + '</span>' +
-      (media.length ? '<span>📸 <span class="stat-value">' + media.length + '</span> photos</span>' : '') +
+      '<span>\ud83d\udcc5 ' + ev.date + '</span>' +
+      '<span>\ud83d\udccd ' + ev.location + '</span>' +
+      (media.length ? '<span>\ud83d\udcf8 <span class="stat-value">' + media.length + '</span> photos</span>' : '') +
     '</div>';
 
     var testimonyHtml = ev.testimony ? '<blockquote class="newsletter-article__testimony">' + ev.testimony + '</blockquote>' : '';
-    var partnerHtml = ev.partnerSlug ? '<div class="newsletter-article__partner">🤝 Partner: ' + ev.partnerSlug + '</div>' : '';
+    var partnerHtml = ev.partnerSlug ? '<div class="newsletter-article__partner">\ud83e\udd1d Partner: ' + ev.partnerSlug + '</div>' : '';
 
-    return '<article class="newsletter-article">' +
-      '<p class="newsletter-article__kicker">Outreach Report' + (ev.partnerSlug ? ' — with ' + ev.partnerSlug : '') + '</p>' +
+    return '<article class="newsletter-article" data-article-idx="' + idx + '">' +
+      '<p class="newsletter-article__kicker">Outreach Report' + (ev.partnerSlug ? ' \u2014 with ' + ev.partnerSlug : '') + '</p>' +
       '<h2 class="newsletter-article__title">' + ev.title + '</h2>' +
       '<div class="newsletter-article__meta">' +
-        '<span>📅 ' + ev.date + '</span>' +
-        '<span>📍 ' + ev.location + '</span>' +
+        '<span>\ud83d\udcc5 ' + ev.date + '</span>' +
+        '<span>\ud83d\udccd ' + ev.location + '</span>' +
       '</div>' +
       heroHtml +
       '<p class="newsletter-article__body">' + ev.body + '</p>' +
@@ -522,6 +610,84 @@
       partnerHtml +
     '</article>';
   }
+  // ── Lightbox ────────────────────────────────────────────────────
+  function initLightbox(articles) {
+    var lightbox = document.getElementById('lightbox');
+    var lbImg = document.getElementById('lightbox-img');
+    var lbCounter = document.getElementById('lightbox-counter');
+    var lbCaption = document.getElementById('lightbox-caption');
+    var currentArticle = null;
+    var currentIdx = 0;
+
+    function getMediaPaths(articleIdx) {
+      var a = articles[articleIdx];
+      if (!a) return [];
+      return a.media.filter(function(m){return !/\.(mp4|webm|mov)$/i.test(m.file);}).map(function(m) {
+        return { path: BASE_PATH + '/' + a.ev.folder + '/' + m.file, caption: m.caption || a.ev.title };
+      });
+    }
+
+    function showInLightbox(articleIdx, photoIdx) {
+      var paths = getMediaPaths(articleIdx);
+      if (!paths.length) return;
+      currentArticle = articleIdx;
+      currentIdx = Math.min(photoIdx, paths.length - 1);
+      lbImg.src = paths[currentIdx].path;
+      lbImg.alt = paths[currentIdx].caption;
+      lbCounter.textContent = (currentIdx + 1) + ' / ' + paths.length;
+      lbCaption.textContent = paths[currentIdx].caption;
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function navigate(dir) {
+      var paths = getMediaPaths(currentArticle);
+      if (!paths.length) return;
+      currentIdx = (currentIdx + dir + paths.length) % paths.length;
+      lbImg.src = paths[currentIdx].path;
+      lbImg.alt = paths[currentIdx].caption;
+      lbCounter.textContent = (currentIdx + 1) + ' / ' + paths.length;
+      lbCaption.textContent = paths[currentIdx].caption;
+    }
+
+    lightbox.querySelector('.lightbox__close').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', function(e) { if (e.target === lightbox) closeLightbox(); });
+    lightbox.querySelector('.lightbox__prev').addEventListener('click', function(e) { e.stopPropagation(); navigate(-1); });
+    lightbox.querySelector('.lightbox__next').addEventListener('click', function(e) { e.stopPropagation(); navigate(1); });
+    document.addEventListener('keydown', function(e) {
+      if (!lightbox.classList.contains('open')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') navigate(-1);
+      if (e.key === 'ArrowRight') navigate(1);
+    });
+
+    // Hero image click → open lightbox
+    document.querySelectorAll('.hero-img').forEach(function(img) {
+      img.addEventListener('click', function() {
+        showInLightbox(parseInt(this.dataset.article), parseInt(this.dataset.i));
+      });
+    });
+
+    // Mosaic thumbnail click → swap hero + open lightbox
+    document.querySelectorAll('.mosaic-thumb').forEach(function(img) {
+      img.addEventListener('click', function() {
+        var articleIdx = parseInt(this.dataset.article);
+        var photoIdx = parseInt(this.dataset.i);
+        var article = document.querySelector('[data-article-idx="' + articleIdx + '"]');
+        if (article) {
+          var hero = article.querySelector('.hero-img');
+          if (hero) { hero.src = this.src; hero.dataset.i = photoIdx; }
+        }
+        showInLightbox(articleIdx, photoIdx);
+      });
+    });
+  }
+
   init();
 })();
 </script>

@@ -1250,8 +1250,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   height: auto;
   opacity: 0;
   /* Warm glow backdrop — "walking the path of light" feel */
-  filter: drop-shadow(0 0 20px rgba(184, 134, 11, 0.4))
-          drop-shadow(0 0 60px rgba(184, 134, 11, 0.15));
+  filter: drop-shadow(0 0 60px rgba(184, 134, 11, 0.15));
   animation: introLogoIn 0.8s ease-out 1.6s forwards;
   margin-top: 0.75rem;
 }

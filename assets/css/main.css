@@ -1219,7 +1219,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 /* ── Homepage intro animation ──────────────────────────────────── */
-/* A brief overlay that fades out, plus staggered text reveals */
+/* Cross appears → scoots up → logo fades in center → text below → all visible → fade out */
 .hero-intro-overlay {
   position: fixed;
   inset: 0;
@@ -1228,40 +1228,68 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  gap: 0.5rem;
-  animation: heroIntroFade 0.8s ease-out 2.2s forwards;
+  animation: heroIntroFade 0.8s ease-out 3.6s forwards;
   pointer-events: none;
 }
-.hero-intro-overlay__cross {
-  width: 40px;
-  height: 60px;
+.hero-intro__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+.hero-intro__cross {
+  width: 32px;
+  height: 48px;
   color: #B8860B;
   opacity: 0;
-  animation: heroIntroCross 1.2s ease-out 0.3s forwards;
+  transform: translateY(30px);
+  animation: introCrossIn 0.8s ease-out 0.3s forwards,
+             introCrossUp 0.6s ease-in-out 1.3s forwards;
 }
-.hero-intro-overlay__text {
+.hero-intro__logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 14px;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(0.8);
+  animation: introLogoIn 0.7s ease-out 1.8s forwards;
+  margin-top: 0.5rem;
+}
+.hero-intro__text {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
   font-weight: 400;
   color: rgba(255,255,255,0.9);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   opacity: 0;
-  animation: heroIntroText 0.8s ease-out 1s forwards;
+  transform: translateY(6px);
+  animation: introTextIn 0.6s ease-out 2.4s forwards;
+  margin-top: 0.6rem;
 }
-@keyframes heroIntroCross {
-  0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
-  60% { opacity: 1; transform: scale(1.1) rotate(0deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+
+@keyframes introCrossIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.6); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-@keyframes heroIntroText {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes introCrossUp {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-12px); }
+}
+@keyframes introLogoIn {
+  from { opacity: 0; transform: scale(0.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes introTextIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes heroIntroFade {
   from { opacity: 1; }
-  to { opacity: 0; visibility: hidden; }
+  to   { opacity: 0; visibility: hidden; }
 }
+
 /* Staggered reveal for hero text elements */
 .hero--jesus .hero__text,
 .hero--jesus .btn-jesus,
@@ -1269,12 +1297,12 @@ ul { margin: 0; padding: 0; list-style: none; }
   opacity: 0;
   animation: heroTextReveal 0.6s ease-out forwards;
 }
-.hero--jesus .hero__text--intro:first-child { animation-delay: 2.4s; }
-.hero--jesus .hero__text--main { animation-delay: 2.6s; }
-.hero--jesus .hero__text--intro:nth-of-type(2) { animation-delay: 2.8s; }
-.hero--jesus .hero__text--name { animation-delay: 3s; }
-.hero--jesus .btn-jesus { animation-delay: 3.3s; }
-.hero--jesus .hero__scroll-indicator { animation-delay: 3.6s; }
+.hero--jesus .hero__text--intro:first-child { animation-delay: 3.8s; }
+.hero--jesus .hero__text--main { animation-delay: 4s; }
+.hero--jesus .hero__text--intro:nth-of-type(2) { animation-delay: 4.2s; }
+.hero--jesus .hero__text--name { animation-delay: 4.4s; }
+.hero--jesus .btn-jesus { animation-delay: 4.7s; }
+.hero--jesus .hero__scroll-indicator { animation-delay: 5s; }
 @keyframes heroTextReveal {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }

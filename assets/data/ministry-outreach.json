@@ -1,5 +1,5 @@
 {
-  "_help": "Master index for the Ministry Outreach cards on news.html. Each entry points to a folder under assets/images/ministry-outreach/{folder}/ that contains an images.json manifest. Add new events by (1) creating a new folder, (2) dropping photos/videos + an images.json manifest inside it, and (3) appending a new entry to the 'events' list below. See admin-help.html for the full walkthrough. Keep 'events' ordered most-recent-first.",
+  "_help": "Master index for the Ministry Outreach cards on news.html and the newsletter on testimonies.html. Each entry points to a folder under assets/images/ministry-outreach/{folder}/ that contains an images.json manifest. Add new events by (1) creating a new folder, (2) dropping photos/videos + an images.json manifest inside it, and (3) appending a new entry to the 'events' list below. Keep 'events' ordered most-recent-first. The 'body_extended' field supports longer narrative text shown on the newsletter page (optional — 'body' is used alone if body_extended is empty).",
   "events": [
     {
       "folder": "one-heart-mvmt-cookout-2026",

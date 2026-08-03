@@ -555,9 +555,36 @@
       </div>
     </div>
 
+    <!-- David's testimony — directly under the milestone -->
+    <div style="margin:0 0 2.5rem;padding:1.75rem 2rem;background:#fff;border:1px solid #E8E4DF;border-left:4px solid #2C5F2E;border-radius:0 10px 10px 0;">
+      <p style="font-family:'Playfair Display',Georgia,serif;font-size:1.1rem;font-style:italic;line-height:1.8;color:#1A1A1A;margin:0 0 0.75rem;">
+        I found Jesus in private, on my knees, asking for Him to change my life around for the better.
+        He saved me from death and He promised me a life full of happiness.
+        Not only here on earth but in eternity where He will take me to partake in His reign forevermore.
+      </p>
+      <div style="width:40px;height:1px;background:#E8E4DF;margin:0.75rem 0;"></div>
+      <p style="font-family:'Source Sans 3',system-ui,sans-serif;font-size:0.88rem;font-weight:600;color:#1A1A1A;margin:0;">— David A.</p>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:#B8860B;font-weight:500;letter-spacing:0.08em;margin:0.2rem 0 0;">Micah 6:8</p>
+    </div>
+
     <!-- Outreach event cards with their own carousels -->
     <div class="outreach-grid" id="ministry-outreach-cards" aria-live="polite">
       <!-- Populated by assets/js/ministry-outreach.js -->
+    </div>
+
+    <!-- Share your story CTA — inline at end of outreach section -->
+    <div style="margin:2.5rem 0 0;padding:2rem;text-align:center;border-top:1px solid #E8E4DF;">
+      <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.4rem;font-weight:400;color:#1A1A1A;margin:0 0 0.6rem;">✨ Share your story</h3>
+      <p style="font-family:'Source Sans 3',system-ui,sans-serif;font-size:0.95rem;color:#6B6B6B;max-width:580px;margin:0 auto 1.25rem;line-height:1.7;">
+        Has God used our ministry to meet you in your walk with Jesus? Drop your testimony, photos, or videos. We'd love to feature them.
+      </p>
+      <button type="button" class="btn btn-primary share-story__primary" id="share-story-open" style="margin-bottom:0.5rem;">
+        📤 Share photos, video &amp; testimony
+      </button>
+      <div style="margin-top:0.5rem;display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;">
+        <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team</a>
+        <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a>
+      </div>
     </div>
   </div>
 </section>
@@ -604,31 +631,7 @@
 
 
 
-<!-- 3. Testimonies + Share your story -->
-
-<section class="section section--light testimonies-section" id="share-your-story">
-  <div class="container">
-    <h2 class="section-title">✝️ My Testimony of How I Met Jesus</h2>
-    <p class="outreach-subheading">
-      Real people. Real encounters with Jesus Christ. Shared with permission,
-      lightly edited for clarity.
-    </p>
-    <div class="testimonies-grid" id="testimonies-grid" aria-live="polite">
-      <!-- Populated by assets/js/testimonies.js -->
-    </div>
-    <div class="testimonies-archive-link" id="testimonies-archive-link" hidden>
-      <a href="testimonies.html" class="btn btn-secondary">
-        Read every testimony →
-      </a>
-    </div>
-
-  </div>
-</section>
-
-<!-- Share-story modal. Opens when the primary button above is clicked.
-     Body is a sandboxed iframe embedding the Google Form URL from
-     assets/data/media-drop.json. If that URL is not configured, the
-     modal shows a fallback message pointing to the email path. -->
+<!-- Share-story modal (keeps working — triggered by the button in Latest from the Field) -->
 <div class="share-story-modal" id="share-story-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="share-story-modal-title">
   <div class="share-story-modal__backdrop" id="share-story-modal-backdrop"></div>
   <div class="share-story-modal__content">
@@ -642,104 +645,6 @@
     </div>
   </div>
 </div>
-
-<!-- 2.5. Ministry Highlights — bold featured photos from the field, with a
-     "View full gallery →" link to the lightbox gallery on Testimonies.
-     The highlight tiles are the big visual statement; the gallery is where
-     every photo lives at full size. -->
-
-<section class="section section--white highlights-section" id="ministry-highlights">
-  <div class="container">
-    <h2 class="section-title">📸 Ministry Highlights</h2>
-
-
-    <div class="highlight-grid">
-      <!-- 1: Worship / Prayer (video) -->
-      <article class="highlight-tile highlight-tile--video">
-        <video controls poster="assets/images/ministry-highlights/stw-ministry-team.jpg">
-          <source src="assets/videos/worship-composing.mp4" type="video/mp4">
-        </video>
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">▶ Video</span>
-          <h3 class="highlight-tile__title">Worship / Prayer</h3>
-        </div>
-      </article>
-
-      <!-- 2: Encountering the Word (video) -->
-      <article class="highlight-tile highlight-tile--video">
-        <video controls poster="assets/images/ministry-highlights/bible-ministry-1.jpg">
-          <source src="assets/videos/bible-flip.mp4" type="video/mp4">
-        </video>
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">▶ Video</span>
-          <h3 class="highlight-tile__title">Encountering the Word</h3>
-        </div>
-      </article>
-
-      <!-- 3: Bible giveaway photo tile -->
-      <article class="highlight-tile highlight-tile--photo">
-        <img src="assets/images/ministry-highlights/stw-bibles-giveaway.jpg" alt="Volunteers handing personalized Bibles to newcomers">
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">Bibles Going Out</h3>
-        </div>
-      </article>
-
-      <!-- 4: Personal hand-off photo tile -->
-      <article class="highlight-tile highlight-tile--photo">
-        <img src="assets/images/ministry-highlights/bible-ministry-gift-zander.jpg" alt="A personalized Bible handed to a friend">
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">One Life, One Bible</h3>
-        </div>
-      </article>
-
-      <!-- 5: Outreach photo tile -->
-      <article class="highlight-tile highlight-tile--photo">
-        <img src="assets/images/ministry-highlights/photo_4909333866749823932_w.jpg" alt="Outreach moment from a recent ministry day">
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">Outreach in Action</h3>
-        </div>
-      </article>
-
-      <!-- 6: Fellowship photo tile -->
-      <article class="highlight-tile highlight-tile--photo">
-        <img src="assets/images/ministry-highlights/photo_5172494948291513310_w.jpg" alt="Friends gathered around the Word">
-        <div class="highlight-tile__overlay">
-          <span class="highlight-tile__type">📸 Photo</span>
-          <h3 class="highlight-tile__title">Friends in the Word</h3>
-        </div>
-      </article>
-
-    </div>
-
-    <!-- Share your story — eyebrow + CTA moved here from testimonies section -->
-    <div class="share-story-section share-story-section--inline">
-      <h3 class="section-title section-title--sub">✨ Share your story</h3>
-      <p class="share-story__lead">
-        Has God used our ministry to meet you in your walk with Jesus? Have you
-        watched Him move through an outreach &mdash; or captured a moment out in
-        the field? Drop your testimony, photos, or videos. We&rsquo;d love to
-        feature them to encourage someone else on their way to the cross.
-      </p>
-
-      <div class="share-story__actions">
-        <button type="button" class="btn btn-primary btn-block share-story__primary" id="share-story-open">
-          📤 Share photos, video &amp; testimony
-        </button>
-        <div class="share-story__alts">
-          <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team directly</a>
-          <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a>
-        </div>
-        <p class="share-story__privacy">
-          Your submission lands in our ministry team&rsquo;s private review inbox.
-          Nothing goes public without your ok.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- 5. Calendar — full schedule sits at the bottom of the page as
      the "anything else you want to check" landing spot. The scroll

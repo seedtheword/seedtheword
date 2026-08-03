@@ -1204,12 +1204,87 @@ ul { margin: 0; padding: 0; list-style: none; }
   margin: 0.125rem 0;
 }
 .hero__cross {
-  display: inline-block;
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--gold);
-  margin: 0 0.25rem;
-  text-shadow: 0 2px 15px rgba(0,0,0,.8);
-  font-weight: normal;
+  margin: 0 0.2rem;
+  vertical-align: middle;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,.6));
+}
+.hero__cross-svg {
+  width: clamp(1.8rem, 3.5vw, 2.8rem);
+  height: auto;
+  display: block;
+}
+
+/* ── Homepage intro animation ──────────────────────────────────── */
+/* A brief overlay that fades out, plus staggered text reveals */
+.hero-intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: heroIntroFade 0.8s ease-out 2.2s forwards;
+  pointer-events: none;
+}
+.hero-intro-overlay__cross {
+  width: 40px;
+  height: 60px;
+  color: #B8860B;
+  opacity: 0;
+  animation: heroIntroCross 1.2s ease-out 0.3s forwards;
+}
+.hero-intro-overlay__text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: 400;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.06em;
+  opacity: 0;
+  animation: heroIntroText 0.8s ease-out 1s forwards;
+}
+@keyframes heroIntroCross {
+  0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+  60% { opacity: 1; transform: scale(1.1) rotate(0deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes heroIntroText {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes heroIntroFade {
+  from { opacity: 1; }
+  to { opacity: 0; visibility: hidden; }
+}
+/* Staggered reveal for hero text elements */
+.hero--jesus .hero__text,
+.hero--jesus .btn-jesus,
+.hero--jesus .hero__scroll-indicator {
+  opacity: 0;
+  animation: heroTextReveal 0.6s ease-out forwards;
+}
+.hero--jesus .hero__text--intro:first-child { animation-delay: 2.4s; }
+.hero--jesus .hero__text--main { animation-delay: 2.6s; }
+.hero--jesus .hero__text--intro:nth-of-type(2) { animation-delay: 2.8s; }
+.hero--jesus .hero__text--name { animation-delay: 3s; }
+.hero--jesus .btn-jesus { animation-delay: 3.3s; }
+.hero--jesus .hero__scroll-indicator { animation-delay: 3.6s; }
+@keyframes heroTextReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .hero-intro-overlay { display: none; }
+  .hero--jesus .hero__text,
+  .hero--jesus .btn-jesus,
+  .hero--jesus .hero__scroll-indicator { opacity: 1; animation: none; }
 }
 .hero--home    { 
   background-image: url('../images/backgrounds/stw-background.jpg'); 

@@ -1219,7 +1219,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 /* ── Homepage intro animation ──────────────────────────────────── */
-/* Cross appears → scoots up → logo fades in center → text below → all visible → fade out */
+/* Cross appears → scoots up → logo fades in center → all visible → fade out */
 .hero-intro-overlay {
   position: fixed;
   inset: 0;
@@ -1236,61 +1236,44 @@ ul { margin: 0; padding: 0; list-style: none; }
   flex-direction: column;
   align-items: center;
   gap: 0;
-  position: relative;
 }
 .hero-intro__cross {
-  width: 32px;
-  height: 48px;
+  width: 28px;
+  height: 42px;
   color: #B8860B;
   opacity: 0;
-  transform: translateY(30px);
-  animation: introCrossIn 0.8s ease-out 0.3s forwards,
-             introCrossUp 0.6s ease-in-out 1.3s forwards;
+  animation: introCrossIn 0.7s ease-out 0.3s forwards,
+             introCrossUp 0.5s ease-in-out 1.2s forwards;
 }
 .hero-intro__logo {
-  width: 80px;
-  height: 80px;
-  border-radius: 14px;
-  object-fit: cover;
+  width: clamp(140px, 35vw, 220px);
+  height: auto;
   opacity: 0;
-  transform: scale(0.8);
-  animation: introLogoIn 0.7s ease-out 1.8s forwards;
-  margin-top: 0.5rem;
-}
-.hero-intro__text {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: clamp(1rem, 2.5vw, 1.3rem);
-  font-weight: 400;
-  color: rgba(255,255,255,0.9);
-  letter-spacing: 0.05em;
-  opacity: 0;
-  transform: translateY(6px);
-  animation: introTextIn 0.6s ease-out 2.4s forwards;
-  margin-top: 0.6rem;
+  /* CSS background removal: invert makes dark art white, screen blend hides the light bg */
+  filter: invert(1) brightness(1.2) contrast(1.1);
+  mix-blend-mode: screen;
+  animation: introLogoIn 0.8s ease-out 1.6s forwards;
+  margin-top: 0.75rem;
 }
 
 @keyframes introCrossIn {
-  from { opacity: 0; transform: translateY(30px) scale(0.6); }
+  from { opacity: 0; transform: translateY(20px) scale(0.5); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 @keyframes introCrossUp {
   from { transform: translateY(0); }
-  to   { transform: translateY(-12px); }
+  to   { transform: translateY(-10px); }
 }
 @keyframes introLogoIn {
-  from { opacity: 0; transform: scale(0.7); }
+  from { opacity: 0; transform: scale(0.85); }
   to   { opacity: 1; transform: scale(1); }
-}
-@keyframes introTextIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes heroIntroFade {
   from { opacity: 1; }
   to   { opacity: 0; visibility: hidden; }
 }
 
-/* Staggered reveal for hero text elements */
+/* Staggered reveal for hero text elements after intro fades */
 .hero--jesus .hero__text,
 .hero--jesus .btn-jesus,
 .hero--jesus .hero__scroll-indicator {

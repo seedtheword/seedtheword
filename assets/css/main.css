@@ -1246,14 +1246,24 @@ ul { margin: 0; padding: 0; list-style: none; }
              introCrossUp 0.5s ease-in-out 1.2s forwards;
 }
 .hero-intro__logo {
-  width: clamp(140px, 35vw, 220px);
+  width: clamp(120px, 30vw, 180px);
   height: auto;
   opacity: 0;
-  /* CSS background removal: invert makes dark art white, screen blend hides the light bg */
-  filter: invert(1) brightness(1.2) contrast(1.1);
-  mix-blend-mode: screen;
+  /* Warm glow backdrop — "walking the path of light" feel */
+  filter: drop-shadow(0 0 20px rgba(184, 134, 11, 0.4))
+          drop-shadow(0 0 60px rgba(184, 134, 11, 0.15));
   animation: introLogoIn 0.8s ease-out 1.6s forwards;
   margin-top: 0.75rem;
+}
+.hero-intro__text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  font-weight: 400;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.06em;
+  opacity: 0;
+  animation: introTextIn 0.6s ease-out 2.3s forwards;
+  margin-top: 0.6rem;
 }
 
 @keyframes introCrossIn {
@@ -1267,6 +1277,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 @keyframes introLogoIn {
   from { opacity: 0; transform: scale(0.85); }
   to   { opacity: 1; transform: scale(1); }
+}
+@keyframes introTextIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes heroIntroFade {
   from { opacity: 1; }

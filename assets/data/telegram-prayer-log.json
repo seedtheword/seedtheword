@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615725,
-  "lastModified": "2026-08-04T23:25:37Z",
+  "lastModified": "2026-08-04T23:40:03Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -186,16 +186,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5050,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "So I'm helping out today with evangelism in Lake Stevens Farmers Market and we encountered a stand where the hosts practice witchcraft and believe not all witchcraft is bad.\n\nOne of the ladies is an ex Christian, grew up Pentecostal and told me to step away because she claimed that I was bringing bad energy (conviction) to them.\n\nWould like to request prayer and the Holy Spirit to encounter them to win their hearts back to Jesus",
-      "ts": "2026-07-21T23:28:16Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5085,

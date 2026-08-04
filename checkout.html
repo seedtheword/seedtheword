@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Checkout — Seed the Word</title>
+  <meta name="description" content="Receive your Bible or resource from Seed the Word Ministry.">
+  <meta property="og:title" content="Receive a Bible — Seed the Word">
+  <meta property="og:description" content="Scan, confirm, and receive your copy.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    :root {
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'Source Sans 3', system-ui, sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+      --bg: #FAFAF8; --card: #FFFFFF; --ink: #1A1A1A;
+      --muted: #6B6B6B; --gold: #B8860B; --green: #1a5c1d;
+      --border: #E8E4DF; --red: #a6251f;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin:0; font-family:var(--sans); background:var(--bg); color:var(--ink); min-height:100vh; }
+    .page { max-width:440px; margin:0 auto; padding:2rem 1.25rem 3rem; text-align:center; }
+    .logo { width:60px; height:60px; border-radius:12px; margin:0 auto 1rem; display:block; }
+    .kicker { font-family:var(--mono); font-size:0.62rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold); margin:0 0 0.4rem; }
+    h1 { font-family:var(--serif); font-size:1.6rem; font-weight:400; margin:0 0 0.5rem; }
+    .event-name { font-family:var(--mono); font-size:0.75rem; color:var(--muted); margin:0 0 1.5rem; }
+    .item-card {
+      background:var(--card); border:1px solid var(--border); border-top:3px solid var(--gold);
+      border-radius:10px; padding:1.5rem; margin-bottom:1.5rem;
+    }
+    .item-card__icon { font-size:2.5rem; margin-bottom:0.5rem; }
+    .item-card__name { font-family:var(--serif); font-size:1.2rem; font-weight:400; margin:0 0 0.25rem; }
+    .item-card__id { font-family:var(--mono); font-size:0.68rem; color:var(--gold); }
+    .confirm-btn {
+      width:100%; padding:1rem; background:var(--green); color:#fff; border:none;
+      border-radius:8px; font-size:1.05rem; font-weight:600; cursor:pointer; font-family:inherit;
+      margin-bottom:0.75rem;
+    }
+    .confirm-btn:hover { background:#154a17; }
+    .confirm-btn:disabled { opacity:0.6; cursor:not-allowed; }
+    .status { font-size:0.9rem; min-height:1.4rem; margin-bottom:1rem; }
+    .status--success { color:var(--green); font-weight:600; }
+    .status--error { color:var(--red); }
+
+    /* Success state */
+    .success-view { display:none; }
+    .success-view.visible { display:block; }
+    .success-check { font-size:3rem; margin-bottom:0.5rem; }
+    .success-msg { font-family:var(--serif); font-size:1.3rem; margin:0 0 1.5rem; }
+
+    /* Signup form */
+    .signup-section {
+      background:var(--card); border:1px solid var(--border); border-radius:10px;
+      padding:1.25rem; text-align:left; margin-top:1.5rem;
+    }
+    .signup-section h3 { font-family:var(--serif); font-size:1.1rem; font-weight:400; margin:0 0 0.4rem; }
+    .signup-section p { font-size:0.85rem; color:var(--muted); margin:0 0 1rem; line-height:1.5; }
+    .signup-section label { display:block; font-size:0.82rem; font-weight:600; margin-bottom:0.2rem; }
+    .signup-section input {
+      width:100%; padding:0.7rem 0.8rem; border:1.5px solid var(--border); border-radius:7px;
+      font-size:0.92rem; font-family:inherit; margin-bottom:0.75rem; background:var(--bg);
+    }
+    .signup-section input:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(184,134,11,0.12); }
+    .signup-checks { margin-bottom:1rem; }
+    .signup-checks label {
+      display:flex; align-items:center; gap:0.5rem; font-weight:500; font-size:0.88rem;
+      padding:0.4rem 0; cursor:pointer;
+    }
+    .signup-checks input[type=checkbox] { accent-color:var(--gold); width:18px; height:18px; }
+    .signup-btn {
+      width:100%; padding:0.8rem; background:var(--gold); color:#fff; border:none;
+      border-radius:7px; font-size:0.95rem; font-weight:600; cursor:pointer; font-family:inherit;
+    }
+    .signup-btn:hover { background:#9a7209; }
+    .signup-btn:disabled { opacity:0.6; }
+    .signup-status { font-size:0.82rem; margin-top:0.5rem; min-height:1rem; text-align:center; }
+    .skip-link { display:block; text-align:center; margin-top:0.75rem; font-size:0.82rem; color:var(--muted); }
+  </style>
+</head>
+<body>
+<div class="page">
+  <img class="logo" src="assets/images/stw-logo.jpg" alt="Seed the Word">
+
+  <!-- Checkout view -->
+  <div id="checkout-view">
+    <p class="kicker">You're receiving</p>
+    <h1 id="item-name">Loading...</h1>
+    <p class="event-name" id="event-name"></p>
+    <div class="item-card">
+      <div class="item-card__icon" id="item-icon">📖</div>
+      <p class="item-card__name" id="item-display"></p>
+      <p class="item-card__id" id="item-id-display"></p>
+    </div>
+    <button class="confirm-btn" id="confirm-btn">Confirm — I'm receiving this</button>
+    <div class="status" id="checkout-status"></div>
+  </div>
+
+  <!-- Success view -->
+  <div class="success-view" id="success-view">
+    <div class="success-check">✅</div>
+    <p class="success-msg">You're all set!</p>
+    <p style="font-size:0.92rem;color:var(--muted);margin:0 0 0.5rem;">This item has been checked out. Enjoy your copy and may it bless you.</p>
+
+    <!-- Signup survey -->
+    <div class="signup-section">
+      <h3>Stay connected</h3>
+      <p>Want to hear about upcoming events, Bible studies, and community gatherings? Leave your info below — totally optional.</p>
+      <label>Name</label>
+      <input type="text" id="signup-name" placeholder="Your name">
+      <label>Email</label>
+      <input type="email" id="signup-email" placeholder="you@example.com">
+      <label>Phone</label>
+      <input type="tel" id="signup-phone" placeholder="(253) 555-1234">
+      <div class="signup-checks">
+        <label><input type="checkbox" id="opt-text" checked> Text notifications for events</label>
+        <label><input type="checkbox" id="opt-email" checked> Email newsletter</label>
+        <label><input type="checkbox" id="opt-reminders" checked> Event reminders</label>
+      </div>
+      <button class="signup-btn" id="signup-btn">Sign me up</button>
+      <div class="signup-status" id="signup-status"></div>
+      <a class="skip-link" href="index.html">No thanks — take me to the website</a>
+    </div>
+  </div>
+
+  <!-- Error: no item -->
+  <div id="error-view" style="display:none;">
+    <h1 style="font-size:1.3rem;">Hmm, something's off</h1>
+    <p style="color:var(--muted);">This QR code doesn't have a valid item. Ask a team member for help!</p>
+    <a href="index.html" style="color:var(--gold);font-weight:600;">Visit our website →</a>
+  </div>
+</div>
+<script>
+(function() {
+  'use strict';
+
+  var TYPES = [
+    ['Pocket Personal Testimony Gideon Red','pocket-nt-red'],
+    ['Pocket Friend of Gideon Grey','pocket-nt-grey'],
+    ['Pocket Spanish Gideon','pocket-nt-spanish'],
+    ['Large Print Gideon Brown','large-print-nt-brown'],
+    ['Pocket Hindi Gideon','pocket-nt-hindi-blue'],
+    ['Large Print Russian','large-print-nt-russian'],
+    ['Large Print Ukranian','large-print-nt-ukrainian'],
+    ['Pocket Farsi Persian','pocket-nt-farsi-blue'],
+    ['Full Bible Large Print','full-bible-large-print'],
+    ['Full Bible Pocket','full-bible-pocket'],
+    ['Large Print Thai + English Gideon','pocket-nt-thai-english-blue'],
+    ['Pocket Mandarin Gideon','pocket-nt-mandarin'],
+    ['Large Print Urdu Gideon','large-print-nt-urdu-blue'],
+    ['Large Print Spanish + English Gideon','large-print-nt-spanish-english'],
+    ['Large Print Arabic + English','large-print-nt-arabic-english'],
+    ['Pocket Arabic','pocket-nt-arabic'],
+    ['Pocket French Gideon','pocket-nt-french'],
+    ['Life Book English','tract-life-book-english'],
+    ['Life Book Spanish','tract-life-book-spanish'],
+    ['Flip Books','tract-flip-books-english'],
+    ['Notebooks & Pens','merch-notebooks-pens'],
+    ['Keychains & Bracelets','merch-keychains-bracelets'],
+    ['Stickers','merch-stickers'],
+    ['Mini Jesus figurines','merch-mini-fig'],
+    ['Bookmarks','merch-bookmarks']
+  ];
+
+  function findType(id) {
+    for (var i=0;i<TYPES.length;i++) { if (TYPES[i][1]===id) return TYPES[i]; }
+    return null;
+  }
+
+  function getIcon(id) {
+    if (id.indexOf('pocket-')===0||id.indexOf('large-')===0||id.indexOf('full-')===0) return '📖';
+    if (id.indexOf('tract-')===0) return '📄';
+    return '🎁';
+  }
+
+  // Parse URL params
+  var params = new URLSearchParams(window.location.search);
+  var itemId = params.get('item') || '';
+  var eventId = params.get('event') || '';
+  var eventLabel = (params.get('eventLabel') || eventId || '').replace(/-/g,' ');
+
+  var type = findType(itemId);
+  if (!type) {
+    document.getElementById('checkout-view').style.display = 'none';
+    document.getElementById('error-view').style.display = 'block';
+    return;
+  }
+
+  // Populate checkout view
+  document.getElementById('item-name').textContent = type[0];
+  document.getElementById('item-display').textContent = type[0];
+  document.getElementById('item-id-display').textContent = type[1];
+  document.getElementById('item-icon').textContent = getIcon(type[1]);
+  if (eventLabel) document.getElementById('event-name').textContent = 'Event: ' + eventLabel;
+  // Confirm checkout
+  var confirmBtn = document.getElementById('confirm-btn');
+  var checkoutStatus = document.getElementById('checkout-status');
+  confirmBtn.addEventListener('click', async function() {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Checking out...';
+    checkoutStatus.textContent = '';
+    try {
+      var cfg = await fetch('assets/data/site-config.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});
+      var url = cfg.orderHandlerUrl;
+      if (!url) throw new Error('System not configured');
+      var body = JSON.stringify({
+        action: 'quickCheckout',
+        item_id: type[1],
+        item_name: type[0],
+        event_id: eventId,
+        event_label: eventLabel,
+        timestamp: new Date().toISOString()
+      });
+      var res = await fetch(url, {method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body});
+      var json = await res.json();
+      if (json.ok) {
+        document.getElementById('checkout-view').style.display = 'none';
+        document.getElementById('success-view').classList.add('visible');
+      } else {
+        throw new Error(json.error || 'Failed');
+      }
+    } catch(err) {
+      checkoutStatus.textContent = 'Error: ' + (err.message||err);
+      checkoutStatus.className = 'status status--error';
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Try again';
+    }
+  });
+
+  // Signup form
+  var signupBtn = document.getElementById('signup-btn');
+  var signupStatus = document.getElementById('signup-status');
+  signupBtn.addEventListener('click', async function() {
+    var name = document.getElementById('signup-name').value.trim();
+    var email = document.getElementById('signup-email').value.trim();
+    var phone = document.getElementById('signup-phone').value.trim();
+    if (!name && !email && !phone) { signupStatus.textContent = 'Enter at least your name or email.'; return; }
+    signupBtn.disabled = true;
+    signupBtn.textContent = 'Signing up...';
+    try {
+      var cfg = await fetch('assets/data/site-config.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});
+      var url = cfg.orderHandlerUrl;
+      var body = JSON.stringify({
+        action: 'visitorSignup',
+        name: name,
+        email: email,
+        phone: phone,
+        opt_text: document.getElementById('opt-text').checked,
+        opt_email: document.getElementById('opt-email').checked,
+        opt_reminders: document.getElementById('opt-reminders').checked,
+        event_id: eventId,
+        event_label: eventLabel,
+        item_received: type[0],
+        timestamp: new Date().toISOString()
+      });
+      var res = await fetch(url, {method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body});
+      var json = await res.json();
+      if (json.ok) {
+        signupStatus.innerHTML = '<span style="color:var(--green);font-weight:600;">You\'re signed up! We\'ll be in touch.</span>';
+        signupBtn.style.display = 'none';
+      } else throw new Error(json.error||'Failed');
+    } catch(err) {
+      signupStatus.textContent = 'Error: '+(err.message||err);
+      signupBtn.disabled = false;
+      signupBtn.textContent = 'Try again';
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -213,6 +213,12 @@ function doPost(e) {
   if ((payload && payload.action) === 'fieldPlacement') {
     return handleFieldPlacement_(payload);
   }
+  if ((payload && payload.action) === 'quickCheckout') {
+    return handleQuickCheckout_(payload);
+  }
+  if ((payload && payload.action) === 'visitorSignup') {
+    return handleVisitorSignup_(payload);
+  }
   return handleOrder(payload);
 }
 
@@ -2598,6 +2604,101 @@ function handleFieldPlacement_(payload) {
 
   } catch(err) {
     console.log('handleFieldPlacement_ error:', err);
+    return jsonResponse({ ok: false, error: String(err) });
+  }
+}
+
+// ── Quick Checkout handler (public — no passphrase) ──────────────
+// Visitor scans QR → confirms → item logged to Inventory as "out".
+// Payload: { action:'quickCheckout', item_id, item_name, event_id, event_label, timestamp }
+function handleQuickCheckout_(payload) {
+  try {
+    var itemId    = String(payload.item_id || '').trim();
+    var itemName  = String(payload.item_name || '').trim();
+    var eventId   = String(payload.event_id || '').trim();
+    var eventLabel = String(payload.event_label || '').trim();
+    if (!itemId) return jsonResponse({ ok: false, error: 'No item_id' });
+
+    var ss    = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName('Inventory');
+    if (!sheet) return jsonResponse({ ok: false, error: 'Inventory tab not found' });
+
+    // Get cost from Lists tab
+    var costMap = getItemCostMapFromLedger_();
+    var cost = (costMap.costs[itemId] !== undefined) ? costMap.costs[itemId] : costMap.defaultCost;
+    var date = new Date().toISOString().split('T')[0];
+
+    // Find row_id column
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var rowIdColIdx = -1;
+    for (var h = 0; h < headers.length; h++) {
+      if (String(headers[h]).toLowerCase().replace(/[\s_\-]/g,'') === 'rowid') { rowIdColIdx = h + 1; break; }
+    }
+    var maxNum = 0;
+    if (rowIdColIdx > 0 && sheet.getLastRow() > 1) {
+      sheet.getRange(2, rowIdColIdx, sheet.getLastRow()-1, 1).getValues().forEach(function(r) {
+        var m = String(r[0]||'').match(/^INV-(\d+)$/);
+        if (m) maxNum = Math.max(maxNum, parseInt(m[1], 10));
+      });
+    }
+    maxNum++;
+    var rowId = 'INV-' + String(maxNum).padStart(4, '0');
+
+    var row = [date, 'outreach', itemId, itemName, 1, 'out', eventLabel || 'quick-checkout', cost, cost, 'Quick checkout by visitor', eventId];
+    if (rowIdColIdx > 0) { while (row.length < rowIdColIdx - 1) row.push(''); row[rowIdColIdx - 1] = rowId; }
+    else row.push(rowId);
+    sheet.appendRow(row);
+
+    return jsonResponse({ ok: true, route: 'quickCheckout', row_id: rowId, item: itemName });
+  } catch(err) {
+    return jsonResponse({ ok: false, error: String(err) });
+  }
+}
+
+// ── Visitor Signup handler (public) ──────────────────────────────
+// Logs visitor contact info to a "Contacts" tab for follow-up.
+// Payload: { action:'visitorSignup', name, email, phone, opt_text, opt_email, opt_reminders, event_id, event_label, item_received, timestamp }
+function handleVisitorSignup_(payload) {
+  try {
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var headers = ['timestamp','name','email','phone','opt_text','opt_email','opt_reminders','event_id','event_label','item_received'];
+    var sheet = ss.getSheetByName('Contacts');
+    if (!sheet) {
+      sheet = ss.insertSheet('Contacts');
+      sheet.getRange(1,1,1,headers.length).setValues([headers]);
+      sheet.getRange(1,1,1,headers.length).setFontWeight('bold').setBackground('#E8E4DF');
+      sheet.setFrozenRows(1);
+    }
+    sheet.appendRow([
+      payload.timestamp || new Date().toISOString(),
+      payload.name || '',
+      payload.email || '',
+      payload.phone || '',
+      payload.opt_text ? 'yes' : 'no',
+      payload.opt_email ? 'yes' : 'no',
+      payload.opt_reminders ? 'yes' : 'no',
+      payload.event_id || '',
+      payload.event_label || '',
+      payload.item_received || ''
+    ]);
+
+    // Send welcome notification to team
+    try {
+      MailApp.sendEmail({
+        to: TEAM_INBOX,
+        subject: '🙌 New visitor signup: ' + (payload.name || 'Anonymous'),
+        body: 'Visitor signed up at outreach!\n\n' +
+              'Name: ' + (payload.name || '—') + '\n' +
+              'Email: ' + (payload.email || '—') + '\n' +
+              'Phone: ' + (payload.phone || '—') + '\n' +
+              'Opted in: ' + [payload.opt_text?'text':'', payload.opt_email?'email':'', payload.opt_reminders?'reminders':''].filter(Boolean).join(', ') + '\n' +
+              'Event: ' + (payload.event_label || payload.event_id || '—') + '\n' +
+              'Item received: ' + (payload.item_received || '—')
+      });
+    } catch(e) { console.log('Signup email failed (non-fatal):', e); }
+
+    return jsonResponse({ ok: true, route: 'visitorSignup' });
+  } catch(err) {
     return jsonResponse({ ok: false, error: String(err) });
   }
 }

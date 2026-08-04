@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615724,
-  "lastModified": "2026-08-04T21:55:42Z",
+  "lastUpdateId": 669615725,
+  "lastModified": "2026-08-04T23:25:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -255,6 +255,16 @@
       "kind": "telegram",
       "text": "Hey guys let’s pray for the families and first responders in the east especially in Spokane. If the smoke is bad here I can only imagine how bad it is for the residents over there. In Jesus name they will be protected!",
       "ts": "2026-08-04T21:04:41Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5148,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thanksgiving Announcement 8/4/2026:\n\nAs we are doing evangelism stand today with MOFT church, there are kids who came up, I gave them about 5 Bibles (one for each) and I'm overhearing their conversation between each other.\n\nThe oldest girl like 12 is saying she will be teaching the younger kids how to read and do a Bible study. So good to hear God's children are diving into His Word and the Holy Spirit is leading. Praise Jesus ✝️",
+      "ts": "2026-08-04T23:16:47Z"
     }
   ]
 }

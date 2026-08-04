@@ -228,8 +228,10 @@
         event_label: eventLabel,
         timestamp: new Date().toISOString()
       });
-      var res = await fetch(url, {method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body});
-      var json = await res.json();
+      var res = await fetch(url, {method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body});
+      var text = await res.text();
+      var json;
+      try { json = JSON.parse(text); } catch(pe) { throw new Error('Server error — try again'); }
       if (json.ok) {
         document.getElementById('checkout-view').style.display = 'none';
         document.getElementById('success-view').classList.add('visible');
@@ -270,8 +272,10 @@
         item_received: type[0],
         timestamp: new Date().toISOString()
       });
-      var res = await fetch(url, {method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body});
-      var json = await res.json();
+      var res = await fetch(url, {method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body});
+      var text2 = await res.text();
+      var json;
+      try { json = JSON.parse(text2); } catch(pe) { throw new Error('Server error'); }
       if (json.ok) {
         signupStatus.innerHTML = '<span style="color:var(--green);font-weight:600;">You\'re signed up! We\'ll be in touch.</span>';
         signupBtn.style.display = 'none';

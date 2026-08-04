@@ -219,6 +219,9 @@ function doPost(e) {
   if ((payload && payload.action) === 'visitorSignup') {
     return handleVisitorSignup_(payload);
   }
+  if ((payload && payload.action) === 'setActiveEvent') {
+    return handleSetActiveEvent_(payload);
+  }
   return handleOrder(payload);
 }
 
@@ -2608,6 +2611,58 @@ function handleFieldPlacement_(payload) {
   }
 }
 
+// ── Active Event system ───────────────────────────────────────────
+// Stores the currently active outreach event so checkout.html knows
+// which event to associate scanned items with (no event in QR code).
+// Uses a simple "ActiveEvent" tab with a single row.
+function handleSetActiveEvent_(payload) {
+  var clientHash = String(payload.passphrase_hash || '').toLowerCase().trim();
+  if (clientHash !== FIELD_LOG_EXPECTED_HASH) {
+    return jsonResponse({ ok: false, error: 'unauthorized' });
+  }
+  try {
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName('ActiveEvent');
+    if (!sheet) {
+      sheet = ss.insertSheet('ActiveEvent');
+      sheet.getRange(1,1,1,4).setValues([['event_id','event_label','set_by','set_at']]);
+      sheet.getRange(1,1,1,4).setFontWeight('bold');
+    }
+    // Always overwrite row 2 (single active event)
+    var row = [
+      payload.event_id || '',
+      payload.event_label || '',
+      payload.set_by || '',
+      new Date().toISOString()
+    ];
+    if (sheet.getLastRow() < 2) sheet.appendRow(row);
+    else sheet.getRange(2, 1, 1, 4).setValues([row]);
+    return jsonResponse({ ok: true, route: 'setActiveEvent' });
+  } catch(err) {
+    return jsonResponse({ ok: false, error: String(err) });
+  }
+}
+
+function handleGetActiveEvent_() {
+  try {
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName('ActiveEvent');
+    if (!sheet || sheet.getLastRow() < 2) {
+      return jsonResponse({ ok: true, event_id: '', event_label: '' });
+    }
+    var row = sheet.getRange(2, 1, 1, 4).getValues()[0];
+    // Check if the event was set today (auto-expire after midnight)
+    var setAt = String(row[3] || '');
+    var today = new Date().toISOString().split('T')[0];
+    if (setAt && setAt.split('T')[0] !== today) {
+      return jsonResponse({ ok: true, event_id: '', event_label: '', expired: true });
+    }
+    return jsonResponse({ ok: true, event_id: row[0] || '', event_label: row[1] || '' });
+  } catch(err) {
+    return jsonResponse({ ok: true, event_id: '', event_label: '' });
+  }
+}
+
 // ── Quick Checkout handler (public — no passphrase) ──────────────
 // Visitor scans QR → confirms → item logged to Inventory as "out".
 // Payload: { action:'quickCheckout', item_id, item_name, event_id, event_label, timestamp }
@@ -3546,6 +3601,10 @@ function listActiveSubscribers() {
  */
 function doGet(e) {
   const action = (e && e.parameter && e.parameter.action) || '';
+
+  if (action === 'getActiveEvent') {
+    return handleGetActiveEvent_();
+  }
 
   if (action === 'prayer-unsubscribe') {
     return handlePrayerUnsubscribe_(e && e.parameter && e.parameter.token || '');

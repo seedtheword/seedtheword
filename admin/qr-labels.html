@@ -87,7 +87,6 @@
     <option value="medium" selected>Medium</option>
     <option value="large">Large</option>
   </select>
-  <input type="text" id="event-input" placeholder="Event ID (optional)" style="padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;font-size:0.82rem;width:160px;" title="If set, QR codes will link to checkout.html with this event">
   <span class="toolbar__count" id="sel-count">0 selected</span>
 </div>
 <div class="label-grid" id="grid" data-size="medium"></div>
@@ -111,15 +110,9 @@
   ];
   var grid=document.getElementById('grid');
   function genSvg(t){var q=qrcode(0,'M');q.addData(t);q.make();return q.createSvgTag({scalable:true});}
-  function getUrl(itemId) {
-    var eventVal = document.getElementById('event-input').value.trim();
-    var url = BASE + encodeURIComponent(itemId);
-    if (eventVal) url += '&event=' + encodeURIComponent(eventVal);
-    return url;
-  }
   function render(){
     grid.innerHTML=TYPES.map(function(t,i){
-      var url=getUrl(t[1]);
+      var url=BASE+encodeURIComponent(t[1]);
       return '<div class="label unselected" data-i="'+i+'">' +
         '<input type="checkbox" class="label__check" data-i="'+i+'">' +
         '<div class="label__qr">'+genSvg(url)+'</div>' +
@@ -143,8 +136,6 @@
     document.getElementById('sel-count').textContent=n+' selected';
   }
   render();
-  // Re-render QR codes when event ID changes
-  document.getElementById('event-input').addEventListener('change', render);
 
   var allSel=false;
   window.toggleAll=function(){

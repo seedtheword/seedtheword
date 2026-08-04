@@ -314,16 +314,28 @@
   }
   // Save event details on successful submission for event mode
   function saveEventMode() {
-    try {
-      sessionStorage.setItem('stwm-event-mode', JSON.stringify({
-        date: new Date().toISOString().split('T')[0],
-        name: document.getElementById('pl-name').value,
-        institution: document.getElementById('pl-institution').value,
-        address: document.getElementById('pl-address').value,
-        source: document.getElementById('pl-event-source').value,
-        team: document.getElementById('pl-team').value
-      }));
-    } catch(e) {}
+    var eventData = {
+      date: new Date().toISOString().split('T')[0],
+      name: document.getElementById('pl-name').value,
+      institution: document.getElementById('pl-institution').value,
+      address: document.getElementById('pl-address').value,
+      source: document.getElementById('pl-event-source').value,
+      team: document.getElementById('pl-team').value
+    };
+    try { sessionStorage.setItem('stwm-event-mode', JSON.stringify(eventData)); } catch(e) {}
+    // Also set active event on server so checkout.html knows
+    (async function() {
+      try {
+        var cfg = await fetch('../assets/data/site-config.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});
+        if (cfg.orderHandlerUrl) {
+          fetch(cfg.orderHandlerUrl, {method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+            body:JSON.stringify({action:'setActiveEvent',passphrase_hash:EXPECTED_HASH,
+              event_id:(eventData.source||eventData.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+              event_label:eventData.name||eventData.institution||'',
+              set_by:eventData.team||''})});
+        }
+      } catch(e) {}
+    })();
   }
   window.clearEventMode = function() {
     try { sessionStorage.removeItem('stwm-event-mode'); } catch(e) {}

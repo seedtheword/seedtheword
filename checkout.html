@@ -175,8 +175,10 @@
   // Parse URL params
   var params = new URLSearchParams(window.location.search);
   var itemId = params.get('item') || '';
-  var eventId = params.get('event') || '';
-  var eventLabel = (params.get('eventLabel') || eventId || '').replace(/-/g,' ');
+
+  // Active event will be fetched from the server
+  var eventId = '';
+  var eventLabel = '';
 
   var type = findType(itemId);
   if (!type) {
@@ -190,7 +192,23 @@
   document.getElementById('item-display').textContent = type[0];
   document.getElementById('item-id-display').textContent = type[1];
   document.getElementById('item-icon').textContent = getIcon(type[1]);
-  if (eventLabel) document.getElementById('event-name').textContent = 'Event: ' + eventLabel;
+
+  // Fetch active event from backend
+  (async function() {
+    try {
+      var cfg = await fetch('assets/data/site-config.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});
+      var url = cfg.orderHandlerUrl;
+      if (url) {
+        var res = await fetch(url + '?action=getActiveEvent&t=' + Date.now());
+        var data = await res.json();
+        if (data.ok && data.event_label) {
+          eventId = data.event_id || '';
+          eventLabel = data.event_label || '';
+          document.getElementById('event-name').textContent = 'Event: ' + eventLabel;
+        }
+      }
+    } catch(e) { /* no active event — that's fine, checkout still works */ }
+  })();
   // Confirm checkout
   var confirmBtn = document.getElementById('confirm-btn');
   var checkoutStatus = document.getElementById('checkout-status');

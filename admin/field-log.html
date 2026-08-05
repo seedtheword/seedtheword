@@ -164,6 +164,65 @@
     .submit-btn:hover { background: #9a7209; }
     .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
     #pl-status { text-align: center; margin-top: 0.85rem; font-size: 0.9rem; line-height: 1.6; min-height: 1.4rem; }
+
+    /* QR Confirm banner */
+    .qr-confirm {
+      display: none; padding: 1rem; background: var(--green-soft); border: 1.5px solid var(--green);
+      border-radius: 8px; margin-top: 0.75rem; text-align: center;
+    }
+    .qr-confirm.active { display: block; }
+    .qr-confirm__name { font-weight: 700; font-size: 1rem; color: var(--ink); margin: 0 0 0.5rem; }
+    .qr-confirm__id { font-family: var(--mono); font-size: 0.72rem; color: var(--gold); margin: 0 0 0.75rem; }
+    .qr-confirm__actions { display: flex; gap: 0.5rem; justify-content: center; }
+    .qr-confirm__btn {
+      padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; border: none;
+    }
+    .qr-confirm__btn--add { background: var(--green); color: #fff; }
+    .qr-confirm__btn--add:hover { background: #146016; }
+    .qr-confirm__btn--cancel { background: var(--card); border: 1.5px solid var(--border); color: var(--muted); }
+    .qr-confirm__btn--cancel:hover { border-color: var(--red); color: var(--red); }
+    .qr-confirm__btn--rescan { background: var(--gold-soft); border: 1.5px solid var(--gold); color: var(--gold); margin-top: 0.5rem; width: 100%; }
+    .qr-confirm__btn--rescan:hover { background: var(--gold); color: #fff; }
+
+    /* Manual add picker modal */
+    .picker-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      z-index: 200; align-items: flex-end; justify-content: center; padding: 0;
+    }
+    .picker-overlay.active { display: flex; }
+    .picker-sheet {
+      background: var(--card); border-radius: 16px 16px 0 0; width: 100%; max-width: 520px;
+      max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 -4px 30px rgba(0,0,0,0.15);
+    }
+    .picker-header {
+      display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .picker-header__title { font-weight: 700; font-size: 1rem; margin: 0; }
+    .picker-header__close {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border);
+      font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-family: inherit;
+    }
+    .picker-header__close:hover { border-color: var(--red); color: var(--red); }
+    .picker-search {
+      margin: 0.75rem 1.25rem; padding: 0.7rem 0.85rem; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 0.9rem; font-family: inherit; background: var(--bg); width: calc(100% - 2.5rem);
+    }
+    .picker-search:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,134,11,0.12); }
+    .picker-list {
+      flex: 1; overflow-y: auto; padding: 0.5rem 1.25rem 1.25rem; -webkit-overflow-scrolling: touch;
+    }
+    .picker-item {
+      display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0.85rem;
+      border: 1.5px solid var(--border); border-radius: 8px; margin-bottom: 0.5rem; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .picker-item:hover { border-color: var(--gold); background: var(--gold-soft); }
+    .picker-item__name { font-weight: 600; font-size: 0.88rem; color: var(--ink); }
+    .picker-item__meta { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); }
+    .picker-item__cost { font-size: 0.72rem; color: var(--gold); font-weight: 600; }
   </style>
 </head>
 <body>
@@ -195,6 +254,16 @@
       <button type="button" class="qr-toggle" id="qr-toggle-btn">📷 Scan Scripture QR</button>
       <div id="qr-reader"></div>
       <div class="qr-status" id="qr-status">Scan a QR code to auto-add items below.</div>
+      <!-- Confirmation banner after scan -->
+      <div class="qr-confirm" id="qr-confirm">
+        <p class="qr-confirm__name" id="qr-confirm-name"></p>
+        <p class="qr-confirm__id" id="qr-confirm-id"></p>
+        <div class="qr-confirm__actions">
+          <button type="button" class="qr-confirm__btn qr-confirm__btn--add" id="qr-confirm-add">Add to Inventory</button>
+          <button type="button" class="qr-confirm__btn qr-confirm__btn--cancel" id="qr-confirm-cancel">Discard</button>
+        </div>
+        <button type="button" class="qr-confirm__btn qr-confirm__btn--rescan" id="qr-confirm-rescan">📷 Scan Another</button>
+      </div>
     </div>
 
     <p class="section-label">Placement Details</p>
@@ -224,6 +293,18 @@
 
     <button class="submit-btn" id="pl-submit-btn">Save Placement Record</button>
     <div id="pl-status"></div>
+  </div>
+</div>
+
+<!-- Item Picker Modal -->
+<div class="picker-overlay" id="picker-overlay">
+  <div class="picker-sheet">
+    <div class="picker-header">
+      <h2 class="picker-header__title">Add Scripture / Item</h2>
+      <button type="button" class="picker-header__close" id="picker-close">&times;</button>
+    </div>
+    <input type="text" class="picker-search" id="picker-search" placeholder="Search items...">
+    <div class="picker-list" id="picker-list"></div>
   </div>
 </div>
 
@@ -408,15 +489,60 @@
     renderPlItems();
   }
 
-  // Manual add — shows a simple select prompt
+  // Manual add — opens picker modal
   document.getElementById('pl-add-btn').addEventListener('click', function() {
-    var sel = prompt('Enter item # (1-'+TYPES.length+'):\n'+TYPES.map(function(t,i){return (i+1)+'. '+t[0];}).join('\n'));
-    if (!sel) return;
-    var idx = parseInt(sel)-1;
-    if (idx>=0 && idx<TYPES.length) addPlItem(TYPES[idx][1], TYPES[idx][0], 1);
+    openPicker();
   });
-  // QR Scanner
+
+  function openPicker() {
+    var overlay = document.getElementById('picker-overlay');
+    var list = document.getElementById('picker-list');
+    var search = document.getElementById('picker-search');
+    search.value = '';
+    renderPickerList('');
+    overlay.classList.add('active');
+    setTimeout(function(){ search.focus(); }, 100);
+  }
+
+  function renderPickerList(filter) {
+    var list = document.getElementById('picker-list');
+    var q = filter.toLowerCase();
+    var html = '';
+    TYPES.forEach(function(t, i) {
+      var name = t[0], id = t[1];
+      if (q && name.toLowerCase().indexOf(q) === -1 && id.toLowerCase().indexOf(q) === -1) return;
+      var cost = getItemCost(id);
+      html += '<div class="picker-item" data-idx="'+i+'">' +
+        '<div><div class="picker-item__name">'+name+'</div><div class="picker-item__meta">'+id+'</div></div>' +
+        '<div class="picker-item__cost">$'+cost.toFixed(2)+'</div></div>';
+    });
+    if (!html) html = '<p style="text-align:center;color:var(--muted);padding:2rem 0;font-size:0.9rem;">No items match your search.</p>';
+    list.innerHTML = html;
+    list.querySelectorAll('.picker-item').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var idx = +this.dataset.idx;
+        addPlItem(TYPES[idx][1], TYPES[idx][0], 1);
+        closePicker();
+      });
+    });
+  }
+
+  function closePicker() {
+    document.getElementById('picker-overlay').classList.remove('active');
+  }
+
+  document.getElementById('picker-close').addEventListener('click', closePicker);
+  document.getElementById('picker-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closePicker();
+  });
+  document.getElementById('picker-search').addEventListener('input', function() {
+    renderPickerList(this.value);
+  });
+
+  // QR Scanner — stops after one scan, shows confirmation
   var qrScanner=null, qrActive=false;
+  var pendingScan = null; // {item_id, item_name}
+
   document.getElementById('qr-toggle-btn').addEventListener('click', function() {
     if (qrActive){stopQr();return;}
     if (!window.Html5Qrcode) {
@@ -426,26 +552,73 @@
       document.head.appendChild(s);
     } else startQr();
   });
+
   function startQr() {
     var reader=document.getElementById('qr-reader'), status=document.getElementById('qr-status'), btn=document.getElementById('qr-toggle-btn');
+    var confirm=document.getElementById('qr-confirm');
+    confirm.classList.remove('active');
+    pendingScan = null;
     reader.classList.add('active'); btn.textContent='\u23f9 Stop Scanner'; status.textContent='Initializing camera...'; status.className='qr-status';
     qrScanner=new Html5Qrcode('qr-reader'); qrActive=true;
     qrScanner.start({facingMode:'environment'},{fps:10,qrbox:{width:200,height:200}},
       function(decoded){
+        // Stop scanning immediately on first detection
+        stopQr();
         var itemId=decoded.trim();
         if(itemId.indexOf('http')===0){try{var u=new URL(itemId);itemId=u.searchParams.get('item')||u.searchParams.get('id')||u.pathname.split('/').pop()||itemId;}catch(e){}}
         var found=findTypeById(itemId)||findTypeByName(itemId);
-        if(found){addPlItem(found[1],found[0],1);status.textContent='\u2705 '+found[0];status.className='qr-status success';if(navigator.vibrate)navigator.vibrate(100);}
-        else{status.textContent='\u26a0\ufe0f Unknown: '+itemId;status.className='qr-status error';}
-        qrScanner.pause(true);setTimeout(function(){try{qrScanner.resume();}catch(e){}},1500);
+        if(found){
+          // Show confirmation instead of auto-adding
+          pendingScan = {item_id: found[1], item_name: found[0]};
+          showScanConfirm(found[0], found[1]);
+          if(navigator.vibrate)navigator.vibrate(100);
+        } else {
+          status.textContent='\u26a0\ufe0f Unknown QR: '+itemId;status.className='qr-status error';
+        }
       },function(){}
     ).catch(function(err){status.textContent='Camera error: '+(err.message||err);status.className='qr-status error';qrActive=false;reader.classList.remove('active');btn.textContent='\ud83d\udcf7 Scan Scripture QR';});
   }
+
   function stopQr(){
     var reader=document.getElementById('qr-reader'),btn=document.getElementById('qr-toggle-btn'),status=document.getElementById('qr-status');
-    if(qrScanner)qrScanner.stop().then(function(){qrScanner.clear();}).catch(function(){});
-    qrActive=false;reader.classList.remove('active');btn.textContent='\ud83d\udcf7 Scan Scripture QR';status.textContent='Scanner stopped.';status.className='qr-status';
+    if(qrScanner){try{qrScanner.stop().then(function(){try{qrScanner.clear();}catch(e){}}).catch(function(){});}catch(e){}}
+    qrActive=false;reader.classList.remove('active');btn.textContent='\ud83d\udcf7 Scan Scripture QR';
+    if(!pendingScan) { status.textContent='Scanner stopped.';status.className='qr-status'; }
   }
+
+  function showScanConfirm(name, id) {
+    var confirm = document.getElementById('qr-confirm');
+    var status = document.getElementById('qr-status');
+    document.getElementById('qr-confirm-name').textContent = name;
+    document.getElementById('qr-confirm-id').textContent = id;
+    confirm.classList.add('active');
+    status.textContent = '\u2705 Scanned! Confirm below.';
+    status.className = 'qr-status success';
+  }
+
+  function hideScanConfirm() {
+    document.getElementById('qr-confirm').classList.remove('active');
+    pendingScan = null;
+  }
+
+  document.getElementById('qr-confirm-add').addEventListener('click', function() {
+    if (pendingScan) {
+      addPlItem(pendingScan.item_id, pendingScan.item_name, 1);
+      document.getElementById('qr-status').textContent = '\u2705 Added: ' + pendingScan.item_name;
+    }
+    hideScanConfirm();
+  });
+
+  document.getElementById('qr-confirm-cancel').addEventListener('click', function() {
+    document.getElementById('qr-status').textContent = 'Scan discarded.';
+    document.getElementById('qr-status').className = 'qr-status';
+    hideScanConfirm();
+  });
+
+  document.getElementById('qr-confirm-rescan').addEventListener('click', function() {
+    hideScanConfirm();
+    startQr();
+  });
   // Submit placement
   document.getElementById('pl-submit-btn').addEventListener('click', async function() {
     var btn=this, status=document.getElementById('pl-status');

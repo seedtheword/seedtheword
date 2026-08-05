@@ -231,6 +231,15 @@ function doPost(e) {
   if ((payload && payload.action) === 'teamScan') {
     return handleTeamScan_(payload);
   }
+  // ── Team Messaging actions (see docs/apps-script/team-messaging-handlers.gs) ──
+  if ((payload && payload.action) === 'postAnnouncement') return handlePostAnnouncement_(payload);
+  if ((payload && payload.action) === 'getAnnouncements') return handleGetAnnouncements_(payload);
+  if ((payload && payload.action) === 'sendDm') return handleSendDm_(payload);
+  if ((payload && payload.action) === 'getDmContacts') return handleGetDmContacts_(payload);
+  if ((payload && payload.action) === 'getDmMessages') return handleGetDmMessages_(payload);
+  if ((payload && payload.action) === 'addMemberNote') return handleAddMemberNote_(payload);
+  if ((payload && payload.action) === 'getMemberNotes') return handleGetMemberNotes_(payload);
+  if ((payload && payload.action) === 'getNoteMembers') return handleGetNoteMembers_(payload);
   return handleOrder(payload);
 }
 
@@ -2652,10 +2661,11 @@ function handleTeamSignup_(payload) {
     }
 
     var token = 'tm_' + Utilities.getUuid().replace(/-/g, '').slice(0, 12);
-    sheet.appendRow([token, name, hash, payload.email || '', payload.phone || '', 'member', new Date().toISOString(), 0]);
+    var telegram = String(payload.telegram_username || '').trim();
+    sheet.appendRow([token, name, hash, payload.email || '', payload.phone || '', 'member', new Date().toISOString(), 0, telegram]);
 
     // Notify admin
-    try { MailApp.sendEmail({ to: TEAM_INBOX, subject: '👋 New team member: ' + name, body: name + ' just created a team account.\nEmail: ' + (payload.email || '—') + '\nPhone: ' + (payload.phone || '—') }); } catch(e) {}
+    try { MailApp.sendEmail({ to: TEAM_INBOX, subject: '👋 New team member: ' + name, body: name + ' just created a team account.\nEmail: ' + (payload.email || '—') + '\nPhone: ' + (payload.phone || '—') + '\nTelegram: ' + (telegram || '—') }); } catch(e) {}
 
     return jsonResponse({ ok: true, route: 'teamSignup', token: token, name: name });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
@@ -2673,7 +2683,7 @@ function handleTeamLogin_(payload) {
 
     for (var i = 0; i < data.length; i++) {
       if (String(data[i][1]).toLowerCase().trim() === name.toLowerCase() && String(data[i][2]).trim() === hash) {
-        return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], total_scans: parseInt(data[i][7]) || 0 });
+        return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], role: data[i][5] || 'member', total_scans: parseInt(data[i][7]) || 0, telegram_username: data[i][8] || '' });
       }
     }
     return jsonResponse({ ok: false, error: 'Invalid name or password' });

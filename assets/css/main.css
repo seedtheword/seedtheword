@@ -240,6 +240,24 @@ ul { margin: 0; padding: 0; list-style: none; }
 .nav-links a:hover::before, .nav-links a.active::before { 
   width: 80%;
 }
+/* Nav login button */
+.nav-links .nav-login {
+  background: linear-gradient(135deg, var(--green) 0%, #3a7d3c 100%);
+  color: #fff !important;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-weight: 600;
+  font-size: .88rem;
+  box-shadow: 0 2px 8px rgba(44, 95, 46, 0.25);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.nav-links .nav-login::before { display: none; }
+.nav-links .nav-login:hover {
+  background: linear-gradient(135deg, #3a7d3c 0%, #4a9d4e 100%);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(44, 95, 46, 0.35);
+}
 .header-social {
   display: flex;
   align-items: center;

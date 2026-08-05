@@ -9,120 +9,527 @@
   <meta property="og:title" content="How to Seed — Plant the Word wherever you go">
   <meta property="og:description" content="Join our team, get trained, and start sharing Bibles and the Gospel.">
   <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <style>
-    :root{--nw-serif:'Playfair Display',Georgia,serif;--nw-sans:'Source Sans 3',system-ui,sans-serif;--nw-mono:'IBM Plex Mono',monospace;--nw-bg:#FAFAF8;--nw-card:#FFFFFF;--nw-ink:#1A1A1A;--nw-muted:#6B6B6B;--nw-gold:#B8860B;--nw-border:#E8E4DF;--nw-green:#1a5c1d;}
-    body{background:var(--nw-bg);}
-    .seed-hero{text-align:center;padding:3.5rem 1.5rem 2.5rem;background:var(--nw-card);border-bottom:1px solid var(--nw-border);}
-    .seed-hero__icon{font-size:3rem;margin-bottom:0.5rem;}
-    .seed-hero__kicker{font-family:var(--nw-mono);font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.4rem;}
-    .seed-hero__title{font-family:var(--nw-serif);font-size:clamp(2rem,4vw,2.8rem);font-weight:400;margin:0 0 0.6rem;letter-spacing:-0.01em;}
-    .seed-hero__desc{font-family:var(--nw-sans);font-size:1.05rem;color:var(--nw-muted);max-width:600px;margin:0 auto;line-height:1.7;}
-    .seed-content{max-width:720px;margin:0 auto;padding:2.5rem 1.5rem 4rem;}
-    .seed-section{margin-bottom:3rem;padding-bottom:2.5rem;border-bottom:1px solid var(--nw-border);}
-    .seed-section:last-child{border-bottom:none;}
-    .seed-section__kicker{font-family:var(--nw-mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.4rem;}
-    .seed-section__title{font-family:var(--nw-serif);font-size:1.6rem;font-weight:400;margin:0 0 0.75rem;}
-    .seed-section p,.seed-section li{font-family:var(--nw-sans);font-size:1rem;line-height:1.8;color:var(--nw-muted);}
-    .seed-section ul{padding-left:1.25rem;margin:0.5rem 0 1rem;}
-    .seed-section li{margin-bottom:0.4rem;}
-    .seed-card{background:var(--nw-card);border:1px solid var(--nw-border);border-top:3px solid var(--nw-gold);border-radius:10px;padding:1.5rem;margin:1.25rem 0;text-align:center;}
-    .seed-card__title{font-family:var(--nw-serif);font-size:1.1rem;font-weight:400;margin:0 0 0.5rem;}
-    .seed-card__desc{font-size:0.9rem;color:var(--nw-muted);margin:0 0 1rem;line-height:1.6;}
-    .seed-card__btn{display:inline-block;padding:0.75rem 1.5rem;background:var(--nw-gold);color:#fff;border-radius:8px;font-weight:600;text-decoration:none;font-size:0.92rem;}
-    .seed-card__btn:hover{background:#9a7209;}
-    .seed-card__qr{width:140px;height:140px;margin:1rem auto 0.5rem;display:block;}
-    .seed-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.25rem 0;}
-    .seed-step{background:var(--nw-card);border:1px solid var(--nw-border);border-radius:10px;padding:1.25rem;text-align:center;}
-    .seed-step__num{font-family:var(--nw-mono);font-size:0.6rem;color:var(--nw-gold);letter-spacing:0.1em;margin:0 0 0.3rem;}
-    .seed-step__title{font-family:var(--nw-serif);font-size:1rem;font-weight:400;margin:0 0 0.3rem;}
-    .seed-step__desc{font-size:0.85rem;color:var(--nw-muted);line-height:1.5;margin:0;}
-    .nav-next{display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;margin-top:2rem;}
-    .nav-next a{padding:0.7rem 1.25rem;border:1.5px solid var(--nw-border);border-radius:8px;text-decoration:none;font-weight:600;font-size:0.88rem;color:var(--nw-ink);transition:border-color 0.15s;}
-    .nav-next a:hover{border-color:var(--nw-gold);color:var(--nw-gold);}
+    /* ============================================================
+       How to Seed — Soft UI / Liquid Glass / Minimalist
+       Inspired by PayPal (clean spacing), Apple (translucent layers),
+       Nike (bold statements). Mobile-first. Gold + Green accents.
+       ============================================================ */
+    :root {
+      --seed-bg: #f4f1ec;
+      --seed-surface: rgba(255, 255, 255, 0.6);
+      --seed-glass: rgba(255, 255, 255, 0.45);
+      --seed-glass-border: rgba(255, 255, 255, 0.7);
+      --seed-glass-strong: rgba(255, 255, 255, 0.72);
+      --seed-ink: #1a1a1a;
+      --seed-ink-2: #3d3d3d;
+      --seed-muted: #6b6b6b;
+      --seed-gold: #c8963e;
+      --seed-gold-soft: rgba(200, 150, 62, 0.12);
+      --seed-green: #2c5f2e;
+      --seed-green-soft: rgba(44, 95, 46, 0.10);
+      --seed-green-glow: rgba(44, 95, 46, 0.25);
+      --seed-border: rgba(0, 0, 0, 0.06);
+      --seed-radius: 24px;
+      --seed-radius-sm: 16px;
+      --seed-radius-xs: 10px;
+      --seed-shadow: 0 8px 40px rgba(0, 0, 0, 0.06);
+      --seed-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.08);
+      --seed-blur: blur(20px);
+      --seed-transition: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      background: var(--seed-bg);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(44, 95, 46, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(200, 150, 62, 0.06) 0%, transparent 50%);
+      min-height: 100vh;
+    }
+
+    /* ── Hero ── */
+    .seed-hero {
+      position: relative;
+      padding: 5rem 1.5rem 4rem;
+      text-align: center;
+      overflow: hidden;
+    }
+    .seed-hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      background: radial-gradient(ellipse at 50% 30%, rgba(44, 95, 46, 0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .seed-hero__phase {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.25rem;
+      background: var(--seed-glass);
+      backdrop-filter: var(--seed-blur);
+      -webkit-backdrop-filter: var(--seed-blur);
+      border: 1px solid var(--seed-glass-border);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--seed-green);
+      margin-bottom: 1.5rem;
+    }
+    .seed-hero__phase-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--seed-green);
+      box-shadow: 0 0 8px var(--seed-green-glow);
+    }
+    .seed-hero__title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      color: var(--seed-ink);
+      margin: 0 0 1rem;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .seed-hero__subtitle {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--seed-muted);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    /* ── Content container ── */
+    .seed-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+    }
+
+    /* ── Glass cards ── */
+    .seed-card {
+      background: var(--seed-glass-strong);
+      backdrop-filter: var(--seed-blur);
+      -webkit-backdrop-filter: var(--seed-blur);
+      border: 1px solid var(--seed-glass-border);
+      border-radius: var(--seed-radius);
+      padding: 2.5rem 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--seed-shadow);
+      transition: transform 0.3s var(--seed-transition), box-shadow 0.3s var(--seed-transition);
+    }
+    .seed-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--seed-shadow-lg);
+    }
+    .seed-card__kicker {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--seed-gold);
+      margin: 0 0 0.75rem;
+    }
+    .seed-card__title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--seed-ink);
+      margin: 0 0 1rem;
+      line-height: 1.3;
+    }
+    .seed-card p,
+    .seed-card li {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--seed-ink-2);
+    }
+    .seed-card ul {
+      padding-left: 1.25rem;
+      margin: 0.75rem 0 1rem;
+    }
+    .seed-card li {
+      margin-bottom: 0.5rem;
+    }
+    .seed-card li::marker {
+      color: var(--seed-gold);
+    }
+    .seed-card a {
+      color: var(--seed-gold);
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .seed-card a:hover {
+      border-bottom-color: var(--seed-gold);
+    }
+
+    /* ── Scripture accent card ── */
+    .seed-scripture {
+      position: relative;
+      background: linear-gradient(135deg, var(--seed-green-soft) 0%, var(--seed-gold-soft) 100%);
+      border: 1px solid rgba(44, 95, 46, 0.15);
+      border-radius: var(--seed-radius-sm);
+      padding: 1.75rem 2rem;
+      margin: 1.5rem 0;
+    }
+    .seed-scripture::before {
+      content: '"';
+      position: absolute;
+      top: -0.3rem;
+      left: 1.25rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      color: var(--seed-green);
+      opacity: 0.2;
+      line-height: 1;
+    }
+    .seed-scripture p {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.05rem;
+      font-style: italic;
+      line-height: 1.7;
+      color: var(--seed-ink);
+      margin: 0;
+    }
+    .seed-scripture cite {
+      display: block;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.78rem;
+      font-style: normal;
+      font-weight: 600;
+      color: var(--seed-green);
+      margin-top: 0.75rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Step cards (numbered process) ── */
+    .seed-steps {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    @media (min-width: 540px) {
+      .seed-steps {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .seed-step {
+      background: var(--seed-glass);
+      backdrop-filter: var(--seed-blur);
+      -webkit-backdrop-filter: var(--seed-blur);
+      border: 1px solid var(--seed-glass-border);
+      border-radius: var(--seed-radius-sm);
+      padding: 1.75rem 1.5rem;
+      text-align: left;
+      transition: transform 0.3s var(--seed-transition), box-shadow 0.3s var(--seed-transition);
+    }
+    .seed-step:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--seed-shadow);
+    }
+    .seed-step__number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--seed-green-soft);
+      color: var(--seed-green);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.8rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(44, 95, 46, 0.15);
+    }
+    .seed-step__title {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--seed-ink);
+      margin: 0 0 0.5rem;
+    }
+    .seed-step__desc {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.88rem;
+      color: var(--seed-muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ── CTA card (elevated glass with gold accent) ── */
+    .seed-cta {
+      position: relative;
+      background: var(--seed-glass-strong);
+      backdrop-filter: var(--seed-blur);
+      -webkit-backdrop-filter: var(--seed-blur);
+      border: 1px solid var(--seed-glass-border);
+      border-radius: var(--seed-radius);
+      padding: 3rem 2rem;
+      margin: 2rem 0;
+      text-align: center;
+      box-shadow: var(--seed-shadow-lg);
+      overflow: hidden;
+    }
+    .seed-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--seed-green), var(--seed-gold));
+      border-radius: var(--seed-radius) var(--seed-radius) 0 0;
+    }
+    .seed-cta__title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--seed-ink);
+      margin: 0 0 0.6rem;
+    }
+    .seed-cta__desc {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.92rem;
+      color: var(--seed-muted);
+      margin: 0 0 1.5rem;
+      line-height: 1.6;
+    }
+    .seed-cta__btn {
+      display: inline-block;
+      padding: 0.9rem 2rem;
+      background: linear-gradient(135deg, var(--seed-green) 0%, #3a7d3c 100%);
+      color: #fff;
+      border-radius: 14px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 600;
+      font-size: 0.92rem;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(44, 95, 46, 0.3);
+      transition: transform 0.2s var(--seed-transition), box-shadow 0.2s var(--seed-transition);
+    }
+    .seed-cta__btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(44, 95, 46, 0.4);
+    }
+    .seed-cta__btn--gold {
+      background: linear-gradient(135deg, var(--seed-gold) 0%, #d4a84b 100%);
+      box-shadow: 0 4px 16px rgba(200, 150, 62, 0.3);
+    }
+    .seed-cta__btn--gold:hover {
+      box-shadow: 0 6px 24px rgba(200, 150, 62, 0.4);
+    }
+    .seed-cta__qr {
+      width: 120px;
+      height: 120px;
+      margin: 1.25rem auto 0;
+      display: block;
+      border-radius: var(--seed-radius-xs);
+      border: 1px solid var(--seed-border);
+    }
+    .seed-cta__qr-hint {
+      font-size: 0.72rem;
+      color: var(--seed-muted);
+      margin-top: 0.6rem;
+    }
+
+    /* ── Navigation footer ── */
+    .seed-nav-footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+    }
+    .seed-nav-footer__label {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--seed-muted);
+      margin: 0 0 1rem;
+    }
+    .seed-nav-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .seed-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--seed-glass);
+      backdrop-filter: var(--seed-blur);
+      -webkit-backdrop-filter: var(--seed-blur);
+      border: 1px solid var(--seed-glass-border);
+      border-radius: 999px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--seed-ink-2);
+      text-decoration: none;
+      transition: all 0.2s var(--seed-transition);
+    }
+    .seed-nav-link:hover {
+      background: var(--seed-glass-strong);
+      border-color: var(--seed-gold);
+      color: var(--seed-gold);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(200, 150, 62, 0.15);
+    }
+
+    /* ── Mobile refinements ── */
+    @media (max-width: 600px) {
+      .seed-hero {
+        padding: 3.5rem 1.25rem 3rem;
+      }
+      .seed-card {
+        padding: 2rem 1.5rem;
+        border-radius: 20px;
+      }
+      .seed-cta {
+        padding: 2.5rem 1.5rem;
+      }
+      .seed-steps {
+        grid-template-columns: 1fr;
+      }
+      .seed-nav-links {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      .seed-card,
+      .seed-step,
+      .seed-cta__btn,
+      .seed-nav-link {
+        transition: none;
+      }
+      .seed-card:hover,
+      .seed-step:hover {
+        transform: none;
+      }
+    }
   </style>
 </head>
 <body>
 <header class="site-header" id="site-header"><div class="container"><div class="header-left"><a href="index.html" class="site-logo"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">Seed the Word</a></div><nav id="site-nav"><ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></nav><button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation"><span></span><span></span><span></span></button></div></header>
 
+<!-- Hero -->
 <section class="seed-hero">
-  <div class="seed-hero__icon">🌱</div>
-  <p class="seed-hero__kicker">Phase 1</p>
+  <div class="seed-hero__phase">
+    <span class="seed-hero__phase-dot"></span>
+    Phase 1
+  </div>
   <h1 class="seed-hero__title">How to Seed</h1>
-  <p class="seed-hero__desc">Plant the Word wherever God sends you. Learn to share your faith, join our evangelism team, and get equipped with Bibles and tools.</p>
+  <p class="seed-hero__subtitle">Plant the Word wherever God sends you. Learn to share your faith, join our evangelism team, and get equipped with Bibles and tools.</p>
 </section>
 
+<!-- Content -->
 <div class="seed-content">
-  <!-- What is seeding? -->
-  <div class="seed-section">
-    <p class="seed-section__kicker">The Mission</p>
-    <h2 class="seed-section__title">What does it mean to Seed the Word?</h2>
+
+  <!-- Mission -->
+  <article class="seed-card">
+    <p class="seed-card__kicker">The Mission</p>
+    <h2 class="seed-card__title">What does it mean to Seed the Word?</h2>
     <p>Seeding is the first step — meeting people where they are and placing the Word of God into their hands. No pressure, no agenda beyond love. We share Bibles, pray with strangers, and trust God to grow what He starts.</p>
-    <p>Jesus said: <em>"He that soweth the good seed is the Son of man; the field is the world."</em> — Matthew 13:37-38 KJV</p>
+    <div class="seed-scripture">
+      <p>He that soweth the good seed is the Son of man; the field is the world.</p>
+      <cite>Matthew 13:37–38 KJV</cite>
+    </div>
     <p>We're just sowers. The field is everywhere — parks, campuses, cookouts, bus stops, your workplace. Anywhere a person is willing to receive.</p>
-  </div>
+  </article>
 
-  <!-- How it works -->
-  <div class="seed-section">
-    <p class="seed-section__kicker">Getting Started</p>
-    <h2 class="seed-section__title">How to start giving away Bibles</h2>
+  <!-- Getting started steps -->
+  <article class="seed-card">
+    <p class="seed-card__kicker">Getting Started</p>
+    <h2 class="seed-card__title">How to start giving away Bibles</h2>
     <div class="seed-steps">
-      <div class="seed-step"><p class="seed-step__num">Step 1</p><h3 class="seed-step__title">Join the Team</h3><p class="seed-step__desc">Create your account on our team portal. Takes 30 seconds.</p></div>
-      <div class="seed-step"><p class="seed-step__num">Step 2</p><h3 class="seed-step__title">Get Your Bibles</h3><p class="seed-step__desc">We provide free Bibles in 10+ languages. Pick them up or request a shipment.</p></div>
-      <div class="seed-step"><p class="seed-step__num">Step 3</p><h3 class="seed-step__title">Go Out</h3><p class="seed-step__desc">Join a scheduled outreach or go on your own. Just be you — let God do the rest.</p></div>
-      <div class="seed-step"><p class="seed-step__num">Step 4</p><h3 class="seed-step__title">Scan & Log</h3><p class="seed-step__desc">Scan the QR on each Bible as you give it away. Our system tracks everything automatically.</p></div>
+      <div class="seed-step">
+        <div class="seed-step__number">1</div>
+        <h3 class="seed-step__title">Join the Team</h3>
+        <p class="seed-step__desc">Create your account on our team portal. Takes 30 seconds.</p>
+      </div>
+      <div class="seed-step">
+        <div class="seed-step__number">2</div>
+        <h3 class="seed-step__title">Get Your Bibles</h3>
+        <p class="seed-step__desc">We provide free Bibles in 10+ languages. Pick them up or request a shipment.</p>
+      </div>
+      <div class="seed-step">
+        <div class="seed-step__number">3</div>
+        <h3 class="seed-step__title">Go Out</h3>
+        <p class="seed-step__desc">Join a scheduled outreach or go on your own. Just be you — let God do the rest.</p>
+      </div>
+      <div class="seed-step">
+        <div class="seed-step__number">4</div>
+        <h3 class="seed-step__title">Scan & Log</h3>
+        <p class="seed-step__desc">Scan the QR on each Bible as you give it away. Our system tracks everything automatically.</p>
+      </div>
     </div>
-  </div>
-  <!-- Join the team -->
-  <div class="seed-section">
-    <p class="seed-section__kicker">Join Us</p>
-    <h2 class="seed-section__title">Become a Sower</h2>
-    <p>Whether you can give away one Bible a week or fifty at an outreach event — you're welcome. There's no minimum, no commitment beyond showing up when you can.</p>
-    <div class="seed-card">
-      <h3 class="seed-card__title">Sign up for the team</h3>
-      <p class="seed-card__desc">Create your free account. You'll get access to our scanner, event tracking, and personal stats.</p>
-      <a class="seed-card__btn" href="team.html">Join the Team →</a>
-      <p style="font-size:0.75rem;color:var(--nw-muted);margin-top:1rem;">Or scan this QR code from your phone:</p>
-      <img class="seed-card__qr" id="team-qr" alt="QR code to join the team" src="">
-    </div>
+  </article>
+
+  <!-- Join CTA -->
+  <div class="seed-cta">
+    <h2 class="seed-cta__title">Become a Sower</h2>
+    <p class="seed-cta__desc">Whether you can give away one Bible a week or fifty at an outreach event — you're welcome. There's no minimum, no commitment beyond showing up when you can.</p>
+    <a class="seed-cta__btn" href="team.html">Join the Team</a>
+    <p class="seed-cta__qr-hint">Or scan from your phone:</p>
+    <img class="seed-cta__qr" id="team-qr" alt="QR code to join the team" src="">
   </div>
 
-  <!-- Tools & Training -->
-  <div class="seed-section">
-    <p class="seed-section__kicker">Evangelism Tools</p>
-    <h2 class="seed-section__title">Tools for the field</h2>
+  <!-- Tools -->
+  <article class="seed-card">
+    <p class="seed-card__kicker">Evangelism Tools</p>
+    <h2 class="seed-card__title">Tools for the field</h2>
     <p>You don't need to be a theologian. You just need to care. Here are tools that make conversations easier:</p>
     <ul>
-      <li><strong>GodTools App</strong> — simple conversation guides in 100+ languages. <a href="https://godtoolsapp.com/tools" target="_blank" rel="noopener" style="color:var(--nw-gold);">Download free →</a></li>
+      <li><strong>GodTools App</strong> — simple conversation guides in 100+ languages. <a href="https://godtoolsapp.com/tools" target="_blank" rel="noopener">Download free →</a></li>
       <li><strong>Pocket Bibles</strong> — we provide New Testaments in English, Spanish, Hindi, Russian, Arabic, Farsi, and more.</li>
       <li><strong>Life Books</strong> — short gospel booklets perfect for someone who isn't ready for a full Bible.</li>
       <li><strong>Your testimony</strong> — nothing is more powerful than your own story of how Jesus met you.</li>
     </ul>
-    <p>Training resources and video guides are available on our <a href="community.html" style="color:var(--nw-gold);">Community page</a> (coming soon in our LMS).</p>
-  </div>
+    <p>Training resources and video guides are available on our <a href="community.html">Community page</a>.</p>
+  </article>
 
   <!-- Outreach events -->
-  <div class="seed-section">
-    <p class="seed-section__kicker">Outreach</p>
-    <h2 class="seed-section__title">Upcoming events</h2>
-    <p>We partner with local ministries for community cookouts, campus outreach, park evangelism, and more. Check our <a href="news.html" style="color:var(--nw-gold);">News page</a> for the latest schedule or join our <a href="https://t.me/seedtheword" target="_blank" rel="noopener" style="color:var(--nw-gold);">Telegram group</a> for real-time updates.</p>
-    <div class="seed-card" style="border-top-color:var(--nw-green);">
-      <h3 class="seed-card__title">Read the full story</h3>
-      <p class="seed-card__desc">See every outreach we've done, photos from the field, and testimonies of what God did.</p>
-      <a class="seed-card__btn" href="testimonies.html" style="background:var(--nw-green);">From the Field →</a>
+  <article class="seed-card">
+    <p class="seed-card__kicker">Outreach</p>
+    <h2 class="seed-card__title">Upcoming events</h2>
+    <p>We partner with local ministries for community cookouts, campus outreach, park evangelism, and more. Check our <a href="news.html">News page</a> for the latest schedule or join our <a href="https://t.me/seedtheword" target="_blank" rel="noopener">Telegram group</a> for real-time updates.</p>
+    <div class="seed-cta" style="margin:1.5rem 0 0;padding:2rem 1.5rem;">
+      <h3 class="seed-cta__title" style="font-size:1.15rem;">Read the full story</h3>
+      <p class="seed-cta__desc">See every outreach we've done, photos from the field, and testimonies of what God did.</p>
+      <a class="seed-cta__btn seed-cta__btn--gold" href="testimonies.html">From the Field →</a>
     </div>
-  </div>
+  </article>
 
-  <!-- Next steps -->
-  <div style="text-align:center;">
-    <p style="font-family:var(--nw-mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.5rem;">Continue the journey</p>
-    <div class="nav-next">
-      <a href="how-to-grow.html">💧 How to Grow →</a>
-      <a href="how-to-harvest.html">🌾 How to Harvest →</a>
-      <a href="start-here.html">📖 Start Here →</a>
+  <!-- Navigation -->
+  <nav class="seed-nav-footer" aria-label="Continue the journey">
+    <p class="seed-nav-footer__label">Continue the journey</p>
+    <div class="seed-nav-links">
+      <a class="seed-nav-link" href="how-to-grow.html">💧 How to Grow</a>
+      <a class="seed-nav-link" href="how-to-harvest.html">🌾 How to Harvest</a>
+      <a class="seed-nav-link" href="start-here.html">📖 Start Here</a>
     </div>
-  </div>
+  </nav>
 </div>
 
 <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><div class="footer-brand__row"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo"><p class="footer-brand__name">Seed the Word Ministry</p></div><p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p></div><div><h4 class="footer-col__title">Navigate</h4><ul class="footer-nav"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></div></div><div class="footer-bottom"><p>&copy; 2026 Seed the Word Ministry.</p></div></div></footer>

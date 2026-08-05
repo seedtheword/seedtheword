@@ -9,98 +9,509 @@
   <meta property="og:title" content="How to Grow — Water the Seed">
   <meta property="og:description" content="Bible plans, audio chapters, Saturday studies, and discipleship resources.">
   <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <style>
-    :root{--nw-serif:'Playfair Display',Georgia,serif;--nw-sans:'Source Sans 3',system-ui,sans-serif;--nw-mono:'IBM Plex Mono',monospace;--nw-bg:#FAFAF8;--nw-card:#FFFFFF;--nw-ink:#1A1A1A;--nw-muted:#6B6B6B;--nw-gold:#B8860B;--nw-border:#E8E4DF;--nw-green:#1a5c1d;}
-    body{background:var(--nw-bg);}
-    .grow-hero{text-align:center;padding:3.5rem 1.5rem 2.5rem;background:var(--nw-card);border-bottom:1px solid var(--nw-border);}
-    .grow-hero__icon{font-size:3rem;margin-bottom:0.5rem;}
-    .grow-hero__kicker{font-family:var(--nw-mono);font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.4rem;}
-    .grow-hero__title{font-family:var(--nw-serif);font-size:clamp(2rem,4vw,2.8rem);font-weight:400;margin:0 0 0.6rem;}
-    .grow-hero__desc{font-family:var(--nw-sans);font-size:1.05rem;color:var(--nw-muted);max-width:600px;margin:0 auto;line-height:1.7;}
-    .grow-content{max-width:720px;margin:0 auto;padding:2.5rem 1.5rem 4rem;}
-    .grow-section{margin-bottom:3rem;padding-bottom:2.5rem;border-bottom:1px solid var(--nw-border);}
-    .grow-section:last-child{border-bottom:none;}
-    .grow-section__kicker{font-family:var(--nw-mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.4rem;}
-    .grow-section__title{font-family:var(--nw-serif);font-size:1.6rem;font-weight:400;margin:0 0 0.75rem;}
-    .grow-section p,.grow-section li{font-family:var(--nw-sans);font-size:1rem;line-height:1.8;color:var(--nw-muted);}
-    .grow-section ul{padding-left:1.25rem;margin:0.5rem 0 1rem;}
-    .grow-section li{margin-bottom:0.4rem;}
-    .grow-card{background:var(--nw-card);border:1px solid var(--nw-border);border-radius:10px;padding:1.5rem;margin:1.25rem 0;}
-    .grow-card__title{font-family:var(--nw-serif);font-size:1.1rem;font-weight:400;margin:0 0 0.4rem;}
-    .grow-card__desc{font-size:0.9rem;color:var(--nw-muted);margin:0;line-height:1.6;}
-    .grow-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.25rem 0;}
-    .nav-next{display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;margin-top:2rem;}
-    .nav-next a{padding:0.7rem 1.25rem;border:1.5px solid var(--nw-border);border-radius:8px;text-decoration:none;font-weight:600;font-size:0.88rem;color:var(--nw-ink);transition:border-color 0.15s;}
-    .nav-next a:hover{border-color:var(--nw-gold);color:var(--nw-gold);}
+    /* ============================================================
+       How to Grow — Soft UI / Liquid Glass / Minimalist
+       Same design system as how-to-seed, consistent palette.
+       ============================================================ */
+    :root {
+      --grow-bg: #f4f1ec;
+      --grow-surface: rgba(255, 255, 255, 0.6);
+      --grow-glass: rgba(255, 255, 255, 0.45);
+      --grow-glass-border: rgba(255, 255, 255, 0.7);
+      --grow-glass-strong: rgba(255, 255, 255, 0.72);
+      --grow-ink: #1a1a1a;
+      --grow-ink-2: #3d3d3d;
+      --grow-muted: #6b6b6b;
+      --grow-gold: #c8963e;
+      --grow-gold-soft: rgba(200, 150, 62, 0.12);
+      --grow-green: #2c5f2e;
+      --grow-green-soft: rgba(44, 95, 46, 0.10);
+      --grow-green-glow: rgba(44, 95, 46, 0.25);
+      --grow-border: rgba(0, 0, 0, 0.06);
+      --grow-radius: 24px;
+      --grow-radius-sm: 16px;
+      --grow-radius-xs: 10px;
+      --grow-shadow: 0 8px 40px rgba(0, 0, 0, 0.06);
+      --grow-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.08);
+      --grow-blur: blur(20px);
+      --grow-transition: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      background: var(--grow-bg);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 70% 15%, rgba(44, 95, 46, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 20% 85%, rgba(200, 150, 62, 0.06) 0%, transparent 50%);
+      min-height: 100vh;
+    }
+
+    /* ── Hero ── */
+    .grow-hero {
+      position: relative;
+      padding: 5rem 1.5rem 4rem;
+      text-align: center;
+      overflow: hidden;
+    }
+    .grow-hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      background: radial-gradient(ellipse at 50% 30%, rgba(200, 150, 62, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .grow-hero__phase {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.25rem;
+      background: var(--grow-glass);
+      backdrop-filter: var(--grow-blur);
+      -webkit-backdrop-filter: var(--grow-blur);
+      border: 1px solid var(--grow-glass-border);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grow-green);
+      margin-bottom: 1.5rem;
+    }
+    .grow-hero__phase-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--grow-gold);
+      box-shadow: 0 0 8px rgba(200, 150, 62, 0.4);
+    }
+    .grow-hero__title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      color: var(--grow-ink);
+      margin: 0 0 1rem;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .grow-hero__subtitle {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--grow-muted);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    /* ── Content container ── */
+    .grow-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+    }
+
+    /* ── Glass cards ── */
+    .grow-card {
+      background: var(--grow-glass-strong);
+      backdrop-filter: var(--grow-blur);
+      -webkit-backdrop-filter: var(--grow-blur);
+      border: 1px solid var(--grow-glass-border);
+      border-radius: var(--grow-radius);
+      padding: 2.5rem 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--grow-shadow);
+      transition: transform 0.3s var(--grow-transition), box-shadow 0.3s var(--grow-transition);
+    }
+    .grow-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--grow-shadow-lg);
+    }
+    .grow-card__kicker {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--grow-gold);
+      margin: 0 0 0.75rem;
+    }
+    .grow-card__title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--grow-ink);
+      margin: 0 0 1rem;
+      line-height: 1.3;
+    }
+    .grow-card p,
+    .grow-card li {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--grow-ink-2);
+    }
+    .grow-card ul {
+      padding-left: 1.25rem;
+      margin: 0.75rem 0 1rem;
+    }
+    .grow-card li {
+      margin-bottom: 0.5rem;
+    }
+    .grow-card li::marker {
+      color: var(--grow-gold);
+    }
+    .grow-card a {
+      color: var(--grow-gold);
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .grow-card a:hover {
+      border-bottom-color: var(--grow-gold);
+    }
+
+    /* ── Inline feature pill ── */
+    .grow-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.25rem;
+      background: var(--grow-glass);
+      backdrop-filter: var(--grow-blur);
+      -webkit-backdrop-filter: var(--grow-blur);
+      border: 1px solid var(--grow-glass-border);
+      border-radius: 14px;
+      margin: 0.75rem 0;
+      transition: transform 0.2s var(--grow-transition);
+    }
+    .grow-pill:hover {
+      transform: translateY(-1px);
+    }
+    .grow-pill__icon {
+      font-size: 1.2rem;
+    }
+    .grow-pill__text {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--grow-ink-2);
+    }
+    .grow-pill__text a {
+      color: var(--grow-gold);
+      text-decoration: none;
+    }
+    .grow-pill__text a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Study lenses list ── */
+    .grow-lenses {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+    }
+    .grow-lens {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--grow-glass);
+      backdrop-filter: var(--grow-blur);
+      -webkit-backdrop-filter: var(--grow-blur);
+      border: 1px solid var(--grow-glass-border);
+      border-radius: var(--grow-radius-xs);
+      transition: transform 0.2s var(--grow-transition);
+    }
+    .grow-lens:hover {
+      transform: translateX(4px);
+    }
+    .grow-lens__num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--grow-gold-soft);
+      color: var(--grow-gold);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.72rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .grow-lens__content {
+      flex: 1;
+    }
+    .grow-lens__name {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--grow-ink);
+      margin: 0 0 0.2rem;
+    }
+    .grow-lens__desc {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.82rem;
+      color: var(--grow-muted);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* ── CTA blocks ── */
+    .grow-cta {
+      position: relative;
+      background: var(--grow-glass-strong);
+      backdrop-filter: var(--grow-blur);
+      -webkit-backdrop-filter: var(--grow-blur);
+      border: 1px solid var(--grow-glass-border);
+      border-radius: var(--grow-radius);
+      padding: 2.5rem 2rem;
+      margin: 2rem 0;
+      text-align: center;
+      box-shadow: var(--grow-shadow-lg);
+      overflow: hidden;
+    }
+    .grow-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--grow-gold), var(--grow-green));
+      border-radius: var(--grow-radius) var(--grow-radius) 0 0;
+    }
+    .grow-cta__title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--grow-ink);
+      margin: 0 0 0.5rem;
+    }
+    .grow-cta__desc {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.9rem;
+      color: var(--grow-muted);
+      margin: 0 0 1.25rem;
+      line-height: 1.6;
+    }
+    .grow-cta__btn {
+      display: inline-block;
+      padding: 0.85rem 1.75rem;
+      background: linear-gradient(135deg, var(--grow-gold) 0%, #d4a84b 100%);
+      color: #fff;
+      border-radius: 14px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(200, 150, 62, 0.3);
+      transition: transform 0.2s var(--grow-transition), box-shadow 0.2s var(--grow-transition);
+    }
+    .grow-cta__btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(200, 150, 62, 0.4);
+    }
+    .grow-cta__btn--green {
+      background: linear-gradient(135deg, var(--grow-green) 0%, #3a7d3c 100%);
+      box-shadow: 0 4px 16px rgba(44, 95, 46, 0.3);
+    }
+    .grow-cta__btn--green:hover {
+      box-shadow: 0 6px 24px rgba(44, 95, 46, 0.4);
+    }
+
+    /* ── Navigation footer ── */
+    .grow-nav-footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+    }
+    .grow-nav-footer__label {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--grow-muted);
+      margin: 0 0 1rem;
+    }
+    .grow-nav-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .grow-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--grow-glass);
+      backdrop-filter: var(--grow-blur);
+      -webkit-backdrop-filter: var(--grow-blur);
+      border: 1px solid var(--grow-glass-border);
+      border-radius: 999px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--grow-ink-2);
+      text-decoration: none;
+      transition: all 0.2s var(--grow-transition);
+    }
+    .grow-nav-link:hover {
+      background: var(--grow-glass-strong);
+      border-color: var(--grow-gold);
+      color: var(--grow-gold);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(200, 150, 62, 0.15);
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      .grow-hero {
+        padding: 3.5rem 1.25rem 3rem;
+      }
+      .grow-card {
+        padding: 2rem 1.5rem;
+        border-radius: 20px;
+      }
+      .grow-cta {
+        padding: 2rem 1.5rem;
+      }
+      .grow-nav-links {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      .grow-card, .grow-lens, .grow-pill, .grow-cta__btn, .grow-nav-link {
+        transition: none;
+      }
+      .grow-card:hover, .grow-lens:hover, .grow-pill:hover {
+        transform: none;
+      }
+    }
   </style>
 </head>
 <body>
 <header class="site-header" id="site-header"><div class="container"><div class="header-left"><a href="index.html" class="site-logo"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">Seed the Word</a></div><nav id="site-nav"><ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></nav><button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation"><span></span><span></span><span></span></button></div></header>
 
+<!-- Hero -->
 <section class="grow-hero">
-  <div class="grow-hero__icon">💧</div>
-  <p class="grow-hero__kicker">Phase 2</p>
+  <div class="grow-hero__phase">
+    <span class="grow-hero__phase-dot"></span>
+    Phase 2
+  </div>
   <h1 class="grow-hero__title">How to Grow</h1>
-  <p class="grow-hero__desc">Water the seed. Daily reading, audio Bible chapters, weekly studies, and walking alongside fellow believers.</p>
+  <p class="grow-hero__subtitle">Water the seed. Daily reading, audio Bible chapters, weekly studies, and walking alongside fellow believers.</p>
 </section>
 
+<!-- Content -->
 <div class="grow-content">
-  <div class="grow-section">
-    <p class="grow-section__kicker">Daily Reading</p>
-    <h2 class="grow-section__title">Encounter the Word every day</h2>
+
+  <!-- Daily Reading -->
+  <article class="grow-card">
+    <p class="grow-card__kicker">Daily Reading</p>
+    <h2 class="grow-card__title">Encounter the Word every day</h2>
     <p>Monday through Friday, we read one chapter of the New Testament together as a community. Saturday is Study Saturday — a deeper dive into the week's themes.</p>
     <p>Our reading plan is simple: one chapter a day, in order, starting from Mark. No skipping, no rushing. Just showing up and letting God speak through His Word.</p>
-    <div class="grow-card">
-      <h3 class="grow-card__title">📖 Join the daily reading</h3>
-      <p class="grow-card__desc">Visit the <a href="community.html" style="color:var(--nw-gold);">Community page</a> to see today's chapter, listen to the audio recording, and follow along with the group.</p>
+    <div class="grow-pill">
+      <span class="grow-pill__icon">📖</span>
+      <span class="grow-pill__text">Join the daily reading on our <a href="community.html">Community page</a></span>
     </div>
-  </div>
+  </article>
 
-  <div class="grow-section">
-    <p class="grow-section__kicker">Audio Bible</p>
-    <h2 class="grow-section__title">Listen to the Word</h2>
+  <!-- Audio Bible -->
+  <article class="grow-card">
+    <p class="grow-card__kicker">Audio Bible</p>
+    <h2 class="grow-card__title">Listen to the Word</h2>
     <p>We have audio recordings for every chapter — recorded by Gideons International — available for you to listen on your commute, at work, or before bed. No app needed, just press play.</p>
-    <p>Audio chapters are embedded directly into our Community page alongside each day's reading. For the full library, visit our <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" style="color:var(--nw-gold);">Spotify podcast</a>.</p>
-  </div>
+    <p>Audio chapters are embedded directly into our Community page alongside each day's reading. For the full library, visit our Spotify podcast.</p>
+    <div class="grow-pill">
+      <span class="grow-pill__icon">🎧</span>
+      <span class="grow-pill__text"><a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener">Listen on Spotify →</a></span>
+    </div>
+  </article>
 
-  <div class="grow-section">
-    <p class="grow-section__kicker">Study Saturday</p>
-    <h2 class="grow-section__title">Go deeper together</h2>
+  <!-- Study Saturday -->
+  <article class="grow-card">
+    <p class="grow-card__kicker">Study Saturday</p>
+    <h2 class="grow-card__title">Go deeper together</h2>
     <p>Every Saturday we gather (live on Twitch or in person) to study the week's reading using five lenses:</p>
-    <ul>
-      <li><strong>Historical</strong> — what was happening when this was written?</li>
-      <li><strong>Linguistic</strong> — what do the original Greek/Hebrew words mean?</li>
-      <li><strong>Interpretive</strong> — what is the author's intent?</li>
-      <li><strong>Personal</strong> — what is God saying to me today?</li>
-      <li><strong>External</strong> — how does this connect to the rest of Scripture?</li>
-    </ul>
-    <div class="grow-card">
-      <h3 class="grow-card__title">🎙️ Watch on Twitch</h3>
-      <p class="grow-card__desc">Saturdays 7–10 PM Pacific. <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" style="color:var(--nw-gold);">twitch.tv/seedtheword</a></p>
+    <div class="grow-lenses">
+      <div class="grow-lens">
+        <div class="grow-lens__num">1</div>
+        <div class="grow-lens__content">
+          <p class="grow-lens__name">Historical</p>
+          <p class="grow-lens__desc">What was happening when this was written?</p>
+        </div>
+      </div>
+      <div class="grow-lens">
+        <div class="grow-lens__num">2</div>
+        <div class="grow-lens__content">
+          <p class="grow-lens__name">Linguistic</p>
+          <p class="grow-lens__desc">What do the original Greek/Hebrew words mean?</p>
+        </div>
+      </div>
+      <div class="grow-lens">
+        <div class="grow-lens__num">3</div>
+        <div class="grow-lens__content">
+          <p class="grow-lens__name">Interpretive</p>
+          <p class="grow-lens__desc">What is the author's intent?</p>
+        </div>
+      </div>
+      <div class="grow-lens">
+        <div class="grow-lens__num">4</div>
+        <div class="grow-lens__content">
+          <p class="grow-lens__name">Personal</p>
+          <p class="grow-lens__desc">What is God saying to me today?</p>
+        </div>
+      </div>
+      <div class="grow-lens">
+        <div class="grow-lens__num">5</div>
+        <div class="grow-lens__content">
+          <p class="grow-lens__name">External</p>
+          <p class="grow-lens__desc">How does this connect to the rest of Scripture?</p>
+        </div>
+      </div>
     </div>
-  </div>
+    <div class="grow-cta" style="margin-top:1.5rem;padding:2rem 1.5rem;">
+      <h3 class="grow-cta__title" style="font-size:1.15rem;">Watch on Twitch</h3>
+      <p class="grow-cta__desc">Saturdays 7–10 PM Pacific</p>
+      <a class="grow-cta__btn--green grow-cta__btn" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener">twitch.tv/seedtheword →</a>
+    </div>
+  </article>
 
-  <div class="grow-section">
-    <p class="grow-section__kicker">Discipleship</p>
-    <h2 class="grow-section__title">Walking alongside</h2>
+  <!-- Discipleship -->
+  <article class="grow-card">
+    <p class="grow-card__kicker">Discipleship</p>
+    <h2 class="grow-card__title">Walking alongside</h2>
     <p>Growth doesn't happen alone. We connect new believers with mentors, prayer partners, and a community that shows up for each other. Join our Telegram group for daily encouragement, prayer requests, and fellowship.</p>
-    <div class="grow-card">
-      <h3 class="grow-card__title">💬 Join the community</h3>
-      <p class="grow-card__desc"><a href="https://t.me/seedtheword" target="_blank" rel="noopener" style="color:var(--nw-gold);">Join our Telegram group</a> — daily reading posts, prayer, discussion, and fellowship with believers from all walks of life.</p>
+    <div class="grow-cta" style="margin:1.5rem 0 0;padding:2rem 1.5rem;">
+      <h3 class="grow-cta__title" style="font-size:1.15rem;">Join the community</h3>
+      <p class="grow-cta__desc">Daily reading posts, prayer, discussion, and fellowship with believers from all walks of life.</p>
+      <a class="grow-cta__btn" href="https://t.me/seedtheword" target="_blank" rel="noopener">Join Telegram →</a>
     </div>
-  </div>
+  </article>
 
-  <!-- Next steps -->
-  <div style="text-align:center;">
-    <p style="font-family:var(--nw-mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.5rem;">Continue the journey</p>
-    <div class="nav-next">
-      <a href="how-to-seed.html">🌱 How to Seed →</a>
-      <a href="how-to-harvest.html">🌾 How to Harvest →</a>
-      <a href="start-here.html">📖 Start Here →</a>
+  <!-- Navigation -->
+  <nav class="grow-nav-footer" aria-label="Continue the journey">
+    <p class="grow-nav-footer__label">Continue the journey</p>
+    <div class="grow-nav-links">
+      <a class="grow-nav-link" href="how-to-seed.html">🌱 How to Seed</a>
+      <a class="grow-nav-link" href="how-to-harvest.html">🌾 How to Harvest</a>
+      <a class="grow-nav-link" href="start-here.html">📖 Start Here</a>
     </div>
-  </div>
+  </nav>
 </div>
 
 <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><div class="footer-brand__row"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo"><p class="footer-brand__name">Seed the Word Ministry</p></div><p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p></div><div><h4 class="footer-col__title">Navigate</h4><ul class="footer-nav"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></div></div><div class="footer-bottom"><p>&copy; 2026 Seed the Word Ministry.</p></div></div></footer>

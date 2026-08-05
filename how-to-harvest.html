@@ -9,68 +9,432 @@
   <meta property="og:title" content="How to Harvest — Gather the Fruit">
   <meta property="og:description" content="Testimonies, church placement, and the fruit of faithful evangelism.">
   <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <style>
-    :root{--nw-serif:'Playfair Display',Georgia,serif;--nw-sans:'Source Sans 3',system-ui,sans-serif;--nw-mono:'IBM Plex Mono',monospace;--nw-bg:#FAFAF8;--nw-card:#FFFFFF;--nw-ink:#1A1A1A;--nw-muted:#6B6B6B;--nw-gold:#B8860B;--nw-border:#E8E4DF;--nw-green:#1a5c1d;}
-    body{background:var(--nw-bg);}
-    .harvest-hero{text-align:center;padding:3.5rem 1.5rem 2.5rem;background:var(--nw-card);border-bottom:1px solid var(--nw-border);}
-    .harvest-hero__icon{font-size:3rem;margin-bottom:0.5rem;}
-    .harvest-hero__kicker{font-family:var(--nw-mono);font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.4rem;}
-    .harvest-hero__title{font-family:var(--nw-serif);font-size:clamp(2rem,4vw,2.8rem);font-weight:400;margin:0 0 0.6rem;}
-    .harvest-hero__desc{font-family:var(--nw-sans);font-size:1.05rem;color:var(--nw-muted);max-width:600px;margin:0 auto;line-height:1.7;}
-    .harvest-content{max-width:720px;margin:0 auto;padding:2.5rem 1.5rem 4rem;}
-    .harvest-section{margin-bottom:3rem;padding-bottom:2.5rem;border-bottom:1px solid var(--nw-border);}
-    .harvest-section:last-child{border-bottom:none;}
-    .harvest-section__kicker{font-family:var(--nw-mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.4rem;}
-    .harvest-section__title{font-family:var(--nw-serif);font-size:1.6rem;font-weight:400;margin:0 0 0.75rem;}
-    .harvest-section p,.harvest-section li{font-family:var(--nw-sans);font-size:1rem;line-height:1.8;color:var(--nw-muted);}
-    .harvest-section ul{padding-left:1.25rem;margin:0.5rem 0 1rem;}
-    .harvest-section li{margin-bottom:0.4rem;}
-    .harvest-quote{margin:1.5rem 0;padding:1.25rem 1.5rem;background:var(--nw-card);border-left:3px solid var(--nw-gold);border-radius:0 8px 8px 0;font-family:var(--nw-serif);font-size:1.1rem;font-style:italic;line-height:1.7;color:var(--nw-ink);}
-    .harvest-card{background:var(--nw-card);border:1px solid var(--nw-border);border-top:3px solid var(--nw-gold);border-radius:10px;padding:1.5rem;margin:1.25rem 0;text-align:center;}
-    .harvest-card__title{font-family:var(--nw-serif);font-size:1.1rem;font-weight:400;margin:0 0 0.5rem;}
-    .harvest-card__desc{font-size:0.9rem;color:var(--nw-muted);margin:0 0 1rem;line-height:1.6;}
-    .harvest-card__btn{display:inline-block;padding:0.75rem 1.5rem;background:var(--nw-gold);color:#fff;border-radius:8px;font-weight:600;text-decoration:none;font-size:0.92rem;}
-    .harvest-card__btn:hover{background:#9a7209;}
-    .nav-next{display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;margin-top:2rem;}
-    .nav-next a{padding:0.7rem 1.25rem;border:1.5px solid var(--nw-border);border-radius:8px;text-decoration:none;font-weight:600;font-size:0.88rem;color:var(--nw-ink);transition:border-color 0.15s;}
-    .nav-next a:hover{border-color:var(--nw-gold);color:var(--nw-gold);}
+    /* ============================================================
+       How to Harvest — Soft UI / Liquid Glass / Minimalist
+       Same design system as seed/grow pages. Green + Gold accents.
+       ============================================================ */
+    :root {
+      --harv-bg: #f4f1ec;
+      --harv-surface: rgba(255, 255, 255, 0.6);
+      --harv-glass: rgba(255, 255, 255, 0.45);
+      --harv-glass-border: rgba(255, 255, 255, 0.7);
+      --harv-glass-strong: rgba(255, 255, 255, 0.72);
+      --harv-ink: #1a1a1a;
+      --harv-ink-2: #3d3d3d;
+      --harv-muted: #6b6b6b;
+      --harv-gold: #c8963e;
+      --harv-gold-soft: rgba(200, 150, 62, 0.12);
+      --harv-green: #2c5f2e;
+      --harv-green-soft: rgba(44, 95, 46, 0.10);
+      --harv-green-glow: rgba(44, 95, 46, 0.25);
+      --harv-border: rgba(0, 0, 0, 0.06);
+      --harv-radius: 24px;
+      --harv-radius-sm: 16px;
+      --harv-radius-xs: 10px;
+      --harv-shadow: 0 8px 40px rgba(0, 0, 0, 0.06);
+      --harv-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.08);
+      --harv-blur: blur(20px);
+      --harv-transition: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      background: var(--harv-bg);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% 10%, rgba(200, 150, 62, 0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 30% 90%, rgba(44, 95, 46, 0.05) 0%, transparent 50%);
+      min-height: 100vh;
+    }
+
+    /* ── Hero ── */
+    .harv-hero {
+      position: relative;
+      padding: 5rem 1.5rem 4rem;
+      text-align: center;
+      overflow: hidden;
+    }
+    .harv-hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      background: radial-gradient(ellipse at 50% 40%, rgba(200, 150, 62, 0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .harv-hero__phase {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.25rem;
+      background: var(--harv-glass);
+      backdrop-filter: var(--harv-blur);
+      -webkit-backdrop-filter: var(--harv-blur);
+      border: 1px solid var(--harv-glass-border);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--harv-green);
+      margin-bottom: 1.5rem;
+    }
+    .harv-hero__phase-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--harv-gold), var(--harv-green));
+      box-shadow: 0 0 8px rgba(200, 150, 62, 0.4);
+    }
+    .harv-hero__title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      color: var(--harv-ink);
+      margin: 0 0 1rem;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .harv-hero__subtitle {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--harv-muted);
+      max-width: 580px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    /* ── Content container ── */
+    .harv-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+    }
+
+    /* ── Glass cards ── */
+    .harv-card {
+      background: var(--harv-glass-strong);
+      backdrop-filter: var(--harv-blur);
+      -webkit-backdrop-filter: var(--harv-blur);
+      border: 1px solid var(--harv-glass-border);
+      border-radius: var(--harv-radius);
+      padding: 2.5rem 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--harv-shadow);
+      transition: transform 0.3s var(--harv-transition), box-shadow 0.3s var(--harv-transition);
+    }
+    .harv-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--harv-shadow-lg);
+    }
+    .harv-card__kicker {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--harv-gold);
+      margin: 0 0 0.75rem;
+    }
+    .harv-card__title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--harv-ink);
+      margin: 0 0 1rem;
+      line-height: 1.3;
+    }
+    .harv-card p,
+    .harv-card li {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--harv-ink-2);
+    }
+    .harv-card ul {
+      padding-left: 1.25rem;
+      margin: 0.75rem 0 1rem;
+    }
+    .harv-card li {
+      margin-bottom: 0.5rem;
+    }
+    .harv-card li::marker {
+      color: var(--harv-gold);
+    }
+    .harv-card a {
+      color: var(--harv-gold);
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .harv-card a:hover {
+      border-bottom-color: var(--harv-gold);
+    }
+
+    /* ── Scripture block ── */
+    .harv-scripture {
+      position: relative;
+      background: linear-gradient(135deg, var(--harv-gold-soft) 0%, var(--harv-green-soft) 100%);
+      border: 1px solid rgba(200, 150, 62, 0.15);
+      border-radius: var(--harv-radius-sm);
+      padding: 1.75rem 2rem;
+      margin: 1.5rem 0;
+    }
+    .harv-scripture::before {
+      content: '"';
+      position: absolute;
+      top: -0.3rem;
+      left: 1.25rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      color: var(--harv-gold);
+      opacity: 0.25;
+      line-height: 1;
+    }
+    .harv-scripture p {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.05rem;
+      font-style: italic;
+      line-height: 1.7;
+      color: var(--harv-ink);
+      margin: 0;
+    }
+    .harv-scripture cite {
+      display: block;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.78rem;
+      font-style: normal;
+      font-weight: 600;
+      color: var(--harv-gold);
+      margin-top: 0.75rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Impact stats ── */
+    .harv-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    @media (min-width: 540px) {
+      .harv-stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    .harv-stat {
+      background: var(--harv-glass);
+      backdrop-filter: var(--harv-blur);
+      -webkit-backdrop-filter: var(--harv-blur);
+      border: 1px solid var(--harv-glass-border);
+      border-radius: var(--harv-radius-sm);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      transition: transform 0.3s var(--harv-transition);
+    }
+    .harv-stat:hover {
+      transform: translateY(-3px);
+    }
+    .harv-stat__number {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--harv-green);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .harv-stat__label {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--harv-muted);
+      text-transform: uppercase;
+    }
+
+    /* ── CTA block ── */
+    .harv-cta {
+      position: relative;
+      background: var(--harv-glass-strong);
+      backdrop-filter: var(--harv-blur);
+      -webkit-backdrop-filter: var(--harv-blur);
+      border: 1px solid var(--harv-glass-border);
+      border-radius: var(--harv-radius);
+      padding: 3rem 2rem;
+      margin: 2rem 0;
+      text-align: center;
+      box-shadow: var(--harv-shadow-lg);
+      overflow: hidden;
+    }
+    .harv-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--harv-green), var(--harv-gold));
+      border-radius: var(--harv-radius) var(--harv-radius) 0 0;
+    }
+    .harv-cta__title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--harv-ink);
+      margin: 0 0 0.5rem;
+    }
+    .harv-cta__desc {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.9rem;
+      color: var(--harv-muted);
+      margin: 0 0 1.25rem;
+      line-height: 1.6;
+    }
+    .harv-cta__btn {
+      display: inline-block;
+      padding: 0.85rem 1.75rem;
+      background: linear-gradient(135deg, var(--harv-gold) 0%, #d4a84b 100%);
+      color: #fff;
+      border-radius: 14px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(200, 150, 62, 0.3);
+      transition: transform 0.2s var(--harv-transition), box-shadow 0.2s var(--harv-transition);
+    }
+    .harv-cta__btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(200, 150, 62, 0.4);
+    }
+
+    /* ── Navigation footer ── */
+    .harv-nav-footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+    }
+    .harv-nav-footer__label {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--harv-muted);
+      margin: 0 0 1rem;
+    }
+    .harv-nav-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .harv-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--harv-glass);
+      backdrop-filter: var(--harv-blur);
+      -webkit-backdrop-filter: var(--harv-blur);
+      border: 1px solid var(--harv-glass-border);
+      border-radius: 999px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--harv-ink-2);
+      text-decoration: none;
+      transition: all 0.2s var(--harv-transition);
+    }
+    .harv-nav-link:hover {
+      background: var(--harv-glass-strong);
+      border-color: var(--harv-gold);
+      color: var(--harv-gold);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(200, 150, 62, 0.15);
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      .harv-hero {
+        padding: 3.5rem 1.25rem 3rem;
+      }
+      .harv-card {
+        padding: 2rem 1.5rem;
+        border-radius: 20px;
+      }
+      .harv-cta {
+        padding: 2.5rem 1.5rem;
+      }
+      .harv-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .harv-nav-links {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      .harv-card, .harv-stat, .harv-cta__btn, .harv-nav-link {
+        transition: none;
+      }
+      .harv-card:hover, .harv-stat:hover {
+        transform: none;
+      }
+    }
   </style>
 </head>
 <body>
 <header class="site-header" id="site-header"><div class="container"><div class="header-left"><a href="index.html" class="site-logo"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">Seed the Word</a></div><nav id="site-nav"><ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></nav><button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation"><span></span><span></span><span></span></button></div></header>
 
-<section class="harvest-hero">
-  <div class="harvest-hero__icon">🌾</div>
-  <p class="harvest-hero__kicker">Phase 3</p>
-  <h1 class="harvest-hero__title">How to Harvest</h1>
-  <p class="harvest-hero__desc">Gather the fruit. See what God has done through faithful sowing, celebrate the testimonies, and help believers find their home in the body of Christ.</p>
+<!-- Hero -->
+<section class="harv-hero">
+  <div class="harv-hero__phase">
+    <span class="harv-hero__phase-dot"></span>
+    Phase 3
+  </div>
+  <h1 class="harv-hero__title">How to Harvest</h1>
+  <p class="harv-hero__subtitle">Gather the fruit. See what God has done through faithful sowing, celebrate the testimonies, and help believers find their home in the body of Christ.</p>
 </section>
 
-<div class="harvest-content">
-  <div class="harvest-section">
-    <p class="harvest-section__kicker">The Fruit</p>
-    <h2 class="harvest-section__title">What does harvest look like?</h2>
+<!-- Content -->
+<div class="harv-content">
+
+  <!-- The Fruit -->
+  <article class="harv-card">
+    <p class="harv-card__kicker">The Fruit</p>
+    <h2 class="harv-card__title">What does harvest look like?</h2>
     <p>Harvest is what happens when seeds grow. A conversation at a park becomes a prayer. A prayer becomes faith. Faith becomes a life surrendered to Christ. And that new believer needs a home — a church, a community, a place to be known and loved.</p>
-    <blockquote class="harvest-quote">"The harvest truly is plenteous, but the labourers are few; pray ye therefore the Lord of the harvest, that he will send forth labourers into his harvest." — Matthew 9:37-38 KJV</blockquote>
-    <p>We don't own the harvest — God does. Our job is to faithfully sow and water, then celebrate when He brings the increase.</p>
-  </div>
-
-  <div class="harvest-section">
-    <p class="harvest-section__kicker">Testimonies</p>
-    <h2 class="harvest-section__title">Stories from the field</h2>
-    <p>Every Bible we give away represents a life God placed in our path. Some tell us what happened. Most we'll never know this side of eternity. But the ones we do know inspire us to keep going.</p>
-    <div class="harvest-card">
-      <h3 class="harvest-card__title">Read the testimonies</h3>
-      <p class="harvest-card__desc">Real encounters with Jesus from real people who received a Bible from our team.</p>
-      <a class="harvest-card__btn" href="testimonies.html">From the Field →</a>
+    <div class="harv-scripture">
+      <p>The harvest truly is plenteous, but the labourers are few; pray ye therefore the Lord of the harvest, that he will send forth labourers into his harvest.</p>
+      <cite>Matthew 9:37–38 KJV</cite>
     </div>
-  </div>
+    <p>We don't own the harvest — God does. Our job is to faithfully sow and water, then celebrate when He brings the increase.</p>
+  </article>
 
-  <div class="harvest-section">
-    <p class="harvest-section__kicker">Church Placement</p>
-    <h2 class="harvest-section__title">Finding a home</h2>
+  <!-- Testimonies -->
+  <article class="harv-card">
+    <p class="harv-card__kicker">Testimonies</p>
+    <h2 class="harv-card__title">Stories from the field</h2>
+    <p>Every Bible we give away represents a life God placed in our path. Some tell us what happened. Most we'll never know this side of eternity. But the ones we do know inspire us to keep going.</p>
+    <div class="harv-cta" style="margin:1.5rem 0 0;padding:2rem 1.5rem;">
+      <h3 class="harv-cta__title" style="font-size:1.15rem;">Read the testimonies</h3>
+      <p class="harv-cta__desc">Real encounters with Jesus from real people who received a Bible from our team.</p>
+      <a class="harv-cta__btn" href="testimonies.html">From the Field →</a>
+    </div>
+  </article>
+
+  <!-- Church Placement -->
+  <article class="harv-card">
+    <p class="harv-card__kicker">Church Placement</p>
+    <h2 class="harv-card__title">Finding a home</h2>
     <p>As new believers grow, they need more than we can offer. They need ordained pastors, structured teaching, sacraments, and a local body. We help connect people with churches in their area:</p>
     <ul>
       <li>Non-denominational Bible-believing churches</li>
@@ -78,31 +442,44 @@
       <li>Mentorship relationships for new believers</li>
       <li>Prayer partners for ongoing accountability</li>
     </ul>
-    <p>Complex doctrine goes to trained pastors. We stay in the lanes of love, prayer, and encouragement. If you're looking for a church, <a href="about.html#contact" style="color:var(--nw-gold);">reach out</a> — we'll help you find one.</p>
-  </div>
+    <p>Complex doctrine goes to trained pastors. We stay in the lanes of love, prayer, and encouragement. If you're looking for a church, <a href="about.html#contact">reach out</a> — we'll help you find one.</p>
+  </article>
 
-  <div class="harvest-section">
-    <p class="harvest-section__kicker">Impact</p>
-    <h2 class="harvest-section__title">By the numbers</h2>
+  <!-- Impact stats -->
+  <article class="harv-card">
+    <p class="harv-card__kicker">Impact</p>
+    <h2 class="harv-card__title">By the numbers</h2>
     <p>Since March 2026, God has used our small team to:</p>
-    <ul>
-      <li>Give away <strong>600+</strong> Bibles in 10+ languages</li>
-      <li>Partner with <strong>4+</strong> local ministries for outreach events</li>
-      <li>Reach campuses, parks, and communities across Washington State</li>
-      <li>Train new sowers who are now giving away Bibles on their own</li>
-    </ul>
-    <p>Every number is a person. To God be the glory.</p>
-  </div>
-
-  <!-- Next steps -->
-  <div style="text-align:center;">
-    <p style="font-family:var(--nw-mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.5rem;">Continue the journey</p>
-    <div class="nav-next">
-      <a href="how-to-seed.html">🌱 How to Seed →</a>
-      <a href="how-to-grow.html">💧 How to Grow →</a>
-      <a href="start-here.html">📖 Start Here →</a>
+    <div class="harv-stats">
+      <div class="harv-stat">
+        <div class="harv-stat__number">600+</div>
+        <div class="harv-stat__label">Bibles Given</div>
+      </div>
+      <div class="harv-stat">
+        <div class="harv-stat__number">10+</div>
+        <div class="harv-stat__label">Languages</div>
+      </div>
+      <div class="harv-stat">
+        <div class="harv-stat__number">4+</div>
+        <div class="harv-stat__label">Partners</div>
+      </div>
+      <div class="harv-stat">
+        <div class="harv-stat__number">WA</div>
+        <div class="harv-stat__label">State-wide</div>
+      </div>
     </div>
-  </div>
+    <p style="margin-top:1rem;">Every number is a person. To God be the glory.</p>
+  </article>
+
+  <!-- Navigation -->
+  <nav class="harv-nav-footer" aria-label="Continue the journey">
+    <p class="harv-nav-footer__label">Continue the journey</p>
+    <div class="harv-nav-links">
+      <a class="harv-nav-link" href="how-to-seed.html">🌱 How to Seed</a>
+      <a class="harv-nav-link" href="how-to-grow.html">💧 How to Grow</a>
+      <a class="harv-nav-link" href="start-here.html">📖 Start Here</a>
+    </div>
+  </nav>
 </div>
 
 <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><div class="footer-brand__row"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo"><p class="footer-brand__name">Seed the Word Ministry</p></div><p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p></div><div><h4 class="footer-col__title">Navigate</h4><ul class="footer-nav"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></div></div><div class="footer-bottom"><p>&copy; 2026 Seed the Word Ministry.</p></div></div></footer>

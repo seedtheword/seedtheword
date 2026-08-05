@@ -148,7 +148,7 @@
     var url=await getHandlerUrl();
     var res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});
     var text=await res.text();
-    return JSON.parse(text);
+    try{return JSON.parse(text);}catch(e){throw new Error('Server unavailable — please try again');}
   }
   async function sha256(text){
     var buf=new TextEncoder().encode(text);

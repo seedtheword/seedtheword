@@ -3,567 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <meta name="description" content="How we grow disciples in conversation — the four-movement evangelism encounter (Reconnaissance, Law, Gospel, Action) we use at signs, tables, and on the street. Spirit-led, not a sales funnel.">
-  <!-- Open Graph -->
-  <meta property="og:site_name" content="Seed the Word Ministry">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="How to Grow — Seed the Word Ministry">
-  <meta property="og:description" content="The four-movement evangelism encounter we teach: Reconnaissance, Law, Gospel, Action. Spirit-led conversation, not a script. Identity is the destination.">
-  <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
-  <meta property="og:url" content="https://seedtheword.org/how-to-grow.html">
-  <!-- Twitter card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="How to Grow — Seed the Word Ministry">
-  <meta name="twitter:description" content="The four-movement evangelism encounter we teach: Reconnaissance, Law, Gospel, Action. Spirit-led, not a sales funnel.">
-  <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <title>How to Grow — Seed the Word Ministry</title>
+  <meta name="description" content="Deepen your walk with Jesus. Daily Bible reading, audio chapters, study guides, and community discipleship.">
+  <meta property="og:site_name" content="Seed the Word Ministry">
+  <meta property="og:title" content="How to Grow — Water the Seed">
+  <meta property="og:description" content="Bible plans, audio chapters, Saturday studies, and discipleship resources.">
+  <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <style>
-    /* How to Grow page — sibling to how-to-seed.html, page-scoped
-       rules only. Mirrors the seed page's hero / movement / closing
-       chrome. CSS lives inline (per design §5.1) so main.css does
-       not need a cache-buster bump for this feature. */
-
-    /* Hero — copied from how-to-seed.html */
-    .lg-hero {
-      background: linear-gradient(135deg, var(--green) 0%, #1a4a1c 100%);
-      color: #fff;
-      padding: 4.5rem 1.5rem 4rem;
-      text-align: center;
-    }
-    .lg-hero h1 {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 2.5rem;
-      font-weight: 400;
-      margin: 0 0 1rem;
-      line-height: 1.2;
-    }
-    .lg-hero__lead {
-      max-width: 620px;
-      margin: 0 auto 1.5rem;
-      font-size: 1.15rem;
-      line-height: 1.65;
-      opacity: 0.95;
-    }
-    .lg-hero__verse {
-      max-width: 580px;
-      margin: 1.5rem auto 0;
-      font-style: italic;
-      font-size: 1rem;
-      line-height: 1.65;
-      opacity: 0.9;
-      border-left: 3px solid rgba(255, 255, 255, 0.3);
-      padding-left: 1.25rem;
-      text-align: left;
-    }
-    .lg-hero__verse cite {
-      display: block;
-      margin-top: 0.5rem;
-      font-size: 0.875rem;
-      font-style: normal;
-      letter-spacing: 0.05em;
-      opacity: 0.8;
-    }
-
-    /* Introductory note — page-scoped, parallel to .lg-rhythm__intro
-       on the seed page but standalone (no parent .lg-rhythm wrapper). */
-    .lg-intro {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 3rem 1.5rem 1rem;
-      color: var(--text);
-    }
-    .lg-intro__title {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 1.45rem;
-      font-weight: 700;
-      color: var(--text);
-      text-align: center;
-      margin: 0 0 1.25rem;
-      line-height: 1.3;
-    }
-    .lg-intro p {
-      line-height: 1.75;
-      font-size: 1.05rem;
-      margin-bottom: 1.1rem;
-    }
-    .lg-intro p:last-child { margin-bottom: 0; }
-
-    /* Movements wrapper */
-    .lg-movements {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 1rem 1.5rem 3rem;
-    }
-
-    /* Movement cards — adapted from how-to-seed.html. The number
-       sits at the top-left of the card; title and body stack below
-       it (no .lg-movement__head flex row on this page). */
-    .lg-movement {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.75rem 1.5rem;
-      margin-bottom: 1.25rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
-    .lg-movement__number {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 2rem;
-      height: 2rem;
-      background: var(--green);
-      color: #fff;
-      border-radius: 50%;
-      font-weight: 700;
-      font-size: 0.95rem;
-      flex-shrink: 0;
-      margin-bottom: 0.5rem;
-    }
-    .lg-movement__title {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 1.4rem;
-      font-weight: 400;
-      color: var(--text);
-      margin: 0 0 0.85rem;
-      line-height: 1.3;
-    }
-    .lg-movement__body {
-      color: var(--text);
-      line-height: 1.7;
-      font-size: 0.98rem;
-    }
-    .lg-movement__body p { margin: 0 0 0.85rem; }
-    .lg-movement__body p:last-child { margin-bottom: 0; }
-    .lg-movement__beats {
-      padding-left: 1.25rem;
-      margin: 0.5rem 0 1rem;
-      line-height: 1.65;
-      list-style: disc;
-    }
-    .lg-movement__beats li { margin-bottom: 0.4rem; }
-    .lg-movement blockquote {
-      background: rgba(44, 95, 46, 0.05);
-      border-left: 3px solid var(--green);
-      padding: 0.85rem 1.1rem;
-      margin: 0.85rem 0 0;
-      border-radius: 4px;
-      font-style: italic;
-      font-size: 0.95rem;
-      color: var(--text);
-    }
-    .lg-movement blockquote p { margin: 0 0 0.4rem; }
-    .lg-movement blockquote cite {
-      display: block;
-      margin-top: 0.4rem;
-      font-size: 0.825rem;
-      font-style: normal;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    /* Identity callout (Gospel movement) — locked main point of the
-       framework. Stronger gold border than the seed page's tip
-       block because this is the page's thesis, not a hosting tip. */
-    .lg-callout {
-      background: var(--cream, #fdf3e3);
-      border-left: 4px solid var(--gold);
-      padding: 1.1rem 1.4rem;
-      margin: 1.25rem 0;
-      border-radius: 6px;
-    }
-    .lg-callout__label {
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--gold);
-      font-weight: 700;
-      margin: 0 0 0.4rem;
-    }
-    .lg-callout__body {
-      font-size: 1.02rem;
-      line-height: 1.7;
-      margin: 0;
-      color: var(--text);
-    }
-
-    /* Testimony note — thesis opener at the top of the page */
-    .lg-testimony-note {
-      background: linear-gradient(135deg, rgba(44,95,46,0.06) 0%, rgba(212,165,116,0.06) 100%);
-      border-top: 3px solid var(--green, #2C5F2E);
-      border-bottom: 3px solid var(--green, #2C5F2E);
-      padding: 3rem 1.5rem;
-    }
-    .lg-testimony-note__inner {
-      max-width: 720px;
-      margin: 0 auto;
-    }
-    .lg-testimony-note__icon {
-      font-size: 2.5rem;
-      text-align: center;
-      display: block;
-      margin-bottom: 0.75rem;
-    }
-    .lg-testimony-note__title {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 1.65rem;
-      font-weight: 700;
-      color: var(--green, #2C5F2E);
-      text-align: center;
-      line-height: 1.3;
-      margin: 0 0 1.5rem;
-    }
-    .lg-testimony-note__inner p {
-      font-size: 1.0rem;
-      line-height: 1.75;
-      color: var(--text, #2b2b2b);
-      margin: 0 0 1rem;
-    }
-    .lg-testimony-note__verse {
-      background: rgba(44, 95, 46, 0.07);
-      border-left: 3px solid var(--green, #2C5F2E);
-      border-radius: 0 8px 8px 0;
-      padding: 1rem 1.25rem;
-      margin: 1.5rem 0;
-    }
-    .lg-testimony-note__verse p {
-      font-style: italic;
-      margin: 0 0 0.35rem !important;
-    }
-    .lg-testimony-note__verse cite {
-      display: block;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--green, #2C5F2E);
-      font-style: normal;
-    }
-    .lg-testimony-note__cta-text {
-      font-size: 0.95rem !important;
-      color: var(--muted, #666) !important;
-      font-style: italic;
-    }
-    .lg-testimony-note__cta-text a {
-      color: var(--green, #2C5F2E);
-      font-weight: 600;
-      text-decoration: underline;
-      font-style: normal;
-    }
-    @media (max-width: 600px) {
-      .lg-testimony-note { padding: 2.5rem 1rem; }
-      .lg-testimony-note__title { font-size: 1.35rem; }
-    }
-
-    /* Closing CTA — copied from how-to-seed.html */
-    .lg-closing {
-      background: var(--cream, #fdf3e3);
-      padding: 3rem 1.5rem 4rem;
-      text-align: center;
-    }
-    .lg-closing__inner {
-      max-width: 620px;
-      margin: 0 auto;
-    }
-    .lg-closing h2 {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 1.85rem;
-      font-weight: 400;
-      color: var(--green);
-      margin: 0 0 1rem;
-      line-height: 1.3;
-    }
-    .lg-closing p {
-      font-size: 1.05rem;
-      line-height: 1.7;
-      color: var(--text);
-      margin: 0 0 1.5rem;
-    }
-    .lg-closing__btn-row {
-      display: flex;
-      gap: 0.85rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 1.5rem;
-    }
-    .lg-closing__btn-row .btn { min-width: 200px; }
-    .lg-closing__signoff {
-      margin-top: 2rem;
-      font-style: italic;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    /* Mobile breakpoint — single 600px block, parallel to the seed
-       page's @media block. Movement cards already stack by default;
-       the breakpoint just tightens padding and headings. */
-    @media (max-width: 600px) {
-      .lg-hero { padding: 3rem 1rem 2.75rem; }
-      .lg-hero h1 { font-size: 2rem; }
-      .lg-hero__lead { font-size: 1.05rem; }
-      .lg-intro { padding: 2.5rem 1rem 1rem; }
-      .lg-intro__title { font-size: 1.25rem; }
-      .lg-movements { padding: 1rem 1rem 2rem; }
-      .lg-movement { padding: 1.4rem 1.1rem; }
-      .lg-movement__title { font-size: 1.2rem; }
-      .lg-callout { padding: 0.95rem 1.1rem; }
-      .lg-closing { padding: 2.5rem 1rem 3rem; }
-    }
+    :root{--nw-serif:'Playfair Display',Georgia,serif;--nw-sans:'Source Sans 3',system-ui,sans-serif;--nw-mono:'IBM Plex Mono',monospace;--nw-bg:#FAFAF8;--nw-card:#FFFFFF;--nw-ink:#1A1A1A;--nw-muted:#6B6B6B;--nw-gold:#B8860B;--nw-border:#E8E4DF;--nw-green:#1a5c1d;}
+    body{background:var(--nw-bg);}
+    .grow-hero{text-align:center;padding:3.5rem 1.5rem 2.5rem;background:var(--nw-card);border-bottom:1px solid var(--nw-border);}
+    .grow-hero__icon{font-size:3rem;margin-bottom:0.5rem;}
+    .grow-hero__kicker{font-family:var(--nw-mono);font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.4rem;}
+    .grow-hero__title{font-family:var(--nw-serif);font-size:clamp(2rem,4vw,2.8rem);font-weight:400;margin:0 0 0.6rem;}
+    .grow-hero__desc{font-family:var(--nw-sans);font-size:1.05rem;color:var(--nw-muted);max-width:600px;margin:0 auto;line-height:1.7;}
+    .grow-content{max-width:720px;margin:0 auto;padding:2.5rem 1.5rem 4rem;}
+    .grow-section{margin-bottom:3rem;padding-bottom:2.5rem;border-bottom:1px solid var(--nw-border);}
+    .grow-section:last-child{border-bottom:none;}
+    .grow-section__kicker{font-family:var(--nw-mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.4rem;}
+    .grow-section__title{font-family:var(--nw-serif);font-size:1.6rem;font-weight:400;margin:0 0 0.75rem;}
+    .grow-section p,.grow-section li{font-family:var(--nw-sans);font-size:1rem;line-height:1.8;color:var(--nw-muted);}
+    .grow-section ul{padding-left:1.25rem;margin:0.5rem 0 1rem;}
+    .grow-section li{margin-bottom:0.4rem;}
+    .grow-card{background:var(--nw-card);border:1px solid var(--nw-border);border-radius:10px;padding:1.5rem;margin:1.25rem 0;}
+    .grow-card__title{font-family:var(--nw-serif);font-size:1.1rem;font-weight:400;margin:0 0 0.4rem;}
+    .grow-card__desc{font-size:0.9rem;color:var(--nw-muted);margin:0;line-height:1.6;}
+    .grow-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.25rem 0;}
+    .nav-next{display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;margin-top:2rem;}
+    .nav-next a{padding:0.7rem 1.25rem;border:1.5px solid var(--nw-border);border-radius:8px;text-decoration:none;font-weight:600;font-size:0.88rem;color:var(--nw-ink);transition:border-color 0.15s;}
+    .nav-next a:hover{border-color:var(--nw-gold);color:var(--nw-gold);}
   </style>
 </head>
 <body>
+<header class="site-header" id="site-header"><div class="container"><div class="header-left"><a href="index.html" class="site-logo"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">Seed the Word</a></div><nav id="site-nav"><ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></nav><button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation"><span></span><span></span><span></span></button></div></header>
 
-<header class="site-header" id="site-header">
-  <div class="container">
-    <div class="header-left">
-      <a href="index.html" class="site-logo">
-        <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">
-        Seed the Word
-      </a>
-      <div class="header-verse">
-        <span class="header-verse__text">"He answered and said unto them, He that soweth the good seed is the Son of man;" — Matthew 13:37 KJV</span>
-      </div>
-    </div>
-    <nav id="site-nav">
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="store.html">Store</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="news.html">News</a></li>
-        <li><a href="community.html">Community</a></li>
-      </ul>
-    </nav>
-    <div class="header-social">
-      <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="32" height="32"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-      </a>
-      <a href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="32" height="32"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-      </a>
-      <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF" width="32" height="32"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-      </a>
-      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954" width="32" height="32"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
-      </a>
-    </div>
-    <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</header>
-
-<section class="lg-hero">
-  <h1>How to Grow</h1>
-  <p class="lg-hero__lead">The conversation we walk into when someone is in front of us — at a sign, at a table, on the street. Four movements: figure them out, share the bad news, share the good news, and offer them the next step. The Spirit leads. We listen.</p>
-  <blockquote class="lg-hero__verse">
-    <p>"He said to them, 'Go into all the world and preach the gospel to all creation.'"</p>
-    <cite>— Mark 16:15 NIV</cite>
-  </blockquote>
+<section class="grow-hero">
+  <div class="grow-hero__icon">💧</div>
+  <p class="grow-hero__kicker">Phase 2</p>
+  <h1 class="grow-hero__title">How to Grow</h1>
+  <p class="grow-hero__desc">Water the seed. Daily reading, audio Bible chapters, weekly studies, and walking alongside fellow believers.</p>
 </section>
 
-<!-- Testimony note — the thesis that drives everything below -->
-<section class="lg-testimony-note">
-  <div class="lg-testimony-note__inner">
-    <div class="lg-testimony-note__icon" aria-hidden="true">🕊️</div>
-    <h2 class="lg-testimony-note__title">Sharing your testimony and the Gospel is what leads people to Jesus Christ</h2>
-    <p>This is the summary of everything on this page. The four movements below are the scaffolding — but the thing that actually opens a heart is when you stop explaining and start testifying. Your story paired with the Gospel is the complete seed: what He did in history, and what He did in <em>you</em>.</p>
-    <blockquote class="lg-testimony-note__verse">
-      <p>"They triumphed over him by the blood of the Lamb and by the word of their testimony."</p>
-      <cite>— Revelation 12:11 NIV</cite>
-    </blockquote>
-  </div>
-</section>
-
-<section class="lg-intro">
-  <h2 class="lg-intro__title">If you've never had this conversation before</h2>
-
-  <p>You don't need a script. You don't need a degree. You need to be willing to sit with someone, listen for what the Lord is doing in them, and trust that the Holy Spirit is the one leading the conversation — not you.</p>
-
-  <p>The four movements below — Reconnaissance, Law, Gospel, Action — are scaffolding. They're how we hold the rhythm of an encounter when our nerves want to skip ahead or freeze. They are <strong>not</strong> a sales funnel. You will not "close" anyone. The Lord saves; we just show up faithfully.</p>
-
-  <p><strong>Prioritize one idea</strong> and lead to it to nail it for them. Don't try to march through all four movements every time. Most encounters land on one of them. Pick the one the Spirit is highlighting and stay with it. The point is not to finish the framework — the point is to let one truth sink in.</p>
-
-  <p>The destination of every conversation, no matter where it starts, is the same: <strong>point back to Jesus</strong>. Not to win the argument. Not to convert them on the spot. To plant Jesus, who is identity, in front of them.</p>
-</section>
-
-<section class="lg-movements">
-
-  <!-- Movement 1 — Reconnaissance -->
-  <section class="lg-movement" id="reconnaissance">
-    <div class="lg-movement__number">1</div>
-    <h2 class="lg-movement__title">Reconnaissance</h2>
-
-    <div class="lg-movement__body">
-      <p>Before you say anything about Jesus, find out who is in front of you. Ask open-ended questions. Listen more than you talk. The goal is to figure out the seeker's reason for approaching — or for rejecting Jesus — so you can personalize the conversation. Each person is unique. Treat them that way.</p>
-
-      <p>Think of it like <strong>FBI hostage negotiation</strong>: the negotiator doesn't walk in with a speech. They ask questions until they understand what the person actually needs, fears, and believes. Only then do they speak into it. We're not negotiating with a hostage — we're loving a person — but the discipline is the same. <em>Listen first. Speak second.</em></p>
-
-      <p>Our anchor here is <strong>Mark's gospel</strong>. Watch how Jesus evangelizes: out of love, to save lives, one person at a time. He asks more questions than he answers. He reads the room. He meets the woman at the well where she actually is, not where a script says she should be.</p>
-
-      <ul class="lg-movement__beats">
-        <li>Ask open-ended questions. Avoid yes/no.</li>
-        <li>Listen for the real reason they're here — or the real reason they're not.</li>
-        <li>Personalize. No two encounters are the same person.</li>
-        <li>Treat them as a person, not a target.</li>
-      </ul>
-
-      <blockquote>
-        <p>"Jesus said to them, 'Come, follow me, and I will send you out to fish for people.'"</p>
-        <cite>— Mark 1:17 NIV</cite>
-      </blockquote>
-    </div>
-  </section>
-
-  <!-- Movement 2 — Law -->
-  <section class="lg-movement" id="law">
-    <div class="lg-movement__number">2</div>
-    <h2 class="lg-movement__title">Law</h2>
-
-    <div class="lg-movement__body">
-      <p>Bad news first. The Law movement is where conviction does its work, and conviction has to do its work before grace makes any sense. We do not lead with the Savior. We lead with the desperate situation a person is in without him.</p>
-
-      <p><strong>Bad news then Good News.</strong> That ordering is not optional. Grace without conviction is sentimentality — it makes Jesus sound like a nice idea. The Law makes the Savior necessary. Our deeds will not save us. Our resume will not save us. The standard is holy, and we have not met it.</p>
-
-      <p>Think of it as <strong>the parachute</strong>. Nobody wants a parachute on the ground. Hand it to someone in a chair and they'll set it on the floor. But hand it to someone falling out of a plane and they will grab it with both hands. The Law is what makes the parachute matter. Until a person sees the fall, the cross looks like a religious decoration. Once they see the fall, the cross is the only thing in the room.</p>
-
-      <p>Our anchor here is <strong>Psalm 50</strong> — God speaking, calling his people to account, naming the gap between religious performance and a righteous heart. The Law strips off the costume. And it leads, by the Lord's mercy, straight into <strong>Psalm 51</strong>: a prayer of repentance. Conviction is not the destination — it is the doorway. (We come back to Psalm 51 in the Action movement.)</p>
-
-      <ul class="lg-movement__beats">
-        <li>Bad news first. Conviction precedes the Savior.</li>
-        <li>Deeds cannot save. Naming this is not cruelty — it is honesty.</li>
-        <li>The desperate situation without Jesus is the parachute moment.</li>
-        <li>Psalm 50 (the conviction) opens the door to Psalm 51 (the prayer of repentance).</li>
-      </ul>
-
-      <blockquote>
-        <p>"For all have sinned and fall short of the glory of God."</p>
-        <cite>— Romans 3:23 NIV</cite>
-      </blockquote>
-    </div>
-  </section>
-
-  <!-- Movement 3 — Gospel (with identity callout) -->
-  <section class="lg-movement" id="gospel">
-    <div class="lg-movement__number">3</div>
-    <h2 class="lg-movement__title">Gospel</h2>
-
-    <div class="lg-movement__body">
-      <p>Now grace. The Gospel movement is where Love shines — where we name who Jesus actually is and what he has actually done. Jesus is not a moral teacher with a hard saying. Jesus is a true friend. He laid his life down for the person standing in front of you. That is not metaphor. That is what happened on the cross.</p>
-
-      <p>The question every encounter eventually circles back to is the value question — the one Jesus put to the rich <strong>young ruler</strong>: <em>is he worth everything?</em> Not "do you believe he existed?" Not "do you agree with the morals?" Is he worth your money, your reputation, your plans, your past, your future? The young ruler walked away sad because he had great wealth. The question is not theoretical. It costs.</p>
-
-      <aside class="lg-callout">
-        <p class="lg-callout__label">The destination</p>
-        <p class="lg-callout__body">Every conversation, no matter where it starts, lands here: <strong>find your identity in Jesus</strong>. Not in your job, your past, your performance, your religion, your politics, your reputation. In him. That is the whole spine of an encounter — every other movement is how we walk a person to this one truth and let it land.</p>
-      </aside>
-
-      <ul class="lg-movement__beats">
-        <li>Grace is where Love shines. Jesus is a true friend.</li>
-        <li>The value question: is Jesus worth everything?</li>
-        <li>Identity is in Jesus — not in deeds, not in religion, not in self.</li>
-        <li>The young ruler is the warning: knowing the answer is not the same as paying the cost.</li>
-      </ul>
-
-      <blockquote>
-        <p>"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life."</p>
-        <cite>— John 3:16 NIV</cite>
-      </blockquote>
-    </div>
-  </section>
-
-  <!-- Movement 4 — Action -->
-  <section class="lg-movement" id="action">
-    <div class="lg-movement__number">4</div>
-    <h2 class="lg-movement__title">Action</h2>
-
-    <div class="lg-movement__body">
-      <p>If the Spirit has been at work — and he has been, whether the person is showing it or not — there is a next step. Action is not a sales close. It is the smallest faithful move in the direction the Lord is already pulling them.</p>
-
-      <p>Not every encounter ends in prayer or baptism. Most don't. But every encounter has a next step. Read the room. Offer the one that fits.</p>
-
-      <ul class="lg-movement__beats">
-        <li><strong>Lead them to prayer.</strong> If the conversation has reached repentance, pray <strong>Psalm 51</strong> with them. It is already a prayer of repentance — the Lord wrote the words for them.</li>
-        <li><strong>Fellowship into worship.</strong> Invite them somewhere they will be in a room of believers — a life group, a service, the next gathering.</li>
-        <li><strong>Baptism, if they have faith.</strong> Don't slow-walk it. If they believe, ask if they want to be baptized. Connect them with someone who can.</li>
-        <li><strong>Invite them to join you in evangelism.</strong> The fastest way someone's faith deepens is to walk with you on outreach next week.</li>
-        <li><strong>Tell them which church you'll be at on Sunday.</strong> Offer to find them. Specifics, not vagueness.</li>
-        <li><strong>Ask what other resources they need.</strong> A study Bible, a podcast, a phone number, a counselor, a meal. Listen.</li>
-        <li><strong>Offer a ride to church if they need one.</strong> Don't make them solve the logistics alone.</li>
-        <li><strong>Get a Bible or a tract in their hands.</strong> The seed goes home with them. Always have one to give.</li>
-      </ul>
-
-      <p>And remember: <strong>people remember what they saw and what you made them feel.</strong> Most of them will not remember the verses you cited. They will remember whether you were warm, whether you were honest, whether you saw them. The Lord uses that.</p>
-
-      <blockquote>
-        <p>"Create in me a pure heart, O God, and renew a steadfast spirit within me."</p>
-        <cite>— Psalm 51:10 NIV</cite>
-      </blockquote>
-    </div>
-  </section>
-
-</section>
-
-<section class="lg-closing">
-  <div class="lg-closing__inner">
-    <h2>The Lord saves. We just show up.</h2>
-    <p>If you're getting ready for outreach, pray. If you're at a sign right now and someone is walking up to you, breathe. The four movements are the rhythm — the Holy Spirit is the song.</p>
-    <p>And if you came here from the life-group page, the two practices belong on the same shelf: gather and send.</p>
-    <div class="lg-closing__btn-row">
-      <a href="how-to-seed.html" class="btn btn-primary">← How to Seed: life groups + the Bible-as-seed practice</a>
-      <a href="about.html#contact" class="btn btn-secondary">Walk with us</a>
-    </div>
-    <p class="lg-closing__signoff">Sincerely,<br>The Seed the Word team</p>
-  </div>
-</section>
-
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-grid">
-      <!-- Brand -->
-      <div class="footer-brand">
-        <div class="footer-brand__row">
-          <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo">
-          <p class="footer-brand__name">Seed the Word Ministry</p>
-        </div>
-        <p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p>
-      </div>
-
-      <!-- Navigate -->
-      <div>
-        <h4 class="footer-col__title">Navigate</h4>
-        <ul class="footer-nav">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="store.html">Store</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="news.html">News</a></li>
-          <li><a href="community.html">Community</a></li>
-        </ul>
-      </div>
-
-      <!-- Connect -->
-      <div>
-        <h4 class="footer-col__title">Connect</h4>
-        <ul class="footer-nav">
-          <li><a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">Instagram</a></li>
-          <li><a href="https://t.me/seedtheword" target="_blank" rel="noopener">Telegram</a></li>
-          <li><a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener">Twitch</a></li>
-          <li><a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener">Spotify</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; <span id="footer-year">2026</span> Seed the Word Ministry. All Scripture quotations from the New International Version unless otherwise noted.</p>
+<div class="grow-content">
+  <div class="grow-section">
+    <p class="grow-section__kicker">Daily Reading</p>
+    <h2 class="grow-section__title">Encounter the Word every day</h2>
+    <p>Monday through Friday, we read one chapter of the New Testament together as a community. Saturday is Study Saturday — a deeper dive into the week's themes.</p>
+    <p>Our reading plan is simple: one chapter a day, in order, starting from Mark. No skipping, no rushing. Just showing up and letting God speak through His Word.</p>
+    <div class="grow-card">
+      <h3 class="grow-card__title">📖 Join the daily reading</h3>
+      <p class="grow-card__desc">Visit the <a href="community.html" style="color:var(--nw-gold);">Community page</a> to see today's chapter, listen to the audio recording, and follow along with the group.</p>
     </div>
   </div>
-</footer>
 
-<script src="assets/js/main.js?v=15" defer></script>
-<script>
-document.getElementById('footer-year').textContent = new Date().getFullYear();
-</script>
+  <div class="grow-section">
+    <p class="grow-section__kicker">Audio Bible</p>
+    <h2 class="grow-section__title">Listen to the Word</h2>
+    <p>We have audio recordings for every chapter — recorded by Gideons International — available for you to listen on your commute, at work, or before bed. No app needed, just press play.</p>
+    <p>Audio chapters are embedded directly into our Community page alongside each day's reading. For the full library, visit our <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" style="color:var(--nw-gold);">Spotify podcast</a>.</p>
+  </div>
 
+  <div class="grow-section">
+    <p class="grow-section__kicker">Study Saturday</p>
+    <h2 class="grow-section__title">Go deeper together</h2>
+    <p>Every Saturday we gather (live on Twitch or in person) to study the week's reading using five lenses:</p>
+    <ul>
+      <li><strong>Historical</strong> — what was happening when this was written?</li>
+      <li><strong>Linguistic</strong> — what do the original Greek/Hebrew words mean?</li>
+      <li><strong>Interpretive</strong> — what is the author's intent?</li>
+      <li><strong>Personal</strong> — what is God saying to me today?</li>
+      <li><strong>External</strong> — how does this connect to the rest of Scripture?</li>
+    </ul>
+    <div class="grow-card">
+      <h3 class="grow-card__title">🎙️ Watch on Twitch</h3>
+      <p class="grow-card__desc">Saturdays 7–10 PM Pacific. <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" style="color:var(--nw-gold);">twitch.tv/seedtheword</a></p>
+    </div>
+  </div>
+
+  <div class="grow-section">
+    <p class="grow-section__kicker">Discipleship</p>
+    <h2 class="grow-section__title">Walking alongside</h2>
+    <p>Growth doesn't happen alone. We connect new believers with mentors, prayer partners, and a community that shows up for each other. Join our Telegram group for daily encouragement, prayer requests, and fellowship.</p>
+    <div class="grow-card">
+      <h3 class="grow-card__title">💬 Join the community</h3>
+      <p class="grow-card__desc"><a href="https://t.me/seedtheword" target="_blank" rel="noopener" style="color:var(--nw-gold);">Join our Telegram group</a> — daily reading posts, prayer, discussion, and fellowship with believers from all walks of life.</p>
+    </div>
+  </div>
+
+  <!-- Next steps -->
+  <div style="text-align:center;">
+    <p style="font-family:var(--nw-mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--nw-gold);margin:0 0 0.5rem;">Continue the journey</p>
+    <div class="nav-next">
+      <a href="how-to-seed.html">🌱 How to Seed →</a>
+      <a href="how-to-harvest.html">🌾 How to Harvest →</a>
+      <a href="start-here.html">📖 Start Here →</a>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><div class="footer-brand__row"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo"><p class="footer-brand__name">Seed the Word Ministry</p></div><p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p></div><div><h4 class="footer-col__title">Navigate</h4><ul class="footer-nav"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></div></div><div class="footer-bottom"><p>&copy; 2026 Seed the Word Ministry.</p></div></div></footer>
+<script src="assets/js/main.js?v=10"></script>
 </body>
 </html>

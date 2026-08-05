@@ -222,6 +222,15 @@ function doPost(e) {
   if ((payload && payload.action) === 'setActiveEvent') {
     return handleSetActiveEvent_(payload);
   }
+  if ((payload && payload.action) === 'teamLogin') {
+    return handleTeamLogin_(payload);
+  }
+  if ((payload && payload.action) === 'teamSignup') {
+    return handleTeamSignup_(payload);
+  }
+  if ((payload && payload.action) === 'teamScan') {
+    return handleTeamScan_(payload);
+  }
   return handleOrder(payload);
 }
 
@@ -2609,6 +2618,112 @@ function handleFieldPlacement_(payload) {
     console.log('handleFieldPlacement_ error:', err);
     return jsonResponse({ ok: false, error: String(err) });
   }
+}
+
+// ── Team Member system ────────────────────────────────────────────
+// TeamMembers tab: token | name | password_hash | email | phone | role | created_at | total_scans
+
+function getTeamSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName('TeamMembers');
+  if (!sheet) {
+    sheet = ss.insertSheet('TeamMembers');
+    sheet.getRange(1,1,1,8).setValues([['token','name','password_hash','email','phone','role','created_at','total_scans']]);
+    sheet.getRange(1,1,1,8).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function handleTeamSignup_(payload) {
+  try {
+    var name = String(payload.name || '').trim();
+    var hash = String(payload.password_hash || '').trim();
+    if (!name || !hash) return jsonResponse({ ok: false, error: 'Name and password required' });
+
+    var sheet = getTeamSheet_();
+    var data = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow()-1, 8).getValues() : [];
+
+    // Check if name already exists
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][1]).toLowerCase().trim() === name.toLowerCase()) {
+        return jsonResponse({ ok: false, error: 'Account already exists. Try logging in.' });
+      }
+    }
+
+    var token = 'tm_' + Utilities.getUuid().replace(/-/g, '').slice(0, 12);
+    sheet.appendRow([token, name, hash, payload.email || '', payload.phone || '', 'member', new Date().toISOString(), 0]);
+
+    // Notify admin
+    try { MailApp.sendEmail({ to: TEAM_INBOX, subject: '👋 New team member: ' + name, body: name + ' just created a team account.\nEmail: ' + (payload.email || '—') + '\nPhone: ' + (payload.phone || '—') }); } catch(e) {}
+
+    return jsonResponse({ ok: true, route: 'teamSignup', token: token, name: name });
+  } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+function handleTeamLogin_(payload) {
+  try {
+    var name = String(payload.name || '').trim();
+    var hash = String(payload.password_hash || '').trim();
+    if (!name || !hash) return jsonResponse({ ok: false, error: 'Name and password required' });
+
+    var sheet = getTeamSheet_();
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: false, error: 'No accounts exist yet' });
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 8).getValues();
+
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][1]).toLowerCase().trim() === name.toLowerCase() && String(data[i][2]).trim() === hash) {
+        return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], total_scans: parseInt(data[i][7]) || 0 });
+      }
+    }
+    return jsonResponse({ ok: false, error: 'Invalid name or password' });
+  } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+function handleTeamScan_(payload) {
+  try {
+    var token = String(payload.token || '').trim();
+    var itemId = String(payload.item_id || '').trim();
+    var itemName = String(payload.item_name || '').trim();
+    var teamMember = String(payload.team_member || '').trim();
+    var eventLabel = String(payload.event_label || '').trim();
+    var date = payload.date || new Date().toISOString().split('T')[0];
+    if (!itemId) return jsonResponse({ ok: false, error: 'No item' });
+
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+
+    // Log to Inventory
+    var invSheet = ss.getSheetByName('Inventory');
+    if (!invSheet) return jsonResponse({ ok: false, error: 'Inventory tab not found' });
+    var costMap = getItemCostMapFromLedger_();
+    var cost = (costMap.costs[itemId] !== undefined) ? costMap.costs[itemId] : costMap.defaultCost;
+
+    // Find row_id col
+    var headers = invSheet.getRange(1,1,1,invSheet.getLastColumn()).getValues()[0];
+    var rowIdColIdx = -1;
+    for (var h=0;h<headers.length;h++){if(String(headers[h]).toLowerCase().replace(/[\s_\-]/g,'') === 'rowid'){rowIdColIdx=h+1;break;}}
+    var maxNum=0;
+    if(rowIdColIdx>0&&invSheet.getLastRow()>1){invSheet.getRange(2,rowIdColIdx,invSheet.getLastRow()-1,1).getValues().forEach(function(r){var m=String(r[0]||'').match(/^INV-(\d+)$/);if(m)maxNum=Math.max(maxNum,parseInt(m[1],10));});}
+    maxNum++;
+    var rowId='INV-'+String(maxNum).padStart(4,'0');
+
+    var row=[date,'outreach',itemId,itemName,1,'out',eventLabel||'team-scan',cost,cost,teamMember,''];
+    if(rowIdColIdx>0){while(row.length<rowIdColIdx-1)row.push('');row[rowIdColIdx-1]=rowId;}else row.push(rowId);
+    invSheet.appendRow(row);
+
+    // Update team member total_scans
+    if(token){
+      var tmSheet=getTeamSheet_();
+      if(tmSheet.getLastRow()>1){
+        var tmData=tmSheet.getRange(2,1,tmSheet.getLastRow()-1,8).getValues();
+        for(var i=0;i<tmData.length;i++){
+          if(tmData[i][0]===token){tmSheet.getRange(i+2,8).setValue((parseInt(tmData[i][7])||0)+1);break;}
+        }
+      }
+    }
+
+    return jsonResponse({ ok: true, route: 'teamScan', row_id: rowId });
+  } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
 
 // ── Active Event system ───────────────────────────────────────────

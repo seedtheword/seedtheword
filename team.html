@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Team Portal — Seed the Word</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    :root {
+      --serif:'Playfair Display',Georgia,serif;--sans:'Source Sans 3',system-ui,sans-serif;
+      --mono:'IBM Plex Mono',monospace;--bg:#FAFAF8;--card:#FFFFFF;--ink:#1A1A1A;
+      --muted:#6B6B6B;--gold:#B8860B;--green:#1a5c1d;--border:#E8E4DF;--red:#a6251f;
+    }
+    *,*::before,*::after{box-sizing:border-box;}
+    body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;}
+    .page{max-width:480px;margin:0 auto;padding:1.5rem 1.25rem 3rem;}
+    .logo{width:50px;height:50px;border-radius:10px;display:block;margin:0 auto 0.75rem;}
+    .kicker{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);text-align:center;margin:0 0 0.3rem;}
+    h1{font-family:var(--serif);font-size:1.5rem;font-weight:400;text-align:center;margin:0 0 1.5rem;}
+    h2{font-family:var(--serif);font-size:1.2rem;font-weight:400;margin:1.5rem 0 0.75rem;}
+    label{display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.2rem;}
+    input,select{width:100%;padding:0.75rem 0.85rem;border:1.5px solid var(--border);border-radius:8px;font-size:0.95rem;font-family:inherit;background:var(--card);margin-bottom:0.75rem;}
+    input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,134,11,0.12);}
+    .btn{width:100%;padding:0.85rem;border:none;border-radius:8px;font-size:0.95rem;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:0.5rem;}
+    .btn--gold{background:var(--gold);color:#fff;}.btn--gold:hover{background:#9a7209;}
+    .btn--green{background:var(--green);color:#fff;}.btn--green:hover{background:#154a17;}
+    .btn--outline{background:none;border:1.5px solid var(--border);color:var(--ink);}.btn--outline:hover{border-color:var(--gold);color:var(--gold);}
+    .btn:disabled{opacity:0.6;cursor:not-allowed;}
+    .status{text-align:center;font-size:0.85rem;min-height:1.2rem;margin-bottom:0.75rem;}
+    .status--error{color:var(--red);}.status--success{color:var(--green);}
+    .toggle{font-size:0.82rem;text-align:center;color:var(--muted);margin-top:0.5rem;}
+    .toggle a{color:var(--gold);font-weight:600;cursor:pointer;text-decoration:none;}
+    /* Dashboard */
+    .view{display:none;}.view.active{display:block;}
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1.25rem;}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.85rem;text-align:center;}
+    .stat-card__val{font-family:var(--serif);font-size:1.6rem;font-weight:600;color:var(--gold);}
+    .stat-card__label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:0.2rem;}
+    .event-banner{padding:0.7rem 1rem;background:#fff8e8;border:1px solid #f0e0b0;border-radius:8px;margin-bottom:1rem;font-size:0.82rem;text-align:center;}
+    .event-banner strong{color:var(--gold);}
+    .activity-log{margin-top:1rem;}
+    .activity-item{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;}
+    .activity-item:last-child{border-bottom:none;}
+    .activity-item__name{font-weight:600;}
+    .activity-item__time{font-family:var(--mono);font-size:0.7rem;color:var(--muted);}
+    /* QR Scanner */
+    .qr-toggle{width:100%;padding:0.85rem;background:var(--gold);color:#fff;border:none;border-radius:8px;font-size:0.92rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.75rem;}
+    .qr-toggle:hover{background:#9a7209;}
+    #qr-reader{width:100%;min-height:220px;display:none;border-radius:8px;overflow:hidden;margin-bottom:0.75rem;}
+    #qr-reader.active{display:block;}
+    .qr-status{text-align:center;font-size:0.82rem;color:var(--muted);min-height:1.4rem;margin-bottom:0.75rem;}
+    .qr-status.success{color:var(--green);font-weight:600;}
+    .qr-status.error{color:var(--red);}
+    .scan-count{text-align:center;font-family:var(--mono);font-size:0.75rem;color:var(--muted);margin-bottom:1rem;}
+  </style>
+</head>
+<body>
+<div class="page">
+  <img class="logo" src="assets/images/stw-logo.jpg" alt="Seed the Word">
+  <p class="kicker">Team Portal</p>
+  <h1>Seed the Word</h1>
+  <!-- Login View -->
+  <div class="view active" id="view-login">
+    <h2>Log in</h2>
+    <label>Name</label>
+    <input type="text" id="login-name" placeholder="Your full name" autocomplete="name">
+    <label>Password</label>
+    <input type="password" id="login-pass" placeholder="Your password" autocomplete="current-password">
+    <div class="status" id="login-status"></div>
+    <button class="btn btn--gold" id="login-btn">Log in</button>
+    <p class="toggle">New here? <a onclick="showView('signup')">Create an account</a></p>
+  </div>
+
+  <!-- Signup View -->
+  <div class="view" id="view-signup">
+    <h2>Join the team</h2>
+    <label>Full Name *</label>
+    <input type="text" id="signup-name" placeholder="David Ageyev" autocomplete="name">
+    <label>Email</label>
+    <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
+    <label>Phone</label>
+    <input type="tel" id="signup-phone" placeholder="(253) 555-1234" autocomplete="tel">
+    <label>Create Password *</label>
+    <input type="password" id="signup-pass" placeholder="Choose a password" autocomplete="new-password">
+    <label>Confirm Password *</label>
+    <input type="password" id="signup-pass2" placeholder="Confirm password" autocomplete="new-password">
+    <div class="status" id="signup-status"></div>
+    <button class="btn btn--green" id="signup-btn">Create Account</button>
+    <p class="toggle">Already have an account? <a onclick="showView('login')">Log in</a></p>
+  </div>
+
+  <!-- Event Setup View -->
+  <div class="view" id="view-event">
+    <h2>Set today's event</h2>
+    <p style="font-size:0.88rem;color:var(--muted);margin:0 0 1rem;">What outreach are you at today? This links all your scans to this event.</p>
+    <label>Event / Location *</label>
+    <input type="text" id="event-name" placeholder="e.g. Sam Petrov Community Cookout">
+    <label>Your Role Today</label>
+    <select id="event-role">
+      <option value="giving">Giving away Bibles/items</option>
+      <option value="support">Support / prayer</option>
+      <option value="setup">Setup / logistics</option>
+    </select>
+    <div class="status" id="event-status"></div>
+    <button class="btn btn--gold" id="event-btn">Start Scanning</button>
+  </div>
+  <!-- Dashboard View -->
+  <div class="view" id="view-dashboard">
+    <div class="event-banner" id="dash-event-banner"></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-card__val" id="stat-today">0</div><div class="stat-card__label">Today</div></div>
+      <div class="stat-card"><div class="stat-card__val" id="stat-total">0</div><div class="stat-card__label">All Time</div></div>
+    </div>
+
+    <button class="qr-toggle" id="qr-toggle-btn">📷 Scan Item QR</button>
+    <div id="qr-reader"></div>
+    <div class="qr-status" id="qr-status">Ready to scan.</div>
+    <div class="scan-count" id="scan-count"></div>
+
+    <button class="btn btn--outline" id="add-manual-btn">+ Add Item Manually</button>
+
+    <div class="activity-log" id="activity-log">
+      <h2 style="font-size:1rem;">Today's Activity</h2>
+      <div id="activity-list"><p style="color:var(--muted);font-size:0.85rem;">No items scanned yet today.</p></div>
+    </div>
+
+    <div style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <button class="btn btn--outline" style="flex:1;" onclick="showView('event')">Change Event</button>
+      <button class="btn btn--outline" style="flex:1;" id="logout-btn">Log Out</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  'use strict';
+  var TYPES=[['Pocket Personal Testimony Gideon Red','pocket-nt-red'],['Pocket Friend of Gideon Grey','pocket-nt-grey'],['Pocket Spanish Gideon','pocket-nt-spanish'],['Large Print Gideon Brown','large-print-nt-brown'],['Pocket Hindi Gideon','pocket-nt-hindi-blue'],['Large Print Russian','large-print-nt-russian'],['Large Print Ukranian','large-print-nt-ukrainian'],['Pocket Farsi Persian','pocket-nt-farsi-blue'],['Full Bible Large Print','full-bible-large-print'],['Full Bible Pocket','full-bible-pocket'],['Large Print Thai + English Gideon','pocket-nt-thai-english-blue'],['Pocket Mandarin Gideon','pocket-nt-mandarin'],['Large Print Urdu Gideon','large-print-nt-urdu-blue'],['Large Print Spanish + English Gideon','large-print-nt-spanish-english'],['Large Print Arabic + English','large-print-nt-arabic-english'],['Pocket Arabic','pocket-nt-arabic'],['Pocket French Gideon','pocket-nt-french'],['Life Book English','tract-life-book-english'],['Life Book Spanish','tract-life-book-spanish'],['Flip Books','tract-flip-books-english'],['Notebooks & Pens','merch-notebooks-pens'],['Keychains & Bracelets','merch-keychains-bracelets'],['Stickers','merch-stickers'],['Mini Jesus figurines','merch-mini-fig'],['Bookmarks','merch-bookmarks']];
+  function findType(id){for(var i=0;i<TYPES.length;i++){if(TYPES[i][1]===id)return TYPES[i];}return null;}
+
+  var session = null; // {token, name, event, role, todayScans:[]}
+  var CONFIG_URL = 'assets/data/site-config.json';
+
+  async function getHandlerUrl(){
+    var cfg=await fetch(CONFIG_URL+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});
+    return cfg.orderHandlerUrl;
+  }
+  async function postAction(data){
+    var url=await getHandlerUrl();
+    var res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});
+    var text=await res.text();
+    return JSON.parse(text);
+  }
+  async function sha256(text){
+    var buf=new TextEncoder().encode(text);
+    var digest=await crypto.subtle.digest('SHA-256',buf);
+    return Array.from(new Uint8Array(digest)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  }
+
+  // View management
+  window.showView=function(v){
+    document.querySelectorAll('.view').forEach(function(el){el.classList.remove('active');});
+    document.getElementById('view-'+v).classList.add('active');
+  };
+
+  // Check saved session
+  try{
+    var saved=JSON.parse(localStorage.getItem('stwm-team-session')||'null');
+    if(saved&&saved.token){session=saved;session.todayScans=session.todayScans||[];showEventOrDash();}
+  }catch(e){}
+  function showEventOrDash(){
+    if(session.event&&session.eventDate===new Date().toISOString().split('T')[0]){showDashboard();}
+    else{showView('event');}
+  }
+  function showDashboard(){
+    showView('dashboard');
+    document.getElementById('dash-event-banner').innerHTML='⚡ <strong>'+session.event+'</strong> — '+session.name;
+    document.getElementById('stat-today').textContent=session.todayScans.length;
+    document.getElementById('stat-total').textContent=session.totalScans||0;
+    updateActivityList();
+    updateScanCount();
+  }
+  function updateActivityList(){
+    var list=document.getElementById('activity-list');
+    if(!session.todayScans.length){list.innerHTML='<p style="color:var(--muted);font-size:0.85rem;">No items scanned yet today.</p>';return;}
+    list.innerHTML=session.todayScans.slice().reverse().map(function(s){
+      return '<div class="activity-item"><span class="activity-item__name">'+s.name+'</span><span class="activity-item__time">'+s.time+'</span></div>';
+    }).join('');
+  }
+  function updateScanCount(){
+    document.getElementById('scan-count').textContent=session.todayScans.length+' item(s) scanned today';
+  }
+  function saveSession(){try{localStorage.setItem('stwm-team-session',JSON.stringify(session));}catch(e){}}
+
+  // Login
+  document.getElementById('login-btn').addEventListener('click',async function(){
+    var btn=this,status=document.getElementById('login-status');
+    var name=document.getElementById('login-name').value.trim();
+    var pass=document.getElementById('login-pass').value;
+    if(!name||!pass){status.textContent='Enter name and password.';status.className='status status--error';return;}
+    btn.disabled=true;btn.textContent='Logging in...';status.textContent='';
+    try{
+      var hash=await sha256('stwm-team-'+name.toLowerCase()+'-'+pass);
+      var res=await postAction({action:'teamLogin',name:name,password_hash:hash});
+      if(res.ok){
+        session={token:res.token,name:res.name,totalScans:res.total_scans||0,todayScans:[],event:'',eventDate:''};
+        saveSession();showEventOrDash();
+      }else throw new Error(res.error||'Login failed');
+    }catch(err){status.textContent=err.message;status.className='status status--error';}
+    btn.disabled=false;btn.textContent='Log in';
+  });
+  // Signup
+  document.getElementById('signup-btn').addEventListener('click',async function(){
+    var btn=this,status=document.getElementById('signup-status');
+    var name=document.getElementById('signup-name').value.trim();
+    var email=document.getElementById('signup-email').value.trim();
+    var phone=document.getElementById('signup-phone').value.trim();
+    var pass=document.getElementById('signup-pass').value;
+    var pass2=document.getElementById('signup-pass2').value;
+    if(!name){status.textContent='Name is required.';status.className='status status--error';return;}
+    if(!pass||pass.length<4){status.textContent='Password must be at least 4 characters.';status.className='status status--error';return;}
+    if(pass!==pass2){status.textContent='Passwords do not match.';status.className='status status--error';return;}
+    btn.disabled=true;btn.textContent='Creating account...';status.textContent='';
+    try{
+      var hash=await sha256('stwm-team-'+name.toLowerCase()+'-'+pass);
+      var res=await postAction({action:'teamSignup',name:name,email:email,phone:phone,password_hash:hash});
+      if(res.ok){
+        session={token:res.token,name:name,totalScans:0,todayScans:[],event:'',eventDate:''};
+        saveSession();showEventOrDash();
+      }else throw new Error(res.error||'Signup failed');
+    }catch(err){status.textContent=err.message;status.className='status status--error';}
+    btn.disabled=false;btn.textContent='Create Account';
+  });
+
+  // Event setup
+  document.getElementById('event-btn').addEventListener('click',function(){
+    var name=document.getElementById('event-name').value.trim();
+    if(!name){document.getElementById('event-status').textContent='Enter an event name.';return;}
+    session.event=name;session.eventDate=new Date().toISOString().split('T')[0];
+    session.todayScans=[];saveSession();
+    // Set active event on server
+    postAction({action:'setActiveEvent',passphrase_hash:'2e3df09a3a06ebdacb4cf637764073674243ed9497da164c94a955f7ae931440',event_id:name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),event_label:name,set_by:session.name}).catch(function(){});
+    showDashboard();
+  });
+
+  // Logout
+  document.getElementById('logout-btn').addEventListener('click',function(){
+    session=null;try{localStorage.removeItem('stwm-team-session');}catch(e){}showView('login');
+  });
+  // QR Scanner
+  var qrScanner=null,qrActive=false;
+  document.getElementById('qr-toggle-btn').addEventListener('click',function(){
+    if(qrActive){stopQr();return;}
+    if(!window.Html5Qrcode){var s=document.createElement('script');s.src='https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';s.onload=startQr;document.head.appendChild(s);}else startQr();
+  });
+  function startQr(){
+    var reader=document.getElementById('qr-reader'),status=document.getElementById('qr-status'),btn=document.getElementById('qr-toggle-btn');
+    reader.classList.add('active');btn.textContent='\u23f9 Stop Scanner';status.textContent='Scanning...';status.className='qr-status';
+    qrScanner=new Html5Qrcode('qr-reader');qrActive=true;
+    qrScanner.start({facingMode:'environment'},{fps:10,qrbox:{width:200,height:200}},function(decoded){
+      var itemId=decoded.trim();
+      if(itemId.indexOf('http')===0){try{var u=new URL(itemId);itemId=u.searchParams.get('item')||u.pathname.split('/').pop()||itemId;}catch(e){}}
+      var found=findType(itemId);
+      if(found){logScan(found[1],found[0]);status.textContent='\u2705 '+found[0];status.className='qr-status success';if(navigator.vibrate)navigator.vibrate(100);}
+      else{status.textContent='\u26a0\ufe0f Unknown: '+itemId;status.className='qr-status error';}
+      qrScanner.pause(true);setTimeout(function(){try{qrScanner.resume();}catch(e){}},1500);
+    },function(){}).catch(function(err){status.textContent='Camera error: '+(err.message||err);status.className='qr-status error';qrActive=false;reader.classList.remove('active');btn.textContent='\ud83d\udcf7 Scan Item QR';});
+  }
+  function stopQr(){var reader=document.getElementById('qr-reader'),btn=document.getElementById('qr-toggle-btn');if(qrScanner)qrScanner.stop().then(function(){qrScanner.clear();}).catch(function(){});qrActive=false;reader.classList.remove('active');btn.textContent='\ud83d\udcf7 Scan Item QR';document.getElementById('qr-status').textContent='Scanner stopped.';document.getElementById('qr-status').className='qr-status';}
+
+  // Log a scan
+  async function logScan(itemId,itemName){
+    var now=new Date();
+    session.todayScans.push({id:itemId,name:itemName,time:now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})});
+    session.totalScans=(session.totalScans||0)+1;
+    saveSession();updateActivityList();updateScanCount();
+    document.getElementById('stat-today').textContent=session.todayScans.length;
+    document.getElementById('stat-total').textContent=session.totalScans;
+    // Post to server
+    try{await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:itemId,item_name:itemName,event_label:session.event,date:now.toISOString().split('T')[0]});}catch(e){}
+  }
+
+  // Manual add
+  document.getElementById('add-manual-btn').addEventListener('click',function(){
+    var sel=prompt('Enter item # (1-'+TYPES.length+'):\n'+TYPES.map(function(t,i){return(i+1)+'. '+t[0];}).join('\n'));
+    if(!sel)return;var idx=parseInt(sel)-1;
+    if(idx>=0&&idx<TYPES.length)logScan(TYPES[idx][1],TYPES[idx][0]);
+  });
+})();
+</script>
+</body>
+</html>

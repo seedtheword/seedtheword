@@ -53,6 +53,37 @@
     .qr-status.success{color:var(--green);font-weight:600;}
     .qr-status.error{color:var(--red);}
     .scan-count{text-align:center;font-family:var(--mono);font-size:0.75rem;color:var(--muted);margin-bottom:1rem;}
+    /* QR Confirm banner */
+    .qr-confirm{display:none;padding:1rem;background:#dfecdf;border:1.5px solid var(--green);border-radius:8px;margin-bottom:0.75rem;text-align:center;}
+    .qr-confirm.active{display:block;}
+    .qr-confirm__name{font-weight:700;font-size:1rem;color:var(--ink);margin:0 0 0.3rem;}
+    .qr-confirm__id{font-family:var(--mono);font-size:0.7rem;color:var(--gold);margin:0 0 0.75rem;}
+    .qr-confirm__actions{display:flex;gap:0.5rem;justify-content:center;}
+    .qr-confirm__btn{padding:0.6rem 1.2rem;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;border:none;}
+    .qr-confirm__btn--add{background:var(--green);color:#fff;}
+    .qr-confirm__btn--add:hover{background:#154a17;}
+    .qr-confirm__btn--cancel{background:var(--card);border:1.5px solid var(--border);color:var(--muted);}
+    .qr-confirm__btn--cancel:hover{border-color:var(--red);color:var(--red);}
+    .qr-confirm__btn--rescan{background:#fff8e8;border:1.5px solid var(--gold);color:var(--gold);margin-top:0.5rem;width:100%;}
+    .qr-confirm__btn--rescan:hover{background:var(--gold);color:#fff;}
+    /* Picker modal */
+    .picker-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:flex-end;justify-content:center;padding:0;}
+    .picker-overlay.active{display:flex;}
+    .picker-sheet{background:var(--card);border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -4px 30px rgba(0,0,0,0.15);}
+    .picker-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);flex-shrink:0;}
+    .picker-header__title{font-weight:700;font-size:1rem;margin:0;}
+    .picker-header__close{width:32px;height:32px;border-radius:50%;background:var(--bg);border:1px solid var(--border);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:inherit;}
+    .picker-header__close:hover{border-color:var(--red);color:var(--red);}
+    .picker-search{margin:0.75rem 1.25rem;padding:0.7rem 0.85rem;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:inherit;background:var(--bg);width:calc(100% - 2.5rem);}
+    .picker-search:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,134,11,0.12);}
+    .picker-list{flex:1;overflow-y:auto;padding:0.5rem 1.25rem 1.25rem;-webkit-overflow-scrolling:touch;}
+    .picker-item{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 0.85rem;border:1.5px solid var(--border);border-radius:8px;margin-bottom:0.5rem;cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+    .picker-item:hover{border-color:var(--gold);background:#fff8e8;}
+    .picker-item__name{font-weight:600;font-size:0.85rem;color:var(--ink);}
+    .picker-item__id{font-family:var(--mono);font-size:0.65rem;color:var(--muted);}
+    /* Activity item remove */
+    .activity-item__rm{background:none;border:none;color:var(--muted);font-size:0.8rem;cursor:pointer;padding:0.2rem 0.4rem;border-radius:4px;}
+    .activity-item__rm:hover{color:var(--red);}
   </style>
 </head>
 <body>
@@ -116,9 +147,31 @@
     <button class="qr-toggle" id="qr-toggle-btn">📷 Scan Item QR</button>
     <div id="qr-reader"></div>
     <div class="qr-status" id="qr-status">Ready to scan.</div>
+    <!-- Confirmation after scan -->
+    <div class="qr-confirm" id="qr-confirm">
+      <p class="qr-confirm__name" id="qr-confirm-name"></p>
+      <p class="qr-confirm__id" id="qr-confirm-id"></p>
+      <div class="qr-confirm__actions">
+        <button type="button" class="qr-confirm__btn qr-confirm__btn--add" id="qr-confirm-add">Add</button>
+        <button type="button" class="qr-confirm__btn qr-confirm__btn--cancel" id="qr-confirm-cancel">Discard</button>
+      </div>
+      <button type="button" class="qr-confirm__btn qr-confirm__btn--rescan" id="qr-confirm-rescan">📷 Scan Another</button>
+    </div>
     <div class="scan-count" id="scan-count"></div>
 
     <button class="btn btn--outline" id="add-manual-btn">+ Add Item Manually</button>
+
+    <!-- Picker modal -->
+    <div class="picker-overlay" id="picker-overlay">
+      <div class="picker-sheet">
+        <div class="picker-header">
+          <h2 class="picker-header__title">Select Item</h2>
+          <button type="button" class="picker-header__close" id="picker-close">&times;</button>
+        </div>
+        <input type="text" class="picker-search" id="picker-search" placeholder="Search items...">
+        <div class="picker-list" id="picker-list"></div>
+      </div>
+    </div>
 
     <div class="activity-log" id="activity-log">
       <h2 style="font-size:1rem;">Today's Activity</h2>
@@ -182,9 +235,13 @@
   function updateActivityList(){
     var list=document.getElementById('activity-list');
     if(!session.todayScans.length){list.innerHTML='<p style="color:var(--muted);font-size:0.85rem;">No items scanned yet today.</p>';return;}
-    list.innerHTML=session.todayScans.slice().reverse().map(function(s){
-      return '<div class="activity-item"><span class="activity-item__name">'+s.name+'</span><span class="activity-item__time">'+s.time+'</span></div>';
+    list.innerHTML=session.todayScans.slice().reverse().map(function(s,i){
+      var realIdx=session.todayScans.length-1-i;
+      return '<div class="activity-item"><span class="activity-item__name">'+s.name+'</span><span><span class="activity-item__time">'+s.time+'</span> <button class="activity-item__rm" data-idx="'+realIdx+'" title="Remove">\u00d7</button></span></div>';
     }).join('');
+    list.querySelectorAll('.activity-item__rm').forEach(function(btn){
+      btn.addEventListener('click',function(){removeScan(+this.dataset.idx);});
+    });
   }
   function updateScanCount(){
     document.getElementById('scan-count').textContent=session.todayScans.length+' item(s) scanned today';
@@ -246,26 +303,60 @@
   document.getElementById('logout-btn').addEventListener('click',function(){
     session=null;try{localStorage.removeItem('stwm-team-session');}catch(e){}showView('login');
   });
-  // QR Scanner
+  // QR Scanner — stops after one scan, shows confirmation
   var qrScanner=null,qrActive=false;
+  var pendingScan=null;
+
   document.getElementById('qr-toggle-btn').addEventListener('click',function(){
     if(qrActive){stopQr();return;}
     if(!window.Html5Qrcode){var s=document.createElement('script');s.src='https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';s.onload=startQr;document.head.appendChild(s);}else startQr();
   });
   function startQr(){
     var reader=document.getElementById('qr-reader'),status=document.getElementById('qr-status'),btn=document.getElementById('qr-toggle-btn');
+    document.getElementById('qr-confirm').classList.remove('active');
+    pendingScan=null;
     reader.classList.add('active');btn.textContent='\u23f9 Stop Scanner';status.textContent='Scanning...';status.className='qr-status';
     qrScanner=new Html5Qrcode('qr-reader');qrActive=true;
     qrScanner.start({facingMode:'environment'},{fps:10,qrbox:{width:200,height:200}},function(decoded){
+      // Stop immediately on first detection
+      stopQr();
       var itemId=decoded.trim();
       if(itemId.indexOf('http')===0){try{var u=new URL(itemId);itemId=u.searchParams.get('item')||u.pathname.split('/').pop()||itemId;}catch(e){}}
       var found=findType(itemId);
-      if(found){logScan(found[1],found[0]);status.textContent='\u2705 '+found[0];status.className='qr-status success';if(navigator.vibrate)navigator.vibrate(100);}
-      else{status.textContent='\u26a0\ufe0f Unknown: '+itemId;status.className='qr-status error';}
-      qrScanner.pause(true);setTimeout(function(){try{qrScanner.resume();}catch(e){}},1500);
-    },function(){}).catch(function(err){status.textContent='Camera error: '+(err.message||err);status.className='qr-status error';qrActive=false;reader.classList.remove('active');btn.textContent='\ud83d\udcf7 Scan Item QR';});
+      if(found){
+        pendingScan={id:found[1],name:found[0]};
+        showScanConfirm(found[0],found[1]);
+        if(navigator.vibrate)navigator.vibrate(100);
+      }else{
+        document.getElementById('qr-status').textContent='\u26a0\ufe0f Unknown: '+itemId;
+        document.getElementById('qr-status').className='qr-status error';
+      }
+    },function(){}).catch(function(err){document.getElementById('qr-status').textContent='Camera error: '+(err.message||err);document.getElementById('qr-status').className='qr-status error';qrActive=false;document.getElementById('qr-reader').classList.remove('active');document.getElementById('qr-toggle-btn').textContent='\ud83d\udcf7 Scan Item QR';});
   }
-  function stopQr(){var reader=document.getElementById('qr-reader'),btn=document.getElementById('qr-toggle-btn');if(qrScanner)qrScanner.stop().then(function(){qrScanner.clear();}).catch(function(){});qrActive=false;reader.classList.remove('active');btn.textContent='\ud83d\udcf7 Scan Item QR';document.getElementById('qr-status').textContent='Scanner stopped.';document.getElementById('qr-status').className='qr-status';}
+  function stopQr(){
+    var reader=document.getElementById('qr-reader'),btn=document.getElementById('qr-toggle-btn');
+    if(qrScanner){try{qrScanner.stop().then(function(){try{qrScanner.clear();}catch(e){}}).catch(function(){});}catch(e){}}
+    qrActive=false;reader.classList.remove('active');btn.textContent='\ud83d\udcf7 Scan Item QR';
+    if(!pendingScan){document.getElementById('qr-status').textContent='Scanner stopped.';document.getElementById('qr-status').className='qr-status';}
+  }
+  function showScanConfirm(name,id){
+    document.getElementById('qr-confirm-name').textContent=name;
+    document.getElementById('qr-confirm-id').textContent=id;
+    document.getElementById('qr-confirm').classList.add('active');
+    document.getElementById('qr-status').textContent='\u2705 Scanned! Confirm below.';
+    document.getElementById('qr-status').className='qr-status success';
+  }
+  function hideScanConfirm(){document.getElementById('qr-confirm').classList.remove('active');pendingScan=null;}
+
+  document.getElementById('qr-confirm-add').addEventListener('click',function(){
+    if(pendingScan){logScan(pendingScan.id,pendingScan.name);document.getElementById('qr-status').textContent='\u2705 Added: '+pendingScan.name;}
+    hideScanConfirm();
+  });
+  document.getElementById('qr-confirm-cancel').addEventListener('click',function(){
+    document.getElementById('qr-status').textContent='Scan discarded.';document.getElementById('qr-status').className='qr-status';
+    hideScanConfirm();
+  });
+  document.getElementById('qr-confirm-rescan').addEventListener('click',function(){hideScanConfirm();startQr();});
 
   // Log a scan
   async function logScan(itemId,itemName){
@@ -279,12 +370,45 @@
     try{await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:itemId,item_name:itemName,event_label:session.event,date:now.toISOString().split('T')[0]});}catch(e){}
   }
 
-  // Manual add
-  document.getElementById('add-manual-btn').addEventListener('click',function(){
-    var sel=prompt('Enter item # (1-'+TYPES.length+'):\n'+TYPES.map(function(t,i){return(i+1)+'. '+t[0];}).join('\n'));
-    if(!sel)return;var idx=parseInt(sel)-1;
-    if(idx>=0&&idx<TYPES.length)logScan(TYPES[idx][1],TYPES[idx][0]);
-  });
+  // Remove a scan from today's activity
+  function removeScan(idx){
+    if(!confirm('Remove "'+session.todayScans[idx].name+'" from today\'s log?'))return;
+    session.todayScans.splice(idx,1);
+    session.totalScans=Math.max(0,(session.totalScans||1)-1);
+    saveSession();updateActivityList();updateScanCount();
+    document.getElementById('stat-today').textContent=session.todayScans.length;
+    document.getElementById('stat-total').textContent=session.totalScans;
+  }
+
+  // Manual add — picker modal
+  document.getElementById('add-manual-btn').addEventListener('click',function(){openPicker();});
+
+  function openPicker(){
+    var overlay=document.getElementById('picker-overlay');
+    document.getElementById('picker-search').value='';
+    renderPickerList('');
+    overlay.classList.add('active');
+    setTimeout(function(){document.getElementById('picker-search').focus();},100);
+  }
+  function closePicker(){document.getElementById('picker-overlay').classList.remove('active');}
+  function renderPickerList(filter){
+    var list=document.getElementById('picker-list');
+    var q=filter.toLowerCase();
+    var html='';
+    TYPES.forEach(function(t,i){
+      var name=t[0],id=t[1];
+      if(q&&name.toLowerCase().indexOf(q)===-1&&id.toLowerCase().indexOf(q)===-1)return;
+      html+='<div class="picker-item" data-idx="'+i+'"><div><div class="picker-item__name">'+name+'</div><div class="picker-item__id">'+id+'</div></div></div>';
+    });
+    if(!html)html='<p style="text-align:center;color:var(--muted);padding:2rem 0;font-size:0.88rem;">No items match.</p>';
+    list.innerHTML=html;
+    list.querySelectorAll('.picker-item').forEach(function(el){
+      el.addEventListener('click',function(){var idx=+this.dataset.idx;logScan(TYPES[idx][1],TYPES[idx][0]);closePicker();});
+    });
+  }
+  document.getElementById('picker-close').addEventListener('click',closePicker);
+  document.getElementById('picker-overlay').addEventListener('click',function(e){if(e.target===this)closePicker();});
+  document.getElementById('picker-search').addEventListener('input',function(){renderPickerList(this.value);});
 })();
 </script>
 </body>

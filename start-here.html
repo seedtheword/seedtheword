@@ -375,7 +375,8 @@
 <script src="assets/js/main.js?v=15" defer></script>
 
 <script>
-document.getElementById('footer-year').textContent = new Date().getFullYear();
+var footerYearEl = document.getElementById('footer-year');
+if (footerYearEl) footerYearEl.textContent = new Date().getFullYear();
 
 (function renderPlan() {
   const target = document.getElementById('plan-weeks');

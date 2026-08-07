@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615754,
-  "lastModified": "2026-08-07T00:55:32Z",
+  "lastUpdateId": 669615756,
+  "lastModified": "2026-08-07T06:10:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -281,6 +281,16 @@
       "kind": "telegram",
       "text": "Thank you Liam!!!",
       "ts": "2026-08-07T00:49:17Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5183,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hey guys. Could you keep my family in your prayers tomorrow? There's a trial happening tomorrow for my grandpa's passing, and I feel it'll be hard on my family, as old memories start to bubble up to the surface. Thank you all ! 🙏🏻",
+      "ts": "2026-08-07T06:07:29Z"
     }
   ]
 }

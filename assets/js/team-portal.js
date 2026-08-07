@@ -160,13 +160,16 @@ function updateScanCount(){
 function removeScan(idx){
   if(!confirm('Remove "'+session.todayScans[idx].name+'" from today\'s log?\n\nThis will also remove it from the spreadsheet.')){return;}
   var scan=session.todayScans[idx];
-  // Delete from server
-  postAction({action:'deleteScan',token:session.token,item_id:scan.id,item_name:scan.name,event_label:session.event,date:session.eventDate}).catch(function(){});
-  session.todayScans.splice(idx,1);
-  session.totalScans=Math.max(0,(session.totalScans||1)-1);
-  saveSession();updateActivityList();updateScanCount();
-  document.getElementById('stat-today').textContent=session.todayScans.length;
-  document.getElementById('stat-total').textContent=session.totalScans;
+  // Delete from server first, then update local
+  postAction({action:'deleteScan',token:session.token,item_id:scan.id,item_name:scan.name,event_label:session.event,date:session.eventDate}).then(function(res){
+    if(res&&res.ok){
+      session.todayScans.splice(idx,1);
+      session.totalScans=Math.max(0,(session.totalScans||1)-1);
+      saveSession();updateActivityList();updateScanCount();
+      document.getElementById('stat-today').textContent=session.todayScans.length;
+      document.getElementById('stat-total').textContent=session.totalScans;
+    }else{alert('Could not delete from spreadsheet: '+(res&&res.error||'unknown error'));}
+  }).catch(function(e){alert('Delete failed: '+e.message);});
 }
 function editScan(idx){
   var scan=session.todayScans[idx];

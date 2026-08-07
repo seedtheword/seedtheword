@@ -409,10 +409,12 @@ function handleDeleteScan_(payload) {
 
     var data = sheet.getRange(2, 1, sheet.getLastRow()-1, sheet.getLastColumn()).getValues();
     // Find the most recent matching row for this user+item+date+event
+    // Date comparison: normalize both to YYYY-MM-DD since Sheets may auto-format
     for (var i = data.length - 1; i >= 0; i--) {
-      if (String(data[i][2]).trim() === itemId &&
-          String(data[i][0]).trim() === date &&
-          String(data[i][9]).toLowerCase().trim() === user.name.toLowerCase()) {
+      var rowDate = data[i][0] instanceof Date ? data[i][0].toISOString().split('T')[0] : String(data[i][0]).trim().split('T')[0];
+      var rowItem = String(data[i][2]).trim();
+      var rowMember = String(data[i][9]).toLowerCase().trim();
+      if (rowItem === itemId && rowDate === date && rowMember === user.name.toLowerCase()) {
         sheet.deleteRow(i + 2);
         // Decrement total_scans
         var tmSheet = getTeamSheet_();

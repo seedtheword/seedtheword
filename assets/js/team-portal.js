@@ -142,10 +142,15 @@ function updateActivityList(){
   if(!session||!session.todayScans.length){list.innerHTML='<p style="color:var(--muted);font-size:0.84rem;">No items scanned yet today.</p>';return;}
   list.innerHTML=session.todayScans.slice().reverse().map(function(s,i){
     var realIdx=session.todayScans.length-1-i;
-    return '<div class="activity-item"><span class="activity-item__name">'+escapeHtml(s.name)+'</span><span class="activity-item__time">'+s.time+'</span><button class="activity-item__rm" data-idx="'+realIdx+'">\u00d7</button></div>';
+    return '<div class="activity-item"><span class="activity-item__name">'+escapeHtml(s.name)+'</span><span class="activity-item__time">'+s.time+'</span>'+
+      '<button class="activity-item__edit" data-idx="'+realIdx+'" title="Edit">✏️</button>'+
+      '<button class="activity-item__rm" data-idx="'+realIdx+'" title="Remove">×</button></div>';
   }).join('');
   list.querySelectorAll('.activity-item__rm').forEach(function(btn){
     btn.addEventListener('click',function(){removeScan(+this.dataset.idx);});
+  });
+  list.querySelectorAll('.activity-item__edit').forEach(function(btn){
+    btn.addEventListener('click',function(){editScan(+this.dataset.idx);});
   });
 }
 function updateScanCount(){
@@ -153,12 +158,74 @@ function updateScanCount(){
   if(el&&session)el.textContent=session.todayScans.length+' item(s) scanned today';
 }
 function removeScan(idx){
-  if(!confirm('Remove "'+session.todayScans[idx].name+'"?'))return;
+  if(!confirm('Remove "'+session.todayScans[idx].name+'" from today\'s log?\n\nThis will also remove it from the spreadsheet.')){return;}
+  var scan=session.todayScans[idx];
+  // Delete from server
+  postAction({action:'deleteScan',token:session.token,item_id:scan.id,item_name:scan.name,event_label:session.event,date:session.eventDate}).catch(function(){});
   session.todayScans.splice(idx,1);
   session.totalScans=Math.max(0,(session.totalScans||1)-1);
   saveSession();updateActivityList();updateScanCount();
   document.getElementById('stat-today').textContent=session.todayScans.length;
   document.getElementById('stat-total').textContent=session.totalScans;
+}
+function editScan(idx){
+  var scan=session.todayScans[idx];
+  var newQty=prompt('Edit quantity for "'+scan.name+'":\n(Currently 1. Enter new quantity or 0 to remove.)',1);
+  if(newQty===null)return;
+  newQty=parseInt(newQty);
+  if(newQty===0){removeScan(idx);return;}
+  if(isNaN(newQty)||newQty<1){alert('Invalid quantity.');return;}
+  // For today's items, we can directly update
+  postAction({action:'editScan',token:session.token,item_id:scan.id,item_name:scan.name,event_label:session.event,date:session.eventDate,new_qty:newQty}).catch(function(){});
+  alert('Updated to '+newQty+'.');
+}
+
+// ── Scan History ──
+async function loadScanHistory(){
+  var container=document.getElementById('history-list');
+  if(!container)return;
+  container.innerHTML='<p style="color:var(--muted);font-size:0.84rem;text-align:center;">Loading history...</p>';
+  try{
+    var res=await postAction({action:'getScanHistory',token:session.token});
+    if(res.ok&&res.scans&&res.scans.length){
+      var today=new Date().toISOString().split('T')[0];
+      container.innerHTML=res.scans.map(function(s){
+        var isToday=s.date===today;
+        var actions='';
+        if(isToday){
+          actions='<button class="activity-item__edit hist-edit" data-row="'+escapeHtml(s.row_id)+'" data-name="'+escapeHtml(s.item_name)+'">✏️</button>'+
+                  '<button class="activity-item__rm hist-del" data-row="'+escapeHtml(s.row_id)+'" data-name="'+escapeHtml(s.item_name)+'">×</button>';
+        }else{
+          actions='<button class="activity-item__edit hist-suggest" data-row="'+escapeHtml(s.row_id)+'" data-name="'+escapeHtml(s.item_name)+'" title="Suggest a change">✏️</button>';
+        }
+        return '<div class="activity-item"><span class="activity-item__name">'+escapeHtml(s.item_name)+'<small style="color:var(--muted);font-size:0.7rem;margin-left:0.4rem;">'+escapeHtml(s.date)+' · '+escapeHtml(s.event||'')+'</small></span>'+actions+'</div>';
+      }).join('');
+      // Bind today's edit/delete
+      container.querySelectorAll('.hist-del').forEach(function(btn){
+        btn.addEventListener('click',function(){
+          if(!confirm('Delete "'+this.dataset.name+'" from the spreadsheet?'))return;
+          postAction({action:'deleteInventoryRow',token:session.token,row_id:this.dataset.row}).then(function(){loadScanHistory();}).catch(function(e){alert(e.message);});
+        });
+      });
+      container.querySelectorAll('.hist-edit').forEach(function(btn){
+        btn.addEventListener('click',function(){
+          var newQty=prompt('New quantity for "'+this.dataset.name+'":',1);
+          if(!newQty)return;
+          postAction({action:'editInventoryRow',token:session.token,row_id:this.dataset.row,new_qty:parseInt(newQty)||1}).then(function(){loadScanHistory();}).catch(function(e){alert(e.message);});
+        });
+      });
+      // Bind past day suggest-change
+      container.querySelectorAll('.hist-suggest').forEach(function(btn){
+        btn.addEventListener('click',function(){
+          var note=prompt('Suggest a change for "'+this.dataset.name+'":\n(This sends a note to admins for review)');
+          if(!note)return;
+          postAction({action:'suggestScanEdit',token:session.token,row_id:this.dataset.row,item_name:this.dataset.name,note:note}).then(function(){alert('Change request sent to admins.');}).catch(function(e){alert(e.message);});
+        });
+      });
+    }else{
+      container.innerHTML='<p style="color:var(--muted);font-size:0.84rem;text-align:center;">No scan history found.</p>';
+    }
+  }catch(e){container.innerHTML='<p style="color:var(--red);font-size:0.84rem;text-align:center;">Error loading history.</p>';}
 }
 
 // ── QR Scanner ──
@@ -405,5 +472,18 @@ document.getElementById('notes-search').addEventListener('input',function(){
   });
 });
 document.querySelector('[data-msgtab="notes"]').addEventListener('click',loadNoteMembers);
+
+// ── History toggle ──
+document.getElementById('toggle-history-btn').addEventListener('click',function(){
+  var card=document.getElementById('history-card');
+  if(card.style.display==='none'){
+    card.style.display='';
+    this.textContent='📋 Hide History';
+    loadScanHistory();
+  }else{
+    card.style.display='none';
+    this.textContent='📋 View Full History';
+  }
+});
 
 })();

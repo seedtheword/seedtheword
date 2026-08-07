@@ -240,6 +240,20 @@ function doPost(e) {
   if ((payload && payload.action) === 'addMemberNote') return handleAddMemberNote_(payload);
   if ((payload && payload.action) === 'getMemberNotes') return handleGetMemberNotes_(payload);
   if ((payload && payload.action) === 'getNoteMembers') return handleGetNoteMembers_(payload);
+  // ── Inventory edit/delete actions ──
+  if ((payload && payload.action) === 'deleteScan') return handleDeleteScan_(payload);
+  if ((payload && payload.action) === 'editScan') return handleEditScan_(payload);
+  if ((payload && payload.action) === 'getScanHistory') return handleGetScanHistory_(payload);
+  if ((payload && payload.action) === 'deleteInventoryRow') return handleDeleteInventoryRow_(payload);
+  if ((payload && payload.action) === 'editInventoryRow') return handleEditInventoryRow_(payload);
+  if ((payload && payload.action) === 'suggestScanEdit') return handleSuggestScanEdit_(payload);
+  // ── Admin dashboard actions ──
+  if ((payload && payload.action) === 'getAdminStats') return handleGetAdminStats_(payload);
+  if ((payload && payload.action) === 'getAdminInventory') return handleGetAdminInventory_(payload);
+  if ((payload && payload.action) === 'getAdminMembers') return handleGetAdminMembers_(payload);
+  if ((payload && payload.action) === 'adminPostAnnouncement') return handleAdminPostAnnouncement_(payload);
+  if ((payload && payload.action) === 'adminDeleteInventoryRow') return handleAdminDeleteInventoryRow_(payload);
+  if ((payload && payload.action) === 'setMemberRole') return handleSetMemberRole_(payload);
   return handleOrder(payload);
 }
 

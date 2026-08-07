@@ -77,6 +77,8 @@
     .activity-item__time{font-size:0.7rem;color:var(--muted);margin-right:0.5rem;}
     .activity-item__rm{background:none;border:none;color:var(--muted);font-size:0.85rem;cursor:pointer;padding:0.2rem 0.4rem;border-radius:4px;}
     .activity-item__rm:hover{color:var(--red);}
+    .activity-item__edit{background:none;border:none;color:var(--muted);font-size:0.75rem;cursor:pointer;padding:0.2rem 0.4rem;border-radius:4px;}
+    .activity-item__edit:hover{color:var(--gold);}
 
     /* QR Scanner */
     .qr-toggle{width:100%;padding:0.85rem;background:linear-gradient(135deg,var(--gold),#d4a84b);color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.75rem;box-shadow:0 4px 16px rgba(200,150,62,0.25);transition:transform 0.2s;}
@@ -236,6 +238,12 @@
         <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.5rem;">Today's Activity</h3>
         <div id="activity-list"><p style="color:var(--muted);font-size:0.84rem;">No items scanned yet today.</p></div>
       </div>
+      <div class="glass-card" id="history-card" style="display:none;">
+        <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.5rem;">Scan History</h3>
+        <p style="font-size:0.75rem;color:var(--muted);margin:0 0 0.5rem;">Today's items can be edited/deleted. Past items: tap ✏️ to suggest a change to admins.</p>
+        <div id="history-list"></div>
+      </div>
+      <button class="btn btn--outline" id="toggle-history-btn" style="margin-bottom:0.5rem;">📋 View Full History</button>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
         <button class="btn btn--outline" style="flex:1;" onclick="showView('event')">Change Event</button>
         <button class="btn btn--outline" style="flex:1;" id="logout-btn">Log Out</button>

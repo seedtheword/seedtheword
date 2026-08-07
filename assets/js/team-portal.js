@@ -45,9 +45,10 @@ function showPortal(){
   document.getElementById('stat-total').textContent=session.totalScans||0;
   updateActivityList();updateScanCount();
   // Show compose if admin
-  if(session.role==='admin'){document.getElementById('ann-compose-card').style.display='';}
+  if(session.role==='admin'||session.role==='super_admin'){document.getElementById('ann-compose-card').style.display='';}
   else{document.getElementById('ann-compose-card').style.display='none';}
   loadAnnouncements();
+  checkEmergencyAlerts();
 }
 function showEventOrPortal(){
   if(session.event&&session.eventDate===new Date().toISOString().split('T')[0]){showPortal();}
@@ -333,9 +334,41 @@ document.getElementById('ann-send-btn').addEventListener('click',async function(
     if(res.ok){
       document.getElementById('ann-subject').value='';document.getElementById('ann-body').value='';
       loadAnnouncements();
+      if(priority==='emergency')checkEmergencyAlerts();
     }else{alert(res.error||'Failed to post.');}
   }catch(e){alert(e.message);}
   btn.disabled=false;btn.textContent='Post';
+});
+
+// ── Emergency Alert System ──
+async function checkEmergencyAlerts(){
+  var banner=document.getElementById('emergency-banner');
+  if(!banner)return;
+  var dismissed=sessionStorage.getItem('stwm-emergency-dismissed');
+  try{
+    var res=await postAction({action:'getAnnouncements',token:session.token});
+    if(res.ok&&res.announcements){
+      // Find most recent emergency (within last 24h)
+      var now=Date.now();
+      var emergency=null;
+      for(var i=0;i<res.announcements.length;i++){
+        var a=res.announcements[i];
+        if(a.priority==='emergency'&&(now-a.timestamp)<86400000){
+          emergency=a;break;
+        }
+      }
+      if(emergency&&dismissed!==emergency.subject){
+        document.getElementById('emergency-title').textContent=emergency.subject;
+        document.getElementById('emergency-body').textContent=emergency.body;
+        banner.style.display='flex';
+      }else{banner.style.display='none';}
+    }
+  }catch(e){}
+}
+document.getElementById('emergency-dismiss').addEventListener('click',function(){
+  var title=document.getElementById('emergency-title').textContent;
+  sessionStorage.setItem('stwm-emergency-dismissed',title);
+  document.getElementById('emergency-banner').style.display='none';
 });
 
 // ── Direct Messages ──
@@ -475,6 +508,95 @@ document.getElementById('notes-search').addEventListener('input',function(){
   });
 });
 document.querySelector('[data-msgtab="notes"]').addEventListener('click',loadNoteMembers);
+
+// ── Training Tab ──
+var MILESTONES=[
+  {id:'first_scan',label:'First Bible Given',icon:'🌱',threshold:1},
+  {id:'ten_scans',label:'10 Bibles Given',icon:'🌿',threshold:10},
+  {id:'fifty_scans',label:'50 Bibles Given',icon:'🌳',threshold:50},
+  {id:'hundred_scans',label:'100 Bibles Given',icon:'🏆',threshold:100},
+  {id:'first_event',label:'First Outreach Event',icon:'⭐',threshold:1},
+  {id:'five_events',label:'5 Events Attended',icon:'🔥',threshold:5}
+];
+
+var TRAINING_MODULES=[
+  {id:'intro',name:'Ministry Introduction',desc:'What we do, how we do it, and why it matters.'},
+  {id:'conversation',name:'Starting Conversations',desc:'How to approach people naturally and share the gospel.'},
+  {id:'scanner',name:'Using the Scanner',desc:'How to scan Bibles, log inventory, and track your outreach.'},
+  {id:'prayer',name:'Praying with Strangers',desc:'Simple frameworks for praying with people in the field.'},
+  {id:'followup',name:'Follow-up & Discipleship',desc:'What to do after someone receives a Bible.'},
+  {id:'safety',name:'Safety & Boundaries',desc:'Working in pairs, situational awareness, when to walk away.'}
+];
+
+function renderMilestones(){
+  var container=document.getElementById('training-milestones');
+  if(!session)return;
+  var scans=session.totalScans||0;
+  container.innerHTML=MILESTONES.map(function(m){
+    var earned=scans>=m.threshold;
+    return '<span class="milestone-badge'+(earned?' milestone-badge--earned':'')+'">'+m.icon+' '+m.label+(earned?' ✓':'')+'</span>';
+  }).join('');
+}
+
+async function renderTrainingModules(){
+  var container=document.getElementById('training-modules');
+  try{
+    var res=await postAction({action:'getTrainingProgress',token:session.token});
+    var completed=(res.ok&&res.completed)||[];
+    container.innerHTML=TRAINING_MODULES.map(function(mod){
+      var done=completed.indexOf(mod.id)>=0;
+      return '<div class="training-module"><div class="training-module__check'+(done?' training-module__check--done':'')+'">'+(done?'✓':'')+'</div><div class="training-module__info"><div class="training-module__name">'+mod.name+'</div><div class="training-module__desc">'+mod.desc+'</div></div></div>';
+    }).join('');
+  }catch(e){container.innerHTML='<p style="color:var(--muted);font-size:0.82rem;">Could not load progress.</p>';}
+}
+
+async function renderTrainingRecord(){
+  var container=document.getElementById('training-record');
+  try{
+    var res=await postAction({action:'getTrainingRecord',token:session.token});
+    if(res.ok&&res.records&&res.records.length){
+      container.innerHTML=res.records.map(function(r){
+        return '<div class="training-record-item"><span class="training-record-item__type training-record-item__type--'+r.type+'">'+r.type.replace('_',' ')+'</span><p style="margin:0.2rem 0 0;color:var(--ink2);">'+escapeHtml(r.text)+'</p><p style="font-size:0.68rem;color:var(--muted);margin:0.25rem 0 0;">'+escapeHtml(r.author)+' · '+fmtDate(r.timestamp)+'</p></div>';
+      }).join('');
+    }else{container.innerHTML='<p style="color:var(--muted);font-size:0.82rem;">No records yet. Your leadership will add notes here as you grow.</p>';}
+  }catch(e){container.innerHTML='<p style="color:var(--muted);font-size:0.82rem;">Could not load records.</p>';}
+}
+
+function initTrainingTab(){
+  renderMilestones();
+  renderTrainingModules();
+  renderTrainingRecord();
+  // Admin panel
+  if(session&&(session.role==='admin'||session.role==='super_admin')){
+    document.getElementById('training-admin-panel').style.display='';
+    loadTrainingMemberSelect();
+  }
+}
+
+async function loadTrainingMemberSelect(){
+  var sel=document.getElementById('training-member-select');
+  try{
+    var res=await postAction({action:'getNoteMembers',token:session.token});
+    if(res.ok&&res.members){
+      sel.innerHTML=res.members.map(function(m){return '<option value="'+escapeHtml(m)+'">'+escapeHtml(m)+'</option>';}).join('');
+    }
+  }catch(e){}
+}
+
+document.getElementById('training-record-save').addEventListener('click',async function(){
+  var member=document.getElementById('training-member-select').value;
+  var type=document.getElementById('training-record-type').value;
+  var text=document.getElementById('training-record-text').value.trim();
+  if(!text){alert('Write something.');return;}
+  try{
+    await postAction({action:'addTrainingRecord',token:session.token,member:member,type:type,text:text});
+    document.getElementById('training-record-text').value='';
+    alert('Record saved for '+member+'.');
+  }catch(e){alert(e.message);}
+});
+
+// Hook training tab click
+document.querySelector('[data-tab="training"]').addEventListener('click',function(){initTrainingTab();});
 
 // ── History toggle ──
 document.getElementById('toggle-history-btn').addEventListener('click',function(){

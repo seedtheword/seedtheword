@@ -5,26 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Team Portal — Seed the Word</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <style>
     :root {
       --font:'Inter',system-ui,sans-serif;
-      --serif:'Playfair Display',Georgia,serif;
-      --bg:#f4f1ec;--card:rgba(255,255,255,0.72);
-      --glass:rgba(255,255,255,0.45);--glass-border:rgba(255,255,255,0.7);
-      --ink:#1a1a1a;--ink2:#3d3d3d;--muted:#6b6b6b;
-      --gold:#c8963e;--gold-soft:rgba(200,150,62,0.12);
-      --green:#2c5f2e;--green-soft:rgba(44,95,46,0.10);
+      --serif:'Fraunces',Georgia,serif;
+      --bg:#FDFBF7;--card:rgba(255,255,255,0.82);
+      --glass:rgba(255,255,255,0.5);--glass-border:rgba(255,255,255,0.75);
+      --ink:#1A1E24;--ink2:#3d4148;--muted:#6b7280;
+      --gold:#D97736;--gold-soft:rgba(217,119,54,0.1);
+      --green:#2C4A3E;--green-soft:rgba(44,74,62,0.08);
       --red:#a6251f;--red-soft:rgba(166,37,31,0.08);
       --orange:#d4740a;--orange-soft:rgba(212,116,10,0.08);
       --border:rgba(0,0,0,0.06);--radius:16px;--radius-sm:10px;
-      --shadow:0 8px 40px rgba(0,0,0,0.06);
+      --shadow:0 8px 40px rgba(0,0,0,0.05);
       --blur:blur(20px);--transition:cubic-bezier(0.4,0,0.2,1);
     }
     *,*::before,*::after{box-sizing:border-box;}
     body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;
-      background-image:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(44,95,46,0.04) 0%,transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 90%,rgba(200,150,62,0.04) 0%,transparent 50%);}
+      background-image:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(44,74,62,0.03) 0%,transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 90%,rgba(217,119,54,0.03) 0%,transparent 50%);}
     .page{max-width:520px;margin:0 auto;padding:1.25rem 1rem 3rem;position:relative;z-index:1;}
     .logo{width:50px;height:50px;border-radius:12px;display:block;margin:0 auto 0.6rem;}
     .page-title{font-family:var(--serif);font-size:1.4rem;font-weight:700;text-align:center;margin:0 0 0.25rem;}
@@ -37,8 +37,8 @@
     textarea{resize:vertical;min-height:60px;}
     .btn{width:100%;padding:0.85rem;border:none;border-radius:var(--radius-sm);font-size:0.92rem;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:0.5rem;transition:transform 0.2s var(--transition),box-shadow 0.2s var(--transition);}
     .btn:hover{transform:translateY(-1px);}
-    .btn--gold{background:linear-gradient(135deg,var(--gold),#d4a84b);color:#fff;box-shadow:0 4px 16px rgba(200,150,62,0.25);}
-    .btn--green{background:linear-gradient(135deg,var(--green),#3a7d3c);color:#fff;box-shadow:0 4px 16px rgba(44,95,46,0.25);}
+    .btn--gold{background:linear-gradient(135deg,var(--gold),#e08a42);color:#fff;box-shadow:0 4px 16px rgba(217,119,54,0.25);}
+    .btn--green{background:linear-gradient(135deg,var(--green),#3a5f4e);color:#fff;box-shadow:0 4px 16px rgba(44,74,62,0.25);}
     .btn--outline{background:var(--glass);backdrop-filter:var(--blur);border:1.5px solid var(--glass-border);color:var(--ink2);}
     .btn--outline:hover{border-color:var(--gold);color:var(--gold);}
     .btn--danger{background:linear-gradient(135deg,var(--red),#c0392b);color:#fff;box-shadow:0 4px 12px rgba(166,37,31,0.2);}
@@ -81,7 +81,7 @@
     .activity-item__edit:hover{color:var(--gold);}
 
     /* QR Scanner */
-    .qr-toggle{width:100%;padding:0.85rem;background:linear-gradient(135deg,var(--gold),#d4a84b);color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.75rem;box-shadow:0 4px 16px rgba(200,150,62,0.25);transition:transform 0.2s;}
+    .qr-toggle{width:100%;padding:0.85rem;background:linear-gradient(135deg,var(--gold),#e08a42);color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.75rem;box-shadow:0 4px 16px rgba(217,119,54,0.25);transition:transform 0.2s;}
     .qr-toggle:hover{transform:translateY(-1px);}
     #qr-reader{width:100%;min-height:220px;display:none;border-radius:var(--radius-sm);overflow:hidden;margin-bottom:0.75rem;}
     #qr-reader.active{display:block;}
@@ -155,6 +155,34 @@
     .note-entry__text{font-size:0.84rem;color:var(--ink2);line-height:1.6;margin:0;}
     .note-entry__meta{font-size:0.68rem;color:var(--muted);margin-top:0.4rem;}
 
+    /* Training */
+    .milestone-badge{display:inline-flex;align-items:center;gap:0.4rem;padding:0.4rem 0.8rem;background:var(--gold-soft);border:1px solid rgba(200,150,62,0.2);border-radius:999px;font-size:0.75rem;font-weight:600;color:var(--gold);margin:0 0.4rem 0.4rem 0;}
+
+    /* Emergency banner */
+    .emergency-banner{display:flex;align-items:flex-start;gap:0.75rem;padding:1rem 1.25rem;background:linear-gradient(135deg,#fef2f2,#fff5f5);border:1.5px solid var(--red);border-radius:var(--radius-sm);margin-bottom:1rem;animation:emergencyPulse 3s ease-in-out infinite;}
+    @keyframes emergencyPulse{0%,100%{box-shadow:0 0 0 0 rgba(166,37,31,0.15);}50%{box-shadow:0 0 0 6px rgba(166,37,31,0);}}
+    .emergency-banner__icon{font-size:1.4rem;flex-shrink:0;margin-top:0.1rem;}
+    .emergency-banner__content{flex:1;}
+    .emergency-banner__title{font-size:0.88rem;color:var(--red);display:block;margin-bottom:0.2rem;}
+    .emergency-banner__body{font-size:0.82rem;color:var(--ink2);line-height:1.5;margin:0;}
+    .emergency-banner__dismiss{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0.2rem;flex-shrink:0;}
+    .emergency-banner__dismiss:hover{color:var(--red);}
+    .milestone-badge--earned{background:var(--green-soft);border-color:rgba(44,95,46,0.2);color:var(--green);}
+    .training-module{padding:0.75rem;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem;}
+    .training-module__check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.7rem;}
+    .training-module__check--done{background:var(--green);border-color:var(--green);color:#fff;}
+    .training-module__info{flex:1;}
+    .training-module__name{font-size:0.85rem;font-weight:600;color:var(--ink);}
+    .training-module__desc{font-size:0.72rem;color:var(--muted);margin-top:0.15rem;}
+    .training-record-item{padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.82rem;}
+    .training-record-item:last-child{border-bottom:none;}
+    .training-record-item__type{font-size:0.62rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:0.15rem 0.4rem;border-radius:999px;display:inline-block;margin-bottom:0.25rem;}
+    .training-record-item__type--milestone{background:var(--gold-soft);color:var(--gold);}
+    .training-record-item__type--training{background:var(--green-soft);color:var(--green);}
+    .training-record-item__type--feedback{background:rgba(0,0,0,0.04);color:var(--ink2);}
+    .training-record-item__type--recognition{background:var(--gold-soft);color:var(--gold);}
+    .training-record-item__type--action_plan{background:var(--red-soft);color:var(--red);}
+
     @media(max-width:400px){.main-tabs{gap:0.25rem;}.main-tab{padding:0.6rem 0.4rem;font-size:0.72rem;}}
   </style>
 </head>
@@ -220,11 +248,22 @@
 
   <!-- Main Portal View -->
   <div class="view" id="view-portal">
+    <!-- Emergency Alert Banner (hidden by default, shown when active emergency exists) -->
+    <div class="emergency-banner" id="emergency-banner" style="display:none;">
+      <div class="emergency-banner__icon">🚨</div>
+      <div class="emergency-banner__content">
+        <strong class="emergency-banner__title" id="emergency-title"></strong>
+        <p class="emergency-banner__body" id="emergency-body"></p>
+      </div>
+      <button class="emergency-banner__dismiss" id="emergency-dismiss" title="Dismiss">×</button>
+    </div>
+
     <!-- Tabs -->
     <nav class="main-tabs" role="tablist">
       <button class="main-tab main-tab--active" data-tab="dashboard"><span class="main-tab__icon">📊</span> Dashboard</button>
       <button class="main-tab" data-tab="scanner"><span class="main-tab__icon">📷</span> Scanner</button>
       <button class="main-tab" data-tab="messages"><span class="main-tab__icon">💬</span> Messages</button>
+      <button class="main-tab" data-tab="training"><span class="main-tab__icon">📚</span> Training</button>
     </nav>
 
     <!-- Dashboard Tab -->
@@ -245,6 +284,10 @@
       </div>
       <button class="btn btn--outline" id="toggle-history-btn" style="margin-bottom:0.5rem;">📋 View Full History</button>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <a href="https://ig.me/m/seedtheword" target="_blank" rel="noopener" class="btn btn--outline" style="flex:1;text-align:center;text-decoration:none;font-size:0.8rem;">📸 Message on IG</a>
+        <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn--outline" style="flex:1;text-align:center;text-decoration:none;font-size:0.8rem;">✈️ Telegram</a>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
         <button class="btn btn--outline" style="flex:1;" onclick="showView('event')">Change Event</button>
         <button class="btn btn--outline" style="flex:1;" id="logout-btn">Log Out</button>
       </div>
@@ -335,6 +378,46 @@
         </div>
       </div>
     </div>
+
+    <!-- Training Tab -->
+    <div class="tab-panel" id="tab-training" hidden>
+      <!-- Milestones -->
+      <div class="glass-card">
+        <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.6rem;">🏆 Your Milestones</h3>
+        <div id="training-milestones"><p style="color:var(--muted);font-size:0.84rem;">Loading milestones...</p></div>
+      </div>
+
+      <!-- Training Modules -->
+      <div class="glass-card">
+        <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.6rem;">📖 Training Modules</h3>
+        <p style="font-size:0.78rem;color:var(--muted);margin:0 0 0.75rem;">Complete each module to grow in your ministry skills.</p>
+        <div id="training-modules"><p style="color:var(--muted);font-size:0.84rem;">Loading modules...</p></div>
+      </div>
+
+      <!-- Record Log (visible to member, writable by admins) -->
+      <div class="glass-card">
+        <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.6rem;">📋 My Record</h3>
+        <p style="font-size:0.78rem;color:var(--muted);margin:0 0 0.5rem;">Notes from leadership about your growth and training progress.</p>
+        <div id="training-record"><p style="color:var(--muted);font-size:0.84rem;">No records yet.</p></div>
+      </div>
+
+      <!-- Admin: Add record note (only shown to admins viewing another member) -->
+      <div class="glass-card" id="training-admin-panel" style="display:none;">
+        <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.6rem;">✏️ Admin: Add Training Record</h3>
+        <label style="font-size:0.78rem;">Member</label>
+        <select id="training-member-select" style="margin-bottom:0.4rem;"></select>
+        <label style="font-size:0.78rem;">Type</label>
+        <select id="training-record-type" style="margin-bottom:0.4rem;">
+          <option value="milestone">Milestone Achieved</option>
+          <option value="training">Training Assigned</option>
+          <option value="feedback">Feedback / Coaching</option>
+          <option value="recognition">Recognition</option>
+          <option value="action_plan">Action Plan</option>
+        </select>
+        <textarea id="training-record-text" placeholder="Describe the milestone, feedback, or action plan..." rows="3" style="margin-bottom:0.4rem;"></textarea>
+        <button class="btn btn--green btn--sm" id="training-record-save">Save Record</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -350,6 +433,14 @@
   </div>
 </div>
 
-<script src="assets/js/team-portal.js?v=1"></script>
+<!-- Back to site + Footer -->
+<div style="max-width:520px;margin:2rem auto 0;padding:0 1rem 1rem;text-align:center;">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.25rem;background:var(--glass);border:1px solid var(--glass-border);border-radius:999px;font-size:0.8rem;font-weight:600;color:var(--ink2);text-decoration:none;transition:all 0.2s;">← Back to seedtheword.org</a>
+</div>
+<footer style="text-align:center;padding:1.5rem 1rem;font-size:0.72rem;color:var(--muted);">
+  <p style="margin:0;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
+</footer>
+
+<script src="assets/js/team-portal.js?v=2"></script>
 </body>
 </html>

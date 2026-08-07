@@ -254,6 +254,10 @@ function doPost(e) {
   if ((payload && payload.action) === 'adminPostAnnouncement') return handleAdminPostAnnouncement_(payload);
   if ((payload && payload.action) === 'adminDeleteInventoryRow') return handleAdminDeleteInventoryRow_(payload);
   if ((payload && payload.action) === 'setMemberRole') return handleSetMemberRole_(payload);
+  // ── Training tracker actions ──
+  if ((payload && payload.action) === 'getTrainingProgress') return handleGetTrainingProgress_(payload);
+  if ((payload && payload.action) === 'getTrainingRecord') return handleGetTrainingRecord_(payload);
+  if ((payload && payload.action) === 'addTrainingRecord') return handleAddTrainingRecord_(payload);
   return handleOrder(payload);
 }
 

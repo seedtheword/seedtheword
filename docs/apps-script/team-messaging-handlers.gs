@@ -775,3 +775,99 @@ function handleSetMemberRole_(payload) {
     return jsonResponse({ ok: false, error: 'Member not found' });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
+
+
+// ══════════════════════════════════════════════════════════════════════
+// TRAINING TRACKER HANDLERS
+// ══════════════════════════════════════════════════════════════════════
+//
+// ADD these routing lines to doPost():
+//   if ((payload && payload.action) === 'getTrainingProgress') return handleGetTrainingProgress_(payload);
+//   if ((payload && payload.action) === 'getTrainingRecord') return handleGetTrainingRecord_(payload);
+//   if ((payload && payload.action) === 'addTrainingRecord') return handleAddTrainingRecord_(payload);
+
+function getTrainingSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName('TrainingRecords');
+  if (!sheet) {
+    sheet = ss.insertSheet('TrainingRecords');
+    sheet.getRange(1,1,1,6).setValues([['timestamp','member','author','type','text','module_id']]);
+    sheet.getRange(1,1,1,6).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function handleGetTrainingProgress_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+
+    var sheet = getTrainingSheet_();
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, completed: [] });
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 6).getValues();
+
+    // Find completed modules for this user
+    var completed = [];
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][1]).toLowerCase().trim() === user.name.toLowerCase() &&
+          String(data[i][3]).trim() === 'training' &&
+          String(data[i][5]).trim()) {
+        completed.push(String(data[i][5]).trim());
+      }
+    }
+    return jsonResponse({ ok: true, completed: completed });
+  } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+function handleGetTrainingRecord_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+
+    // Members see their own records; admins can request specific member
+    var targetMember = String(payload.member || user.name).trim();
+    if (targetMember.toLowerCase() !== user.name.toLowerCase() && user.role !== 'admin' && user.role !== 'super_admin') {
+      targetMember = user.name; // Non-admins can only see their own
+    }
+
+    var sheet = getTrainingSheet_();
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, records: [] });
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 6).getValues();
+
+    var records = [];
+    for (var i = data.length - 1; i >= 0 && records.length < 50; i--) {
+      if (String(data[i][1]).toLowerCase().trim() === targetMember.toLowerCase()) {
+        records.push({
+          timestamp: new Date(data[i][0]).getTime(),
+          author: data[i][2],
+          type: data[i][3],
+          text: data[i][4],
+          module_id: data[i][5] || ''
+        });
+      }
+    }
+    return jsonResponse({ ok: true, records: records });
+  } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+function handleAddTrainingRecord_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    if (user.role !== 'admin' && user.role !== 'super_admin') {
+      return jsonResponse({ ok: false, error: 'Admin only' });
+    }
+
+    var member = String(payload.member || '').trim();
+    var type = String(payload.type || 'feedback').trim();
+    var text = String(payload.text || '').trim();
+    var moduleId = String(payload.module_id || '').trim();
+    if (!member || !text) return jsonResponse({ ok: false, error: 'Member and text required' });
+
+    var sheet = getTrainingSheet_();
+    var now = new Date();
+    sheet.appendRow([now.toISOString(), member, user.name, type, text, moduleId]);
+    return jsonResponse({ ok: true, route: 'addTrainingRecord' });
+  } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}

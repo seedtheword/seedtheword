@@ -104,8 +104,17 @@ function getTeamMemberTelegram_(name) {
 // ── Telegram helpers ──────────────────────────────────────────────────
 
 function sendTelegramFromAppsScript_(chatId, text, threadId) {
+  // REQUIRED: Add TELEGRAM_BOT_TOKEN to Script Properties:
+  //   Apps Script → Project settings (gear) → Script properties → Add:
+  //   Property: TELEGRAM_BOT_TOKEN
+  //   Value: (your bot token from BotFather, same as GitHub Secret)
   var token = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
-  if (!token) { Logger.log('No TELEGRAM_BOT_TOKEN in Script Properties'); return false; }
+  if (!token) {
+    Logger.log('ERROR: TELEGRAM_BOT_TOKEN not found in Script Properties. Go to Project Settings → Script Properties → Add it.');
+    // Try fallback: check if token is in the script itself as a constant
+    token = typeof TELEGRAM_BOT_TOKEN_FALLBACK !== 'undefined' ? TELEGRAM_BOT_TOKEN_FALLBACK : '';
+    if (!token) return false;
+  }
   var url = 'https://api.telegram.org/bot' + token + '/sendMessage';
   var payload = {
     chat_id: String(chatId),
@@ -115,14 +124,20 @@ function sendTelegramFromAppsScript_(chatId, text, threadId) {
   };
   if (threadId) payload.message_thread_id = threadId;
   try {
-    UrlFetchApp.fetch(url, {
+    var response = UrlFetchApp.fetch(url, {
       method: 'post',
       contentType: 'application/json',
       payload: JSON.stringify(payload),
       muteHttpExceptions: true
     });
-    return true;
-  } catch(e) { Logger.log('Telegram send failed: ' + e); return false; }
+    var code = response.getResponseCode();
+    if (code === 200) return true;
+    Logger.log('Telegram API returned ' + code + ': ' + response.getContentText().slice(0, 500));
+    return false;
+  } catch(e) {
+    Logger.log('Telegram send exception: ' + e.toString());
+    return false;
+  }
 }
 
 /**

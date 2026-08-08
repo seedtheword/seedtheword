@@ -4,1389 +4,330 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Daily Bible reading, Saturday studies, livestreams, and the people we walk with. Join the Seed the Word community.">
-  <!-- Open Graph (Telegram, WhatsApp, Facebook, LinkedIn link previews) -->
   <meta property="og:site_name" content="Seed the Word Ministry">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Community — Seed the Word Ministry">
   <meta property="og:description" content="Read with us Monday through Friday. Study live on Saturdays. Connect on Telegram, Spotify, Twitch, and Instagram.">
   <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/bible-ministry-1.jpg">
   <meta property="og:url" content="https://seedtheword.org/community.html">
-  <!-- Twitter card (mirrors OG for some Telegram clients + X) -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Community — Seed the Word Ministry">
-  <meta name="twitter:description" content="Read with us Monday through Friday. Study live on Saturdays. Connect on Telegram, Spotify, Twitch, and Instagram.">
-  <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-ministry-1.jpg">
   <title>Community — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
-  <link rel="stylesheet" href="assets/css/store-catalog.css?v=9">
   <style>
-/* ================================================================
-   Community Page — Serif Editorial Design System
-   Playfair Display, gold accents, rule lines, warm whitespace
-   ================================================================ */
+    :root {
+      --font:'Inter',system-ui,sans-serif;
+      --serif:'Fraunces',Georgia,serif;
+      --bg:#FDFBF7;--card:#FFFFFF;--surface:#F8F6F3;
+      --ink:#1A1E24;--ink2:#3d4148;--muted:#6b7280;
+      --gold:#D97736;--gold-soft:rgba(217,119,54,0.08);
+      --green:#2C4A3E;--green-soft:rgba(44,74,62,0.06);
+      --border:#E8E4DF;--border-light:#F0EDE8;
+      --radius:12px;--radius-lg:16px;
+      --shadow:0 1px 3px rgba(0,0,0,0.06);--shadow-lg:0 8px 30px rgba(0,0,0,0.08);
+    }
+    body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;}
 
-/* ── Page-level tokens ─────────────────────────────────────────── */
-.community-dashboard {
-  --serif: 'Playfair Display', Georgia, serif;
-  --sans: 'Source Sans 3', system-ui, sans-serif;
-  --mono: 'IBM Plex Mono', monospace;
-  --bg-ivory: #FAFAF8;
-  --fg: #1A1A1A;
-  --fg-muted: #6B6B6B;
-  --accent-gold: #B8860B;
-  --accent-gold-light: #D4A84B;
-  --border-warm: #E8E4DF;
-  --card-bg: #FFFFFF;
-  --surface-muted: #F5F3F0;
+    /* Platform Layout */
+    .platform{display:grid;grid-template-columns:240px 1fr 300px;gap:0;min-height:100vh;max-width:1400px;margin:0 auto;}
+    .platform__left{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--border);background:var(--card);padding:1.5rem 0;}
+    .platform__center{padding:0;overflow-y:auto;border-right:1px solid var(--border-light);}
+    .platform__right{position:sticky;top:0;height:100vh;overflow-y:auto;padding:1.5rem 1.25rem;background:var(--surface);}
 
-  display: grid;
-  grid-template-columns: 220px 1fr 280px;
-  gap: 2.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
-  min-height: 80vh;
-  font-family: var(--sans);
-  color: var(--fg);
-  background: var(--bg-ivory);
-}
+    /* Left Nav */
+    .nav-brand{display:flex;align-items:center;gap:0.6rem;padding:0 1.25rem 1.25rem;border-bottom:1px solid var(--border-light);margin-bottom:0.75rem;}
+    .nav-brand__logo{width:36px;height:36px;border-radius:8px;}
+    .nav-brand__name{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--ink);}
+    .nav-section{padding:0.5rem 0;}
+    .nav-section__title{font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:0.5rem 1.25rem 0.35rem;}
+    .nav-item{display:flex;align-items:center;gap:0.65rem;padding:0.6rem 1.25rem;font-size:0.88rem;font-weight:500;color:var(--ink2);text-decoration:none;transition:all 0.15s;border-left:3px solid transparent;cursor:pointer;}
+    .nav-item:hover{background:var(--green-soft);color:var(--green);}
+    .nav-item--active{background:var(--green-soft);color:var(--green);border-left-color:var(--green);font-weight:600;}
+    .nav-item__icon{font-size:1.1rem;width:22px;text-align:center;}
+    .nav-item__badge{margin-left:auto;font-size:0.65rem;font-weight:700;background:var(--gold);color:#fff;padding:0.15rem 0.45rem;border-radius:999px;}
+    .nav-item--cta{margin:0.75rem 1rem 0;padding:0.7rem 1rem;background:var(--green);color:#fff;border-radius:var(--radius);border-left:none;justify-content:center;font-weight:600;font-size:0.85rem;transition:transform 0.15s,box-shadow 0.15s;}
+    .nav-item--cta:hover{background:#3a5f4e;transform:translateY(-1px);box-shadow:0 4px 12px rgba(44,74,62,0.25);color:#fff;}
 
-/* ── Left Sidebar ──────────────────────────────────────────────── */
-.community-sidebar {
-  position: sticky;
-  top: 90px;
-  height: fit-content;
-  background: var(--card-bg);
-  border: 1px solid var(--border-warm);
-  border-top: 2px solid var(--accent-gold);
-  border-radius: 8px;
-  padding: 1.5rem 0;
-  box-shadow: 0 1px 2px rgba(26,26,26,0.04);
-}
-.community-sidebar__title {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--fg-muted);
-  padding: 0 1.25rem;
-  margin: 1.25rem 0 0.5rem;
-}
-.community-sidebar__title:first-child { margin-top: 0; }
-.community-sidebar__link {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 1.25rem;
-  font-family: var(--sans);
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--fg);
-  text-decoration: none;
-  transition: all 0.2s ease-out;
-  border-left: 3px solid transparent;
-}
-.community-sidebar__link:hover {
-  background: rgba(184,134,11,0.04);
-  color: var(--accent-gold);
-}
-.community-sidebar__link.is-active {
-  background: rgba(184,134,11,0.06);
-  color: var(--accent-gold);
-  border-left-color: var(--accent-gold);
-  font-weight: 600;
-}
+    /* Center Feed */
+    .feed-header{position:sticky;top:0;z-index:20;background:rgba(253,251,247,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:1rem 1.5rem;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
+    .feed-header__title{font-family:var(--serif);font-size:1.2rem;font-weight:700;margin:0;}
+    .feed-header__actions{display:flex;gap:0.5rem;}
+    .feed-header__btn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:background 0.15s;}
+    .feed-header__btn:hover{background:var(--card);box-shadow:var(--shadow);}
 
-/* ── Center Feed ───────────────────────────────────────────────── */
-.community-feed {
-  min-width: 0;
-}
-.community-feed__search {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--card-bg);
-  border: 1px solid var(--border-warm);
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 1px 2px rgba(26,26,26,0.04);
-  transition: border-color 0.2s ease-out;
-}
-.community-feed__search:focus-within {
-  border-color: var(--accent-gold);
-}
-.community-feed__search input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-family: var(--sans);
-  font-size: 0.9rem;
-  color: var(--fg);
-  background: transparent;
-}
-.community-feed__search input::placeholder {
-  color: var(--fg-muted);
-  opacity: 0.6;
-}
-.community-feed__search svg {
-  color: var(--fg-muted);
-  flex-shrink: 0;
-}
+    /* Post Composer */
+    .composer{padding:1rem 1.5rem;border-bottom:1px solid var(--border-light);display:flex;gap:0.75rem;align-items:flex-start;}
+    .composer__avatar{width:38px;height:38px;border-radius:50%;background:var(--green-soft);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:var(--green);flex-shrink:0;}
+    .composer__input{flex:1;padding:0.7rem 1rem;border:1.5px solid var(--border);border-radius:20px;font-size:0.88rem;font-family:inherit;background:var(--surface);color:var(--muted);cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;}
+    .composer__input:hover{border-color:var(--gold);background:var(--card);}
+    .composer__input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft);color:var(--ink);background:var(--card);cursor:text;}
 
-/* ── Right Panel ───────────────────────────────────────────────── */
-.community-panel {
-  position: sticky;
-  top: 90px;
-  height: fit-content;
-}
-.community-panel__card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-warm);
-  border-top: 2px solid var(--accent-gold);
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.25rem;
-  box-shadow: 0 1px 2px rgba(26,26,26,0.04);
-}
-.community-panel__card-title {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--accent-gold);
-  margin: 0 0 0.85rem;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--border-warm);
-}
-.community-panel__link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 0;
-  font-family: var(--sans);
-  font-size: 0.85rem;
-  color: var(--fg);
-  text-decoration: none;
-  transition: color 0.2s ease-out;
-}
-.community-panel__link:hover { color: var(--accent-gold); }
+    /* Post Card */
+    .post{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border-light);animation:fadeIn 0.3s ease both;}
+    .post:hover{background:rgba(44,74,62,0.01);}
+    .post__header{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.75rem;}
+    .post__avatar{width:40px;height:40px;border-radius:50%;background:var(--gold-soft);display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;color:var(--gold);flex-shrink:0;overflow:hidden;}
+    .post__avatar img{width:100%;height:100%;object-fit:cover;}
+    .post__meta{flex:1;}
+    .post__author{font-size:0.88rem;font-weight:600;color:var(--ink);}
+    .post__role{font-size:0.68rem;color:var(--muted);margin-left:0.4rem;}
+    .post__time{font-size:0.72rem;color:var(--muted);display:block;margin-top:0.1rem;}
+    .post__badge{font-size:0.6rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:999px;background:var(--gold-soft);color:var(--gold);}
+    .post__body{font-size:0.92rem;line-height:1.7;color:var(--ink2);margin-bottom:0.75rem;}
+    .post__body a{color:var(--green);font-weight:500;}
+    .post__media{border-radius:var(--radius);overflow:hidden;margin-bottom:0.75rem;max-height:320px;}
+    .post__media img{width:100%;height:auto;display:block;}
+    .post__actions{display:flex;gap:1.5rem;padding-top:0.5rem;border-top:1px solid var(--border-light);}
+    .post__action{display:flex;align-items:center;gap:0.35rem;font-size:0.78rem;color:var(--muted);cursor:pointer;padding:0.3rem 0;transition:color 0.15s;}
+    .post__action:hover{color:var(--green);}
+    .post__action--liked{color:var(--gold);}
 
-/* ── Feed sections (card styling) ──────────────────────────────── */
-.community-feed .section {
-  background: var(--card-bg);
-  border: 1px solid var(--border-warm);
-  border-radius: 8px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 1px 2px rgba(26,26,26,0.04);
-}
-.community-feed .section .section-title {
-  font-family: var(--serif);
-  font-weight: 400;
-  letter-spacing: -0.01em;
-}
+    /* Comments */
+    .post__comments{margin-top:0.75rem;padding-top:0.5rem;}
+    .comment{display:flex;gap:0.5rem;padding:0.5rem 0;font-size:0.82rem;}
+    .comment__avatar{width:28px;height:28px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:700;color:var(--muted);flex-shrink:0;}
+    .comment__body{flex:1;background:var(--surface);padding:0.5rem 0.75rem;border-radius:var(--radius);line-height:1.5;}
+    .comment__author{font-weight:600;font-size:0.78rem;color:var(--ink);}
+    .comment__text{color:var(--ink2);}
+    .comment__time{font-size:0.65rem;color:var(--muted);margin-top:0.2rem;}
+    .comment-compose{display:flex;gap:0.5rem;margin-top:0.5rem;}
+    .comment-compose input{flex:1;padding:0.5rem 0.85rem;border:1px solid var(--border);border-radius:20px;font-size:0.8rem;font-family:inherit;background:var(--surface);}
+    .comment-compose input:focus{outline:none;border-color:var(--green);}
 
-/* ── Compact platform social cards ─────────────────────────────── */
-.community-dashboard .platform-cta {
-  min-height: auto;
-  padding: 1.25rem 1.1rem 1.1rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-warm);
-  border-top: 2px solid var(--platform-color);
-  background: var(--card-bg);
-}
-.community-dashboard .platform-cta__glow { display: none; }
-.community-dashboard .platform-cta__icon {
-  width: 38px;
-  height: 38px;
-  margin-bottom: 0.7rem;
-  box-shadow: none;
-}
-.community-dashboard .platform-cta__icon svg {
-  width: 18px;
-  height: 18px;
-}
-.community-dashboard .platform-cta__title {
-  font-family: var(--serif);
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-.community-dashboard .platform-cta__blurb {
-  font-size: 0.8rem;
-  line-height: 1.5;
-  margin-bottom: 0.65rem;
-}
-.community-dashboard .platform-cta__points {
-  margin-bottom: 0.85rem;
-  gap: 0.3rem;
-  font-size: 0.78rem;
-}
-.community-dashboard .platform-cta__dot {
-  width: 5px;
-  height: 5px;
-  margin-top: 0.35rem;
-  box-shadow: none;
-}
-.community-dashboard .platform-cta__btn {
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  border-radius: 6px;
-}
-.community-dashboard .platform-cta__foot {
-  font-size: 0.68rem;
-  margin-top: 0.4rem;
-}
-.community-dashboard .community-feeds-grid {
-  gap: 0.85rem;
-}
+    /* Right Sidebar */
+    .sidebar-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow);}
+    .sidebar-card__title{font-family:var(--serif);font-size:0.95rem;font-weight:700;margin:0 0 0.85rem;color:var(--ink);}
+    .event-item{display:flex;gap:0.75rem;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid var(--border-light);}
+    .event-item:last-child{border-bottom:none;}
+    .event-item__date{width:40px;height:40px;border-radius:8px;background:var(--gold-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+    .event-item__day{font-size:1rem;font-weight:700;color:var(--gold);line-height:1;}
+    .event-item__month{font-size:0.55rem;font-weight:600;text-transform:uppercase;color:var(--muted);}
+    .event-item__info{flex:1;}
+    .event-item__name{font-size:0.82rem;font-weight:600;color:var(--ink);line-height:1.3;}
+    .event-item__sub{font-size:0.7rem;color:var(--muted);}
+    .trending-item{display:flex;gap:0.6rem;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border-light);}
+    .trending-item:last-child{border-bottom:none;}
+    .trending-item__thumb{width:40px;height:40px;border-radius:8px;background:var(--surface);flex-shrink:0;overflow:hidden;}
+    .trending-item__thumb img{width:100%;height:100%;object-fit:cover;}
+    .trending-item__text{font-size:0.78rem;font-weight:500;color:var(--ink2);line-height:1.4;}
 
-/* ── Mobile: collapse to single column ─────────────────────────── */
-@media (max-width: 1024px) {
-  .community-dashboard {
-    grid-template-columns: 1fr;
-    padding: 2rem 1.5rem;
-    gap: 1.5rem;
-  }
-  .community-sidebar {
-    position: static;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 1rem 1.25rem;
-    border-radius: 8px;
-    border-top: 2px solid var(--accent-gold);
-  }
-  .community-sidebar__title { display: none; }
-  .community-sidebar__link {
-    padding: 0.5rem 0.9rem;
-    border-radius: 4px;
-    border-left: none;
-    background: var(--surface-muted);
-    font-size: 0.82rem;
-  }
-  .community-sidebar__link.is-active {
-    background: var(--fg);
-    color: #fff;
-    border-left: none;
-  }
-  .community-panel { display: none; }
-}
-@media (max-width: 768px) {
-  .community-dashboard { padding: 1.25rem; }
-  .community-feed .section { padding: 1.5rem; }
-}
+    /* Login CTA */
+    .login-cta{text-align:center;padding:2rem 1.5rem;border-bottom:1px solid var(--border-light);background:var(--green-soft);}
+    .login-cta__title{font-family:var(--serif);font-size:1.1rem;font-weight:600;margin:0 0 0.4rem;}
+    .login-cta__desc{font-size:0.82rem;color:var(--muted);margin:0 0 1rem;line-height:1.5;}
+    .login-cta__btn{display:inline-block;padding:0.7rem 1.5rem;background:var(--green);color:#fff;border-radius:var(--radius);font-weight:600;font-size:0.88rem;text-decoration:none;transition:transform 0.15s,box-shadow 0.15s;}
+    .login-cta__btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(44,74,62,0.25);}
+
+    /* Reading plan section */
+    .section-embed{padding:1.5rem;border-bottom:1px solid var(--border-light);}
+    .section-embed__title{font-family:var(--serif);font-size:1rem;font-weight:700;margin:0 0 1rem;}
+
+    /* Animations */
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+    /* Mobile responsive */
+    @media(max-width:1024px){
+      .platform{grid-template-columns:1fr;}.platform__left,.platform__right{display:none;}
+      .platform__center{border:none;}
+      /* Show mobile header with hamburger instead */
+    }
+    @media(min-width:1025px) and (max-width:1200px){
+      .platform{grid-template-columns:200px 1fr 240px;}
+    }
   </style>
 </head>
 <body>
+<!-- Site Header (mobile + desktop) -->
+<header class="site-header" id="site-header"><div class="container"><div class="header-left"><a href="index.html" class="site-logo"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">Seed the Word</a></div><nav id="site-nav"><ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li><li><a href="team.html" class="nav-login">Login</a></li></ul></nav><button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation"><span></span><span></span><span></span></button></div></header>
 
-<header class="site-header" id="site-header">
-  <div class="container">
-    <div class="header-left">
-      <a href="index.html" class="site-logo">
-        <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">
-        Seed the Word
-      </a>
-      <div class="header-verse">
-        <span class="header-verse__text">"He answered and said unto them, He that soweth the good seed is the Son of man;" — Matthew 13:37 KJV</span>
-      </div>
-    </div>
-    <nav id="site-nav">
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="store.html">Store</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="news.html">News</a></li>
-        <li><a href="community.html">Community</a></li>
-        <li><a href="team.html" class="nav-login">Login</a></li>
-      </ul>
-    </nav>
-    <div class="header-social">
-      <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="32" height="32"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-      </a>
-      <a href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="32" height="32"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-      </a>
-      <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF" width="32" height="32"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-      </a>
-      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954" width="32" height="32"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
-      </a>
-    </div>
-    <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</header>
-
-<main class="community-dashboard">
+<div class="platform">
   <!-- Left Sidebar -->
-  <aside class="community-sidebar">
-    <p class="community-sidebar__title">Browse</p>
-    <a href="#bible-reading" class="community-sidebar__link is-active">📖 Bible Reading</a>
-    <a href="#ministry-feed" class="community-sidebar__link">🎙️ Ministry Feed</a>
-    <a href="#friends-in-jesus" class="community-sidebar__link">✨ Friends in Jesus</a>
-    <a href="#discussion" class="community-sidebar__link">💬 Discussion</a>
-    <p class="community-sidebar__title">Connect</p>
-    <a href="#platforms" class="community-sidebar__link">🚀 Platforms</a>
-    <a href="#how-to" class="community-sidebar__link">📋 How-To Guides</a>
-    <p class="community-sidebar__title">More</p>
-    <a href="donate.html" class="community-sidebar__link">🙏 Prayer</a>
-    <a href="start-here.html" class="community-sidebar__link">🌱 Start Here</a>
-    <a href="news.html" class="community-sidebar__link">📰 News</a>
+  <aside class="platform__left">
+    <div class="nav-brand">
+      <img src="assets/images/stw-logo.jpg" alt="" class="nav-brand__logo">
+      <span class="nav-brand__name">Community</span>
+    </div>
+    <nav class="nav-section">
+      <a class="nav-item nav-item--active" data-section="home"><span class="nav-item__icon">🏠</span> Home</a>
+      <a class="nav-item" data-section="members"><span class="nav-item__icon">👥</span> Members</a>
+    </nav>
+    <nav class="nav-section">
+      <p class="nav-section__title">Browse</p>
+      <a class="nav-item" data-section="bible"><span class="nav-item__icon">📖</span> Bible Reading</a>
+      <a class="nav-item" data-section="feed"><span class="nav-item__icon">🎙️</span> Ministry Feed</a>
+      <a class="nav-item" data-section="discussion"><span class="nav-item__icon">💬</span> Discussion</a>
+      <a class="nav-item" data-section="prayer"><span class="nav-item__icon">🙏</span> Prayer</a>
+    </nav>
+    <nav class="nav-section">
+      <p class="nav-section__title">Connect</p>
+      <a class="nav-item" href="https://t.me/seedtheword" target="_blank"><span class="nav-item__icon">✈️</span> Telegram</a>
+      <a class="nav-item" href="https://ig.me/m/seedtheword" target="_blank"><span class="nav-item__icon">📸</span> Instagram</a>
+      <a class="nav-item" href="https://twitch.tv/seedtheword" target="_blank"><span class="nav-item__icon">🎮</span> Twitch</a>
+      <a class="nav-item" href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank"><span class="nav-item__icon">🎧</span> Spotify</a>
+    </nav>
+    <nav class="nav-section">
+      <p class="nav-section__title">More</p>
+      <a class="nav-item" href="start-here.html"><span class="nav-item__icon">🌱</span> Start Here</a>
+      <a class="nav-item" href="news.html"><span class="nav-item__icon">📰</span> News</a>
+      <a class="nav-item" href="how-to-seed.html"><span class="nav-item__icon">🌾</span> How-To Guides</a>
+    </nav>
+    <a class="nav-item nav-item--cta" href="team.html">Join the Team →</a>
   </aside>
 
   <!-- Center Feed -->
-  <div class="community-feed">
-    <!-- Search -->
-    <div class="community-feed__search">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="search" placeholder="Search topics, readings, discussions..." id="community-dashboard-search">
-    </div>
-
-<!-- 0. Your Walk — personal reading-tracker panel. Hidden until
-     yourWalk.enabled flips true in assets/data/telegram-bot.json
-     and an endpoint URL is set. Spec: .kiro/specs/your-walk-tracker/ -->
-<section class="section your-walk-section" aria-labelledby="your-walk-heading">
-  <div class="container container--narrow">
-    <div id="your-walk" class="your-walk" role="region"
-         aria-labelledby="your-walk-heading" hidden></div>
-  </div>
-</section>
-
-<!-- Livestream -->
-<!-- 1. This Week in God's Word — reading plan with per-chapter Spotify pills -->
-<section class="section section--light" id="bible-reading" style="padding: 4rem 0;">
-  <div class="container">
-    <h2 class="section-title">📖 This Week in God's Word</h2>
-    <p style="text-align: center; max-width: 700px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
-      Read along with us Monday through Friday. Each day's card links to the Spotify
-      episode of that chapter so members can listen along wherever they are.
-    </p>
-
-    <!-- Bible reading plan (cards carry per-chapter 🎧 Listen buttons) -->
-    <div id="bible-plan-container"></div>
-
-    <!-- Going Deeper Today — companion streams (OT walk · Poetry & Prophecy · Psalm · Proverbs) -->
-    <div id="going-deeper-container"></div>
-
-    <!-- Brand-new readers handoff — points anyone newer than the daily NT walk
-         at the 30-day starter plan on start-here.html. Quiet, optional, soft. -->
-    <p class="newcomer-callout">
-      Brand new to the Bible?
-      <a href="start-here.html">Walk the 20-day/month reading plan first →</a>
-    </p>
-  </div>
-</section>
-
-<!-- 2. Our Ministry Feed — Spotify show + Study Saturday livestream card.
-     Study Saturday lives inside this section (not standalone) because it's
-     the live-streamed companion to the recorded podcast in the same Spotify
-     feed. "This week we're studying" is folded into the livestream card
-     itself as an inspirational overlay, not a separate banner. -->
-<section class="section section--white" id="ministry-feed" style="padding: 4rem 0;">
-  <div class="container">
-    <h2 class="section-title">🎙️ Our Ministry Feed</h2>
-    <p style="text-align: center; max-width: 720px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
-      Past teachings, studies, and worship sessions on Spotify — plus our live
-      Saturday study you can join in real time.
-    </p>
-
-    <div class="ministry-feed-grid">
-      <!-- Recorded / Spotify side -->
-      <div class="ministry-feed-card">
-        <div class="ministry-feed-card__header">
-          <span class="ministry-feed-card__eyebrow">🎧 Recorded &amp; on-demand</span>
-          <span class="ministry-feed-card__title">Past teachings on Spotify</span>
-        </div>
-        <div class="ministry-feed-card__body">
-          <div class="podcast-embed">
-            <iframe
-              title="Seed the Word Ministry podcast"
-              src="https://open.spotify.com/embed/show/2rK4fCJuHWp8ji7Cj66EXK?utm_source=generator&theme=0"
-              width="100%"
-              height="352"
-              frameborder="0"
-              allowfullscreen=""
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"></iframe>
-            <p class="podcast-embed__foot">
-              <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener">
-                Open in Spotify →
-              </a>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Study Saturday (Livestream) — one unified card: Twitch live/offline
-           state on top, "This Saturday's Review" block at the bottom,
-           visually merged so they read as a single card (no seam, same border,
-           same background). Review is injected by study-saturday.js into the
-           .livestream-card it finds in #livestream-card-container. -->
-      <div class="ministry-feed-card">
-        <div class="ministry-feed-card__header">
-          <span class="ministry-feed-card__eyebrow">📺 Study Saturday (Livestream)</span>
-          <span class="ministry-feed-card__title">Join us live Saturdays</span>
-        </div>
-        <div class="ministry-feed-card__body">
-          <div id="livestream-card-container"></div>
-          <!-- study-saturday.js reads assets/data/study-saturday.json and
-               appends a .study-review block INSIDE the .livestream-card that
-               twitch-integration.js renders above. If the JSON file is missing
-               or unconfigured, nothing is appended and the card renders
-               without the review. -->
-        </div>
+  <main class="platform__center">
+    <div class="feed-header">
+      <h1 class="feed-header__title">Community Feed</h1>
+      <div class="feed-header__actions">
+        <button class="feed-header__btn" title="Notifications">🔔</button>
+        <button class="feed-header__btn" title="Search">🔍</button>
       </div>
     </div>
 
-    <!-- Community-curated Spotify playlist. A collaborative playlist every
-         member can add songs to. Listeners just press play on the embed;
-         contributors click the green "Add your songs →" button which opens
-         Spotify's collaborator-invite link (one-tap add on mobile, needs
-         Spotify app installed). -->
-    <div class="community-playlist">
-      <div class="community-playlist__head">
-        <div>
-          <p class="community-playlist__eyebrow">🎵 Community playlist</p>
-          <h3 class="community-playlist__title">The songs we worship to</h3>
-          <p class="community-playlist__blurb">
-            A growing collection of worship, hymns, and prayer music that our
-            community loves. Drop in songs that have moved you — we all listen
-            together.
-          </p>
-        </div>
-        <a class="btn btn-primary community-playlist__add"
-           href="https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp;pt=3cf27aeb2c1ffec6bf48b7345e141c26"
-           target="_blank" rel="noopener">
-          <span aria-hidden="true">➕</span>
-          Add your songs
-          <span aria-hidden="true">→</span>
-        </a>
-      </div>
-      <div class="community-playlist__embed">
-        <iframe
-          title="Seed the Word community playlist"
-          src="https://open.spotify.com/embed/playlist/18QMpMTYrFt2KxW1Q9NsvX?utm_source=generator&theme=0"
-          width="100%"
-          height="380"
-          frameborder="0"
-          allowfullscreen=""
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"></iframe>
-      </div>
-      <p class="community-playlist__foot">
-        <a href="https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=ZIa9tOn_SUirjwbWghdPiwh" target="_blank" rel="noopener">
-          Open playlist in Spotify →
-        </a>
-        <span class="community-playlist__foot-hint">
-          · Free to listen. To add songs you'll need a Spotify account + the
-          app on phone or desktop. First time adding? Tap the green button,
-          accept the invite, then drop in songs from anywhere in Spotify.
-        </span>
-      </p>
+    <!-- Login CTA for non-members -->
+    <div class="login-cta" id="login-cta">
+      <h2 class="login-cta__title">Join the conversation</h2>
+      <p class="login-cta__desc">Create an account to post, comment, and connect with fellow believers.</p>
+      <a class="login-cta__btn" href="team.html">Sign Up Free</a>
     </div>
 
-    <!-- Single narrow bridge teaser under the Ministry Feed pair. Points to
-         the Friends in Jesus section below. Replaces the two previous
-         inline teasers ("More to watch" / "More to hear"). -->
-    <a class="bridge-teaser" href="#friends-in-jesus">
-      <span class="bridge-teaser__label">More to listen &amp; watch</span>
-      <span class="bridge-teaser__text">Podcasts, sermons, and friends we love — keep scrolling <span aria-hidden="true">↓</span></span>
-    </a>
-  </div>
-</section>
-
-<!-- 3. Friends in Jesus — a quiet continuation of Our Ministry Feed.
-     No eyebrow pill, no description paragraph. Just the heading and
-     its two sub-sections, centered. -->
-<section class="section section--light featured-elsewhere" id="friends-in-jesus" style="padding: 3.5rem 0;">
-  <div class="container">
-    <h2 class="section-title">✨ Friends in Jesus</h2>
-
-    <!-- Topic Catalog -->
-    <div style="max-width: 1200px; margin: 1.5rem auto 0; padding: 0 32px;">
-      <button class="store-sidebar-toggle" id="community-sidebar-toggle" aria-label="Open topic menu">
-        <span class="store-sidebar-toggle__icon">☰</span>
-        <span>Topics</span>
-      </button>
+    <!-- Composer -->
+    <div class="composer" id="composer" style="display:none;">
+      <div class="composer__avatar" id="composer-avatar"></div>
+      <input class="composer__input" id="composer-input" placeholder="Share your thoughts..." readonly>
     </div>
 
-    <div class="store-sidebar-overlay" id="community-sidebar-overlay"></div>
-
-    <div class="store-layout">
-      <aside class="store-sidebar" id="community-sidebar" aria-label="Content topics"></aside>
-      <div class="store-main">
-        <div class="store-search">
-          <span class="store-search__icon">🔍</span>
-          <input type="search" id="community-search-input" class="store-search__input" placeholder="Search community content..." autocomplete="off" aria-label="Search community content">
-          <span class="store-search__count" id="community-search-count"></span>
-          <button class="store-search__clear" id="community-search-clear" aria-label="Clear search">✕</button>
-        </div>
-        <div id="community-category-header" class="store-category-header"></div>
-        <div class="store-grid" id="community-grid"></div>
-      </div>
+    <!-- Bible Reading Plan (embedded) -->
+    <div class="section-embed">
+      <h2 class="section-embed__title">📖 This Week in God's Word</h2>
+      <div id="bible-plan-container"></div>
     </div>
-  </div>
-</section>
 
-<!-- 4. Inspired to share more? — small paragraph-sized CTA that points
-     members back to the About-page contact form. "Tell us what you want
-     to see" is folded in as inline copy, not its own form. -->
-<section class="section section--white inspired-section" style="padding: 2.5rem 0;">
-  <div class="container inspired-section__container">
-    <p class="inspired-section__lead">
-      <strong>🌱 Inspired to share more about God's kingdom?</strong>
-      Got a verse that moved you, a study you'd love us to run, or a suggestion for
-      the site? <em>Tell us what you want to see</em> — we read every note.
-    </p>
-    <a class="btn btn-primary btn-sm" href="about.html#contact">✉️ Drop us a line</a>
-  </div>
-</section>
+    <!-- Going Deeper -->
+    <div class="section-embed" style="padding-top:0;">
+      <div id="going-deeper-container"></div>
+    </div>
 
-<hr class="section-divider" aria-hidden="true">
-
-<!-- 5. "Want to Stay Connected? Join the Ministry!" — the former Stay
-     Connected section (Telegram stats, discussion quick-starts, Telegram
-     CTA card, Instagram grid) plus the full how-to grid under one roof. -->
-<section class="section section--light" id="help" style="padding: 4rem 0;">
-  <div class="container">
-    <p style="text-align: center; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 800; color: var(--accent, #2C5F2E); margin: 0 0 0.35rem;">Our community lives here</p>
-    <h2 class="section-title">🚀 Want to Stay Connected? Join the Ministry!</h2>
-    <p style="text-align: center; max-width: 760px; margin: -1.5rem auto 2.5rem; font-size: 1rem; color: var(--muted); line-height: 1.7;">
-      Real conversations, prayer, daily chapter-by-chapter reading, and the social
-      feeds where our community shows up. Step-by-step cards below if you're new
-      to any of the platforms.
-    </p>
-
-    <!-- Discussion quick-start cards — pre-filled Telegram deep links -->
-    <div class="stay-sub" id="discussion">
-      <div class="discussion">
-        <div class="discussion__stats" id="telegram-stats" aria-live="polite">
-          <div class="discussion__stat">
-            <span class="discussion__stat-num" id="tg-stat-members">—</span>
-            <span class="discussion__stat-label">members</span>
+    <!-- Feed Posts (dynamically loaded) -->
+    <div id="community-feed">
+      <!-- Sample static posts to demonstrate layout -->
+      <article class="post">
+        <div class="post__header">
+          <div class="post__avatar">STW</div>
+          <div class="post__meta">
+            <span class="post__author">Seed the Word<span class="post__role">Ministry</span></span>
+            <span class="post__time">Today</span>
           </div>
-          <div class="discussion__stat">
-            <span class="discussion__stat-num discussion__stat-num--online" id="tg-stat-online">—</span>
-            <span class="discussion__stat-label">online now</span>
-          </div>
-          <div class="discussion__stat discussion__stat--text">
-            <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="discussion__stat-link">
-              @seedtheword on Telegram →
-            </a>
+          <span class="post__badge">Pinned</span>
+        </div>
+        <div class="post__body">
+          <p>Welcome to our community platform! This is where we share testimonies, prayer requests, Bible study notes, and encourage each other in the faith.</p>
+          <p>Join us Monday through Friday for daily Bible reading, and Saturdays for live study on <a href="https://twitch.tv/seedtheword" target="_blank">Twitch</a>.</p>
+        </div>
+        <div class="post__actions">
+          <span class="post__action">❤️ Like</span>
+          <span class="post__action">💬 Comment</span>
+          <span class="post__action">↗️ Share</span>
+        </div>
+      </article>
+
+      <article class="post">
+        <div class="post__header">
+          <div class="post__avatar" style="background:var(--green-soft);color:var(--green);">DA</div>
+          <div class="post__meta">
+            <span class="post__author">David Ageyev<span class="post__role">Admin</span></span>
+            <span class="post__time">2 hours ago</span>
           </div>
         </div>
-
-        <div class="discussion__actions">
-          <a class="discussion-card glass-morphism" target="_blank" rel="noopener"
-             href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fseedtheword&text=%E2%9D%A4%EF%B8%8F+Testimony%3A+">
-            <div class="discussion-card__icon" aria-hidden="true">❤️</div>
-            <h3 class="discussion-card__title">Share a Testimony</h3>
-            <p class="discussion-card__desc">Tell how God has moved in your life. Encourage someone today.</p>
-            <span class="discussion-card__action">Open Telegram <span aria-hidden="true">→</span></span>
-          </a>
-
-          <a class="discussion-card glass-morphism" target="_blank" rel="noopener"
-             href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fseedtheword&text=%E2%9D%93+Question%3A+">
-            <div class="discussion-card__icon" aria-hidden="true">❓</div>
-            <h3 class="discussion-card__title">Ask a Question</h3>
-            <p class="discussion-card__desc">New to faith or stuck on a verse? Ask — we're here to talk.</p>
-            <span class="discussion-card__action">Open Telegram <span aria-hidden="true">→</span></span>
-          </a>
-
-          <a class="discussion-card glass-morphism" target="_blank" rel="noopener"
-             href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fseedtheword&text=%F0%9F%93%96+Discussion%3A+Today%27s+reading+">
-            <div class="discussion-card__icon" aria-hidden="true">📖</div>
-            <h3 class="discussion-card__title">Discuss Today's Reading</h3>
-            <p class="discussion-card__desc">Share a verse that stood out. Ask what something meant. Study together.</p>
-            <span class="discussion-card__action">Open Telegram <span aria-hidden="true">→</span></span>
-          </a>
+        <div class="post__body">
+          <p>🙏 <strong>Prayer & Thanksgiving</strong></p>
+          <p>Thank God for the outreach this weekend — 15 Bibles placed, 3 conversations that led to prayer. Keep lifting up the people we met at Maple Park.</p>
         </div>
-      </div>
-    </div>
-
-    <!-- Direct messaging CTAs — personalized conversations -->
-    <div class="stay-sub" style="margin-top:2rem;">
-      <h3 class="stay-sub__title">💬 Message Us Directly</h3>
-      <p class="stay-sub__desc">Have a question, prayer request, or just want to connect one-on-one? Reach out through your preferred platform.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1.25rem;">
-        <a href="https://ig.me/m/seedtheword" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:1rem;padding:1.25rem;background:#fff;border:1px solid #E8E4DF;border-radius:12px;text-decoration:none;transition:border-color 0.2s,box-shadow 0.2s;">
-          <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#E4405F,#F56040,#FCAF45);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="22" height="22"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-          </div>
-          <div>
-            <strong style="font-size:0.92rem;color:#1A1A1A;display:block;">Message on Instagram</strong>
-            <span style="font-size:0.78rem;color:#6B6B6B;">Personal conversations, prayer, questions</span>
-          </div>
-        </a>
-        <a href="https://t.me/seedtheword" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:1rem;padding:1.25rem;background:#fff;border:1px solid #E8E4DF;border-radius:12px;text-decoration:none;transition:border-color 0.2s,box-shadow 0.2s;">
-          <div style="width:44px;height:44px;border-radius:50%;background:#0088cc;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="22" height="22"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-          </div>
-          <div>
-            <strong style="font-size:0.92rem;color:#1A1A1A;display:block;">Join Telegram Community</strong>
-            <span style="font-size:0.78rem;color:#6B6B6B;">Announcements, Bible reading, fellowship</span>
-          </div>
-        </a>
-      </div>
-    </div>
-
-    <!-- Social feeds: 4-up "Learn more about us online" row (Telegram / Spotify
-         / Twitch / Instagram) gives each platform equal billing with an icon,
-         blurb, bullet points, and CTA. The Instagram photo grid sits below it
-         as a visual preview of what's on the feed. -->
-    <div class="stay-sub" id="platforms">
-      <h3 class="stay-sub__title">🌐 Learn more about us online</h3>
-      <p class="stay-sub__desc">Where we post, share, and keep members around the world in the loop.</p>
-
-      <div class="community-feeds-grid">
-        <!-- Telegram -->
-        <div class="platform-cta platform-cta--telegram glass-morphism">
-          <div class="platform-cta__glow" aria-hidden="true"></div>
-          <div class="platform-cta__content">
-            <div class="platform-cta__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30" height="30" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+        <div class="post__actions">
+          <span class="post__action post__action--liked">❤️ 4</span>
+          <span class="post__action">💬 2</span>
+          <span class="post__action">↗️ Share</span>
+        </div>
+        <div class="post__comments">
+          <div class="comment">
+            <div class="comment__avatar">GR</div>
+            <div class="comment__body">
+              <span class="comment__author">Grace</span>
+              <span class="comment__text">Amen! What a blessing. Praying for continued fruit 🌱</span>
+              <span class="comment__time">1h ago</span>
             </div>
-            <h3 class="platform-cta__title">Telegram</h3>
-            <p class="platform-cta__blurb">
-              Our most active space — daily Bible discussion, prayer, and community chat with members worldwide.
-            </p>
-            <ul class="platform-cta__points">
-              <li><span class="platform-cta__dot"></span> Daily chapter-by-chapter reading</li>
-              <li><span class="platform-cta__dot"></span> Share and pray for each other</li>
-              <li><span class="platform-cta__dot"></span> Livestream &amp; event announcements</li>
-              <li><span class="platform-cta__dot"></span> Testimonies and verse-of-the-day</li>
-            </ul>
-            <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram platform-cta__btn">
-              Join Telegram <span aria-hidden="true">→</span>
-            </a>
-            <p class="platform-cta__foot">Free · Phone, tablet, desktop</p>
           </div>
         </div>
+      </article>
 
-        <!-- Spotify -->
-        <div class="platform-cta platform-cta--spotify glass-morphism">
-          <div class="platform-cta__glow" aria-hidden="true"></div>
-          <div class="platform-cta__content">
-            <div class="platform-cta__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30" height="30" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
-            </div>
-            <h3 class="platform-cta__title">Spotify</h3>
-            <p class="platform-cta__blurb">
-              Past teachings, studies, and worship sets on demand — revisit a sermon or catch up on an episode you missed.
-            </p>
-            <ul class="platform-cta__points">
-              <li><span class="platform-cta__dot"></span> Weekly podcast episodes</li>
-              <li><span class="platform-cta__dot"></span> Every Bible reading-plan chapter</li>
-              <li><span class="platform-cta__dot"></span> Worship sets &amp; teaching series</li>
-              <li><span class="platform-cta__dot"></span> Works on Apple Podcasts too</li>
-            </ul>
-            <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" class="btn btn-secondary platform-cta__btn">
-              Open Spotify <span aria-hidden="true">→</span>
-            </a>
-            <p class="platform-cta__foot">Free · Follow the show for new drops</p>
+      <article class="post">
+        <div class="post__header">
+          <div class="post__avatar" style="background:var(--gold-soft);color:var(--gold);">📢</div>
+          <div class="post__meta">
+            <span class="post__author">Announcements<span class="post__role">Auto</span></span>
+            <span class="post__time">Yesterday</span>
           </div>
         </div>
+        <div class="post__body">
+          <p>📅 <strong>This Saturday:</strong> Study Saturday is reviewing Acts 17-21. Join us live at 7 PM PT on Twitch.</p>
+          <p>🎧 <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank">Catch up on Spotify →</a></p>
+        </div>
+        <div class="post__actions">
+          <span class="post__action">❤️ 7</span>
+          <span class="post__action">💬 1</span>
+          <span class="post__action">↗️ Share</span>
+        </div>
+      </article>
+    </div>
+  </main>
 
-        <!-- Twitch -->
-        <div class="platform-cta platform-cta--twitch glass-morphism">
-          <div class="platform-cta__glow" aria-hidden="true"></div>
-          <div class="platform-cta__content">
-            <div class="platform-cta__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30" height="30" aria-hidden="true"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-            </div>
-            <h3 class="platform-cta__title">Twitch</h3>
-            <p class="platform-cta__blurb">
-              Where Study Saturday goes live. Join real-time Bible study, fellowship, and prayer with the community every Saturday.
-            </p>
-            <ul class="platform-cta__points">
-              <li><span class="platform-cta__dot"></span> Live Saturdays, 7–10 PM PT</li>
-              <li><span class="platform-cta__dot"></span> Chat with us during the study</li>
-              <li><span class="platform-cta__dot"></span> Follow to get go-live alerts</li>
-              <li><span class="platform-cta__dot"></span> Watch without an account</li>
-            </ul>
-            <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" class="btn btn-secondary platform-cta__btn">
-              Open Twitch <span aria-hidden="true">→</span>
-            </a>
-            <p class="platform-cta__foot">Free · Account optional to watch</p>
-          </div>
-        </div>
-
-        <!-- Instagram -->
-        <div class="platform-cta platform-cta--instagram glass-morphism">
-          <div class="platform-cta__glow" aria-hidden="true"></div>
-          <div class="platform-cta__content">
-            <div class="platform-cta__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30" height="30" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-            </div>
-            <h3 class="platform-cta__title">Instagram</h3>
-            <p class="platform-cta__blurb">
-              Photos and short videos from outreach, events, and behind-the-scenes moments from the ministry.
-            </p>
-            <ul class="platform-cta__points">
-              <li><span class="platform-cta__dot"></span> Outreach &amp; event photos</li>
-              <li><span class="platform-cta__dot"></span> Stories and reels</li>
-              <li><span class="platform-cta__dot"></span> Verse cards to save &amp; share</li>
-              <li><span class="platform-cta__dot"></span> Ministry team &amp; community</li>
-            </ul>
-            <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="btn btn-instagram platform-cta__btn">
-              Follow @seedtheword <span aria-hidden="true">→</span>
-            </a>
-            <p class="platform-cta__foot">Free · DM for quick questions</p>
-          </div>
-        </div>
+  <!-- Right Sidebar -->
+  <aside class="platform__right">
+    <div class="sidebar-card">
+      <h3 class="sidebar-card__title">Upcoming Events</h3>
+      <div class="event-item">
+        <div class="event-item__date"><span class="event-item__day">9</span><span class="event-item__month">Aug</span></div>
+        <div class="event-item__info"><div class="event-item__name">Study Saturday Live</div><div class="event-item__sub">7 PM PT · Twitch</div></div>
       </div>
-
-      <!-- Instagram visual preview grid — lives below the 4-up row so the
-           photo feed still has a home on the page (the CTA card handles the
-           "follow" action; this just shows what's actually being posted). -->
-      <div class="instagram-preview">
-        <p class="instagram-preview__label">📸 Recent on Instagram</p>
-        <div id="instagram-grid-container"></div>
+      <div class="event-item">
+        <div class="event-item__date"><span class="event-item__day">11</span><span class="event-item__month">Aug</span></div>
+        <div class="event-item__info"><div class="event-item__name">Monday Fellowship</div><div class="event-item__sub">6:30 PM · Worship & Prayer</div></div>
       </div>
-    </div>
-
-    <!-- How-to cards: step-by-step for each platform + ways to get involved -->
-    <div class="stay-sub" id="how-to">
-      <h3 class="stay-sub__title">🧭 Step-by-step &amp; ways to help</h3>
-      <p class="stay-sub__desc">
-        Tap any card for a walkthrough — whether it's joining a platform for the first
-        time or partnering with the ministry.
-      </p>
-
-      <div class="howto-grid">
-        <!-- Telegram -->
-        <div class="howto-card glass-morphism">
-          <div class="howto-card__icon">💬</div>
-          <h3 class="howto-card__title">Join Our Telegram</h3>
-          <p class="howto-card__intro">Daily Bible discussion, prayer, and community chat — our most active space.</p>
-          <details>
-            <summary>Step-by-step</summary>
-            <ol>
-              <li>Download the Telegram app from your phone's app store (it's free).</li>
-              <li>Sign up with your phone number and pick a display name.</li>
-              <li>Tap the button below or search for <strong>@seedtheword</strong> in Telegram.</li>
-              <li>Tap <strong>Join</strong> — you're in. Say hi to introduce yourself.</li>
-            </ol>
-          </details>
-          <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram">Join Telegram</a>
-        </div>
-
-        <!-- Instagram -->
-        <div class="howto-card glass-morphism">
-          <div class="howto-card__icon">📸</div>
-          <h3 class="howto-card__title">Follow on Instagram</h3>
-          <p class="howto-card__intro">Photos, videos, and behind-the-scenes from our outreach and events.</p>
-          <details>
-            <summary>Step-by-step</summary>
-            <ol>
-              <li>Download the Instagram app or visit <strong>instagram.com</strong> in your browser.</li>
-              <li>Create a free account if you don't already have one.</li>
-              <li>Tap the button below or search for <strong>@seedtheword</strong>.</li>
-              <li>Tap <strong>Follow</strong> and turn on notifications to catch new posts.</li>
-            </ol>
-          </details>
-          <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="btn btn-instagram">Follow Instagram</a>
-        </div>
-
-        <!-- Bible Reading -->
-        <div class="howto-card glass-morphism">
-          <div class="howto-card__icon">📖</div>
-          <h3 class="howto-card__title">Read Along With Us</h3>
-          <p class="howto-card__intro">One chapter a day, Monday through Friday. Simple and sustainable.</p>
-          <details>
-            <summary>Step-by-step</summary>
-            <ol>
-              <li>Check this page (or our Telegram) each morning for today's chapter.</li>
-              <li>Open your Bible — or use a free app like <strong>YouVersion</strong> or <strong>Bible.com</strong>.</li>
-              <li>Read slowly. Look up one word or idea you don't understand.</li>
-              <li>Share a verse that stood out in our Telegram group — we'd love to hear it.</li>
-            </ol>
-          </details>
-          <a href="#bible-plan-container" class="btn btn-secondary">See This Week</a>
-        </div>
-
-        <!-- Livestream -->
-        <div class="howto-card glass-morphism">
-          <div class="howto-card__icon">📺</div>
-          <h3 class="howto-card__title">Watch the Livestream</h3>
-          <p class="howto-card__intro">Saturday evenings on Twitch — Bible study, fellowship, and prayer together.</p>
-          <details>
-            <summary>Step-by-step</summary>
-            <ol>
-              <li>Visit <strong>twitch.tv/seedtheword</strong> — no account needed to watch.</li>
-              <li>Create a free Twitch account if you want to chat with us live.</li>
-              <li>Click <strong>Follow</strong> on our channel to get notified when we go live.</li>
-              <li>Join us Saturdays at 7:00 PM Pacific Time (runs until 10 PM).</li>
-            </ol>
-          </details>
-          <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" class="btn btn-secondary">Open Twitch</a>
-        </div>
-
-        <!-- Spotify Podcast -->
-        <div class="howto-card glass-morphism">
-          <div class="howto-card__icon">🎙️</div>
-          <h3 class="howto-card__title">Listen on Spotify</h3>
-          <p class="howto-card__intro">Missed a session or want to revisit a study? Past teachings and worship sets live here.</p>
-          <details>
-            <summary>Step-by-step</summary>
-            <ol>
-              <li>Open the <strong>Spotify</strong> app or go to <strong>open.spotify.com</strong>.</li>
-              <li>Search for <strong>Seed the Word that is Jesus Christ</strong>, or tap the button below.</li>
-              <li>Tap <strong>Follow</strong> on the show — new episodes will appear in your library automatically.</li>
-              <li>Works with Apple Podcasts, iHeart, and most podcast apps too.</li>
-            </ol>
-          </details>
-          <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" class="btn btn-secondary">Open Spotify</a>
-        </div>
-
-        <!-- Email / Direct Contact -->
-        <div class="howto-card glass-morphism">
-          <div class="howto-card__icon">✉️</div>
-          <h3 class="howto-card__title">Reach Out Directly</h3>
-          <p class="howto-card__intro">Got a private question, prayer request, or want to request a free Bible? We answer every message.</p>
-          <details>
-            <summary>Ways to reach us</summary>
-            <ol>
-              <li><strong>Email</strong>: fill out the form on our About page — replies come straight from our team.</li>
-              <li><strong>Instagram DM</strong>: message <strong>@seedtheword</strong> — best for quick questions.</li>
-              <li><strong>Telegram</strong>: join the group and message any admin directly.</li>
-              <li>We try to reply within a day or two.</li>
-            </ol>
-          </details>
-          <a href="about.html#contact" class="btn btn-secondary">Contact Our Team</a>
-        </div>
-
-        <!-- Volunteer -->
-        <div class="howto-card glass-morphism">
-          <div class="howto-card__icon">🙏</div>
-          <h3 class="howto-card__title">Volunteer</h3>
-          <p class="howto-card__intro">Help prepare and distribute Bible bundles, visit newcomers, or support our weekly gatherings.</p>
-          <details>
-            <summary>How to help</summary>
-            <ol>
-              <li>Send us a note via the Contact form with "Volunteer" in the subject.</li>
-              <li>Tell us a bit about yourself and what you enjoy doing.</li>
-              <li>We'll reach out and plug you into whatever's most helpful right now.</li>
-            </ol>
-          </details>
-          <a href="about.html#contact" class="btn btn-secondary">Get in Touch</a>
-        </div>
-
-        <!-- Support / Donate -->
-        <div class="howto-card glass-morphism">
-          <div class="howto-card__icon">❤️</div>
-          <h3 class="howto-card__title">Support the Ministry</h3>
-          <p class="howto-card__intro">Help fund Bible bundles for those who cannot afford them. Every gift makes a difference.</p>
-          <details>
-            <summary>Ways to give</summary>
-            <ol>
-              <li>Visit our Store page to sponsor a bundle or pick a contribution tier.</li>
-              <li>Or send a direct contribution via PayPal to the ministry.</li>
-              <li>100% of gifts go toward Bible bundles and shipping.</li>
-            </ol>
-          </details>
-          <a href="store.html" class="btn btn-secondary">Visit the Store</a>
-        </div>
-
-        <!-- Share Our Mission -->
-        <div class="howto-card glass-morphism">
-          <div class="howto-card__icon">📣</div>
-          <h3 class="howto-card__title">Share Our Mission</h3>
-          <p class="howto-card__intro">Invite friends and family to join the community and help plant seeds of faith.</p>
-          <details>
-            <summary>Easy ways to share</summary>
-            <ol>
-              <li>Forward a Telegram message from our channel to a friend.</li>
-              <li>Re-share one of our Instagram posts to your Stories.</li>
-              <li>Send this website link to someone who'd appreciate it.</li>
-            </ol>
-          </details>
-          <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn-telegram">Share Telegram</a>
-        </div>
+      <div class="event-item">
+        <div class="event-item__date"><span class="event-item__day">16</span><span class="event-item__month">Aug</span></div>
+        <div class="event-item__info"><div class="event-item__name">Community Outreach</div><div class="event-item__sub">TBA · Maple Park</div></div>
       </div>
+      <a href="news.html" style="display:block;margin-top:0.75rem;font-size:0.78rem;font-weight:600;color:var(--green);text-decoration:none;">See all events →</a>
     </div>
-  </div>
-</section>
 
-  </div><!-- /.community-feed -->
+    <div class="sidebar-card">
+      <h3 class="sidebar-card__title">Quick Links</h3>
+      <a href="https://t.me/seedtheword" target="_blank" style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0;font-size:0.82rem;color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--border-light);">✈️ Telegram Community</a>
+      <a href="https://ig.me/m/seedtheword" target="_blank" style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0;font-size:0.82rem;color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--border-light);">📸 Message on Instagram</a>
+      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0;font-size:0.82rem;color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--border-light);">🎧 Spotify Podcast</a>
+      <a href="https://twitch.tv/seedtheword" target="_blank" style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0;font-size:0.82rem;color:var(--ink2);text-decoration:none;">🎮 Watch on Twitch</a>
+    </div>
 
-  <!-- Right Panel -->
-  <aside class="community-panel">
-    <div class="community-panel__card">
-      <p class="community-panel__card-title">Today's Reading</p>
-      <div id="panel-today-reading" style="font-size:0.9rem;color:var(--text);">Loading...</div>
+    <div class="sidebar-card">
+      <h3 class="sidebar-card__title">Trending</h3>
+      <div class="trending-item"><div class="trending-item__text">🔥 Study Saturday: Acts 17-21 review</div></div>
+      <div class="trending-item"><div class="trending-item__text">📖 Daily reading: keep the streak</div></div>
+      <div class="trending-item"><div class="trending-item__text">🙏 Community prayer for Maple Park</div></div>
+      <div class="trending-item"><div class="trending-item__text">🎉 600+ Bibles given away!</div></div>
     </div>
-    <div class="community-panel__card">
-      <p class="community-panel__card-title">Quick Links</p>
-      <a href="https://t.me/seedtheword" class="community-panel__link" target="_blank" rel="noopener">💬 Telegram Community</a>
-      <a href="https://www.instagram.com/seedtheword/" class="community-panel__link" target="_blank" rel="noopener">📸 Instagram</a>
-      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" class="community-panel__link" target="_blank" rel="noopener">🎧 Spotify Podcast</a>
-      <a href="https://twitch.tv/seedtheword" class="community-panel__link" target="_blank" rel="noopener">🎮 Twitch</a>
-    </div>
-    <div class="community-panel__card">
-      <p class="community-panel__card-title">Upcoming</p>
-      <p style="font-size:0.85rem;color:var(--muted);margin:0 0 0.5rem;">Mondays 6:30pm — Fellowship & Worship</p>
-      <p style="font-size:0.85rem;color:var(--muted);margin:0 0 0.5rem;">Saturdays — Study & Outreach</p>
-      <a href="news.html" style="font-size:0.85rem;color:var(--green, #2C5F2E);font-weight:600;text-decoration:none;">See all events →</a>
+
+    <div class="sidebar-card" style="background:var(--green-soft);border-color:rgba(44,74,62,0.1);">
+      <h3 class="sidebar-card__title" style="color:var(--green);">Join the Team</h3>
+      <p style="font-size:0.78rem;color:var(--muted);margin:0 0 0.75rem;line-height:1.5;">Track your outreach, scan Bibles, and connect with your team.</p>
+      <a href="team.html" style="display:block;padding:0.6rem 1rem;background:var(--green);color:#fff;border-radius:8px;font-size:0.82rem;font-weight:600;text-decoration:none;text-align:center;">Team Portal →</a>
     </div>
   </aside>
-</main>
+</div>
 
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-grid">
-      <!-- Brand -->
-      <div class="footer-brand">
-        <div class="footer-brand__row">
-          <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo">
-          <p class="footer-brand__name">Seed the Word Ministry</p>
-        </div>
-        <p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p>
-        <p style="font-size:0.82rem;color:var(--muted);margin-top:0.75rem;line-height:1.5">Seed the Word is a Washington State registered nonprofit corporation (UBI 606 261 509, effective July 13, 2026).</p>
-      </div>
-
-      <!-- Navigate -->
-      <div>
-        <h4 class="footer-col__title">Navigate</h4>
-        <ul class="footer-nav">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="store.html">Store</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="news.html">News</a></li>
-          <li><a href="community.html">Community</a></li>
-        </ul>
-      </div>
-
-      <!-- Connect -->
-      <div>
-        <h4 class="footer-col__title">Connect</h4>
-        <div class="footer-connect__icons">
-          <a class="footer-connect__icon" href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-          </a>
-          <a class="footer-connect__icon" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-          </a>
-          <a class="footer-connect__icon" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-          </a>
-          <a class="footer-connect__icon" href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
-          </a>
-        </div>
-        <a class="footer-connect__contact" href="about.html#contact">
-          ✉️ Contact us
-        </a>
-        <a class="footer-connect__contact" href="donate.html">
-          📖 Donate or receive a Bible
-        </a>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
-      <ul class="footer-bottom__links">
-        <li><a href="about.html">About</a></li>
-        <li><a href="about.html#contact">Contact</a></li>
-        <li><a href="about.html#careers">Careers</a></li>
-        <li><a href="admin-help.html" style="opacity:0.55;">Admin</a></li>
-      </ul>
-    </div>
-  </div>
-</footer>
+<!-- Footer -->
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><div class="footer-brand__row"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo"><p class="footer-brand__name">Seed the Word Ministry</p></div><p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p><p style="font-size:0.82rem;color:var(--muted);margin-top:0.75rem;line-height:1.5">Seed the Word is a Washington State registered nonprofit corporation (UBI 606 261 509, effective July 13, 2026).</p></div><div><h4 class="footer-col__title">Navigate</h4><ul class="footer-nav"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></div><div><h4 class="footer-col__title">Connect</h4><div class="footer-connect__icons"><a class="footer-connect__icon" href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg></a><a class="footer-connect__icon" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a><a class="footer-connect__icon" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></a><a class="footer-connect__icon" href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg></a></div><a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a><a class="footer-connect__contact" href="donate.html">📖 Donate or receive a Bible</a></div></div><div class="footer-bottom"><p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p><ul class="footer-bottom__links"><li><a href="about.html">About</a></li><li><a href="about.html#contact">Contact</a></li><li><a href="about.html#careers">Careers</a></li><li><a href="admin-help.html" style="opacity:0.55;">Admin</a></li></ul></div></div></footer>
 
 <script src="assets/js/main.js?v=9"></script>
 <script src="assets/js/bible-plan.js?v=2"></script>
 <script src="assets/js/layered-plan.js?v=1"></script>
-<script src="assets/js/your-walk.js?v=3" defer></script>
-<script src="assets/js/twitch-integration.js?v=4"></script>
-<script src="assets/js/instagram-feed.js?v=2"></script>
-<script src="assets/js/telegram-stats.js?v=1"></script>
-<script src="assets/js/recommendations.js?v=3"></script>
-<script src="assets/js/community-catalog.js?v=7" defer></script>
-<script src="assets/js/study-saturday.js?v=7" defer></script>
-<script src="assets/js/prayer-intake.js?v=2"></script>
-<script>
-// Dashboard sidebar navigation — show/hide sections
-(function() {
-  var links = document.querySelectorAll('.community-sidebar__link[href^="#"]');
-  var sections = document.querySelectorAll('.community-feed .section, .community-feed .stay-sub, .community-feed .your-walk-section, .community-feed .inspired-section, .community-feed > section, .community-feed > hr');
-  var activeSection = null;
-
-  function showAll() {
-    sections.forEach(function(s) { s.style.display = ''; });
-    activeSection = null;
-  }
-
-  function showOnly(targetId) {
-    sections.forEach(function(s) {
-      if (s.id === targetId || s.querySelector('#' + targetId)) {
-        s.style.display = '';
-      } else {
-        s.style.display = 'none';
-      }
-    });
-    activeSection = targetId;
-  }
-
-  // On page load, show only the first active section
-  var initialLink = document.querySelector('.community-sidebar__link.is-active');
-  if (initialLink) {
-    var initialId = initialLink.getAttribute('href').slice(1);
-    showOnly(initialId);
-  }
-
-  links.forEach(function(link) {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      var targetId = link.getAttribute('href').slice(1);
-
-      if (activeSection === targetId) {
-        showAll();
-        links.forEach(function(l) { l.classList.remove('is-active'); });
-        return;
-      }
-
-      links.forEach(function(l) { l.classList.remove('is-active'); });
-      link.classList.add('is-active');
-      showOnly(targetId);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
-})();
-
-// Dashboard search filter
-var dashSearch = document.getElementById('community-dashboard-search');
-if (dashSearch) {
-  dashSearch.addEventListener('input', function() {
-    var q = dashSearch.value.toLowerCase();
-    document.querySelectorAll('.community-feed .section, .community-feed .stay-sub').forEach(function(sec) {
-      if (!q || sec.textContent.toLowerCase().includes(q)) {
-        sec.style.display = '';
-      } else {
-        sec.style.display = 'none';
-      }
-    });
-  });
-}
-
-// Right panel — show today's reading (mirrors bible-plan.js data)
-(function() {
-  var panel = document.getElementById('panel-today-reading');
-  if (!panel) return;
-  // Try to grab today's reading from the bible plan once it renders
-  function updatePanel() {
-    var today = new Date().getDay(); // 0=Sun, 1=Mon...5=Fri, 6=Sat
-    var dayCards = document.querySelectorAll('#bible-plan-container .bible-day-card');
-    if (dayCards.length === 0) {
-      panel.textContent = 'Check the reading plan below.';
-      return;
-    }
-    // Map Mon-Fri to indices 0-4
-    var idx = today >= 1 && today <= 5 ? today - 1 : -1;
-    if (idx >= 0 && dayCards[idx]) {
-      var title = dayCards[idx].querySelector('.bible-day-card__title, h3, strong');
-      panel.textContent = title ? title.textContent : 'See today\'s chapter below ↓';
-    } else {
-      panel.textContent = 'Rest day — catch up or revisit a chapter.';
-    }
-  }
-  // Wait for bible-plan.js to render
-  setTimeout(updatePanel, 1500);
-})();
-</script>
-
-<style>
-/* Instagram preview grid — visual photo feed below the 4-up platform
-   CTA row. Lightweight wrapper since #instagram-grid-container carries
-   its own styling from instagram-grid.js. */
-.instagram-preview {
-  margin-top: 1.75rem;
-}
-.instagram-preview__label {
-  font-size: 0.78rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted, #555);
-  margin: 0 0 0.75rem;
-  text-align: center;
-}
-
-/* ==== Community page reorg (May 2026 — v2) =============================== */
-
-/* ── Community collaborative Spotify playlist ─────────────────────────
-   Lives directly under the Ministry Feed grid. Full-bleed card with a
-   header strip (eyebrow + title + blurb + green "Add your songs" CTA)
-   above the Spotify embed. On narrow viewports the head stacks vertically
-   and the CTA drops below the text. */
-.community-playlist {
-  max-width: 960px;
-  margin: 1.75rem auto 0;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(29, 185, 84, 0.08) 0%, rgba(29, 185, 84, 0.04) 100%);
-  border: 1px solid rgba(29, 185, 84, 0.22);
-  border-radius: 18px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
-}
-.community-playlist__head {
-  display: flex;
-  gap: 1.25rem;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  margin-bottom: 1.1rem;
-}
-.community-playlist__eyebrow {
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #1DB954;
-  margin: 0 0 0.3rem;
-}
-.community-playlist__title {
-  font-size: 1.35rem;
-  font-weight: 800;
-  margin: 0 0 0.45rem;
-  color: var(--text, #0a0a0a);
-  line-height: 1.25;
-}
-.community-playlist__blurb {
-  font-size: 0.95rem;
-  color: var(--muted, #4a4a4a);
-  margin: 0;
-  line-height: 1.55;
-  max-width: 560px;
-}
-.community-playlist__add {
-  background: #1DB954;
-  color: #fff;
-  border: 0;
-  padding: 0.75rem 1.35rem;
-  font-size: 0.95rem;
-  font-weight: 800;
-  box-shadow: 0 4px 14px rgba(29, 185, 84, 0.32);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  border-radius: 999px;
-  flex-shrink: 0;
-  white-space: nowrap;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-  text-decoration: none;
-}
-.community-playlist__add:hover {
-  background: #17a449;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(29, 185, 84, 0.42);
-  color: #fff;
-}
-.community-playlist__embed iframe {
-  display: block;
-  border-radius: 12px;
-  overflow: hidden;
-}
-.community-playlist__foot {
-  font-size: 0.85rem;
-  color: var(--muted, #4a4a4a);
-  margin: 0.85rem 0 0;
-  line-height: 1.5;
-}
-.community-playlist__foot a {
-  color: #1DB954;
-  font-weight: 700;
-  text-decoration: none;
-}
-.community-playlist__foot a:hover {
-  text-decoration: underline;
-}
-.community-playlist__foot-hint {
-  display: inline;
-  color: var(--muted, #4a4a4a);
-}
-@media (max-width: 640px) {
-  .community-playlist {
-    padding: 1.2rem 1rem;
-  }
-  .community-playlist__head {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-  .community-playlist__add {
-    justify-content: center;
-    width: 100%;
-  }
-  .community-playlist__title { font-size: 1.15rem; }
-}
-/* Per-chapter "🎧 Listen" pill on each day card in This Week in God's Word */
-.bible-day-card { position: relative; }
-.bible-day-card__spotify {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-top: 0.55rem;
-  padding: 0.35rem 0.7rem;
-  border-radius: 999px;
-  background: rgba(29, 185, 84, 0.12);
-  color: #1DB954;
-  border: 1px solid rgba(29, 185, 84, 0.3);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-.bible-day-card__spotify:hover {
-  background: rgba(29, 185, 84, 0.22);
-  border-color: #1DB954;
-}
-.bible-day-card__spotify--fallback { opacity: 0.72; }
-
-/* Ministry Feed two-card grid: Spotify (recorded) + Study Saturday (live).
-   Both cards share the same header row at the top so the eyebrows line up;
-   the body fills the rest of the available card height so the Spotify embed
-   (fixed 352px) and the livestream block bottom-align on desktop. */
-.ministry-feed-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 1.75rem;
-  align-items: stretch;
-  margin: 0 auto 1.5rem;
-  max-width: 960px;
-}
-@media (max-width: 900px) {
-  .ministry-feed-grid { grid-template-columns: 1fr; }
-}
-.ministry-feed-card {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-.ministry-feed-card__header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding-bottom: 0.85rem;
-  border-bottom: 1px solid rgba(44, 95, 46, 0.12);
-  margin-bottom: 1rem;
-  min-height: 3.5rem;
-}
-.ministry-feed-card__eyebrow {
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent, #2C5F2E);
-}
-.ministry-feed-card__title {
-  font-size: 1.02rem;
-  font-weight: 700;
-  color: var(--text, #0a0a0a);
-  line-height: 1.4;
-}
-.ministry-feed-card__body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Study Saturday review — sits INSIDE the .livestream-card that
-   twitch-integration.js renders, BETWEEN the description and the
-   actions row. Styled as an integrated block (same background, same
-   border radius continuation) so the whole card reads as one unit:
-   TONIGHT pill + title + desc + review + action buttons. */
-.study-review {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(44, 95, 46, 0.12);
-}
-.study-review__heading {
-  font-size: 0.98rem;
-  font-weight: 800;
-  color: var(--text, #0a0a0a);
-  margin: 0 0 0.6rem;
-  letter-spacing: -0.01em;
-}
-.study-review__passages {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-.study-review__pill {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.55rem 0.8rem;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(44, 95, 46, 0.2);
-  border-radius: 8px;
-  font-size: 0.92rem;
-  line-height: 1.4;
-}
-.study-review__pill-label {
-  flex-shrink: 0;
-  font-size: 0.7rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent, #2C5F2E);
-}
-.study-review__pill-value {
-  font-weight: 600;
-  color: var(--text, #0a0a0a);
-}
-
-/* Friends in Jesus centering fix — the default .section-title uses a
-   position-trick (left:50% + transform:translateX(-50%) on an
-   inline-block) that REQUIRES its parent to be text-align:left/start.
-   If the parent is text-align:center the h2 ends up double-centered
-   and drifts right. So we do NOT set text-align:center on the
-   .featured-elsewhere container — we leave the section-title alone
-   and just make sure its sub-sections are vertically centered with
-   block-level margins. */
-.featured-elsewhere__sub {
-  /* Center the sub-block itself without touching its text-align (so the
-     subtitle's own .featured-elsewhere__subtitle rule, which is already
-     text-align:center, keeps working). */
-  max-width: 880px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Small single-paragraph "Inspired to share" CTA */
-.inspired-section {
-  text-align: center;
-}
-.inspired-section__container {
-  max-width: 720px;
-}
-.inspired-section__lead {
-  font-size: 1rem;
-  line-height: 1.7;
-  color: var(--text, #0a0a0a);
-  margin: 0 0 1rem;
-}
-.inspired-section__lead strong { color: var(--accent, #2C5F2E); }
-
-/* Horizontal divider between Inspired and Join-the-Ministry */
-.section-divider {
-  border: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(44, 95, 46, 0.25) 50%, transparent 100%);
-  max-width: 720px;
-  margin: 2rem auto 0;
-}
-</style>
 </body>
 </html>

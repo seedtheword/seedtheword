@@ -45,9 +45,8 @@ function showPortal(){
   document.getElementById('stat-total').textContent=session.totalScans||0;
   updateActivityList();updateScanCount();
   // Show compose if admin
-  if(session.role==='admin'||session.role==='super_admin'){document.getElementById('ann-compose-card').style.display='';}
-  else{document.getElementById('ann-compose-card').style.display='none';}
-  loadAnnouncements();
+  if(session.role==='admin'||session.role==='super_admin'){document.getElementById('chat-admin-compose').style.display='';}
+  else{document.getElementById('chat-admin-compose').style.display='none';}
   checkEmergencyAlerts();
 }
 function showEventOrPortal(){
@@ -67,13 +66,186 @@ document.querySelectorAll('.main-tab').forEach(function(tab){
 });
 
 // ── Message Subtabs ──
-document.querySelectorAll('.msg-subtab').forEach(function(tab){
-  tab.addEventListener('click',function(){
-    document.querySelectorAll('.msg-subtab').forEach(function(t){t.classList.remove('msg-subtab--active');});
-    this.classList.add('msg-subtab--active');
-    document.querySelectorAll('.msg-subpanel').forEach(function(p){p.classList.remove('active');});
-    document.getElementById('msgpanel-'+this.dataset.msgtab).classList.add('active');
+// (Replaced by Telegram-style chat — see chat channel logic below)
+
+// ── Telegram-style Chat System ──
+var activeChannel='main';
+var activeDmContact=null;
+var msgTypeMode='message'; // message, prayer, thanksgiving
+var CHANNELS={
+  main:{title:'Main Chat',sub:'Team fellowship & updates'},
+  announcements:{title:'Announcements',sub:'Ministry-wide broadcasts'},
+  prayer:{title:'Prayer & Thanksgiving',sub:'Lift each other up'},
+  thanksgiving:{title:'Thanksgiving',sub:'Celebrate what God has done'},
+  dms:{title:'Direct Messages',sub:'Private conversations'}
+};
+
+// Channel click handlers
+document.querySelectorAll('.chat-topic').forEach(function(el){
+  el.addEventListener('click',function(){
+    document.querySelectorAll('.chat-topic').forEach(function(t){t.classList.remove('chat-topic--active');});
+    this.classList.add('chat-topic--active');
+    activeChannel=this.dataset.channel;
+    document.getElementById('chat-channel-title').textContent=CHANNELS[activeChannel].title;
+    document.getElementById('chat-channel-sub').textContent=CHANNELS[activeChannel].sub;
+    // Toggle DM picker / admin compose visibility
+    document.getElementById('chat-dm-picker').style.display=activeChannel==='dms'?'':'none';
+    document.getElementById('chat-admin-compose').style.display=(activeChannel==='announcements'&&session&&(session.role==='admin'||session.role==='super_admin'))?'':'none';
+    // Update compose placeholder
+    var placeholders={main:'Write a message...',announcements:'Read-only for members',prayer:'Share a prayer request...',thanksgiving:'Share what God has done...',dms:'Type a message...'};
+    document.getElementById('chat-input').placeholder=placeholders[activeChannel]||'Write a message...';
+    // Disable compose for announcements (non-admin)
+    var compose=document.getElementById('chat-compose');
+    if(activeChannel==='announcements'&&session&&session.role!=='admin'&&session.role!=='super_admin'){
+      compose.style.opacity='0.5';compose.style.pointerEvents='none';
+    }else{compose.style.opacity='1';compose.style.pointerEvents='auto';}
+    loadChannelMessages();
   });
+});
+
+// Message type toggle
+document.getElementById('chat-type-btn').addEventListener('click',function(){
+  if(msgTypeMode==='message'){msgTypeMode='prayer';this.textContent='🙏';}
+  else if(msgTypeMode==='prayer'){msgTypeMode='thanksgiving';this.textContent='🎉';}
+  else{msgTypeMode='message';this.textContent='💬';}
+});
+
+// Send message
+document.getElementById('chat-send-btn').addEventListener('click',sendChatMessage);
+document.getElementById('chat-input').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMessage();}});
+
+async function sendChatMessage(){
+  var input=document.getElementById('chat-input');
+  var text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  // Optimistic UI — show immediately
+  appendLocalMessage(text,msgTypeMode);
+  try{
+    await postAction({action:'sendChatMessage',token:session.token,channel:activeChannel==='dms'?'dm_'+activeDmContact:activeChannel,text:text,msg_type:msgTypeMode,to_user:activeDmContact||''});
+  }catch(e){}
+}
+
+function appendLocalMessage(text,type){
+  var container=document.getElementById('chat-messages');
+  var div=document.createElement('div');
+  div.className='chat-msg chat-msg--out'+(type==='prayer'?' chat-msg--prayer':'');
+  var typeLabel=type!=='message'?'<span class="chat-msg__type">'+type+'</span>':'';
+  div.innerHTML=typeLabel+escapeHtml(text)+'<span class="chat-msg__time">Just now</span>';
+  container.appendChild(div);
+  container.scrollTop=container.scrollHeight;
+}
+
+async function loadChannelMessages(){
+  var container=document.getElementById('chat-messages');
+  container.innerHTML='<div class="chat-msg chat-msg--system">Loading...</div>';
+  var channel=activeChannel;
+  if(channel==='dms'&&activeDmContact)channel='dm_'+activeDmContact;
+  else if(channel==='dms'){container.innerHTML='<div class="chat-msg chat-msg--system">Select a conversation below</div>';return;}
+  try{
+    var res=await postAction({action:'getChatMessages',token:session.token,channel:channel});
+    if(res.ok&&res.messages&&res.messages.length){
+      container.innerHTML=res.messages.map(function(m){
+        var isMine=m.from&&m.from.toLowerCase()===session.name.toLowerCase();
+        var cls=isMine?'chat-msg--out':'chat-msg--in';
+        if(m.msg_type==='prayer'||m.msg_type==='thanksgiving')cls+=' chat-msg--prayer';
+        var author=!isMine?'<span class="chat-msg__author">'+escapeHtml(m.from)+'</span>':'';
+        var typeLabel=m.msg_type&&m.msg_type!=='message'?'<span class="chat-msg__type">'+m.msg_type+'</span>':'';
+        return '<div class="chat-msg '+cls+'">'+author+typeLabel+escapeHtml(m.text)+'<span class="chat-msg__time">'+fmtDate(m.timestamp)+'</span></div>';
+      }).join('');
+      container.scrollTop=container.scrollHeight;
+    }else{
+      container.innerHTML='<div class="chat-msg chat-msg--system">No messages yet. Be the first!</div>';
+    }
+  }catch(e){container.innerHTML='<div class="chat-msg chat-msg--system">Could not load messages</div>';}
+}
+
+// DM contact picker — fetches actual registered members
+document.getElementById('chat-dm-new').addEventListener('click',async function(){
+  // Show a member picker instead of free-text prompt
+  try{
+    var res=await postAction({action:'getNoteMembers',token:session.token});
+    if(res.ok&&res.members&&res.members.length){
+      var filtered=res.members.filter(function(m){return m.toLowerCase()!==session.name.toLowerCase();});
+      if(!filtered.length){alert('No other team members registered yet.');return;}
+      // Build a simple selection dialog
+      var pick=filtered.map(function(m,i){return(i+1)+'. '+m;}).join('\n');
+      var sel=prompt('Select a team member to message:\n\n'+pick+'\n\nEnter their number:');
+      if(!sel)return;
+      var idx=parseInt(sel)-1;
+      if(idx>=0&&idx<filtered.length){activeDmContact=filtered[idx];loadChannelMessages();loadDmContactList();}
+      else{alert('Invalid selection.');}
+    }else{alert('No team members found.');}
+  }catch(e){alert('Could not load members.');}
+});
+
+async function loadDmContactList(){
+  var container=document.getElementById('chat-dm-contacts');
+  try{
+    var res=await postAction({action:'getDmContacts',token:session.token});
+    if(res.ok&&res.contacts&&res.contacts.length){
+      container.innerHTML=res.contacts.map(function(c){
+        var active=activeDmContact===c.name?' style="background:var(--green-soft);border-radius:8px;"':'';
+        return '<div class="dm-contact"'+active+' data-name="'+escapeHtml(c.name)+'"><div class="dm-contact__avatar">'+initials(c.name)+'</div><div><div class="dm-contact__name">'+escapeHtml(c.name)+'</div></div></div>';
+      }).join('');
+      container.querySelectorAll('.dm-contact').forEach(function(el){
+        el.addEventListener('click',function(){activeDmContact=this.dataset.name;loadChannelMessages();loadDmContactList();});
+      });
+    }else{container.innerHTML='<p style="font-size:0.78rem;color:var(--muted);">No conversations yet.</p>';}
+  }catch(e){}
+}
+
+// Announcement send (admin)
+document.getElementById('ann-send-btn').addEventListener('click',async function(){
+  var btn=this;
+  var subject=document.getElementById('ann-subject').value.trim();
+  var body=document.getElementById('ann-body').value.trim();
+  var priority=document.getElementById('ann-priority').value;
+  var sendTelegram=document.getElementById('ann-telegram').checked;
+  if(!subject||!body){alert('Fill in subject and message.');return;}
+  btn.disabled=true;btn.textContent='Posting...';
+  try{
+    var res=await postAction({action:'postAnnouncement',token:session.token,subject:subject,body:body,priority:priority,send_telegram:sendTelegram});
+    if(res.ok){
+      document.getElementById('ann-subject').value='';document.getElementById('ann-body').value='';
+      if(activeChannel==='announcements')loadChannelMessages();
+      if(priority==='emergency')checkEmergencyAlerts();
+    }else{alert(res.error||'Failed.');}
+  }catch(e){alert(e.message);}
+  btn.disabled=false;btn.textContent='Post';
+});
+
+// ── Emergency Alert System ──
+async function checkEmergencyAlerts(){
+  var banner=document.getElementById('emergency-banner');
+  if(!banner)return;
+  var dismissed=sessionStorage.getItem('stwm-emergency-dismissed');
+  try{
+    var res=await postAction({action:'getAnnouncements',token:session.token});
+    if(res.ok&&res.announcements){
+      var now=Date.now();
+      var emergency=null;
+      for(var i=0;i<res.announcements.length;i++){
+        var a=res.announcements[i];
+        if(a.priority==='emergency'&&(now-a.timestamp)<86400000){emergency=a;break;}
+      }
+      if(emergency&&dismissed!==emergency.subject){
+        document.getElementById('emergency-title').textContent=emergency.subject;
+        document.getElementById('emergency-body').textContent=emergency.body;
+        banner.style.display='flex';
+      }else{banner.style.display='none';}
+    }
+  }catch(e){}
+}
+document.getElementById('emergency-dismiss').addEventListener('click',function(){
+  sessionStorage.setItem('stwm-emergency-dismissed',document.getElementById('emergency-title').textContent);
+  document.getElementById('emergency-banner').style.display='none';
+});
+
+// Init messages tab on click
+document.querySelector('[data-tab="messages"]').addEventListener('click',function(){
+  loadChannelMessages();
+  if(activeChannel==='dms')loadDmContactList();
 });
 
 // ── Auth ──
@@ -303,211 +475,6 @@ function renderPickerList(filter){
 document.getElementById('picker-close').addEventListener('click',closePicker);
 document.getElementById('picker-overlay').addEventListener('click',function(e){if(e.target===this)closePicker();});
 document.getElementById('picker-search').addEventListener('input',function(){renderPickerList(this.value);});
-
-// ── Announcements ──
-async function loadAnnouncements(){
-  var feed=document.getElementById('ann-feed');
-  try{
-    var res=await postAction({action:'getAnnouncements',token:session.token});
-    if(res.ok&&res.announcements&&res.announcements.length){
-      feed.innerHTML=res.announcements.map(function(a){
-        return '<div class="ann-item ann-item--'+a.priority+'"><span class="ann-item__priority ann-item__priority--'+a.priority+'">'+a.priority+'</span><h4 class="ann-item__subject">'+escapeHtml(a.subject)+'</h4><p class="ann-item__body">'+escapeHtml(a.body)+'</p><p class="ann-item__meta">'+escapeHtml(a.author)+' · '+fmtDate(a.timestamp)+'</p></div>';
-      }).join('');
-    }else{
-      feed.innerHTML='<p style="color:var(--muted);font-size:0.84rem;text-align:center;padding:1rem 0;">No announcements yet.</p>';
-    }
-  }catch(e){
-    feed.innerHTML='<p style="color:var(--muted);font-size:0.84rem;text-align:center;padding:1rem 0;">Could not load announcements.</p>';
-  }
-}
-
-document.getElementById('ann-send-btn').addEventListener('click',async function(){
-  var btn=this;
-  var subject=document.getElementById('ann-subject').value.trim();
-  var body=document.getElementById('ann-body').value.trim();
-  var priority=document.getElementById('ann-priority').value;
-  var sendTelegram=document.getElementById('ann-telegram').checked;
-  if(!subject||!body){alert('Fill in subject and message.');return;}
-  btn.disabled=true;btn.textContent='Posting...';
-  try{
-    var res=await postAction({action:'postAnnouncement',token:session.token,subject:subject,body:body,priority:priority,send_telegram:sendTelegram});
-    if(res.ok){
-      document.getElementById('ann-subject').value='';document.getElementById('ann-body').value='';
-      loadAnnouncements();
-      if(priority==='emergency')checkEmergencyAlerts();
-    }else{alert(res.error||'Failed to post.');}
-  }catch(e){alert(e.message);}
-  btn.disabled=false;btn.textContent='Post';
-});
-
-// ── Emergency Alert System ──
-async function checkEmergencyAlerts(){
-  var banner=document.getElementById('emergency-banner');
-  if(!banner)return;
-  var dismissed=sessionStorage.getItem('stwm-emergency-dismissed');
-  try{
-    var res=await postAction({action:'getAnnouncements',token:session.token});
-    if(res.ok&&res.announcements){
-      // Find most recent emergency (within last 24h)
-      var now=Date.now();
-      var emergency=null;
-      for(var i=0;i<res.announcements.length;i++){
-        var a=res.announcements[i];
-        if(a.priority==='emergency'&&(now-a.timestamp)<86400000){
-          emergency=a;break;
-        }
-      }
-      if(emergency&&dismissed!==emergency.subject){
-        document.getElementById('emergency-title').textContent=emergency.subject;
-        document.getElementById('emergency-body').textContent=emergency.body;
-        banner.style.display='flex';
-      }else{banner.style.display='none';}
-    }
-  }catch(e){}
-}
-document.getElementById('emergency-dismiss').addEventListener('click',function(){
-  var title=document.getElementById('emergency-title').textContent;
-  sessionStorage.setItem('stwm-emergency-dismissed',title);
-  document.getElementById('emergency-banner').style.display='none';
-});
-
-// ── Direct Messages ──
-async function loadDmContacts(){
-  var container=document.getElementById('dm-contacts');
-  try{
-    var res=await postAction({action:'getDmContacts',token:session.token});
-    if(res.ok&&res.contacts&&res.contacts.length){
-      container.innerHTML=res.contacts.map(function(c){
-        var isActive=activeDmContact===c.name?' dm-contact--active':'';
-        return '<div class="dm-contact'+isActive+'" data-name="'+escapeHtml(c.name)+'"><div class="dm-contact__avatar">'+initials(c.name)+'</div><div><div class="dm-contact__name">'+escapeHtml(c.name)+'</div>'+(c.last_message?'<div class="dm-contact__preview">'+escapeHtml(c.last_message.slice(0,30))+'</div>':'')+'</div></div>';
-      }).join('');
-      container.querySelectorAll('.dm-contact').forEach(function(el){
-        el.addEventListener('click',function(){activeDmContact=this.dataset.name;openDmChat();});
-      });
-    }else{
-      container.innerHTML='<p style="color:var(--muted);font-size:0.84rem;">No conversations yet.</p>';
-    }
-  }catch(e){
-    container.innerHTML='<p style="color:var(--muted);font-size:0.84rem;">Could not load contacts.</p>';
-  }
-}
-
-function openDmChat(){
-  document.getElementById('dm-list-view').style.display='none';
-  document.getElementById('dm-chat-view').style.display='';
-  document.getElementById('dm-chat-name').textContent=activeDmContact;
-  loadDmMessages();
-}
-document.getElementById('dm-back-btn').addEventListener('click',function(){
-  document.getElementById('dm-chat-view').style.display='none';
-  document.getElementById('dm-list-view').style.display='';
-  activeDmContact=null;loadDmContacts();
-});
-
-async function loadDmMessages(){
-  var container=document.getElementById('dm-messages');
-  container.innerHTML='<p style="color:var(--muted);font-size:0.82rem;text-align:center;">Loading...</p>';
-  try{
-    var res=await postAction({action:'getDmMessages',token:session.token,with_user:activeDmContact});
-    if(res.ok&&res.messages&&res.messages.length){
-      container.innerHTML=res.messages.map(function(m){
-        var cls=m.from===session.name?'dm-bubble--sent':'dm-bubble--received';
-        return '<div class="dm-bubble '+cls+'">'+escapeHtml(m.text)+'<span class="dm-bubble__time">'+fmtDate(m.timestamp)+'</span></div>';
-      }).join('');
-      container.scrollTop=container.scrollHeight;
-    }else{
-      container.innerHTML='<p style="color:var(--muted);font-size:0.82rem;text-align:center;">No messages yet.</p>';
-    }
-  }catch(e){container.innerHTML='<p style="color:var(--red);font-size:0.82rem;text-align:center;">Error loading messages.</p>';}
-}
-
-document.getElementById('dm-send-btn').addEventListener('click',sendDm);
-document.getElementById('dm-input').addEventListener('keydown',function(e){if(e.key==='Enter')sendDm();});
-async function sendDm(){
-  var input=document.getElementById('dm-input'),text=input.value.trim();
-  if(!text||!activeDmContact)return;
-  input.value='';
-  try{
-    await postAction({action:'sendDm',token:session.token,to_user:activeDmContact,text:text});
-    loadDmMessages();
-  }catch(e){alert('Failed to send: '+e.message);}
-}
-
-document.getElementById('dm-new-btn').addEventListener('click',function(){
-  var name=prompt('Enter team member name to message:');
-  if(name&&name.trim()){activeDmContact=name.trim();openDmChat();}
-});
-
-// Load DM contacts when messages tab is opened
-document.querySelector('[data-msgtab="dms"]').addEventListener('click',loadDmContacts);
-
-// ── Member Notes ──
-async function loadNoteMembers(){
-  var container=document.getElementById('notes-members');
-  try{
-    var res=await postAction({action:'getNoteMembers',token:session.token});
-    if(res.ok&&res.members&&res.members.length){
-      renderNoteMembers(res.members);
-    }else{
-      container.innerHTML='<p style="color:var(--muted);font-size:0.84rem;">No members yet.</p>';
-    }
-  }catch(e){container.innerHTML='<p style="color:var(--muted);font-size:0.84rem;">Could not load.</p>';}
-}
-function renderNoteMembers(members){
-  var container=document.getElementById('notes-members');
-  container.innerHTML=members.map(function(m){
-    var isActive=activeNotesMember===m?' dm-contact--active':'';
-    return '<div class="dm-contact'+isActive+'" data-member="'+escapeHtml(m)+'"><div class="dm-contact__avatar">'+initials(m)+'</div><div class="dm-contact__name">'+escapeHtml(m)+'</div></div>';
-  }).join('');
-  container.querySelectorAll('.dm-contact').forEach(function(el){
-    el.addEventListener('click',function(){activeNotesMember=this.dataset.member;openNotesDetail();});
-  });
-}
-function openNotesDetail(){
-  document.getElementById('notes-member-view').style.display='none';
-  document.getElementById('notes-detail-view').style.display='';
-  document.getElementById('notes-member-name').textContent=activeNotesMember;
-  loadNotes();
-}
-document.getElementById('notes-back-btn').addEventListener('click',function(){
-  document.getElementById('notes-detail-view').style.display='none';
-  document.getElementById('notes-member-view').style.display='';
-  activeNotesMember=null;loadNoteMembers();
-});
-async function loadNotes(){
-  var log=document.getElementById('notes-log');
-  log.innerHTML='<p style="color:var(--muted);font-size:0.82rem;text-align:center;">Loading...</p>';
-  try{
-    var res=await postAction({action:'getMemberNotes',token:session.token,member:activeNotesMember});
-    if(res.ok&&res.notes&&res.notes.length){
-      log.innerHTML=res.notes.map(function(n){
-        return '<div class="note-entry"><span class="note-entry__cat note-entry__cat--'+n.category+'">'+n.category+'</span><p class="note-entry__text">'+escapeHtml(n.text)+'</p><p class="note-entry__meta">'+escapeHtml(n.author)+' · '+fmtDate(n.timestamp)+'</p></div>';
-      }).join('');
-    }else{
-      log.innerHTML='<p style="color:var(--muted);font-size:0.82rem;text-align:center;">No notes yet.</p>';
-    }
-  }catch(e){log.innerHTML='<p style="color:var(--red);font-size:0.82rem;">Error.</p>';}
-}
-document.getElementById('notes-save-btn').addEventListener('click',async function(){
-  var text=document.getElementById('notes-input').value.trim();
-  var category=document.getElementById('notes-category').value;
-  if(!text||!activeNotesMember){alert('Write a note.');return;}
-  try{
-    await postAction({action:'addMemberNote',token:session.token,member:activeNotesMember,text:text,category:category});
-    document.getElementById('notes-input').value='';loadNotes();
-  }catch(e){alert(e.message);}
-});
-document.getElementById('notes-add-btn').addEventListener('click',function(){
-  var name=prompt('Enter member name:');
-  if(name&&name.trim()){activeNotesMember=name.trim();openNotesDetail();}
-});
-document.getElementById('notes-search').addEventListener('input',function(){
-  var q=this.value.toLowerCase();
-  document.querySelectorAll('#notes-members .dm-contact').forEach(function(el){
-    el.style.display=el.dataset.member.toLowerCase().indexOf(q)>-1?'':'none';
-  });
-});
-document.querySelector('[data-msgtab="notes"]').addEventListener('click',loadNoteMembers);
 
 // ── Training Tab ──
 var MILESTONES=[

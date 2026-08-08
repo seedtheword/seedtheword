@@ -871,3 +871,118 @@ function handleAddTrainingRecord_(payload) {
     return jsonResponse({ ok: true, route: 'addTrainingRecord' });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
+
+
+// ══════════════════════════════════════════════════════════════════════
+// CHAT MESSAGE HANDLERS (Telegram-style channels)
+// ══════════════════════════════════════════════════════════════════════
+//
+// ADD these routing lines to doPost():
+//   if ((payload && payload.action) === 'sendChatMessage') return handleSendChatMessage_(payload);
+//   if ((payload && payload.action) === 'getChatMessages') return handleGetChatMessages_(payload);
+
+function getChatSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName('ChatMessages');
+  if (!sheet) {
+    sheet = ss.insertSheet('ChatMessages');
+    sheet.getRange(1,1,1,6).setValues([['timestamp','channel','from_user','text','msg_type','to_user']]);
+    sheet.getRange(1,1,1,6).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function handleSendChatMessage_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+
+    var channel = String(payload.channel || 'main').trim();
+    var text = String(payload.text || '').trim();
+    var msgType = String(payload.msg_type || 'message').trim();
+    var toUser = String(payload.to_user || '').trim();
+    if (!text) return jsonResponse({ ok: false, error: 'Empty message' });
+
+    // Validate DM recipient exists
+    if (channel.indexOf('dm_') === 0 && toUser) {
+      var tmSheet = getTeamSheet_();
+      if (tmSheet.getLastRow() > 1) {
+        var members = tmSheet.getRange(2, 2, tmSheet.getLastRow()-1, 1).getValues();
+        var found = false;
+        for (var i = 0; i < members.length; i++) {
+          if (String(members[i][0]).toLowerCase().trim() === toUser.toLowerCase()) { found = true; break; }
+        }
+        if (!found) return jsonResponse({ ok: false, error: 'Recipient not found in team members' });
+      }
+    }
+
+    var sheet = getChatSheet_();
+    var now = new Date();
+    sheet.appendRow([now.toISOString(), channel, user.name, text, msgType, toUser]);
+
+    // Forward prayer requests to Telegram Prayer & Thanksgiving topic
+    if (msgType === 'prayer' || msgType === 'thanksgiving') {
+      var emoji = msgType === 'prayer' ? '🙏' : '🎉';
+      var label = msgType === 'prayer' ? 'Prayer Request' : 'Thanksgiving';
+      var tgMsg = emoji + ' <b>' + label + ' from ' + user.name + '</b>\n\n' + text;
+      sendTelegramFromAppsScript_('@seedtheword', tgMsg, 21); // thread 21 = Prayer & Thanksgiving
+    }
+
+    // Forward DMs as Telegram nudge
+    if (channel.indexOf('dm_') === 0 && toUser) {
+      var recipientTg = getTeamMemberTelegram_(toUser);
+      if (recipientTg) {
+        var nudge = '💬 New message from ' + user.name + '. Check the Team Portal to reply.';
+        sendTelegramPrivateNudge_(recipientTg, nudge);
+      }
+    }
+
+    return jsonResponse({ ok: true, route: 'sendChatMessage' });
+  } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+function handleGetChatMessages_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+
+    var channel = String(payload.channel || 'main').trim();
+    var sheet = getChatSheet_();
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, messages: [] });
+
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 6).getValues();
+    var messages = [];
+
+    for (var i = 0; i < data.length; i++) {
+      var rowChannel = String(data[i][1]).trim();
+      var fromUser = String(data[i][2]).trim();
+      var toUser = String(data[i][5]).trim();
+
+      // Channel match logic
+      var match = false;
+      if (channel.indexOf('dm_') === 0) {
+        // DM channel: show messages between current user and the target
+        var dmTarget = channel.replace('dm_', '');
+        match = (rowChannel === channel) ||
+                (rowChannel === 'dm_' + user.name && toUser.toLowerCase() === dmTarget.toLowerCase()) ||
+                (fromUser.toLowerCase() === dmTarget.toLowerCase() && toUser.toLowerCase() === user.name.toLowerCase());
+      } else {
+        match = (rowChannel === channel);
+      }
+
+      if (match) {
+        messages.push({
+          timestamp: new Date(data[i][0]).getTime(),
+          from: fromUser,
+          text: String(data[i][3]).trim(),
+          msg_type: String(data[i][4]).trim()
+        });
+      }
+    }
+
+    // Return last 50 messages
+    if (messages.length > 50) messages = messages.slice(messages.length - 50);
+    return jsonResponse({ ok: true, messages: messages });
+  } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}

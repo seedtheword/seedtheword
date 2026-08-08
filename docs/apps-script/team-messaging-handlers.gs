@@ -964,9 +964,13 @@ function handleSendChatMessage_(payload) {
 function handleGetChatMessages_(payload) {
   try {
     var user = validateTeamToken_(String(payload.token || ''));
-    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var isPublicRead = String(payload.passphrase_hash || '') === 'public-read';
+    if (!user && !isPublicRead) return jsonResponse({ ok: false, error: 'Unauthorized' });
 
     var channel = String(payload.channel || 'main').trim();
+    // Public read only allows main channel (no DMs)
+    if (isPublicRead && channel.indexOf('dm_') === 0) return jsonResponse({ ok: false, error: 'Unauthorized' });
+
     var sheet = getChatSheet_();
     if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, messages: [] });
 

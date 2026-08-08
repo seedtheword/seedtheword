@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="Read with us Monday through Friday. Study live on Saturdays. Connect on Telegram, Spotify, Twitch, and Instagram.">
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-ministry-1.jpg">
   <title>Community — Seed the Word Ministry</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <link rel="stylesheet" href="assets/css/store-catalog.css?v=9">
   <style>
@@ -28,17 +28,19 @@
 
 /* ── Page-level tokens ─────────────────────────────────────────── */
 .community-dashboard {
-  --serif: 'Playfair Display', Georgia, serif;
-  --sans: 'Source Sans 3', system-ui, sans-serif;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', monospace;
-  --bg-ivory: #FAFAF8;
-  --fg: #1A1A1A;
-  --fg-muted: #6B6B6B;
-  --accent-gold: #B8860B;
-  --accent-gold-light: #D4A84B;
+  --bg-ivory: #FDFBF7;
+  --fg: #1A1E24;
+  --fg-muted: #6b7280;
+  --accent-gold: #D97736;
+  --accent-gold-light: #e08a42;
   --border-warm: #E8E4DF;
   --card-bg: #FFFFFF;
-  --surface-muted: #F5F3F0;
+  --surface-muted: #F8F6F3;
+  --green: #2C4A3E;
+  --green-soft: rgba(44,74,62,0.06);
 
   display: grid;
   grid-template-columns: 220px 1fr 280px;
@@ -288,6 +290,40 @@
   .community-dashboard { padding: 1.25rem; }
   .community-feed .section { padding: 1.5rem; }
 }
+
+/* ── Modern UI Enhancements ─────────────────────────────────── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.community-feed .section{animation:fadeInUp 0.4s cubic-bezier(0.4,0,0.2,1) both;}
+.community-feed .section:nth-child(2){animation-delay:0.05s;}
+.community-feed .section:nth-child(3){animation-delay:0.1s;}
+.community-feed .section:nth-child(4){animation-delay:0.15s;}
+.community-sidebar__link{transition:all 0.2s cubic-bezier(0.4,0,0.2,1);}
+.community-sidebar__link:hover{transform:translateX(3px);}
+.section-title{font-family:var(--serif)!important;font-weight:700!important;}
+.discussion-card{transition:transform 0.2s,box-shadow 0.2s;}
+.discussion-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.08);}
+
+/* ── Live Activity Feed ─────────────────────────────────────── */
+.live-feed{margin-top:1.5rem;}
+.live-feed__title{font-family:var(--serif);font-size:1.1rem;font-weight:700;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;}
+.live-feed__dot{width:8px;height:8px;border-radius:50%;background:#D97736;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.live-feed__item{display:flex;gap:0.75rem;padding:0.85rem;border:1px solid var(--border-warm);border-radius:10px;margin-bottom:0.6rem;background:var(--card-bg);transition:transform 0.15s,box-shadow 0.15s;animation:fadeInUp 0.3s ease both;}
+.live-feed__item:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.05);}
+.live-feed__avatar{width:36px;height:36px;border-radius:50%;background:var(--green-soft,rgba(44,74,62,0.06));display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:var(--green,#2C4A3E);flex-shrink:0;}
+.live-feed__content{flex:1;min-width:0;}
+.live-feed__author{font-size:0.82rem;font-weight:600;color:var(--fg);}
+.live-feed__text{font-size:0.8rem;color:var(--fg-muted);line-height:1.5;margin-top:0.15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.live-feed__time{font-size:0.65rem;color:var(--fg-muted);margin-top:0.2rem;}
+.live-feed__type{font-size:0.58rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:0.15rem 0.4rem;border-radius:999px;display:inline-block;margin-bottom:0.2rem;}
+.live-feed__type--message{background:var(--green-soft,rgba(44,74,62,0.06));color:var(--green,#2C4A3E);}
+.live-feed__type--prayer{background:rgba(217,119,54,0.08);color:#D97736;}
+.live-feed__type--thanksgiving{background:rgba(217,119,54,0.08);color:#D97736;}
+.live-feed__type--announcement{background:rgba(44,74,62,0.08);color:var(--green,#2C4A3E);}
+.live-feed__login{text-align:center;padding:1.25rem;border:1.5px dashed var(--border-warm);border-radius:10px;margin-top:0.75rem;}
+.live-feed__login a{display:inline-block;padding:0.6rem 1.25rem;background:var(--green,#2C4A3E);color:#fff;border-radius:8px;font-size:0.82rem;font-weight:600;text-decoration:none;transition:transform 0.15s,box-shadow 0.15s;}
+.live-feed__login a:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(44,74,62,0.2);}
   </style>
 </head>
 <body>
@@ -626,6 +662,20 @@
       <p class="stay-sub__desc">Ministry updates and event notifications from the team.</p>
       <div id="community-announcements-feed" style="margin-top:1rem;">
         <div style="padding:1.5rem;text-align:center;color:#6B6B6B;font-size:0.85rem;border:1.5px dashed #E8E4DF;border-radius:10px;">Loading announcements...</div>
+      </div>
+    </div>
+
+    <!-- Live Community Activity (from team portal chat) -->
+    <div class="stay-sub" style="margin-top:1.5rem;">
+      <div class="live-feed">
+        <h3 class="live-feed__title"><span class="live-feed__dot"></span> Community Activity</h3>
+        <div id="community-live-feed">
+          <div style="padding:1rem;text-align:center;color:var(--fg-muted);font-size:0.82rem;">Loading activity...</div>
+        </div>
+        <div class="live-feed__login" id="live-feed-login">
+          <p style="font-size:0.82rem;color:var(--fg-muted);margin:0 0 0.6rem;">Join the conversation — post prayers, testimonies, and encouragement.</p>
+          <a href="team.html">Sign up to participate →</a>
+        </div>
       </div>
     </div>
 
@@ -1406,44 +1456,72 @@ if (dashSearch) {
 }
 </style>
 <script>
-// Load live announcements into the community feed
+// Load live announcements and community activity into the feed
 (function() {
-  var feed = document.getElementById('community-announcements-feed');
-  if (!feed) return;
-  fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
-    .then(function(r) { return r.json(); })
-    .then(function(cfg) {
-      if (!cfg.orderHandlerUrl) throw new Error('No handler');
-      return fetch(cfg.orderHandlerUrl, {
-        method: 'POST', redirect: 'follow',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'getAnnouncements', passphrase_hash: 'public-read' })
-      });
-    })
-    .then(function(r) { return r.text(); })
-    .then(function(t) { return JSON.parse(t); })
-    .then(function(res) {
-      if (res.ok && res.announcements && res.announcements.length) {
-        feed.innerHTML = res.announcements.slice(0, 5).map(function(a) {
-          var priorityColor = a.priority === 'emergency' ? '#a6251f' : a.priority === 'urgent' ? '#d4740a' : '#2C4A3E';
-          var priorityBg = a.priority === 'emergency' ? 'rgba(166,37,31,0.06)' : a.priority === 'urgent' ? 'rgba(212,116,10,0.06)' : 'rgba(44,74,62,0.04)';
-          var date = new Date(a.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-          return '<div style="padding:1rem;background:' + priorityBg + ';border:1px solid rgba(0,0,0,0.06);border-left:3px solid ' + priorityColor + ';border-radius:10px;margin-bottom:0.6rem;">' +
-            '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">' +
-            '<span style="font-size:0.62rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:' + priorityColor + ';">' + (a.priority || 'normal') + '</span>' +
-            '<span style="font-size:0.7rem;color:#6B6B6B;">' + date + '</span></div>' +
-            '<strong style="font-size:0.9rem;display:block;margin-bottom:0.25rem;color:#1A1E24;">' + escHtml(a.subject) + '</strong>' +
-            '<p style="font-size:0.82rem;color:#3d4148;line-height:1.6;margin:0;">' + escHtml(a.body) + '</p>' +
-            '<span style="font-size:0.68rem;color:#6B6B6B;margin-top:0.4rem;display:block;">— ' + escHtml(a.author) + '</span></div>';
-        }).join('');
-      } else {
-        feed.innerHTML = '<p style="text-align:center;color:#6B6B6B;font-size:0.85rem;padding:1rem 0;">No announcements yet. Check back soon.</p>';
-      }
-    })
-    .catch(function() {
-      feed.innerHTML = '<p style="text-align:center;color:#6B6B6B;font-size:0.85rem;padding:1rem 0;">Join <a href="https://t.me/seedtheword" target="_blank" style="color:#B8860B;font-weight:600;">our Telegram</a> for live announcements.</p>';
-    });
+  var CONFIG_URL = 'assets/data/site-config.json';
+  function getHandler() {
+    return fetch(CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(function(r) { return r.json(); })
+      .then(function(cfg) { return cfg.orderHandlerUrl; });
+  }
+  function postAction(url, data) {
+    return fetch(url, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) })
+      .then(function(r) { return r.text(); })
+      .then(function(t) { return JSON.parse(t); });
+  }
   function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+  function initials(n) { return (n || '').split(' ').map(function(w) { return w[0]; }).join('').toUpperCase().slice(0, 2); }
+  function timeAgo(ts) { var d = Date.now() - ts, m = Math.floor(d / 60000); if (m < 1) return 'just now'; if (m < 60) return m + 'm ago'; var h = Math.floor(m / 60); if (h < 24) return h + 'h ago'; return Math.floor(h / 24) + 'd ago'; }
+
+  getHandler().then(function(url) {
+    // Load announcements
+    var annFeed = document.getElementById('community-announcements-feed');
+    if (annFeed) {
+      postAction(url, { action: 'getAnnouncements', passphrase_hash: 'public-read' }).then(function(res) {
+        if (res.ok && res.announcements && res.announcements.length) {
+          annFeed.innerHTML = res.announcements.slice(0, 5).map(function(a) {
+            var color = a.priority === 'emergency' ? '#a6251f' : a.priority === 'urgent' ? '#d4740a' : '#2C4A3E';
+            var bg = a.priority === 'emergency' ? 'rgba(166,37,31,0.04)' : a.priority === 'urgent' ? 'rgba(212,116,10,0.04)' : 'rgba(44,74,62,0.03)';
+            return '<div class="live-feed__item" style="border-left:3px solid ' + color + ';background:' + bg + ';">' +
+              '<div class="live-feed__avatar" style="background:' + bg + ';color:' + color + ';">📢</div>' +
+              '<div class="live-feed__content"><span class="live-feed__type live-feed__type--announcement">' + (a.priority || 'normal') + '</span>' +
+              '<div class="live-feed__author">' + escHtml(a.subject) + '</div>' +
+              '<div class="live-feed__text">' + escHtml(a.body) + '</div>' +
+              '<div class="live-feed__time">' + escHtml(a.author) + ' · ' + timeAgo(a.timestamp) + '</div></div></div>';
+          }).join('');
+        } else {
+          annFeed.innerHTML = '<p style="text-align:center;color:var(--fg-muted);font-size:0.82rem;padding:0.75rem 0;">No announcements yet.</p>';
+        }
+      }).catch(function() {
+        annFeed.innerHTML = '<p style="text-align:center;color:var(--fg-muted);font-size:0.82rem;">Join <a href="https://t.me/seedtheword" target="_blank" style="color:#D97736;font-weight:600;">Telegram</a> for live updates.</p>';
+      });
+    }
+
+    // Load community chat activity (public read of main + prayer channels)
+    var liveFeed = document.getElementById('community-live-feed');
+    if (liveFeed) {
+      postAction(url, { action: 'getChatMessages', passphrase_hash: 'public-read', channel: 'main' }).then(function(res) {
+        if (res.ok && res.messages && res.messages.length) {
+          var recent = res.messages.slice(-8);
+          liveFeed.innerHTML = recent.map(function(m) {
+            var typeClass = 'live-feed__type--' + (m.msg_type || 'message');
+            var typeLabel = m.msg_type === 'prayer' ? '🙏 Prayer' : m.msg_type === 'thanksgiving' ? '🎉 Thanks' : '';
+            return '<div class="live-feed__item">' +
+              '<div class="live-feed__avatar">' + initials(m.from) + '</div>' +
+              '<div class="live-feed__content">' +
+              (typeLabel ? '<span class="live-feed__type ' + typeClass + '">' + typeLabel + '</span>' : '') +
+              '<div class="live-feed__author">' + escHtml(m.from) + '</div>' +
+              '<div class="live-feed__text">' + escHtml(m.text) + '</div>' +
+              '<div class="live-feed__time">' + timeAgo(m.timestamp) + '</div></div></div>';
+          }).join('');
+        } else {
+          liveFeed.innerHTML = '<p style="text-align:center;color:var(--fg-muted);font-size:0.82rem;padding:0.75rem 0;">Be the first to post in the community chat.</p>';
+        }
+      }).catch(function() {
+        liveFeed.innerHTML = '<p style="text-align:center;color:var(--fg-muted);font-size:0.82rem;">Activity will appear here once the team starts chatting.</p>';
+      });
+    }
+  }).catch(function() {});
 })();
 </script>
 </body>

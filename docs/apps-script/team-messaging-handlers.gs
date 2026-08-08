@@ -207,16 +207,20 @@ function handlePostAnnouncement_(payload) {
 
 function handleGetAnnouncements_(payload) {
   try {
+    // Allow public read for community page (passphrase_hash='public-read' or valid token or admin hash)
     var user = validateTeamToken_(String(payload.token || ''));
-    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var isPublicRead = String(payload.passphrase_hash || '') === 'public-read';
+    var isAdmin = validateAdminPassphrase_(payload);
+    if (!user && !isPublicRead && !isAdmin) return jsonResponse({ ok: false, error: 'Unauthorized' });
 
     var sheet = getAnnouncementsSheet_();
     if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, announcements: [] });
     var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 5).getValues();
 
-    // Return last 30 announcements, newest first
+    // Public read gets last 5; authenticated gets last 30
+    var limit = (user || isAdmin) ? 30 : 5;
     var announcements = [];
-    for (var i = data.length - 1; i >= 0 && announcements.length < 30; i--) {
+    for (var i = data.length - 1; i >= 0 && announcements.length < limit; i--) {
       announcements.push({
         timestamp: new Date(data[i][0]).getTime(),
         author: data[i][1],

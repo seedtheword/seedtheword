@@ -1,0 +1,167 @@
+/* ============================================================
+   Site-wide Theme Variables — Light & Dark
+   Design Language: Fraunces + Inter
+   Colors: Deep Olive #2C4A3E, Terracotta Gold #D97736,
+           Cream #FDFBF7, Deep Slate #1A1E24
+   ============================================================ */
+
+:root,
+[data-theme="light"] {
+  /* Core palette */
+  --color-bg: #FDFBF7;
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-subtle: #F8F6F3;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F8F6F3;
+
+  /* Text */
+  --color-text: #1A1E24;
+  --color-text-secondary: #4a5260;
+  --color-text-muted: #6b7280;
+  --color-text-inverse: #FDFBF7;
+
+  /* Brand */
+  --color-olive: #2C4A3E;
+  --color-olive-soft: rgba(44, 74, 62, 0.08);
+  --color-olive-hover: #1e3a2f;
+  --color-gold: #D97736;
+  --color-gold-soft: rgba(217, 119, 54, 0.08);
+  --color-gold-hover: #c06628;
+  --color-cream: #FDFBF7;
+  --color-slate: #1A1E24;
+
+  /* Borders & shadows */
+  --color-border: #E8E4DF;
+  --color-border-subtle: rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 0 3px rgba(217, 119, 54, 0.15);
+
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-blur: blur(20px);
+
+  /* Status */
+  --color-success: #2C4A3E;
+  --color-success-soft: rgba(44, 74, 62, 0.08);
+  --color-warning: #D97736;
+  --color-warning-soft: rgba(217, 119, 54, 0.08);
+  --color-danger: #a6251f;
+  --color-danger-soft: rgba(166, 37, 31, 0.08);
+  --color-info: #0088cc;
+  --color-info-soft: rgba(0, 136, 204, 0.08);
+
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  /* Transitions */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+}
+
+[data-theme="dark"] {
+  --color-bg: #0f1218;
+  --color-bg-elevated: #1A1E24;
+  --color-bg-subtle: #22272e;
+  --color-surface: #1e2329;
+  --color-surface-hover: #282e36;
+
+  --color-text: #e8e6e3;
+  --color-text-secondary: #a8adb5;
+  --color-text-muted: #7c8490;
+  --color-text-inverse: #1A1E24;
+
+  --color-olive: #4a8a72;
+  --color-olive-soft: rgba(74, 138, 114, 0.12);
+  --color-olive-hover: #5ca888;
+  --color-gold: #e89850;
+  --color-gold-soft: rgba(232, 152, 80, 0.12);
+  --color-gold-hover: #f0a86a;
+  --color-cream: #e8e6e3;
+  --color-slate: #e8e6e3;
+
+  --color-border: #2e353e;
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 0 3px rgba(232, 152, 80, 0.2);
+
+  --glass-bg: rgba(30, 35, 41, 0.9);
+  --glass-border: rgba(46, 53, 62, 0.8);
+  --glass-blur: blur(20px);
+
+  --color-success: #4a8a72;
+  --color-success-soft: rgba(74, 138, 114, 0.12);
+  --color-warning: #e89850;
+  --color-warning-soft: rgba(232, 152, 80, 0.12);
+  --color-danger: #e05555;
+  --color-danger-soft: rgba(224, 85, 85, 0.12);
+  --color-info: #4dabcf;
+  --color-info-soft: rgba(77, 171, 207, 0.12);
+}
+
+/* ── Theme Toggle Button ─────────────────────────────────── */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease);
+  color: var(--color-text-muted);
+  padding: 0;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+  box-shadow: var(--shadow-glow);
+  transform: scale(1.05);
+}
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  transition: transform var(--duration-normal) var(--ease);
+}
+.theme-toggle:hover svg {
+  transform: rotate(15deg);
+}
+.theme-toggle__sun { display: none; }
+.theme-toggle__moon { display: block; }
+[data-theme="dark"] .theme-toggle__sun { display: block; }
+[data-theme="dark"] .theme-toggle__moon { display: none; }
+
+/* ── Smooth theme transition on all elements ─────────────── */
+html[data-theme] * {
+  transition: background-color var(--duration-slow) var(--ease),
+              border-color var(--duration-slow) var(--ease),
+              color var(--duration-normal) var(--ease),
+              box-shadow var(--duration-slow) var(--ease);
+}
+/* Exclude elements that need instant transitions */
+html[data-theme] .no-theme-transition,
+html[data-theme] .no-theme-transition * {
+  transition: none !important;
+}

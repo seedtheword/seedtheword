@@ -1,277 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Team Portal — Seed the Word</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
-  <style>
-    :root {
-      --font:'Inter',system-ui,sans-serif;
-      --serif:'Fraunces',Georgia,serif;
-      --bg:#FDFBF7;--card:rgba(255,255,255,0.82);
-      --glass:rgba(255,255,255,0.5);--glass-border:rgba(255,255,255,0.75);
-      --ink:#1A1E24;--ink2:#3d4148;--muted:#6b7280;
-      --gold:#D97736;--gold-soft:rgba(217,119,54,0.1);
-      --green:#2C4A3E;--green-soft:rgba(44,74,62,0.08);
-      --red:#a6251f;--red-soft:rgba(166,37,31,0.08);
-      --orange:#d4740a;--orange-soft:rgba(212,116,10,0.08);
-      --border:rgba(0,0,0,0.06);--radius:16px;--radius-sm:10px;
-      --shadow:0 8px 40px rgba(0,0,0,0.05);
-      --blur:blur(20px);--transition:cubic-bezier(0.4,0,0.2,1);
-    }
-    *,*::before,*::after{box-sizing:border-box;}
-    body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;
-      background-image:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(44,74,62,0.03) 0%,transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 90%,rgba(217,119,54,0.03) 0%,transparent 50%);}
-    .page{max-width:520px;margin:0 auto;padding:1.25rem 1rem 3rem;position:relative;z-index:1;}
-    .logo{width:50px;height:50px;border-radius:12px;display:block;margin:0 auto 0.6rem;}
-    .page-title{font-family:var(--serif);font-size:1.4rem;font-weight:700;text-align:center;margin:0 0 0.25rem;}
-    .page-sub{font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);text-align:center;margin:0 0 1.5rem;}
-
-    /* Form elements */
-    label{display:block;font-size:0.8rem;font-weight:600;margin-bottom:0.2rem;color:var(--ink);}
-    input,select,textarea{width:100%;padding:0.75rem 0.85rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:0.92rem;font-family:inherit;background:var(--card);backdrop-filter:var(--blur);margin-bottom:0.7rem;color:var(--ink);-webkit-appearance:none;}
-    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft);}
-    textarea{resize:vertical;min-height:60px;}
-    .btn{width:100%;padding:0.85rem;border:none;border-radius:var(--radius-sm);font-size:0.92rem;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:0.5rem;transition:transform 0.2s var(--transition),box-shadow 0.2s var(--transition);}
-    .btn:hover{transform:translateY(-1px);}
-    .btn--gold{background:linear-gradient(135deg,var(--gold),#e08a42);color:#fff;box-shadow:0 4px 16px rgba(217,119,54,0.25);}
-    .btn--green{background:linear-gradient(135deg,var(--green),#3a5f4e);color:#fff;box-shadow:0 4px 16px rgba(44,74,62,0.25);}
-    .btn--outline{background:var(--glass);backdrop-filter:var(--blur);border:1.5px solid var(--glass-border);color:var(--ink2);}
-    .btn--outline:hover{border-color:var(--gold);color:var(--gold);}
-    .btn--danger{background:linear-gradient(135deg,var(--red),#c0392b);color:#fff;box-shadow:0 4px 12px rgba(166,37,31,0.2);}
-    .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-    .btn--sm{padding:0.6rem 1rem;font-size:0.82rem;width:auto;}
-    .status{text-align:center;font-size:0.82rem;min-height:1.2rem;margin-bottom:0.5rem;}
-    .status--error{color:var(--red);}.status--success{color:var(--green);}
-    .toggle{font-size:0.82rem;text-align:center;color:var(--muted);margin-top:0.5rem;}
-    .toggle a{color:var(--gold);font-weight:600;cursor:pointer;text-decoration:none;}
-
-    /* Views */
-    .view{display:none;}.view.active{display:block;}
-
-    /* Main tabs */
-    .main-tabs{display:flex;gap:0.4rem;margin-bottom:1.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-    .main-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:0.35rem;padding:0.7rem 0.5rem;background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--glass-border);border-radius:999px;font-size:0.78rem;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;white-space:nowrap;transition:all 0.2s var(--transition);}
-    .main-tab:hover{background:var(--card);color:var(--ink);}
-    .main-tab--active{background:var(--card);color:var(--green);border-color:rgba(44,95,46,0.2);box-shadow:0 2px 12px rgba(44,95,46,0.1);}
-    .main-tab__icon{font-size:1rem;}
-
-    /* Glass card */
-    .glass-card{background:var(--card);backdrop-filter:var(--blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow);}
-
-    /* Stats */
-    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1rem;}
-    .stat-card{background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:0.85rem;text-align:center;}
-    .stat-card__val{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--gold);}
-    .stat-card__label{font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-top:0.2rem;}
-    .event-banner{padding:0.7rem 1rem;background:var(--gold-soft);border:1px solid rgba(200,150,62,0.2);border-radius:var(--radius-sm);margin-bottom:1rem;font-size:0.82rem;text-align:center;}
-    .event-banner strong{color:var(--gold);}
-
-    /* Telegram-style Chat UI */
-    .chat-container{display:flex;height:420px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--glass-border);box-shadow:var(--shadow);background:var(--card);}
-    .chat-sidebar{width:140px;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
-    .chat-topic{display:flex;flex-direction:column;align-items:center;gap:0.2rem;padding:0.75rem 0.5rem;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.15s;text-align:center;}
-    .chat-topic:hover{background:var(--glass);}
-    .chat-topic--active{background:var(--green-soft);border-left:3px solid var(--green);}
-    .chat-topic__icon{font-size:1.3rem;}
-    .chat-topic__name{font-size:0.62rem;font-weight:600;color:var(--ink);line-height:1.2;}
-    .chat-topic__badge{font-size:0.55rem;background:var(--gold);color:#fff;border-radius:999px;padding:0.1rem 0.35rem;font-weight:700;}
-    .chat-main{flex:1;display:flex;flex-direction:column;min-width:0;}
-    .chat-header{padding:0.7rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.5);}
-    .chat-header__title{font-size:0.88rem;font-weight:700;color:var(--ink);margin:0;}
-    .chat-header__sub{font-size:0.68rem;color:var(--muted);}
-    .chat-messages{flex:1;overflow-y:auto;padding:0.75rem 1rem;display:flex;flex-direction:column;gap:0.5rem;-webkit-overflow-scrolling:touch;}
-    .chat-msg{max-width:85%;padding:0.6rem 0.85rem;border-radius:12px;font-size:0.82rem;line-height:1.55;position:relative;word-wrap:break-word;}
-    .chat-msg--out{align-self:flex-end;background:var(--green);color:#fff;border-bottom-right-radius:4px;}
-    .chat-msg--in{align-self:flex-start;background:var(--glass);border:1px solid var(--border);color:var(--ink2);border-bottom-left-radius:4px;}
-    .chat-msg--system{align-self:center;background:var(--gold-soft);border:1px solid rgba(217,119,54,0.15);color:var(--gold);font-size:0.72rem;font-weight:600;text-align:center;border-radius:999px;padding:0.35rem 0.85rem;}
-    .chat-msg--prayer{border-left:3px solid var(--gold);background:rgba(217,119,54,0.05);}
-    .chat-msg__author{font-size:0.65rem;font-weight:700;color:var(--green);margin-bottom:0.2rem;display:block;}
-    .chat-msg__time{font-size:0.58rem;opacity:0.65;margin-top:0.2rem;display:block;}
-    .chat-msg__type{font-size:0.58rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;opacity:0.7;margin-bottom:0.15rem;}
-    .chat-compose{display:flex;gap:0.4rem;padding:0.6rem 0.75rem;border-top:1px solid var(--border);background:rgba(255,255,255,0.6);}
-    .chat-compose__input{flex:1;padding:0.6rem 0.85rem;border:1.5px solid var(--border);border-radius:20px;font-size:0.84rem;font-family:inherit;background:#fff;margin:0;outline:none;transition:border-color 0.2s;}
-    .chat-compose__input:focus{border-color:var(--green);}
-    .chat-compose__btn{width:36px;height:36px;border-radius:50%;background:var(--green);border:none;color:#fff;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.15s;}
-    .chat-compose__btn:hover{transform:scale(1.08);}
-    .chat-compose__type{padding:0.4rem 0.7rem;border:1px solid var(--border);border-radius:20px;font-size:0.7rem;font-weight:600;color:var(--muted);cursor:pointer;background:#fff;font-family:inherit;}
-    .chat-compose__type:hover{border-color:var(--gold);color:var(--gold);}
-    @media(max-width:500px){.chat-sidebar{width:54px;}.chat-topic__name{display:none;}.chat-container{height:380px;}}
-
-    /* Animations */
-    @keyframes slideInUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-    @keyframes slideInLeft{from{opacity:0;transform:translateX(-12px);}to{opacity:1;transform:translateX(0);}}
-    @keyframes slideInRight{from{opacity:0;transform:translateX(12px);}to{opacity:1;transform:translateX(0);}}
-    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-    @keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
-    @keyframes scaleIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
-    .anim-slide-up{animation:slideInUp 0.3s var(--transition) both;}
-    .anim-fade{animation:fadeIn 0.25s ease both;}
-    .anim-scale{animation:scaleIn 0.2s var(--transition) both;}
-    .chat-msg--in{animation:slideInLeft 0.25s var(--transition) both;}
-    .chat-msg--out{animation:slideInRight 0.25s var(--transition) both;}
-    .chat-msg--system{animation:fadeIn 0.3s ease both;}
-    .tab-panel{animation:fadeIn 0.2s ease both;}
-    .glass-card{transition:transform 0.2s var(--transition),box-shadow 0.2s var(--transition);}
-    .glass-card:hover{transform:translateY(-1px);box-shadow:0 12px 48px rgba(0,0,0,0.08);}
-    .view{animation:fadeIn 0.2s ease both;}
-    .chat-topic{transition:background 0.15s,transform 0.15s;}
-    .chat-topic:active{transform:scale(0.96);}
-    .btn{transition:transform 0.15s var(--transition),box-shadow 0.15s var(--transition),opacity 0.15s;}
-    .btn:active{transform:scale(0.97);}
-    /* Loading shimmer */
-    .shimmer{background:linear-gradient(90deg,var(--glass) 25%,rgba(255,255,255,0.9) 50%,var(--glass) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;height:14px;margin-bottom:0.5rem;}
-
-    /* Activity list */
-    .activity-item{display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0;border-bottom:1px solid var(--border);font-size:0.84rem;animation:slideInUp 0.2s var(--transition) both;}
-    .activity-item:last-child{border-bottom:none;}
-    .activity-item__name{font-weight:600;flex:1;}
-    .activity-item__time{font-size:0.7rem;color:var(--muted);margin-right:0.5rem;}
-    .activity-item__rm{background:none;border:none;color:var(--muted);font-size:0.85rem;cursor:pointer;padding:0.2rem 0.4rem;border-radius:4px;}
-    .activity-item__rm:hover{color:var(--red);}
-    .activity-item__edit{background:none;border:none;color:var(--muted);font-size:0.75rem;cursor:pointer;padding:0.2rem 0.4rem;border-radius:4px;}
-    .activity-item__edit:hover{color:var(--gold);}
-
-    /* QR Scanner */
-    .qr-toggle{width:100%;padding:0.85rem;background:linear-gradient(135deg,var(--gold),#e08a42);color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.75rem;box-shadow:0 4px 16px rgba(217,119,54,0.25);transition:transform 0.2s;}
-    .qr-toggle:hover{transform:translateY(-1px);}
-    #qr-reader{width:100%;min-height:220px;display:none;border-radius:var(--radius-sm);overflow:hidden;margin-bottom:0.75rem;}
-    #qr-reader.active{display:block;}
-    .qr-status{text-align:center;font-size:0.82rem;color:var(--muted);min-height:1.4rem;margin-bottom:0.5rem;}
-    .qr-status.success{color:var(--green);font-weight:600;}
-    .qr-status.error{color:var(--red);}
-    .qr-confirm{display:none;padding:1rem;background:var(--green-soft);border:1.5px solid var(--green);border-radius:var(--radius-sm);margin-bottom:0.75rem;text-align:center;}
-    .qr-confirm.active{display:block;}
-    .qr-confirm__name{font-weight:700;font-size:0.95rem;color:var(--ink);margin:0 0 0.25rem;}
-    .qr-confirm__id{font-size:0.7rem;color:var(--gold);margin:0 0 0.6rem;}
-    .qr-confirm__actions{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;}
-    .scan-count{text-align:center;font-size:0.72rem;color:var(--muted);margin-bottom:0.75rem;}
-
-    /* Picker modal */
-    .picker-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:flex-end;justify-content:center;padding:0;}
-    .picker-overlay.active{display:flex;}
-    .picker-sheet{background:#fff;border-radius:16px 16px 0 0;width:100%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -4px 30px rgba(0,0,0,0.15);}
-    .picker-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);flex-shrink:0;}
-    .picker-header__title{font-weight:700;font-size:1rem;margin:0;}
-    .picker-header__close{width:32px;height:32px;border-radius:50%;background:var(--bg);border:1px solid var(--border);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:inherit;}
-    .picker-search{margin:0.75rem 1.25rem;padding:0.7rem 0.85rem;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:inherit;background:var(--bg);width:calc(100% - 2.5rem);}
-    .picker-search:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft);}
-    .picker-list{flex:1;overflow-y:auto;padding:0.5rem 1.25rem 1.25rem;-webkit-overflow-scrolling:touch;}
-    .picker-item{display:flex;align-items:center;justify-content:space-between;padding:0.7rem 0.85rem;border:1.5px solid var(--border);border-radius:8px;margin-bottom:0.4rem;cursor:pointer;transition:border-color 0.15s,background 0.15s;}
-    .picker-item:hover{border-color:var(--gold);background:var(--gold-soft);}
-    .picker-item__name{font-weight:600;font-size:0.84rem;color:var(--ink);}
-    .picker-item__id{font-size:0.65rem;color:var(--muted);}
-
-    /* Messages tab */
-    .msg-subtabs{display:flex;gap:0.35rem;margin-bottom:1rem;}
-    .msg-subtab{flex:1;padding:0.55rem 0.5rem;background:var(--glass);border:1px solid var(--glass-border);border-radius:999px;font-size:0.72rem;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;text-align:center;transition:all 0.2s;}
-    .msg-subtab--active{background:var(--card);color:var(--green);border-color:rgba(44,95,46,0.2);}
-    .msg-subpanel{display:none;}.msg-subpanel.active{display:block;}
-
-    /* Announcement feed */
-    .ann-item{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:0.6rem;}
-    .ann-item--urgent{border-left:3px solid var(--orange);}
-    .ann-item--emergency{border-left:3px solid var(--red);}
-    .ann-item__priority{font-size:0.62rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.2rem 0.5rem;border-radius:999px;display:inline-block;margin-bottom:0.4rem;}
-    .ann-item__priority--normal{background:var(--green-soft);color:var(--green);}
-    .ann-item__priority--urgent{background:var(--orange-soft);color:var(--orange);}
-    .ann-item__priority--emergency{background:var(--red-soft);color:var(--red);}
-    .ann-item__subject{font-weight:700;font-size:0.92rem;margin:0 0 0.3rem;}
-    .ann-item__body{font-size:0.85rem;color:var(--ink2);line-height:1.6;margin:0;}
-    .ann-item__meta{font-size:0.7rem;color:var(--muted);margin-top:0.5rem;}
-
-    /* DM list & chat */
-    .dm-contact{display:flex;align-items:center;gap:0.6rem;padding:0.65rem 0.75rem;border-radius:var(--radius-sm);cursor:pointer;margin-bottom:0.35rem;transition:background 0.15s;}
-    .dm-contact:hover{background:var(--gold-soft);}
-    .dm-contact--active{background:var(--green-soft);border:1px solid rgba(44,95,46,0.15);}
-    .dm-contact__avatar{width:30px;height:30px;border-radius:50%;background:var(--gold-soft);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:var(--gold);flex-shrink:0;}
-    .dm-contact__name{font-size:0.84rem;font-weight:600;}
-    .dm-contact__preview{font-size:0.7rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
-    .dm-chat{display:flex;flex-direction:column;height:350px;}
-    .dm-chat__messages{flex:1;overflow-y:auto;padding:0.5rem 0;display:flex;flex-direction:column;gap:0.5rem;}
-    .dm-bubble{max-width:80%;padding:0.6rem 0.9rem;border-radius:12px;font-size:0.84rem;line-height:1.5;}
-    .dm-bubble--sent{align-self:flex-end;background:linear-gradient(135deg,var(--green),#3a7d3c);color:#fff;border-bottom-right-radius:4px;}
-    .dm-bubble--received{align-self:flex-start;background:var(--glass);border:1px solid var(--border);color:var(--ink2);border-bottom-left-radius:4px;}
-    .dm-bubble__time{font-size:0.6rem;opacity:0.7;margin-top:0.2rem;display:block;}
-    .dm-compose{display:flex;gap:0.4rem;margin-top:0.5rem;}
-    .dm-compose input{flex:1;margin:0;}
-
-    /* Notes */
-    .note-entry{background:var(--glass);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.85rem;margin-bottom:0.5rem;}
-    .note-entry__cat{font-size:0.6rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.45rem;border-radius:999px;display:inline-block;margin-bottom:0.35rem;}
-    .note-entry__cat--general{background:var(--green-soft);color:var(--green);}
-    .note-entry__cat--prayer{background:var(--gold-soft);color:var(--gold);}
-    .note-entry__cat--followup{background:var(--orange-soft);color:var(--orange);}
-    .note-entry__cat--milestone{background:rgba(44,95,46,0.15);color:var(--green);}
-    .note-entry__cat--concern{background:var(--red-soft);color:var(--red);}
-    .note-entry__text{font-size:0.84rem;color:var(--ink2);line-height:1.6;margin:0;}
-    .note-entry__meta{font-size:0.68rem;color:var(--muted);margin-top:0.4rem;}
-
-    /* Training */
-    .milestone-badge{display:inline-flex;align-items:center;gap:0.4rem;padding:0.4rem 0.8rem;background:var(--gold-soft);border:1px solid rgba(200,150,62,0.2);border-radius:999px;font-size:0.75rem;font-weight:600;color:var(--gold);margin:0 0.4rem 0.4rem 0;}
-
-    /* Emergency banner */
-    .emergency-banner{display:flex;align-items:flex-start;gap:0.75rem;padding:1rem 1.25rem;background:linear-gradient(135deg,#fef2f2,#fff5f5);border:1.5px solid var(--red);border-radius:var(--radius-sm);margin-bottom:1rem;animation:emergencyPulse 3s ease-in-out infinite;}
-    @keyframes emergencyPulse{0%,100%{box-shadow:0 0 0 0 rgba(166,37,31,0.15);}50%{box-shadow:0 0 0 6px rgba(166,37,31,0);}}
-    .emergency-banner__icon{font-size:1.4rem;flex-shrink:0;margin-top:0.1rem;}
-    .emergency-banner__content{flex:1;}
-    .emergency-banner__title{font-size:0.88rem;color:var(--red);display:block;margin-bottom:0.2rem;}
-    .emergency-banner__body{font-size:0.82rem;color:var(--ink2);line-height:1.5;margin:0;}
-    .emergency-banner__dismiss{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0.2rem;flex-shrink:0;}
-    .emergency-banner__dismiss:hover{color:var(--red);}
-    .milestone-badge--earned{background:var(--green-soft);border-color:rgba(44,95,46,0.2);color:var(--green);}
-    .training-module{padding:0.75rem;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem;}
-    .training-module__check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.7rem;}
-    .training-module__check--done{background:var(--green);border-color:var(--green);color:#fff;}
-    .training-module__info{flex:1;}
-    .training-module__name{font-size:0.85rem;font-weight:600;color:var(--ink);}
-    .training-module__desc{font-size:0.72rem;color:var(--muted);margin-top:0.15rem;}
-    .training-record-item{padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.82rem;}
-    .training-record-item:last-child{border-bottom:none;}
-    .training-record-item__type{font-size:0.62rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:0.15rem 0.4rem;border-radius:999px;display:inline-block;margin-bottom:0.25rem;}
-    .training-record-item__type--milestone{background:var(--gold-soft);color:var(--gold);}
-    .training-record-item__type--training{background:var(--green-soft);color:var(--green);}
-    .training-record-item__type--feedback{background:rgba(0,0,0,0.04);color:var(--ink2);}
-    .training-record-item__type--recognition{background:var(--gold-soft);color:var(--gold);}
-    .training-record-item__type--action_plan{background:var(--red-soft);color:var(--red);}
-
-    @media(max-width:400px){.main-tabs{gap:0.25rem;}.main-tab{padding:0.6rem 0.4rem;font-size:0.72rem;}}
-  </style>
+  <link rel="stylesheet" href="assets/css/theme.css?v=1">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=1">
+  <script src="assets/js/theme-toggle.js?v=1"></script>
 </head>
-<body>
-<div class="page">
-  <img class="logo" src="assets/images/stw-logo.jpg" alt="Seed the Word">
-  <h1 class="page-title">Team Portal</h1>
-  <p class="page-sub">Seed the Word Ministry</p>
+<body class="team-shell">
+<div class="team-page">
+
+  <!-- Header -->
+  <div class="team-header">
+    <a href="index.html" class="team-header__brand">
+      <img class="team-header__logo" src="assets/images/stw-logo.jpg" alt="Seed the Word">
+      <span class="team-header__title">Team Portal</span>
+    </a>
+    <div class="team-header__actions">
+      <button class="theme-toggle" aria-label="Switch to dark mode">
+        <span class="theme-toggle__sun"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+        <span class="theme-toggle__moon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+      </button>
+      <a href="index.html" class="team-header__back">← seedtheword.org</a>
+    </div>
+  </div>
 
   <!-- Login View -->
   <div class="view active" id="view-login">
     <div class="glass-card">
-      <h2 style="font-family:var(--serif);font-size:1.15rem;font-weight:600;margin:0 0 1rem;">Log in</h2>
+      <h2 class="glass-card__title">Log in</h2>
       <label>Name</label>
       <input type="text" id="login-name" placeholder="Your full name" autocomplete="name">
       <label>Password</label>
       <input type="password" id="login-pass" placeholder="Your password" autocomplete="current-password">
       <div class="status" id="login-status"></div>
       <button class="btn btn--gold" id="login-btn">Log in</button>
-      <p class="toggle">New here? <a onclick="showView('signup')">Create an account</a></p>
+      <p class="toggle-link">New here? <a onclick="showView('signup')">Create an account</a></p>
     </div>
   </div>
 
   <!-- Signup View -->
   <div class="view" id="view-signup">
     <div class="glass-card">
-      <h2 style="font-family:var(--serif);font-size:1.15rem;font-weight:600;margin:0 0 1rem;">Join the team</h2>
+      <h2 class="glass-card__title">Join the team</h2>
       <label>Full Name *</label>
       <input type="text" id="signup-name" placeholder="David Ageyev" autocomplete="name">
       <label>Email</label>
       <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
       <label>Phone</label>
       <input type="tel" id="signup-phone" placeholder="(253) 555-1234" autocomplete="tel">
-      <label>Telegram Username (for DM notifications)</label>
+      <label>Telegram Username</label>
       <input type="text" id="signup-telegram" placeholder="@yourusername">
       <label>Create Password *</label>
       <input type="password" id="signup-pass" placeholder="Choose a password" autocomplete="new-password">
@@ -279,15 +60,15 @@
       <input type="password" id="signup-pass2" placeholder="Confirm password" autocomplete="new-password">
       <div class="status" id="signup-status"></div>
       <button class="btn btn--green" id="signup-btn">Create Account</button>
-      <p class="toggle">Already have an account? <a onclick="showView('login')">Log in</a></p>
+      <p class="toggle-link">Already have an account? <a onclick="showView('login')">Log in</a></p>
     </div>
   </div>
 
   <!-- Event Setup View -->
   <div class="view" id="view-event">
     <div class="glass-card">
-      <h2 style="font-family:var(--serif);font-size:1.15rem;font-weight:600;margin:0 0 0.5rem;">Set today's event</h2>
-      <p style="font-size:0.84rem;color:var(--muted);margin:0 0 1rem;">What outreach are you at today? This links your scans to this event.</p>
+      <h2 class="glass-card__title">Set today's event</h2>
+      <p style="font-size:0.84rem;color:var(--color-text-muted);margin:0 0 1rem;">What outreach are you at today? This links your scans to this event.</p>
       <label>Event / Location *</label>
       <input type="text" id="event-name" placeholder="e.g. Sam Petrov Community Cookout">
       <label>Your Role Today</label>
@@ -303,7 +84,7 @@
 
   <!-- Main Portal View -->
   <div class="view" id="view-portal">
-    <!-- Emergency Alert Banner (hidden by default, shown when active emergency exists) -->
+    <!-- Emergency Alert Banner -->
     <div class="emergency-banner" id="emergency-banner" style="display:none;">
       <div class="emergency-banner__icon">🚨</div>
       <div class="emergency-banner__content">
@@ -313,33 +94,48 @@
       <button class="emergency-banner__dismiss" id="emergency-dismiss" title="Dismiss">×</button>
     </div>
 
+    <!-- Profile Card with stats and badges -->
+    <div class="profile-card" id="profile-card">
+      <div class="profile-card__avatar" id="profile-avatar"></div>
+      <div class="profile-card__info">
+        <div class="profile-card__name" id="profile-name"></div>
+        <div class="profile-card__role" id="profile-role"></div>
+        <div class="profile-card__stats">
+          <div class="profile-card__stat"><div class="profile-card__stat-val" id="stat-today">0</div><div class="profile-card__stat-label">Today</div></div>
+          <div class="profile-card__stat"><div class="profile-card__stat-val" id="stat-total">0</div><div class="profile-card__stat-label">All Time</div></div>
+        </div>
+        <div class="profile-card__badges" id="profile-badges"></div>
+      </div>
+    </div>
+
     <!-- Tabs -->
     <nav class="main-tabs" role="tablist">
-      <button class="main-tab main-tab--active" data-tab="dashboard"><span class="main-tab__icon">📊</span> Dashboard</button>
-      <button class="main-tab" data-tab="scanner"><span class="main-tab__icon">📷</span> Scanner</button>
-      <button class="main-tab" data-tab="messages"><span class="main-tab__icon">💬</span> Messages</button>
-      <button class="main-tab" data-tab="training"><span class="main-tab__icon">📚</span> Training</button>
+      <button class="main-tab main-tab--active" data-tab="dashboard"><span class="main-tab__icon">📊</span> Dash</button>
+      <button class="main-tab" data-tab="scanner"><span class="main-tab__icon">📷</span> Scan</button>
+      <button class="main-tab" data-tab="messages"><span class="main-tab__icon">💬</span> Chat</button>
+      <button class="main-tab" data-tab="forum"><span class="main-tab__icon">📝</span> Forum</button>
+      <button class="main-tab" data-tab="training"><span class="main-tab__icon">📚</span> Train</button>
     </nav>
 
     <!-- Dashboard Tab -->
     <div class="tab-panel tab-panel--active" id="tab-dashboard">
       <div class="event-banner" id="dash-event-banner"></div>
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-card__val" id="stat-today">0</div><div class="stat-card__label">Today</div></div>
-        <div class="stat-card"><div class="stat-card__val" id="stat-total">0</div><div class="stat-card__label">All Time</div></div>
+        <div class="stat-card"><div class="stat-card__val" id="stat-today-dash">0</div><div class="stat-card__label">Today</div></div>
+        <div class="stat-card"><div class="stat-card__val" id="stat-total-dash">0</div><div class="stat-card__label">All Time</div></div>
       </div>
       <div class="glass-card">
-        <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.5rem;">Today's Activity</h3>
-        <div id="activity-list"><p style="color:var(--muted);font-size:0.84rem;">No items scanned yet today.</p></div>
+        <h3 class="glass-card__title">📋 Today's Activity</h3>
+        <div id="activity-list"><p style="color:var(--color-text-muted);font-size:0.84rem;">No items scanned yet today.</p></div>
       </div>
       <div class="glass-card" id="history-card" style="display:none;">
-        <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.5rem;">Scan History</h3>
-        <p style="font-size:0.75rem;color:var(--muted);margin:0 0 0.5rem;">Today's items can be edited/deleted. Past items: tap ✏️ to suggest a change to admins.</p>
+        <h3 class="glass-card__title">📋 Scan History</h3>
+        <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0 0 0.5rem;">Today's items can be edited/deleted. Past items: tap ✏️ to suggest a change.</p>
         <div id="history-list"></div>
       </div>
       <button class="btn btn--outline" id="toggle-history-btn" style="margin-bottom:0.5rem;">📋 View Full History</button>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-        <a href="https://ig.me/m/seedtheword" target="_blank" rel="noopener" class="btn btn--outline" style="flex:1;text-align:center;text-decoration:none;font-size:0.8rem;">📸 Message on IG</a>
+        <a href="https://ig.me/m/seedtheword" target="_blank" rel="noopener" class="btn btn--outline" style="flex:1;text-align:center;text-decoration:none;font-size:0.8rem;">📸 IG Message</a>
         <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn--outline" style="flex:1;text-align:center;text-decoration:none;font-size:0.8rem;">✈️ Telegram</a>
       </div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
@@ -369,11 +165,10 @@
     <!-- Messages Tab — Telegram-style Chat -->
     <div class="tab-panel" id="tab-messages" hidden>
       <div class="chat-container">
-        <!-- Sidebar: Topics/Channels -->
         <div class="chat-sidebar" id="chat-sidebar">
           <div class="chat-topic chat-topic--active" data-channel="main">
             <span class="chat-topic__icon">💬</span>
-            <span class="chat-topic__name">Main Chat</span>
+            <span class="chat-topic__name">Main</span>
           </div>
           <div class="chat-topic" data-channel="announcements">
             <span class="chat-topic__icon">📢</span>
@@ -392,14 +187,12 @@
             <span class="chat-topic__name">DMs</span>
           </div>
         </div>
-        <!-- Main chat area -->
         <div class="chat-main">
           <div class="chat-header">
             <div>
               <h3 class="chat-header__title" id="chat-channel-title">Main Chat</h3>
               <span class="chat-header__sub" id="chat-channel-sub">Team fellowship & updates</span>
             </div>
-            <span id="chat-header-action"></span>
           </div>
           <div class="chat-messages" id="chat-messages">
             <div class="chat-msg chat-msg--system">Welcome to the team chat</div>
@@ -411,91 +204,225 @@
           </div>
         </div>
       </div>
-      <!-- DM contact picker (shown when DMs channel is active) -->
+      <!-- DM picker -->
       <div id="chat-dm-picker" style="display:none;margin-top:0.75rem;">
         <div class="glass-card" style="padding:0.75rem;">
-          <strong style="font-size:0.82rem;">Direct Messages</strong>
+          <strong style="font-size:0.82rem;color:var(--color-text);">Direct Messages</strong>
           <div id="chat-dm-contacts" style="margin-top:0.5rem;"></div>
           <button class="btn btn--outline btn--sm" id="chat-dm-new" style="margin-top:0.5rem;">+ New Conversation</button>
         </div>
       </div>
-      <!-- Admin compose (for announcements channel, admin only) -->
+      <!-- Admin announcement compose -->
       <div id="chat-admin-compose" style="display:none;margin-top:0.75rem;">
         <div class="glass-card" style="padding:1rem;">
-          <h4 style="font-size:0.85rem;font-weight:700;margin:0 0 0.5rem;">Post Announcement</h4>
-          <select id="ann-priority" style="margin-bottom:0.4rem;padding:0.5rem;border:1px solid var(--border);border-radius:8px;width:100%;font-family:inherit;font-size:0.82rem;">
+          <h4 style="font-size:0.85rem;font-weight:700;margin:0 0 0.5rem;color:var(--color-text);">Post Announcement</h4>
+          <select id="ann-priority" style="margin-bottom:0.4rem;padding:0.5rem;border:1px solid var(--color-border);border-radius:8px;width:100%;font-family:var(--font-sans);font-size:0.82rem;background:var(--color-surface);color:var(--color-text);">
             <option value="normal">Normal</option><option value="urgent">Urgent</option><option value="emergency">Emergency</option>
           </select>
-          <input id="ann-subject" placeholder="Subject..." style="margin-bottom:0.4rem;">
-          <textarea id="ann-body" placeholder="Message..." rows="2" style="margin-bottom:0.4rem;"></textarea>
+          <input id="ann-subject" placeholder="Subject...">
+          <textarea id="ann-body" placeholder="Message..." rows="2"></textarea>
           <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.72rem;margin-bottom:0.5rem;cursor:pointer;"><input type="checkbox" id="ann-telegram" checked style="width:auto;margin:0;"> Send to Telegram</label>
           <button class="btn btn--green btn--sm" id="ann-send-btn">Post</button>
         </div>
       </div>
     </div>
 
+    <!-- Forum Tab — Social discussion board -->
+    <div class="tab-panel" id="tab-forum" hidden>
+      <div class="glass-card" style="padding:1rem;">
+        <h4 style="font-size:0.85rem;font-weight:700;margin:0 0 0.5rem;color:var(--color-text);">Share with the team</h4>
+        <textarea id="forum-input" placeholder="Share a prayer request, testimony, Bible note, or discussion..." rows="3"></textarea>
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem;">
+          <select id="forum-type" style="border:1.5px solid var(--color-border);border-radius:var(--radius-full);padding:0.4rem 0.75rem;font-size:0.75rem;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text);cursor:pointer;">
+            <option value="discussion">💬 Discussion</option>
+            <option value="prayer">🙏 Prayer Request</option>
+            <option value="thanksgiving">🎉 Thanksgiving</option>
+            <option value="bible">📖 Bible Note</option>
+          </select>
+          <button class="btn btn--green btn--sm" id="forum-post-btn" style="margin-left:auto;">Post</button>
+        </div>
+      </div>
+      <div id="forum-feed" style="margin-top:0.75rem;">
+        <p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:1rem;">Loading team posts...</p>
+      </div>
+    </div>
+
     <!-- Training Tab -->
     <div class="tab-panel" id="tab-training" hidden>
-      <!-- Milestones -->
       <div class="glass-card">
-        <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.6rem;">🏆 Your Milestones</h3>
-        <div id="training-milestones"><p style="color:var(--muted);font-size:0.84rem;">Loading milestones...</p></div>
+        <h3 class="glass-card__title">🏆 Your Milestones</h3>
+        <div id="training-milestones"><p style="color:var(--color-text-muted);font-size:0.84rem;">Loading milestones...</p></div>
       </div>
-
-      <!-- Training Modules -->
       <div class="glass-card">
-        <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.6rem;">📖 Training Modules</h3>
-        <p style="font-size:0.78rem;color:var(--muted);margin:0 0 0.75rem;">Complete each module to grow in your ministry skills.</p>
-        <div id="training-modules"><p style="color:var(--muted);font-size:0.84rem;">Loading modules...</p></div>
+        <h3 class="glass-card__title">📖 Training Modules</h3>
+        <p style="font-size:0.78rem;color:var(--color-text-muted);margin:0 0 0.75rem;">Complete each module to grow in your ministry skills.</p>
+        <div id="training-modules"><p style="color:var(--color-text-muted);font-size:0.84rem;">Loading modules...</p></div>
       </div>
-
-      <!-- Record Log (visible to member, writable by admins) -->
       <div class="glass-card">
-        <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.6rem;">📋 My Record</h3>
-        <p style="font-size:0.78rem;color:var(--muted);margin:0 0 0.5rem;">Notes from leadership about your growth and training progress.</p>
-        <div id="training-record"><p style="color:var(--muted);font-size:0.84rem;">No records yet.</p></div>
+        <h3 class="glass-card__title">📝 Training Record</h3>
+        <div id="training-record"><p style="color:var(--color-text-muted);font-size:0.84rem;">Loading record...</p></div>
       </div>
-
-      <!-- Admin: Add record note (only shown to admins viewing another member) -->
-      <div class="glass-card" id="training-admin-panel" style="display:none;">
-        <h3 style="font-size:0.9rem;font-weight:700;margin:0 0 0.6rem;">✏️ Admin: Add Training Record</h3>
-        <label style="font-size:0.78rem;">Member</label>
-        <select id="training-member-select" style="margin-bottom:0.4rem;"></select>
-        <label style="font-size:0.78rem;">Type</label>
-        <select id="training-record-type" style="margin-bottom:0.4rem;">
-          <option value="milestone">Milestone Achieved</option>
-          <option value="training">Training Assigned</option>
-          <option value="feedback">Feedback / Coaching</option>
+      <div class="glass-card" id="training-add-section">
+        <h3 class="glass-card__title">➕ Log Training</h3>
+        <select id="training-log-type" style="margin-bottom:0.4rem;">
+          <option value="training">Training completed</option>
+          <option value="milestone">Milestone reached</option>
+          <option value="feedback">Feedback received</option>
           <option value="recognition">Recognition</option>
-          <option value="action_plan">Action Plan</option>
         </select>
-        <textarea id="training-record-text" placeholder="Describe the milestone, feedback, or action plan..." rows="3" style="margin-bottom:0.4rem;"></textarea>
-        <button class="btn btn--green btn--sm" id="training-record-save">Save Record</button>
+        <textarea id="training-log-notes" placeholder="Details..." rows="2"></textarea>
+        <button class="btn btn--gold btn--sm" id="training-log-btn">Log Entry</button>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- Picker Modal -->
-<div class="picker-overlay" id="picker-overlay">
-  <div class="picker-sheet">
-    <div class="picker-header">
-      <h2 class="picker-header__title">Select Item</h2>
-      <button type="button" class="picker-header__close" id="picker-close">&times;</button>
+  </div><!-- /view-portal -->
+
+  <!-- Picker Modal -->
+  <div class="picker-overlay" id="picker-overlay">
+    <div class="picker-sheet">
+      <div class="picker-header">
+        <h3 class="picker-header__title">Select Item</h3>
+        <button class="picker-header__close" id="picker-close">×</button>
+      </div>
+      <input class="picker-search" id="picker-search" placeholder="Search items..." autocomplete="off">
+      <div class="picker-list" id="picker-list"></div>
     </div>
-    <input type="text" class="picker-search" id="picker-search" placeholder="Search items...">
-    <div class="picker-list" id="picker-list"></div>
   </div>
+
+</div><!-- /.team-page -->
+
+<!-- Footer -->
+<div style="max-width:560px;margin:0 auto;padding:0 1rem 2rem;text-align:center;">
+  <a href="index.html" style="display:inline-block;padding:0.6rem 1.5rem;border:1.5px solid var(--color-border);border-radius:var(--radius-full);font-size:0.82rem;font-weight:600;color:var(--color-text-muted);text-decoration:none;transition:all 0.15s;">← Back to seedtheword.org</a>
+  <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<!-- Back to site + Footer -->
-<div style="max-width:520px;margin:2rem auto 0;padding:0 1rem 1rem;text-align:center;">
-  <a href="index.html" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.25rem;background:var(--glass);border:1px solid var(--glass-border);border-radius:999px;font-size:0.8rem;font-weight:600;color:var(--ink2);text-decoration:none;transition:all 0.2s;">← Back to seedtheword.org</a>
-</div>
-<footer style="text-align:center;padding:1.5rem 1rem;font-size:0.72rem;color:var(--muted);">
-  <p style="margin:0;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
-</footer>
+<script src="assets/js/team-portal.js?v=10"></script>
+<script>
+// ── Profile card initialization ──
+(function() {
+  function updateProfile() {
+    var s = null;
+    try { s = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
+    if (!s) return;
+    var avatar = document.getElementById('profile-avatar');
+    var name = document.getElementById('profile-name');
+    var role = document.getElementById('profile-role');
+    if (avatar) avatar.textContent = s.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+    if (name) name.textContent = s.name;
+    if (role) role.textContent = s.role || 'Member';
+    // Sync stats
+    var st = document.getElementById('stat-today');
+    var std = document.getElementById('stat-today-dash');
+    if (st && std) std.textContent = st.textContent;
+    var stot = document.getElementById('stat-total');
+    var stotd = document.getElementById('stat-total-dash');
+    if (stot && stotd) stotd.textContent = stot.textContent;
+    // Badges
+    var badges = document.getElementById('profile-badges');
+    if (badges && s.totalScans) {
+      var b = [];
+      if (s.totalScans >= 5) b.push('🌱 Seed Starter');
+      if (s.totalScans >= 25) b.push('📖 Word Sower');
+      if (s.totalScans >= 100) b.push('🌾 Harvest Hand');
+      if (s.totalScans >= 500) b.push('⭐ Ministry Veteran');
+      badges.innerHTML = b.map(function(x){ return '<span class="badge badge--earned">'+x+'</span>'; }).join('');
+    }
+  }
+  // Run on DOM load and after login
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', updateProfile);
+  else updateProfile();
+  // Re-run when portal shows
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      if (m.target.id === 'view-portal' && m.target.classList.contains('active')) updateProfile();
+    });
+  });
+  var portal = document.getElementById('view-portal');
+  if (portal) observer.observe(portal, { attributes: true, attributeFilter: ['class'] });
+})();
 
-<script src="assets/js/team-portal.js?v=2"></script>
+// ── Forum tab: social posts ──
+(function() {
+  var CONFIG_URL = 'assets/data/site-config.json';
+  var handlerUrl = null;
+
+  async function getUrl() {
+    if (handlerUrl) return handlerUrl;
+    var cfg = await fetch(CONFIG_URL + '?t=' + Date.now(), {cache:'no-store'}).then(function(r){return r.json();});
+    handlerUrl = cfg.orderHandlerUrl;
+    return handlerUrl;
+  }
+  async function post(data) {
+    var url = await getUrl();
+    var res = await fetch(url, {method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});
+    var text = await res.text();
+    try { return JSON.parse(text); } catch(e) { throw new Error('Server unavailable'); }
+  }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function initials(n) { return n.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2); }
+  function timeAgo(ts) { var d = Date.now()-ts, m = Math.floor(d/60000); if(m<1)return 'Just now'; if(m<60)return m+'m ago'; var h=Math.floor(m/60); if(h<24)return h+'h ago'; return Math.floor(h/24)+'d ago'; }
+
+  function renderPost(p) {
+    var typeLabels = {prayer:'🙏 Prayer',thanksgiving:'🎉 Thanksgiving',bible:'📖 Bible',discussion:'💬 Discussion',message:'💬 Message'};
+    return '<div class="team-post"><div class="team-post__header"><div class="team-post__avatar">'+initials(p.from||'?')+'</div><div class="team-post__meta"><div class="team-post__author">'+esc(p.from||'Team')+'</div><div class="team-post__time">'+timeAgo(p.timestamp)+'</div></div><span class="team-post__type team-post__type--'+(p.msg_type||'discussion')+'">'+(typeLabels[p.msg_type]||'💬 Post')+'</span></div><div class="team-post__body">'+esc(p.text)+'</div><div class="team-post__actions"><button class="team-post__action" data-action="like">❤️ Like</button><button class="team-post__action" data-action="comment">💬 Comment</button><button class="team-post__action" data-action="share">🔗 Share</button></div></div>';
+  }
+
+  async function loadForum() {
+    var s = null;
+    try { s = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
+    if (!s) return;
+    var feed = document.getElementById('forum-feed');
+    if (!feed) return;
+    try {
+      var results = await Promise.allSettled([
+        post({action:'getChatMessages',token:s.token,channel:'main'}),
+        post({action:'getChatMessages',token:s.token,channel:'prayer'}),
+        post({action:'getChatMessages',token:s.token,channel:'thanksgiving'})
+      ]);
+      var all = [];
+      results.forEach(function(r) { if(r.status==='fulfilled'&&r.value.ok&&r.value.messages) all=all.concat(r.value.messages); });
+      all.sort(function(a,b){return b.timestamp-a.timestamp;});
+      if (all.length) { feed.innerHTML = all.slice(0,30).map(renderPost).join(''); bindLikes(); }
+      else { feed.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:1rem;">No posts yet. Be the first!</p>'; }
+    } catch(e) { feed.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;">Could not load posts.</p>'; }
+  }
+
+  function bindLikes() {
+    document.querySelectorAll('.team-post__action[data-action="like"]').forEach(function(btn) {
+      btn.addEventListener('click', function() { btn.classList.toggle('is-liked'); });
+    });
+  }
+
+  // Post new forum entry
+  var postBtn = document.getElementById('forum-post-btn');
+  if (postBtn) {
+    postBtn.addEventListener('click', async function() {
+      var s = null;
+      try { s = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
+      if (!s) { alert('Please log in.'); return; }
+      var input = document.getElementById('forum-input');
+      var type = document.getElementById('forum-type').value;
+      var text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      var channel = type === 'prayer' ? 'prayer' : (type === 'thanksgiving' ? 'thanksgiving' : 'main');
+      try {
+        await post({action:'sendChatMessage',token:s.token,channel:channel,text:text,msg_type:type,to_user:''});
+        loadForum();
+      } catch(e) { alert('Could not post. Try again.'); }
+    });
+  }
+
+  // Load on tab click
+  var forumTab = document.querySelector('[data-tab="forum"]');
+  if (forumTab) forumTab.addEventListener('click', loadForum);
+  // Also load on page ready if portal is active
+  setTimeout(function() {
+    var portal = document.getElementById('view-portal');
+    if (portal && portal.classList.contains('active')) loadForum();
+  }, 1000);
+})();
+</script>
 </body>
 </html>

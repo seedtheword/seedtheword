@@ -177,23 +177,15 @@
       filtered = posts.slice().sort(function (a, b) { return b.timestamp - a.timestamp; });
     } else if (channel === 'prayer') {
       filtered = posts.filter(function (p) { return p.type === 'prayer' || p.type === 'thanksgiving'; });
-    } else if (channel === 'announcements') {
-      filtered = posts.filter(function (p) { return p.type === 'announcement'; });
-    } else if (channel === 'bible') {
-      filtered = posts.filter(function (p) { return p.type === 'bible'; });
-    } else if (channel === 'discussion') {
-      filtered = posts.filter(function (p) { return p.type === 'discussion'; });
+    } else if (channel === 'scripture') {
+      filtered = posts.filter(function (p) { return p.type === 'bible' || p.type === 'discussion'; });
+    } else if (channel === 'music' || channel === 'library' || channel === 'friends') {
+      // These channels are handled by dedicated sections, not the feed
+      filtered = [];
     } else {
-      filtered = posts;
+      filtered = posts.filter(function (p) { return p.type === channel; });
     }
     renderFeed(filtered);
-    // Update active nav
-    document.querySelectorAll('.community-nav__link').forEach(function (el) {
-      el.classList.toggle('is-active', el.dataset.channel === channel);
-    });
-    document.querySelectorAll('.feed-tab').forEach(function (el) {
-      el.classList.toggle('is-active', el.dataset.channel === channel);
-    });
   }
 
   // ── Bind post interaction handlers ──

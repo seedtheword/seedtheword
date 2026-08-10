@@ -60,10 +60,11 @@
   <!-- Prayer & Thanksgiving Form (unified) -->
   <form class="connect-form active" id="form-prayer" novalidate style="display:block;">
     <div class="glass-morphism" style="background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.7);border-radius:16px;padding:1.5rem;box-shadow:0 8px 32px rgba(31,38,135,0.1);">
-      <!-- Type toggle -->
-      <div style="display:flex;gap:0.4rem;margin-bottom:1.25rem;">
-        <button type="button" class="kind-btn active" data-kind="prayer" style="flex:1;padding:0.6rem;border:2px solid var(--green,#2C5F2E);border-radius:10px;font-size:0.82rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:var(--green,#2C5F2E);color:#fff;transition:all 0.15s;">🙏 Prayer Request</button>
-        <button type="button" class="kind-btn" data-kind="thanksgiving" style="flex:1;padding:0.6rem;border:2px solid #e0dbd6;border-radius:10px;font-size:0.82rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:#fff;color:#444;transition:all 0.15s;">🎉 Thanksgiving</button>
+      <!-- Type toggle — pill slider -->
+      <div style="position:relative;display:flex;background:#f3f0ed;border-radius:999px;padding:4px;margin-bottom:1.25rem;overflow:hidden;">
+        <div id="kind-slider" style="position:absolute;top:4px;left:4px;width:calc(50% - 4px);height:calc(100% - 8px);background:var(--green,#2C5F2E);border-radius:999px;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);box-shadow:0 2px 8px rgba(44,74,62,0.3);"></div>
+        <button type="button" class="kind-btn active" data-kind="prayer" style="flex:1;position:relative;z-index:1;padding:0.65rem 0.5rem;border:none;border-radius:999px;font-size:0.84rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:transparent;color:#fff;transition:color 0.2s;">🙏 Prayer Request</button>
+        <button type="button" class="kind-btn" data-kind="thanksgiving" style="flex:1;position:relative;z-index:1;padding:0.65rem 0.5rem;border:none;border-radius:999px;font-size:0.84rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:transparent;color:#555;transition:color 0.2s;">🎉 Thanksgiving</button>
       </div>
       <input type="hidden" name="kind" id="prayer-kind" value="prayer">
       <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Your name <small style="color:#888;">(optional)</small></label>
@@ -194,16 +195,21 @@
     });
   });
 
-  // Kind toggle (prayer vs thanksgiving) within the unified form
+  // Kind toggle (prayer vs thanksgiving) — pill slider
   document.querySelectorAll('.kind-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      document.querySelectorAll('.kind-btn').forEach(function(b) {
-        b.style.background = '#fff'; b.style.color = '#444'; b.style.borderColor = '#e0dbd6';
-        b.classList.remove('active');
-      });
-      this.style.background = 'var(--green,#2C5F2E)'; this.style.color = '#fff'; this.style.borderColor = 'var(--green,#2C5F2E)';
+      var slider = document.getElementById('kind-slider');
+      var btns = document.querySelectorAll('.kind-btn');
+      btns.forEach(function(b) { b.style.color = '#555'; b.classList.remove('active'); });
+      this.style.color = '#fff';
       this.classList.add('active');
       var kind = this.dataset.kind;
+      // Slide the pill
+      if (kind === 'thanksgiving') {
+        slider.style.transform = 'translateX(100%)';
+      } else {
+        slider.style.transform = 'translateX(0)';
+      }
       document.getElementById('prayer-kind').value = kind;
       var label = document.getElementById('prayer-body-label');
       var textarea = document.getElementById('prayer-body');

@@ -264,6 +264,7 @@ function doPost(e) {
   // ── Connect follow-up actions (see docs/apps-script/connect-follow-up-handler.gs) ──
   if ((payload && payload.action) === 'connectIntake') return handleConnectIntake_(payload);
   if ((payload && payload.action) === 'pushNotifyContacts') return handlePushNotify_(payload);
+  if ((payload && payload.action) === 'updateProfile') return handleUpdateProfile_(payload);
   return handleOrder(payload);
 }
 

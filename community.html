@@ -83,10 +83,11 @@
     <!-- User profile area -->
     <div class="community-nav__user" id="sidebar-user">
       <div class="community-nav__avatar" id="sidebar-avatar">?</div>
-      <div>
+      <div style="flex:1;min-width:0;">
         <div class="community-nav__name" id="sidebar-name">Guest</div>
         <div class="community-nav__role" id="sidebar-meta"><a href="team.html" style="color:var(--color-gold);text-decoration:none;font-weight:600;font-size:0.75rem;">Sign in →</a></div>
       </div>
+      <button class="profile-settings-btn" id="sidebar-settings" style="display:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--color-border);background:var(--color-bg-subtle);font-size:0.85rem;cursor:pointer;color:var(--color-text-muted);flex-shrink:0;" title="Profile settings">⚙</button>
     </div>
 
     <p class="community-nav__section">Channels</p>
@@ -481,6 +482,7 @@
 <script src="assets/js/study-saturday.js?v=7" defer></script>
 <script src="assets/js/prayer-intake.js?v=2"></script>
 <script src="assets/js/community-social.js?v=2"></script>
+<script src="assets/js/profile-settings.js?v=1"></script>
 <script>
 // ═══ AUTH: sidebar user + nav Login/Logout swap ═══
 (function() {
@@ -499,6 +501,9 @@
     if (sidebarName) sidebarName.textContent = session.name;
     var joinDate = session.created_at ? new Date(session.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '';
     if (sidebarMeta) sidebarMeta.innerHTML = '<span style="font-size:0.7rem;color:var(--color-text-muted);">' + (session.role||'Member') + (joinDate ? ' · Joined '+joinDate : '') + '</span>';
+    // Show settings gear
+    var settingsBtn = document.getElementById('sidebar-settings');
+    if (settingsBtn) settingsBtn.style.display = '';
     // Show compose
     var compose = document.getElementById('community-compose');
     var prompt = document.getElementById('community-login-prompt');

@@ -371,3 +371,56 @@ function installConnectTriggers() {
 
   Logger.log('✅ Triggers installed: Saturday 10am (weekly digest), Monday 3pm (event reminder)');
 }
+
+
+// ═══════════════════════════════════════════════════════════════
+// 10. UPDATE PROFILE (from profile-settings.js)
+// ═══════════════════════════════════════════════════════════════
+//
+// Router: case 'updateProfile': return handleUpdateProfile_(payload);
+//
+// Updates TeamMembers sheet with contact/notification preferences.
+
+function handleUpdateProfile_(payload) {
+  var session = verifyToken_(payload.token);
+  if (!session) return jsonResponse_({ ok: false, error: 'Invalid session.' });
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('TeamMembers');
+  if (!sheet) return jsonResponse_({ ok: false, error: 'Sheet not found.' });
+
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0];
+
+  // Find the member row by token
+  var tokenCol = headers.indexOf('token');
+  var emailCol = headers.indexOf('email');
+  var phoneCol = headers.indexOf('phone');
+  var telegramCol = headers.indexOf('telegram_username');
+
+  // Add notify_pref and carrier columns if they don't exist
+  var notifyCol = headers.indexOf('notify_pref');
+  if (notifyCol === -1) {
+    notifyCol = headers.length;
+    sheet.getRange(1, notifyCol + 1).setValue('notify_pref');
+  }
+  var carrierCol = headers.indexOf('carrier');
+  if (carrierCol === -1) {
+    carrierCol = headers.length + (notifyCol === headers.length ? 1 : 0);
+    sheet.getRange(1, carrierCol + 1).setValue('carrier');
+  }
+
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][tokenCol] === session.token) {
+      var row = i + 1;
+      if (emailCol >= 0 && payload.email !== undefined) sheet.getRange(row, emailCol + 1).setValue(String(payload.email || '').trim());
+      if (phoneCol >= 0 && payload.phone !== undefined) sheet.getRange(row, phoneCol + 1).setValue(String(payload.phone || '').trim());
+      if (telegramCol >= 0 && payload.telegram_username !== undefined) sheet.getRange(row, telegramCol + 1).setValue(String(payload.telegram_username || '').trim());
+      sheet.getRange(row, notifyCol + 1).setValue(String(payload.notify_pref || 'email'));
+      sheet.getRange(row, carrierCol + 1).setValue(String(payload.carrier || ''));
+      return jsonResponse_({ ok: true });
+    }
+  }
+
+  return jsonResponse_({ ok: false, error: 'Member not found.' });
+}

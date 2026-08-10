@@ -89,6 +89,13 @@
       <label>Your prayer request *</label>
       <textarea name="body" placeholder="What can we pray for? Share as much or as little as you'd like." required minlength="10" maxlength="2000" rows="4"></textarea>
       <label><input type="checkbox" name="anonymous" style="width:auto;margin-right:0.4rem;"> Keep me anonymous</label>
+      <fieldset style="border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:0.85rem;margin:0.75rem 0;">
+        <legend style="font-size:0.78rem;font-weight:600;color:var(--color-text);padding:0 0.4rem;">How should we follow up?</legend>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="email" style="width:auto;margin:0;" checked> Email updates</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="telegram" style="width:auto;margin:0;"> Telegram notifications</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="events" style="width:auto;margin:0;"> Event reminders only</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="none" style="width:auto;margin:0;"> No follow-up needed</label>
+      </fieldset>
       <input type="text" name="extra_field_2" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="form-status" id="status-prayer"></div>
       <button type="submit" class="btn-submit btn-submit--gold">Submit Prayer Request</button>
@@ -102,6 +109,13 @@
       <input type="email" name="email" placeholder="you@example.com" autocomplete="email" maxlength="200">
       <label>What are you thankful for? *</label>
       <textarea name="body" placeholder="Share what God has done — we celebrate with you!" required minlength="10" maxlength="2000" rows="4"></textarea>
+      <fieldset style="border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:0.85rem;margin:0.75rem 0;">
+        <legend style="font-size:0.78rem;font-weight:600;color:var(--color-text);padding:0 0.4rem;">Stay connected?</legend>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="email" style="width:auto;margin:0;" checked> Email updates</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="telegram" style="width:auto;margin:0;"> Telegram notifications</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="events" style="width:auto;margin:0;"> Event reminders only</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="none" style="width:auto;margin:0;"> No follow-up</label>
+      </fieldset>
       <input type="text" name="extra_field_2" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="form-status" id="status-thanksgiving"></div>
       <button type="submit" class="btn-submit btn-submit--gold">Share Thanksgiving</button>
@@ -121,6 +135,13 @@
       <input type="text" name="state" value="WA" autocomplete="address-level1" maxlength="2">
       <label>Why would you like a Bible? *</label>
       <textarea name="story" placeholder="A couple of honest sentences — we read every one." required minlength="80" maxlength="1500" rows="5"></textarea>
+      <fieldset style="border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:0.85rem;margin:0.75rem 0;">
+        <legend style="font-size:0.78rem;font-weight:600;color:var(--color-text);padding:0 0.4rem;">How should we reach you?</legend>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="email" style="width:auto;margin:0;" checked> Email updates</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="telegram" style="width:auto;margin:0;"> Telegram notifications</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="events" style="width:auto;margin:0;"> Event reminders only</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="none" style="width:auto;margin:0;"> No follow-up</label>
+      </fieldset>
       <input type="text" name="extra_field_2" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="form-status" id="status-bible"></div>
       <button type="submit" class="btn-submit btn-submit--green">Request a Free Bible</button>
@@ -166,11 +187,11 @@
   // Form submissions
   document.getElementById('form-prayer').addEventListener('submit', function(e) {
     e.preventDefault();
-    submitForm(this, 'prayer-intake', 'prayer', 'status-prayer');
+    submitForm(this, 'connectIntake', 'prayer', 'status-prayer');
   });
   document.getElementById('form-thanksgiving').addEventListener('submit', function(e) {
     e.preventDefault();
-    submitForm(this, 'prayer-intake', 'thanksgiving', 'status-thanksgiving');
+    submitForm(this, 'connectIntake', 'thanksgiving', 'status-thanksgiving');
   });
   document.getElementById('form-bible').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -227,7 +248,7 @@
     statusEl.textContent = ''; statusEl.className = 'form-status';
 
     var data = new FormData(form);
-    var payload = { action: 'requestBible' };
+    var payload = { action: 'connectIntake', kind: 'bible' };
     data.forEach(function(v, k) { payload[k] = v; });
 
     if (payload.extra_field_2) return;

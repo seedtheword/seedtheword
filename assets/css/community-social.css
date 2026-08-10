@@ -1237,3 +1237,10 @@ body:has(.community-layout) {
   background: var(--color-olive-soft);
   border-color: var(--color-olive);
 }
+
+
+/* ── Fade in for chat messages ─────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

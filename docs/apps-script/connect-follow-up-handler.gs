@@ -409,3 +409,64 @@ function sendEventReminders() {
      { action: 'connectIntake', kind: 'prayer|thanksgiving|bible', ... }
 
    ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * ═══════════════════════════════════════════════════════════════
+ * AUTO-INSTALL TRIGGERS
+ * ═══════════════════════════════════════════════════════════════
+ * 
+ * Run this function ONCE manually (Run → installConnectTriggers)
+ * after pasting this file. It creates the daily and event triggers
+ * so you don't have to set them up in the UI.
+ */
+function installConnectTriggers() {
+  // Remove any existing triggers for these functions to avoid duplicates
+  var existing = ScriptApp.getProjectTriggers();
+  existing.forEach(function(t) {
+    var name = t.getHandlerFunction();
+    if (name === 'runConnectFollowUp' || name === 'sendEventReminders') {
+      ScriptApp.deleteTrigger(t);
+    }
+  });
+
+  // Daily follow-up at 9am Pacific
+  ScriptApp.newTrigger('runConnectFollowUp')
+    .timeBased()
+    .everyDays(1)
+    .atHour(9)
+    .inTimezone('America/Los_Angeles')
+    .create();
+
+  // Event reminders — runs Monday 3:30pm and Saturday 4pm Pacific
+  // (Monday for fellowship, Saturday for study)
+  // Using everyHours(1) with a check inside the function is cleaner
+  // than two separate triggers, but let's do two for clarity:
+  
+  // Monday reminder (for 6:30pm fellowship)
+  ScriptApp.newTrigger('sendEventReminderMonday_')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.MONDAY)
+    .atHour(15)
+    .inTimezone('America/Los_Angeles')
+    .create();
+
+  // Saturday reminder (for 7pm study)
+  ScriptApp.newTrigger('sendEventReminderSaturday_')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.SATURDAY)
+    .atHour(16)
+    .inTimezone('America/Los_Angeles')
+    .create();
+
+  Logger.log('✅ Connect triggers installed: daily follow-up (9am), Monday reminder (3pm), Saturday reminder (4pm)');
+}
+
+/** Monday event reminder wrapper */
+function sendEventReminderMonday_() {
+  sendEventReminders();
+}
+
+/** Saturday event reminder wrapper */
+function sendEventReminderSaturday_() {
+  sendEventReminders();
+}

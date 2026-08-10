@@ -363,6 +363,58 @@
   if (portal) observer.observe(portal, { attributes: true, attributeFilter: ['class'] });
 })();
 
+// ── Role-based UI: hide Dash + Scan for regular members ──
+(function() {
+  function applyRoleUI() {
+    var s = null;
+    try { s = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
+    if (!s) return;
+
+    var role = (s.role || 'member').toLowerCase();
+    var isTeam = (role === 'admin' || role === 'super_admin');
+
+    // Tab buttons
+    var dashTab = document.querySelector('[data-tab="dashboard"]');
+    var scanTab = document.querySelector('[data-tab="scanner"]');
+
+    if (!isTeam) {
+      // Hide Dash and Scan tabs for regular members
+      if (dashTab) dashTab.style.display = 'none';
+      if (scanTab) scanTab.style.display = 'none';
+
+      // If dashboard is currently active, switch to messages
+      var activeTab = document.querySelector('.main-tab--active');
+      if (activeTab && (activeTab.dataset.tab === 'dashboard' || activeTab.dataset.tab === 'scanner')) {
+        // Click the messages tab
+        var msgTab = document.querySelector('[data-tab="messages"]');
+        if (msgTab) msgTab.click();
+      }
+
+      // Hide event setup view shortcuts
+      var changeEventBtn = document.querySelector('[onclick="showView(\'event\')"]');
+      if (changeEventBtn) changeEventBtn.style.display = 'none';
+    } else {
+      // Show all tabs for team members
+      if (dashTab) dashTab.style.display = '';
+      if (scanTab) scanTab.style.display = '';
+    }
+  }
+
+  // Run on load and observe portal activation
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyRoleUI);
+  else applyRoleUI();
+
+  var portal = document.getElementById('view-portal');
+  if (portal) {
+    var obs = new MutationObserver(function(mutations) {
+      mutations.forEach(function(m) {
+        if (m.target.id === 'view-portal' && m.target.classList.contains('active')) applyRoleUI();
+      });
+    });
+    obs.observe(portal, { attributes: true, attributeFilter: ['class'] });
+  }
+})();
+
 // ── Forum tab: social posts ──
 (function() {
   var CONFIG_URL = 'assets/data/site-config.json';

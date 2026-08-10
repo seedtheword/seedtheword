@@ -53,22 +53,27 @@
 
   <!-- Tabs -->
   <div id="connect-tabs" style="display:flex;gap:0.5rem;margin-bottom:1.5rem;">
-    <button class="connect-tab active" data-form="prayer" style="flex:1;padding:0.75rem 0.5rem;border:2px solid var(--green,#2C5F2E);border-radius:12px;font-size:0.85rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:var(--green,#2C5F2E);color:#fff;transition:all 0.2s;">🙏 Prayer</button>
-    <button class="connect-tab" data-form="thanksgiving" style="flex:1;padding:0.75rem 0.5rem;border:2px solid #e0dbd6;border-radius:12px;font-size:0.85rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:#fff;color:#444;transition:all 0.2s;">🎉 Thanks</button>
+    <button class="connect-tab active" data-form="prayer" style="flex:1;padding:0.75rem 0.5rem;border:2px solid var(--green,#2C5F2E);border-radius:12px;font-size:0.85rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:var(--green,#2C5F2E);color:#fff;transition:all 0.2s;">🙏 Prayer & Thanks</button>
     <button class="connect-tab" data-form="bible" style="flex:1;padding:0.75rem 0.5rem;border:2px solid #e0dbd6;border-radius:12px;font-size:0.85rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:#fff;color:#444;transition:all 0.2s;">📖 Free Bible</button>
   </div>
 
-  <!-- Prayer Form -->
+  <!-- Prayer & Thanksgiving Form (unified) -->
   <form class="connect-form active" id="form-prayer" novalidate style="display:block;">
     <div class="glass-morphism" style="background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.7);border-radius:16px;padding:1.5rem;box-shadow:0 8px 32px rgba(31,38,135,0.1);">
+      <!-- Type toggle -->
+      <div style="display:flex;gap:0.4rem;margin-bottom:1.25rem;">
+        <button type="button" class="kind-btn active" data-kind="prayer" style="flex:1;padding:0.6rem;border:2px solid var(--green,#2C5F2E);border-radius:10px;font-size:0.82rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:var(--green,#2C5F2E);color:#fff;transition:all 0.15s;">🙏 Prayer Request</button>
+        <button type="button" class="kind-btn" data-kind="thanksgiving" style="flex:1;padding:0.6rem;border:2px solid #e0dbd6;border-radius:10px;font-size:0.82rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:#fff;color:#444;transition:all 0.15s;">🎉 Thanksgiving</button>
+      </div>
+      <input type="hidden" name="kind" id="prayer-kind" value="prayer">
       <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Your name <small style="color:#888;">(optional)</small></label>
       <input type="text" name="name" placeholder="First name" autocomplete="given-name" maxlength="60" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
       <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Email <small style="color:#888;">(so we can follow up)</small></label>
       <input type="email" name="email" placeholder="you@example.com" autocomplete="email" maxlength="200" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
       <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Phone <small style="color:#888;">(optional)</small></label>
       <input type="tel" name="phone" placeholder="(253) 555-1234" autocomplete="tel" maxlength="50" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Your prayer request *</label>
-      <textarea name="body" placeholder="What can we pray for? Share as much or as little as you'd like." required minlength="10" maxlength="2000" rows="4" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;resize:vertical;"></textarea>
+      <label id="prayer-body-label" style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Your prayer request *</label>
+      <textarea name="body" id="prayer-body" placeholder="What can we pray for? Share as much or as little as you'd like." required minlength="10" maxlength="2000" rows="4" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;resize:vertical;"></textarea>
       <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;margin-bottom:0.75rem;cursor:pointer;"><input type="checkbox" name="anonymous" style="width:auto;margin:0;"> Keep me anonymous</label>
       <fieldset style="border:1.5px solid #e0dbd6;border-radius:10px;padding:1rem;margin:0 0 1rem;">
         <legend style="font-size:0.78rem;font-weight:700;padding:0 0.4rem;color:var(--green,#2C5F2E);">How should we follow up?</legend>
@@ -83,33 +88,7 @@
       </fieldset>
       <input type="text" name="extra_field_2" style="position:absolute;left:-9999px;opacity:0;" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div id="status-prayer" style="text-align:center;font-size:0.82rem;min-height:1.2rem;margin-bottom:0.5rem;"></div>
-      <button type="submit" style="width:100%;padding:0.9rem;border:none;border-radius:12px;font-size:0.95rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:linear-gradient(135deg,#D97736,#e08a42);color:#fff;box-shadow:0 4px 16px rgba(217,119,54,0.3);transition:transform 0.15s;">Submit Prayer Request</button>
-    </div>
-  </form>
-
-  <!-- Thanksgiving Form -->
-  <form class="connect-form" id="form-thanksgiving" novalidate style="display:none;">
-    <div class="glass-morphism" style="background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.7);border-radius:16px;padding:1.5rem;box-shadow:0 8px 32px rgba(31,38,135,0.1);">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Your name <small style="color:#888;">(optional)</small></label>
-      <input type="text" name="name" placeholder="First name" autocomplete="given-name" maxlength="60" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Email <small style="color:#888;">(optional)</small></label>
-      <input type="email" name="email" placeholder="you@example.com" autocomplete="email" maxlength="200" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">What are you thankful for? *</label>
-      <textarea name="body" placeholder="Share what God has done — we celebrate with you!" required minlength="10" maxlength="2000" rows="4" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;resize:vertical;"></textarea>
-      <fieldset style="border:1.5px solid #e0dbd6;border-radius:10px;padding:1rem;margin:0 0 1rem;">
-        <legend style="font-size:0.78rem;font-weight:700;padding:0 0.4rem;color:var(--green,#2C5F2E);">Stay connected?</legend>
-        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="email" checked style="width:auto;margin:0;"> Email</label>
-        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="sms" style="width:auto;margin:0;"> Text</label>
-        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="telegram" style="width:auto;margin:0;"> Telegram</label>
-        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="none" style="width:auto;margin:0;"> No follow-up</label>
-        <div class="carrier-wrap" style="display:none;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid #e0dbd6;">
-          <label style="font-size:0.75rem;font-weight:600;margin-bottom:0.2rem;display:block;">Phone carrier</label>
-          <select name="carrier" style="width:100%;padding:0.6rem;border:1.5px solid #e0dbd6;border-radius:8px;font-size:0.85rem;font-family:'Inter',sans-serif;"><option value="">Select...</option><option value="tmobile">T-Mobile</option><option value="att">AT&T</option><option value="verizon">Verizon</option><option value="sprint">Sprint</option><option value="metro">Metro</option><option value="boost">Boost</option><option value="cricket">Cricket</option><option value="mint">Mint</option><option value="visible">Visible</option><option value="fi">Google Fi</option><option value="other">Other</option></select>
-        </div>
-      </fieldset>
-      <input type="text" name="extra_field_2" style="position:absolute;left:-9999px;opacity:0;" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div id="status-thanksgiving" style="text-align:center;font-size:0.82rem;min-height:1.2rem;margin-bottom:0.5rem;"></div>
-      <button type="submit" style="width:100%;padding:0.9rem;border:none;border-radius:12px;font-size:0.95rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:linear-gradient(135deg,#D97736,#e08a42);color:#fff;box-shadow:0 4px 16px rgba(217,119,54,0.3);transition:transform 0.15s;">Share Thanksgiving</button>
+      <button type="submit" id="prayer-submit-btn" style="width:100%;padding:0.9rem;border:none;border-radius:12px;font-size:0.95rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:linear-gradient(135deg,#D97736,#e08a42);color:#fff;box-shadow:0 4px 16px rgba(217,119,54,0.3);transition:transform 0.15s;">Submit Prayer Request</button>
     </div>
   </form>
 
@@ -215,6 +194,32 @@
     });
   });
 
+  // Kind toggle (prayer vs thanksgiving) within the unified form
+  document.querySelectorAll('.kind-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.kind-btn').forEach(function(b) {
+        b.style.background = '#fff'; b.style.color = '#444'; b.style.borderColor = '#e0dbd6';
+        b.classList.remove('active');
+      });
+      this.style.background = 'var(--green,#2C5F2E)'; this.style.color = '#fff'; this.style.borderColor = 'var(--green,#2C5F2E)';
+      this.classList.add('active');
+      var kind = this.dataset.kind;
+      document.getElementById('prayer-kind').value = kind;
+      var label = document.getElementById('prayer-body-label');
+      var textarea = document.getElementById('prayer-body');
+      var submitBtn = document.getElementById('prayer-submit-btn');
+      if (kind === 'thanksgiving') {
+        label.textContent = 'What are you thankful for? *';
+        textarea.placeholder = 'Share what God has done — we celebrate with you!';
+        submitBtn.textContent = 'Share Thanksgiving';
+      } else {
+        label.textContent = 'Your prayer request *';
+        textarea.placeholder = "What can we pray for? Share as much or as little as you'd like.";
+        submitBtn.textContent = 'Submit Prayer Request';
+      }
+    });
+  });
+
   // Show/hide carrier on SMS select
   document.querySelectorAll('input[name="notify_pref"]').forEach(function(r) {
     r.addEventListener('change', function() {
@@ -225,10 +230,9 @@
 
   // Form submissions — use existing actions that already work
   document.getElementById('form-prayer').addEventListener('submit', function(e) {
-    e.preventDefault(); submitPrayer(this, 'prayer', 'status-prayer');
-  });
-  document.getElementById('form-thanksgiving').addEventListener('submit', function(e) {
-    e.preventDefault(); submitPrayer(this, 'thanksgiving', 'status-thanksgiving');
+    e.preventDefault();
+    var kind = document.getElementById('prayer-kind').value;
+    submitPrayer(this, kind, 'status-prayer');
   });
   document.getElementById('form-bible').addEventListener('submit', function(e) {
     e.preventDefault(); submitBible(this);

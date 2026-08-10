@@ -3,37 +3,37 @@
  * CONNECT FOLLOW-UP HANDLER
  * ═══════════════════════════════════════════════════════════════
  * 
- * Paste this into your existing order-handler.gs (or a new .gs file
- * in the same Apps Script project).
+ * New file in the same Apps Script project as order-handler.gs.
  * 
  * What it does:
- * 1. Handles 'connectIntake' action from connect.html form submissions
- * 2. Stores contact info + notification preference in a "Contacts" sheet
- * 3. Sends Telegram notification to @seedtheword (which texts your phone)
- * 4. Provides a follow-up function that can be run on a schedule
+ * 1. Handles 'connectIntake' action from connect.html
+ * 2. Stores contact + notification preference in "Contacts" sheet
+ * 3. Notifies admin via Telegram on new submission
+ * 4. Handles 'pushNotifyContacts' from team portal (admin pushes
+ *    updates to contacts — prayer updates, announcements, etc.)
+ * 5. Saturday weekly digest of upcoming events
+ * 6. Monday event reminder for fellowship
  * 
- * Sheet setup needed:
- * - Create a sheet tab named "Contacts" with these columns in row 1:
- *   timestamp | name | email | phone | type | body | notify_pref | 
- *   followed_up | follow_up_date | notes
+ * IMPORTANT: The daily trigger does NOT spam contacts with generic
+ * follow-ups. Contacts only receive messages when:
+ *   - An admin pushes a notification (prayer update, announcement)
+ *   - The Saturday weekly digest fires
+ *   - The Monday event reminder fires (events-pref contacts only)
  * 
- * Script Properties needed:
- * - TELEGRAM_BOT_TOKEN (already set)
+ * Sheet: "Contacts" — auto-created with columns:
+ *   timestamp | name | email | phone | type | body |
+ *   notify_pref | followed_up | follow_up_date | notes | carrier
  * 
- * To wire up: In your doPost(e) router, add:
+ * Router addition needed in doPost:
  *   case 'connectIntake': return handleConnectIntake_(payload);
+ *   case 'pushNotifyContacts': return handlePushNotify_(payload);
  * ═══════════════════════════════════════════════════════════════
  */
 
-/**
- * Handle incoming connect.html form submissions.
- * Called from doPost router with the parsed JSON payload.
- * 
- * Expected payload fields:
- *   action: 'connectIntake'
- *   kind: 'prayer' | 'thanksgiving' | 'bible'
- *   name, email, phone, body/story, notify_pref, anonymous
- */
+// ═══════════════════════════════════════════════════════════════
+// 1. INTAKE HANDLER (from connect.html)
+// ═══════════════════════════════════════════════════════════════
+
 function handleConnectIntake_(payload) {
   var kind = String(payload.kind || 'prayer');
   var name = String(payload.name || '').trim();
@@ -44,7 +44,6 @@ function handleConnectIntake_(payload) {
   var anonymous = payload.anonymous === 'on' || payload.anonymous === true;
   var carrier = String(payload.carrier || '').trim();
 
-  // Validate
   if (!body || body.length < 10) {
     return jsonResponse_({ ok: false, error: 'Please share at least a few words.' });
   }
@@ -65,259 +64,129 @@ function handleConnectIntake_(payload) {
     ]]);
   }
 
-  var now = new Date();
   sheet.appendRow([
-    now.toISOString(),
+    new Date().toISOString(),
     anonymous ? '(anonymous)' : name,
-    email,
-    phone,
-    kind,
+    email, phone, kind,
     body.substring(0, 2000),
-    notifyPref,
-    'no',
-    '',
-    '',
-    carrier
+    notifyPref, 'new', '', '', carrier
   ]);
 
-  // Send Telegram notification to admin (you get this as a text)
-  try {
-    sendConnectNotification_(kind, name, email, phone, body, notifyPref, anonymous);
-  } catch (e) {
-    Logger.log('Telegram notification failed: ' + e.message);
-  }
+  // Notify admin via Telegram
+  try { sendConnectNotification_(kind, name, email, phone, body, notifyPref, anonymous); }
+  catch (e) { Logger.log('Telegram notify failed: ' + e.message); }
 
-  // Also forward to the existing prayer-intake or requestBible handler
-  // so it enters the existing pipeline too
+  // Forward to existing pipelines
   if (kind === 'prayer' || kind === 'thanksgiving') {
-    try {
-      // Forward to existing prayer pipeline
-      var prayerPayload = {
-        action: 'prayer-intake',
-        kind: kind,
-        name: anonymous ? '' : name,
-        email: email,
-        body: body,
-        anonymous: anonymous,
-        extra_field_2: ''
-      };
-      handlePrayerIntake_(prayerPayload);
-    } catch (e) {
-      Logger.log('Prayer pipeline forward failed: ' + e.message);
-    }
+    try { handlePrayerIntake_({ action:'prayer-intake', kind:kind, name:anonymous?'':name, email:email, body:body, anonymous:anonymous, extra_field_2:'' }); }
+    catch (e) { Logger.log('Prayer forward failed: ' + e.message); }
   } else if (kind === 'bible') {
-    try {
-      var biblePayload = {
-        action: 'requestBible',
-        name: name,
-        email: email,
-        phone: phone,
-        city: String(payload.city || '').trim(),
-        state: String(payload.state || 'WA').trim(),
-        story: body,
-        extra_field_2: ''
-      };
-      handleRequestBible_(biblePayload);
-    } catch (e) {
-      Logger.log('Bible request forward failed: ' + e.message);
-    }
+    try { handleRequestBible_({ action:'requestBible', name:name, email:email, phone:phone, city:String(payload.city||'').trim(), state:String(payload.state||'WA').trim(), story:body, extra_field_2:'' }); }
+    catch (e) { Logger.log('Bible forward failed: ' + e.message); }
   }
 
   return jsonResponse_({ ok: true, status: 'ok' });
 }
 
-/**
- * Send Telegram notification about new connect submission.
- * This goes to @seedtheword thread 553 (Announcements) which
- * triggers a push notification to your phone.
- */
-function sendConnectNotification_(kind, name, email, phone, body, pref, anonymous) {
-  var token = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
-  if (!token) return;
+// ═══════════════════════════════════════════════════════════════
+// 2. ADMIN PUSH NOTIFICATIONS (from team portal)
+// ═══════════════════════════════════════════════════════════════
+//
+// Admins/super_admins can push a message to all contacts (or filtered
+// by type) via the team portal. This is the ONLY way contacts get
+// notified outside of the weekly digest and Monday reminder.
+//
+// Payload: { action:'pushNotifyContacts', token, subject, message,
+//            filter:'all'|'prayer'|'thanksgiving'|'bible' }
 
-  var icons = { prayer: '🙏', thanksgiving: '🎉', bible: '📖' };
-  var labels = { prayer: 'Prayer Request', thanksgiving: 'Thanksgiving', bible: 'Bible Request' };
+function handlePushNotify_(payload) {
+  // Verify admin role
+  var session = verifyToken_(payload.token);
+  if (!session || (session.role !== 'admin' && session.role !== 'super_admin')) {
+    return jsonResponse_({ ok: false, error: 'Admin access required.' });
+  }
 
-  var message = (icons[kind] || '📬') + ' *New ' + (labels[kind] || 'Submission') + '* (via connect page)\n\n';
-  
-  if (!anonymous && name) message += '👤 ' + name + '\n';
-  if (email) message += '📧 ' + email + '\n';
-  if (phone) message += '📱 ' + phone + '\n';
-  message += '🔔 Notify: ' + pref + '\n\n';
-  message += '💬 ' + body.substring(0, 500);
+  var subject = String(payload.subject || '').trim();
+  var message = String(payload.message || '').trim();
+  var filter = String(payload.filter || 'all');
 
-  var url = 'https://api.telegram.org/bot' + token + '/sendMessage';
-  UrlFetchApp.fetch(url, {
-    method: 'post',
-    contentType: 'application/json',
-    payload: JSON.stringify({
-      chat_id: '@seedtheword',
-      message_thread_id: 553,
-      text: message,
-      parse_mode: 'Markdown',
-      disable_web_page_preview: true
-    }),
-    muteHttpExceptions: true
-  });
-}
+  if (!subject || !message) {
+    return jsonResponse_({ ok: false, error: 'Subject and message required.' });
+  }
 
-/**
- * ═══════════════════════════════════════════════════════════════
- * SCHEDULED FOLLOW-UP (run daily via time trigger)
- * ═══════════════════════════════════════════════════════════════
- * 
- * Setup: In Apps Script, go to Triggers → Add Trigger:
- *   Function: runConnectFollowUp
- *   Event source: Time-driven
- *   Type: Day timer
- *   Time: 9am-10am
- * 
- * What it does:
- * - Checks Contacts sheet for entries not yet followed up
- * - For entries older than 24h with notify_pref != 'none':
- *   - Email pref: sends email via GmailApp
- *   - SMS pref: sends email-to-SMS via carrier gateway
- *   - Telegram pref: sends admin reminder to invite them
- *   - Events pref: stores for event reminder triggers
- * - Marks them as followed_up = 'sent'
- */
-function runConnectFollowUp() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('Contacts');
-  if (!sheet) return;
+  if (!sheet) return jsonResponse_({ ok: false, error: 'No contacts yet.' });
 
   var data = sheet.getDataRange().getValues();
-  if (data.length <= 1) return;
-
-  var now = new Date();
-  var oneDayMs = 24 * 60 * 60 * 1000;
-  var reminders = [];
+  var sent = 0;
 
   for (var i = 1; i < data.length; i++) {
-    var row = data[i];
-    var timestamp = new Date(row[0]);
-    var name = row[1];
-    var email = row[2];
-    var phone = row[3];
-    var type = row[4];
-    var body = row[5];
-    var notifyPref = row[6];
-    var followedUp = row[7];
-    var carrier = row[10] || ''; // column K
+    var email = data[i][2];
+    var phone = data[i][3];
+    var type = data[i][4];
+    var notifyPref = data[i][6];
+    var carrier = data[i][10] || '';
+    var name = data[i][1];
 
-    // Skip if already followed up or no follow-up wanted
-    if (followedUp === 'done' || followedUp === 'sent' || notifyPref === 'none') continue;
+    if (notifyPref === 'none') continue;
+    if (filter !== 'all' && type !== filter) continue;
 
-    // Only follow up after 24 hours
-    if ((now.getTime() - timestamp.getTime()) < oneDayMs) continue;
-
-    // ── Send follow-up based on preference ──
-    var sent = false;
-
-    if (notifyPref === 'email' && email) {
-      try {
-        GmailApp.sendEmail(email,
-          "We're praying for you — Seed the Word",
-          'Hi ' + (name || 'friend') + ',\n\n' +
-          'Thank you for sharing with us. We wanted you to know our team is keeping you in prayer.\n\n' +
-          'If you ever want to talk, reply to this email or join us:\n' +
-          '- Telegram: https://t.me/seedtheword\n' +
-          '- Community: https://seedtheword.org/community.html\n\n' +
-          'God bless,\nSeed the Word Ministry\nhttps://seedtheword.org',
-          { name: 'Seed the Word Ministry' }
-        );
-        sent = true;
-      } catch (e) { Logger.log('Email failed for row ' + (i+1) + ': ' + e.message); }
-    }
-
-    if (notifyPref === 'sms' && phone && carrier) {
-      try {
-        var smsAddress = buildSmsGateway_(phone, carrier);
-        if (smsAddress) {
-          GmailApp.sendEmail(smsAddress,
-            '', // SMS has no subject
-            'Seed the Word: Thank you for connecting with us! We are praying for you. Join us: t.me/seedtheword or seedtheword.org/community',
-            { name: 'Seed the Word', noReply: true }
-          );
-          sent = true;
-        } else {
-          // Unknown carrier — fall back to email if available
-          if (email) {
-            GmailApp.sendEmail(email,
-              "We're praying for you — Seed the Word",
-              'Hi ' + (name || 'friend') + ',\n\nThank you for sharing with us. Our team is praying.\n\nJoin us: https://t.me/seedtheword\n\nGod bless,\nSeed the Word Ministry',
-              { name: 'Seed the Word Ministry' }
-            );
-            sent = true;
-          }
-        }
-      } catch (e) { Logger.log('SMS failed for row ' + (i+1) + ': ' + e.message); }
-    }
-
-    if (notifyPref === 'telegram') {
-      // Can't auto-message on Telegram without them joining first
-      // Add to reminders list so admin can invite them
-      reminders.push({ row: i+1, name: name, email: email, phone: phone, type: type, body: String(body).substring(0,80), notifyPref: notifyPref });
-    }
-
-    if (notifyPref === 'events') {
-      // Just mark as tracked — sendEventReminders() handles these separately
-      sent = true;
-    }
-
-    // Mark row
-    if (sent) {
-      sheet.getRange(i + 1, 8).setValue('sent');
-      sheet.getRange(i + 1, 9).setValue(now.toISOString());
-    }
+    try {
+      sendToContact_(name, email, phone, carrier, notifyPref, subject, message);
+      sent++;
+    } catch (e) { Logger.log('Push failed row ' + (i+1) + ': ' + e.message); }
   }
 
-  // Send consolidated Telegram reminder for people who need manual invite
-  if (reminders.length > 0) {
-    var token = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
-    if (token) {
-      var message = '📋 *Follow-up Needed* (' + reminders.length + ' want Telegram)\n\n';
-      reminders.forEach(function(r, idx) {
-        message += (idx+1) + '. ' + (r.name||'Anonymous') + ' — ' + r.type + '\n';
-        if (r.email) message += '   📧 ' + r.email + '\n';
-        if (r.phone) message += '   📱 ' + r.phone + '\n';
-        message += '   _Invite them to @seedtheword_\n\n';
-      });
+  // Confirm to admin
+  var token = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
+  if (token) {
+    UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+      method: 'post', contentType: 'application/json',
+      payload: JSON.stringify({ chat_id:'@seedtheword', message_thread_id:553,
+        text:'📨 Admin push sent to ' + sent + ' contact(s).\nSubject: ' + subject,
+        disable_web_page_preview:true }),
+      muteHttpExceptions: true
+    });
+  }
 
-      UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-        method: 'post',
-        contentType: 'application/json',
-        payload: JSON.stringify({
-          chat_id: '@seedtheword',
-          message_thread_id: 553,
-          text: message,
-          parse_mode: 'Markdown',
-          disable_web_page_preview: true
-        }),
-        muteHttpExceptions: true
-      });
+  return jsonResponse_({ ok: true, sent: sent });
+}
 
-      reminders.forEach(function(r) {
-        sheet.getRange(r.row, 8).setValue('reminded');
-        sheet.getRange(r.row, 9).setValue(now.toISOString());
-      });
+// ═══════════════════════════════════════════════════════════════
+// 3. SEND TO CONTACT (shared helper)
+// ═══════════════════════════════════════════════════════════════
+
+function sendToContact_(name, email, phone, carrier, pref, subject, message) {
+  var personalMsg = message.replace(/\{name\}/g, name || 'friend');
+
+  if ((pref === 'email' || pref === 'events') && email) {
+    GmailApp.sendEmail(email, subject + ' — Seed the Word', personalMsg, { name: 'Seed the Word Ministry' });
+  } else if (pref === 'sms' && phone) {
+    var smsAddr = buildSmsGateway_(phone, carrier);
+    if (smsAddr) {
+      // SMS: short version (160 char limit)
+      var smsText = 'Seed the Word: ' + subject + ' — ' + personalMsg.substring(0, 120);
+      GmailApp.sendEmail(smsAddr, '', smsText, { name: 'Seed the Word', noReply: true });
+    } else if (email) {
+      // Fallback to email
+      GmailApp.sendEmail(email, subject + ' — Seed the Word', personalMsg, { name: 'Seed the Word Ministry' });
     }
+  } else if (pref === 'telegram') {
+    // Can't auto-DM on Telegram — log for manual outreach
+    Logger.log('Telegram pref contact (manual): ' + (name||'?') + ' — ' + (email||phone));
   }
 }
 
-/**
- * Email-to-SMS gateway builder.
- * Takes a phone number and carrier code, returns the SMS gateway email.
- * Returns null if carrier not supported.
- */
+// ═══════════════════════════════════════════════════════════════
+// 4. EMAIL-TO-SMS GATEWAY
+// ═══════════════════════════════════════════════════════════════
+
 function buildSmsGateway_(phone, carrier) {
-  // Strip to digits only
   var digits = String(phone).replace(/\D/g, '');
-  // Ensure 10 digits (US)
   if (digits.length === 11 && digits[0] === '1') digits = digits.substring(1);
   if (digits.length !== 10) return null;
 
-  // Carrier gateway map (SMS gateways — most reliable)
   var gateways = {
     'tmobile':    digits + '@tmomail.net',
     'att':        digits + '@txt.att.net',
@@ -327,146 +196,178 @@ function buildSmsGateway_(phone, carrier) {
     'metro':      digits + '@mymetropcs.com',
     'boost':      digits + '@sms.myboostmobile.com',
     'cricket':    digits + '@sms.cricketwireless.net',
-    'mint':       digits + '@tmomail.net', // Mint uses T-Mobile network
-    'visible':    digits + '@vtext.com',   // Visible uses Verizon network
+    'mint':       digits + '@tmomail.net',
+    'visible':    digits + '@vtext.com',
     'fi':         digits + '@msg.fi.google.com'
   };
-
   return gateways[carrier] || null;
 }
 
-/**
- * ═══════════════════════════════════════════════════════════════
- * EVENT REMINDER FOLLOW-UP (run before events)
- * ═══════════════════════════════════════════════════════════════
- * 
- * Setup: Trigger this function ~3 hours before your regular events
- * (e.g., Monday 3:30pm for the 6:30pm fellowship, Saturday 4pm for study)
- * 
- * Sends a Telegram message to @seedtheword reminding contacts
- * who chose "events" preference about tonight's gathering.
- */
-function sendEventReminders() {
+// ═══════════════════════════════════════════════════════════════
+// 5. ADMIN TELEGRAM NOTIFICATION (on new submission)
+// ═══════════════════════════════════════════════════════════════
+
+function sendConnectNotification_(kind, name, email, phone, body, pref, anonymous) {
+  var token = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
+  if (!token) return;
+
+  var icons = { prayer:'🙏', thanksgiving:'🎉', bible:'📖' };
+  var labels = { prayer:'Prayer Request', thanksgiving:'Thanksgiving', bible:'Bible Request' };
+
+  var msg = (icons[kind]||'📬') + ' *New ' + (labels[kind]||'Submission') + '* (connect page)\n\n';
+  if (!anonymous && name) msg += '👤 ' + name + '\n';
+  if (email) msg += '📧 ' + email + '\n';
+  if (phone) msg += '📱 ' + phone + '\n';
+  msg += '🔔 Pref: ' + pref + '\n\n💬 ' + body.substring(0, 500);
+
+  UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+    method:'post', contentType:'application/json',
+    payload: JSON.stringify({ chat_id:'@seedtheword', message_thread_id:553, text:msg, parse_mode:'Markdown', disable_web_page_preview:true }),
+    muteHttpExceptions: true
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 6. SATURDAY WEEKLY DIGEST (what's coming next week)
+// ═══════════════════════════════════════════════════════════════
+
+function sendWeeklyDigest_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('Contacts');
   if (!sheet) return;
 
   var data = sheet.getDataRange().getValues();
-  var eventContacts = [];
+  var contacts = [];
 
   for (var i = 1; i < data.length; i++) {
-    var notifyPref = data[i][6];
+    var pref = data[i][6];
+    if (pref === 'none') continue;
     var email = data[i][2];
+    var phone = data[i][3];
+    var carrier = data[i][10] || '';
     var name = data[i][1];
-    if (notifyPref === 'events' && email) {
-      eventContacts.push({ name: name, email: email });
+    if (email || (phone && carrier)) {
+      contacts.push({ name:name, email:email, phone:phone, carrier:carrier, pref:pref });
     }
   }
+  if (contacts.length === 0) return;
 
-  if (eventContacts.length === 0) return;
+  var nextMon = getNextWeekday_(1);
+  var nextSat = getNextWeekday_(6);
 
-  // Notify admin about who to invite
-  var token = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
-  if (!token) return;
+  var subject = 'This week at Seed the Word';
+  var body = 'Hey {name}!\n\n' +
+    'Here\'s what\'s coming this week:\n\n' +
+    '📅 Monday ' + fmtDate_(nextMon) + ' — Fellowship & Worship (6:30 PM)\n' +
+    '📺 Saturday ' + fmtDate_(nextSat) + ' — Study Saturday livestream (7 PM PT)\n' +
+    '📖 Daily Bible reading Mon–Fri\n\n' +
+    'Join us online: https://seedtheword.org/community\n' +
+    'Telegram: https://t.me/seedtheword\n\n' +
+    'See you there!\n— Seed the Word Ministry';
 
-  var today = new Date();
-  var dayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][today.getDay()];
-
-  var message = '📅 *Event Reminder Contacts* (' + dayName + ')\n\n';
-  message += eventContacts.length + ' people asked for event reminders:\n\n';
-  eventContacts.forEach(function(c, i) {
-    message += (i + 1) + '. ' + (c.name || 'Someone') + ' — ' + c.email + '\n';
+  var sent = 0;
+  contacts.forEach(function(c) {
+    try { sendToContact_(c.name, c.email, c.phone, c.carrier, c.pref, subject, body); sent++; }
+    catch(e) { Logger.log('Digest fail: ' + e.message); }
   });
-  message += '\n_Send them a quick invite email or Telegram message!_';
 
-  var url = 'https://api.telegram.org/bot' + token + '/sendMessage';
-  UrlFetchApp.fetch(url, {
-    method: 'post',
-    contentType: 'application/json',
-    payload: JSON.stringify({
-      chat_id: '@seedtheword',
-      message_thread_id: 553,
-      text: message,
-      parse_mode: 'Markdown',
-      disable_web_page_preview: true
-    }),
-    muteHttpExceptions: true
+  // Admin confirmation
+  var token = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
+  if (token) {
+    UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+      method:'post', contentType:'application/json',
+      payload: JSON.stringify({ chat_id:'@seedtheword', message_thread_id:553, text:'📨 Weekly digest sent to ' + sent + ' contact(s).', disable_web_page_preview:true }),
+      muteHttpExceptions: true
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 7. MONDAY EVENT REMINDER (fellowship tonight)
+// ═══════════════════════════════════════════════════════════════
+
+function sendMondayReminder_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Contacts');
+  if (!sheet) return;
+
+  var data = sheet.getDataRange().getValues();
+  var contacts = [];
+
+  for (var i = 1; i < data.length; i++) {
+    var pref = data[i][6];
+    if (pref !== 'events' && pref !== 'email' && pref !== 'sms') continue;
+    var email = data[i][2];
+    var phone = data[i][3];
+    var carrier = data[i][10] || '';
+    var name = data[i][1];
+    if (email || (phone && carrier)) {
+      contacts.push({ name:name, email:email, phone:phone, carrier:carrier, pref:pref });
+    }
+  }
+  if (contacts.length === 0) return;
+
+  var subject = 'Tonight: Fellowship & Worship';
+  var body = 'Hey {name}! Just a reminder — we have Fellowship & Worship tonight at 6:30 PM.\n\n' +
+    'Come as you are. Everyone is welcome.\n\n' +
+    'Community page: https://seedtheword.org/community\n' +
+    'Questions? Message us: https://t.me/seedtheword\n\n' +
+    '— Seed the Word Ministry';
+
+  contacts.forEach(function(c) {
+    try { sendToContact_(c.name, c.email, c.phone, c.carrier, c.pref, subject, body); }
+    catch(e) { Logger.log('Monday reminder fail: ' + e.message); }
   });
 }
 
+// ═══════════════════════════════════════════════════════════════
+// 8. HELPERS
+// ═══════════════════════════════════════════════════════════════
 
-/* ═══════════════════════════════════════════════════════════════
-   ROUTER ADDITION
-   ═══════════════════════════════════════════════════════════════
-   
-   Add this case to your existing doPost(e) switch/if-else block
-   in order-handler.gs:
+function getNextWeekday_(targetDay) {
+  var d = new Date();
+  var diff = targetDay - d.getDay();
+  if (diff <= 0) diff += 7;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
 
-   case 'connectIntake':
-     return handleConnectIntake_(payload);
+function fmtDate_(d) {
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[d.getMonth()] + ' ' + d.getDate();
+}
 
-   That's it. The connect.html frontend will send:
-     { action: 'connectIntake', kind: 'prayer|thanksgiving|bible', ... }
+// ═══════════════════════════════════════════════════════════════
+// 9. AUTO-INSTALL TRIGGERS
+// ═══════════════════════════════════════════════════════════════
+//
+// Run ONCE manually: Run → installConnectTriggers
+// Creates all scheduled triggers automatically.
 
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * ═══════════════════════════════════════════════════════════════
- * AUTO-INSTALL TRIGGERS
- * ═══════════════════════════════════════════════════════════════
- * 
- * Run this function ONCE manually (Run → installConnectTriggers)
- * after pasting this file. It creates the daily and event triggers
- * so you don't have to set them up in the UI.
- */
 function installConnectTriggers() {
-  // Remove any existing triggers for these functions to avoid duplicates
-  var existing = ScriptApp.getProjectTriggers();
-  existing.forEach(function(t) {
-    var name = t.getHandlerFunction();
-    if (name === 'runConnectFollowUp' || name === 'sendEventReminders') {
+  // Clean up existing
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    var fn = t.getHandlerFunction();
+    if (fn === 'sendWeeklyDigest_' || fn === 'sendMondayReminder_') {
       ScriptApp.deleteTrigger(t);
     }
   });
 
-  // Daily follow-up at 9am Pacific
-  ScriptApp.newTrigger('runConnectFollowUp')
+  // Saturday 10am PT — weekly digest (what's coming next week)
+  ScriptApp.newTrigger('sendWeeklyDigest_')
     .timeBased()
-    .everyDays(1)
-    .atHour(9)
+    .onWeekDay(ScriptApp.WeekDay.SATURDAY)
+    .atHour(10)
     .inTimezone('America/Los_Angeles')
     .create();
 
-  // Event reminders — runs Monday 3:30pm and Saturday 4pm Pacific
-  // (Monday for fellowship, Saturday for study)
-  // Using everyHours(1) with a check inside the function is cleaner
-  // than two separate triggers, but let's do two for clarity:
-  
-  // Monday reminder (for 6:30pm fellowship)
-  ScriptApp.newTrigger('sendEventReminderMonday_')
+  // Monday 3pm PT — tonight's fellowship reminder
+  ScriptApp.newTrigger('sendMondayReminder_')
     .timeBased()
     .onWeekDay(ScriptApp.WeekDay.MONDAY)
     .atHour(15)
     .inTimezone('America/Los_Angeles')
     .create();
 
-  // Saturday reminder (for 7pm study)
-  ScriptApp.newTrigger('sendEventReminderSaturday_')
-    .timeBased()
-    .onWeekDay(ScriptApp.WeekDay.SATURDAY)
-    .atHour(16)
-    .inTimezone('America/Los_Angeles')
-    .create();
-
-  Logger.log('✅ Connect triggers installed: daily follow-up (9am), Monday reminder (3pm), Saturday reminder (4pm)');
-}
-
-/** Monday event reminder wrapper */
-function sendEventReminderMonday_() {
-  sendEventReminders();
-}
-
-/** Saturday event reminder wrapper */
-function sendEventReminderSaturday_() {
-  sendEventReminders();
+  Logger.log('✅ Triggers installed: Saturday 10am (weekly digest), Monday 3pm (event reminder)');
 }

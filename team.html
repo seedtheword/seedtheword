@@ -162,67 +162,86 @@
       <button class="btn btn--outline" id="add-manual-btn">+ Add Item Manually</button>
     </div>
 
-    <!-- Messages Tab — Telegram-style Chat -->
+    <!-- Messages Tab — Redesigned Telegram-style Chat -->
     <div class="tab-panel" id="tab-messages" hidden>
-      <div class="chat-container">
-        <div class="chat-sidebar" id="chat-sidebar">
-          <div class="chat-topic chat-topic--active" data-channel="main">
-            <span class="chat-topic__icon">💬</span>
-            <span class="chat-topic__name">Main</span>
-          </div>
-          <div class="chat-topic" data-channel="announcements">
-            <span class="chat-topic__icon">📢</span>
-            <span class="chat-topic__name">Announce</span>
-          </div>
-          <div class="chat-topic" data-channel="prayer">
-            <span class="chat-topic__icon">🙏</span>
-            <span class="chat-topic__name">Prayer</span>
-          </div>
-          <div class="chat-topic" data-channel="thanksgiving">
-            <span class="chat-topic__icon">🎉</span>
-            <span class="chat-topic__name">Thanks</span>
-          </div>
-          <div class="chat-topic" data-channel="dms">
-            <span class="chat-topic__icon">✉️</span>
-            <span class="chat-topic__name">DMs</span>
-          </div>
-        </div>
-        <div class="chat-main">
-          <div class="chat-header">
-            <div>
-              <h3 class="chat-header__title" id="chat-channel-title">Main Chat</h3>
-              <span class="chat-header__sub" id="chat-channel-sub">Team fellowship & updates</span>
+      <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);">
+        <!-- Chat container with sidebar -->
+        <div style="display:flex;height:460px;">
+          <!-- Channel sidebar -->
+          <div id="chat-sidebar" style="width:72px;background:var(--color-bg-subtle);border-right:1px solid var(--color-border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;padding:0.5rem 0;">
+            <div class="chat-topic chat-topic--active" data-channel="main" style="display:flex;flex-direction:column;align-items:center;gap:0.15rem;padding:0.65rem 0.4rem;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;text-align:center;">
+              <span style="font-size:1.4rem;">💬</span>
+              <span style="font-size:0.58rem;font-weight:600;color:var(--color-text);line-height:1.1;">Main</span>
+            </div>
+            <div class="chat-topic" data-channel="announcements" style="display:flex;flex-direction:column;align-items:center;gap:0.15rem;padding:0.65rem 0.4rem;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;text-align:center;">
+              <span style="font-size:1.4rem;">📢</span>
+              <span style="font-size:0.58rem;font-weight:600;color:var(--color-text);line-height:1.1;">Announce</span>
+            </div>
+            <div class="chat-topic" data-channel="prayer" style="display:flex;flex-direction:column;align-items:center;gap:0.15rem;padding:0.65rem 0.4rem;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;text-align:center;">
+              <span style="font-size:1.4rem;">🙏</span>
+              <span style="font-size:0.58rem;font-weight:600;color:var(--color-text);line-height:1.1;">Prayer</span>
+            </div>
+            <div class="chat-topic" data-channel="thanksgiving" style="display:flex;flex-direction:column;align-items:center;gap:0.15rem;padding:0.65rem 0.4rem;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;text-align:center;">
+              <span style="font-size:1.4rem;">🎉</span>
+              <span style="font-size:0.58rem;font-weight:600;color:var(--color-text);line-height:1.1;">Thanks</span>
+            </div>
+            <div class="chat-topic" data-channel="dms" style="display:flex;flex-direction:column;align-items:center;gap:0.15rem;padding:0.65rem 0.4rem;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;text-align:center;">
+              <span style="font-size:1.4rem;">✉️</span>
+              <span style="font-size:0.58rem;font-weight:600;color:var(--color-text);line-height:1.1;">DMs</span>
             </div>
           </div>
-          <div class="chat-messages" id="chat-messages">
-            <div class="chat-msg chat-msg--system">Welcome to the team chat</div>
-          </div>
-          <div class="chat-compose" id="chat-compose">
-            <button class="chat-compose__type" id="chat-type-btn" title="Message type">💬</button>
-            <input class="chat-compose__input" id="chat-input" placeholder="Write a message..." autocomplete="off">
-            <button class="chat-compose__btn" id="chat-send-btn" title="Send">➤</button>
+
+          <!-- Main chat area -->
+          <div class="chat-main" style="flex:1;display:flex;flex-direction:column;min-width:0;">
+            <!-- Header -->
+            <div class="chat-header" style="padding:0.75rem 1rem;border-bottom:1px solid var(--color-border);background:var(--color-bg-subtle);display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <h3 class="chat-header__title" id="chat-channel-title" style="font-family:var(--font-serif);font-size:0.95rem;font-weight:700;color:var(--color-text);margin:0;">Main Chat</h3>
+                <span class="chat-header__sub" id="chat-channel-sub" style="font-size:0.68rem;color:var(--color-text-muted);">Team fellowship & updates</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.4rem;">
+                <label id="chat-post-community-label" style="display:none;font-size:0.65rem;color:var(--color-text-muted);cursor:pointer;align-items:center;gap:0.25rem;"><input type="checkbox" id="chat-post-to-community" style="width:auto;margin:0;"> Post to community</label>
+              </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-messages" id="chat-messages" style="flex:1;overflow-y:auto;padding:0.85rem 1rem;display:flex;flex-direction:column;gap:0.4rem;-webkit-overflow-scrolling:touch;background:var(--color-bg);">
+              <div class="chat-msg chat-msg--system">Welcome to the team chat</div>
+            </div>
+
+            <!-- Compose -->
+            <div class="chat-compose" id="chat-compose" style="display:flex;gap:0.4rem;padding:0.65rem 0.85rem;border-top:1px solid var(--color-border);background:var(--color-bg-subtle);align-items:center;">
+              <button class="chat-compose__type" id="chat-type-btn" title="Message type" style="padding:0.45rem 0.65rem;border:1.5px solid var(--color-border);border-radius:999px;font-size:0.75rem;font-weight:600;color:var(--color-text-muted);cursor:pointer;background:var(--color-surface);font-family:var(--font-sans);transition:all 0.15s;">💬</button>
+              <input class="chat-compose__input" id="chat-input" placeholder="Write a message..." autocomplete="off" style="flex:1;padding:0.6rem 0.9rem;border:1.5px solid var(--color-border);border-radius:20px;font-size:0.85rem;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text);outline:none;transition:border-color 0.15s;">
+              <button class="chat-compose__btn" id="chat-send-btn" title="Send" style="width:38px;height:38px;border-radius:50%;background:var(--color-olive);border:none;color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.15s;box-shadow:0 2px 8px rgba(44,74,62,0.25);">➤</button>
+            </div>
           </div>
         </div>
       </div>
+
       <!-- DM picker -->
       <div id="chat-dm-picker" style="display:none;margin-top:0.75rem;">
-        <div class="glass-card" style="padding:0.75rem;">
-          <strong style="font-size:0.82rem;color:var(--color-text);">Direct Messages</strong>
+        <div class="glass-card" style="padding:0.85rem;">
+          <strong style="font-size:0.85rem;color:var(--color-text);font-family:var(--font-serif);">Direct Messages</strong>
           <div id="chat-dm-contacts" style="margin-top:0.5rem;"></div>
           <button class="btn btn--outline btn--sm" id="chat-dm-new" style="margin-top:0.5rem;">+ New Conversation</button>
         </div>
       </div>
+
       <!-- Admin announcement compose -->
       <div id="chat-admin-compose" style="display:none;margin-top:0.75rem;">
-        <div class="glass-card" style="padding:1rem;">
-          <h4 style="font-size:0.85rem;font-weight:700;margin:0 0 0.5rem;color:var(--color-text);">Post Announcement</h4>
-          <select id="ann-priority" style="margin-bottom:0.4rem;padding:0.5rem;border:1px solid var(--color-border);border-radius:8px;width:100%;font-family:var(--font-sans);font-size:0.82rem;background:var(--color-surface);color:var(--color-text);">
+        <div class="glass-card" style="padding:1.1rem;">
+          <h4 style="font-family:var(--font-serif);font-size:0.9rem;font-weight:700;margin:0 0 0.6rem;color:var(--color-text);">Post Announcement</h4>
+          <select id="ann-priority" style="margin-bottom:0.5rem;padding:0.55rem 0.75rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);width:100%;font-family:var(--font-sans);font-size:0.82rem;background:var(--color-surface);color:var(--color-text);">
             <option value="normal">Normal</option><option value="urgent">Urgent</option><option value="emergency">Emergency</option>
           </select>
-          <input id="ann-subject" placeholder="Subject...">
-          <textarea id="ann-body" placeholder="Message..." rows="2"></textarea>
-          <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.72rem;margin-bottom:0.5rem;cursor:pointer;"><input type="checkbox" id="ann-telegram" checked style="width:auto;margin:0;"> Send to Telegram</label>
-          <button class="btn btn--green btn--sm" id="ann-send-btn">Post</button>
+          <input id="ann-subject" placeholder="Subject..." style="margin-bottom:0.4rem;">
+          <textarea id="ann-body" placeholder="Message..." rows="3" style="margin-bottom:0.5rem;"></textarea>
+          <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;cursor:pointer;color:var(--color-text-muted);"><input type="checkbox" id="ann-telegram" checked style="width:auto;margin:0;"> Send to Telegram</label>
+            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;cursor:pointer;color:var(--color-text-muted);"><input type="checkbox" id="ann-community" checked style="width:auto;margin:0;"> Post to Community</label>
+            <button class="btn btn--green btn--sm" id="ann-send-btn" style="margin-left:auto;">Post</button>
+          </div>
         </div>
       </div>
     </div>

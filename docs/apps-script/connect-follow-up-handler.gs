@@ -42,6 +42,7 @@ function handleConnectIntake_(payload) {
   var body = String(payload.body || payload.story || '').trim();
   var notifyPref = String(payload.notify_pref || 'email');
   var anonymous = payload.anonymous === 'on' || payload.anonymous === true;
+  var carrier = String(payload.carrier || '').trim();
 
   // Validate
   if (!body || body.length < 10) {
@@ -58,9 +59,9 @@ function handleConnectIntake_(payload) {
   var sheet = ss.getSheetByName('Contacts');
   if (!sheet) {
     sheet = ss.insertSheet('Contacts');
-    sheet.getRange(1, 1, 1, 10).setValues([[
+    sheet.getRange(1, 1, 1, 11).setValues([[
       'timestamp', 'name', 'email', 'phone', 'type', 'body',
-      'notify_pref', 'followed_up', 'follow_up_date', 'notes'
+      'notify_pref', 'followed_up', 'follow_up_date', 'notes', 'carrier'
     ]]);
   }
 
@@ -75,7 +76,8 @@ function handleConnectIntake_(payload) {
     notifyPref,
     'no',
     '',
-    ''
+    '',
+    carrier
   ]);
 
   // Send Telegram notification to admin (you get this as a text)
@@ -173,12 +175,11 @@ function sendConnectNotification_(kind, name, email, phone, body, pref, anonymou
  * What it does:
  * - Checks Contacts sheet for entries not yet followed up
  * - For entries older than 24h with notify_pref != 'none':
- *   - Sends a follow-up Telegram message to the admin thread
- *     reminding the team to reach out
- * - Marks them as followed_up = 'reminded'
- * 
- * For email follow-ups (if you want to email the visitor directly):
- * - Uncomment the GmailApp.sendEmail section below
+ *   - Email pref: sends email via GmailApp
+ *   - SMS pref: sends email-to-SMS via carrier gateway
+ *   - Telegram pref: sends admin reminder to invite them
+ *   - Events pref: stores for event reminder triggers
+ * - Marks them as followed_up = 'sent'
  */
 function runConnectFollowUp() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -186,7 +187,7 @@ function runConnectFollowUp() {
   if (!sheet) return;
 
   var data = sheet.getDataRange().getValues();
-  if (data.length <= 1) return; // header only
+  if (data.length <= 1) return;
 
   var now = new Date();
   var oneDayMs = 24 * 60 * 60 * 1000;
@@ -202,77 +203,136 @@ function runConnectFollowUp() {
     var body = row[5];
     var notifyPref = row[6];
     var followedUp = row[7];
+    var carrier = row[10] || ''; // column K
 
     // Skip if already followed up or no follow-up wanted
-    if (followedUp === 'done' || followedUp === 'reminded' || notifyPref === 'none') continue;
+    if (followedUp === 'done' || followedUp === 'sent' || notifyPref === 'none') continue;
 
     // Only follow up after 24 hours
     if ((now.getTime() - timestamp.getTime()) < oneDayMs) continue;
 
-    reminders.push({
-      row: i + 1, // 1-indexed sheet row
-      name: name,
-      email: email,
-      phone: phone,
-      type: type,
-      body: String(body).substring(0, 100),
-      notifyPref: notifyPref
-    });
+    // ── Send follow-up based on preference ──
+    var sent = false;
 
-    // Mark as reminded
-    sheet.getRange(i + 1, 8).setValue('reminded');
-    sheet.getRange(i + 1, 9).setValue(now.toISOString());
+    if (notifyPref === 'email' && email) {
+      try {
+        GmailApp.sendEmail(email,
+          "We're praying for you — Seed the Word",
+          'Hi ' + (name || 'friend') + ',\n\n' +
+          'Thank you for sharing with us. We wanted you to know our team is keeping you in prayer.\n\n' +
+          'If you ever want to talk, reply to this email or join us:\n' +
+          '- Telegram: https://t.me/seedtheword\n' +
+          '- Community: https://seedtheword.org/community.html\n\n' +
+          'God bless,\nSeed the Word Ministry\nhttps://seedtheword.org',
+          { name: 'Seed the Word Ministry' }
+        );
+        sent = true;
+      } catch (e) { Logger.log('Email failed for row ' + (i+1) + ': ' + e.message); }
+    }
+
+    if (notifyPref === 'sms' && phone && carrier) {
+      try {
+        var smsAddress = buildSmsGateway_(phone, carrier);
+        if (smsAddress) {
+          GmailApp.sendEmail(smsAddress,
+            '', // SMS has no subject
+            'Seed the Word: Thank you for connecting with us! We are praying for you. Join us: t.me/seedtheword or seedtheword.org/community',
+            { name: 'Seed the Word', noReply: true }
+          );
+          sent = true;
+        } else {
+          // Unknown carrier — fall back to email if available
+          if (email) {
+            GmailApp.sendEmail(email,
+              "We're praying for you — Seed the Word",
+              'Hi ' + (name || 'friend') + ',\n\nThank you for sharing with us. Our team is praying.\n\nJoin us: https://t.me/seedtheword\n\nGod bless,\nSeed the Word Ministry',
+              { name: 'Seed the Word Ministry' }
+            );
+            sent = true;
+          }
+        }
+      } catch (e) { Logger.log('SMS failed for row ' + (i+1) + ': ' + e.message); }
+    }
+
+    if (notifyPref === 'telegram') {
+      // Can't auto-message on Telegram without them joining first
+      // Add to reminders list so admin can invite them
+      reminders.push({ row: i+1, name: name, email: email, phone: phone, type: type, body: String(body).substring(0,80), notifyPref: notifyPref });
+    }
+
+    if (notifyPref === 'events') {
+      // Just mark as tracked — sendEventReminders() handles these separately
+      sent = true;
+    }
+
+    // Mark row
+    if (sent) {
+      sheet.getRange(i + 1, 8).setValue('sent');
+      sheet.getRange(i + 1, 9).setValue(now.toISOString());
+    }
   }
 
-  if (reminders.length === 0) return;
+  // Send consolidated Telegram reminder for people who need manual invite
+  if (reminders.length > 0) {
+    var token = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
+    if (token) {
+      var message = '📋 *Follow-up Needed* (' + reminders.length + ' want Telegram)\n\n';
+      reminders.forEach(function(r, idx) {
+        message += (idx+1) + '. ' + (r.name||'Anonymous') + ' — ' + r.type + '\n';
+        if (r.email) message += '   📧 ' + r.email + '\n';
+        if (r.phone) message += '   📱 ' + r.phone + '\n';
+        message += '   _Invite them to @seedtheword_\n\n';
+      });
 
-  // Send consolidated reminder to admin via Telegram
-  var token = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
-  if (!token) return;
+      UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+        method: 'post',
+        contentType: 'application/json',
+        payload: JSON.stringify({
+          chat_id: '@seedtheword',
+          message_thread_id: 553,
+          text: message,
+          parse_mode: 'Markdown',
+          disable_web_page_preview: true
+        }),
+        muteHttpExceptions: true
+      });
 
-  var message = '📋 *Follow-up Reminder* (' + reminders.length + ' pending)\n\n';
-  reminders.forEach(function(r, idx) {
-    var icons = { prayer: '🙏', thanksgiving: '🎉', bible: '📖' };
-    message += (idx + 1) + '. ' + (icons[r.type] || '📬') + ' ';
-    message += (r.name || 'Anonymous') + ' — ' + r.type;
-    if (r.email) message += '\n   📧 ' + r.email;
-    if (r.notifyPref !== 'email') message += ' (prefers: ' + r.notifyPref + ')';
-    message += '\n   💬 "' + r.body + '..."\n\n';
-  });
-
-  message += '_Reply to each person per their preference. Mark as done in the Contacts sheet._';
-
-  var url = 'https://api.telegram.org/bot' + token + '/sendMessage';
-  UrlFetchApp.fetch(url, {
-    method: 'post',
-    contentType: 'application/json',
-    payload: JSON.stringify({
-      chat_id: '@seedtheword',
-      message_thread_id: 553,
-      text: message,
-      parse_mode: 'Markdown',
-      disable_web_page_preview: true
-    }),
-    muteHttpExceptions: true
-  });
-
-  // ═══ OPTIONAL: Send email follow-ups to visitors ═══
-  // Uncomment below to auto-email visitors who chose "email" preference.
-  // Customize the subject/body as needed.
-  /*
-  reminders.forEach(function(r) {
-    if (r.notifyPref === 'email' && r.email) {
-      GmailApp.sendEmail(r.email, 
-        'We\'re praying for you — Seed the Word',
-        'Hi ' + (r.name || 'friend') + ',\n\n' +
-        'Thank you for sharing with us. We wanted you to know our team is praying for you.\n\n' +
-        'If you ever want to talk, reply to this email or join us on Telegram: https://t.me/seedtheword\n\n' +
-        'God bless,\nSeed the Word Ministry\nhttps://seedtheword.org',
-        { name: 'Seed the Word Ministry' }
-      );
+      reminders.forEach(function(r) {
+        sheet.getRange(r.row, 8).setValue('reminded');
+        sheet.getRange(r.row, 9).setValue(now.toISOString());
+      });
     }
-  });
-  */
+  }
+}
+
+/**
+ * Email-to-SMS gateway builder.
+ * Takes a phone number and carrier code, returns the SMS gateway email.
+ * Returns null if carrier not supported.
+ */
+function buildSmsGateway_(phone, carrier) {
+  // Strip to digits only
+  var digits = String(phone).replace(/\D/g, '');
+  // Ensure 10 digits (US)
+  if (digits.length === 11 && digits[0] === '1') digits = digits.substring(1);
+  if (digits.length !== 10) return null;
+
+  // Carrier gateway map (SMS gateways — most reliable)
+  var gateways = {
+    'tmobile':    digits + '@tmomail.net',
+    'att':        digits + '@txt.att.net',
+    'verizon':    digits + '@vtext.com',
+    'sprint':     digits + '@messaging.sprintpcs.com',
+    'uscellular': digits + '@email.uscc.net',
+    'metro':      digits + '@mymetropcs.com',
+    'boost':      digits + '@sms.myboostmobile.com',
+    'cricket':    digits + '@sms.cricketwireless.net',
+    'mint':       digits + '@tmomail.net', // Mint uses T-Mobile network
+    'visible':    digits + '@vtext.com',   // Visible uses Verizon network
+    'fi':         digits + '@msg.fi.google.com'
+  };
+
+  return gateways[carrier] || null;
 }
 
 /**

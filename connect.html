@@ -92,9 +92,28 @@
       <fieldset style="border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:0.85rem;margin:0.75rem 0;">
         <legend style="font-size:0.78rem;font-weight:600;color:var(--color-text);padding:0 0.4rem;">How should we follow up?</legend>
         <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="email" style="width:auto;margin:0;" checked> Email updates</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="sms" style="width:auto;margin:0;"> Text message updates</label>
         <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="telegram" style="width:auto;margin:0;"> Telegram notifications</label>
         <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="events" style="width:auto;margin:0;"> Event reminders only</label>
         <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="none" style="width:auto;margin:0;"> No follow-up needed</label>
+        <div class="carrier-select" style="display:none;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid var(--color-border);">
+          <label style="font-size:0.75rem;margin-bottom:0.2rem;">Phone carrier <small>(for text delivery)</small></label>
+          <select name="carrier" style="width:100%;padding:0.6rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.85rem;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text);">
+            <option value="">Select your carrier...</option>
+            <option value="tmobile">T-Mobile</option>
+            <option value="att">AT&T</option>
+            <option value="verizon">Verizon</option>
+            <option value="sprint">Sprint</option>
+            <option value="uscellular">US Cellular</option>
+            <option value="metro">Metro by T-Mobile</option>
+            <option value="boost">Boost Mobile</option>
+            <option value="cricket">Cricket</option>
+            <option value="mint">Mint Mobile</option>
+            <option value="visible">Visible</option>
+            <option value="fi">Google Fi</option>
+            <option value="other">Other / Not sure</option>
+          </select>
+        </div>
       </fieldset>
       <input type="text" name="extra_field_2" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="form-status" id="status-prayer"></div>
@@ -112,9 +131,14 @@
       <fieldset style="border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:0.85rem;margin:0.75rem 0;">
         <legend style="font-size:0.78rem;font-weight:600;color:var(--color-text);padding:0 0.4rem;">Stay connected?</legend>
         <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="email" style="width:auto;margin:0;" checked> Email updates</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="sms" style="width:auto;margin:0;"> Text message updates</label>
         <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="telegram" style="width:auto;margin:0;"> Telegram notifications</label>
         <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="events" style="width:auto;margin:0;"> Event reminders only</label>
         <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="none" style="width:auto;margin:0;"> No follow-up</label>
+        <div class="carrier-select" style="display:none;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid var(--color-border);">
+          <label style="font-size:0.75rem;margin-bottom:0.2rem;">Phone carrier <small>(for text delivery)</small></label>
+          <select name="carrier" style="width:100%;padding:0.6rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.85rem;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text);"><option value="">Select your carrier...</option><option value="tmobile">T-Mobile</option><option value="att">AT&T</option><option value="verizon">Verizon</option><option value="sprint">Sprint</option><option value="uscellular">US Cellular</option><option value="metro">Metro by T-Mobile</option><option value="boost">Boost Mobile</option><option value="cricket">Cricket</option><option value="mint">Mint Mobile</option><option value="visible">Visible</option><option value="fi">Google Fi</option><option value="other">Other / Not sure</option></select>
+        </div>
       </fieldset>
       <input type="text" name="extra_field_2" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="form-status" id="status-thanksgiving"></div>
@@ -138,9 +162,14 @@
       <fieldset style="border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:0.85rem;margin:0.75rem 0;">
         <legend style="font-size:0.78rem;font-weight:600;color:var(--color-text);padding:0 0.4rem;">How should we reach you?</legend>
         <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="email" style="width:auto;margin:0;" checked> Email updates</label>
+        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="sms" style="width:auto;margin:0;"> Text message updates</label>
         <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="telegram" style="width:auto;margin:0;"> Telegram notifications</label>
         <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="events" style="width:auto;margin:0;"> Event reminders only</label>
         <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="none" style="width:auto;margin:0;"> No follow-up</label>
+        <div class="carrier-select" style="display:none;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid var(--color-border);">
+          <label style="font-size:0.75rem;margin-bottom:0.2rem;">Phone carrier <small>(for text delivery)</small></label>
+          <select name="carrier" style="width:100%;padding:0.6rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.85rem;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text);"><option value="">Select your carrier...</option><option value="tmobile">T-Mobile</option><option value="att">AT&T</option><option value="verizon">Verizon</option><option value="sprint">Sprint</option><option value="uscellular">US Cellular</option><option value="metro">Metro by T-Mobile</option><option value="boost">Boost Mobile</option><option value="cricket">Cricket</option><option value="mint">Mint Mobile</option><option value="visible">Visible</option><option value="fi">Google Fi</option><option value="other">Other / Not sure</option></select>
+        </div>
       </fieldset>
       <input type="text" name="extra_field_2" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="form-status" id="status-bible"></div>
@@ -181,6 +210,15 @@
       document.querySelectorAll('.connect-form').forEach(function(f){f.classList.remove('is-active');});
       this.classList.add('is-active');
       document.getElementById('form-' + this.dataset.form).classList.add('is-active');
+    });
+  });
+
+  // Show/hide carrier dropdown when "sms" is selected
+  document.querySelectorAll('input[name="notify_pref"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      var fieldset = this.closest('fieldset');
+      var carrierDiv = fieldset.querySelector('.carrier-select');
+      if (carrierDiv) carrierDiv.style.display = this.value === 'sms' ? '' : 'none';
     });
   });
 

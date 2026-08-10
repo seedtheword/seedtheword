@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect — Seed the Word Ministry</title>
+  <meta name="description" content="Submit a prayer request, share thanksgiving, or request a free Bible from Seed the Word Ministry.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="assets/css/theme.css?v=1">
+  <script src="assets/js/theme-toggle.js?v=1"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin:0; font-family:var(--font-sans); background:var(--color-bg); color:var(--color-text); min-height:100vh; padding:1.5rem 1rem 3rem; }
+    .connect-page { max-width:480px; margin:0 auto; }
+    .connect-logo { display:flex; align-items:center; justify-content:center; gap:0.6rem; margin-bottom:1.5rem; text-decoration:none; }
+    .connect-logo__img { width:44px; height:44px; border-radius:var(--radius-sm); }
+    .connect-logo__text { font-family:var(--font-serif); font-size:1.2rem; font-weight:700; color:var(--color-text); }
+    .connect-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:1.5rem; box-shadow:var(--shadow-sm); }
+    .connect-card h1 { font-family:var(--font-serif); font-size:1.4rem; font-weight:700; margin:0 0 0.35rem; text-align:center; }
+    .connect-card p.lead { font-size:0.88rem; color:var(--color-text-muted); text-align:center; margin:0 0 1.5rem; line-height:1.6; }
+
+    /* Tabs */
+    .connect-tabs { display:flex; gap:0.35rem; margin-bottom:1.5rem; }
+    .connect-tab { flex:1; padding:0.65rem 0.5rem; border:1.5px solid var(--color-border); border-radius:var(--radius-full); font-size:0.78rem; font-weight:600; font-family:var(--font-sans); text-align:center; cursor:pointer; background:var(--color-surface); color:var(--color-text-muted); transition:all 0.15s; white-space:nowrap; }
+    .connect-tab:hover { border-color:var(--color-gold); color:var(--color-gold); }
+    .connect-tab.is-active { background:var(--color-gold); border-color:var(--color-gold); color:#fff; }
+
+    /* Form */
+    .connect-form { display:none; }
+    .connect-form.is-active { display:block; }
+    label { display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem; color:var(--color-text); }
+    label small { font-weight:400; color:var(--color-text-muted); }
+    input, textarea, select { width:100%; padding:0.75rem 0.85rem; border:1.5px solid var(--color-border); border-radius:var(--radius-sm); font-size:0.92rem; font-family:var(--font-sans); background:var(--color-surface); color:var(--color-text); margin-bottom:0.75rem; -webkit-appearance:none; }
+    input:focus, textarea:focus, select:focus { outline:none; border-color:var(--color-gold); box-shadow:var(--shadow-glow); }
+    textarea { resize:vertical; min-height:80px; }
+    .honeypot { position:absolute; left:-9999px; opacity:0; height:0; }
+    .btn-submit { width:100%; padding:0.85rem; border:none; border-radius:var(--radius-sm); font-size:0.95rem; font-weight:700; font-family:var(--font-sans); cursor:pointer; transition:transform 0.15s, box-shadow 0.15s; }
+    .btn-submit:hover { transform:translateY(-1px); }
+    .btn-submit:active { transform:scale(0.98); }
+    .btn-submit:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+    .btn-submit--gold { background:linear-gradient(135deg, var(--color-gold), #e08a42); color:#fff; box-shadow:0 4px 16px rgba(217,119,54,0.25); }
+    .btn-submit--green { background:linear-gradient(135deg, var(--color-olive), #3a5f4e); color:#fff; box-shadow:0 4px 16px rgba(44,74,62,0.25); }
+    .form-status { text-align:center; font-size:0.82rem; min-height:1.4rem; margin-bottom:0.5rem; }
+    .form-status--error { color:var(--color-danger); }
+    .form-status--success { color:var(--color-success); }
+
+    /* Success state */
+    .connect-success { display:none; text-align:center; padding:2rem 1rem; }
+    .connect-success.is-active { display:block; }
+    .connect-success__icon { font-size:3rem; margin-bottom:0.75rem; }
+    .connect-success__title { font-family:var(--font-serif); font-size:1.3rem; font-weight:700; margin-bottom:0.5rem; }
+    .connect-success__text { font-size:0.88rem; color:var(--color-text-muted); line-height:1.6; margin-bottom:1.25rem; }
+    .connect-success__link { display:inline-block; padding:0.55rem 1.25rem; background:var(--color-olive); color:#fff; border-radius:var(--radius-full); font-size:0.82rem; font-weight:600; text-decoration:none; }
+
+    /* Footer */
+    .connect-footer { text-align:center; margin-top:2rem; font-size:0.75rem; color:var(--color-text-muted); }
+    .connect-footer a { color:var(--color-gold); text-decoration:none; font-weight:600; }
+
+    /* Theme toggle */
+    .connect-theme { position:fixed; bottom:1.5rem; right:1.5rem; z-index:50; }
+  </style>
+</head>
+<body>
+<div class="connect-page">
+  <a href="index.html" class="connect-logo">
+    <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="connect-logo__img">
+    <span class="connect-logo__text">Seed the Word</span>
+  </a>
+
+  <div class="connect-card">
+    <h1>Connect With Us</h1>
+    <p class="lead">We'd love to hear from you. Share a prayer request, celebrate what God has done, or request a free Bible.</p>
+
+    <!-- Tabs -->
+    <div class="connect-tabs">
+      <button class="connect-tab is-active" data-form="prayer">🙏 Prayer</button>
+      <button class="connect-tab" data-form="thanksgiving">🎉 Thanks</button>
+      <button class="connect-tab" data-form="bible">📖 Free Bible</button>
+    </div>
+
+    <!-- Prayer Form -->
+    <form class="connect-form is-active" id="form-prayer" novalidate>
+      <label>Your name <small>(optional)</small></label>
+      <input type="text" name="name" placeholder="First name" autocomplete="given-name" maxlength="60">
+      <label>Email <small>(so we can follow up)</small></label>
+      <input type="email" name="email" placeholder="you@example.com" autocomplete="email" maxlength="200">
+      <label>Phone <small>(optional)</small></label>
+      <input type="tel" name="phone" placeholder="(253) 555-1234" autocomplete="tel" maxlength="50">
+      <label>Your prayer request *</label>
+      <textarea name="body" placeholder="What can we pray for? Share as much or as little as you'd like." required minlength="10" maxlength="2000" rows="4"></textarea>
+      <label><input type="checkbox" name="anonymous" style="width:auto;margin-right:0.4rem;"> Keep me anonymous</label>
+      <input type="text" name="extra_field_2" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="form-status" id="status-prayer"></div>
+      <button type="submit" class="btn-submit btn-submit--gold">Submit Prayer Request</button>
+    </form>
+
+    <!-- Thanksgiving Form -->
+    <form class="connect-form" id="form-thanksgiving" novalidate>
+      <label>Your name <small>(optional)</small></label>
+      <input type="text" name="name" placeholder="First name" autocomplete="given-name" maxlength="60">
+      <label>Email <small>(optional)</small></label>
+      <input type="email" name="email" placeholder="you@example.com" autocomplete="email" maxlength="200">
+      <label>What are you thankful for? *</label>
+      <textarea name="body" placeholder="Share what God has done — we celebrate with you!" required minlength="10" maxlength="2000" rows="4"></textarea>
+      <input type="text" name="extra_field_2" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="form-status" id="status-thanksgiving"></div>
+      <button type="submit" class="btn-submit btn-submit--gold">Share Thanksgiving</button>
+    </form>
+
+    <!-- Bible Request Form -->
+    <form class="connect-form" id="form-bible" novalidate>
+      <label>First name *</label>
+      <input type="text" name="name" placeholder="Your first name" autocomplete="given-name" maxlength="60" required>
+      <label>Email *</label>
+      <input type="email" name="email" placeholder="you@example.com" autocomplete="email" maxlength="200" required>
+      <label>Phone <small>(optional)</small></label>
+      <input type="tel" name="phone" placeholder="(253) 555-1234" autocomplete="tel" maxlength="50">
+      <label>City *</label>
+      <input type="text" name="city" placeholder="Everett" autocomplete="address-level2" maxlength="60" required>
+      <label>State</label>
+      <input type="text" name="state" value="WA" autocomplete="address-level1" maxlength="2">
+      <label>Why would you like a Bible? *</label>
+      <textarea name="story" placeholder="A couple of honest sentences — we read every one." required minlength="80" maxlength="1500" rows="5"></textarea>
+      <input type="text" name="extra_field_2" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="form-status" id="status-bible"></div>
+      <button type="submit" class="btn-submit btn-submit--green">Request a Free Bible</button>
+    </form>
+
+    <!-- Success State -->
+    <div class="connect-success" id="connect-success">
+      <div class="connect-success__icon" id="success-icon">✅</div>
+      <h2 class="connect-success__title" id="success-title">Sent!</h2>
+      <p class="connect-success__text" id="success-text">Thank you. Our team will be in touch.</p>
+      <a href="community.html" class="connect-success__link">Visit our community →</a>
+    </div>
+  </div>
+
+  <div class="connect-footer">
+    <p><a href="community.html">Community</a> · <a href="https://t.me/seedtheword" target="_blank" rel="noopener">Telegram</a> · <a href="about.html#contact">Contact</a></p>
+    <p style="margin-top:0.5rem;">&copy; 2026 Seed the Word Ministry</p>
+  </div>
+</div>
+
+<!-- Theme toggle floating -->
+<button class="theme-toggle connect-theme" aria-label="Switch to dark mode">
+  <span class="theme-toggle__sun"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+  <span class="theme-toggle__moon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+</button>
+
+<script>
+(function() {
+  'use strict';
+
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzrHVlOqNu5skSDkf_rsy8moKvwRlM_mZNQpKSXH7HPBCSNjj1Dffz-IuFSJcWjjQUF/exec';
+
+  // Tab switching
+  document.querySelectorAll('.connect-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.connect-tab').forEach(function(t){t.classList.remove('is-active');});
+      document.querySelectorAll('.connect-form').forEach(function(f){f.classList.remove('is-active');});
+      this.classList.add('is-active');
+      document.getElementById('form-' + this.dataset.form).classList.add('is-active');
+    });
+  });
+
+  // Form submissions
+  document.getElementById('form-prayer').addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitForm(this, 'prayer-intake', 'prayer', 'status-prayer');
+  });
+  document.getElementById('form-thanksgiving').addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitForm(this, 'prayer-intake', 'thanksgiving', 'status-thanksgiving');
+  });
+  document.getElementById('form-bible').addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitBible(this, 'status-bible');
+  });
+
+  async function submitForm(form, action, kind, statusId) {
+    var statusEl = document.getElementById(statusId);
+    var btn = form.querySelector('.btn-submit');
+    statusEl.textContent = ''; statusEl.className = 'form-status';
+
+    var data = new FormData(form);
+    var payload = { action: action, kind: kind };
+    data.forEach(function(v, k) { payload[k] = v; });
+
+    // Honeypot check
+    if (payload.extra_field_2) return;
+
+    // Validation
+    if (kind === 'prayer' && (!payload.body || payload.body.trim().length < 10)) {
+      statusEl.textContent = 'Please share at least a few words.';
+      statusEl.className = 'form-status form-status--error';
+      return;
+    }
+    if (kind === 'thanksgiving' && (!payload.body || payload.body.trim().length < 10)) {
+      statusEl.textContent = 'Please share what you are thankful for.';
+      statusEl.className = 'form-status form-status--error';
+      return;
+    }
+
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+      var resp = await fetch(ENDPOINT, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) });
+      var result = await resp.json();
+      if (result.ok || result.status === 'ok') {
+        showSuccess(kind === 'prayer' ? 'Prayer Request Sent' : 'Thanksgiving Shared',
+          kind === 'prayer' ? 'Our team will be praying for you. God hears.' : 'Thank you for sharing! We celebrate with you.',
+          kind === 'prayer' ? '🙏' : '🎉');
+        form.reset();
+      } else {
+        statusEl.textContent = result.error || 'Something went wrong. Try again.';
+        statusEl.className = 'form-status form-status--error';
+      }
+    } catch(err) {
+      statusEl.textContent = 'Network error. Please try again.';
+      statusEl.className = 'form-status form-status--error';
+    }
+    btn.disabled = false; btn.textContent = kind === 'prayer' ? 'Submit Prayer Request' : 'Share Thanksgiving';
+  }
+
+  async function submitBible(form, statusId) {
+    var statusEl = document.getElementById(statusId);
+    var btn = form.querySelector('.btn-submit');
+    statusEl.textContent = ''; statusEl.className = 'form-status';
+
+    var data = new FormData(form);
+    var payload = { action: 'requestBible' };
+    data.forEach(function(v, k) { payload[k] = v; });
+
+    if (payload.extra_field_2) return;
+    if (!payload.name || !payload.name.trim()) { statusEl.textContent='Please share your name.'; statusEl.className='form-status form-status--error'; return; }
+    if (!payload.email || !payload.email.trim()) { statusEl.textContent='We need your email to reach you.'; statusEl.className='form-status form-status--error'; return; }
+    if (!payload.city || !payload.city.trim()) { statusEl.textContent='Please share your city.'; statusEl.className='form-status form-status--error'; return; }
+    if (!payload.story || payload.story.trim().length < 80) { statusEl.textContent='Please share a bit more about why you\'d like a Bible (at least a couple sentences).'; statusEl.className='form-status form-status--error'; return; }
+
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+      var resp = await fetch(ENDPOINT, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) });
+      var result = await resp.json();
+      if (result.ok || result.status === 'ok') {
+        showSuccess('Bible Request Sent', 'Thank you! Our team will review your request and reach out via email.', '📖');
+        form.reset();
+      } else {
+        statusEl.textContent = result.error || 'Something went wrong. Try again.';
+        statusEl.className = 'form-status form-status--error';
+      }
+    } catch(err) {
+      statusEl.textContent = 'Network error. Please try again.';
+      statusEl.className = 'form-status form-status--error';
+    }
+    btn.disabled = false; btn.textContent = 'Request a Free Bible';
+  }
+
+  function showSuccess(title, text, icon) {
+    document.querySelectorAll('.connect-form').forEach(function(f){f.classList.remove('is-active');});
+    document.querySelectorAll('.connect-tab').forEach(function(t){t.style.display='none';});
+    var el = document.getElementById('connect-success');
+    document.getElementById('success-icon').textContent = icon;
+    document.getElementById('success-title').textContent = title;
+    document.getElementById('success-text').textContent = text;
+    el.classList.add('is-active');
+  }
+})();
+</script>
+</body>
+</html>

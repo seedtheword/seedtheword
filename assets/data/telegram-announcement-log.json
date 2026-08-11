@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-08-10T22:55:59+00:00",
+  "updated": "2026-08-11T01:56:00+00:00",
   "events": {
     "6os30ohm69i68bb1coq3eb9k68s6cbb16phm4bb370r62oj675hmcpb368@google.com": {
       "title": "MOFT Young Adults",
@@ -85,9 +85,10 @@
     "4rgb5m0739ujjr8vbrmds262l2@google.com": {
       "title": "SEED THE WORD YOUNG ADULTS/BIBLE STUDY",
       "start": "2026-08-11T01:30:00+00:00",
-      "lastPosted": "2026-08-10T22:55:59+00:00",
+      "lastPosted": "2026-08-11T01:56:00+00:00",
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "livePosted": true
     }
   }
 }

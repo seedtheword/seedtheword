@@ -159,10 +159,45 @@
 (function() {
   var slides = document.querySelectorAll('.hero-carousel__slide');
   if (slides.length < 2) return;
-  var current = 0;
-  var interval = 7000; // 7 seconds per slide
 
-  // Shuffle order for variety on each visit
+  // Desktop image map (swap paths on screens 768px+)
+  var desktopMap = {
+    'assets/images/homepage/Jesus-center.jpg': 'assets/images/homepage/desktop/Jesus-center_cropped.jpg',
+    'assets/images/homepage/david.jpg': 'assets/images/homepage/desktop/david_cropped.jpg',
+    'assets/images/homepage/sam-petrov.jpg': 'assets/images/homepage/desktop/sam-petrov.jpg',
+    'assets/images/homepage/vanessa-ben.jpg': 'assets/images/homepage/desktop/vanessa-ben_cropped.jpg',
+    'assets/images/homepage/edward.jpg': 'assets/images/homepage/desktop/edward_cropped.jpg',
+    'assets/images/homepage/ben-liam.jpg': 'assets/images/homepage/desktop/ben-liam.jpg',
+    'assets/images/homepage/david-l.jpg': 'assets/images/homepage/desktop/david-l_cropped.jpg',
+    'assets/images/homepage/vanessa.jpg': 'assets/images/homepage/desktop/vanessa_cropped.jpg',
+    'assets/images/homepage/uw.jpg': 'assets/images/homepage/desktop/uw_cropped.jpg',
+    'assets/images/homepage/jeremiah-edward.jpg': 'assets/images/homepage/desktop/jeremiah-edward.jpg',
+    'assets/images/homepage/ben.jpg': 'assets/images/homepage/desktop/ben.jpg',
+    'assets/images/homepage/david-edward.jpg': 'assets/images/homepage/desktop/david-edward.jpg',
+    'assets/images/homepage/vanessa2.jpg': 'assets/images/homepage/desktop/vanessa2_cropped.jpg',
+    'assets/images/homepage/liam2.jpg': 'assets/images/homepage/desktop/liam2_cropped.jpg',
+    'assets/images/homepage/ben2.jpg': 'assets/images/homepage/desktop/ben2_cropped.jpg',
+    'assets/images/homepage/david-l-2.jpg': 'assets/images/homepage/desktop/david-l-2_cropped.jpg',
+    'assets/images/homepage/edward-liam.jpg': 'assets/images/homepage/desktop/edward-liam.jpg',
+    'assets/images/homepage/david-l-edward.jpg': 'assets/images/homepage/desktop/david-l-edward.jpg',
+    'assets/images/homepage/vanessa-arthur.jpg': 'assets/images/homepage/desktop/vanessa-arthur_cropped.jpg'
+  };
+
+  // Swap to desktop images if screen is wide
+  if (window.innerWidth >= 768) {
+    slides.forEach(function(slide) {
+      var style = slide.getAttribute('style') || '';
+      var match = style.match(/url\(['"]?([^'")\s]+)['"]?\)/);
+      if (match && desktopMap[match[1]]) {
+        slide.style.backgroundImage = "url('" + desktopMap[match[1]] + "')";
+      }
+    });
+  }
+
+  var current = 0;
+  var interval = 7000;
+
+  // Shuffle order
   var order = Array.from({length: slides.length}, function(_, i) { return i; });
   for (var i = order.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
@@ -179,15 +214,12 @@
     current = (current + 1) % order.length;
     var next = order[current];
 
-    // Outgoing: add leaving class (continues zooming slightly while fading)
     slides[prev].classList.remove('hero-carousel__slide--active');
     slides[prev].classList.add('hero-carousel__slide--leaving');
 
-    // Incoming: activate
     slides[next].classList.remove('hero-carousel__slide--leaving');
     slides[next].classList.add('hero-carousel__slide--active');
 
-    // Clean up leaving class after transition
     setTimeout(function() {
       slides[prev].classList.remove('hero-carousel__slide--leaving');
     }, 2200);

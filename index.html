@@ -75,26 +75,31 @@
   </div>
 </header>
 
-<!-- ── Hero with Jesus Image (Requirement: looping muted decorative video
-     behind welcome text + dark gradient overlay; falls back to poster
-     image when video is missing/blocked/reduced-motion). See
-     .kiro/specs/jesus-storytelling-homepage-and-about/ for full spec. ── -->
+<!-- ── Hero: GTA V-style image carousel with Ken Burns animations ── -->
 <section class="hero hero--jesus">
-  <video
-    class="hero__video"
-    autoplay
-    muted
-    loop
-    playsinline
-    preload="none"
-    poster="assets/images/backgrounds/stw-background-1920x1080.jpg"
-    aria-hidden="true">
-    <!-- WebM source is reserved for future use. When a WebM file is later
-         committed at assets/videos/hero-jesus.webm, uncomment the line
-         below so it sits ahead of the MP4 source. -->
-    <!-- <source src="assets/videos/hero-jesus.webm" type="video/webm"> -->
-    <source src="assets/videos/hero-jesus.mp4" type="video/mp4">
-  </video>
+  <div class="hero-carousel" id="hero-carousel" aria-hidden="true">
+    <div class="hero-carousel__slide hero-carousel__slide--active" style="background-image:url('assets/images/homepage/Jesus.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/david.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/maple-park-ya.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/sam-petrov.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/vanessa-ben.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/edward.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/ben-liam.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/david-l.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/vanessa.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/uw.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/liam.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/jeremiah-edward.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/ben.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/david-edward.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/vanessa2.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/liam2.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/ben2.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/david-l-2.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/edward-liam.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/david-l-edward.jpg')"></div>
+    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/vanessa-arthur.jpg')"></div>
+  </div>
 
   <div class="hero__overlay-gradient" aria-hidden="true"></div>
 
@@ -109,6 +114,82 @@
     </a>
   </div>
 </section>
+
+<style>
+/* GTA V-style Hero Carousel */
+.hero-carousel {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.hero-carousel__slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(1.05);
+  transition: opacity 1.5s ease-in-out;
+  will-change: opacity, transform;
+}
+.hero-carousel__slide--active {
+  opacity: 1;
+  animation: heroKenBurns 8s ease-in-out forwards;
+}
+@keyframes heroKenBurns {
+  0% { transform: scale(1.0) translate(0, 0); }
+  100% { transform: scale(1.15) translate(-1%, -1%); }
+}
+/* Alternate Ken Burns directions */
+.hero-carousel__slide:nth-child(even).hero-carousel__slide--active {
+  animation-name: heroKenBurns2;
+}
+@keyframes heroKenBurns2 {
+  0% { transform: scale(1.05) translate(1%, 0); }
+  100% { transform: scale(1.12) translate(-1%, 1%); }
+}
+.hero-carousel__slide:nth-child(3n).hero-carousel__slide--active {
+  animation-name: heroKenBurns3;
+}
+@keyframes heroKenBurns3 {
+  0% { transform: scale(1.0) translate(-1%, 1%); }
+  100% { transform: scale(1.18) translate(1%, -1%); }
+}
+/* Remove the old video styles if present */
+.hero__video { display: none !important; }
+</style>
+
+<script>
+// GTA V-style carousel controller
+(function() {
+  var slides = document.querySelectorAll('.hero-carousel__slide');
+  if (slides.length < 2) return;
+  var current = 0;
+  var interval = 6000; // 6 seconds per slide
+
+  // Shuffle order for variety on each visit
+  var order = Array.from({length: slides.length}, function(_, i) { return i; });
+  for (var i = order.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = order[i]; order[i] = order[j]; order[j] = t;
+  }
+
+  // Set first random slide active
+  slides.forEach(function(s) { s.classList.remove('hero-carousel__slide--active'); });
+  slides[order[0]].classList.add('hero-carousel__slide--active');
+  current = 0;
+
+  setInterval(function() {
+    var prev = order[current];
+    current = (current + 1) % order.length;
+    var next = order[current];
+
+    slides[prev].classList.remove('hero-carousel__slide--active');
+    slides[next].classList.add('hero-carousel__slide--active');
+  }, interval);
+})();
+</script>
 
 <section class="ministry-impact-section" id="showcase" aria-label="Ministry showcase">
   <div class="container">

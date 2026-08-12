@@ -125,48 +125,42 @@
 }
 .hero-carousel__slide {
   position: absolute;
-  inset: 0;
+  inset: -5%;
   background-size: cover;
   background-position: center;
   opacity: 0;
-  transform: scale(1.05);
-  transition: opacity 1.5s ease-in-out;
+  transform: scale(1.0);
+  transition: opacity 2s ease-in-out, transform 8s ease-in-out;
   will-change: opacity, transform;
 }
 .hero-carousel__slide--active {
   opacity: 1;
-  animation: heroKenBurns 8s ease-in-out forwards;
+  transform: scale(1.04);
 }
-@keyframes heroKenBurns {
-  0% { transform: scale(1.0) translate(0, 0); }
-  100% { transform: scale(1.15) translate(-1%, -1%); }
-}
-/* Alternate Ken Burns directions */
+/* Alternate subtle pan directions */
 .hero-carousel__slide:nth-child(even).hero-carousel__slide--active {
-  animation-name: heroKenBurns2;
-}
-@keyframes heroKenBurns2 {
-  0% { transform: scale(1.05) translate(1%, 0); }
-  100% { transform: scale(1.12) translate(-1%, 1%); }
+  transform: scale(1.04) translate(0.5%, -0.3%);
 }
 .hero-carousel__slide:nth-child(3n).hero-carousel__slide--active {
-  animation-name: heroKenBurns3;
+  transform: scale(1.03) translate(-0.5%, 0.3%);
 }
-@keyframes heroKenBurns3 {
-  0% { transform: scale(1.0) translate(-1%, 1%); }
-  100% { transform: scale(1.18) translate(1%, -1%); }
+/* Outgoing slide keeps moving slightly so there's no freeze */
+.hero-carousel__slide--leaving {
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity 2s ease-in-out, transform 2s ease-in-out;
 }
 /* Remove the old video styles if present */
 .hero__video { display: none !important; }
 </style>
 
 <script>
-// GTA V-style carousel controller
+// GTA V-style carousel controller — smooth continuous motion
 (function() {
   var slides = document.querySelectorAll('.hero-carousel__slide');
   if (slides.length < 2) return;
   var current = 0;
-  var interval = 6000; // 6 seconds per slide
+  var interval = 7000; // 7 seconds per slide
 
   // Shuffle order for variety on each visit
   var order = Array.from({length: slides.length}, function(_, i) { return i; });
@@ -176,7 +170,7 @@
   }
 
   // Set first random slide active
-  slides.forEach(function(s) { s.classList.remove('hero-carousel__slide--active'); });
+  slides.forEach(function(s) { s.classList.remove('hero-carousel__slide--active'); s.classList.remove('hero-carousel__slide--leaving'); });
   slides[order[0]].classList.add('hero-carousel__slide--active');
   current = 0;
 
@@ -185,8 +179,18 @@
     current = (current + 1) % order.length;
     var next = order[current];
 
+    // Outgoing: add leaving class (continues zooming slightly while fading)
     slides[prev].classList.remove('hero-carousel__slide--active');
+    slides[prev].classList.add('hero-carousel__slide--leaving');
+
+    // Incoming: activate
+    slides[next].classList.remove('hero-carousel__slide--leaving');
     slides[next].classList.add('hero-carousel__slide--active');
+
+    // Clean up leaving class after transition
+    setTimeout(function() {
+      slides[prev].classList.remove('hero-carousel__slide--leaving');
+    }, 2200);
   }, interval);
 })();
 </script>

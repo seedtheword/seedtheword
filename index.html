@@ -78,9 +78,8 @@
 <!-- ── Hero: GTA V-style image carousel with Ken Burns animations ── -->
 <section class="hero hero--jesus">
   <div class="hero-carousel" id="hero-carousel" aria-hidden="true">
-    <div class="hero-carousel__slide hero-carousel__slide--active" style="background-image:url('assets/images/homepage/Jesus.jpg')"></div>
+    <div class="hero-carousel__slide hero-carousel__slide--active" style="background-image:url('assets/images/homepage/Jesus-center.jpg')"></div>
     <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/david.jpg')"></div>
-    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/maple-park-ya.jpg')"></div>
     <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/sam-petrov.jpg')"></div>
     <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/vanessa-ben.jpg')"></div>
     <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/edward.jpg')"></div>
@@ -88,7 +87,6 @@
     <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/david-l.jpg')"></div>
     <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/vanessa.jpg')"></div>
     <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/uw.jpg')"></div>
-    <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/liam.jpg')"></div>
     <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/jeremiah-edward.jpg')"></div>
     <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/ben.jpg')"></div>
     <div class="hero-carousel__slide" style="background-image:url('assets/images/homepage/david-edward.jpg')"></div>
@@ -132,6 +130,10 @@
   transform: scale(1.0);
   transition: opacity 2s ease-in-out, transform 8s ease-in-out;
   will-change: opacity, transform;
+}
+/* Desktop: center positioning works better for landscape crop */
+@media (min-width: 768px) {
+  .hero-carousel__slide { background-position: center center; }
 }
 .hero-carousel__slide--active {
   opacity: 1;

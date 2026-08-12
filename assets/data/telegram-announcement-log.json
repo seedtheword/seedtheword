@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-08-12T16:33:01+00:00",
+  "updated": "2026-08-12T17:39:16+00:00",
   "events": {
     "74pm8e9k69h30bb46cq68b9k74rmcb9pclh36b9p6gqmcdhic4qm8eb1cg@google.com": {
       "title": "Busy",
@@ -88,6 +88,12 @@
       "lastPosted": "2026-08-12T16:33:01+00:00",
       "reminderPosted": true,
       "livePosted": true
+    },
+    "19v8v7nvj73aa59i3c3frsqobo@google.com": {
+      "title": "Identity Prayer Night",
+      "start": "2026-08-14T02:00:00+00:00",
+      "lastPosted": "2026-08-12T17:39:16+00:00",
+      "upcomingPosted": true
     }
   }
 }

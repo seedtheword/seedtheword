@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615812,
-  "lastModified": "2026-08-13T19:10:42Z",
+  "lastUpdateId": 669615813,
+  "lastModified": "2026-08-13T19:55:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -359,6 +359,16 @@
       "kind": "telegram",
       "text": "Additionally sent more people your way, including the couple, so you might have people show up at your group, I am sharing the QR code",
       "ts": "2026-08-13T01:33:06Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5256,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Going around Everett inviting people to young adults and informing them of the back to school bash this Saturday. I just had a simple prayer that Jesus shows me where I need to go and who needs to hear about this and stepped out in faith. First one today, so pray for me too!",
+      "ts": "2026-08-13T19:45:58Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615806,
-  "lastModified": "2026-08-11T23:55:43Z",
+  "lastUpdateId": 669615823,
+  "lastModified": "2026-08-14T19:40:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -201,6 +201,12 @@
       "messageId": 5208,
       "entryCount": 3,
       "postedAt": "2026-08-10T15:18:06Z"
+    },
+    "2026-W33-thu": {
+      "since": "2026-08-13T15:17:36Z",
+      "messageId": 5252,
+      "entryCount": 3,
+      "postedAt": "2026-08-13T15:17:41Z"
     }
   },
   "entries": [
@@ -323,6 +329,46 @@
       "kind": "telegram",
       "text": "Roger",
       "ts": "2026-08-10T00:41:03Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5247,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "🙏PRAYER DOG🙏 3 prayers from around the world",
+      "ts": "2026-08-13T01:16:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5249,
+      "userId": 8045440327,
+      "displayName": "✝️🙏PRAYER DOG🐺🥀 I am L.A.W.",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I don't know about the website but here's a prayer for them 👍",
+      "ts": "2026-08-13T01:32:19Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5250,
+      "userId": 8045440327,
+      "displayName": "✝️🙏PRAYER DOG🐺🥀 I am L.A.W.",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Additionally sent more people your way, including the couple, so you might have people show up at your group, I am sharing the QR code",
+      "ts": "2026-08-13T01:33:06Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5256,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Going around Everett inviting people to young adults and informing them of the back to school bash this Saturday. I just had a simple prayer that Jesus shows me where I need to go and who needs to hear about this and stepped out in faith. First one today, so pray for me too!",
+      "ts": "2026-08-13T19:45:58Z"
     }
   ]
 }

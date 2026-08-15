@@ -1,23 +1,7 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-08-15T16:15:21+00:00",
+  "updated": "2026-08-15T19:14:49+00:00",
   "events": {
-    "7ciabkbkptptse5ug9v9dpjt25@google.com": {
-      "title": "COMMUNITY COOKOUT!",
-      "start": "2026-08-01T19:00:00+00:00",
-      "lastPosted": "2026-08-01T19:26:06+00:00",
-      "upcomingPosted": true,
-      "reminderPosted": true,
-      "livePosted": true
-    },
-    "cgq68cpm74rm8b9h6gpjab9kcgs32bb170pj4b9gc8p38e33cgrj8oj1cg@google.com": {
-      "title": "Block Party Evangelism: Sam Petrov",
-      "start": "2026-08-01T19:00:00+00:00",
-      "lastPosted": "2026-08-01T19:26:06+00:00",
-      "upcomingPosted": true,
-      "reminderPosted": true,
-      "livePosted": true
-    },
     "qm68me7t9h875b5hkefa6f7du4@google.com": {
       "title": "SEED THE WORD YOUNG ADULTS/BIBLE STUDY",
       "start": "2026-08-04T01:30:00+00:00",
@@ -84,9 +68,10 @@
     "34mca01781g3bliv83hi490ibj@google.com": {
       "title": "COMMUNITY COOKOUT!",
       "start": "2026-08-15T19:00:00+00:00",
-      "lastPosted": "2026-08-15T16:15:21+00:00",
+      "lastPosted": "2026-08-15T19:14:49+00:00",
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "livePosted": true
     }
   }
 }

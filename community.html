@@ -40,13 +40,7 @@
         <li><a href="about.html">About</a></li>
         <li><a href="news.html">News</a></li>
         <li><a href="community.html" class="active">Community</a></li>
-        <li class="nav-auth-wrap" id="nav-auth-wrap">
-          <a href="team.html" class="nav-login" id="nav-auth-btn">Login</a>
-          <div class="nav-auth-dropdown" id="nav-auth-dropdown">
-            <button class="nav-auth-dropdown__item" id="nav-auth-profile">Profile Settings</button>
-            <button class="nav-auth-dropdown__item nav-auth-dropdown__item--danger" id="nav-auth-logout">Log out</button>
-          </div>
-        </li>
+        <li><a href="team.html" class="nav-login">Login</a></li>
       </ul>
     </nav>
     <div class="header-social">
@@ -470,6 +464,7 @@
         </div>
         <a class="footer-connect__contact" href="connect.html">🤝 Connect with Us</a>
         <a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a>
+        <a class="footer-connect__contact" href="donate.html">📖 Donate or receive a Bible</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -477,6 +472,7 @@
       <ul class="footer-bottom__links">
         <li><a href="about.html">About</a></li>
         <li><a href="about.html#contact">Contact</a></li>
+        <li><a href="about.html#careers">Careers</a></li>
         <li><a href="admin-help.html" style="opacity:0.55;">Admin</a></li>
       </ul>
     </div>
@@ -497,58 +493,8 @@
 <script src="assets/js/prayer-intake.js?v=2"></script>
 <script src="assets/js/community-social.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=1"></script>
+<script src="assets/js/nav-auth.js?v=1"></script>
 <script>
-// ═══ AUTH: nav badge + dropdown + sidebar user ═══
-(function() {
-  var session = null;
-  try { session = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
-
-  var navBtn = document.getElementById('nav-auth-btn');
-  var navWrap = document.getElementById('nav-auth-wrap');
-  var dropdown = document.getElementById('nav-auth-dropdown');
-  var sidebarAvatar = document.getElementById('sidebar-avatar');
-  var sidebarName = document.getElementById('sidebar-name');
-  var sidebarMeta = document.getElementById('sidebar-meta');
-
-  if (session && session.name) {
-    // Nav badge: show first name in pill
-    var firstName = session.name.split(' ')[0];
-    if (navBtn) {
-      navBtn.textContent = firstName;
-      navBtn.href = '#';
-      navBtn.classList.add('nav-login--authed');
-      navBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        navWrap.classList.toggle('is-open');
-      });
-    }
-    // Dropdown actions
-    var profileBtn = document.getElementById('nav-auth-profile');
-    var logoutBtn = document.getElementById('nav-auth-logout');
-    if (profileBtn) profileBtn.addEventListener('click', function() { navWrap.classList.remove('is-open'); if (window.stwProfile) window.stwProfile.open(); });
-    if (logoutBtn) logoutBtn.addEventListener('click', function() { localStorage.removeItem('stwm-team-session'); location.reload(); });
-    // Close dropdown on outside click
-    document.addEventListener('click', function(e) { if (navWrap && !navWrap.contains(e.target)) navWrap.classList.remove('is-open'); });
-
-    // Sidebar
-    if (sidebarAvatar) sidebarAvatar.textContent = session.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
-    if (sidebarName) sidebarName.textContent = session.name;
-    var joinDate = session.created_at ? new Date(session.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '';
-    if (sidebarMeta) sidebarMeta.innerHTML = '<span style="font-size:0.7rem;color:var(--color-text-muted);">' + (session.role||'Member') + (joinDate ? ' · Joined '+joinDate : '') + '</span>';
-    // Show settings gear
-    var settingsBtn = document.getElementById('sidebar-settings');
-    if (settingsBtn) settingsBtn.style.display = '';
-    // Show compose
-    var compose = document.getElementById('community-compose');
-    var prompt = document.getElementById('community-login-prompt');
-    if (compose) compose.style.display = '';
-    if (prompt) prompt.style.display = 'none';
-    var composeAvatar = document.getElementById('compose-avatar');
-    if (composeAvatar) composeAvatar.textContent = session.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
-  }
-})();
-
 // ═══ SECTION NAVIGATION ═══
 (function() {
   var channelSections = { scripture:'section-scripture', prayer:'section-prayer', music:'section-music', library:'section-library' };

@@ -284,43 +284,6 @@
     .connect-form { display: none; }
     .connect-form.active { display: block; }
 
-    /* Nav Auth Badge & Dropdown */
-    .nav-auth-wrap { position: relative; }
-    .nav-login--authed {
-      background: rgba(44,74,62,0.08) !important;
-      color: #2C4A3E !important;
-      border: 1.5px solid #2C4A3E !important;
-      border-radius: 999px !important;
-      padding: 0.35rem 0.9rem !important;
-      font-weight: 700 !important;
-      font-size: 0.8rem !important;
-      transition: background 0.2s, box-shadow 0.2s;
-    }
-    .nav-login--authed:hover { background: #2C4A3E !important; color: #fff !important; }
-    .nav-auth-dropdown {
-      display: none;
-      position: absolute;
-      top: calc(100% + 0.5rem);
-      right: 0;
-      min-width: 170px;
-      background: #fff;
-      border: 1px solid rgba(0,0,0,0.08);
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-      z-index: 200;
-      padding: 0.4rem 0;
-      animation: navDropFade 0.15s ease;
-    }
-    .nav-auth-wrap.is-open .nav-auth-dropdown { display: block; }
-    .nav-auth-dropdown__item {
-      display: block; width: 100%; padding: 0.6rem 1rem; border: none; background: none;
-      font-size: 0.82rem; font-weight: 500; font-family: 'Inter', sans-serif;
-      color: #1a1a1a; text-align: left; cursor: pointer; transition: background 0.15s;
-    }
-    .nav-auth-dropdown__item:hover { background: #f8f6f3; }
-    .nav-auth-dropdown__item--danger { color: #c0392b; }
-    .nav-auth-dropdown__item--danger:hover { background: rgba(192,57,43,0.06); }
-    @keyframes navDropFade { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
   </style>
 </head>
 <body>
@@ -341,13 +304,7 @@
         <li><a href="about.html">About</a></li>
         <li><a href="news.html">News</a></li>
         <li><a href="community.html">Community</a></li>
-        <li class="nav-auth-wrap" id="nav-auth-wrap">
-          <a href="team.html" class="nav-login" id="nav-auth-btn">Login</a>
-          <div class="nav-auth-dropdown" id="nav-auth-dropdown">
-            <button class="nav-auth-dropdown__item" id="nav-auth-profile">Profile Settings</button>
-            <button class="nav-auth-dropdown__item nav-auth-dropdown__item--danger" id="nav-auth-logout">Log out</button>
-          </div>
-        </li>
+        <li><a href="team.html" class="nav-login">Login</a></li>
       </ul>
     </nav>
     <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
@@ -493,6 +450,7 @@
           <p class="footer-brand__name">Seed the Word Ministry</p>
         </div>
         <p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:0.75rem;line-height:1.5">Seed the Word is a Washington State registered nonprofit corporation (UBI 606 261 509, effective July 13, 2026).</p>
       </div>
       <div>
         <h4 class="footer-col__title">Navigate</h4>
@@ -500,18 +458,39 @@
           <li><a href="index.html">Home</a></li>
           <li><a href="store.html">Store</a></li>
           <li><a href="about.html">About</a></li>
+          <li><a href="news.html">News</a></li>
           <li><a href="community.html">Community</a></li>
         </ul>
       </div>
       <div>
         <h4 class="footer-col__title">Connect</h4>
+        <div class="footer-connect__icons">
+          <a class="footer-connect__icon" href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+          </a>
+          <a class="footer-connect__icon" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <a class="footer-connect__icon" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+          </a>
+          <a class="footer-connect__icon" href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
+          </a>
+        </div>
         <a class="footer-connect__contact" href="connect.html">🤝 Connect with Us</a>
         <a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a>
-        <a class="footer-connect__contact" href="https://t.me/seedtheword" target="_blank" rel="noopener">✈️ Telegram</a>
+        <a class="footer-connect__contact" href="donate.html">📖 Donate or receive a Bible</a>
       </div>
     </div>
     <div class="footer-bottom">
       <p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
+      <ul class="footer-bottom__links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="about.html#contact">Contact</a></li>
+        <li><a href="about.html#careers">Careers</a></li>
+        <li><a href="admin-help.html" style="opacity:0.55;">Admin</a></li>
+      </ul>
     </div>
   </div>
 </footer>
@@ -519,33 +498,7 @@
 <!-- Scripts -->
 <script src="assets/js/main.js?v=9"></script>
 <script src="assets/js/profile-settings.js?v=1"></script>
-<script>
-// ═══ AUTH: nav badge + dropdown ═══
-(function() {
-  var session = null;
-  try { session = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
-  var navBtn = document.getElementById('nav-auth-btn');
-  var navWrap = document.getElementById('nav-auth-wrap');
-  if (session && session.name) {
-    var firstName = session.name.split(' ')[0];
-    if (navBtn) {
-      navBtn.textContent = firstName;
-      navBtn.href = '#';
-      navBtn.classList.add('nav-login--authed');
-      navBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        navWrap.classList.toggle('is-open');
-      });
-    }
-    var profileBtn = document.getElementById('nav-auth-profile');
-    var logoutBtn = document.getElementById('nav-auth-logout');
-    if (profileBtn) profileBtn.addEventListener('click', function() { navWrap.classList.remove('is-open'); if (window.stwProfile) window.stwProfile.open(); });
-    if (logoutBtn) logoutBtn.addEventListener('click', function() { localStorage.removeItem('stwm-team-session'); location.reload(); });
-    document.addEventListener('click', function(e) { if (navWrap && !navWrap.contains(e.target)) navWrap.classList.remove('is-open'); });
-  }
-})();
-</script>
+<script src="assets/js/nav-auth.js?v=1"></script>
 <script>
 (function() {
   'use strict';

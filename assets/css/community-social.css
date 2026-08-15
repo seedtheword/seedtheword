@@ -737,6 +737,10 @@ body:has(.community-layout) {
   }
   .feed-channel-select {
     display: block;
+    flex: 1;
+    min-width: 0;
+    font-size: 0.88rem;
+    padding: 0.65rem 2.2rem 0.65rem 0.9rem;
   }
   .feed-tab {
     display: none;
@@ -746,6 +750,9 @@ body:has(.community-layout) {
   }
   .theme-toggle--inline {
     display: flex;
+  }
+  .feed-tabs {
+    gap: 0.5rem;
   }
 }
 @media (min-width: 769px) {
@@ -816,69 +823,6 @@ body:has(.community-layout) {
   border-color: var(--color-gold);
 }
 
-/* ── Nav Auth Badge & Dropdown ─────────────────────────────── */
-.nav-auth-wrap {
-  position: relative;
-}
-.nav-login--authed {
-  background: var(--color-olive-soft, rgba(44,74,62,0.08)) !important;
-  color: var(--color-olive, #2C4A3E) !important;
-  border: 1.5px solid var(--color-olive, #2C4A3E) !important;
-  border-radius: 999px !important;
-  padding: 0.35rem 0.9rem !important;
-  font-weight: 700 !important;
-  font-size: 0.8rem !important;
-  letter-spacing: 0 !important;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-.nav-login--authed:hover {
-  background: var(--color-olive, #2C4A3E) !important;
-  color: #fff !important;
-}
-.nav-auth-dropdown {
-  display: none;
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  min-width: 170px;
-  background: var(--color-bg-elevated, #fff);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  z-index: 200;
-  padding: 0.4rem 0;
-  animation: navDropFade 0.15s ease;
-}
-.nav-auth-wrap.is-open .nav-auth-dropdown {
-  display: block;
-}
-.nav-auth-dropdown__item {
-  display: block;
-  width: 100%;
-  padding: 0.6rem 1rem;
-  border: none;
-  background: none;
-  font-size: 0.82rem;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
-  color: var(--color-text);
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.nav-auth-dropdown__item:hover {
-  background: var(--color-bg-subtle, #f8f6f3);
-}
-.nav-auth-dropdown__item--danger {
-  color: #c0392b;
-}
-.nav-auth-dropdown__item--danger:hover {
-  background: rgba(192,57,43,0.06);
-}
-@keyframes navDropFade {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 
 
 /* ── Platform CTA cards (community) ────────────────────────── */

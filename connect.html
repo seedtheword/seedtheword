@@ -9,10 +9,285 @@
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <script src="assets/js/theme-toggle.js?v=1"></script>
-</head>
-<body style="background:var(--color-bg, #FDFBF7);">
+  <style>
+    :root {
+      --c-bg: #f4f1ec;
+      --c-surface: rgba(255,255,255,0.72);
+      --c-glass-border: rgba(255,255,255,0.7);
+      --c-ink: #1a1a1a;
+      --c-ink2: #3d3d3d;
+      --c-muted: #6b6b6b;
+      --c-gold: #D97736;
+      --c-gold-soft: rgba(217,119,54,0.1);
+      --c-green: #2C4A3E;
+      --c-green-soft: rgba(44,74,62,0.08);
+      --c-border: rgba(0,0,0,0.06);
+      --c-radius: 20px;
+      --c-radius-sm: 12px;
+      --c-shadow: 0 8px 40px rgba(0,0,0,0.06);
+      --c-blur: blur(20px);
+    }
+    body {
+      background: var(--c-bg);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(44,74,62,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(217,119,54,0.04) 0%, transparent 50%);
+      min-height: 100vh;
+    }
 
-<!-- Header (matches site-wide) -->
+    /* Hero */
+    .connect-hero {
+      position: relative;
+      padding: 4.5rem 1.5rem 3rem;
+      text-align: center;
+      overflow: hidden;
+    }
+    .connect-hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      background: radial-gradient(ellipse at 50% 30%, rgba(217,119,54,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .connect-hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1.1rem;
+      background: var(--c-surface);
+      backdrop-filter: var(--c-blur);
+      border: 1px solid var(--c-glass-border);
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--c-gold);
+      margin-bottom: 1.25rem;
+    }
+    .connect-hero__badge-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--c-gold);
+      box-shadow: 0 0 8px rgba(217,119,54,0.3);
+    }
+    .connect-hero__title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      color: var(--c-ink);
+      margin: 0 0 0.75rem;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .connect-hero__sub {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(0.9rem, 2vw, 1.05rem);
+      color: var(--c-muted);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* Content area */
+    .connect-content {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 0 1.25rem 3rem;
+    }
+
+    /* Glass card */
+    .connect-card {
+      background: var(--c-surface);
+      backdrop-filter: var(--c-blur);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--c-radius);
+      padding: 2rem 1.75rem;
+      box-shadow: var(--c-shadow);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Pill slider */
+    .pill-track {
+      position: relative;
+      display: flex;
+      background: rgba(0,0,0,0.04);
+      border-radius: 999px;
+      padding: 4px;
+      margin-bottom: 1.75rem;
+    }
+    .pill-slider {
+      position: absolute;
+      top: 4px; left: 4px;
+      width: calc(50% - 4px);
+      height: calc(100% - 8px);
+      background: var(--c-green);
+      border-radius: 999px;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 2px 10px rgba(44,74,62,0.3);
+    }
+    .pill-btn {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      padding: 0.6rem 0.5rem;
+      border: none;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      background: transparent;
+      color: var(--c-muted);
+      transition: color 0.2s;
+    }
+    .pill-btn.active { color: #fff; }
+
+    /* Form fields */
+    .field { margin-bottom: 0.85rem; }
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--c-ink);
+      margin-bottom: 0.25rem;
+    }
+    .field label small { color: var(--c-muted); font-weight: 400; }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      padding: 0.75rem 0.9rem;
+      border: 1.5px solid var(--c-border);
+      border-radius: var(--c-radius-sm);
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      background: rgba(255,255,255,0.5);
+      color: var(--c-ink);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      outline: none;
+      border-color: var(--c-gold);
+      box-shadow: 0 0 0 3px var(--c-gold-soft);
+    }
+    .field textarea { resize: vertical; min-height: 80px; }
+
+    /* Notification fieldset */
+    .notify-fieldset {
+      border: 1.5px solid var(--c-border);
+      border-radius: var(--c-radius-sm);
+      padding: 1rem;
+      margin: 0.85rem 0;
+    }
+    .notify-fieldset legend {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0 0.4rem;
+      color: var(--c-green);
+    }
+    .notify-fieldset label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.35rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      color: var(--c-ink2);
+    }
+    .notify-fieldset input[type="radio"] { width: auto; margin: 0; }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      padding: 0.9rem;
+      border: none;
+      border-radius: var(--c-radius-sm);
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-submit:hover { transform: translateY(-1px); }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit--gold { background: linear-gradient(135deg, var(--c-gold), #e08a42); color: #fff; box-shadow: 0 4px 16px rgba(217,119,54,0.3); }
+    .btn-submit--green { background: linear-gradient(135deg, var(--c-green), #3a5f4e); color: #fff; box-shadow: 0 4px 16px rgba(44,74,62,0.3); }
+
+    /* Status */
+    .form-status { text-align: center; font-size: 0.82rem; min-height: 1.2rem; margin-bottom: 0.5rem; }
+    .form-status--error { color: #a6251f; }
+    .form-status--ok { color: var(--c-green); }
+
+    /* Success */
+    .connect-success { display: none; text-align: center; padding: 2.5rem 1rem; }
+    .connect-success.active { display: block; }
+
+    /* Suggestions section */
+    .connect-suggestions { max-width: 500px; margin: 0 auto; padding: 0 1.25rem 2rem; }
+    .suggest-card {
+      background: var(--c-surface);
+      backdrop-filter: var(--c-blur);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--c-radius-sm);
+      padding: 1.1rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .suggest-card:hover { transform: translateY(-1px); box-shadow: var(--c-shadow); }
+    .suggest-card__icon { font-size: 1.5rem; flex-shrink: 0; }
+    .suggest-card__text { flex: 1; min-width: 0; }
+    .suggest-card__title { font-size: 0.85rem; font-weight: 700; color: var(--c-ink); margin: 0 0 0.1rem; }
+    .suggest-card__desc { font-size: 0.72rem; color: var(--c-muted); margin: 0; }
+    .suggest-card__btn {
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+    .suggest-card__btn:hover { transform: scale(1.03); }
+    .suggest-card__btn--gold { background: var(--c-gold); color: #fff; }
+    .suggest-card__btn--green { background: var(--c-green); color: #fff; }
+    .suggest-card__btn--pink { background: linear-gradient(135deg, #E4405F, #F56040); color: #fff; }
+
+    /* Carrier dropdown */
+    .carrier-wrap { display: none; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--c-border); }
+    /* Honeypot */
+    .hp { position: absolute; left: -9999px; opacity: 0; }
+    /* Tabs container */
+    #connect-tabs { margin-bottom: 1.5rem; }
+    .tab-row { display: flex; gap: 0.4rem; }
+    .tab-btn {
+      flex: 1;
+      padding: 0.65rem 0.5rem;
+      border: 1.5px solid var(--c-border);
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      background: var(--c-surface);
+      color: var(--c-muted);
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .tab-btn:hover { border-color: var(--c-gold); color: var(--c-gold); }
+    .tab-btn.active { background: var(--c-green); color: #fff; border-color: var(--c-green); }
+    .connect-form { display: none; }
+    .connect-form.active { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- Header (site-wide) -->
 <header class="site-header" id="site-header">
   <div class="container">
     <div class="header-left">
@@ -31,140 +306,132 @@
         <li><a href="team.html" class="nav-login">Login</a></li>
       </ul>
     </nav>
-    <div class="header-social">
-      <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="32" height="32"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
-      <a href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="32" height="32"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg></a>
-      <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF" width="32" height="32"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></a>
-      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954" width="32" height="32"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg></a>
-    </div>
     <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
       <span></span><span></span><span></span>
     </button>
   </div>
 </header>
 
+<!-- Hero -->
+<section class="connect-hero">
+  <div class="connect-hero__badge"><span class="connect-hero__badge-dot"></span> Connect with us</div>
+  <h1 class="connect-hero__title">We'd love to hear from you</h1>
+  <p class="connect-hero__sub">Share a prayer request, celebrate what God has done, or request a free Bible. Our team reads every message.</p>
+</section>
+
 <!-- Main content -->
-<section style="padding:3rem 1.5rem 4rem;max-width:520px;margin:0 auto;">
-  <div style="text-align:center;margin-bottom:2rem;">
-    <img src="assets/images/stw-logo.jpg" alt="" style="width:64px;height:64px;border-radius:16px;margin:0 auto 1rem;display:block;box-shadow:0 4px 16px rgba(0,0,0,0.1);">
-    <h1 style="font-family:'Fraunces',Georgia,serif;font-size:1.8rem;font-weight:700;margin:0 0 0.5rem;color:var(--green,#2C5F2E);">Connect With Us</h1>
-    <p style="font-size:0.95rem;color:#666;line-height:1.6;margin:0;">Share a prayer request, celebrate what God has done, or request a free Bible.</p>
-  </div>
-
+<div class="connect-content">
   <!-- Tabs -->
-  <div id="connect-tabs" style="display:flex;gap:0.5rem;margin-bottom:1.5rem;">
-    <button class="connect-tab active" data-form="prayer" style="flex:1;padding:0.75rem 0.5rem;border:2px solid var(--green,#2C5F2E);border-radius:12px;font-size:0.85rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:var(--green,#2C5F2E);color:#fff;transition:all 0.2s;">🙏 Prayer & Thanks</button>
-    <button class="connect-tab" data-form="bible" style="flex:1;padding:0.75rem 0.5rem;border:2px solid #e0dbd6;border-radius:12px;font-size:0.85rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:#fff;color:#444;transition:all 0.2s;">📖 Free Bible</button>
+  <div id="connect-tabs">
+    <div class="tab-row">
+      <button class="tab-btn active" data-form="prayer">🙏 Prayer & Thanks</button>
+      <button class="tab-btn" data-form="bible">📖 Free Bible</button>
+    </div>
   </div>
 
-  <!-- Prayer & Thanksgiving Form (unified) -->
-  <form class="connect-form active" id="form-prayer" novalidate style="display:block;">
-    <div class="glass-morphism" style="background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.7);border-radius:16px;padding:1.5rem;box-shadow:0 8px 32px rgba(31,38,135,0.1);">
-      <!-- Type toggle — pill slider -->
-      <div style="position:relative;display:flex;background:#f3f0ed;border-radius:999px;padding:4px;margin-bottom:1.25rem;overflow:hidden;">
-        <div id="kind-slider" style="position:absolute;top:4px;left:4px;width:calc(50% - 4px);height:calc(100% - 8px);background:var(--green,#2C5F2E);border-radius:999px;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);box-shadow:0 2px 8px rgba(44,74,62,0.3);"></div>
-        <button type="button" class="kind-btn active" data-kind="prayer" style="flex:1;position:relative;z-index:1;padding:0.65rem 0.5rem;border:none;border-radius:999px;font-size:0.84rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:transparent;color:#fff;transition:color 0.2s;">🙏 Prayer Request</button>
-        <button type="button" class="kind-btn" data-kind="thanksgiving" style="flex:1;position:relative;z-index:1;padding:0.65rem 0.5rem;border:none;border-radius:999px;font-size:0.84rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:transparent;color:#555;transition:color 0.2s;">🎉 Thanksgiving</button>
+  <!-- Prayer/Thanksgiving Form -->
+  <form class="connect-form active" id="form-prayer" novalidate>
+    <div class="connect-card">
+      <!-- Pill slider: Prayer / Thanksgiving -->
+      <div class="pill-track">
+        <div class="pill-slider" id="kind-slider"></div>
+        <button type="button" class="pill-btn active" data-kind="prayer">🙏 Prayer Request</button>
+        <button type="button" class="pill-btn" data-kind="thanksgiving">🎉 Thanksgiving</button>
       </div>
       <input type="hidden" name="kind" id="prayer-kind" value="prayer">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Your name <small style="color:#888;">(optional)</small></label>
-      <input type="text" name="name" placeholder="First name" autocomplete="given-name" maxlength="60" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Email <small style="color:#888;">(so we can follow up)</small></label>
-      <input type="email" name="email" placeholder="you@example.com" autocomplete="email" maxlength="200" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Phone <small style="color:#888;">(optional)</small></label>
-      <input type="tel" name="phone" placeholder="(253) 555-1234" autocomplete="tel" maxlength="50" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
-      <label id="prayer-body-label" style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Your prayer request *</label>
-      <textarea name="body" id="prayer-body" placeholder="What can we pray for? Share as much or as little as you'd like." required minlength="10" maxlength="2000" rows="4" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;resize:vertical;"></textarea>
-      <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;margin-bottom:0.75rem;cursor:pointer;"><input type="checkbox" name="anonymous" style="width:auto;margin:0;"> Keep me anonymous</label>
-      <fieldset style="border:1.5px solid #e0dbd6;border-radius:10px;padding:1rem;margin:0 0 1rem;">
-        <legend style="font-size:0.78rem;font-weight:700;padding:0 0.4rem;color:var(--green,#2C5F2E);">How should we follow up?</legend>
-        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="email" checked style="width:auto;margin:0;"> Email updates</label>
-        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="sms" style="width:auto;margin:0;"> Text message</label>
-        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="telegram" style="width:auto;margin:0;"> Telegram</label>
-        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="none" style="width:auto;margin:0;"> No follow-up needed</label>
-        <div class="carrier-wrap" style="display:none;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid #e0dbd6;">
-          <label style="font-size:0.75rem;font-weight:600;margin-bottom:0.2rem;display:block;">Phone carrier</label>
-          <select name="carrier" style="width:100%;padding:0.6rem;border:1.5px solid #e0dbd6;border-radius:8px;font-size:0.85rem;font-family:'Inter',sans-serif;"><option value="">Select carrier...</option><option value="tmobile">T-Mobile</option><option value="att">AT&T</option><option value="verizon">Verizon</option><option value="sprint">Sprint</option><option value="metro">Metro by T-Mobile</option><option value="boost">Boost Mobile</option><option value="cricket">Cricket</option><option value="mint">Mint Mobile</option><option value="visible">Visible</option><option value="fi">Google Fi</option><option value="other">Other</option></select>
-        </div>
+
+      <div class="field"><label>Your name <small>(optional)</small></label><input type="text" name="name" placeholder="First name" autocomplete="given-name" maxlength="60"></div>
+      <div class="field"><label>Email <small>(so we can follow up)</small></label><input type="email" name="email" placeholder="you@example.com" autocomplete="email" maxlength="200"></div>
+      <div class="field"><label>Phone <small>(optional)</small></label><input type="tel" name="phone" placeholder="(253) 555-1234" autocomplete="tel" maxlength="50"></div>
+      <div class="field"><label id="prayer-body-label">Your prayer request *</label><textarea name="body" id="prayer-body" placeholder="What can we pray for? Share as much or as little as you'd like." required minlength="10" maxlength="2000" rows="4"></textarea></div>
+      <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;margin-bottom:0.85rem;cursor:pointer;"><input type="checkbox" name="anonymous" style="width:auto;margin:0;"> Keep me anonymous</label>
+
+      <fieldset class="notify-fieldset">
+        <legend>How should we follow up?</legend>
+        <label><input type="radio" name="notify_pref" value="email" checked> Email updates</label>
+        <label><input type="radio" name="notify_pref" value="sms"> Text message</label>
+        <label><input type="radio" name="notify_pref" value="telegram"> Telegram</label>
+        <label><input type="radio" name="notify_pref" value="none"> No follow-up needed</label>
+        <div class="carrier-wrap"><div class="field"><label>Phone carrier</label><select name="carrier"><option value="">Select...</option><option value="tmobile">T-Mobile</option><option value="att">AT&T</option><option value="verizon">Verizon</option><option value="sprint">Sprint</option><option value="metro">Metro</option><option value="boost">Boost</option><option value="cricket">Cricket</option><option value="mint">Mint</option><option value="visible">Visible</option><option value="fi">Google Fi</option><option value="other">Other</option></select></div></div>
       </fieldset>
-      <input type="text" name="extra_field_2" style="position:absolute;left:-9999px;opacity:0;" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div id="status-prayer" style="text-align:center;font-size:0.82rem;min-height:1.2rem;margin-bottom:0.5rem;"></div>
-      <button type="submit" id="prayer-submit-btn" style="width:100%;padding:0.9rem;border:none;border-radius:12px;font-size:0.95rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:linear-gradient(135deg,#D97736,#e08a42);color:#fff;box-shadow:0 4px 16px rgba(217,119,54,0.3);transition:transform 0.15s;">Submit Prayer Request</button>
+
+      <input type="text" name="extra_field_2" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="form-status" id="status-prayer"></div>
+      <button type="submit" class="btn-submit btn-submit--gold" id="prayer-submit-btn">Submit Prayer Request</button>
     </div>
   </form>
 
-  <!-- Bible Request Form -->
-  <form class="connect-form" id="form-bible" novalidate style="display:none;">
-    <div class="glass-morphism" style="background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.7);border-radius:16px;padding:1.5rem;box-shadow:0 8px 32px rgba(31,38,135,0.1);">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">First name *</label>
-      <input type="text" name="name" placeholder="Your first name" autocomplete="given-name" maxlength="60" required style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Email *</label>
-      <input type="email" name="email" placeholder="you@example.com" autocomplete="email" maxlength="200" required style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Phone <small style="color:#888;">(optional)</small></label>
-      <input type="tel" name="phone" placeholder="(253) 555-1234" autocomplete="tel" maxlength="50" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">City *</label>
-      <input type="text" name="city" placeholder="Everett" autocomplete="address-level2" maxlength="60" required style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">State</label>
-      <input type="text" name="state" value="WA" autocomplete="address-level1" maxlength="2" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;">
-      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Why would you like a Bible? *</label>
-      <textarea name="story" placeholder="A couple of honest sentences — we read every one." required minlength="80" maxlength="1500" rows="5" style="width:100%;padding:0.75rem;border:1.5px solid #e0dbd6;border-radius:10px;font-size:0.92rem;margin-bottom:0.75rem;font-family:'Inter',sans-serif;resize:vertical;"></textarea>
-      <fieldset style="border:1.5px solid #e0dbd6;border-radius:10px;padding:1rem;margin:0 0 1rem;">
-        <legend style="font-size:0.78rem;font-weight:700;padding:0 0.4rem;color:var(--green,#2C5F2E);">How should we reach you?</legend>
-        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="email" checked style="width:auto;margin:0;"> Email</label>
-        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="sms" style="width:auto;margin:0;"> Text</label>
-        <label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="telegram" style="width:auto;margin:0;"> Telegram</label>
-        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;"><input type="radio" name="notify_pref" value="none" style="width:auto;margin:0;"> No follow-up</label>
-        <div class="carrier-wrap" style="display:none;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid #e0dbd6;">
-          <label style="font-size:0.75rem;font-weight:600;margin-bottom:0.2rem;display:block;">Phone carrier</label>
-          <select name="carrier" style="width:100%;padding:0.6rem;border:1.5px solid #e0dbd6;border-radius:8px;font-size:0.85rem;font-family:'Inter',sans-serif;"><option value="">Select...</option><option value="tmobile">T-Mobile</option><option value="att">AT&T</option><option value="verizon">Verizon</option><option value="sprint">Sprint</option><option value="metro">Metro</option><option value="boost">Boost</option><option value="cricket">Cricket</option><option value="mint">Mint</option><option value="visible">Visible</option><option value="fi">Google Fi</option><option value="other">Other</option></select>
-        </div>
+  <!-- Bible Form -->
+  <form class="connect-form" id="form-bible" novalidate>
+    <div class="connect-card">
+      <div class="field"><label>First name *</label><input type="text" name="name" required autocomplete="given-name" maxlength="60"></div>
+      <div class="field"><label>Email *</label><input type="email" name="email" required autocomplete="email" maxlength="200"></div>
+      <div class="field"><label>Phone <small>(optional)</small></label><input type="tel" name="phone" autocomplete="tel" maxlength="50"></div>
+      <div class="field"><label>City *</label><input type="text" name="city" required placeholder="Everett" autocomplete="address-level2" maxlength="60"></div>
+      <div class="field"><label>State</label><input type="text" name="state" value="WA" autocomplete="address-level1" maxlength="2"></div>
+      <div class="field"><label>Why would you like a Bible? *</label><textarea name="story" required minlength="80" maxlength="1500" rows="5" placeholder="A couple of honest sentences — we read every one."></textarea></div>
+
+      <fieldset class="notify-fieldset">
+        <legend>How should we reach you?</legend>
+        <label><input type="radio" name="notify_pref" value="email" checked> Email</label>
+        <label><input type="radio" name="notify_pref" value="sms"> Text</label>
+        <label><input type="radio" name="notify_pref" value="telegram"> Telegram</label>
+        <label><input type="radio" name="notify_pref" value="none"> No follow-up</label>
+        <div class="carrier-wrap"><div class="field"><label>Phone carrier</label><select name="carrier"><option value="">Select...</option><option value="tmobile">T-Mobile</option><option value="att">AT&T</option><option value="verizon">Verizon</option><option value="sprint">Sprint</option><option value="metro">Metro</option><option value="boost">Boost</option><option value="cricket">Cricket</option><option value="mint">Mint</option><option value="visible">Visible</option><option value="fi">Google Fi</option><option value="other">Other</option></select></div></div>
       </fieldset>
-      <input type="text" name="extra_field_2" style="position:absolute;left:-9999px;opacity:0;" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div id="status-bible" style="text-align:center;font-size:0.82rem;min-height:1.2rem;margin-bottom:0.5rem;"></div>
-      <button type="submit" style="width:100%;padding:0.9rem;border:none;border-radius:12px;font-size:0.95rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;background:linear-gradient(135deg,#2C4A3E,#3a5f4e);color:#fff;box-shadow:0 4px 16px rgba(44,74,62,0.3);transition:transform 0.15s;">Request a Free Bible</button>
+
+      <input type="text" name="extra_field_2" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="form-status" id="status-bible"></div>
+      <button type="submit" class="btn-submit btn-submit--green">Request a Free Bible</button>
     </div>
   </form>
 
-  <!-- Success state -->
-  <div id="connect-success" style="display:none;text-align:center;padding:2.5rem 1rem;">
-    <div id="success-icon" style="font-size:3.5rem;margin-bottom:1rem;">✅</div>
-    <h2 id="success-title" style="font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;margin:0 0 0.5rem;">Sent!</h2>
-    <p id="success-text" style="font-size:0.92rem;color:#666;line-height:1.6;margin:0 0 1.5rem;">Thank you. Our team will be in touch.</p>
-    <a href="community.html" style="display:inline-block;padding:0.7rem 1.5rem;background:var(--green,#2C5F2E);color:#fff;border-radius:12px;font-size:0.88rem;font-weight:600;text-decoration:none;">Visit our community →</a>
+  <!-- Success -->
+  <div class="connect-success" id="connect-success">
+    <div style="font-size:3.5rem;margin-bottom:1rem;" id="success-icon">✅</div>
+    <h2 style="font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;margin:0 0 0.5rem;" id="success-title">Sent!</h2>
+    <p style="font-size:0.92rem;color:var(--c-muted);line-height:1.6;margin:0 0 1.5rem;" id="success-text">Thank you. Our team will be in touch.</p>
+    <a href="community.html" style="display:inline-block;padding:0.7rem 1.5rem;background:var(--c-green);color:#fff;border-radius:12px;font-size:0.88rem;font-weight:600;text-decoration:none;">Visit our community →</a>
   </div>
-</section>
+</div>
 
-<!-- Stay Connected — subtle suggestions -->
-<section style="max-width:520px;margin:0 auto;padding:0 1rem 2.5rem;">
-  <!-- Socials -->
-  <div style="background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.7);border-radius:16px;padding:1.25rem;box-shadow:0 4px 20px rgba(0,0,0,0.06);margin-bottom:1rem;">
-    <h3 style="font-family:'Fraunces',serif;font-size:1rem;font-weight:700;margin:0 0 0.75rem;text-align:center;color:#1A1E24;">Stay in touch</h3>
-    <div style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;">
-      <a href="https://ig.me/m/seedtheword" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:0.4rem;padding:0.55rem 1rem;background:linear-gradient(135deg,#E4405F,#F56040);color:#fff;border-radius:999px;font-size:0.78rem;font-weight:600;text-decoration:none;">📸 Message on IG</a>
-      <a href="https://t.me/seedtheword" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:0.4rem;padding:0.55rem 1rem;background:#0088cc;color:#fff;border-radius:999px;font-size:0.78rem;font-weight:600;text-decoration:none;">✈️ Telegram</a>
-      <a href="about.html#contact" style="display:flex;align-items:center;gap:0.4rem;padding:0.55rem 1rem;background:var(--green,#2C5F2E);color:#fff;border-radius:999px;font-size:0.78rem;font-weight:600;text-decoration:none;">✉️ Write to us</a>
+<!-- Suggestions -->
+<div class="connect-suggestions">
+  <div class="suggest-card">
+    <span class="suggest-card__icon">📸</span>
+    <div class="suggest-card__text">
+      <p class="suggest-card__title">Follow us on Instagram</p>
+      <p class="suggest-card__desc">See what we've been up to — outreach, events, community.</p>
     </div>
-    <p style="text-align:center;font-size:0.72rem;color:#888;margin:0.6rem 0 0;">Check out our Instagram to see what we've been up to lately.</p>
+    <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="suggest-card__btn suggest-card__btn--pink">Follow</a>
   </div>
-
-  <!-- Young Adults subtle promo -->
-  <div style="display:flex;align-items:center;gap:0.85rem;padding:1rem;background:#faf8f5;border:1px solid #e8e4df;border-radius:12px;margin-bottom:1rem;">
-    <img src="assets/images/backgrounds/maple_park_flyer_universal.jpg" alt="Young Adults" style="width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0;">
-    <div style="flex:1;min-width:0;">
-      <p style="font-size:0.82rem;font-weight:700;color:#1A1E24;margin:0 0 0.15rem;">Young Adults Fellowship</p>
-      <p style="font-size:0.72rem;color:#666;margin:0;">Mondays 6:30 PM at Maple Park. Everyone welcome.</p>
+  <div class="suggest-card">
+    <span class="suggest-card__icon">✈️</span>
+    <div class="suggest-card__text">
+      <p class="suggest-card__title">Join our Telegram</p>
+      <p class="suggest-card__desc">Daily Bible reading, prayer, and real-time fellowship.</p>
     </div>
-    <a href="index.html#rsvp-open-btn" style="padding:0.4rem 0.8rem;background:linear-gradient(135deg,#D97736,#e08a42);color:#fff;border-radius:999px;font-size:0.68rem;font-weight:700;text-decoration:none;white-space:nowrap;">RSVP</a>
+    <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="suggest-card__btn suggest-card__btn--gold">Join</a>
   </div>
-
-  <!-- Give / Support -->
-  <div style="text-align:center;padding:1rem;background:linear-gradient(135deg,rgba(44,74,62,0.04),rgba(217,119,54,0.04));border:1px solid #e8e4df;border-radius:12px;">
-    <p style="font-size:0.85rem;color:#444;margin:0 0 0.6rem;line-height:1.5;">Want to help us keep giving Bibles for free?</p>
-    <a href="donate.html#support" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.25rem;background:var(--green,#2C5F2E);color:#fff;border-radius:999px;font-size:0.82rem;font-weight:700;text-decoration:none;">❤️ Give to the Ministry</a>
+  <div class="suggest-card">
+    <img src="assets/images/backgrounds/maple_park_flyer_universal.jpg" alt="Young Adults" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;">
+    <div class="suggest-card__text">
+      <p class="suggest-card__title">Young Adults Fellowship</p>
+      <p class="suggest-card__desc">Mondays 6:30 PM · Maple Park · Everyone welcome</p>
+    </div>
+    <a href="index.html" class="suggest-card__btn suggest-card__btn--gold">RSVP</a>
   </div>
-</section>
+  <div class="suggest-card">
+    <span class="suggest-card__icon">❤️</span>
+    <div class="suggest-card__text">
+      <p class="suggest-card__title">Support the Ministry</p>
+      <p class="suggest-card__desc">Help us keep giving Bibles for free.</p>
+    </div>
+    <a href="donate.html#support" class="suggest-card__btn suggest-card__btn--green">Give</a>
+  </div>
+</div>
 
-<!-- Footer (matches site-wide) -->
+<!-- Footer -->
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
@@ -186,11 +453,8 @@
       </div>
       <div>
         <h4 class="footer-col__title">Connect</h4>
-        <div class="footer-connect__icons">
-          <a class="footer-connect__icon" href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg></a>
-          <a class="footer-connect__icon" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
-        </div>
         <a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a>
+        <a class="footer-connect__contact" href="https://t.me/seedtheword" target="_blank" rel="noopener">✈️ Telegram</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -199,64 +463,48 @@
   </div>
 </footer>
 
-<!-- Scripts (main.js gives us nav toggle + floating Give button) -->
+<!-- Scripts -->
 <script src="assets/js/main.js?v=9"></script>
 <script>
 (function() {
   'use strict';
   var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzrHVlOqNu5skSDkf_rsy8moKvwRlM_mZNQpKSXH7HPBCSNjj1Dffz-IuFSJcWjjQUF/exec';
 
-  // Tab switching with visual highlight
-  var tabs = document.querySelectorAll('.connect-tab');
-  tabs.forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      tabs.forEach(function(t) {
-        t.style.background = '#fff';
-        t.style.color = '#444';
-        t.style.borderColor = '#e0dbd6';
-        t.classList.remove('active');
-      });
-      this.style.background = 'var(--green,#2C5F2E)';
-      this.style.color = '#fff';
-      this.style.borderColor = 'var(--green,#2C5F2E)';
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(function(t) {
+    t.addEventListener('click', function() {
+      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
       this.classList.add('active');
-      document.querySelectorAll('.connect-form').forEach(function(f) { f.style.display = 'none'; });
-      document.getElementById('form-' + this.dataset.form).style.display = 'block';
+      document.querySelectorAll('.connect-form').forEach(function(f){f.classList.remove('active');});
+      document.getElementById('form-' + this.dataset.form).classList.add('active');
     });
   });
 
-  // Kind toggle (prayer vs thanksgiving) — pill slider
-  document.querySelectorAll('.kind-btn').forEach(function(btn) {
+  // Pill slider (prayer/thanksgiving)
+  document.querySelectorAll('.pill-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var slider = document.getElementById('kind-slider');
-      var btns = document.querySelectorAll('.kind-btn');
-      btns.forEach(function(b) { b.style.color = '#555'; b.classList.remove('active'); });
-      this.style.color = '#fff';
+      document.querySelectorAll('.pill-btn').forEach(function(b){b.classList.remove('active');});
       this.classList.add('active');
       var kind = this.dataset.kind;
-      // Slide the pill
-      if (kind === 'thanksgiving') {
-        slider.style.transform = 'translateX(100%)';
-      } else {
-        slider.style.transform = 'translateX(0)';
-      }
+      slider.style.transform = kind === 'thanksgiving' ? 'translateX(100%)' : 'translateX(0)';
       document.getElementById('prayer-kind').value = kind;
       var label = document.getElementById('prayer-body-label');
-      var textarea = document.getElementById('prayer-body');
-      var submitBtn = document.getElementById('prayer-submit-btn');
+      var ta = document.getElementById('prayer-body');
+      var btn2 = document.getElementById('prayer-submit-btn');
       if (kind === 'thanksgiving') {
         label.textContent = 'What are you thankful for? *';
-        textarea.placeholder = 'Share what God has done — we celebrate with you!';
-        submitBtn.textContent = 'Share Thanksgiving';
+        ta.placeholder = 'Share what God has done — we celebrate with you!';
+        btn2.textContent = 'Share Thanksgiving';
       } else {
         label.textContent = 'Your prayer request *';
-        textarea.placeholder = "What can we pray for? Share as much or as little as you'd like.";
-        submitBtn.textContent = 'Submit Prayer Request';
+        ta.placeholder = "What can we pray for? Share as much or as little as you'd like.";
+        btn2.textContent = 'Submit Prayer Request';
       }
     });
   });
 
-  // Show/hide carrier on SMS select
+  // Carrier show/hide
   document.querySelectorAll('input[name="notify_pref"]').forEach(function(r) {
     r.addEventListener('change', function() {
       var wrap = this.closest('fieldset').querySelector('.carrier-wrap');
@@ -264,72 +512,58 @@
     });
   });
 
-  // Form submissions — use existing actions that already work
-  document.getElementById('form-prayer').addEventListener('submit', function(e) {
-    e.preventDefault();
-    var kind = document.getElementById('prayer-kind').value;
-    submitPrayer(this, kind, 'status-prayer');
-  });
-  document.getElementById('form-bible').addEventListener('submit', function(e) {
-    e.preventDefault(); submitBible(this);
-  });
+  // Submit handlers
+  document.getElementById('form-prayer').addEventListener('submit', function(e) { e.preventDefault(); submitPrayer(this); });
+  document.getElementById('form-bible').addEventListener('submit', function(e) { e.preventDefault(); submitBible(this); });
 
-  async function submitPrayer(form, kind, statusId) {
-    var btn = form.querySelector('button[type="submit"]');
-    var statusEl = document.getElementById(statusId);
-    statusEl.textContent = ''; statusEl.style.color = '';
-    var data = new FormData(form);
-    var payload = { action: 'prayer-intake', kind: kind };
-    data.forEach(function(v,k) { payload[k] = v; });
+  async function submitPrayer(form) {
+    var kind = document.getElementById('prayer-kind').value;
+    var btn = form.querySelector('.btn-submit');
+    var st = document.getElementById('status-prayer');
+    st.textContent = ''; st.className = 'form-status';
+    var data = new FormData(form); var payload = { action:'prayer-intake', kind:kind };
+    data.forEach(function(v,k){payload[k]=v;});
     if (payload.extra_field_2) return;
-    if (!payload.body || payload.body.trim().length < 10) {
-      statusEl.textContent = 'Please share at least a few words.';
-      statusEl.style.color = '#a6251f'; return;
-    }
-    btn.disabled = true; btn.textContent = 'Sending...';
+    if (!payload.body || payload.body.trim().length < 10) { st.textContent='Please share at least a few words.'; st.className='form-status form-status--error'; return; }
+    btn.disabled=true; btn.textContent='Sending...';
     try {
-      var r = await fetch(ENDPOINT, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) });
+      var r = await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
       var res = await r.json();
-      if (res.ok || res.status === 'ok') {
-        showSuccess(kind === 'prayer' ? '🙏' : '🎉', kind === 'prayer' ? 'Prayer Request Sent' : 'Thanksgiving Shared', kind === 'prayer' ? 'Our team will be praying for you. God hears.' : 'Thank you for sharing! We celebrate with you.');
-        form.reset();
-      } else { statusEl.textContent = res.error || 'Something went wrong.'; statusEl.style.color = '#a6251f'; }
-    } catch(err) { statusEl.textContent = 'Could not connect. Please try again.'; statusEl.style.color = '#a6251f'; }
-    btn.disabled = false; btn.textContent = kind === 'prayer' ? 'Submit Prayer Request' : 'Share Thanksgiving';
+      if (res.ok||res.status==='ok') { showSuccess(kind==='prayer'?'🙏':'🎉', kind==='prayer'?'Prayer Request Sent':'Thanksgiving Shared', kind==='prayer'?'Our team will be praying for you.':'Thank you for sharing! We celebrate with you.'); form.reset(); }
+      else { st.textContent=res.error||'Something went wrong.'; st.className='form-status form-status--error'; }
+    } catch(e) { st.textContent='Could not connect. Try again.'; st.className='form-status form-status--error'; }
+    btn.disabled=false; btn.textContent=kind==='prayer'?'Submit Prayer Request':'Share Thanksgiving';
   }
 
   async function submitBible(form) {
-    var btn = form.querySelector('button[type="submit"]');
-    var statusEl = document.getElementById('status-bible');
-    statusEl.textContent = ''; statusEl.style.color = '';
-    var data = new FormData(form);
-    var payload = { action: 'requestBible' };
-    data.forEach(function(v,k) { payload[k] = v; });
+    var btn = form.querySelector('.btn-submit');
+    var st = document.getElementById('status-bible');
+    st.textContent=''; st.className='form-status';
+    var data = new FormData(form); var payload = {action:'requestBible'};
+    data.forEach(function(v,k){payload[k]=v;});
     if (payload.extra_field_2) return;
-    if (!payload.name || !payload.name.trim()) { statusEl.textContent = 'Please share your name.'; statusEl.style.color = '#a6251f'; return; }
-    if (!payload.email || !payload.email.trim()) { statusEl.textContent = 'We need your email.'; statusEl.style.color = '#a6251f'; return; }
-    if (!payload.city || !payload.city.trim()) { statusEl.textContent = 'Please share your city.'; statusEl.style.color = '#a6251f'; return; }
-    if (!payload.story || payload.story.trim().length < 80) { statusEl.textContent = 'Please share a bit more (a couple sentences).'; statusEl.style.color = '#a6251f'; return; }
-    btn.disabled = true; btn.textContent = 'Sending...';
+    if (!payload.name||!payload.name.trim()){st.textContent='Please share your name.';st.className='form-status form-status--error';return;}
+    if (!payload.email||!payload.email.trim()){st.textContent='We need your email.';st.className='form-status form-status--error';return;}
+    if (!payload.city||!payload.city.trim()){st.textContent='Please share your city.';st.className='form-status form-status--error';return;}
+    if (!payload.story||payload.story.trim().length<80){st.textContent='Please share a bit more (a couple sentences).';st.className='form-status form-status--error';return;}
+    btn.disabled=true;btn.textContent='Sending...';
     try {
-      var r = await fetch(ENDPOINT, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) });
+      var r = await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
       var res = await r.json();
-      if (res.ok || res.status === 'ok') {
-        showSuccess('📖', 'Bible Request Sent', 'Our team will review and reach out via email. Thank you!');
-        form.reset();
-      } else { statusEl.textContent = res.error || 'Something went wrong.'; statusEl.style.color = '#a6251f'; }
-    } catch(err) { statusEl.textContent = 'Could not connect. Please try again.'; statusEl.style.color = '#a6251f'; }
-    btn.disabled = false; btn.textContent = 'Request a Free Bible';
+      if (res.ok||res.status==='ok'){showSuccess('📖','Bible Request Sent','Our team will review and reach out via email.');form.reset();}
+      else{st.textContent=res.error||'Something went wrong.';st.className='form-status form-status--error';}
+    } catch(e){st.textContent='Could not connect. Try again.';st.className='form-status form-status--error';}
+    btn.disabled=false;btn.textContent='Request a Free Bible';
   }
 
-  function showSuccess(icon, title, text) {
-    document.querySelectorAll('.connect-form').forEach(function(f) { f.style.display = 'none'; });
-    document.getElementById('connect-tabs').style.display = 'none';
+  function showSuccess(icon,title,text) {
+    document.querySelectorAll('.connect-form').forEach(function(f){f.classList.remove('active');});
+    document.getElementById('connect-tabs').style.display='none';
     var el = document.getElementById('connect-success');
-    document.getElementById('success-icon').textContent = icon;
-    document.getElementById('success-title').textContent = title;
-    document.getElementById('success-text').textContent = text;
-    el.style.display = 'block';
+    document.getElementById('success-icon').textContent=icon;
+    document.getElementById('success-title').textContent=title;
+    document.getElementById('success-text').textContent=text;
+    el.classList.add('active');
   }
 })();
 </script>

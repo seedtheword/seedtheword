@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615827,
-  "lastModified": "2026-08-15T19:52:04Z",
+  "lastUpdateId": 669615828,
+  "lastModified": "2026-08-15T20:25:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -395,6 +395,16 @@
       "kind": "telegram",
       "text": "Hairline fracture on one arm, and sprained joint on the other. I am going to just focus on healing",
       "ts": "2026-08-15T19:50:35Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5279,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Praying for you Liam, in Jesus' name",
+      "ts": "2026-08-15T20:23:08Z"
     }
   ]
 }

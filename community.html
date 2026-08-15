@@ -40,7 +40,13 @@
         <li><a href="about.html">About</a></li>
         <li><a href="news.html">News</a></li>
         <li><a href="community.html" class="active">Community</a></li>
-        <li><a href="team.html" class="nav-login" id="nav-auth-btn">Login</a></li>
+        <li class="nav-auth-wrap" id="nav-auth-wrap">
+          <a href="team.html" class="nav-login" id="nav-auth-btn">Login</a>
+          <div class="nav-auth-dropdown" id="nav-auth-dropdown">
+            <button class="nav-auth-dropdown__item" id="nav-auth-profile">Profile Settings</button>
+            <button class="nav-auth-dropdown__item nav-auth-dropdown__item--danger" id="nav-auth-logout">Log out</button>
+          </div>
+        </li>
       </ul>
     </nav>
     <div class="header-social">
@@ -68,13 +74,6 @@
   <span class="theme-toggle__sun"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
   <span class="theme-toggle__moon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
 </button>
-
-<!-- Mobile sidebar toggle (fixed bottom-left) -->
-<button class="mobile-nav-toggle" id="community-mobile-nav-btn" aria-label="Open channels">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-  Channels
-</button>
-<div class="community-nav-overlay"></div>
 
 <!-- ═══ MAIN LAYOUT ═══ -->
 <main class="community-layout">
@@ -123,11 +122,22 @@
   <div class="community-feed">
     <!-- Feed filter tabs -->
     <div class="feed-tabs">
+      <select class="feed-channel-select" id="feed-channel-select" aria-label="Select channel">
+        <option value="home" selected>🏠 Home</option>
+        <option value="scripture">📖 Scripture</option>
+        <option value="prayer">🙏 Prayer</option>
+        <option value="music">🎵 Music</option>
+        <option value="library">📚 Library</option>
+      </select>
       <button class="feed-tab is-active" data-channel="home">All</button>
       <button class="feed-tab" data-channel="scripture">Scripture</button>
       <button class="feed-tab" data-channel="prayer">Prayer</button>
       <button class="feed-tab" data-channel="music">Music</button>
       <button class="feed-tab" data-channel="library">Library</button>
+      <button class="theme-toggle theme-toggle--inline" aria-label="Switch to dark mode">
+        <span class="theme-toggle__sun"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+        <span class="theme-toggle__moon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+      </button>
     </div>
 
     <!-- Compose (logged-in only) -->
@@ -458,6 +468,7 @@
           <a class="footer-connect__icon" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></a>
           <a class="footer-connect__icon" href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg></a>
         </div>
+        <a class="footer-connect__contact" href="connect.html">🤝 Connect with Us</a>
         <a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a>
       </div>
     </div>
@@ -487,19 +498,40 @@
 <script src="assets/js/community-social.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=1"></script>
 <script>
-// ═══ AUTH: sidebar user + nav Login/Logout swap ═══
+// ═══ AUTH: nav badge + dropdown + sidebar user ═══
 (function() {
   var session = null;
   try { session = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
 
   var navBtn = document.getElementById('nav-auth-btn');
+  var navWrap = document.getElementById('nav-auth-wrap');
+  var dropdown = document.getElementById('nav-auth-dropdown');
   var sidebarAvatar = document.getElementById('sidebar-avatar');
   var sidebarName = document.getElementById('sidebar-name');
   var sidebarMeta = document.getElementById('sidebar-meta');
 
   if (session && session.name) {
-    // Logged in
-    if (navBtn) { navBtn.textContent = 'Log out'; navBtn.href = '#'; navBtn.addEventListener('click', function(e){ e.preventDefault(); localStorage.removeItem('stwm-team-session'); location.reload(); }); }
+    // Nav badge: show first name in pill
+    var firstName = session.name.split(' ')[0];
+    if (navBtn) {
+      navBtn.textContent = firstName;
+      navBtn.href = '#';
+      navBtn.classList.add('nav-login--authed');
+      navBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        navWrap.classList.toggle('is-open');
+      });
+    }
+    // Dropdown actions
+    var profileBtn = document.getElementById('nav-auth-profile');
+    var logoutBtn = document.getElementById('nav-auth-logout');
+    if (profileBtn) profileBtn.addEventListener('click', function() { navWrap.classList.remove('is-open'); if (window.stwProfile) window.stwProfile.open(); });
+    if (logoutBtn) logoutBtn.addEventListener('click', function() { localStorage.removeItem('stwm-team-session'); location.reload(); });
+    // Close dropdown on outside click
+    document.addEventListener('click', function(e) { if (navWrap && !navWrap.contains(e.target)) navWrap.classList.remove('is-open'); });
+
+    // Sidebar
     if (sidebarAvatar) sidebarAvatar.textContent = session.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
     if (sidebarName) sidebarName.textContent = session.name;
     var joinDate = session.created_at ? new Date(session.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '';
@@ -523,43 +555,39 @@
   var allSections = document.querySelectorAll('.channel-section');
   var postsFeed = document.getElementById('community-posts-feed');
 
+  function switchChannel(ch) {
+    document.querySelectorAll('.community-nav__link').forEach(function(l){l.classList.remove('is-active');});
+    var activeLink = document.querySelector('.community-nav__link[data-channel="'+ch+'"]');
+    if (activeLink) activeLink.classList.add('is-active');
+    document.querySelectorAll('.feed-tab').forEach(function(t){t.classList.toggle('is-active', t.dataset.channel===ch);});
+    allSections.forEach(function(s){s.style.display='none';});
+    if (ch === 'home') { postsFeed.style.display=''; }
+    else { postsFeed.style.display='none'; if(channelSections[ch]) document.getElementById(channelSections[ch]).style.display=''; }
+    // Sync the mobile select
+    var sel = document.getElementById('feed-channel-select');
+    if (sel) sel.value = ch;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
   // Nav link clicks
   document.querySelectorAll('.community-nav__link[data-channel]').forEach(function(link) {
     link.addEventListener('click', function(e) {
       e.preventDefault();
-      var ch = this.dataset.channel;
-      // Update active state
-      document.querySelectorAll('.community-nav__link').forEach(function(l){l.classList.remove('is-active');});
-      this.classList.add('is-active');
-      document.querySelectorAll('.feed-tab').forEach(function(t){t.classList.toggle('is-active', t.dataset.channel===ch);});
-      // Show/hide sections
-      allSections.forEach(function(s){s.style.display='none';});
-      if (ch === 'home') { postsFeed.style.display=''; }
-      else { postsFeed.style.display='none'; if(channelSections[ch]) document.getElementById(channelSections[ch]).style.display=''; }
-      // Close mobile nav
-      document.querySelector('.community-nav').classList.remove('is-open');
-      document.querySelector('.community-nav-overlay').classList.remove('is-open');
-      window.scrollTo({top:0,behavior:'smooth'});
+      switchChannel(this.dataset.channel);
     });
   });
   // Feed tab clicks
   document.querySelectorAll('.feed-tab[data-channel]').forEach(function(tab) {
     tab.addEventListener('click', function() {
-      var ch = this.dataset.channel;
-      document.querySelectorAll('.community-nav__link[data-channel]').forEach(function(l){l.classList.toggle('is-active',l.dataset.channel===ch);});
-      document.querySelectorAll('.feed-tab').forEach(function(t){t.classList.toggle('is-active',t.dataset.channel===ch);});
-      allSections.forEach(function(s){s.style.display='none';});
-      if (ch==='home'){postsFeed.style.display='';}
-      else{postsFeed.style.display='none';if(channelSections[ch])document.getElementById(channelSections[ch]).style.display='';}
+      switchChannel(this.dataset.channel);
     });
   });
-  // Mobile nav
-  var mobileBtn = document.getElementById('community-mobile-nav-btn');
-  var nav = document.querySelector('.community-nav');
-  var overlay = document.querySelector('.community-nav-overlay');
-  if(mobileBtn && nav){
-    mobileBtn.addEventListener('click',function(){nav.classList.toggle('is-open');overlay.classList.toggle('is-open');});
-    overlay.addEventListener('click',function(){nav.classList.remove('is-open');overlay.classList.remove('is-open');});
+  // Mobile channel select
+  var channelSelect = document.getElementById('feed-channel-select');
+  if (channelSelect) {
+    channelSelect.addEventListener('change', function() {
+      switchChannel(this.value);
+    });
   }
 })();
 

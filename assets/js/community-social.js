@@ -273,11 +273,6 @@
       link.addEventListener('click', function (e) {
         e.preventDefault();
         filterByChannel(this.dataset.channel);
-        // Close mobile nav
-        var nav = document.querySelector('.community-nav');
-        var overlay = document.querySelector('.community-nav-overlay');
-        if (nav) nav.classList.remove('is-open');
-        if (overlay) overlay.classList.remove('is-open');
       });
     });
     document.querySelectorAll('.feed-tab[data-channel]').forEach(function (tab) {
@@ -285,21 +280,12 @@
         filterByChannel(this.dataset.channel);
       });
     });
-    // Mobile nav toggle
-    var mobileBtn = document.getElementById('community-mobile-nav-btn');
-    var nav = document.querySelector('.community-nav');
-    var overlay = document.querySelector('.community-nav-overlay');
-    if (mobileBtn && nav) {
-      mobileBtn.addEventListener('click', function () {
-        nav.classList.toggle('is-open');
-        if (overlay) overlay.classList.toggle('is-open');
+    // Mobile channel select
+    var channelSelect = document.getElementById('feed-channel-select');
+    if (channelSelect) {
+      channelSelect.addEventListener('change', function () {
+        filterByChannel(this.value);
       });
-      if (overlay) {
-        overlay.addEventListener('click', function () {
-          nav.classList.remove('is-open');
-          overlay.classList.remove('is-open');
-        });
-      }
     }
   }
 

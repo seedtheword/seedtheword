@@ -283,6 +283,44 @@
     .tab-btn.active { background: var(--c-green); color: #fff; border-color: var(--c-green); }
     .connect-form { display: none; }
     .connect-form.active { display: block; }
+
+    /* Nav Auth Badge & Dropdown */
+    .nav-auth-wrap { position: relative; }
+    .nav-login--authed {
+      background: rgba(44,74,62,0.08) !important;
+      color: #2C4A3E !important;
+      border: 1.5px solid #2C4A3E !important;
+      border-radius: 999px !important;
+      padding: 0.35rem 0.9rem !important;
+      font-weight: 700 !important;
+      font-size: 0.8rem !important;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .nav-login--authed:hover { background: #2C4A3E !important; color: #fff !important; }
+    .nav-auth-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      min-width: 170px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      z-index: 200;
+      padding: 0.4rem 0;
+      animation: navDropFade 0.15s ease;
+    }
+    .nav-auth-wrap.is-open .nav-auth-dropdown { display: block; }
+    .nav-auth-dropdown__item {
+      display: block; width: 100%; padding: 0.6rem 1rem; border: none; background: none;
+      font-size: 0.82rem; font-weight: 500; font-family: 'Inter', sans-serif;
+      color: #1a1a1a; text-align: left; cursor: pointer; transition: background 0.15s;
+    }
+    .nav-auth-dropdown__item:hover { background: #f8f6f3; }
+    .nav-auth-dropdown__item--danger { color: #c0392b; }
+    .nav-auth-dropdown__item--danger:hover { background: rgba(192,57,43,0.06); }
+    @keyframes navDropFade { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
   </style>
 </head>
 <body>
@@ -303,7 +341,13 @@
         <li><a href="about.html">About</a></li>
         <li><a href="news.html">News</a></li>
         <li><a href="community.html">Community</a></li>
-        <li><a href="team.html" class="nav-login">Login</a></li>
+        <li class="nav-auth-wrap" id="nav-auth-wrap">
+          <a href="team.html" class="nav-login" id="nav-auth-btn">Login</a>
+          <div class="nav-auth-dropdown" id="nav-auth-dropdown">
+            <button class="nav-auth-dropdown__item" id="nav-auth-profile">Profile Settings</button>
+            <button class="nav-auth-dropdown__item nav-auth-dropdown__item--danger" id="nav-auth-logout">Log out</button>
+          </div>
+        </li>
       </ul>
     </nav>
     <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
@@ -461,6 +505,7 @@
       </div>
       <div>
         <h4 class="footer-col__title">Connect</h4>
+        <a class="footer-connect__contact" href="connect.html">🤝 Connect with Us</a>
         <a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a>
         <a class="footer-connect__contact" href="https://t.me/seedtheword" target="_blank" rel="noopener">✈️ Telegram</a>
       </div>
@@ -473,6 +518,34 @@
 
 <!-- Scripts -->
 <script src="assets/js/main.js?v=9"></script>
+<script src="assets/js/profile-settings.js?v=1"></script>
+<script>
+// ═══ AUTH: nav badge + dropdown ═══
+(function() {
+  var session = null;
+  try { session = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
+  var navBtn = document.getElementById('nav-auth-btn');
+  var navWrap = document.getElementById('nav-auth-wrap');
+  if (session && session.name) {
+    var firstName = session.name.split(' ')[0];
+    if (navBtn) {
+      navBtn.textContent = firstName;
+      navBtn.href = '#';
+      navBtn.classList.add('nav-login--authed');
+      navBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        navWrap.classList.toggle('is-open');
+      });
+    }
+    var profileBtn = document.getElementById('nav-auth-profile');
+    var logoutBtn = document.getElementById('nav-auth-logout');
+    if (profileBtn) profileBtn.addEventListener('click', function() { navWrap.classList.remove('is-open'); if (window.stwProfile) window.stwProfile.open(); });
+    if (logoutBtn) logoutBtn.addEventListener('click', function() { localStorage.removeItem('stwm-team-session'); location.reload(); });
+    document.addEventListener('click', function(e) { if (navWrap && !navWrap.contains(e.target)) navWrap.classList.remove('is-open'); });
+  }
+})();
+</script>
 <script>
 (function() {
   'use strict';

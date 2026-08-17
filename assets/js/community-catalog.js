@@ -603,24 +603,22 @@
     };
   }
 
-  // ── Render sidebar ──────────────────────────────────────────
+  // ── Render sidebar (now horizontal topic pills) ──────────────
   function renderSidebar() {
-    var html = '<p class="store-sidebar__title">TOPICS</p><ul class="store-sidebar__list">';
+    var html = '';
     categories.forEach(function (cat) {
       var activeClass = cat.key === activeCategory ? ' is-active' : '';
       html +=
-        '<li class="store-sidebar__item' + activeClass + '" data-category="' + esc(cat.key) + '">' +
-          '<span class="store-sidebar__icon">' + cat.icon + '</span>' +
-          '<span class="store-sidebar__label">' + esc(cat.label) + '</span>' +
-        '</li>';
+        '<button class="friends-topic-pill' + activeClass + '" data-category="' + esc(cat.key) + '">' +
+          '<span class="friends-topic-pill__icon">' + cat.icon + '</span>' +
+          '<span class="friends-topic-pill__label">' + esc(cat.label) + '</span>' +
+        '</button>';
     });
-    html += '</ul>';
     sidebarEl.innerHTML = html;
 
-    sidebarEl.querySelectorAll('.store-sidebar__item').forEach(function (item) {
+    sidebarEl.querySelectorAll('.friends-topic-pill').forEach(function (item) {
       item.addEventListener('click', function () {
         setCategory(item.dataset.category);
-        closeSidebar();
       });
     });
   }
@@ -632,9 +630,9 @@
     activeCategory = key;
     renderSidebar();
     renderGrid();
-    var catalogArea = document.querySelector('#friends-in-jesus .store-layout');
-    if (catalogArea) {
-      catalogArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var section = document.querySelector('.friends-section');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
@@ -687,18 +685,9 @@
     renderGrid();
   }
 
-  // ── Mobile sidebar toggle ───────────────────────────────────
-  function openSidebar() {
-    sidebarEl.classList.add('is-open');
-    overlayEl.classList.add('is-visible');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeSidebar() {
-    sidebarEl.classList.remove('is-open');
-    overlayEl.classList.remove('is-visible');
-    document.body.style.overflow = '';
-  }
+  // ── Mobile sidebar toggle (legacy — now pills, no overlay needed) ──
+  function openSidebar() {}
+  function closeSidebar() {}
 
   // ── Init ────────────────────────────────────────────────────
   async function init() {

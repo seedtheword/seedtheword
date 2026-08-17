@@ -302,30 +302,27 @@
         <div id="livestream-card-container"></div>
       </div>
 
-      <!-- ═══ FRIENDS IN JESUS (consolidated here with labels) ═══ -->
-      <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--color-border);">
-        <h3 style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--color-text);margin:0 0 0.25rem;">✨ Friends in Jesus</h3>
-        <p style="font-size:0.82rem;color:var(--color-text-muted);margin:0 0 1rem;">Podcasts, sermons, and content from voices we love. Watch, like, recommend, and share.</p>
+      <!-- ═══ FRIENDS IN JESUS (Netflix-style shelves) ═══ -->
+      <div class="friends-section">
+        <h3 class="friends-section__title">✨ Friends in Jesus</h3>
+        <p class="friends-section__desc">Podcasts, sermons, and content from voices we love. Watch, like, recommend, and share.</p>
 
-        <div style="margin-bottom:0.75rem;">
-          <button class="store-sidebar-toggle" id="community-sidebar-toggle" aria-label="Open topic menu">
-            <span class="store-sidebar-toggle__icon">☰</span><span>Topics</span>
-          </button>
+        <!-- Topic pills (replaces sidebar) -->
+        <div class="friends-topics" id="community-sidebar" role="tablist"></div>
+
+        <!-- Search -->
+        <div class="friends-search">
+          <span class="friends-search__icon">🔍</span>
+          <input type="search" id="community-search-input" class="friends-search__input" placeholder="Search content..." autocomplete="off" aria-label="Search community content">
+          <span class="friends-search__count" id="community-search-count"></span>
+          <button class="friends-search__clear" id="community-search-clear" aria-label="Clear search">✕</button>
         </div>
-        <div class="store-sidebar-overlay" id="community-sidebar-overlay"></div>
-        <div class="store-layout">
-          <aside class="store-sidebar" id="community-sidebar" aria-label="Content topics"></aside>
-          <div class="store-main">
-            <div class="store-search">
-              <span class="store-search__icon">🔍</span>
-              <input type="search" id="community-search-input" class="store-search__input" placeholder="Search content..." autocomplete="off" aria-label="Search community content">
-              <span class="store-search__count" id="community-search-count"></span>
-              <button class="store-search__clear" id="community-search-clear" aria-label="Clear search">✕</button>
-            </div>
-            <div id="community-category-header" class="store-category-header"></div>
-            <div class="store-grid" id="community-grid"></div>
-          </div>
-        </div>
+
+        <!-- Category header -->
+        <div id="community-category-header" class="friends-category-header"></div>
+
+        <!-- Content grid / shelves -->
+        <div id="community-grid" class="listen-layout"></div>
       </div>
 
       <div class="section-feedback">

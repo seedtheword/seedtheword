@@ -787,6 +787,7 @@ body:has(.community-layout) {
   /* ── Channel sections mobile glass treatment ── */
   .channel-section {
     padding: 0 !important;
+    overflow: hidden;
   }
   .channel-section .section-title {
     font-size: 1.05rem;
@@ -801,6 +802,7 @@ body:has(.community-layout) {
   .music-playlist-card {
     padding: 1rem;
     border-radius: 16px;
+    overflow: hidden;
   }
   .music-playlist-card__header {
     flex-direction: column;
@@ -809,7 +811,10 @@ body:has(.community-layout) {
   .music-playlist-card__add-btn {
     align-self: flex-start;
   }
-  .music-playlist-card iframe {
+  .music-playlist-card iframe,
+  .channel-section iframe {
+    max-width: 100% !important;
+    width: 100% !important;
     height: 180px !important;
   }
 
@@ -1376,4 +1381,169 @@ body:has(.community-layout) {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+
+/* ── Friends in Jesus Section ──────────────────────────────── */
+.friends-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+.friends-section__title {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.25rem;
+}
+.friends-section__desc {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin: 0 0 1rem;
+}
+
+/* Topic pills (horizontal scroll) */
+.friends-topics {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+.friends-topics::-webkit-scrollbar { display: none; }
+
+.friends-topic-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.9rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.friends-topic-pill:hover {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+.friends-topic-pill.is-active {
+  background: var(--color-gold);
+  border-color: var(--color-gold);
+  color: #fff;
+}
+.friends-topic-pill__icon {
+  font-size: 0.9rem;
+}
+
+/* Friends search bar */
+.friends-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+.friends-search__icon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+.friends-search__input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  outline: none;
+  min-width: 0;
+}
+.friends-search__input::placeholder {
+  color: var(--color-text-muted);
+}
+.friends-search__count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-gold);
+  display: none;
+}
+.friends-search__count.is-visible { display: inline; }
+.friends-search__clear {
+  display: none;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 0;
+}
+.friends-search__clear.is-visible { display: inline; }
+
+/* Category header */
+.friends-category-header {
+  margin-bottom: 1rem;
+}
+.friends-category-header .store-category-header__title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.2rem;
+}
+.friends-category-header .store-category-header__desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Listen layout (Netflix shelves) — ensure no overflow on mobile */
+.listen-layout {
+  overflow: hidden;
+}
+.listen-shelf__scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 0.5rem;
+}
+.listen-shelf__scroll::-webkit-scrollbar { display: none; }
+
+@media (max-width: 768px) {
+  .friends-section {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+  }
+  .listen-hero {
+    border-radius: 14px !important;
+    overflow: hidden;
+  }
+  .listen-hero__thumb {
+    height: 160px !important;
+  }
+  .listen-social-banner {
+    border-radius: 14px !important;
+    padding: 1rem !important;
+  }
+  .listen-shelf {
+    margin-bottom: 1rem;
+  }
+  .listen-shelf__title {
+    font-size: 0.88rem !important;
+  }
+  .listen-card {
+    min-width: 140px !important;
+    max-width: 160px !important;
+  }
 }

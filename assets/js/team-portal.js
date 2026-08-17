@@ -346,14 +346,22 @@ function removeScan(idx){
 }
 function editScan(idx){
   var scan=session.todayScans[idx];
-  var newQty=prompt('Edit quantity for "'+scan.name+'":\n(Currently 1. Enter new quantity or 0 to remove.)',1);
+  var currentQty=scan.qty||1;
+  var newQty=prompt('Edit quantity for "'+scan.name+'":\n(Currently '+currentQty+'. Enter new quantity or 0 to remove.)',currentQty);
   if(newQty===null)return;
   newQty=parseInt(newQty);
   if(newQty===0){removeScan(idx);return;}
   if(isNaN(newQty)||newQty<1){alert('Invalid quantity.');return;}
-  // For today's items, we can directly update
-  postAction({action:'editScan',token:session.token,item_id:scan.id,item_name:scan.name,event_label:session.event,date:session.eventDate,new_qty:newQty}).catch(function(){});
-  alert('Updated to '+newQty+'.');
+  // Update local state
+  var diff=newQty-currentQty;
+  session.todayScans[idx].qty=newQty;
+  session.totalScans=(session.totalScans||0)+diff;
+  saveSession();updateActivityList();updateScanCount();
+  document.getElementById('stat-total').textContent=session.totalScans;
+  // Update server
+  postAction({action:'editScan',token:session.token,item_id:scan.id,item_name:scan.name,event_label:session.event,date:session.eventDate,new_qty:newQty}).then(function(res){
+    if(res&&res.ok){/* success */}else{alert('Server update failed: '+(res&&res.error||'unknown'));}
+  }).catch(function(e){alert('Update failed: '+e.message);});
 }
 
 // ── Scan History ──
@@ -436,7 +444,13 @@ function showScanConfirm(name,id){
   document.getElementById('qr-status').textContent='\u2705 Scanned! Confirm below.';document.getElementById('qr-status').className='qr-status success';
 }
 document.getElementById('qr-confirm-add').addEventListener('click',function(){
-  if(pendingScan){logScan(pendingScan.id,pendingScan.name);document.getElementById('qr-status').textContent='\u2705 Added: '+pendingScan.name;}
+  if(pendingScan){
+    var qty=prompt('How many "'+pendingScan.name+'" to log?',1);
+    qty=parseInt(qty)||1;
+    if(qty<1)qty=1;
+    logScan(pendingScan.id,pendingScan.name,qty);
+    document.getElementById('qr-status').textContent='\u2705 Added: '+pendingScan.name+(qty>1?' (x'+qty+')':'');
+  }
   document.getElementById('qr-confirm').classList.remove('active');pendingScan=null;
 });
 document.getElementById('qr-confirm-cancel').addEventListener('click',function(){
@@ -448,14 +462,15 @@ document.getElementById('qr-confirm-rescan').addEventListener('click',function()
 });
 
 // ── Log Scan ──
-async function logScan(itemId,itemName){
+async function logScan(itemId,itemName,qty){
+  qty=parseInt(qty)||1;
   var now=new Date();
-  session.todayScans.push({id:itemId,name:itemName,time:now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
-  session.totalScans=(session.totalScans||0)+1;
+  session.todayScans.push({id:itemId,name:itemName,qty:qty,time:now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
+  session.totalScans=(session.totalScans||0)+qty;
   saveSession();updateActivityList();updateScanCount();
   document.getElementById('stat-today').textContent=session.todayScans.length;
   document.getElementById('stat-total').textContent=session.totalScans;
-  try{await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:itemId,item_name:itemName,event_label:session.event,date:now.toISOString().split('T')[0]});}catch(e){}
+  try{await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:itemId,item_name:itemName,qty:qty,event_label:session.event,date:now.toISOString().split('T')[0]});}catch(e){}
 }
 
 // ── Picker ──
@@ -470,7 +485,13 @@ function renderPickerList(filter){
   });
   if(!html)html='<p style="text-align:center;color:var(--muted);padding:2rem 0;font-size:0.84rem;">No items match.</p>';
   list.innerHTML=html;
-  list.querySelectorAll('.picker-item').forEach(function(el){el.addEventListener('click',function(){logScan(TYPES[+this.dataset.idx][1],TYPES[+this.dataset.idx][0]);closePicker();});});
+  list.querySelectorAll('.picker-item').forEach(function(el){el.addEventListener('click',function(){
+    var item=TYPES[+this.dataset.idx];
+    var qty=prompt('How many "'+item[0]+'" to log?',1);
+    qty=parseInt(qty)||1;
+    if(qty<1)qty=1;
+    logScan(item[1],item[0],qty);closePicker();
+  });});
 }
 document.getElementById('picker-close').addEventListener('click',closePicker);
 document.getElementById('picker-overlay').addEventListener('click',function(e){if(e.target===this)closePicker();});

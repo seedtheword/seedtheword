@@ -14,7 +14,7 @@
 .team-page {
   max-width: 560px;
   margin: 0 auto;
-  padding: 1.25rem 1rem 4rem;
+  padding: 2rem 1rem 4rem;
   position: relative;
   z-index: 1;
 }
@@ -542,16 +542,16 @@
 .team-post__action.is-liked { color: var(--color-gold); }
 
 /* ── Form Elements ─────────────────────────────────────────── */
-.team-shell label {
+.team-page label {
   display: block;
   font-size: 0.8rem;
   font-weight: 600;
   margin-bottom: 0.2rem;
   color: var(--color-text);
 }
-.team-shell input,
-.team-shell select,
-.team-shell textarea {
+.team-page input,
+.team-page select,
+.team-page textarea {
   width: 100%;
   padding: 0.75rem 0.85rem;
   border: 1.5px solid var(--color-border);
@@ -564,17 +564,17 @@
   -webkit-appearance: none;
   transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
 }
-.team-shell input:focus,
-.team-shell select:focus,
-.team-shell textarea:focus {
+.team-page input:focus,
+.team-page select:focus,
+.team-page textarea:focus {
   outline: none;
   border-color: var(--color-gold);
   box-shadow: var(--shadow-glow);
 }
-.team-shell textarea { resize: vertical; min-height: 60px; }
+.team-page textarea { resize: vertical; min-height: 60px; }
 
 /* ── Buttons ───────────────────────────────────────────────── */
-.team-shell .btn {
+.team-page .btn {
   width: 100%;
   padding: 0.85rem;
   border: none;
@@ -586,15 +586,15 @@
   margin-bottom: 0.5rem;
   transition: transform var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease);
 }
-.team-shell .btn:hover { transform: translateY(-1px); }
-.team-shell .btn:active { transform: scale(0.98); }
-.team-shell .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-.team-shell .btn--gold { background: linear-gradient(135deg, var(--color-gold), #e08a42); color: #fff; box-shadow: 0 4px 16px rgba(217, 119, 54, 0.25); }
-.team-shell .btn--green { background: linear-gradient(135deg, var(--color-olive), #3a5f4e); color: #fff; box-shadow: 0 4px 16px rgba(44, 74, 62, 0.25); }
-.team-shell .btn--outline { background: var(--color-surface); border: 1.5px solid var(--color-border); color: var(--color-text-secondary); }
-.team-shell .btn--outline:hover { border-color: var(--color-gold); color: var(--color-gold); }
-.team-shell .btn--danger { background: linear-gradient(135deg, var(--color-danger), #c0392b); color: #fff; }
-.team-shell .btn--sm { padding: 0.6rem 1rem; font-size: 0.82rem; width: auto; }
+.team-page .btn:hover { transform: translateY(-1px); }
+.team-page .btn:active { transform: scale(0.98); }
+.team-page .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.team-page .btn--gold { background: linear-gradient(135deg, var(--color-gold), #e08a42); color: #fff; box-shadow: 0 4px 16px rgba(217, 119, 54, 0.25); }
+.team-page .btn--green { background: linear-gradient(135deg, var(--color-olive), #3a5f4e); color: #fff; box-shadow: 0 4px 16px rgba(44, 74, 62, 0.25); }
+.team-page .btn--outline { background: var(--color-surface); border: 1.5px solid var(--color-border); color: var(--color-text-secondary); }
+.team-page .btn--outline:hover { border-color: var(--color-gold); color: var(--color-gold); }
+.team-page .btn--danger { background: linear-gradient(135deg, var(--color-danger), #c0392b); color: #fff; }
+.team-page .btn--sm { padding: 0.6rem 1rem; font-size: 0.82rem; width: auto; }
 
 /* ── Views / Status ────────────────────────────────────────── */
 .view { display: none; animation: fadeIn 0.2s ease both; }

@@ -382,18 +382,22 @@ function installConnectTriggers() {
 // Updates TeamMembers sheet with contact/notification preferences.
 
 function handleUpdateProfile_(payload) {
-  var session = verifyToken_(payload.token);
-  if (!session) return jsonResponse_({ ok: false, error: 'Invalid session.' });
+  var user = validateTeamToken_(String(payload.token || ''));
+  if (!user) return jsonResponse({ ok: false, error: 'Invalid session.' });
 
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
   var sheet = ss.getSheetByName('TeamMembers');
-  if (!sheet) return jsonResponse_({ ok: false, error: 'Sheet not found.' });
+  if (!sheet) return jsonResponse({ ok: false, error: 'Sheet not found.' });
 
   var data = sheet.getDataRange().getValues();
   var headers = data[0];
 
   // Find the member row by token
   var tokenCol = headers.indexOf('token');
+  if (tokenCol === -1) {
+    // Try first column as token (standard layout)
+    tokenCol = 0;
+  }
   var emailCol = headers.indexOf('email');
   var phoneCol = headers.indexOf('phone');
   var telegramCol = headers.indexOf('telegram_username');
@@ -406,21 +410,30 @@ function handleUpdateProfile_(payload) {
   }
   var carrierCol = headers.indexOf('carrier');
   if (carrierCol === -1) {
-    carrierCol = headers.length + (notifyCol === headers.length ? 1 : 0);
+    carrierCol = (notifyCol >= headers.length ? headers.length + 1 : headers.length);
     sheet.getRange(1, carrierCol + 1).setValue('carrier');
   }
 
+  var token = String(payload.token || '').trim();
   for (var i = 1; i < data.length; i++) {
-    if (data[i][tokenCol] === session.token) {
+    if (String(data[i][tokenCol]).trim() === token) {
       var row = i + 1;
       if (emailCol >= 0 && payload.email !== undefined) sheet.getRange(row, emailCol + 1).setValue(String(payload.email || '').trim());
       if (phoneCol >= 0 && payload.phone !== undefined) sheet.getRange(row, phoneCol + 1).setValue(String(payload.phone || '').trim());
       if (telegramCol >= 0 && payload.telegram_username !== undefined) sheet.getRange(row, telegramCol + 1).setValue(String(payload.telegram_username || '').trim());
       sheet.getRange(row, notifyCol + 1).setValue(String(payload.notify_pref || 'email'));
       sheet.getRange(row, carrierCol + 1).setValue(String(payload.carrier || ''));
-      return jsonResponse_({ ok: true });
+
+      // Also update the name if provided
+      var nameCol = headers.indexOf('name');
+      if (nameCol === -1) nameCol = 1; // Standard layout: column B
+      if (payload.name && payload.name.trim()) {
+        sheet.getRange(row, nameCol + 1).setValue(String(payload.name).trim());
+      }
+
+      return jsonResponse({ ok: true });
     }
   }
 
-  return jsonResponse_({ ok: false, error: 'Member not found.' });
+  return jsonResponse({ ok: false, error: 'Member not found.' });
 }

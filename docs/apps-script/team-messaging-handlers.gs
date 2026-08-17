@@ -469,12 +469,32 @@ function handleEditScan_(payload) {
 
     var data = sheet.getRange(2, 1, sheet.getLastRow()-1, sheet.getLastColumn()).getValues();
     for (var i = data.length - 1; i >= 0; i--) {
+      var rowDate = data[i][0] instanceof Date ? data[i][0].toISOString().split('T')[0] : String(data[i][0]).trim().split('T')[0];
       if (String(data[i][2]).trim() === itemId &&
-          String(data[i][0]).trim() === date &&
+          rowDate === date &&
           String(data[i][9]).toLowerCase().trim() === user.name.toLowerCase()) {
+        var oldQty = parseInt(data[i][4]) || 1;
         // Column 5 is quantity (index 4)
         sheet.getRange(i + 2, 5).setValue(newQty);
-        return jsonResponse({ ok: true, route: 'editScan', updated: true });
+
+        // Log discrepancy to AuditLog sheet
+        var auditSheet = ss.getSheetByName('AuditLog');
+        if (!auditSheet) {
+          auditSheet = ss.insertSheet('AuditLog');
+          auditSheet.getRange(1, 1, 1, 7).setValues([['timestamp', 'action', 'member', 'item_id', 'old_qty', 'new_qty', 'notes']]);
+          auditSheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+        }
+        auditSheet.appendRow([
+          new Date().toISOString(),
+          'editScan',
+          user.name,
+          itemId,
+          oldQty,
+          newQty,
+          'Event: ' + (String(payload.event_label || '') || 'N/A') + ' | Date: ' + date
+        ]);
+
+        return jsonResponse({ ok: true, route: 'editScan', updated: true, old_qty: oldQty, new_qty: newQty });
       }
     }
     return jsonResponse({ ok: false, error: 'Row not found' });
@@ -579,11 +599,23 @@ function handleEditInventoryRow_(payload) {
       if (String(data[i][rowIdCol]).trim() === rowId) {
         // Non-admins can only edit today's entries and only their own
         if (user.role !== 'admin') {
-          if (String(data[i][0]).trim() !== today) return jsonResponse({ ok: false, error: 'Can only edit today\'s entries' });
+          var rowDate = data[i][0] instanceof Date ? data[i][0].toISOString().split('T')[0] : String(data[i][0]).trim().split('T')[0];
+          if (rowDate !== today) return jsonResponse({ ok: false, error: 'Can only edit today\'s entries' });
           if (String(data[i][9]).toLowerCase().trim() !== user.name.toLowerCase()) return jsonResponse({ ok: false, error: 'Can only edit your own entries' });
         }
+        var oldQty = parseInt(data[i][4]) || 1;
         sheet.getRange(i + 2, 5).setValue(newQty); // Column 5 = qty
-        return jsonResponse({ ok: true, route: 'editInventoryRow' });
+
+        // Audit log
+        var auditSheet = ss.getSheetByName('AuditLog');
+        if (!auditSheet) {
+          auditSheet = ss.insertSheet('AuditLog');
+          auditSheet.getRange(1, 1, 1, 7).setValues([['timestamp', 'action', 'member', 'item_id', 'old_qty', 'new_qty', 'notes']]);
+          auditSheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+        }
+        auditSheet.appendRow([new Date().toISOString(), 'editInventoryRow', user.name, String(data[i][2]), oldQty, newQty, 'row_id: ' + rowId]);
+
+        return jsonResponse({ ok: true, route: 'editInventoryRow', old_qty: oldQty, new_qty: newQty });
       }
     }
     return jsonResponse({ ok: false, error: 'Row not found' });

@@ -2722,6 +2722,7 @@ function handleTeamScan_(payload) {
     var itemName = String(payload.item_name || '').trim();
     var teamMember = String(payload.team_member || '').trim();
     var eventLabel = String(payload.event_label || '').trim();
+    var qty = parseInt(payload.qty) || 1;
     var date = payload.date || new Date().toISOString().split('T')[0];
     if (!itemId) return jsonResponse({ ok: false, error: 'No item' });
 
@@ -2742,17 +2743,18 @@ function handleTeamScan_(payload) {
     maxNum++;
     var rowId='INV-'+String(maxNum).padStart(4,'0');
 
-    var row=[date,'outreach',itemId,itemName,1,'out',eventLabel||'team-scan',cost,cost,teamMember,''];
+    var totalCost = cost * qty;
+    var row=[date,'outreach',itemId,itemName,qty,'out',eventLabel||'team-scan',cost,totalCost,teamMember,''];
     if(rowIdColIdx>0){while(row.length<rowIdColIdx-1)row.push('');row[rowIdColIdx-1]=rowId;}else row.push(rowId);
     invSheet.appendRow(row);
 
-    // Update team member total_scans
+    // Update team member total_scans (increment by qty)
     if(token){
       var tmSheet=getTeamSheet_();
       if(tmSheet.getLastRow()>1){
         var tmData=tmSheet.getRange(2,1,tmSheet.getLastRow()-1,8).getValues();
         for(var i=0;i<tmData.length;i++){
-          if(tmData[i][0]===token){tmSheet.getRange(i+2,8).setValue((parseInt(tmData[i][7])||0)+1);break;}
+          if(tmData[i][0]===token){tmSheet.getRange(i+2,8).setValue((parseInt(tmData[i][7])||0)+qty);break;}
         }
       }
     }

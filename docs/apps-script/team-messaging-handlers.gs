@@ -474,8 +474,10 @@ function handleEditScan_(payload) {
           rowDate === date &&
           String(data[i][9]).toLowerCase().trim() === user.name.toLowerCase()) {
         var oldQty = parseInt(data[i][4]) || 1;
-        // Column 5 is quantity (index 4)
+        var unitCost = parseFloat(data[i][7]) || 0;
+        // Column 5 is quantity (index 4), Column 9 is total_cost (index 8)
         sheet.getRange(i + 2, 5).setValue(newQty);
+        sheet.getRange(i + 2, 9).setValue(unitCost * newQty);
 
         // Log discrepancy to AuditLog sheet
         var auditSheet = ss.getSheetByName('AuditLog');
@@ -604,7 +606,9 @@ function handleEditInventoryRow_(payload) {
           if (String(data[i][9]).toLowerCase().trim() !== user.name.toLowerCase()) return jsonResponse({ ok: false, error: 'Can only edit your own entries' });
         }
         var oldQty = parseInt(data[i][4]) || 1;
+        var unitCost = parseFloat(data[i][7]) || 0;
         sheet.getRange(i + 2, 5).setValue(newQty); // Column 5 = qty
+        sheet.getRange(i + 2, 9).setValue(unitCost * newQty); // Column 9 = total_cost
 
         // Audit log
         var auditSheet = ss.getSheetByName('AuditLog');

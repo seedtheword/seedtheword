@@ -153,6 +153,7 @@ body:has(.community-layout) {
   max-width: 680px;
   margin: 0 auto;
   width: 100%;
+  overflow: hidden;
 }
 
 /* Compose box (for logged-in users) */
@@ -1511,8 +1512,17 @@ body:has(.community-layout) {
 /* Listen layout (Netflix shelves) — ensure no overflow on mobile */
 .listen-layout {
   overflow: hidden;
+  max-width: 100%;
+}
+.listen-layout .store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+  max-width: 100%;
 }
 .listen-shelf__scroll {
+  display: flex;
+  gap: 0.75rem;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -1525,19 +1535,29 @@ body:has(.community-layout) {
     margin-top: 1.25rem;
     padding-top: 1rem;
   }
+  .listen-layout .store-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem;
+  }
   .listen-hero {
     border-radius: 14px !important;
     overflow: hidden;
+    max-width: 100%;
   }
   .listen-hero__thumb {
     height: 160px !important;
+    max-width: 100%;
   }
   .listen-social-banner {
     border-radius: 14px !important;
     padding: 1rem !important;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   .listen-shelf {
     margin-bottom: 1rem;
+    max-width: 100%;
+    overflow: hidden;
   }
   .listen-shelf__title {
     font-size: 0.88rem !important;
@@ -1545,5 +1565,8 @@ body:has(.community-layout) {
   .listen-card {
     min-width: 140px !important;
     max-width: 160px !important;
+  }
+  .store-card {
+    max-width: 100% !important;
   }
 }

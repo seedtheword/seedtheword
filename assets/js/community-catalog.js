@@ -30,8 +30,7 @@
   var categories = [
     { key: 'listening', label: 'Listening', icon: '🎧', description: 'Podcasts, episodes, and channels we recommend' },
     { key: 'partners', label: 'Partners', icon: '🤝', description: 'Ministries we walk alongside' },
-    { key: 'messages', label: 'Messages', icon: '🎬', description: 'Video teachings from friends' },
-    { key: 'resources', label: 'Resources', icon: '📖', description: 'Reading plans and guides' }
+    { key: 'messages', label: 'Messages', icon: '🎬', description: 'Video teachings from friends' }
   ];
 
   // ── Hardcoded items ─────────────────────────────────────────

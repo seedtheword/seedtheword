@@ -728,8 +728,31 @@ body:has(.community-layout) {
 @media (max-width: 768px) {
   .community-layout {
     grid-template-columns: 1fr;
+    gap: 0;
   }
   .community-nav {
+    display: none;
+  }
+  .community-panel {
+    display: block !important;
+    position: static;
+    height: auto;
+    overflow: visible;
+    border-left: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem;
+    order: -1;
+  }
+  .community-panel .panel-card {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 16px;
+  }
+  .community-panel .panel-cta {
     display: none;
   }
   .community-feed {
@@ -759,6 +782,97 @@ body:has(.community-layout) {
   }
   .theme-toggle--inline {
     display: flex !important;
+  }
+
+  /* ── Channel sections mobile glass treatment ── */
+  .channel-section {
+    padding: 0 !important;
+  }
+  .channel-section .section-title {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
+  .channel-section .section-desc {
+    font-size: 0.82rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Music section mobile */
+  .music-playlist-card {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+  .music-playlist-card__header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .music-playlist-card__add-btn {
+    align-self: flex-start;
+  }
+  .music-playlist-card iframe {
+    height: 180px !important;
+  }
+
+  /* Friends in Jesus / store-layout inside music section */
+  .channel-section .store-layout {
+    display: block !important;
+  }
+  .channel-section .store-sidebar {
+    display: none;
+  }
+  .channel-section .store-main {
+    padding: 0;
+  }
+  .channel-section .store-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem;
+  }
+  .channel-section .store-search {
+    margin-bottom: 0.75rem;
+  }
+
+  /* Library section mobile */
+  .library-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.5);
+  }
+  .library-item__icon {
+    width: auto;
+    height: auto;
+  }
+  .library-item__btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Prayer section mobile */
+  #prayer-chat-feed {
+    max-height: 400px !important;
+    border-radius: 14px !important;
+  }
+
+  /* Reading today card mobile */
+  .reading-today-card {
+    border-radius: 14px !important;
+  }
+}
+
+/* Dark mode glass cards on mobile */
+@media (max-width: 768px) {
+  [data-theme="dark"] .community-panel .panel-card {
+    background: rgba(30, 33, 40, 0.8);
+    border-color: rgba(255,255,255,0.08);
+  }
+  [data-theme="dark"] .library-item {
+    background: rgba(30, 33, 40, 0.8);
+    border-color: rgba(255,255,255,0.08);
   }
 }
 @media (min-width: 769px) {

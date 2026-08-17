@@ -1430,17 +1430,20 @@ body:has(.community-layout) {
   color: var(--color-text-muted);
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.15s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
 }
 .friends-topic-pill:hover {
   border-color: var(--color-gold);
   color: var(--color-gold);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(217, 119, 54, 0.12);
 }
 .friends-topic-pill.is-active {
   background: var(--color-gold);
   border-color: var(--color-gold);
   color: #fff;
+  box-shadow: 0 4px 16px rgba(217, 119, 54, 0.25);
 }
 .friends-topic-pill__icon {
   font-size: 0.9rem;
@@ -1456,6 +1459,11 @@ body:has(.community-layout) {
   border: 1.5px solid var(--color-border);
   border-radius: 12px;
   margin-bottom: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.friends-search:focus-within {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(217, 119, 54, 0.08);
 }
 .friends-search__icon {
   font-size: 0.9rem;
@@ -1509,64 +1517,140 @@ body:has(.community-layout) {
   margin: 0;
 }
 
-/* Listen layout (Netflix shelves) — ensure no overflow on mobile */
-.listen-layout {
+/* ── Netflix-style overrides for community context ─────────── */
+.friends-section .listen-layout {
   overflow: hidden;
   max-width: 100%;
 }
-.listen-layout .store-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 0.75rem;
-  max-width: 100%;
+
+.friends-section .listen-hero {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
 }
-.listen-shelf__scroll {
+.friends-section .listen-hero:hover {
+  transform: scale(1.01);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.friends-section .listen-shelf {
+  margin-bottom: 1.5rem;
+}
+.friends-section .listen-shelf__title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.friends-section .listen-shelf__scroll {
   display: flex;
-  gap: 0.75rem;
+  gap: 1rem;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.75rem;
+  scroll-snap-type: x mandatory;
 }
-.listen-shelf__scroll::-webkit-scrollbar { display: none; }
+.friends-section .listen-shelf__scroll::-webkit-scrollbar { display: none; }
+
+.friends-section .listen-card {
+  min-width: 180px;
+  max-width: 200px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s;
+  scroll-snap-align: start;
+}
+.friends-section .listen-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-gold);
+}
+
+.friends-section .listen-card__thumb {
+  border-radius: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.friends-section .listen-card__name {
+  font-family: var(--font-serif);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.friends-section .listen-card__source {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Social banner in friends section */
+.friends-section .listen-social-banner {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+[data-theme="dark"] .friends-section .listen-social-banner {
+  background: rgba(30, 33, 40, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Store-grid (Partners, Messages) in friends context */
+.friends-section .store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  max-width: 100%;
+}
+.friends-section .store-card {
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s;
+}
+.friends-section .store-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
 
 @media (max-width: 768px) {
   .friends-section {
     margin-top: 1.25rem;
     padding-top: 1rem;
   }
-  .listen-layout .store-grid {
-    grid-template-columns: 1fr !important;
+  .friends-section .listen-hero {
+    border-radius: 14px;
+    min-height: auto;
+  }
+  .friends-section .listen-hero__thumb {
+    height: 160px;
+    position: relative;
+  }
+  .friends-section .listen-hero__content {
+    padding: 1rem;
+  }
+  .friends-section .listen-social-banner {
+    border-radius: 14px;
+    padding: 1rem;
+  }
+  .friends-section .listen-card {
+    min-width: 150px;
+    max-width: 170px;
+  }
+  .friends-section .listen-shelf__scroll {
     gap: 0.75rem;
   }
-  .listen-hero {
-    border-radius: 14px !important;
-    overflow: hidden;
-    max-width: 100%;
-  }
-  .listen-hero__thumb {
-    height: 160px !important;
-    max-width: 100%;
-  }
-  .listen-social-banner {
-    border-radius: 14px !important;
-    padding: 1rem !important;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-  .listen-shelf {
-    margin-bottom: 1rem;
-    max-width: 100%;
-    overflow: hidden;
-  }
-  .listen-shelf__title {
-    font-size: 0.88rem !important;
-  }
-  .listen-card {
-    min-width: 140px !important;
-    max-width: 160px !important;
-  }
-  .store-card {
-    max-width: 100% !important;
+  .friends-section .store-grid {
+    grid-template-columns: 1fr !important;
   }
 }

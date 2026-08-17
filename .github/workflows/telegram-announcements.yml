@@ -32,6 +32,10 @@ on:
         description: "If 'true', post ONE '(test)'-labeled photo announcement from the next event with attached photos. Skips dedup so this can be run repeatedly. Used for verifying the photo pipeline."
         required: false
         default: 'false'
+      force_live:
+        description: "If 'true', post a LIVE NOW announcement for any currently-live event (bypasses streaming link check). Use this to manually trigger live announcements."
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -62,6 +66,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
           TEST_RUN: ${{ github.event.inputs.test_run == 'true' && '1' || '' }}
+          FORCE_LIVE: ${{ github.event.inputs.force_live == 'true' && '1' || '' }}
           # Optional SMS-CC: when both vars are set, every successful
           # Telegram announcement post fires a 140-char SMS to the
           # admin via the carrier email-to-SMS gateway.

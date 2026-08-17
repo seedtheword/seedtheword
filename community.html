@@ -492,6 +492,7 @@
 <script src="assets/js/study-saturday.js?v=7" defer></script>
 <script src="assets/js/prayer-intake.js?v=2"></script>
 <script src="assets/js/community-social.js?v=2"></script>
+<script src="assets/js/google-calendar.js?v=16"></script>
 <script src="assets/js/profile-settings.js?v=1"></script>
 <script src="assets/js/nav-auth.js?v=1"></script>
 <script>
@@ -761,19 +762,59 @@
   if(collapseBtn) collapseBtn.addEventListener('click', collapse);
 })();
 
-// ═══ GOOGLE CALENDAR EVENTS (if google-calendar.js is available) ═══
+// ═══ GOOGLE CALENDAR EVENTS (populate panel from live data) ═══
 (function() {
-  // Attempt to load calendar events into panel
   var panelEvents = document.getElementById('panel-events');
-  if (window.stwCalendar && panelEvents) {
-    window.stwCalendar.getUpcoming(5).then(function(events) {
-      if (!events || !events.length) return;
-      panelEvents.innerHTML = events.map(function(ev) {
-        var d = new Date(ev.start);
-        return '<div class="panel-event"><div class="panel-event__date"><span class="panel-event__month">'+d.toLocaleDateString('en-US',{month:'short'})+'</span><span class="panel-event__day">'+d.getDate()+'</span></div><div class="panel-event__info"><div class="panel-event__title">'+ev.title+'</div><div class="panel-event__time">'+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div></div></div>';
-      }).join('');
-    }).catch(function(){});
+  var panelLive = document.getElementById('panel-live');
+  if (!panelEvents) return;
+
+  function populatePanel() {
+    var cal = window.googleCalendar;
+    if (!cal || !cal.events || !cal.events.length) return;
+
+    var now = new Date();
+    var upcoming = cal.events.filter(function(ev) {
+      var start = cal.getEventStart(ev);
+      return start && start > now;
+    }).slice(0, 5);
+
+    if (!upcoming.length) return;
+
+    panelEvents.innerHTML = upcoming.map(function(ev) {
+      var start = cal.getEventStart(ev);
+      var month = start.toLocaleDateString('en-US', { month: 'short' });
+      var day = start.getDate();
+      var time = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      var title = ev.summary || 'Event';
+      return '<div class="panel-event"><div class="panel-event__date"><span class="panel-event__month">' + month + '</span><span class="panel-event__day">' + day + '</span></div><div class="panel-event__info"><div class="panel-event__title">' + title + '</div><div class="panel-event__time">' + time + '</div></div></div>';
+    }).join('');
+
+    // Show live indicator if any event is currently live
+    if (panelLive) {
+      var live = cal.events.filter(function(ev) {
+        var start = cal.getEventStart(ev);
+        var end = cal.getEventEnd ? cal.getEventEnd(ev) : null;
+        return start && end && start <= now && end >= now;
+      });
+      if (live.length) {
+        panelLive.style.display = '';
+        var titleEl = panelLive.querySelector('.panel-live__title');
+        if (titleEl) titleEl.textContent = live[0].summary || 'Live Event';
+      }
+    }
   }
+
+  // google-calendar.js loads async — wait for it to initialize
+  var attempts = 0;
+  var check = setInterval(function() {
+    attempts++;
+    if (window.googleCalendar && window.googleCalendar.events && window.googleCalendar.events.length) {
+      clearInterval(check);
+      populatePanel();
+    } else if (attempts > 40) { // Give up after ~20 seconds
+      clearInterval(check);
+    }
+  }, 500);
 })();
 </script>
 </body>

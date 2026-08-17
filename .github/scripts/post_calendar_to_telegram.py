@@ -950,8 +950,7 @@ def main() -> int:
         log("No chatId in bot config; exiting.")
         return 1
     thread_id = cfg.get("messageThreadId")
-    lookahead = int(cfg.get("lookaheadDays", 1))
-    reminder_minutes = int(cfg.get("reminderMinutesBefore", 180))
+    lookahead = int(cfg.get("lookaheadDays", 7))
 
     # Test-run path: skip all the production gating + dedup and just
     # fire one '(test)'-labeled photo announcement built from the next
@@ -970,10 +969,10 @@ def main() -> int:
     skip_days = [d.strip() for d in cfg.get("skipDaysOfWeek", [])]
     day_skipped = weekday in skip_days
 
-    # Pull a wider time window than before so a single delayed run can
-    # catch up: events starting anywhere in the next `lookahead` days,
-    # plus anything that's live right now.
-    time_min = now - timedelta(hours=6)
+    # Pull a wider time window for weekly overview/recap:
+    # events starting anywhere in the next `lookahead` days (now 7),
+    # plus anything that's live right now, plus past week for recaps.
+    time_min = now - timedelta(days=7)
     end_of_lookahead = now_local.replace(hour=23, minute=59, second=59, microsecond=0)
     time_max = (end_of_lookahead + timedelta(days=lookahead)).astimezone(timezone.utc)
 
@@ -1016,98 +1015,173 @@ def main() -> int:
     if "events" not in dedup:
         dedup["events"] = {}
 
-    # Select events needing a post this tick.
-    # Each event can fire three separate kinds in its lifetime:
-    #   - upcoming: first-time we see it, queue it
-    #   - reminder: within reminder_minutes of start, and that
-    #               reminder hasn't been posted yet
-    #   - live: start has passed, end has not, and that live post
-    #           hasn't been sent yet
+    # ── Schedule-aware announcement logic ──────────────────────────
+    # Instead of posting per-event on every 15-min tick, we follow a
+    # structured schedule:
+    #   - Monday AM: Weekly overview (all events this week)
+    #   - Day-of (morning): Single announcement for today's event(s)
+    #   - Day-of (3hr before): Reminder for today's event(s)
+    #   - Saturday AM: Week recap + next week preview
+    #   - Live Now: Only for events with streaming platform URLs
     #
-    # Anti-duplicate guard: if we've already posted ANY announcement
-    # about this event in the last MIN_INTERVAL_HOURS hours, skip the
-    # subsequent NON-LIVE trigger. This stops the "upcoming at 3:37pm,
-    # reminder at 4:07pm for the same 7pm event" spam pattern when an
-    # event is created close to its start time. LIVE bypasses the
-    # guard because it's a meaningfully different post (event has
-    # actually begun).
-    MIN_INTERVAL_HOURS = float(cfg.get("minIntervalHoursBetweenPosts", 4))
+    # The 15-min cron ensures we don't miss windows due to GitHub
+    # Actions delays, but each trigger fires at most once per period.
+
+    schedule = cfg.get("schedule", {})
+    overview_day = schedule.get("weeklyOverviewDay", "Monday")
+    overview_hour = int(schedule.get("weeklyOverviewHour", 7))
+    recap_day = schedule.get("weeklyRecapDay", "Saturday")
+    recap_hour = int(schedule.get("weeklyRecapHour", 8))
+    morning_hour = int(schedule.get("morningAnnouncementHour", 7))
+    reminder_minutes = int(schedule.get("reminderMinutesBefore", 180))
+    live_domains = schedule.get("liveStreamingDomains", [
+        "youtube.com", "youtu.be", "twitch.tv", "spotify.com", "open.spotify.com"
+    ])
+
+    local_hour = now_local.hour
+    today_str = now_local.strftime("%Y-%m-%d")
+
+    # Helper: check if an event has a streaming link
+    def has_streaming_link(ev):
+        desc = (ev.get("description") or "").lower()
+        location = (ev.get("location") or "").lower()
+        text = desc + " " + location
+        return any(domain in text for domain in live_domains)
+
+    # Helper: dedup key for schedule-based posts (not per-event)
+    schedule_dedup = dedup.get("schedule", {})
+
     to_post: list[tuple[dict, str]] = []
+    header_line = ""
+    headers_cfg = cfg.get("header", {})
+
+    # ── LIVE detection (always active, any tick) ────────────────────
+    # Only for events with streaming links
     for ev in in_scope:
         ev_id = ev.get("id")
         if not ev_id:
             continue
         entry = dedup["events"].get(ev_id, {})
-        # Migrate legacy status field if present
-        legacy_status = entry.get("status")
-        if legacy_status == "upcoming":
-            entry.setdefault("upcomingPosted", True)
-        elif legacy_status == "live":
-            entry.setdefault("upcomingPosted", True)
-            entry.setdefault("livePosted", True)
         current = event_status(ev, now)
-        start = parse_ev_start(ev)
-
-        # How long since the most recent post about this event?
-        last_posted_recent = False
-        last_posted_iso = entry.get("lastPosted")
-        if last_posted_iso:
-            try:
-                last_dt = datetime.fromisoformat(
-                    last_posted_iso.replace("Z", "+00:00")
-                )
-                age_hours = (now - last_dt).total_seconds() / 3600.0
-                if age_hours < MIN_INTERVAL_HOURS:
-                    last_posted_recent = True
-            except (ValueError, AttributeError):
-                pass
-
-        # LIVE: post once, the moment we first see it as live, even
-        # outside quiet hours and skip-days (the ministry has started,
-        # members want to know). LIVE bypasses the min-interval guard
-        # because the start of the event is the news.
-        if current == "live" and not entry.get("livePosted"):
+        if current == "live" and not entry.get("livePosted") and has_streaming_link(ev):
             to_post.append((ev, "live"))
-            continue
 
-        # Upcoming & reminder are gated by quiet hours + skip days +
-        # the min-interval anti-duplicate guard.
-        if in_quiet_hours:
-            continue
-        if day_skipped:
-            continue
-        if last_posted_recent:
-            continue
-
-        # Reminder: prefer it over "upcoming" when both would fire on the
-        # same tick (reminder has more urgency and the explicit timing).
-        if current == "upcoming" and not entry.get("reminderPosted") and start:
-            mins_to_start = (start - now).total_seconds() / 60.0
-            if 0 <= mins_to_start <= reminder_minutes:
-                to_post.append((ev, "reminder"))
+    # ── Monday weekly overview ──────────────────────────────────────
+    if (weekday == overview_day
+        and overview_hour <= local_hour < overview_hour + 2
+        and schedule_dedup.get("lastOverview") != today_str):
+        # Gather all events for this week (Mon-Sun)
+        week_end = now_local.replace(hour=23, minute=59) + timedelta(days=(6 - now_local.weekday()))
+        week_events = []
+        for ev in events:
+            start = parse_ev_start(ev)
+            if not start:
                 continue
+            start_local = start.astimezone(tz)
+            if now_local.date() <= start_local.date() <= week_end.date():
+                week_events.append(ev)
+        if week_events:
+            for ev in week_events:
+                to_post.append((ev, "weekly_overview"))
+            header_line = headers_cfg.get("weeklyOverview") or "📋 This Week at Seed the Word"
+            schedule_dedup["lastOverview"] = today_str
 
-        # First-time upcoming post.
-        if current == "upcoming" and not entry.get("upcomingPosted"):
-            to_post.append((ev, "upcoming"))
+    # ── Saturday weekly recap ───────────────────────────────────────
+    elif (weekday == recap_day
+          and recap_hour <= local_hour < recap_hour + 2
+          and schedule_dedup.get("lastRecap") != today_str):
+        # Gather events from the past week for recap
+        week_start = now_local - timedelta(days=6)
+        recap_events = []
+        for ev in events:
+            start = parse_ev_start(ev)
+            if not start:
+                continue
+            start_local = start.astimezone(tz)
+            if week_start.date() <= start_local.date() <= now_local.date():
+                recap_events.append(ev)
+        # Also look ahead to next week for preview
+        next_week_end = now_local + timedelta(days=8)
+        try:
+            preview_events = fetch_events(
+                now,
+                next_week_end.astimezone(timezone.utc)
+            )
+            preview_events = [ev for ev in preview_events if event_status(ev, now) != "past"]
+        except Exception:
+            preview_events = []
+        if recap_events or preview_events:
+            for ev in (recap_events + preview_events):
+                to_post.append((ev, "weekly_recap"))
+            header_line = headers_cfg.get("weeklyRecap") or "📊 This Week in Review"
+            schedule_dedup["lastRecap"] = today_str
+
+    # ── Day-of morning announcement ────────────────────────────────
+    elif (morning_hour <= local_hour < morning_hour + 2
+          and weekday not in [overview_day, recap_day]):
+        today_events = []
+        for ev in in_scope:
+            ev_id = ev.get("id")
+            if not ev_id:
+                continue
+            entry = dedup["events"].get(ev_id, {})
+            start = parse_ev_start(ev)
+            if not start:
+                continue
+            start_local = start.astimezone(tz)
+            if start_local.date() == now_local.date() and not entry.get("upcomingPosted"):
+                today_events.append(ev)
+        if today_events:
+            for ev in today_events:
+                to_post.append((ev, "upcoming"))
+            header_line = headers_cfg.get("morning") or "☀️ Today at Seed the Word"
+
+    # ── Day-of reminder (3 hours before) ───────────────────────────
+    # This runs independently of the morning announcement
+    for ev in in_scope:
+        ev_id = ev.get("id")
+        if not ev_id:
+            continue
+        entry = dedup["events"].get(ev_id, {})
+        if entry.get("reminderPosted"):
+            continue
+        start = parse_ev_start(ev)
+        if not start:
+            continue
+        mins_to_start = (start - now).total_seconds() / 60.0
+        if 0 <= mins_to_start <= reminder_minutes and not entry.get("reminderPosted"):
+            # Only add if not already in to_post as another kind
+            already_queued = any(e.get("id") == ev_id for e, _ in to_post)
+            if not already_queued:
+                to_post.append((ev, "reminder"))
+                if not header_line:
+                    header_line = headers_cfg.get("reminder") or "⏰ Starting soon"
+
+    # ── Manual live trigger via workflow_dispatch ───────────────────
+    # If DRY_RUN is not set and there's a FORCE_LIVE env var, post
+    # all currently-live events regardless of streaming link check
+    if os.environ.get("FORCE_LIVE") and not DRY_RUN:
+        for ev in in_scope:
+            ev_id = ev.get("id")
+            if not ev_id:
+                continue
+            entry = dedup["events"].get(ev_id, {})
+            current = event_status(ev, now)
+            if current == "live" and not entry.get("livePosted"):
+                already_queued = any(e.get("id") == ev_id for e, _ in to_post)
+                if not already_queued:
+                    to_post.append((ev, "live"))
+
+    # Set live header if any live posts
+    if any(kind == "live" for _, kind in to_post):
+        header_line = headers_cfg.get("live") or "🔴 Live now at Seed the Word"
+
+    # Persist schedule dedup
+    dedup["schedule"] = schedule_dedup
 
     if not to_post:
-        log("Everything relevant has already been announced; nothing to post.")
+        log("Nothing to post this tick (schedule-aware).")
         return 0
-
-    # Pick header based on the dominant kind in this batch. If ANY post
-    # is live, the batch header is "live"; else if ANY is a reminder,
-    # it's "reminder"; else it's the time-of-day slot (morning/midday/
-    # evening) as before.
-    kinds = {kind for _, kind in to_post}
-    headers_cfg = cfg.get("header", {})
-    if "live" in kinds:
-        header_line = headers_cfg.get("evening") or "🔴 Live now at Seed the Word"
-    elif "reminder" in kinds:
-        header_line = headers_cfg.get("reminder") or "⏰ Starting soon"
-    else:
-        slot = day_slot(tz, now)
-        header_line = headers_cfg.get(slot) or headers_cfg.get("morning") or "📅 Today"
 
     log(f"Posting {len(to_post)} event(s) with header: {header_line}")
 
@@ -1157,6 +1231,9 @@ def main() -> int:
                 parts.append("🔴 *LIVE NOW*")
             elif kind == "reminder":
                 parts.append("⏰ *Starting in \\~" + str(int(reminder_minutes // 60)) + " hours*" if reminder_minutes >= 120 else "⏰ *Starting soon*")
+            elif kind == "weekly_recap":
+                # For recap, just list the event (no urgency tag)
+                pass
             parts.append(announcement)
             parts.append("—" * 12)
         if parts and parts[-1].startswith("—"):
@@ -1237,6 +1314,10 @@ def main() -> int:
             entry["reminderPosted"] = True
         elif kind == "live":
             entry["livePosted"] = True
+        elif kind == "weekly_overview":
+            entry["overviewPosted"] = True
+        elif kind == "weekly_recap":
+            entry["recapPosted"] = True
     # Garbage-collect old entries: anything whose start date is > 14 days ago
     cutoff = now - timedelta(days=14)
     stale = []

@@ -10,18 +10,27 @@
     "chatId": "@seedtheword",
     "messageThreadId": 553,
     "timezone": "America/Los_Angeles",
-    "skipDaysOfWeek": [
-      "Sunday"
-    ],
-    "lookaheadDays": 1,
-    "reminderMinutesBefore": 180,
-    "quietHoursStart": 7,
-    "quietHoursEnd": 21,
+    "schedule": {
+      "_help": "Controls when announcements fire. Monday: weekly overview. Day-of: morning + 3hr reminder. Saturday: recap + preview. Live: only for events with streaming links.",
+      "weeklyOverviewDay": "Monday",
+      "weeklyOverviewHour": 7,
+      "weeklyRecapDay": "Saturday",
+      "weeklyRecapHour": 8,
+      "morningAnnouncementHour": 7,
+      "reminderMinutesBefore": 180,
+      "liveAutoDetect": true,
+      "liveStreamingDomains": ["youtube.com", "youtu.be", "twitch.tv", "spotify.com", "open.spotify.com"]
+    },
+    "skipDaysOfWeek": [],
+    "lookaheadDays": 7,
+    "quietHoursStart": 6,
+    "quietHoursEnd": 22,
     "header": {
       "morning": "☀️ Today at Seed the Word",
-      "midday": "🌿 Still happening today",
-      "evening": "🔴 Live now & coming up",
-      "reminder": "⏰ Starting soon"
+      "weeklyOverview": "📋 This Week at Seed the Word",
+      "weeklyRecap": "📊 This Week in Review",
+      "reminder": "⏰ Starting soon",
+      "live": "🔴 Live now at Seed the Word"
     },
     "footer": "— Posted automatically from our calendar. See the News page for full details."
   },

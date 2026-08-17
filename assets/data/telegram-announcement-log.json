@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-08-17T14:18:14+00:00",
+  "updated": "2026-08-17T22:41:19+00:00",
   "events": {
     "qm68me7t9h875b5hkefa6f7du4@google.com": {
       "title": "SEED THE WORD YOUNG ADULTS/BIBLE STUDY",
@@ -76,8 +76,9 @@
     "5f3l9ct2238vb47alh6s2mopd0@google.com": {
       "title": "SEED THE WORD YOUNG ADULTS/BIBLE STUDY",
       "start": "2026-08-18T01:30:00+00:00",
-      "lastPosted": "2026-08-17T14:18:14+00:00",
-      "overviewPosted": true
+      "lastPosted": "2026-08-17T22:41:19+00:00",
+      "overviewPosted": true,
+      "reminderPosted": true
     },
     "ccqjaoj5cko66b9h68r6ab9k6krm8bb16hj38b9h6srjidhnc8oj8ohkck@google.com": {
       "title": "",

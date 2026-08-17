@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-08-15T19:14:49+00:00",
+  "updated": "2026-08-17T14:18:14+00:00",
   "events": {
     "qm68me7t9h875b5hkefa6f7du4@google.com": {
       "title": "SEED THE WORD YOUNG ADULTS/BIBLE STUDY",
@@ -72,6 +72,39 @@
       "upcomingPosted": true,
       "reminderPosted": true,
       "livePosted": true
+    },
+    "5f3l9ct2238vb47alh6s2mopd0@google.com": {
+      "title": "SEED THE WORD YOUNG ADULTS/BIBLE STUDY",
+      "start": "2026-08-18T01:30:00+00:00",
+      "lastPosted": "2026-08-17T14:18:14+00:00",
+      "overviewPosted": true
+    },
+    "ccqjaoj5cko66b9h68r6ab9k6krm8bb16hj38b9h6srjidhnc8oj8ohkck@google.com": {
+      "title": "",
+      "start": "2026-08-20",
+      "lastPosted": "2026-08-17T14:18:14+00:00",
+      "overviewPosted": true
+    },
+    "5b318kv39lfjpvokieoqs4m7jp@google.com": {
+      "title": "Holy Spirit Conference HUNGRYGEN",
+      "start": "2026-08-21",
+      "lastPosted": "2026-08-17T14:18:14+00:00",
+      "overviewPosted": true
+    },
+    "nc05f43hl38lr41a8f1hnv3jt4@google.com": {
+      "title": "Identity Prayer Night",
+      "start": "2026-08-21T02:00:00+00:00",
+      "lastPosted": "2026-08-17T14:18:14+00:00",
+      "overviewPosted": true
+    },
+    "rd50pcf30s0vlngsf558dtqgn4@google.com": {
+      "title": "Identity Youth",
+      "start": "2026-08-22T02:00:00+00:00",
+      "lastPosted": "2026-08-17T14:18:14+00:00",
+      "overviewPosted": true
     }
+  },
+  "schedule": {
+    "lastOverview": "2026-08-17"
   }
 }

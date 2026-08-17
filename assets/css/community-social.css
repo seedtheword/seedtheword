@@ -781,9 +781,6 @@ body:has(.community-layout) {
   .theme-toggle--floating {
     display: none !important;
   }
-  .theme-toggle--inline {
-    display: flex !important;
-  }
 
   /* ── Channel sections mobile glass treatment ── */
   .channel-section {
@@ -883,7 +880,6 @@ body:has(.community-layout) {
 }
 @media (min-width: 769px) {
   .feed-channel-select { display: none; }
-  .theme-toggle--inline { display: none; }
 }
 
 /* ── Existing section integration (kept from original) ─────── */
@@ -930,9 +926,9 @@ body:has(.community-layout) {
   box-shadow: var(--shadow-glow);
 }
 
-/* ── Inline Theme Toggle (mobile) ──────────────────────────── */
+/* ── Inline Theme Toggle ──────────────────────────── */
 .theme-toggle--inline {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 34px;
@@ -1479,6 +1475,8 @@ body:has(.community-layout) {
   outline: none;
   min-width: 0;
 }
+.friends-search__input::-webkit-search-cancel-button { display: none; -webkit-appearance: none; }
+.friends-search__input::-ms-clear { display: none; }
 .friends-search__input::placeholder {
   color: var(--color-text-muted);
 }

@@ -63,12 +63,6 @@
   </div>
 </header>
 
-<!-- ═══ FLOATING THEME TOGGLE (bottom-right, above any donate btn) ═══ -->
-<button class="theme-toggle theme-toggle--floating" aria-label="Switch to dark mode">
-  <span class="theme-toggle__sun"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
-  <span class="theme-toggle__moon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
-</button>
-
 <!-- ═══ MAIN LAYOUT ═══ -->
 <main class="community-layout">
   <!-- LEFT SIDEBAR — Channel Navigation -->
@@ -313,7 +307,7 @@
         <!-- Search -->
         <div class="friends-search">
           <span class="friends-search__icon">🔍</span>
-          <input type="search" id="community-search-input" class="friends-search__input" placeholder="Search content..." autocomplete="off" aria-label="Search community content">
+          <input type="search" id="community-search-input" class="friends-search__input" placeholder="Search content..." autocomplete="off" aria-label="Search community content" style="-webkit-appearance:none;">
           <span class="friends-search__count" id="community-search-count"></span>
           <button class="friends-search__clear" id="community-search-clear" aria-label="Clear search">✕</button>
         </div>

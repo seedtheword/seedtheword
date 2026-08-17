@@ -375,6 +375,7 @@ async function loadScanHistory(){
       var today=new Date().toISOString().split('T')[0];
       container.innerHTML=res.scans.map(function(s){
         var isToday=s.date===today;
+        var qtyLabel=s.qty>1?' × '+s.qty:'';
         var actions='';
         if(isToday){
           actions='<button class="activity-item__edit hist-edit" data-row="'+escapeHtml(s.row_id)+'" data-name="'+escapeHtml(s.item_name)+'">✏️</button>'+
@@ -382,7 +383,7 @@ async function loadScanHistory(){
         }else{
           actions='<button class="activity-item__edit hist-suggest" data-row="'+escapeHtml(s.row_id)+'" data-name="'+escapeHtml(s.item_name)+'" title="Suggest a change">✏️</button>';
         }
-        return '<div class="activity-item"><span class="activity-item__name">'+escapeHtml(s.item_name)+'<small style="color:var(--muted);font-size:0.7rem;margin-left:0.4rem;">'+escapeHtml(s.date)+' · '+escapeHtml(s.event||'')+'</small></span>'+actions+'</div>';
+        return '<div class="activity-item"><span class="activity-item__name">'+escapeHtml(s.item_name)+qtyLabel+'<small style="color:var(--muted);font-size:0.7rem;margin-left:0.4rem;">'+escapeHtml(s.date)+' · '+escapeHtml(s.event||'')+'</small></span>'+actions+'</div>';
       }).join('');
       // Bind today's edit/delete
       container.querySelectorAll('.hist-del').forEach(function(btn){

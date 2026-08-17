@@ -2708,7 +2708,26 @@ function handleTeamLogin_(payload) {
 
     for (var i = 0; i < data.length; i++) {
       if (String(data[i][1]).toLowerCase().trim() === name.toLowerCase() && String(data[i][2]).trim() === hash) {
-        return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], role: data[i][5] || 'member', total_scans: parseInt(data[i][7]) || 0, telegram_username: data[i][8] || '' });
+        // Calculate actual total items given from Inventory sheet (sum of qty)
+        var totalItems = 0;
+        try {
+          var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+          var invSheet = ss.getSheetByName('Inventory');
+          if (invSheet && invSheet.getLastRow() > 1) {
+            var invData = invSheet.getRange(2, 1, invSheet.getLastRow()-1, invSheet.getLastColumn()).getValues();
+            var memberName = String(data[i][1]).toLowerCase().trim();
+            for (var j = 0; j < invData.length; j++) {
+              if (String(invData[j][9]).toLowerCase().trim() === memberName) {
+                totalItems += parseInt(invData[j][4]) || 1;
+              }
+            }
+          }
+        } catch(e) { totalItems = parseInt(data[i][7]) || 0; }
+        // Update stored total_scans to match reality
+        if (totalItems !== (parseInt(data[i][7]) || 0)) {
+          sheet.getRange(i + 2, 8).setValue(totalItems);
+        }
+        return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], role: data[i][5] || 'member', total_scans: totalItems, telegram_username: data[i][8] || '' });
       }
     }
     return jsonResponse({ ok: false, error: 'Invalid name or password' });

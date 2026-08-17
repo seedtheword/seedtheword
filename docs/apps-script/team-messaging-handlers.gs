@@ -523,9 +523,10 @@ function handleGetScanHistory_(payload) {
     for (var i = data.length - 1; i >= 0 && scans.length < 100; i--) {
       // Column 9 (index 9) is team_member
       if (String(data[i][9]).toLowerCase().trim() === user.name.toLowerCase()) {
+        var rowDate = data[i][0] instanceof Date ? data[i][0].toISOString().split('T')[0] : String(data[i][0]).trim().split('T')[0];
         scans.push({
           row_id: rowIdCol >= 0 ? String(data[i][rowIdCol]) : 'ROW-' + (i+2),
-          date: String(data[i][0]),
+          date: rowDate,
           item_id: String(data[i][2]),
           item_name: String(data[i][3]),
           qty: parseInt(data[i][4]) || 1,

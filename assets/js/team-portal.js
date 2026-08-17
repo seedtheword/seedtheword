@@ -557,7 +557,8 @@ function initTrainingTab(){
   renderTrainingRecord();
   // Admin panel
   if(session&&(session.role==='admin'||session.role==='super_admin')){
-    document.getElementById('training-admin-panel').style.display='';
+    var adminPanel=document.getElementById('training-admin-panel')||document.getElementById('training-add-section');
+    if(adminPanel)adminPanel.style.display='';
     loadTrainingMemberSelect();
   }
 }
@@ -572,15 +573,19 @@ async function loadTrainingMemberSelect(){
   }catch(e){}
 }
 
-document.getElementById('training-record-save').addEventListener('click',async function(){
-  var member=document.getElementById('training-member-select').value;
-  var type=document.getElementById('training-record-type').value;
-  var text=document.getElementById('training-record-text').value.trim();
+var trainingLogBtn=document.getElementById('training-record-save')||document.getElementById('training-log-btn');
+if(trainingLogBtn)trainingLogBtn.addEventListener('click',async function(){
+  var memberSel=document.getElementById('training-member-select');
+  var member=memberSel?memberSel.value:(session&&session.name||'');
+  var typeSel=document.getElementById('training-record-type')||document.getElementById('training-log-type');
+  var type=typeSel?typeSel.value:'training';
+  var textEl=document.getElementById('training-record-text')||document.getElementById('training-log-notes');
+  var text=textEl?textEl.value.trim():'';
   if(!text){alert('Write something.');return;}
   try{
     await postAction({action:'addTrainingRecord',token:session.token,member:member,type:type,text:text});
-    document.getElementById('training-record-text').value='';
-    alert('Record saved for '+member+'.');
+    if(textEl)textEl.value='';
+    alert('Record saved.');
   }catch(e){alert(e.message);}
 });
 

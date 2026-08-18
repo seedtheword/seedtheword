@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615857,
-  "lastModified": "2026-08-18T20:10:42Z",
+  "lastModified": "2026-08-18T21:10:49Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -222,16 +222,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5144,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey guys let’s pray for the families and first responders in the east especially in Spokane. If the smoke is bad here I can only imagine how bad it is for the residents over there. In Jesus name they will be protected!",
-      "ts": "2026-08-04T21:04:41Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5148,

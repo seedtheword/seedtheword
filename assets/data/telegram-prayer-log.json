@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615847,
-  "lastModified": "2026-08-17T18:38:09Z",
+  "lastUpdateId": 669615848,
+  "lastModified": "2026-08-18T00:25:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -421,6 +421,16 @@
       "kind": "telegram",
       "text": "Amen and absolutely will do! I'll meet up with you to give you more of these flyers. That's so amazing to hear!!!",
       "ts": "2026-08-17T18:34:21Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5305,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Before our service starts tonight, I'm asking everyone who can, please lift up our team in prayer to Jesus so we can carry out our work today. Thank you brothers and sisters. God bless you🙏",
+      "ts": "2026-08-18T00:12:25Z"
     }
   ]
 }

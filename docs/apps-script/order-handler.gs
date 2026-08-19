@@ -2714,7 +2714,26 @@ function handleTeamLogin_(payload) {
     var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 8).getValues();
 
     for (var i = 0; i < data.length; i++) {
-      if (String(data[i][1]).toLowerCase().trim() === name.toLowerCase() && String(data[i][2]).trim() === hash) {
+      var storedName = String(data[i][1]).toLowerCase().trim();
+      var storedHash = String(data[i][2]).trim();
+      
+      if (storedName === name.toLowerCase()) {
+        // Check if this is a temp password (from recovery)
+        var matched = false;
+        if (storedHash.indexOf('TEMP:') === 0) {
+          // Temp password: compute what the client hash would be for the temp pass
+          var tempPass = storedHash.slice(5);
+          var expectedHash = computeSha256_('stwm-team-' + name.toLowerCase() + '-' + tempPass);
+          if (hash === expectedHash) {
+            matched = true;
+            // Clear the temp marker — force password change on next profile update
+            sheet.getRange(i + 2, 3).setValue(hash); // Store the hash they used
+          }
+        } else if (storedHash === hash) {
+          matched = true;
+        }
+        
+        if (matched) {
         // Calculate actual total items given from Inventory sheet (sum of qty)
         var totalItems = 0;
         try {
@@ -2735,10 +2754,19 @@ function handleTeamLogin_(payload) {
           sheet.getRange(i + 2, 8).setValue(totalItems);
         }
         return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], role: data[i][5] || 'member', total_scans: totalItems, telegram_username: data[i][8] || '' });
+        }
       }
     }
     return jsonResponse({ ok: false, error: 'Invalid name or password' });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+function computeSha256_(input) {
+  var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, input);
+  return bytes.map(function (b) {
+    var v = (b < 0 ? b + 256 : b).toString(16);
+    return v.length === 1 ? '0' + v : v;
+  }).join('');
 }
 
 function handleTeamScan_(payload) {

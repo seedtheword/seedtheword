@@ -71,6 +71,24 @@
                 '<select name="carrier" id="profile-carrier" style="width:100%;padding:0.55rem;border:1.5px solid var(--color-border,#e0dbd6);border-radius:8px;font-size:0.82rem;font-family:Inter,sans-serif;background:var(--color-surface,#fff);color:var(--color-text,#1A1E24);"><option value="">Select...</option><option value="tmobile">T-Mobile</option><option value="att">AT&T</option><option value="verizon">Verizon</option><option value="sprint">Sprint</option><option value="metro">Metro</option><option value="boost">Boost</option><option value="cricket">Cricket</option><option value="mint">Mint</option><option value="visible">Visible</option><option value="fi">Google Fi</option><option value="other">Other</option></select>' +
               '</div>' +
             '</fieldset>' +
+            '<!-- Password Change -->' +
+            '<fieldset style="border:1.5px solid var(--color-border,#e0dbd6);border-radius:10px;padding:1rem;margin:0 0 1rem;">' +
+              '<legend style="font-size:0.75rem;font-weight:700;padding:0 0.4rem;color:#2C4A3E;">Change Password</legend>' +
+              '<label style="display:block;font-size:0.78rem;font-weight:600;margin-bottom:0.2rem;color:var(--color-text,#1A1E24);">New Password</label>' +
+              '<input type="password" name="new_password" id="profile-new-pass" placeholder="Leave blank to keep current" style="width:100%;padding:0.7rem 0.85rem;border:1.5px solid var(--color-border,#e0dbd6);border-radius:10px;font-size:0.9rem;font-family:Inter,sans-serif;margin-bottom:0.5rem;color:var(--color-text,#1A1E24);background:var(--color-surface,#fff);" autocomplete="new-password">' +
+              '<label style="display:block;font-size:0.78rem;font-weight:600;margin-bottom:0.2rem;color:var(--color-text,#1A1E24);">Confirm New Password</label>' +
+              '<input type="password" name="confirm_password" id="profile-confirm-pass" placeholder="Confirm new password" style="width:100%;padding:0.7rem 0.85rem;border:1.5px solid var(--color-border,#e0dbd6);border-radius:10px;font-size:0.9rem;font-family:Inter,sans-serif;color:var(--color-text,#1A1E24);background:var(--color-surface,#fff);" autocomplete="new-password">' +
+            '</fieldset>' +
+            '<!-- Profile Picture -->' +
+            '<div style="margin-bottom:1rem;">' +
+              '<label style="display:block;font-size:0.78rem;font-weight:600;margin-bottom:0.4rem;color:var(--color-text,#1A1E24);">Profile Picture</label>' +
+              '<div id="profile-pic-preview" style="width:64px;height:64px;border-radius:50%;background:var(--color-bg-subtle,#f5f3f0);border:2px dashed var(--color-border,#e0dbd6);display:flex;align-items:center;justify-content:center;margin-bottom:0.5rem;overflow:hidden;cursor:pointer;" title="Click to change">' +
+                '<span id="profile-pic-placeholder" style="font-size:1.5rem;">📷</span>' +
+                '<img id="profile-pic-img" style="width:100%;height:100%;object-fit:cover;display:none;" alt="Profile picture">' +
+              '</div>' +
+              '<input type="file" id="profile-pic-input" accept="image/*" style="display:none;">' +
+              '<button type="button" id="profile-pic-btn" style="font-size:0.75rem;padding:0.4rem 0.75rem;border:1.5px solid var(--color-border,#e0dbd6);border-radius:8px;background:var(--color-surface,#fff);cursor:pointer;color:var(--color-text-muted,#6b7280);font-family:Inter,sans-serif;">Change Photo</button>' +
+            '</div>' +
             '<div id="profile-status" style="text-align:center;font-size:0.82rem;min-height:1.2rem;margin-bottom:0.5rem;"></div>' +
             '<button type="submit" style="width:100%;padding:0.85rem;border:none;border-radius:12px;font-size:0.92rem;font-weight:700;font-family:Inter,sans-serif;cursor:pointer;background:linear-gradient(135deg,#2C4A3E,#3a5f4e);color:#fff;box-shadow:0 4px 16px rgba(44,74,62,0.25);transition:transform 0.15s;">Save Settings</button>' +
           '</form>' +
@@ -93,6 +111,33 @@
 
     // Submit
     document.getElementById('profile-form').addEventListener('submit', handleSave);
+
+    // Profile picture
+    var picBtn = document.getElementById('profile-pic-btn');
+    var picInput = document.getElementById('profile-pic-input');
+    var picPreview = document.getElementById('profile-pic-preview');
+    var picImg = document.getElementById('profile-pic-img');
+    var picPlaceholder = document.getElementById('profile-pic-placeholder');
+
+    picBtn.addEventListener('click', function () { picInput.click(); });
+    picPreview.addEventListener('click', function () { picInput.click(); });
+    picInput.addEventListener('change', function () {
+      var file = this.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        picImg.src = ev.target.result;
+        picImg.style.display = 'block';
+        picPlaceholder.style.display = 'none';
+        // Store locally
+        var session = getSession();
+        if (session) {
+          session.profilePic = ev.target.result;
+          saveSession(session);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
 
     return modal;
   }
@@ -121,6 +166,18 @@
     // Clear status
     document.getElementById('profile-status').textContent = '';
 
+    // Load profile picture if saved
+    if (session.profilePic) {
+      var picImg = document.getElementById('profile-pic-img');
+      var picPlaceholder = document.getElementById('profile-pic-placeholder');
+      if (picImg) { picImg.src = session.profilePic; picImg.style.display = 'block'; }
+      if (picPlaceholder) picPlaceholder.style.display = 'none';
+    }
+
+    // Clear password fields
+    document.getElementById('profile-new-pass').value = '';
+    document.getElementById('profile-confirm-pass').value = '';
+
     modal.style.display = 'flex';
   }
 
@@ -142,6 +199,27 @@
     statusEl.textContent = '';
     statusEl.style.color = '';
 
+    // Password change validation
+    var newPass = document.getElementById('profile-new-pass').value;
+    var confirmPass = document.getElementById('profile-confirm-pass').value;
+    var passwordHash = null;
+    if (newPass) {
+      if (newPass.length < 4) {
+        statusEl.textContent = 'Password must be at least 4 characters.';
+        statusEl.style.color = '#c0392b';
+        return;
+      }
+      if (newPass !== confirmPass) {
+        statusEl.textContent = 'Passwords do not match.';
+        statusEl.style.color = '#c0392b';
+        return;
+      }
+      // Hash it the same way login does
+      var buf = new TextEncoder().encode('stwm-team-' + session.name.toLowerCase() + '-' + newPass);
+      var digest = await crypto.subtle.digest('SHA-256', buf);
+      passwordHash = Array.from(new Uint8Array(digest)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+    }
+
     // Update local session
     session.name = updates.name || session.name;
     session.email = updates.email || '';
@@ -157,7 +235,7 @@
     btn.textContent = 'Saving...';
 
     try {
-      var res = await post({
+      var payload = {
         action: 'updateProfile',
         token: session.token,
         email: session.email,
@@ -165,9 +243,12 @@
         telegram_username: session.telegram_username,
         notify_pref: session.notify_pref,
         carrier: session.carrier
-      });
+      };
+      if (passwordHash) payload.new_password_hash = passwordHash;
+
+      var res = await post(payload);
       if (res.ok) {
-        statusEl.textContent = '✓ Settings saved';
+        statusEl.textContent = passwordHash ? '✓ Settings & password saved' : '✓ Settings saved';
         statusEl.style.color = '#2C4A3E';
         setTimeout(closeModal, 1200);
       } else {

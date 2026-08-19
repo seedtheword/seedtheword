@@ -431,6 +431,13 @@ function handleUpdateProfile_(payload) {
         sheet.getRange(row, nameCol + 1).setValue(String(payload.name).trim());
       }
 
+      // Password change if new_password_hash provided
+      if (payload.new_password_hash) {
+        var passCol = headers.indexOf('password_hash');
+        if (passCol === -1) passCol = 2; // Standard layout: column C
+        sheet.getRange(row, passCol + 1).setValue(String(payload.new_password_hash));
+      }
+
       return jsonResponse({ ok: true });
     }
   }

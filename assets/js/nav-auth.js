@@ -62,8 +62,13 @@
     parentLi.classList.add('nav-auth-wrap');
     parentLi.id = 'nav-auth-wrap';
 
-    // Replace the login link with badge
-    loginLink.textContent = firstName;
+    // Replace the login link with badge (profile pic + name)
+    var profilePic = session.profilePic || '';
+    if (profilePic) {
+      loginLink.innerHTML = '<img class="nav-auth-avatar" src="' + profilePic + '" alt=""> ' + firstName;
+    } else {
+      loginLink.textContent = firstName;
+    }
     loginLink.href = '#';
     loginLink.id = 'nav-auth-btn';
     loginLink.classList.add('nav-login--authed');

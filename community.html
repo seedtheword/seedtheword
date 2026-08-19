@@ -15,8 +15,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
-  <link rel="stylesheet" href="assets/css/community-social.css?v=6">
-  <link rel="stylesheet" href="assets/css/store-catalog.css?v=9">
+  <link rel="stylesheet" href="assets/css/community-social.css?v=7">
+  <link rel="stylesheet" href="assets/css/store-catalog.css?v=10">
   <script src="assets/js/theme-toggle.js?v=1"></script>
 </head>
 <body style="background:var(--color-bg);color:var(--color-text);">
@@ -327,40 +327,42 @@
     <!-- ═══ eLIBRARY SECTION ═══ -->
     <section class="section channel-section" id="section-library" style="display:none;">
       <h2 class="section-title">📚 eLibrary</h2>
-      <p class="section-desc">Downloadable Bible reading plans and ministry resources. Free for everyone — our growing collection of content for your walk.</p>
+      <p class="section-desc">Free reading plans, guides, and resources for your walk. Our growing digital collection — with books and ebooks coming soon.</p>
 
-      <div class="library-grid" id="library-grid">
-        <!-- Static starter items -->
-        <div class="library-item">
-          <div class="library-item__icon">📅</div>
-          <div class="library-item__info">
-            <h4 class="library-item__title">20-Day Reading Plan</h4>
-            <p class="library-item__desc">A starter plan for brand-new readers — foundations of faith one chapter at a time.</p>
+      <!-- Mobile category toggle -->
+      <button class="store-sidebar-toggle" id="elibrary-mobile-toggle" aria-label="Open category menu" aria-expanded="false" aria-controls="elibrary-sidebar">
+        <span class="store-sidebar-toggle__icon">☰</span>
+        <span>Categories</span>
+      </button>
+
+      <div class="store-layout elibrary-layout">
+        <!-- Sidebar overlay (mobile) -->
+        <div class="store-sidebar-overlay" id="elibrary-sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="store-sidebar elibrary-sidebar" id="elibrary-sidebar">
+          <!-- Rendered by elibrary-catalog.js -->
+        </aside>
+
+        <!-- Main content -->
+        <div class="store-main">
+          <!-- Search -->
+          <div class="store-search">
+            <span class="store-search__icon">🔍</span>
+            <input type="search" id="elibrary-search-input" class="store-search__input" placeholder="Search resources..." autocomplete="off" aria-label="Search eLibrary" style="-webkit-appearance:none;">
+            <span class="store-search__count" id="elibrary-search-count"></span>
+            <button class="store-search__clear" id="elibrary-search-clear" aria-label="Clear search">✕</button>
           </div>
-          <div style="display:flex;flex-direction:column;gap:0.35rem;flex-shrink:0;">
-            <a href="start-here.html" class="library-item__btn">View Online →</a>
-            <a href="assets/downloads/20-day-reading-plan.html" target="_blank" class="library-item__btn" style="border-color:var(--color-olive);color:var(--color-olive);">🖨 Print/PDF</a>
-          </div>
-        </div>
-        <div class="library-item">
-          <div class="library-item__icon">🌱</div>
-          <div class="library-item__info">
-            <h4 class="library-item__title">How to Grow</h4>
-            <p class="library-item__desc">The four-movement evangelism guide — share your faith naturally.</p>
-          </div>
-          <a href="how-to-grow.html" class="library-item__btn">Read Guide →</a>
-        </div>
-        <div class="library-item">
-          <div class="library-item__icon">🌾</div>
-          <div class="library-item__info">
-            <h4 class="library-item__title">How to Seed</h4>
-            <p class="library-item__desc">Practical guide to giving Bibles and planting Gospel seeds in everyday life.</p>
-          </div>
-          <a href="how-to-seed.html" class="library-item__btn">Read Guide →</a>
+
+          <!-- Category header -->
+          <div class="store-category-header" id="elibrary-category-header"></div>
+
+          <!-- Product grid -->
+          <div class="store-grid" id="elibrary-grid"></div>
         </div>
       </div>
 
-      <p style="text-align:center;font-size:0.78rem;color:var(--color-text-muted);margin-top:1.25rem;">More resources added regularly by our team. Check back soon.</p>
+      <p style="text-align:center;font-size:0.78rem;color:var(--color-text-muted);margin-top:1.25rem;">More resources added regularly. Books and ebooks for resale coming soon.</p>
 
       <div class="section-feedback">
         <a href="about.html#contact" class="section-feedback__link">💬 Suggest a resource</a>
@@ -479,7 +481,8 @@
 <script src="assets/js/instagram-feed.js?v=2"></script>
 <script src="assets/js/telegram-stats.js?v=1"></script>
 <script src="assets/js/recommendations.js?v=3"></script>
-<script src="assets/js/community-catalog.js?v=7" defer></script>
+<script src="assets/js/community-catalog.js?v=8" defer></script>
+<script src="assets/js/elibrary-catalog.js?v=1" defer></script>
 <script src="assets/js/study-saturday.js?v=7" defer></script>
 <script src="assets/js/prayer-intake.js?v=2"></script>
 <script src="assets/js/community-social.js?v=2"></script>

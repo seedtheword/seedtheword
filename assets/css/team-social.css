@@ -758,3 +758,303 @@
 .chat-compose__btn:active {
   transform: scale(0.95);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Dashboard Redesign — Mobile-first tile grid & stat cards
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Hero Stat Cards ───────────────────────────────────────── */
+.dash-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.dash-stat {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--duration-fast) var(--ease), box-shadow var(--duration-fast);
+}
+.dash-stat:active {
+  transform: scale(0.97);
+}
+.dash-stat__icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.4rem;
+  opacity: 0.9;
+}
+.dash-stat__number {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+.dash-stat__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+/* Stat color variants */
+.dash-stat--primary {
+  border-top: 3px solid var(--color-olive);
+}
+.dash-stat--primary .dash-stat__number {
+  color: var(--color-olive);
+}
+.dash-stat--secondary {
+  border-top: 3px solid var(--color-gold);
+}
+.dash-stat--secondary .dash-stat__number {
+  color: var(--color-gold);
+}
+.dash-stat--finance {
+  border-top: 3px solid #2ecc71;
+}
+.dash-stat--finance .dash-stat__number {
+  color: #2ecc71;
+}
+
+/* ── Action Tile Grid (2-col) ──────────────────────────────── */
+.dash-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+.dash-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1.1rem 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  transition: transform var(--duration-fast) var(--ease), box-shadow var(--duration-fast), background var(--duration-fast);
+}
+.dash-tile:hover {
+  background: var(--color-surface-hover);
+  box-shadow: var(--shadow-md);
+}
+.dash-tile:active {
+  transform: scale(0.95);
+  box-shadow: none;
+}
+.dash-tile__icon {
+  font-size: 1.6rem;
+}
+.dash-tile__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+/* 3-col on wider screens */
+@media (min-width: 440px) {
+  .dash-tiles {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Finance Tab — Expense logging & receipt upload
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Finance Form ──────────────────────────────────────────── */
+.finance-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.finance-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.finance-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.finance-form__field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.finance-form__field input,
+.finance-form__field select {
+  padding: 0.7rem 0.85rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-family: var(--font-sans);
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: border-color var(--duration-fast);
+  width: 100%;
+  box-sizing: border-box;
+}
+.finance-form__field input:focus,
+.finance-form__field select:focus {
+  border-color: var(--color-olive);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(44, 74, 62, 0.1);
+}
+.finance-form__status {
+  font-size: 0.82rem;
+  text-align: center;
+  min-height: 1.2rem;
+}
+
+/* ── Receipt Upload ────────────────────────────────────────── */
+.receipt-upload {
+  position: relative;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color var(--duration-fast), background var(--duration-fast);
+}
+.receipt-upload:hover {
+  border-color: var(--color-olive);
+  background: rgba(44, 74, 62, 0.03);
+}
+.receipt-upload__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.receipt-upload__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1.5rem 1rem;
+}
+.receipt-upload__icon {
+  font-size: 2rem;
+}
+.receipt-upload__text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.receipt-upload__preview {
+  position: relative;
+  padding: 0.5rem;
+}
+.receipt-upload__preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+.receipt-upload__remove {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(192, 57, 43, 0.9);
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.receipt-upload__remove:hover {
+  background: #c0392b;
+}
+
+/* ── Finance List ──────────────────────────────────────────── */
+.finance-entry {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.finance-entry:last-child {
+  border-bottom: none;
+}
+.finance-entry__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.finance-entry__info {
+  flex: 1;
+  min-width: 0;
+}
+.finance-entry__desc {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.finance-entry__meta {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  margin-top: 0.1rem;
+}
+.finance-entry__amount {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+.finance-entry__receipt {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--color-olive);
+  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background var(--duration-fast);
+}
+.finance-entry__receipt:hover {
+  background: var(--color-olive-soft);
+}

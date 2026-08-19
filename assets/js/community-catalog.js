@@ -351,15 +351,15 @@
     if (item.thumbnail) {
       thumbContent = '<img src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy">';
     } else {
-      thumbClass = ' store-card__image--loading';
+      // Styled initial letter fallback
+      var initial = (item.title || '?').charAt(0).toUpperCase();
+      thumbClass = ' listen-card__thumb--initial';
+      thumbContent = '<span class="listen-card__initial">' + esc(initial) + '</span>';
+      // Still add data attributes for potential dynamic fetch
       if (item.kind === 'spotify' && item.spotifyId) {
         thumbAttr = ' data-spotify-id="' + esc(item.spotifyId) + '" data-spotify-type="' + esc(item.type) + '"';
-        thumbContent = '🎧';
       } else if (item.kind === 'youtube' && item.youtubeId) {
         thumbAttr = ' data-youtube-id="' + esc(item.youtubeId) + '"';
-        thumbContent = '📺';
-      } else {
-        thumbContent = '🔗';
       }
     }
 

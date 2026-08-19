@@ -126,6 +126,9 @@
       imageHTML = '<div class="store-card__image">' + getCategoryPlaceholder(p.category) + '</div>';
     }
 
+    // Item number badge (top-right on image)
+    var itemNumHTML = '<span class="store-card__item-num">#' + esc(p.id) + '</span>';
+
     var nativeHTML = p.nativeName ? '<span class="store-card__native">' + esc(p.nativeName) + '</span>' : '';
 
     var sellerHTML = p.seller ? '<span class="store-card__seller">' + esc(p.seller) + '</span>' : '';
@@ -147,7 +150,16 @@
       if (p.stockCount === 0) {
         actionHTML = '<span class="store-card__action store-card__action--disabled">Out of Stock</span>';
       } else {
-        actionHTML = '<a href="bundle-builder.html?bundle=essentials" class="store-card__action store-card__action--primary">Add to Bundle</a>';
+        // Inline quantity selector + Add to Bundle
+        actionHTML =
+          '<div class="store-card__qty-row">' +
+            '<div class="store-card__qty-control" data-product-id="' + esc(p.id) + '">' +
+              '<button class="store-card__qty-btn" data-dir="-1" aria-label="Decrease quantity">−</button>' +
+              '<span class="store-card__qty-value">1</span>' +
+              '<button class="store-card__qty-btn" data-dir="1" aria-label="Increase quantity">+</button>' +
+            '</div>' +
+            '<a href="bundle-builder.html?bundle=essentials&item=' + esc(p.id) + '" class="store-card__action store-card__action--primary store-card__action--add">Add to Bundle</a>' +
+          '</div>';
       }
     } else {
       actionHTML = '<span class="store-card__action store-card__action--secondary">Learn More</span>';
@@ -156,6 +168,7 @@
     return (
       '<article class="store-card" data-product-id="' + esc(p.id) + '">' +
         imageHTML +
+        itemNumHTML +
         '<div class="store-card__body">' +
           '<h3 class="store-card__title">' + esc(p.name) + '</h3>' +
           nativeHTML +
@@ -239,6 +252,36 @@
     gridEl.innerHTML = bundleHtml + filtered.map(renderProductCard).join('');
     initProductSlideshows();
     initProductDetailClicks();
+    initQtyControls();
+  }
+
+  // ── Quantity selector controls ──────────────────────────────
+  function initQtyControls() {
+    document.querySelectorAll('.store-card__qty-control').forEach(function(ctrl) {
+      if (ctrl.dataset.qtyBound) return;
+      ctrl.dataset.qtyBound = 'true';
+
+      var valueEl = ctrl.querySelector('.store-card__qty-value');
+      var qty = 1;
+      var maxQty = 10;
+
+      ctrl.querySelectorAll('.store-card__qty-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var dir = parseInt(btn.dataset.dir, 10);
+          qty = Math.max(1, Math.min(maxQty, qty + dir));
+          valueEl.textContent = qty;
+
+          // Update the "Add to Bundle" link with qty param
+          var addBtn = ctrl.parentElement.querySelector('.store-card__action--add');
+          if (addBtn) {
+            var href = addBtn.getAttribute('href').replace(/&qty=\d+/, '');
+            addBtn.setAttribute('href', href + '&qty=' + qty);
+          }
+        });
+      });
+    });
   }
 
   // ── Render sidebar ──────────────────────────────────────────
@@ -333,28 +376,30 @@
   function openProductDetail(p) {
     var gallery = p.gallery || (p.image ? [p.image] : []);
     var galleryHTML = gallery.length ? gallery.map(function(src, i) {
-      return '<img class="' + (i === 0 ? 'is-active' : '') + '" src="' + esc(src) + '" alt="' + esc(p.name) + '" style="width:100%;height:350px;object-fit:contain;position:absolute;inset:0;opacity:' + (i===0?'1':'0') + ';transition:opacity 0.5s;">';
+      return '<img class="' + (i === 0 ? 'is-active' : '') + '" src="' + esc(src) + '" alt="' + esc(p.name) + '" style="width:100%;height:100%;object-fit:contain;position:absolute;inset:0;opacity:' + (i===0?'1':'0') + ';transition:opacity 0.5s;">';
     }).join('') : '<div style="font-size:4rem;text-align:center;padding:3rem;">' + getCategoryPlaceholder(p.category) + '</div>';
 
-    var nativeName = p.nativeName ? '<span style="color:var(--gold);font-size:1rem;font-style:italic;display:block;margin-top:0.25rem;">' + esc(p.nativeName) + '</span>' : '';
+    var nativeName = p.nativeName ? '<span class="store-detail__native">' + esc(p.nativeName) + '</span>' : '';
+
+    var itemNumber = p.id ? '<span class="store-detail__item-num">Item #' + esc(p.id) + '</span>' : '';
 
     var overlay = document.createElement('div');
-    overlay.className = 'store-lightbox';
-    overlay.style.alignItems = 'center';
+    overlay.className = 'store-lightbox store-detail-modal';
     overlay.innerHTML =
-      '<div style="background:#fff;border-radius:16px;max-width:700px;width:90%;max-height:90vh;overflow-y:auto;box-shadow:0 16px 60px rgba(0,0,0,0.4);position:relative;">' +
-        '<button class="store-lightbox__close" style="position:absolute;top:1rem;right:1rem;z-index:10;background:rgba(0,0,0,0.6);">&times;</button>' +
-        '<div style="position:relative;width:100%;height:350px;background:#f5f2ed;border-radius:16px 16px 0 0;overflow:hidden;">' + galleryHTML + '</div>' +
-        '<div style="padding:2rem;">' +
-          '<h2 style="font-size:1.5rem;font-weight:700;color:var(--dark);margin:0 0 0.25rem;">' + esc(p.name) + '</h2>' +
+      '<div class="store-detail">' +
+        '<button class="store-lightbox__close">&times;</button>' +
+        '<div class="store-detail__gallery">' + galleryHTML + '</div>' +
+        '<div class="store-detail__body">' +
+          '<h2 class="store-detail__title">' + esc(p.name) + '</h2>' +
           nativeName +
-          '<p style="font-size:1rem;color:var(--muted);line-height:1.7;margin:1rem 0;">' + esc(p.description) + '</p>' +
-          '<div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">' +
-            '<span style="font-size:1.2rem;font-weight:700;color:var(--green);">' + esc(p.price || 'Free') + '</span>' +
-            (p.stockCount !== null && p.stockCount !== undefined ? '<span style="font-size:0.85rem;color:' + (p.stockCount === 0 ? '#c0392b' : 'var(--green)') + ';">' + (p.stockCount === 0 ? 'Out of Stock' : p.stockCount + ' in stock') + '</span>' : '') +
+          itemNumber +
+          '<p class="store-detail__desc">' + esc(p.description) + '</p>' +
+          '<div class="store-detail__meta">' +
+            '<span class="store-detail__price">' + esc(p.price || 'Free') + '</span>' +
+            (p.stockCount !== null && p.stockCount !== undefined ? '<span class="store-detail__stock' + (p.stockCount === 0 ? ' store-detail__stock--out' : '') + '">' + (p.stockCount === 0 ? 'Out of Stock' : p.stockCount + ' in stock') + '</span>' : '') +
           '</div>' +
-          (p.category === 'bibles' && p.stockCount !== 0 ? '<a href="bundle-builder.html?bundle=essentials" style="display:inline-block;margin-top:1.25rem;padding:0.75rem 2rem;background:var(--green);color:#fff;border-radius:10px;font-weight:600;text-decoration:none;">Add to Bundle</a>' : '') +
-          (p.category === 'amazon' && p.url ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:1.25rem;padding:0.75rem 2rem;background:#ff9900;color:#111;border-radius:10px;font-weight:600;text-decoration:none;">View on Amazon →</a>' : '') +
+          (p.category === 'bibles' && p.stockCount !== 0 ? '<a href="bundle-builder.html?bundle=essentials" class="store-detail__cta store-detail__cta--primary">Add to Bundle</a>' : '') +
+          (p.category === 'amazon' && p.url ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" class="store-detail__cta store-detail__cta--amazon">View on Amazon →</a>' : '') +
         '</div>' +
       '</div>';
 
@@ -362,20 +407,30 @@
     document.body.style.overflow = 'hidden';
 
     // Gallery cycling in detail modal
-    var detailImgs = overlay.querySelectorAll('img');
+    var detailImgs = overlay.querySelectorAll('.store-detail__gallery img');
     if (detailImgs.length > 1) {
       var idx = 0;
-      setInterval(function() {
+      var timer = setInterval(function() {
         detailImgs[idx].style.opacity = '0';
         idx = (idx + 1) % detailImgs.length;
         detailImgs[idx].style.opacity = '1';
       }, 4000);
+      overlay._galleryTimer = timer;
     }
 
     overlay.addEventListener('click', function(e) {
       if (e.target === overlay || e.target.classList.contains('store-lightbox__close')) {
+        if (overlay._galleryTimer) clearInterval(overlay._galleryTimer);
         overlay.remove();
         document.body.style.overflow = '';
+      }
+    });
+    document.addEventListener('keydown', function handler(e) {
+      if (e.key === 'Escape') {
+        if (overlay._galleryTimer) clearInterval(overlay._galleryTimer);
+        overlay.remove();
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', handler);
       }
     });
   }

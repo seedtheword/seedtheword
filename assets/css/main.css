@@ -13034,6 +13034,9 @@ body.your-walk-modal-open {
 }
 .showcase-search__input::placeholder { color: rgba(255,255,255,0.4); }
 .showcase-search__input:focus { border-color: var(--gold, #d4a574); }
+.showcase-search__input::-webkit-search-cancel-button,
+.showcase-search__input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+.showcase-search__input::-ms-clear { display: none; }
 .showcase-search__results {
   position: absolute;
   top: 100%;

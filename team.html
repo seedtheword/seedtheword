@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
-  <link rel="stylesheet" href="assets/css/team-social.css?v=2">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=3">
   <script src="assets/js/theme-toggle.js?v=1"></script>
 </head>
 <body>
@@ -125,18 +125,59 @@
     <nav class="main-tabs" role="tablist">
       <button class="main-tab main-tab--active" data-tab="dashboard"><span class="main-tab__icon">📊</span> Dash</button>
       <button class="main-tab" data-tab="scanner"><span class="main-tab__icon">📷</span> Scan</button>
+      <button class="main-tab" data-tab="finance"><span class="main-tab__icon">💰</span> Finance</button>
       <button class="main-tab" data-tab="messages"><span class="main-tab__icon">💬</span> Chat</button>
       <button class="main-tab" data-tab="forum"><span class="main-tab__icon">📝</span> Forum</button>
       <button class="main-tab" data-tab="training"><span class="main-tab__icon">📚</span> Train</button>
     </nav>
 
-    <!-- Dashboard Tab -->
+    <!-- Dashboard Tab — Mobile-first tile grid -->
     <div class="tab-panel tab-panel--active" id="tab-dashboard">
       <div class="event-banner" id="dash-event-banner"></div>
-      <div class="stat-grid">
-        <div class="stat-card"><div class="stat-card__val" id="stat-today-dash">0</div><div class="stat-card__label">Today</div></div>
-        <div class="stat-card"><div class="stat-card__val" id="stat-total-dash">0</div><div class="stat-card__label">All Time</div></div>
+
+      <!-- Hero stat cards (like the reference image middle phone) -->
+      <div class="dash-stats">
+        <div class="dash-stat dash-stat--primary">
+          <div class="dash-stat__icon">📖</div>
+          <div class="dash-stat__number" id="stat-today-dash">0</div>
+          <div class="dash-stat__label">Given Today</div>
+        </div>
+        <div class="dash-stat dash-stat--secondary">
+          <div class="dash-stat__icon">🌍</div>
+          <div class="dash-stat__number" id="stat-total-dash">0</div>
+          <div class="dash-stat__label">All Time</div>
+        </div>
       </div>
+
+      <!-- Quick action tiles (2-col grid like reference image left phone) -->
+      <div class="dash-tiles">
+        <button class="dash-tile" onclick="document.querySelector('[data-tab=scanner]').click()">
+          <span class="dash-tile__icon">📷</span>
+          <span class="dash-tile__label">Scan QR</span>
+        </button>
+        <button class="dash-tile" id="dash-add-manual">
+          <span class="dash-tile__icon">✋</span>
+          <span class="dash-tile__label">Add Manual</span>
+        </button>
+        <button class="dash-tile" onclick="document.querySelector('[data-tab=finance]').click()">
+          <span class="dash-tile__icon">💰</span>
+          <span class="dash-tile__label">Log Expense</span>
+        </button>
+        <button class="dash-tile" onclick="document.querySelector('[data-tab=messages]').click()">
+          <span class="dash-tile__icon">💬</span>
+          <span class="dash-tile__label">Team Chat</span>
+        </button>
+        <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="dash-tile">
+          <span class="dash-tile__icon">✈️</span>
+          <span class="dash-tile__label">Telegram</span>
+        </a>
+        <button class="dash-tile" onclick="showView('event')">
+          <span class="dash-tile__icon">📍</span>
+          <span class="dash-tile__label">Change Event</span>
+        </button>
+      </div>
+
+      <!-- Today's activity list (clean list view like reference image right phone) -->
       <div class="glass-card">
         <h3 class="glass-card__title">📋 Today's Activity</h3>
         <div id="activity-list"><p style="color:var(--color-text-muted);font-size:0.84rem;">No items scanned yet today.</p></div>
@@ -146,14 +187,9 @@
         <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0 0 0.5rem;">Today's items can be edited/deleted. Past items: tap ✏️ to suggest a change.</p>
         <div id="history-list"></div>
       </div>
-      <button class="btn btn--outline" id="toggle-history-btn" style="margin-bottom:0.5rem;">📋 View Full History</button>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-        <a href="https://ig.me/m/seedtheword" target="_blank" rel="noopener" class="btn btn--outline" style="flex:1;text-align:center;text-decoration:none;font-size:0.8rem;">📸 IG Message</a>
-        <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="btn btn--outline" style="flex:1;text-align:center;text-decoration:none;font-size:0.8rem;">✈️ Telegram</a>
-      </div>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
-        <button class="btn btn--outline" style="flex:1;" onclick="showView('event')">Change Event</button>
-        <button class="btn btn--outline" style="flex:1;" id="logout-btn">Log Out</button>
+        <button class="btn btn--outline" id="toggle-history-btn" style="flex:1;">📋 View Full History</button>
+        <button class="btn btn--outline" id="logout-btn" style="flex:1;">Log Out</button>
       </div>
     </div>
 
@@ -173,6 +209,95 @@
       </div>
       <div class="scan-count" id="scan-count"></div>
       <button class="btn btn--outline" id="add-manual-btn">+ Add Item Manually</button>
+    </div>
+
+    <!-- Finance Tab — Expense logging + receipt uploads -->
+    <div class="tab-panel" id="tab-finance" hidden>
+      <!-- Finance summary stats -->
+      <div class="dash-stats">
+        <div class="dash-stat dash-stat--finance">
+          <div class="dash-stat__icon">💰</div>
+          <div class="dash-stat__number" id="finance-total-month">$0</div>
+          <div class="dash-stat__label">This Month</div>
+        </div>
+        <div class="dash-stat dash-stat--secondary">
+          <div class="dash-stat__icon">🧾</div>
+          <div class="dash-stat__number" id="finance-entry-count">0</div>
+          <div class="dash-stat__label">Entries</div>
+        </div>
+      </div>
+
+      <!-- Log new expense form -->
+      <div class="glass-card">
+        <h3 class="glass-card__title">➕ Log Expense</h3>
+        <form id="finance-form" class="finance-form" novalidate>
+          <div class="finance-form__row">
+            <div class="finance-form__field">
+              <label for="finance-date">Date</label>
+              <input type="date" id="finance-date" required>
+            </div>
+            <div class="finance-form__field">
+              <label for="finance-amount">Amount ($)</label>
+              <input type="number" id="finance-amount" placeholder="0.00" step="0.01" min="0" required inputmode="decimal">
+            </div>
+          </div>
+          <div class="finance-form__field">
+            <label for="finance-category">Category</label>
+            <select id="finance-category" required>
+              <option value="">Select category...</option>
+              <option value="bibles">Bibles & Materials</option>
+              <option value="supplies">Event Supplies</option>
+              <option value="food">Food & Hospitality</option>
+              <option value="travel">Travel & Gas</option>
+              <option value="printing">Printing & Signs</option>
+              <option value="shipping">Shipping & Postage</option>
+              <option value="tech">Technology & Software</option>
+              <option value="venue">Venue & Rental</option>
+              <option value="donation">Donation Given</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="finance-form__field">
+            <label for="finance-vendor">Vendor / Store</label>
+            <input type="text" id="finance-vendor" placeholder="e.g. Amazon, Costco, Local Print Shop">
+          </div>
+          <div class="finance-form__field">
+            <label for="finance-desc">Description</label>
+            <input type="text" id="finance-desc" placeholder="What was purchased?">
+          </div>
+          <div class="finance-form__field">
+            <label for="finance-event">Related Event (optional)</label>
+            <input type="text" id="finance-event" placeholder="e.g. Saturday Outreach">
+          </div>
+
+          <!-- Receipt upload -->
+          <div class="finance-form__field">
+            <label>Receipt Photo</label>
+            <div class="receipt-upload" id="receipt-upload-area">
+              <input type="file" id="finance-receipt" accept="image/*" capture="environment" class="receipt-upload__input">
+              <div class="receipt-upload__placeholder" id="receipt-placeholder">
+                <span class="receipt-upload__icon">📸</span>
+                <span class="receipt-upload__text">Tap to take photo or choose file</span>
+              </div>
+              <div class="receipt-upload__preview" id="receipt-preview" style="display:none;">
+                <img id="receipt-preview-img" alt="Receipt preview">
+                <button type="button" class="receipt-upload__remove" id="receipt-remove" title="Remove receipt">×</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="finance-form__status" id="finance-status"></div>
+          <button type="submit" class="btn btn--green" style="width:100%;">💾 Save Expense</button>
+        </form>
+      </div>
+
+      <!-- Recent expenses list -->
+      <div class="glass-card">
+        <h3 class="glass-card__title">🧾 Recent Expenses</h3>
+        <div id="finance-list">
+          <p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">No expenses logged yet.</p>
+        </div>
+      </div>
     </div>
 
     <!-- Messages Tab — Redesigned Telegram-style Chat -->
@@ -388,15 +513,17 @@
     // Tab buttons
     var dashTab = document.querySelector('[data-tab="dashboard"]');
     var scanTab = document.querySelector('[data-tab="scanner"]');
+    var financeTab = document.querySelector('[data-tab="finance"]');
 
     if (!isTeam) {
-      // Hide Dash and Scan tabs for regular members
+      // Hide Dash, Scan, and Finance tabs for regular members
       if (dashTab) dashTab.style.display = 'none';
       if (scanTab) scanTab.style.display = 'none';
+      if (financeTab) financeTab.style.display = 'none';
 
       // If dashboard is currently active, switch to messages
       var activeTab = document.querySelector('.main-tab--active');
-      if (activeTab && (activeTab.dataset.tab === 'dashboard' || activeTab.dataset.tab === 'scanner')) {
+      if (activeTab && (activeTab.dataset.tab === 'dashboard' || activeTab.dataset.tab === 'scanner' || activeTab.dataset.tab === 'finance')) {
         // Click the messages tab
         var msgTab = document.querySelector('[data-tab="messages"]');
         if (msgTab) msgTab.click();
@@ -409,6 +536,7 @@
       // Show all tabs for team members
       if (dashTab) dashTab.style.display = '';
       if (scanTab) scanTab.style.display = '';
+      if (financeTab) financeTab.style.display = '';
     }
   }
 
@@ -507,6 +635,227 @@
     var portal = document.getElementById('view-portal');
     if (portal && portal.classList.contains('active')) loadForum();
   }, 1000);
+})();
+
+// ═══ FINANCE TAB: Expense logging + receipt upload ═══
+(function() {
+  var STORAGE_KEY = 'stwm-finance-entries';
+  var receiptDataUrl = null;
+
+  function getEntries() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; }
+  }
+  function saveEntries(entries) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch(e) {}
+  }
+
+  function getCategoryIcon(cat) {
+    var map = {bibles:'📖',supplies:'🛒',food:'🍕',travel:'⛽',printing:'🖨️',shipping:'📦',tech:'💻',venue:'🏠',donation:'🎁',other:'📋'};
+    return map[cat] || '📋';
+  }
+
+  function renderFinanceList() {
+    var container = document.getElementById('finance-list');
+    var entries = getEntries();
+    if (!entries.length) {
+      container.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">No expenses logged yet.</p>';
+      return;
+    }
+
+    // Sort by date desc
+    entries.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+
+    container.innerHTML = entries.slice(0, 20).map(function(e, i) {
+      var receiptBtn = e.receipt ? '<span class="finance-entry__receipt" data-idx="' + i + '" title="View receipt">📎</span>' : '';
+      return '<div class="finance-entry">' +
+        '<div class="finance-entry__icon">' + getCategoryIcon(e.category) + '</div>' +
+        '<div class="finance-entry__info">' +
+          '<div class="finance-entry__desc">' + escHtml(e.description || e.vendor || e.category) + '</div>' +
+          '<div class="finance-entry__meta">' + escHtml(e.date) + ' · ' + escHtml(e.vendor || '') + (e.event ? ' · ' + escHtml(e.event) : '') + '</div>' +
+        '</div>' +
+        '<div class="finance-entry__amount">$' + parseFloat(e.amount).toFixed(2) + '</div>' +
+        receiptBtn +
+      '</div>';
+    }).join('');
+
+    // Bind receipt view
+    container.querySelectorAll('.finance-entry__receipt').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var idx = parseInt(this.dataset.idx);
+        var entry = entries[idx];
+        if (entry && entry.receipt) {
+          var overlay = document.createElement('div');
+          overlay.className = 'store-lightbox';
+          overlay.style.alignItems = 'center';
+          overlay.innerHTML = '<img src="' + entry.receipt + '" alt="Receipt" style="max-width:90vw;max-height:85vh;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.5);"><button class="store-lightbox__close" style="position:absolute;top:1rem;right:1rem;background:rgba(0,0,0,0.6);">×</button>';
+          document.body.appendChild(overlay);
+          document.body.style.overflow = 'hidden';
+          overlay.addEventListener('click', function(ev) {
+            if (ev.target === overlay || ev.target.classList.contains('store-lightbox__close')) { overlay.remove(); document.body.style.overflow = ''; }
+          });
+        }
+      });
+    });
+
+    updateFinanceStats(entries);
+  }
+
+  function updateFinanceStats(entries) {
+    var now = new Date();
+    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    var monthTotal = 0;
+    entries.forEach(function(e) {
+      if (new Date(e.date) >= monthStart) monthTotal += parseFloat(e.amount) || 0;
+    });
+    var totalEl = document.getElementById('finance-total-month');
+    var countEl = document.getElementById('finance-entry-count');
+    if (totalEl) totalEl.textContent = '$' + monthTotal.toFixed(2);
+    if (countEl) countEl.textContent = entries.length;
+  }
+
+  function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  // Receipt preview
+  var fileInput = document.getElementById('finance-receipt');
+  var preview = document.getElementById('receipt-preview');
+  var previewImg = document.getElementById('receipt-preview-img');
+  var placeholder = document.getElementById('receipt-placeholder');
+  var removeBtn = document.getElementById('receipt-remove');
+
+  if (fileInput) {
+    fileInput.addEventListener('change', function() {
+      var file = this.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        receiptDataUrl = e.target.result;
+        previewImg.src = receiptDataUrl;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      receiptDataUrl = null;
+      fileInput.value = '';
+      preview.style.display = 'none';
+      placeholder.style.display = 'flex';
+    });
+  }
+
+  // Form submission
+  var form = document.getElementById('finance-form');
+  if (form) {
+    // Set default date to today
+    var dateInput = document.getElementById('finance-date');
+    if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var status = document.getElementById('finance-status');
+      var amount = document.getElementById('finance-amount').value;
+      var category = document.getElementById('finance-category').value;
+      var date = document.getElementById('finance-date').value;
+
+      if (!amount || !category || !date) {
+        status.textContent = 'Please fill in date, amount, and category.';
+        status.style.color = '#c0392b';
+        return;
+      }
+
+      var entry = {
+        id: Date.now().toString(36),
+        date: date,
+        amount: parseFloat(amount),
+        category: category,
+        vendor: document.getElementById('finance-vendor').value.trim(),
+        description: document.getElementById('finance-desc').value.trim(),
+        event: document.getElementById('finance-event').value.trim(),
+        receipt: receiptDataUrl || null,
+        logged_by: (function() { try { return JSON.parse(localStorage.getItem('stwm-team-session')).name; } catch(e) { return ''; } })(),
+        timestamp: Date.now()
+      };
+
+      // Save locally
+      var entries = getEntries();
+      entries.push(entry);
+      saveEntries(entries);
+
+      // Try to send to backend
+      (async function() {
+        try {
+          var cfg = await fetch('assets/data/site-config.json?t=' + Date.now(), {cache:'no-store'}).then(function(r){return r.json();});
+          var session = JSON.parse(localStorage.getItem('stwm-team-session'));
+          if (cfg.orderHandlerUrl && session) {
+            await fetch(cfg.orderHandlerUrl, {
+              method: 'POST',
+              redirect: 'follow',
+              headers: {'Content-Type':'text/plain;charset=utf-8'},
+              body: JSON.stringify({
+                action: 'logFinanceEntry',
+                token: session.token,
+                entry: {
+                  date: entry.date,
+                  amount: entry.amount,
+                  category: entry.category,
+                  vendor: entry.vendor,
+                  description: entry.description,
+                  event: entry.event,
+                  has_receipt: !!entry.receipt,
+                  logged_by: entry.logged_by
+                }
+              })
+            });
+          }
+        } catch(err) { /* saved locally regardless */ }
+      })();
+
+      // Reset form
+      document.getElementById('finance-amount').value = '';
+      document.getElementById('finance-category').value = '';
+      document.getElementById('finance-vendor').value = '';
+      document.getElementById('finance-desc').value = '';
+      document.getElementById('finance-event').value = '';
+      receiptDataUrl = null;
+      if (fileInput) fileInput.value = '';
+      if (preview) preview.style.display = 'none';
+      if (placeholder) placeholder.style.display = 'flex';
+
+      status.textContent = '✓ Expense saved';
+      status.style.color = 'var(--color-olive)';
+      setTimeout(function() { status.textContent = ''; }, 2000);
+
+      renderFinanceList();
+    });
+  }
+
+  // Load on tab click
+  var financeTab = document.querySelector('[data-tab="finance"]');
+  if (financeTab) {
+    financeTab.addEventListener('click', function() {
+      renderFinanceList();
+      // Re-set date default in case day changed
+      var dateInput = document.getElementById('finance-date');
+      if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
+    });
+  }
+
+  // Wire the dashboard "Add Manual" tile to open the picker
+  var dashManual = document.getElementById('dash-add-manual');
+  if (dashManual) {
+    dashManual.addEventListener('click', function() {
+      if (typeof openPicker === 'function') openPicker();
+      else document.getElementById('add-manual-btn').click();
+    });
+  }
+
+  // Initial render
+  renderFinanceList();
 })();
 </script>
 

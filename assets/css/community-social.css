@@ -1261,6 +1261,62 @@ body:has(.community-layout) {
   color: #fff;
 }
 
+/* ── eLibrary Catalog (store-card based) ───────────────────── */
+.elibrary-layout {
+  margin-top: 1rem;
+}
+
+.elibrary-card__icon-image {
+  background: linear-gradient(135deg, var(--color-bg-subtle, #f8f6f3) 0%, #ede8e0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.elibrary-card__big-icon {
+  font-size: 4rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
+}
+
+.elibrary-card__format {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(44, 95, 46, 0.08);
+  color: var(--green, #2C5F2E);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.elibrary-card__author {
+  font-size: 0.72rem;
+  color: var(--muted, #6b6b6b);
+  font-style: italic;
+}
+
+.elibrary-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.elibrary-card__actions .elibrary-card__action {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+}
+
+[data-theme="dark"] .elibrary-card__icon-image {
+  background: linear-gradient(135deg, #1e2328 0%, #262c33 100%);
+}
+
+[data-theme="dark"] .elibrary-card__format {
+  background: rgba(74, 138, 114, 0.15);
+  color: #6fcf97;
+}
+
 /* ── Music Playlist Card ───────────────────────────────────── */
 .music-playlist-card {
   background: var(--color-surface);
@@ -1522,27 +1578,18 @@ body:has(.community-layout) {
 }
 
 .friends-section .listen-hero {
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
-}
-.friends-section .listen-hero:hover {
-  transform: scale(1.01);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
 }
 
 .friends-section .listen-shelf {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 .friends-section .listen-shelf__title {
   font-family: var(--font-serif);
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--color-text);
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-border);
 }
 .friends-section .listen-shelf__scroll {
   display: flex;
@@ -1556,48 +1603,27 @@ body:has(.community-layout) {
 .friends-section .listen-shelf__scroll::-webkit-scrollbar { display: none; }
 
 .friends-section .listen-card {
-  min-width: 180px;
+  min-width: 170px;
   max-width: 200px;
   flex-shrink: 0;
-  border-radius: 14px;
-  overflow: hidden;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s;
   scroll-snap-align: start;
-}
-.friends-section .listen-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  border-color: var(--color-gold);
-}
-
-.friends-section .listen-card__thumb {
-  border-radius: 0;
-  border-bottom: 1px solid var(--color-border);
 }
 
 .friends-section .listen-card__name {
   font-family: var(--font-serif);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 600;
   color: var(--color-text);
 }
 .friends-section .listen-card__source {
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   color: var(--color-text-muted);
 }
 
 /* Social banner in friends section */
 .friends-section .listen-social-banner {
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 [data-theme="dark"] .friends-section .listen-social-banner {
   background: rgba(30, 33, 40, 0.7);
@@ -1612,13 +1638,8 @@ body:has(.community-layout) {
   max-width: 100%;
 }
 .friends-section .store-card {
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s;
-}
-.friends-section .store-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {
@@ -1627,7 +1648,7 @@ body:has(.community-layout) {
     padding-top: 1rem;
   }
   .friends-section .listen-hero {
-    border-radius: 14px;
+    border-radius: 16px;
     min-height: auto;
   }
   .friends-section .listen-hero__thumb {

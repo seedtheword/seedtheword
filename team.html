@@ -829,6 +829,9 @@
   var receiptDataUrl = null;
   var financeEntries = []; // server-sourced entries
 
+  // Clear old localStorage ghost data from previous version
+  try { localStorage.removeItem('stwm-finance-entries'); localStorage.removeItem('stwm-finance-pending'); } catch(e) {}
+
   async function getUrl() {
     if (handlerUrl) return handlerUrl;
     var cfg = await fetch(CONFIG_URL + '?t=' + Date.now(), {cache:'no-store'}).then(function(r){return r.json();});
@@ -882,18 +885,7 @@
   }
 
   function showLocalPending(container) {
-    var pending = [];
-    try { pending = JSON.parse(localStorage.getItem('stwm-finance-pending') || '[]'); } catch(e) {}
-    if (pending.length) {
-      financeEntries = pending.map(function(e, i) {
-        return { row_index: null, date: e.date, amount: e.amount, category: e.category, vendor: e.vendor, description: e.description, event: e.event, logged_by: e.logged_by, has_receipt: e.has_receipt, local: true };
-      });
-      container.innerHTML = '';
-      renderFinanceList();
-      container.insertAdjacentHTML('beforeend', '<p style="font-size:0.7rem;color:var(--color-gold);text-align:center;margin-top:0.5rem;">⚠️ Showing locally saved entries. Deploy finance-handler.gs to sync.</p>');
-    } else {
-      container.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">No expenses logged yet.</p>';
-    }
+    container.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">Could not load from server. Check connection and try again.</p>';
   }
 
   function renderFinanceList() {
@@ -1033,8 +1025,10 @@
         description: document.getElementById('finance-desc').value.trim(),
         payment_method: document.getElementById('finance-payment').value,
         vendor: '',
-        event: document.getElementById('finance-event').value.trim(),
+        event: '',
+        notes: document.getElementById('finance-event').value.trim(),
         has_receipt: !!receiptDataUrl,
+        receipt_data: receiptDataUrl || null,
         logged_by: session.name
       };
 
@@ -1066,25 +1060,8 @@
           status.style.color = '#c0392b';
         }
       } catch(err) {
-        // Backend not deployed yet — save locally as fallback
-        try {
-          var local = JSON.parse(localStorage.getItem('stwm-finance-pending') || '[]');
-          local.push(entryData);
-          localStorage.setItem('stwm-finance-pending', JSON.stringify(local));
-        } catch(e2) {}
-        status.textContent = '⚠️ Saved locally (deploy finance-handler.gs to sync to spreadsheet)';
-        status.style.color = 'var(--color-gold)';
-        // Reset form anyway
-        document.getElementById('finance-amount').value = '';
-        document.getElementById('finance-category').value = '';
-        document.getElementById('finance-type').value = 'expense';
-        document.getElementById('finance-payment').value = 'Cash';
-        document.getElementById('finance-desc').value = '';
-        document.getElementById('finance-event').value = '';
-        receiptDataUrl = null;
-        if (fileInput) fileInput.value = '';
-        if (preview) preview.style.display = 'none';
-        if (placeholder) placeholder.style.display = 'flex';
+        status.textContent = 'Could not save — check your connection and try again.';
+        status.style.color = '#c0392b';
       }
 
       submitBtn.disabled = false;

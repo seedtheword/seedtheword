@@ -37,7 +37,7 @@
 const FINANCES_TAB = 'Finances';
 
 // ── Log Finance Entry ────────────────────────────────────────────
-// Payload: { action:'logFinanceEntry', token, entry: { date, amount, category, vendor, description, event, payment_method, type, has_receipt, logged_by } }
+// Payload: { action:'logFinanceEntry', token, entry: { date, amount, category, vendor, description, event, payment_method, type, has_receipt, logged_by, receipt_data } }
 function handleLogFinanceEntry_(payload) {
   try {
     const member = validateTeamToken_(payload.token);
@@ -53,26 +53,81 @@ function handleLogFinanceEntry_(payload) {
     const sheet = ss.getSheetByName(FINANCES_TAB);
     if (!sheet) return jsonResp_({ ok: false, error: 'Finances tab not found in spreadsheet' });
 
+    // Handle receipt upload to Google Drive
+    var receiptUrl = '';
+    if (entry.receipt_data && entry.receipt_data.indexOf('data:') === 0) {
+      try {
+        receiptUrl = uploadReceiptToDrive_(entry.receipt_data, entry.date || 'undated', entry.logged_by || 'unknown');
+      } catch(uploadErr) {
+        receiptUrl = 'upload_failed';
+      }
+    } else if (entry.has_receipt) {
+      receiptUrl = 'pending_upload';
+    }
+
     // Map to the existing column structure: date, type, category, description, amount, payment_method, references, recorded_by, notes, receipt_url
     const row = [
       entry.date || new Date().toISOString().split('T')[0],                    // A: date
       entry.type || 'expense',                                                  // B: type
       entry.category || 'other',                                               // C: category
-      entry.description || entry.vendor || '',                                 // D: description
+      entry.description || '',                                                  // D: description
       parseFloat(entry.amount) || 0,                                           // E: amount
       entry.payment_method || 'Cash',                                          // F: payment_method
-      entry.event || '',                                                        // G: references (using for event/vendor reference)
+      entry.event || '',                                                        // G: references
       entry.logged_by || member.name,                                          // H: recorded_by
-      entry.vendor ? ('Vendor: ' + entry.vendor) : '',                         // I: notes
-      entry.has_receipt ? 'pending_upload' : ''                                // J: receipt_url
+      entry.notes || '',                                                        // I: notes
+      receiptUrl                                                                // J: receipt_url
     ];
 
     sheet.appendRow(row);
 
-    return jsonResp_({ ok: true, id: Date.now().toString(36) });
+    return jsonResp_({ ok: true, id: Date.now().toString(36), receipt_url: receiptUrl });
   } catch (err) {
     return jsonResp_({ ok: false, error: err.message });
   }
+}
+
+// ── Upload Receipt to Google Drive ───────────────────────────────
+// Creates a "STW Receipts" folder (or reuses existing), organizes by year-month
+function uploadReceiptToDrive_(dataUrl, date, loggedBy) {
+  // Parse the base64 data URL
+  var parts = dataUrl.split(',');
+  var mimeMatch = parts[0].match(/data:(.*?);/);
+  var mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+  var base64Data = parts[1];
+  var blob = Utilities.newBlob(Utilities.base64Decode(base64Data), mimeType);
+  
+  // Name the file: receipt_YYYY-MM-DD_name_timestamp.ext
+  var ext = mimeType.split('/')[1] || 'jpg';
+  if (ext === 'jpeg') ext = 'jpg';
+  var safeName = (loggedBy || 'unknown').replace(/[^a-zA-Z0-9]/g, '_');
+  var fileName = 'receipt_' + (date || 'undated') + '_' + safeName + '_' + Date.now() + '.' + ext;
+  blob.setName(fileName);
+  
+  // Find or create the receipts folder
+  var folders = DriveApp.getFoldersByName('STW Receipts');
+  var parentFolder;
+  if (folders.hasNext()) {
+    parentFolder = folders.next();
+  } else {
+    parentFolder = DriveApp.createFolder('STW Receipts');
+  }
+  
+  // Organize by year-month subfolder
+  var yearMonth = (date || new Date().toISOString().split('T')[0]).slice(0, 7); // "2026-08"
+  var subFolders = parentFolder.getFoldersByName(yearMonth);
+  var monthFolder;
+  if (subFolders.hasNext()) {
+    monthFolder = subFolders.next();
+  } else {
+    monthFolder = parentFolder.createFolder(yearMonth);
+  }
+  
+  // Upload the file
+  var file = monthFolder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  
+  return file.getUrl();
 }
 
 // ── Get Finance Entries ──────────────────────────────────────────
@@ -92,7 +147,7 @@ function handleGetFinanceEntries_(payload) {
     if (!sheet) return jsonResp_({ ok: true, entries: [] });
 
     const data = sheet.getDataRange().getValues();
-    // Row 1 = headers, Row 2 = totals row (skip both), data starts at row 3 (index 2)
+    // Row 1 = headers, Row 2 = totals/formula row (skip both), data starts at row 3 (index 2)
     if (data.length <= 2) return jsonResp_({ ok: true, entries: [] });
 
     const limit = payload.limit || 50;
@@ -101,21 +156,32 @@ function handleGetFinanceEntries_(payload) {
     // Read from bottom (newest first), skip header row (0) and totals row (1)
     for (let i = data.length - 1; i >= 2 && entries.length < limit; i--) {
       const row = data[i];
-      // Skip empty rows
-      if (!row[0] && !row[4]) continue;
+      // Skip empty rows (no date AND no amount)
+      if (!row[0] && !row[4] && row[4] !== 0) continue;
+      
+      // Format date properly
+      var dateVal = '';
+      if (row[0]) {
+        if (row[0] instanceof Date) {
+          dateVal = Utilities.formatDate(row[0], Session.getScriptTimeZone(), 'yyyy-MM-dd');
+        } else {
+          dateVal = String(row[0]);
+        }
+      }
+      
       entries.push({
         row_index: i + 1,  // 1-indexed for Sheet API
-        date: row[0] ? (row[0] instanceof Date ? row[0].toISOString().split('T')[0] : String(row[0])) : '',
-        type: row[1] || 'expense',
-        category: row[2] || '',
-        description: row[3] || '',
-        amount: row[4] || 0,
-        payment_method: row[5] || '',
-        references: row[6] || '',
-        recorded_by: row[7] || '',
-        notes: row[8] || '',
-        receipt_url: row[9] || '',
-        has_receipt: !!(row[9])
+        date: dateVal,
+        type: String(row[1] || 'expense'),
+        category: String(row[2] || ''),
+        description: String(row[3] || ''),
+        amount: parseFloat(row[4]) || 0,
+        payment_method: String(row[5] || ''),
+        references: String(row[6] || ''),
+        recorded_by: String(row[7] || ''),
+        notes: String(row[8] || ''),
+        receipt_url: String(row[9] || ''),
+        has_receipt: !!(row[9] && String(row[9]).trim())
       });
     }
 

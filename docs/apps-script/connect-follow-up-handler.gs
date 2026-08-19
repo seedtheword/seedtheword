@@ -438,9 +438,60 @@ function handleUpdateProfile_(payload) {
         sheet.getRange(row, passCol + 1).setValue(String(payload.new_password_hash));
       }
 
+      // Profile picture upload to Drive
+      if (payload.profile_pic_data && payload.profile_pic_data.indexOf('data:') === 0) {
+        try {
+          var picUrl = uploadProfilePicToDrive_(payload.profile_pic_data, String(data[i][nameCol]));
+          // Store URL in a profile_pic_url column (add if missing)
+          var picCol = headers.indexOf('profile_pic_url');
+          if (picCol === -1) {
+            picCol = headers.length;
+            sheet.getRange(1, picCol + 1).setValue('profile_pic_url');
+          }
+          sheet.getRange(row, picCol + 1).setValue(picUrl);
+        } catch(picErr) { /* non-fatal */ }
+      }
+
       return jsonResponse({ ok: true });
     }
   }
 
   return jsonResponse({ ok: false, error: 'Member not found.' });
+}
+
+// ── Upload Profile Picture to Google Drive ───────────────────────
+// Stores in "STW Profile Pictures" folder, replaces previous if exists
+function uploadProfilePicToDrive_(dataUrl, memberName) {
+  var parts = dataUrl.split(',');
+  var mimeMatch = parts[0].match(/data:(.*?);/);
+  var mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+  var base64Data = parts[1];
+  var blob = Utilities.newBlob(Utilities.base64Decode(base64Data), mimeType);
+
+  var ext = mimeType.split('/')[1] || 'jpg';
+  if (ext === 'jpeg') ext = 'jpg';
+  var safeName = (memberName || 'unknown').replace(/[^a-zA-Z0-9]/g, '_');
+  var fileName = 'profile_' + safeName + '.' + ext;
+  blob.setName(fileName);
+
+  // Find or create the profile pictures folder
+  var folders = DriveApp.getFoldersByName('STW Profile Pictures');
+  var folder;
+  if (folders.hasNext()) {
+    folder = folders.next();
+  } else {
+    folder = DriveApp.createFolder('STW Profile Pictures');
+  }
+
+  // Delete previous profile pic for this member if exists
+  var existing = folder.getFilesByName(fileName);
+  while (existing.hasNext()) {
+    existing.next().setTrashed(true);
+  }
+
+  // Upload new
+  var file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+  return file.getDownloadUrl();
 }

@@ -129,7 +129,7 @@
         picImg.src = ev.target.result;
         picImg.style.display = 'block';
         picPlaceholder.style.display = 'none';
-        // Store locally
+        // Store locally for immediate display
         var session = getSession();
         if (session) {
           session.profilePic = ev.target.result;
@@ -245,6 +245,10 @@
         carrier: session.carrier
       };
       if (passwordHash) payload.new_password_hash = passwordHash;
+      // Include profile pic data for Drive upload if changed
+      if (session.profilePic && session.profilePic.indexOf('data:') === 0) {
+        payload.profile_pic_data = session.profilePic;
+      }
 
       var res = await post(payload);
       if (res.ok) {

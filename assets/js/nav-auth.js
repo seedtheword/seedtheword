@@ -63,7 +63,7 @@
     parentLi.id = 'nav-auth-wrap';
 
     // Replace the login link with badge (profile pic + name)
-    var profilePic = session.profilePic || '';
+    var profilePic = session.profilePic || session.profilePicUrl || '';
     if (profilePic) {
       loginLink.innerHTML = '<img class="nav-auth-avatar" src="' + profilePic + '" alt=""> ' + firstName;
     } else {

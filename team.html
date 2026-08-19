@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
-  <link rel="stylesheet" href="assets/css/team-social.css?v=3">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=4">
   <script src="assets/js/theme-toggle.js?v=1"></script>
 </head>
 <body>
@@ -56,7 +56,26 @@
       <label class="login-remember"><input type="checkbox" id="login-remember" checked> Remember me</label>
       <div class="status" id="login-status"></div>
       <button class="btn btn--green btn--lg" id="login-btn">Log in →</button>
+      <p class="toggle-link"><a onclick="showView('forgot')" style="cursor:pointer;">Forgot password?</a></p>
       <p class="toggle-link">New here? <a onclick="showView('signup')">Create an account</a></p>
+    </div>
+  </div>
+
+  <!-- Forgot Password View -->
+  <div class="view" id="view-forgot">
+    <div class="login-hero">
+      <div class="login-hero__icon">🔑</div>
+      <h1 class="login-hero__title">Account Recovery</h1>
+      <p class="login-hero__sub">We'll help you get back in</p>
+    </div>
+    <div class="glass-card">
+      <h2 class="glass-card__title">Find your account</h2>
+      <p style="font-size:0.84rem;color:var(--color-text-muted);margin:0 0 1rem;">Enter your name or email and we'll send recovery info to your registered contact.</p>
+      <label>Your Name or Email</label>
+      <input type="text" id="forgot-identifier" placeholder="Full name or email address" autocomplete="name">
+      <div class="status" id="forgot-status"></div>
+      <button class="btn btn--green btn--lg" id="forgot-btn">Send Recovery →</button>
+      <p class="toggle-link"><a onclick="showView('login')" style="cursor:pointer;">← Back to login</a></p>
     </div>
   </div>
 
@@ -758,65 +777,111 @@
 
 // ═══ FINANCE TAB: Expense logging + receipt upload ═══
 (function() {
-  var STORAGE_KEY = 'stwm-finance-entries';
+  var CONFIG_URL = 'assets/data/site-config.json';
+  var handlerUrl = null;
   var receiptDataUrl = null;
+  var financeEntries = []; // server-sourced entries
 
-  function getEntries() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; }
+  async function getUrl() {
+    if (handlerUrl) return handlerUrl;
+    var cfg = await fetch(CONFIG_URL + '?t=' + Date.now(), {cache:'no-store'}).then(function(r){return r.json();});
+    handlerUrl = cfg.orderHandlerUrl;
+    return handlerUrl;
   }
-  function saveEntries(entries) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch(e) {}
+  async function post(data) {
+    var url = await getUrl();
+    var res = await fetch(url, {method:'POST', redirect:'follow', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(data)});
+    return JSON.parse(await res.text());
   }
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) { return null; }
+  }
+  function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
   function getCategoryIcon(cat) {
     var map = {bibles:'📖',supplies:'🛒',food:'🍕',travel:'⛽',printing:'🖨️',shipping:'📦',tech:'💻',venue:'🏠',donation:'🎁',other:'📋'};
     return map[cat] || '📋';
   }
 
+  // ── Fetch entries from backend ──
+  async function loadFinanceEntries() {
+    var container = document.getElementById('finance-list');
+    var session = getSession();
+    if (!session) return;
+
+    container.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">Loading expenses...</p>';
+    try {
+      var res = await post({action:'getFinanceEntries', token: session.token, limit: 50});
+      if (res.ok && res.entries) {
+        financeEntries = res.entries;
+        renderFinanceList();
+      } else {
+        container.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">' + (res.error || 'No expenses found.') + '</p>';
+      }
+    } catch(e) {
+      container.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">Could not load. Check connection.</p>';
+    }
+  }
+
   function renderFinanceList() {
     var container = document.getElementById('finance-list');
-    var entries = getEntries();
-    if (!entries.length) {
+    if (!financeEntries.length) {
       container.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">No expenses logged yet.</p>';
+      updateFinanceStats([]);
       return;
     }
 
-    // Sort by date desc
-    entries.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
-
-    container.innerHTML = entries.slice(0, 20).map(function(e, i) {
-      var receiptBtn = e.receipt ? '<span class="finance-entry__receipt" data-idx="' + i + '" title="View receipt">📎</span>' : '';
-      return '<div class="finance-entry">' +
+    container.innerHTML = financeEntries.map(function(e, i) {
+      var receiptIcon = e.has_receipt ? '<span class="finance-entry__receipt" title="Has receipt">📎</span>' : '';
+      return '<div class="finance-entry" data-row="' + e.row_index + '">' +
         '<div class="finance-entry__icon">' + getCategoryIcon(e.category) + '</div>' +
         '<div class="finance-entry__info">' +
           '<div class="finance-entry__desc">' + escHtml(e.description || e.vendor || e.category) + '</div>' +
-          '<div class="finance-entry__meta">' + escHtml(e.date) + ' · ' + escHtml(e.vendor || '') + (e.event ? ' · ' + escHtml(e.event) : '') + '</div>' +
+          '<div class="finance-entry__meta">' + escHtml(e.date) + ' · ' + escHtml(e.vendor || '') + (e.event ? ' · ' + escHtml(e.event) : '') + ' · ' + escHtml(e.logged_by || '') + '</div>' +
         '</div>' +
         '<div class="finance-entry__amount">$' + parseFloat(e.amount).toFixed(2) + '</div>' +
-        receiptBtn +
+        receiptIcon +
+        '<button class="finance-entry__edit" data-idx="' + i + '" title="Edit">✏️</button>' +
+        '<button class="finance-entry__delete" data-idx="' + i + '" title="Delete">×</button>' +
       '</div>';
     }).join('');
 
-    // Bind receipt view
-    container.querySelectorAll('.finance-entry__receipt').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var idx = parseInt(this.dataset.idx);
-        var entry = entries[idx];
-        if (entry && entry.receipt) {
-          var overlay = document.createElement('div');
-          overlay.className = 'store-lightbox';
-          overlay.style.alignItems = 'center';
-          overlay.innerHTML = '<img src="' + entry.receipt + '" alt="Receipt" style="max-width:90vw;max-height:85vh;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.5);"><button class="store-lightbox__close" style="position:absolute;top:1rem;right:1rem;background:rgba(0,0,0,0.6);">×</button>';
-          document.body.appendChild(overlay);
-          document.body.style.overflow = 'hidden';
-          overlay.addEventListener('click', function(ev) {
-            if (ev.target === overlay || ev.target.classList.contains('store-lightbox__close')) { overlay.remove(); document.body.style.overflow = ''; }
-          });
-        }
-      });
+    // Bind edit/delete
+    container.querySelectorAll('.finance-entry__edit').forEach(function(btn) {
+      btn.addEventListener('click', function() { editFinanceEntry(parseInt(this.dataset.idx)); });
+    });
+    container.querySelectorAll('.finance-entry__delete').forEach(function(btn) {
+      btn.addEventListener('click', function() { deleteFinanceEntry(parseInt(this.dataset.idx)); });
     });
 
-    updateFinanceStats(entries);
+    updateFinanceStats(financeEntries);
+  }
+
+  async function deleteFinanceEntry(idx) {
+    var entry = financeEntries[idx];
+    if (!entry) return;
+    if (!confirm('Delete expense "$' + parseFloat(entry.amount).toFixed(2) + ' — ' + (entry.description || entry.category) + '"?')) return;
+    var session = getSession();
+    try {
+      var res = await post({action:'deleteFinanceEntry', token: session.token, row_index: entry.row_index});
+      if (res.ok) { loadFinanceEntries(); }
+      else { alert(res.error || 'Delete failed.'); }
+    } catch(e) { alert('Could not delete: ' + e.message); }
+  }
+
+  async function editFinanceEntry(idx) {
+    var entry = financeEntries[idx];
+    if (!entry) return;
+    var newAmount = prompt('Edit amount (currently $' + parseFloat(entry.amount).toFixed(2) + '):', entry.amount);
+    if (newAmount === null) return;
+    var newDesc = prompt('Edit description:', entry.description || '');
+    if (newDesc === null) return;
+    var session = getSession();
+    try {
+      var res = await post({action:'editFinanceEntry', token: session.token, row_index: entry.row_index, updates: {amount: parseFloat(newAmount) || entry.amount, description: newDesc}});
+      if (res.ok) { loadFinanceEntries(); }
+      else { alert(res.error || 'Edit failed.'); }
+    } catch(e) { alert('Could not edit: ' + e.message); }
   }
 
   function updateFinanceStats(entries) {
@@ -832,9 +897,7 @@
     if (countEl) countEl.textContent = entries.length;
   }
 
-  function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-  // Receipt preview
+  // ── Receipt preview ──
   var fileInput = document.getElementById('finance-receipt');
   var preview = document.getElementById('receipt-preview');
   var previewImg = document.getElementById('receipt-preview-img');
@@ -867,14 +930,13 @@
     });
   }
 
-  // Form submission
+  // ── Form submission ──
   var form = document.getElementById('finance-form');
   if (form) {
-    // Set default date to today
     var dateInput = document.getElementById('finance-date');
     if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
 
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
       e.preventDefault();
       var status = document.getElementById('finance-status');
       var amount = document.getElementById('finance-amount').value;
@@ -887,84 +949,68 @@
         return;
       }
 
-      var entry = {
-        id: Date.now().toString(36),
+      var session = getSession();
+      if (!session) { status.textContent = 'Not logged in.'; status.style.color = '#c0392b'; return; }
+
+      var entryData = {
         date: date,
         amount: parseFloat(amount),
         category: category,
         vendor: document.getElementById('finance-vendor').value.trim(),
         description: document.getElementById('finance-desc').value.trim(),
         event: document.getElementById('finance-event').value.trim(),
-        receipt: receiptDataUrl || null,
-        logged_by: (function() { try { return JSON.parse(localStorage.getItem('stwm-team-session')).name; } catch(e) { return ''; } })(),
-        timestamp: Date.now()
+        has_receipt: !!receiptDataUrl,
+        logged_by: session.name
       };
 
-      // Save locally
-      var entries = getEntries();
-      entries.push(entry);
-      saveEntries(entries);
+      var submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+      status.textContent = '';
 
-      // Try to send to backend
-      (async function() {
-        try {
-          var cfg = await fetch('assets/data/site-config.json?t=' + Date.now(), {cache:'no-store'}).then(function(r){return r.json();});
-          var session = JSON.parse(localStorage.getItem('stwm-team-session'));
-          if (cfg.orderHandlerUrl && session) {
-            await fetch(cfg.orderHandlerUrl, {
-              method: 'POST',
-              redirect: 'follow',
-              headers: {'Content-Type':'text/plain;charset=utf-8'},
-              body: JSON.stringify({
-                action: 'logFinanceEntry',
-                token: session.token,
-                entry: {
-                  date: entry.date,
-                  amount: entry.amount,
-                  category: entry.category,
-                  vendor: entry.vendor,
-                  description: entry.description,
-                  event: entry.event,
-                  has_receipt: !!entry.receipt,
-                  logged_by: entry.logged_by
-                }
-              })
-            });
-          }
-        } catch(err) { /* saved locally regardless */ }
-      })();
+      try {
+        var res = await post({action:'logFinanceEntry', token: session.token, entry: entryData});
+        if (res.ok) {
+          status.textContent = '✓ Expense saved to spreadsheet';
+          status.style.color = 'var(--color-olive)';
+          // Reset form
+          document.getElementById('finance-amount').value = '';
+          document.getElementById('finance-category').value = '';
+          document.getElementById('finance-vendor').value = '';
+          document.getElementById('finance-desc').value = '';
+          document.getElementById('finance-event').value = '';
+          receiptDataUrl = null;
+          if (fileInput) fileInput.value = '';
+          if (preview) preview.style.display = 'none';
+          if (placeholder) placeholder.style.display = 'flex';
+          // Reload list
+          loadFinanceEntries();
+        } else {
+          status.textContent = res.error || 'Save failed.';
+          status.style.color = '#c0392b';
+        }
+      } catch(err) {
+        status.textContent = 'Network error — try again.';
+        status.style.color = '#c0392b';
+      }
 
-      // Reset form
-      document.getElementById('finance-amount').value = '';
-      document.getElementById('finance-category').value = '';
-      document.getElementById('finance-vendor').value = '';
-      document.getElementById('finance-desc').value = '';
-      document.getElementById('finance-event').value = '';
-      receiptDataUrl = null;
-      if (fileInput) fileInput.value = '';
-      if (preview) preview.style.display = 'none';
-      if (placeholder) placeholder.style.display = 'flex';
-
-      status.textContent = '✓ Expense saved';
-      status.style.color = 'var(--color-olive)';
-      setTimeout(function() { status.textContent = ''; }, 2000);
-
-      renderFinanceList();
+      submitBtn.disabled = false;
+      submitBtn.textContent = '💾 Save Expense';
+      setTimeout(function() { status.textContent = ''; }, 3000);
     });
   }
 
-  // Load on tab click
+  // ── Load on tab click ──
   var financeTab = document.querySelector('[data-tab="finance"]');
   if (financeTab) {
     financeTab.addEventListener('click', function() {
-      renderFinanceList();
-      // Re-set date default in case day changed
+      loadFinanceEntries();
       var dateInput = document.getElementById('finance-date');
       if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
     });
   }
 
-  // Wire the dashboard "Add Manual" tile to open the picker
+  // ── Wire dashboard "Add Manual" tile ──
   var dashManual = document.getElementById('dash-add-manual');
   if (dashManual) {
     dashManual.addEventListener('click', function() {
@@ -973,8 +1019,11 @@
     });
   }
 
-  // Initial render
-  renderFinanceList();
+  // ── Expose for history integration ──
+  window.STW_Finance = {
+    load: loadFinanceEntries,
+    getEntries: function() { return financeEntries; }
+  };
 })();
 </script>
 

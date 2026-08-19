@@ -261,6 +261,13 @@ function doPost(e) {
   // ── Chat message actions ──
   if ((payload && payload.action) === 'sendChatMessage') return handleSendChatMessage_(payload);
   if ((payload && payload.action) === 'getChatMessages') return handleGetChatMessages_(payload);
+  // ── Finance actions (see docs/apps-script/finance-handler.gs) ──
+  if ((payload && payload.action) === 'logFinanceEntry') return handleLogFinanceEntry_(payload);
+  if ((payload && payload.action) === 'getFinanceEntries') return handleGetFinanceEntries_(payload);
+  if ((payload && payload.action) === 'deleteFinanceEntry') return handleDeleteFinanceEntry_(payload);
+  if ((payload && payload.action) === 'editFinanceEntry') return handleEditFinanceEntry_(payload);
+  if ((payload && payload.action) === 'getEventNames') return handleGetEventNames_(payload);
+  if ((payload && payload.action) === 'recoverAccount') return handleRecoverAccount_(payload);
   // ── Connect follow-up actions (see docs/apps-script/connect-follow-up-handler.gs) ──
   if ((payload && payload.action) === 'connectIntake') return handleConnectIntake_(payload);
   if ((payload && payload.action) === 'pushNotifyContacts') return handlePushNotify_(payload);

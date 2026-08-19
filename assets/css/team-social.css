@@ -549,7 +549,7 @@
   margin-bottom: 0.2rem;
   color: var(--color-text);
 }
-.team-page input,
+.team-page input:not([type="checkbox"]):not([type="radio"]),
 .team-page select,
 .team-page textarea {
   width: 100%;
@@ -564,7 +564,14 @@
   -webkit-appearance: none;
   transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
 }
-.team-page input:focus,
+.team-page input[type="checkbox"],
+.team-page input[type="radio"] {
+  width: auto;
+  margin: 0;
+  accent-color: var(--color-olive);
+  cursor: pointer;
+}
+.team-page input:not([type="checkbox"]):not([type="radio"]):focus,
 .team-page select:focus,
 .team-page textarea:focus {
   outline: none;
@@ -1057,6 +1064,30 @@
 }
 .finance-entry__receipt:hover {
   background: var(--color-olive-soft);
+}
+.finance-entry__edit,
+.finance-entry__delete {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--duration-fast);
+}
+.finance-entry__edit:hover {
+  background: var(--color-gold-soft);
+}
+.finance-entry__delete {
+  color: #c0392b;
+}
+.finance-entry__delete:hover {
+  background: rgba(192, 57, 43, 0.1);
 }
 
 /* ═══════════════════════════════════════════════════════════════

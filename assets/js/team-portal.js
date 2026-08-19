@@ -294,6 +294,22 @@ document.getElementById('signup-btn').addEventListener('click',async function(){
   btn.disabled=false;btn.textContent='Create Account';
 });
 
+// Forgot password
+document.getElementById('forgot-btn').addEventListener('click',async function(){
+  var btn=this,status=document.getElementById('forgot-status');
+  var identifier=document.getElementById('forgot-identifier').value.trim();
+  if(!identifier){status.textContent='Enter your name or email.';status.className='status status--error';return;}
+  btn.disabled=true;btn.textContent='Sending...';status.textContent='';
+  try{
+    var res=await postAction({action:'recoverAccount',identifier:identifier});
+    if(res.ok){
+      status.textContent='✓ Recovery sent! Check your '+( res.method||'registered contact')+'.';
+      status.className='status status--success';
+    }else throw new Error(res.error||'Account not found');
+  }catch(err){status.textContent=err.message;status.className='status status--error';}
+  btn.disabled=false;btn.textContent='Send Recovery →';
+});
+
 // Event setup
 document.getElementById('event-btn').addEventListener('click',function(){
   var name=document.getElementById('event-name').value.trim();

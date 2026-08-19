@@ -3,8 +3,11 @@
  * ────────────────────────────────────────────────────────────────
  *
  * Handles expense logging, retrieval, editing, and deletion.
- * Stores finance entries in a "Finance" tab on the STW Order Ledger sheet.
+ * Writes to the EXISTING "Finances" tab on the STW Order Ledger sheet.
  * Also handles event name retrieval and account recovery.
+ *
+ * DEPLOYMENT: Paste this into your STW Order Handler Apps Script project
+ * (the same project that has order-handler.gs, team-messaging-handlers.gs, etc.)
  *
  * Add these routes to the doPost() function in order-handler.gs:
  *
@@ -15,17 +18,26 @@
  *   if ((payload && payload.action) === 'getEventNames') return handleGetEventNames_(payload);
  *   if ((payload && payload.action) === 'recoverAccount') return handleRecoverAccount_(payload);
  *
- * Required tabs in the spreadsheet:
- *   - "Finance" (headers: timestamp, date, amount, category, vendor, description, event, logged_by, has_receipt, receipt_url)
- *   - "Inventory" (existing — used to pull unique event names)
- *   - "Team" (existing — used for account recovery)
+ * The existing "Finances" tab structure (row 1 = headers, row 2 = totals formula row):
+ *   A: date
+ *   B: type (expense, income, donation/cash, etc.)
+ *   C: category (designated scripture, ministry supplies, food, etc.)
+ *   D: description
+ *   E: amount
+ *   F: payment_method (Cash, Venmo, Card, Zelle, Invoice/unpaid)
+ *   G: references
+ *   H: recorded_by
+ *   I: notes
+ *   J: receipt_url
+ *
+ * NOTE: Row 2 in the existing sheet contains formula totals — data starts at row 3+.
+ *       New entries are appended AFTER the last row of data.
  */
 
-const FINANCE_TAB = 'Finance';
-const FINANCE_HEADERS = ['timestamp', 'date', 'amount', 'category', 'vendor', 'description', 'event', 'logged_by', 'has_receipt', 'receipt_url'];
+const FINANCES_TAB = 'Finances';
 
 // ── Log Finance Entry ────────────────────────────────────────────
-// Payload: { action:'logFinanceEntry', token, entry: { date, amount, category, vendor, description, event, has_receipt, logged_by } }
+// Payload: { action:'logFinanceEntry', token, entry: { date, amount, category, vendor, description, event, payment_method, type, has_receipt, logged_by } }
 function handleLogFinanceEntry_(payload) {
   try {
     const member = validateTeamToken_(payload.token);
@@ -38,23 +50,21 @@ function handleLogFinanceEntry_(payload) {
 
     const entry = payload.entry || {};
     const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
-    let sheet = ss.getSheetByName(FINANCE_TAB);
-    if (!sheet) {
-      sheet = ss.insertSheet(FINANCE_TAB);
-      sheet.appendRow(FINANCE_HEADERS);
-    }
+    const sheet = ss.getSheetByName(FINANCES_TAB);
+    if (!sheet) return jsonResp_({ ok: false, error: 'Finances tab not found in spreadsheet' });
 
+    // Map to the existing column structure: date, type, category, description, amount, payment_method, references, recorded_by, notes, receipt_url
     const row = [
-      new Date().toISOString(),
-      entry.date || new Date().toISOString().split('T')[0],
-      parseFloat(entry.amount) || 0,
-      entry.category || 'other',
-      entry.vendor || '',
-      entry.description || '',
-      entry.event || '',
-      entry.logged_by || member.name,
-      entry.has_receipt ? 'yes' : 'no',
-      entry.receipt_url || ''
+      entry.date || new Date().toISOString().split('T')[0],                    // A: date
+      entry.type || 'expense',                                                  // B: type
+      entry.category || 'other',                                               // C: category
+      entry.description || entry.vendor || '',                                 // D: description
+      parseFloat(entry.amount) || 0,                                           // E: amount
+      entry.payment_method || 'Cash',                                          // F: payment_method
+      entry.event || '',                                                        // G: references (using for event/vendor reference)
+      entry.logged_by || member.name,                                          // H: recorded_by
+      entry.vendor ? ('Vendor: ' + entry.vendor) : '',                         // I: notes
+      entry.has_receipt ? 'pending_upload' : ''                                // J: receipt_url
     ];
 
     sheet.appendRow(row);
@@ -78,31 +88,34 @@ function handleGetFinanceEntries_(payload) {
     }
 
     const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
-    const sheet = ss.getSheetByName(FINANCE_TAB);
+    const sheet = ss.getSheetByName(FINANCES_TAB);
     if (!sheet) return jsonResp_({ ok: true, entries: [] });
 
     const data = sheet.getDataRange().getValues();
-    if (data.length <= 1) return jsonResp_({ ok: true, entries: [] });
+    // Row 1 = headers, Row 2 = totals row (skip both), data starts at row 3 (index 2)
+    if (data.length <= 2) return jsonResp_({ ok: true, entries: [] });
 
-    const headers = data[0];
     const limit = payload.limit || 50;
     const entries = [];
 
-    // Read from bottom (newest first)
-    for (let i = data.length - 1; i >= 1 && entries.length < limit; i--) {
+    // Read from bottom (newest first), skip header row (0) and totals row (1)
+    for (let i = data.length - 1; i >= 2 && entries.length < limit; i--) {
       const row = data[i];
+      // Skip empty rows
+      if (!row[0] && !row[4]) continue;
       entries.push({
-        row_index: i + 1, // 1-indexed for Sheet API
-        timestamp: row[0],
-        date: row[1],
-        amount: row[2],
-        category: row[3],
-        vendor: row[4],
-        description: row[5],
-        event: row[6],
-        logged_by: row[7],
-        has_receipt: row[8] === 'yes',
-        receipt_url: row[9] || ''
+        row_index: i + 1,  // 1-indexed for Sheet API
+        date: row[0] ? (row[0] instanceof Date ? row[0].toISOString().split('T')[0] : String(row[0])) : '',
+        type: row[1] || 'expense',
+        category: row[2] || '',
+        description: row[3] || '',
+        amount: row[4] || 0,
+        payment_method: row[5] || '',
+        references: row[6] || '',
+        recorded_by: row[7] || '',
+        notes: row[8] || '',
+        receipt_url: row[9] || '',
+        has_receipt: !!(row[9])
       });
     }
 
@@ -125,11 +138,11 @@ function handleDeleteFinanceEntry_(payload) {
     }
 
     const rowIndex = parseInt(payload.row_index);
-    if (!rowIndex || rowIndex < 2) return jsonResp_({ ok: false, error: 'Invalid row' });
+    if (!rowIndex || rowIndex < 3) return jsonResp_({ ok: false, error: 'Invalid row (cannot delete header/totals)' });
 
     const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
-    const sheet = ss.getSheetByName(FINANCE_TAB);
-    if (!sheet) return jsonResp_({ ok: false, error: 'Finance sheet not found' });
+    const sheet = ss.getSheetByName(FINANCES_TAB);
+    if (!sheet) return jsonResp_({ ok: false, error: 'Finances tab not found' });
 
     sheet.deleteRow(rowIndex);
     return jsonResp_({ ok: true });
@@ -139,7 +152,7 @@ function handleDeleteFinanceEntry_(payload) {
 }
 
 // ── Edit Finance Entry ───────────────────────────────────────────
-// Payload: { action:'editFinanceEntry', token, row_index, updates: { amount?, category?, vendor?, description?, event? } }
+// Payload: { action:'editFinanceEntry', token, row_index, updates: { amount?, category?, description?, type?, payment_method?, notes? } }
 function handleEditFinanceEntry_(payload) {
   try {
     const member = validateTeamToken_(payload.token);
@@ -151,20 +164,21 @@ function handleEditFinanceEntry_(payload) {
     }
 
     const rowIndex = parseInt(payload.row_index);
-    if (!rowIndex || rowIndex < 2) return jsonResp_({ ok: false, error: 'Invalid row' });
+    if (!rowIndex || rowIndex < 3) return jsonResp_({ ok: false, error: 'Invalid row' });
 
     const updates = payload.updates || {};
     const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
-    const sheet = ss.getSheetByName(FINANCE_TAB);
-    if (!sheet) return jsonResp_({ ok: false, error: 'Finance sheet not found' });
+    const sheet = ss.getSheetByName(FINANCES_TAB);
+    if (!sheet) return jsonResp_({ ok: false, error: 'Finances tab not found' });
 
-    // Column mapping: date=2, amount=3, category=4, vendor=5, description=6, event=7
-    if (updates.date) sheet.getRange(rowIndex, 2).setValue(updates.date);
-    if (updates.amount !== undefined) sheet.getRange(rowIndex, 3).setValue(parseFloat(updates.amount) || 0);
-    if (updates.category) sheet.getRange(rowIndex, 4).setValue(updates.category);
-    if (updates.vendor !== undefined) sheet.getRange(rowIndex, 5).setValue(updates.vendor);
-    if (updates.description !== undefined) sheet.getRange(rowIndex, 6).setValue(updates.description);
-    if (updates.event !== undefined) sheet.getRange(rowIndex, 7).setValue(updates.event);
+    // Column mapping: A=date(1), B=type(2), C=category(3), D=description(4), E=amount(5), F=payment_method(6), G=references(7), H=recorded_by(8), I=notes(9)
+    if (updates.date) sheet.getRange(rowIndex, 1).setValue(updates.date);
+    if (updates.type) sheet.getRange(rowIndex, 2).setValue(updates.type);
+    if (updates.category) sheet.getRange(rowIndex, 3).setValue(updates.category);
+    if (updates.description !== undefined) sheet.getRange(rowIndex, 4).setValue(updates.description);
+    if (updates.amount !== undefined) sheet.getRange(rowIndex, 5).setValue(parseFloat(updates.amount) || 0);
+    if (updates.payment_method) sheet.getRange(rowIndex, 6).setValue(updates.payment_method);
+    if (updates.notes !== undefined) sheet.getRange(rowIndex, 9).setValue(updates.notes);
 
     return jsonResp_({ ok: true });
   } catch (err) {
@@ -187,7 +201,7 @@ function handleGetEventNames_(payload) {
     const data = sheet.getDataRange().getValues();
     if (data.length <= 1) return jsonResp_({ ok: true, events: [] });
 
-    // Find the "event_label" or "event_source" column
+    // Find the event column — could be "event_label", "event_source", or "event"
     const headers = data[0].map(h => String(h).toLowerCase().trim());
     let eventCol = headers.indexOf('event_label');
     if (eventCol === -1) eventCol = headers.indexOf('event_source');
@@ -213,29 +227,31 @@ function handleGetEventNames_(payload) {
 
 // ── Account Recovery ─────────────────────────────────────────────
 // Payload: { action:'recoverAccount', identifier }
-// Looks up by name or email in Team tab, sends recovery via their notification preference
+// Looks up by name or email in TeamMembers tab, sends recovery via email
 function handleRecoverAccount_(payload) {
   try {
     const identifier = (payload.identifier || '').trim().toLowerCase();
     if (!identifier) return jsonResp_({ ok: false, error: 'Please provide your name or email.' });
 
     const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
-    const sheet = ss.getSheetByName('Team');
+    // Try "TeamMembers" first, then "Team"
+    let sheet = ss.getSheetByName('TeamMembers');
+    if (!sheet) sheet = ss.getSheetByName('Team');
     if (!sheet) return jsonResp_({ ok: false, error: 'Team directory not found.' });
 
     const data = sheet.getDataRange().getValues();
     const headers = data[0].map(h => String(h).toLowerCase().trim());
     const nameCol = headers.indexOf('name');
     const emailCol = headers.indexOf('email');
-    const phoneCol = headers.indexOf('phone');
-    const telegramCol = headers.indexOf('telegram_username');
-    const notifyCol = headers.indexOf('notify_pref');
+    const passCol = headers.indexOf('password_hash');
+
+    if (nameCol === -1) return jsonResp_({ ok: false, error: 'Team sheet missing name column.' });
 
     let found = null;
     let foundRow = -1;
     for (let i = 1; i < data.length; i++) {
       const rowName = String(data[i][nameCol] || '').trim().toLowerCase();
-      const rowEmail = String(data[i][emailCol] || '').trim().toLowerCase();
+      const rowEmail = emailCol !== -1 ? String(data[i][emailCol] || '').trim().toLowerCase() : '';
       if (rowName === identifier || rowEmail === identifier) {
         found = data[i];
         foundRow = i;
@@ -246,47 +262,27 @@ function handleRecoverAccount_(payload) {
     if (!found) return jsonResp_({ ok: false, error: 'No account found with that name or email. Contact an admin for help.' });
 
     const name = found[nameCol];
-    const email = found[emailCol];
-    const phone = found[phoneCol];
-    const telegram = found[telegramCol];
-    const notifyPref = (found[notifyCol] || 'email').toLowerCase();
+    const email = emailCol !== -1 ? found[emailCol] : '';
+
+    if (!email) return jsonResp_({ ok: false, error: 'No email on file for this account. Ask an admin to reset your password.' });
 
     // Generate a temporary password (6 chars)
     const tempPass = Math.random().toString(36).slice(-6);
 
-    // Hash and store it (overwrite password_hash column)
-    const passCol = headers.indexOf('password_hash');
+    // Store temp password (the login handler needs to accept TEMP: prefix passwords as plain text)
     if (passCol !== -1) {
-      // We store a marker that this is a temp password — the user must change it on next login
-      // For simplicity, we store the temp pass as-is (plain) prefixed with "TEMP:"
-      // The login handler should check for this prefix and accept it as-is
       sheet.getRange(foundRow + 1, passCol + 1).setValue('TEMP:' + tempPass);
     }
 
-    // Send recovery via their preferred method
-    let method = 'email';
-    if (notifyPref === 'email' && email) {
-      MailApp.sendEmail(email, 'Seed the Word — Password Recovery', 
-        'Hi ' + name + ',\n\nYour temporary password is: ' + tempPass + '\n\nLog in with your name and this password, then update your password in Profile Settings.\n\n— Seed the Word Team');
-      method = 'email (' + email.slice(0, 3) + '...)';
-    } else if (notifyPref === 'telegram' && telegram) {
-      // Can't send Telegram directly from Apps Script easily — fall back to email or note
-      if (email) {
-        MailApp.sendEmail(email, 'Seed the Word — Password Recovery', 
-          'Hi ' + name + ',\n\nYour temporary password is: ' + tempPass + '\n\nLog in with your name and this password.\n\n— Seed the Word Team');
-        method = 'email (Telegram not supported for recovery)';
-      } else {
-        return jsonResp_({ ok: false, error: 'Cannot send recovery — no email on file. Contact an admin.' });
-      }
-    } else if (email) {
-      MailApp.sendEmail(email, 'Seed the Word — Password Recovery', 
-        'Hi ' + name + ',\n\nYour temporary password is: ' + tempPass + '\n\nLog in with your name and this password.\n\n— Seed the Word Team');
-      method = 'email';
-    } else {
-      return jsonResp_({ ok: false, error: 'No contact info on file. Ask an admin to reset your password.' });
-    }
+    // Send recovery email
+    MailApp.sendEmail({
+      to: email,
+      subject: 'Seed the Word — Password Recovery',
+      body: 'Hi ' + name + ',\n\nYour temporary password is: ' + tempPass + '\n\nLog in with your name and this password, then update your password in Profile Settings.\n\n— Seed the Word Team'
+    });
 
-    return jsonResp_({ ok: true, method: method });
+    var maskedEmail = email.slice(0, 3) + '***@' + email.split('@')[1];
+    return jsonResp_({ ok: true, method: 'email (' + maskedEmail + ')' });
   } catch (err) {
     return jsonResp_({ ok: false, error: err.message });
   }

@@ -300,6 +300,8 @@ document.getElementById('event-btn').addEventListener('click',function(){
   if(!name){document.getElementById('event-status').textContent='Enter an event name.';return;}
   session.event=name;session.eventDate=new Date().toISOString().split('T')[0];
   session.todayScans=[];saveSession();
+  // Cache event name locally for autocomplete
+  try{var cached=JSON.parse(localStorage.getItem('stwm-event-names')||'[]');if(cached.indexOf(name)===-1){cached.unshift(name);if(cached.length>30)cached.length=30;localStorage.setItem('stwm-event-names',JSON.stringify(cached));}}catch(e){}
   postAction({action:'setActiveEvent',passphrase_hash:'2e3df09a3a06ebdacb4cf637764073674243ed9497da164c94a955f7ae931440',event_id:name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),event_label:name,set_by:session.name}).catch(function(){});
   showPortal();
 });

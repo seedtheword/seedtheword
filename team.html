@@ -42,22 +42,32 @@
 
   <!-- Login View -->
   <div class="view active" id="view-login">
+    <div class="login-hero">
+      <div class="login-hero__icon">📖</div>
+      <h1 class="login-hero__title">Seed the Word</h1>
+      <p class="login-hero__sub">Team Portal</p>
+    </div>
     <div class="glass-card">
-      <h2 class="glass-card__title">Log in</h2>
+      <h2 class="glass-card__title">Welcome back</h2>
       <label>Name</label>
       <input type="text" id="login-name" placeholder="Your full name" autocomplete="name">
       <label>Password</label>
       <input type="password" id="login-pass" placeholder="Your password" autocomplete="current-password">
+      <label class="login-remember"><input type="checkbox" id="login-remember" checked> Remember me</label>
       <div class="status" id="login-status"></div>
-      <button class="btn btn--gold" id="login-btn">Log in</button>
+      <button class="btn btn--green btn--lg" id="login-btn">Log in →</button>
       <p class="toggle-link">New here? <a onclick="showView('signup')">Create an account</a></p>
     </div>
   </div>
 
   <!-- Signup View -->
   <div class="view" id="view-signup">
+    <div class="login-hero">
+      <div class="login-hero__icon">🌱</div>
+      <h1 class="login-hero__title">Join the Team</h1>
+      <p class="login-hero__sub">Create your account</p>
+    </div>
     <div class="glass-card">
-      <h2 class="glass-card__title">Join the team</h2>
       <label>Full Name *</label>
       <input type="text" id="signup-name" placeholder="David Ageyev" autocomplete="name">
       <label>Email</label>
@@ -71,18 +81,24 @@
       <label>Confirm Password *</label>
       <input type="password" id="signup-pass2" placeholder="Confirm password" autocomplete="new-password">
       <div class="status" id="signup-status"></div>
-      <button class="btn btn--green" id="signup-btn">Create Account</button>
+      <button class="btn btn--green btn--lg" id="signup-btn">Create Account →</button>
       <p class="toggle-link">Already have an account? <a onclick="showView('login')">Log in</a></p>
     </div>
   </div>
 
   <!-- Event Setup View -->
   <div class="view" id="view-event">
+    <div class="login-hero">
+      <div class="login-hero__icon">📍</div>
+      <h1 class="login-hero__title">Today's Event</h1>
+      <p class="login-hero__sub">Where are you serving?</p>
+    </div>
     <div class="glass-card">
-      <h2 class="glass-card__title">Set today's event</h2>
-      <p style="font-size:0.84rem;color:var(--color-text-muted);margin:0 0 1rem;">What outreach are you at today? This links your scans to this event.</p>
       <label>Event / Location *</label>
-      <input type="text" id="event-name" placeholder="e.g. Sam Petrov Community Cookout">
+      <div class="event-autocomplete" id="event-autocomplete">
+        <input type="text" id="event-name" placeholder="Start typing an event name..." autocomplete="off">
+        <div class="event-autocomplete__list" id="event-suggestions" style="display:none;"></div>
+      </div>
       <label>Your Role Today</label>
       <select id="event-role">
         <option value="giving">Giving away Bibles/items</option>
@@ -90,7 +106,8 @@
         <option value="setup">Setup / logistics</option>
       </select>
       <div class="status" id="event-status"></div>
-      <button class="btn btn--gold" id="event-btn">Start</button>
+      <button class="btn btn--green btn--lg" id="event-btn">Start Outreach →</button>
+      <p class="toggle-link"><a onclick="showView('portal')" style="cursor:pointer;">Skip — use last event</a></p>
     </div>
   </div>
 
@@ -454,7 +471,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=10"></script>
+<script src="assets/js/team-portal.js?v=11"></script>
 <script src="assets/js/profile-settings.js?v=1"></script>
 <script>
 // ── Profile card initialization ──
@@ -635,6 +652,108 @@
     var portal = document.getElementById('view-portal');
     if (portal && portal.classList.contains('active')) loadForum();
   }, 1000);
+})();
+
+// ═══ EVENT AUTOCOMPLETE: Query existing events from spreadsheet ═══
+(function() {
+  var eventInput = document.getElementById('event-name');
+  var suggestionsEl = document.getElementById('event-suggestions');
+  var knownEvents = [];
+  var fetched = false;
+
+  async function fetchEvents() {
+    if (fetched) return;
+    fetched = true;
+    // Start with local cache for instant results
+    try {
+      var cached = JSON.parse(localStorage.getItem('stwm-event-names') || '[]');
+      if (cached.length) knownEvents = cached;
+    } catch(e) {}
+    // Then fetch from backend for the full list
+    try {
+      var s = JSON.parse(localStorage.getItem('stwm-team-session'));
+      if (!s || !s.token) return;
+      var cfg = await fetch('assets/data/site-config.json?t=' + Date.now(), {cache:'no-store'}).then(function(r){return r.json();});
+      var res = await fetch(cfg.orderHandlerUrl, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({action:'getEventNames', token: s.token})
+      });
+      var data = JSON.parse(await res.text());
+      if (data.ok && data.events && data.events.length) {
+        knownEvents = data.events;
+        // Update local cache with server data
+        try { localStorage.setItem('stwm-event-names', JSON.stringify(data.events.slice(0, 30))); } catch(e2) {}
+      }
+    } catch(e) { /* local cache still works */ }
+  }
+
+  function showSuggestions(query) {
+    if (!suggestionsEl) return;
+    var q = query.trim().toLowerCase();
+    if (!q || q.length < 2) {
+      suggestionsEl.style.display = 'none';
+      return;
+    }
+
+    var matches = knownEvents.filter(function(ev) {
+      return ev.toLowerCase().indexOf(q) !== -1;
+    });
+
+    if (!matches.length) {
+      suggestionsEl.innerHTML = '<div class="event-autocomplete__empty">No matching events — type to create new</div>';
+      suggestionsEl.style.display = 'block';
+      return;
+    }
+
+    suggestionsEl.innerHTML = matches.slice(0, 8).map(function(ev) {
+      return '<div class="event-autocomplete__item" data-value="' + ev.replace(/"/g, '&quot;') + '">' +
+        '<span class="event-autocomplete__item-icon">📍</span>' +
+        '<span class="event-autocomplete__item-text">' + ev.replace(/</g, '&lt;') + '</span>' +
+      '</div>';
+    }).join('');
+    suggestionsEl.style.display = 'block';
+
+    suggestionsEl.querySelectorAll('.event-autocomplete__item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        eventInput.value = this.dataset.value;
+        suggestionsEl.style.display = 'none';
+        eventInput.focus();
+      });
+    });
+  }
+
+  if (eventInput) {
+    // Fetch events when input is focused
+    eventInput.addEventListener('focus', fetchEvents);
+
+    // Filter as user types
+    var debounceTimer;
+    eventInput.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      var val = this.value;
+      debounceTimer = setTimeout(function() { showSuggestions(val); }, 150);
+    });
+
+    // Hide on outside click
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#event-autocomplete')) {
+        if (suggestionsEl) suggestionsEl.style.display = 'none';
+      }
+    });
+  }
+
+  // Pre-fetch events when event view shows
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      if (m.target.id === 'view-event' && m.target.classList.contains('active')) {
+        fetchEvents();
+      }
+    });
+  });
+  var eventView = document.getElementById('view-event');
+  if (eventView) observer.observe(eventView, {attributes: true, attributeFilter: ['class']});
 })();
 
 // ═══ FINANCE TAB: Expense logging + receipt upload ═══

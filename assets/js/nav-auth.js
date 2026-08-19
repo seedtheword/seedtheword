@@ -73,6 +73,7 @@
     dropdown.className = 'nav-auth-dropdown';
     dropdown.id = 'nav-auth-dropdown';
     dropdown.innerHTML =
+      '<a class="nav-auth-dropdown__item" href="team.html" style="text-decoration:none;color:inherit;">Team Portal</a>' +
       '<button class="nav-auth-dropdown__item" id="nav-auth-profile">Profile Settings</button>' +
       '<button class="nav-auth-dropdown__item nav-auth-dropdown__item--danger" id="nav-auth-logout">Log out</button>';
     parentLi.appendChild(dropdown);

@@ -187,9 +187,11 @@ function handleGetEventNames_(payload) {
     const data = sheet.getDataRange().getValues();
     if (data.length <= 1) return jsonResp_({ ok: true, events: [] });
 
-    // Find the "event_label" column
+    // Find the "event_label" or "event_source" column
     const headers = data[0].map(h => String(h).toLowerCase().trim());
-    const eventCol = headers.indexOf('event_label');
+    let eventCol = headers.indexOf('event_label');
+    if (eventCol === -1) eventCol = headers.indexOf('event_source');
+    if (eventCol === -1) eventCol = headers.indexOf('event');
     if (eventCol === -1) return jsonResp_({ ok: true, events: [] });
 
     const seen = {};

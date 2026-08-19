@@ -126,7 +126,7 @@
       </select>
       <div class="status" id="event-status"></div>
       <button class="btn btn--green btn--lg" id="event-btn">Start Outreach →</button>
-      <p class="toggle-link"><a onclick="showView('portal')" style="cursor:pointer;">Skip — use last event</a></p>
+      <p class="toggle-link"><a id="skip-event-link" style="cursor:pointer;">Skip — use last event</a></p>
     </div>
   </div>
 
@@ -711,14 +711,17 @@
   function showSuggestions(query) {
     if (!suggestionsEl) return;
     var q = query.trim().toLowerCase();
-    if (!q || q.length < 2) {
-      suggestionsEl.style.display = 'none';
-      return;
-    }
 
-    var matches = knownEvents.filter(function(ev) {
-      return ev.toLowerCase().indexOf(q) !== -1;
-    });
+    // Show all events when focused with short/empty query
+    var matches;
+    if (!q || q.length < 2) {
+      if (!knownEvents.length) { suggestionsEl.style.display = 'none'; return; }
+      matches = knownEvents.slice(0, 8);
+    } else {
+      matches = knownEvents.filter(function(ev) {
+        return ev.toLowerCase().indexOf(q) !== -1;
+      });
+    }
 
     if (!matches.length) {
       suggestionsEl.innerHTML = '<div class="event-autocomplete__empty">No matching events — type to create new</div>';
@@ -726,7 +729,8 @@
       return;
     }
 
-    suggestionsEl.innerHTML = matches.slice(0, 8).map(function(ev) {
+    var header = (!q || q.length < 2) ? '<div class="event-autocomplete__empty" style="font-style:normal;font-weight:600;">Recent events:</div>' : '';
+    suggestionsEl.innerHTML = header + matches.slice(0, 8).map(function(ev) {
       return '<div class="event-autocomplete__item" data-value="' + ev.replace(/"/g, '&quot;') + '">' +
         '<span class="event-autocomplete__item-icon">📍</span>' +
         '<span class="event-autocomplete__item-text">' + ev.replace(/</g, '&lt;') + '</span>' +
@@ -744,8 +748,10 @@
   }
 
   if (eventInput) {
-    // Fetch events when input is focused
-    eventInput.addEventListener('focus', fetchEvents);
+    // Fetch events when input is focused and show suggestions immediately
+    eventInput.addEventListener('focus', function() {
+      fetchEvents().then(function() { showSuggestions(eventInput.value); });
+    });
 
     // Filter as user types
     var debounceTimer;
@@ -773,6 +779,26 @@
   });
   var eventView = document.getElementById('view-event');
   if (eventView) observer.observe(eventView, {attributes: true, attributeFilter: ['class']});
+
+  // Skip — use last event (with confirmation)
+  var skipLink = document.getElementById('skip-event-link');
+  if (skipLink) {
+    skipLink.addEventListener('click', function() {
+      var s = null;
+      try { s = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
+      if (s && s.event) {
+        var confirmed = confirm('Continue with last event?\n\n"' + s.event + '"\n\nTap OK to proceed or Cancel to pick a different event.');
+        if (confirmed) {
+          s.eventDate = new Date().toISOString().split('T')[0];
+          s.todayScans = s.todayScans || [];
+          localStorage.setItem('stwm-team-session', JSON.stringify(s));
+          showView('portal');
+        }
+      } else {
+        alert('No previous event found. Please enter one above.');
+      }
+    });
+  }
 })();
 
 // ═══ FINANCE TAB: Expense logging + receipt upload ═══
@@ -816,11 +842,29 @@
         financeEntries = res.entries;
         renderFinanceList();
       } else {
-        container.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">' + (res.error || 'No expenses found.') + '</p>';
+        // Show pending local entries if backend returned error
+        showLocalPending(container);
       }
     } catch(e) {
-      container.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">Could not load. Check connection.</p>';
+      // Backend not deployed — show local pending entries
+      showLocalPending(container);
     }
+  }
+
+  function showLocalPending(container) {
+    var pending = [];
+    try { pending = JSON.parse(localStorage.getItem('stwm-finance-pending') || '[]'); } catch(e) {}
+    if (pending.length) {
+      financeEntries = pending.map(function(e, i) {
+        return { row_index: null, date: e.date, amount: e.amount, category: e.category, vendor: e.vendor, description: e.description, event: e.event, logged_by: e.logged_by, has_receipt: e.has_receipt, local: true };
+      });
+      container.innerHTML = '';
+      renderFinanceList();
+      container.insertAdjacentHTML('beforeend', '<p style="font-size:0.7rem;color:var(--color-gold);text-align:center;margin-top:0.5rem;">⚠️ Showing locally saved entries. Deploy finance-handler.gs to sync.</p>');
+    } else {
+      container.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">No expenses logged yet.</p>';
+    }
+  }
   }
 
   function renderFinanceList() {
@@ -990,8 +1034,24 @@
           status.style.color = '#c0392b';
         }
       } catch(err) {
-        status.textContent = 'Network error — try again.';
-        status.style.color = '#c0392b';
+        // Backend not deployed yet — save locally as fallback
+        try {
+          var local = JSON.parse(localStorage.getItem('stwm-finance-pending') || '[]');
+          local.push(entryData);
+          localStorage.setItem('stwm-finance-pending', JSON.stringify(local));
+        } catch(e2) {}
+        status.textContent = '⚠️ Saved locally (deploy finance-handler.gs to sync to spreadsheet)';
+        status.style.color = 'var(--color-gold)';
+        // Reset form anyway
+        document.getElementById('finance-amount').value = '';
+        document.getElementById('finance-category').value = '';
+        document.getElementById('finance-vendor').value = '';
+        document.getElementById('finance-desc').value = '';
+        document.getElementById('finance-event').value = '';
+        receiptDataUrl = null;
+        if (fileInput) fileInput.value = '';
+        if (preview) preview.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'flex';
       }
 
       submitBtn.disabled = false;

@@ -539,7 +539,7 @@ var TRAINING_MODULES=[
 
 function renderMilestones(){
   var container=document.getElementById('training-milestones');
-  if(!session)return;
+  if(!container||!session)return;
   var scans=session.totalScans||0;
   container.innerHTML=MILESTONES.map(function(m){
     var earned=scans>=m.threshold;
@@ -549,6 +549,7 @@ function renderMilestones(){
 
 async function renderTrainingModules(){
   var container=document.getElementById('training-modules');
+  if(!container)return;
   try{
     var res=await postAction({action:'getTrainingProgress',token:session.token});
     var completed=(res.ok&&res.completed)||[];
@@ -561,6 +562,7 @@ async function renderTrainingModules(){
 
 async function renderTrainingRecord(){
   var container=document.getElementById('training-record');
+  if(!container)return;
   try{
     var res=await postAction({action:'getTrainingRecord',token:session.token});
     if(res.ok&&res.records&&res.records.length){

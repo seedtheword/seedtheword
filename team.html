@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <link rel="stylesheet" href="assets/css/team-social.css?v=4">
+  <link rel="stylesheet" href="assets/css/lms.css?v=1">
   <script src="assets/js/theme-toggle.js?v=1"></script>
 </head>
 <body>
@@ -467,31 +468,10 @@
       </div>
     </div>
 
-    <!-- Training Tab -->
+    <!-- Training Tab — LMS -->
     <div class="tab-panel" id="tab-training" hidden>
-      <div class="glass-card">
-        <h3 class="glass-card__title">🏆 Your Milestones</h3>
-        <div id="training-milestones"><p style="color:var(--color-text-muted);font-size:0.84rem;">Loading milestones...</p></div>
-      </div>
-      <div class="glass-card">
-        <h3 class="glass-card__title">📖 Training Modules</h3>
-        <p style="font-size:0.78rem;color:var(--color-text-muted);margin:0 0 0.75rem;">Complete each module to grow in your ministry skills.</p>
-        <div id="training-modules"><p style="color:var(--color-text-muted);font-size:0.84rem;">Loading modules...</p></div>
-      </div>
-      <div class="glass-card">
-        <h3 class="glass-card__title">📝 Training Record</h3>
-        <div id="training-record"><p style="color:var(--color-text-muted);font-size:0.84rem;">Loading record...</p></div>
-      </div>
-      <div class="glass-card" id="training-add-section">
-        <h3 class="glass-card__title">➕ Log Training</h3>
-        <select id="training-log-type" style="margin-bottom:0.4rem;">
-          <option value="training">Training completed</option>
-          <option value="milestone">Milestone reached</option>
-          <option value="feedback">Feedback received</option>
-          <option value="recognition">Recognition</option>
-        </select>
-        <textarea id="training-log-notes" placeholder="Details..." rows="2"></textarea>
-        <button class="btn btn--gold btn--sm" id="training-log-btn">Log Entry</button>
+      <div id="lms-catalog-root">
+        <p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;padding:2rem 0;">Loading courses...</p>
       </div>
     </div>
 
@@ -518,6 +498,7 @@
 </div>
 
 <script src="assets/js/team-portal.js?v=11"></script>
+<script src="assets/js/lms.js?v=1"></script>
 <script src="assets/js/profile-settings.js?v=1"></script>
 <script>
 // ── Profile card initialization ──

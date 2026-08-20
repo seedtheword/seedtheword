@@ -41,17 +41,17 @@ const FINANCES_TAB = 'Finances';
 function handleLogFinanceEntry_(payload) {
   try {
     const member = validateTeamToken_(payload.token);
-    if (!member) return jsonResp_({ ok: false, error: 'Invalid session' });
+    if (!member) return jsonResponse({ ok: false, error: 'Invalid session' });
 
     const role = (member.role || '').toLowerCase();
     if (role !== 'admin' && role !== 'super_admin') {
-      return jsonResp_({ ok: false, error: 'Only admins can log finance entries' });
+      return jsonResponse({ ok: false, error: 'Only admins can log finance entries' });
     }
 
     const entry = payload.entry || {};
     const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
     const sheet = ss.getSheetByName(FINANCES_TAB);
-    if (!sheet) return jsonResp_({ ok: false, error: 'Finances tab not found in spreadsheet' });
+    if (!sheet) return jsonResponse({ ok: false, error: 'Finances tab not found in spreadsheet' });
 
     // Handle receipt upload to Google Drive
     var receiptUrl = '';
@@ -81,9 +81,9 @@ function handleLogFinanceEntry_(payload) {
 
     sheet.appendRow(row);
 
-    return jsonResp_({ ok: true, id: Date.now().toString(36), receipt_url: receiptUrl });
+    return jsonResponse({ ok: true, id: Date.now().toString(36), receipt_url: receiptUrl });
   } catch (err) {
-    return jsonResp_({ ok: false, error: err.message });
+    return jsonResponse({ ok: false, error: err.message });
   }
 }
 
@@ -135,20 +135,20 @@ function uploadReceiptToDrive_(dataUrl, date, loggedBy) {
 function handleGetFinanceEntries_(payload) {
   try {
     const member = validateTeamToken_(payload.token);
-    if (!member) return jsonResp_({ ok: false, error: 'Invalid session' });
+    if (!member) return jsonResponse({ ok: false, error: 'Invalid session' });
 
     const role = (member.role || '').toLowerCase();
     if (role !== 'admin' && role !== 'super_admin') {
-      return jsonResp_({ ok: false, error: 'Admin access required' });
+      return jsonResponse({ ok: false, error: 'Admin access required' });
     }
 
     const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
     const sheet = ss.getSheetByName(FINANCES_TAB);
-    if (!sheet) return jsonResp_({ ok: true, entries: [] });
+    if (!sheet) return jsonResponse({ ok: true, entries: [] });
 
     const data = sheet.getDataRange().getValues();
     // Row 1 = headers, Row 2 = totals/formula row (skip both), data starts at row 3 (index 2)
-    if (data.length <= 2) return jsonResp_({ ok: true, entries: [] });
+    if (data.length <= 2) return jsonResponse({ ok: true, entries: [] });
 
     const limit = payload.limit || 50;
     const entries = [];
@@ -185,9 +185,9 @@ function handleGetFinanceEntries_(payload) {
       });
     }
 
-    return jsonResp_({ ok: true, entries: entries });
+    return jsonResponse({ ok: true, entries: entries });
   } catch (err) {
-    return jsonResp_({ ok: false, error: err.message });
+    return jsonResponse({ ok: false, error: err.message });
   }
 }
 
@@ -196,24 +196,24 @@ function handleGetFinanceEntries_(payload) {
 function handleDeleteFinanceEntry_(payload) {
   try {
     const member = validateTeamToken_(payload.token);
-    if (!member) return jsonResp_({ ok: false, error: 'Invalid session' });
+    if (!member) return jsonResponse({ ok: false, error: 'Invalid session' });
 
     const role = (member.role || '').toLowerCase();
     if (role !== 'admin' && role !== 'super_admin') {
-      return jsonResp_({ ok: false, error: 'Admin access required' });
+      return jsonResponse({ ok: false, error: 'Admin access required' });
     }
 
     const rowIndex = parseInt(payload.row_index);
-    if (!rowIndex || rowIndex < 3) return jsonResp_({ ok: false, error: 'Invalid row (cannot delete header/totals)' });
+    if (!rowIndex || rowIndex < 3) return jsonResponse({ ok: false, error: 'Invalid row (cannot delete header/totals)' });
 
     const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
     const sheet = ss.getSheetByName(FINANCES_TAB);
-    if (!sheet) return jsonResp_({ ok: false, error: 'Finances tab not found' });
+    if (!sheet) return jsonResponse({ ok: false, error: 'Finances tab not found' });
 
     sheet.deleteRow(rowIndex);
-    return jsonResp_({ ok: true });
+    return jsonResponse({ ok: true });
   } catch (err) {
-    return jsonResp_({ ok: false, error: err.message });
+    return jsonResponse({ ok: false, error: err.message });
   }
 }
 
@@ -222,20 +222,20 @@ function handleDeleteFinanceEntry_(payload) {
 function handleEditFinanceEntry_(payload) {
   try {
     const member = validateTeamToken_(payload.token);
-    if (!member) return jsonResp_({ ok: false, error: 'Invalid session' });
+    if (!member) return jsonResponse({ ok: false, error: 'Invalid session' });
 
     const role = (member.role || '').toLowerCase();
     if (role !== 'admin' && role !== 'super_admin') {
-      return jsonResp_({ ok: false, error: 'Admin access required' });
+      return jsonResponse({ ok: false, error: 'Admin access required' });
     }
 
     const rowIndex = parseInt(payload.row_index);
-    if (!rowIndex || rowIndex < 3) return jsonResp_({ ok: false, error: 'Invalid row' });
+    if (!rowIndex || rowIndex < 3) return jsonResponse({ ok: false, error: 'Invalid row' });
 
     const updates = payload.updates || {};
     const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
     const sheet = ss.getSheetByName(FINANCES_TAB);
-    if (!sheet) return jsonResp_({ ok: false, error: 'Finances tab not found' });
+    if (!sheet) return jsonResponse({ ok: false, error: 'Finances tab not found' });
 
     // Column mapping: A=date(1), B=type(2), C=category(3), D=description(4), E=amount(5), F=payment_method(6), G=references(7), H=recorded_by(8), I=notes(9)
     if (updates.date) sheet.getRange(rowIndex, 1).setValue(updates.date);
@@ -246,9 +246,9 @@ function handleEditFinanceEntry_(payload) {
     if (updates.payment_method) sheet.getRange(rowIndex, 6).setValue(updates.payment_method);
     if (updates.notes !== undefined) sheet.getRange(rowIndex, 9).setValue(updates.notes);
 
-    return jsonResp_({ ok: true });
+    return jsonResponse({ ok: true });
   } catch (err) {
-    return jsonResp_({ ok: false, error: err.message });
+    return jsonResponse({ ok: false, error: err.message });
   }
 }
 
@@ -258,21 +258,21 @@ function handleEditFinanceEntry_(payload) {
 function handleGetEventNames_(payload) {
   try {
     const member = validateTeamToken_(payload.token);
-    if (!member) return jsonResp_({ ok: false, error: 'Invalid session' });
+    if (!member) return jsonResponse({ ok: false, error: 'Invalid session' });
 
     const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
     const sheet = ss.getSheetByName('Inventory');
-    if (!sheet) return jsonResp_({ ok: true, events: [] });
+    if (!sheet) return jsonResponse({ ok: true, events: [] });
 
     const data = sheet.getDataRange().getValues();
-    if (data.length <= 1) return jsonResp_({ ok: true, events: [] });
+    if (data.length <= 1) return jsonResponse({ ok: true, events: [] });
 
     // Find the event column — could be "event_label", "event_source", or "event"
     const headers = data[0].map(h => String(h).toLowerCase().trim());
     let eventCol = headers.indexOf('event_label');
     if (eventCol === -1) eventCol = headers.indexOf('event_source');
     if (eventCol === -1) eventCol = headers.indexOf('event');
-    if (eventCol === -1) return jsonResp_({ ok: true, events: [] });
+    if (eventCol === -1) return jsonResponse({ ok: true, events: [] });
 
     const seen = {};
     const events = [];
@@ -285,9 +285,9 @@ function handleGetEventNames_(payload) {
       if (events.length >= 30) break;
     }
 
-    return jsonResp_({ ok: true, events: events });
+    return jsonResponse({ ok: true, events: events });
   } catch (err) {
-    return jsonResp_({ ok: false, error: err.message });
+    return jsonResponse({ ok: false, error: err.message });
   }
 }
 
@@ -297,13 +297,13 @@ function handleGetEventNames_(payload) {
 function handleRecoverAccount_(payload) {
   try {
     const identifier = (payload.identifier || '').trim().toLowerCase();
-    if (!identifier) return jsonResp_({ ok: false, error: 'Please provide your name or email.' });
+    if (!identifier) return jsonResponse({ ok: false, error: 'Please provide your name or email.' });
 
     const ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
     // Try "TeamMembers" first, then "Team"
     let sheet = ss.getSheetByName('TeamMembers');
     if (!sheet) sheet = ss.getSheetByName('Team');
-    if (!sheet) return jsonResp_({ ok: false, error: 'Team directory not found.' });
+    if (!sheet) return jsonResponse({ ok: false, error: 'Team directory not found.' });
 
     const data = sheet.getDataRange().getValues();
     const headers = data[0].map(h => String(h).toLowerCase().trim());
@@ -311,7 +311,7 @@ function handleRecoverAccount_(payload) {
     const emailCol = headers.indexOf('email');
     const passCol = headers.indexOf('password_hash');
 
-    if (nameCol === -1) return jsonResp_({ ok: false, error: 'Team sheet missing name column.' });
+    if (nameCol === -1) return jsonResponse({ ok: false, error: 'Team sheet missing name column.' });
 
     let found = null;
     let foundRow = -1;
@@ -325,12 +325,12 @@ function handleRecoverAccount_(payload) {
       }
     }
 
-    if (!found) return jsonResp_({ ok: false, error: 'No account found with that name or email. Contact an admin for help.' });
+    if (!found) return jsonResponse({ ok: false, error: 'No account found with that name or email. Contact an admin for help.' });
 
     const name = found[nameCol];
     const email = emailCol !== -1 ? found[emailCol] : '';
 
-    if (!email) return jsonResp_({ ok: false, error: 'No email on file for this account. Ask an admin to reset your password.' });
+    if (!email) return jsonResponse({ ok: false, error: 'No email on file for this account. Ask an admin to reset your password.' });
 
     // Generate a temporary password (6 chars)
     const tempPass = Math.random().toString(36).slice(-6);
@@ -348,8 +348,8 @@ function handleRecoverAccount_(payload) {
     });
 
     var maskedEmail = email.slice(0, 3) + '***@' + email.split('@')[1];
-    return jsonResp_({ ok: true, method: 'email (' + maskedEmail + ')' });
+    return jsonResponse({ ok: true, method: 'email (' + maskedEmail + ')' });
   } catch (err) {
-    return jsonResp_({ ok: false, error: err.message });
+    return jsonResponse({ ok: false, error: err.message });
   }
 }

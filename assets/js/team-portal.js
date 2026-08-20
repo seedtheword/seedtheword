@@ -264,7 +264,9 @@ document.getElementById('login-btn').addEventListener('click',async function(){
     var hash=await sha256('stwm-team-'+name.toLowerCase()+'-'+pass);
     var res=await postAction({action:'teamLogin',name:name,password_hash:hash});
     if(res.ok){
-      session={token:res.token,name:res.name,role:res.role||'member',totalScans:res.total_scans||0,todayScans:[],event:'',eventDate:'',telegram_username:res.telegram_username||''};
+      var prevEvent = session ? session.event : '';
+      var prevEventDate = session ? session.eventDate : '';
+      session={token:res.token,name:res.name,role:res.role||'member',totalScans:res.total_scans||0,todayScans:[],event:prevEvent||'',eventDate:prevEventDate||'',telegram_username:res.telegram_username||''};
       saveSession();showEventOrPortal();
     }else throw new Error(res.error||'Login failed');
   }catch(err){status.textContent=err.message;status.className='status status--error';}

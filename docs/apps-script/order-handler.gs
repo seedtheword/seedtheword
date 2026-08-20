@@ -258,6 +258,9 @@ function doPost(e) {
   if ((payload && payload.action) === 'getTrainingProgress') return handleGetTrainingProgress_(payload);
   if ((payload && payload.action) === 'getTrainingRecord') return handleGetTrainingRecord_(payload);
   if ((payload && payload.action) === 'addTrainingRecord') return handleAddTrainingRecord_(payload);
+  // ── LMS progress sync actions ──
+  if ((payload && payload.action) === 'saveLmsProgress') return handleSaveLmsProgress_(payload);
+  if ((payload && payload.action) === 'getLmsProgress') return handleGetLmsProgress_(payload);
   // ── Chat message actions ──
   if ((payload && payload.action) === 'sendChatMessage') return handleSendChatMessage_(payload);
   if ((payload && payload.action) === 'getChatMessages') return handleGetChatMessages_(payload);

@@ -1046,3 +1046,87 @@ function handleGetChatMessages_(payload) {
     return jsonResponse({ ok: true, messages: messages });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
+
+
+// ══════════════════════════════════════════════════════════════════════
+// LMS PROGRESS SYNC HANDLERS
+// ══════════════════════════════════════════════════════════════════════
+//
+// Stores/retrieves per-user LMS course progress so it syncs across
+// devices. Uses a dedicated "LmsProgress" tab with columns:
+//   token | name | progress_json | last_updated
+//
+// ADD these routing lines to doPost():
+//   if ((payload && payload.action) === 'saveLmsProgress') return handleSaveLmsProgress_(payload);
+//   if ((payload && payload.action) === 'getLmsProgress') return handleGetLmsProgress_(payload);
+
+function getLmsSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName('LmsProgress');
+  if (!sheet) {
+    sheet = ss.insertSheet('LmsProgress');
+    sheet.getRange(1,1,1,4).setValues([['token','name','progress_json','last_updated']]);
+    sheet.getRange(1,1,1,4).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function handleSaveLmsProgress_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+
+    var progress = payload.progress;
+    if (!progress || typeof progress !== 'object') {
+      return jsonResponse({ ok: false, error: 'No progress data' });
+    }
+
+    var progressJson = JSON.stringify(progress);
+    var sheet = getLmsSheet_();
+    var now = new Date().toISOString();
+
+    // Find existing row for this user
+    if (sheet.getLastRow() > 1) {
+      var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 4).getValues();
+      for (var i = 0; i < data.length; i++) {
+        if (String(data[i][1]).toLowerCase().trim() === user.name.toLowerCase()) {
+          // Update existing row
+          sheet.getRange(i + 2, 3).setValue(progressJson);
+          sheet.getRange(i + 2, 4).setValue(now);
+          return jsonResponse({ ok: true, route: 'saveLmsProgress' });
+        }
+      }
+    }
+
+    // No existing row — insert new one
+    var token = String(payload.token || '').trim();
+    sheet.appendRow([token, user.name, progressJson, now]);
+    return jsonResponse({ ok: true, route: 'saveLmsProgress' });
+  } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+function handleGetLmsProgress_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+
+    var sheet = getLmsSheet_();
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, progress: {} });
+
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 4).getValues();
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][1]).toLowerCase().trim() === user.name.toLowerCase()) {
+        var json = String(data[i][2] || '{}');
+        try {
+          var progress = JSON.parse(json);
+          return jsonResponse({ ok: true, progress: progress });
+        } catch(e) {
+          return jsonResponse({ ok: true, progress: {} });
+        }
+      }
+    }
+
+    return jsonResponse({ ok: true, progress: {} });
+  } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615872,
-  "lastModified": "2026-08-20T22:50:43Z",
+  "lastModified": "2026-08-20T23:25:38Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -228,16 +228,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5178,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Pray Request 8/6/2026:\n\nIn the hospital right now, requesting prayer for our family, thank you everyone 🙏 ❤️\n\nPraying for our evangelism today and souls get saved in the name of Jesus!",
-      "ts": "2026-08-06T23:25:03Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5181,

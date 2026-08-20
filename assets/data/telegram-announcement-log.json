@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-08-20T14:06:13+00:00",
+  "updated": "2026-08-20T21:04:34+00:00",
   "events": {
     "6nonkvv5hp3o53l5oe8n7k7d8p@google.com": {
       "title": "Identity Prayer Night",
@@ -75,9 +75,10 @@
     "5b318kv39lfjpvokieoqs4m7jp@google.com": {
       "title": "Holy Spirit Conference HUNGRYGEN",
       "start": "2026-08-21",
-      "lastPosted": "2026-08-20T14:06:13+00:00",
+      "lastPosted": "2026-08-20T21:04:34+00:00",
       "overviewPosted": true,
-      "upcomingPosted": true
+      "upcomingPosted": true,
+      "reminderPosted": true
     },
     "nc05f43hl38lr41a8f1hnv3jt4@google.com": {
       "title": "Identity Prayer Night",

@@ -6,13 +6,35 @@
 // ═══════════════════════════════════════════════════════════════
 
 var LMS_STORAGE_KEY = 'stwm-lms-progress';
+var CONFIG_URL = 'assets/data/site-config.json';
+var _handlerUrl = null;
+var _syncDebounce = null;
 
-// ── Progress Persistence ──────────────────────────────────────
+// ── Backend helpers ───────────────────────────────────────────
+async function _getHandlerUrl() {
+  if (_handlerUrl) return _handlerUrl;
+  var cfg = await fetch(CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store' }).then(function(r) { return r.json(); });
+  _handlerUrl = cfg.orderHandlerUrl;
+  return _handlerUrl;
+}
+async function _postAction(data) {
+  var url = await _getHandlerUrl();
+  var res = await fetch(url, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) });
+  var text = await res.text();
+  try { return JSON.parse(text); } catch(e) { return { ok: false }; }
+}
+function _getSession() {
+  try { return JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) { return null; }
+}
+
+// ── Progress Persistence (localStorage + server sync) ─────────
 function getProgress() {
   try { return JSON.parse(localStorage.getItem(LMS_STORAGE_KEY)) || {}; } catch(e) { return {}; }
 }
 function saveProgress(data) {
   try { localStorage.setItem(LMS_STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  // Debounced sync to server
+  _scheduleSyncToServer();
 }
 function getCourseProgress(courseId) {
   var p = getProgress();
@@ -22,6 +44,45 @@ function setCourseProgress(courseId, data) {
   var p = getProgress();
   p[courseId] = data;
   saveProgress(p);
+}
+
+// ── Server Sync ───────────────────────────────────────────────
+function _scheduleSyncToServer() {
+  clearTimeout(_syncDebounce);
+  _syncDebounce = setTimeout(_syncToServer, 2000); // debounce 2s
+}
+async function _syncToServer() {
+  var session = _getSession();
+  if (!session || !session.token) return;
+  var progress = getProgress();
+  try {
+    await _postAction({ action: 'saveLmsProgress', token: session.token, progress: progress });
+  } catch(e) { /* silent fail — local still saved */ }
+}
+async function _loadFromServer() {
+  var session = _getSession();
+  if (!session || !session.token) return;
+  try {
+    var res = await _postAction({ action: 'getLmsProgress', token: session.token });
+    if (res.ok && res.progress && typeof res.progress === 'object') {
+      // Merge: server wins for completed courses, local wins for current position if ahead
+      var local = getProgress();
+      var merged = Object.assign({}, local);
+      Object.keys(res.progress).forEach(function(courseId) {
+        var server = res.progress[courseId];
+        var loc = local[courseId];
+        if (!loc) { merged[courseId] = server; return; }
+        // If server says completed, accept it
+        if (server.completed) { merged[courseId] = server; return; }
+        // If local is further ahead, keep local
+        if (loc.currentCard > (server.currentCard || 0)) return;
+        // If server has more days checked, use server
+        if ((server.daysChecked || []).length > (loc.daysChecked || []).length) { merged[courseId] = server; return; }
+        // Otherwise keep local
+      });
+      try { localStorage.setItem(LMS_STORAGE_KEY, JSON.stringify(merged)); } catch(e) {}
+    }
+  } catch(e) { /* offline — use local */ }
 }
 
 // ── Badge System ──────────────────────────────────────────────
@@ -240,7 +301,7 @@ function buildSeedCourseCards() {
     {
       eyebrow: 'Value: E',
       heading: 'Embrace Fellowship',
-      content: '<p class="lms-card__text">We encourage one another to fellowship in weekly gatherings where we read, worship, and minister.</p><ul class="lms-card__list"><li><strong>Tuesdays</strong> — we visit life groups for newcomers to faith</li><li><strong>Fridays</strong> — we gather as young adults</li><li><strong>Sundays</strong> — we go to church</li><li><strong>Saturdays</strong> — we review readings and dig deeper</li></ul>'
+      content: '<p class="lms-card__text">We encourage one another to fellowship in weekly gatherings where we read, worship, and minister.</p><ul class="lms-card__list"><li><strong>Mondays</strong> — Young Adults Bible Study & fellowship at Maple Park Church of Christ (fellowship at 6:30pm, service after 7:00pm)</li><li><strong>Fridays</strong> — we visit other churches and young adult groups</li><li><strong>Saturdays</strong> — we review readings and dig deeper</li><li><strong>Sundays</strong> — we go to church</li></ul>'
     },
     {
       eyebrow: 'Value: D',
@@ -652,12 +713,17 @@ function updateProfileBadges() {
 // ═══════════════════════════════════════════════════════════════
 // INIT — replaces old training tab content
 // ═══════════════════════════════════════════════════════════════
-function initLMS() {
+async function initLMS() {
   var trainingPanel = document.getElementById('tab-training');
   if (!trainingPanel) return;
 
-  // Replace old content with LMS catalog
-  trainingPanel.innerHTML = '<div id="lms-catalog-root"></div>';
+  // Show loading state
+  trainingPanel.innerHTML = '<div id="lms-catalog-root"><p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;padding:2rem 0;">Loading courses...</p></div>';
+
+  // Sync from server first (merges with local)
+  await _loadFromServer();
+
+  // Render catalog
   var container = document.getElementById('lms-catalog-root');
   renderCatalog(container);
 

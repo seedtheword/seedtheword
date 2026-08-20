@@ -15,13 +15,934 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
-  <link rel="stylesheet" href="assets/css/community-social.css?v=7">
-  <link rel="stylesheet" href="assets/css/store-catalog.css?v=10">
+  <link rel="stylesheet" href="assets/css/lms.css?v=1">
   <script src="assets/js/theme-toggle.js?v=1"></script>
-</head>
-<body style="background:var(--color-bg);color:var(--color-text);">
+  <style>
+/* ============================================================
+   Community Social Platform — Mobile-First Redesign
+   Discord/Facebook/X hybrid layout
+   ============================================================ */
 
-<!-- ═══ HEADER — matches site-wide pattern exactly ═══ -->
+/* ── Reset for social layout ───────────────────────────────── */
+body.community-body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  padding-bottom: 64px; /* space for bottom nav */
+}
+@media (min-width: 1024px) {
+  body.community-body { padding-bottom: 0; }
+}
+
+/* ── Channel Tabs (Discord-style top bar) ──────────────────── */
+.channel-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.6rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.channel-bar::-webkit-scrollbar { display: none; }
+
+.channel-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 1rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--duration-fast) var(--ease);
+  flex-shrink: 0;
+  min-height: 44px;
+}
+.channel-tab:hover {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+.channel-tab.is-active {
+  background: var(--color-gold);
+  border-color: var(--color-gold);
+  color: #fff;
+}
+.channel-tab__icon { font-size: 1rem; }
+.channel-tab__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: #e74c3c;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
+}
+.channel-tab__badge:empty { display: none; }
+
+.channel-bar__spacer { flex: 1; }
+.channel-bar__theme {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: border-color var(--duration-fast);
+}
+.channel-bar__theme:hover { border-color: var(--color-gold); color: var(--color-gold); }
+
+/* ── Main Content Area ─────────────────────────────────────── */
+.social-main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+@media (min-width: 1024px) {
+  .social-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 0;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .social-main {
+    max-width: none;
+    padding: 1.5rem 2rem;
+    border-right: 1px solid var(--color-border);
+  }
+  .social-sidebar {
+    display: block !important;
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    padding: 1.5rem 1.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+}
+
+/* ── Sidebar (desktop only) ────────────────────────────────── */
+.social-sidebar {
+  display: none;
+}
+.sidebar-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+.sidebar-card__title {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* ── Events Collapsible (mobile) ───────────────────────────── */
+.events-collapse {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.events-collapse__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  transition: background var(--duration-fast);
+  min-height: 44px;
+}
+.events-collapse__header:hover { background: var(--color-surface-hover); }
+.events-collapse__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.events-collapse__count {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-gold-soft);
+  color: var(--color-gold);
+}
+.events-collapse__arrow {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  transition: transform var(--duration-normal) var(--ease);
+}
+.events-collapse.is-open .events-collapse__arrow { transform: rotate(180deg); }
+.events-collapse__body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--duration-normal) var(--ease);
+}
+.events-collapse.is-open .events-collapse__body { max-height: 500px; }
+.events-collapse__inner { padding: 0 1rem 1rem; }
+
+@media (min-width: 1024px) {
+  .events-collapse { display: none; } /* shown in sidebar instead */
+}
+
+/* Event card items */
+.event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.event-item:last-child { border-bottom: none; }
+.event-item__date {
+  width: 40px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.event-item__month {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  display: block;
+}
+.event-item__day {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.1;
+  display: block;
+}
+.event-item__info { flex: 1; }
+.event-item__title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+.event-item__time {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin-top: 0.15rem;
+}
+
+/* ── Join the Conversation CTA ─────────────────────────────── */
+.cta-card {
+  background: linear-gradient(135deg, var(--color-olive), #3a5f4e);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.cta-card::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+}
+.cta-card__title {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+}
+.cta-card__text {
+  font-size: 0.82rem;
+  opacity: 0.88;
+  line-height: 1.5;
+  margin: 0 0 1rem;
+}
+.cta-card__buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.cta-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+  min-height: 44px;
+}
+.cta-card__btn:hover { transform: translateY(-1px); }
+.cta-card__btn--telegram { background: #0088cc; color: #fff; }
+.cta-card__btn--messenger { background: #0084ff; color: #fff; }
+.cta-card__active {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  opacity: 0.75;
+  margin-top: 0.6rem;
+}
+.cta-card__active-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2ecc71;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;}50%{opacity:0.4;} }
+
+/* ── Compose Box ───────────────────────────────────────────── */
+.compose-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+.compose-box__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.compose-box__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-olive-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--color-olive);
+  flex-shrink: 0;
+}
+.compose-box__input {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-family: var(--font-sans);
+  background: var(--color-bg-subtle);
+  color: var(--color-text);
+  resize: vertical;
+  min-height: 44px;
+  transition: border-color var(--duration-fast);
+}
+.compose-box__input:focus {
+  outline: none;
+  border-color: var(--color-gold);
+  box-shadow: var(--shadow-glow);
+}
+.compose-box__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.compose-box__select {
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  background: var(--color-bg-subtle);
+  color: var(--color-text);
+  cursor: pointer;
+}
+.compose-box__post-btn {
+  margin-left: auto;
+  background: var(--color-gold);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 0.55rem 1.25rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  min-height: 44px;
+  transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+}
+.compose-box__post-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(217,119,54,0.3); }
+.compose-box__post-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── Login prompt ──────────────────────────────────────────── */
+.login-prompt {
+  background: var(--color-surface);
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+.login-prompt__text {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.75rem;
+}
+.login-prompt__buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.login-prompt__btn {
+  display: inline-block;
+  padding: 0.55rem 1.25rem;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.login-prompt__btn--primary { background: var(--color-olive); color: #fff; }
+.login-prompt__btn--telegram { background: #0088cc; color: #fff; }
+
+/* ── Post Cards (Facebook/X style) ─────────────────────────── */
+.post-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--duration-normal) var(--ease);
+  animation: postSlideIn 0.3s var(--ease) both;
+}
+.post-card:hover { box-shadow: var(--shadow-md); }
+@keyframes postSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.post-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+.post-card__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-full);
+  background: var(--color-olive-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--color-olive);
+  flex-shrink: 0;
+}
+.post-card__meta { flex: 1; min-width: 0; }
+.post-card__author {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+.post-card__time {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 0.1rem;
+}
+.post-card__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+  margin-top: 0.2rem;
+}
+.post-card__type--prayer { background: var(--color-gold-soft); color: var(--color-gold); }
+.post-card__type--thanksgiving { background: var(--color-success-soft); color: var(--color-success); }
+.post-card__type--bible { background: var(--color-info-soft); color: var(--color-info); }
+.post-card__type--discussion { background: var(--color-bg-subtle); color: var(--color-text-secondary); }
+.post-card__type--announcement { background: var(--color-olive-soft); color: var(--color-olive); }
+
+.post-card__body {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--color-text);
+  margin-bottom: 0.85rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.post-card__body a { color: var(--color-gold); text-decoration: none; font-weight: 500; }
+.post-card__body a:hover { text-decoration: underline; }
+
+.post-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--color-border);
+}
+.post-card__action {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  flex: 1;
+  justify-content: center;
+  min-height: 44px;
+}
+.post-card__action:hover { background: var(--color-bg-subtle); color: var(--color-text); }
+.post-card__action.is-liked { color: var(--color-gold); }
+
+/* ── Channel Sections ──────────────────────────────────────── */
+.channel-section {
+  display: none;
+  animation: postSlideIn 0.3s var(--ease) both;
+}
+.channel-section.is-active { display: block; }
+
+.section-title {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--color-text);
+  margin: 0 0 0.5rem;
+}
+.section-desc {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin: 0 0 1.25rem;
+  max-width: 560px;
+}
+
+/* ── Scripture Tab — Reading Card ──────────────────────────── */
+.reading-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-gold);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.reading-card__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-gold);
+  margin-bottom: 0.4rem;
+}
+.reading-card__text {
+  font-size: 0.92rem;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+.reading-card__expand {
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-olive);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-full);
+  transition: background var(--duration-fast);
+}
+.reading-card__expand:hover { background: var(--color-olive-soft); }
+
+/* ── Prayer Tab — Chat-style ───────────────────────────────── */
+.prayer-filter {
+  position: relative;
+  display: flex;
+  background: var(--color-bg-subtle);
+  border-radius: 999px;
+  padding: 3px;
+  margin-bottom: 1.25rem;
+  max-width: 320px;
+}
+.prayer-filter__slider {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  height: calc(100% - 6px);
+  background: var(--color-olive);
+  border-radius: 999px;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 2px 8px rgba(44,74,62,0.3);
+}
+.prayer-filter__btn {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  padding: 0.55rem 0.5rem;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: color 0.2s;
+  min-height: 44px;
+}
+.prayer-filter__btn.is-active { color: #fff; }
+
+.prayer-feed {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  min-height: 300px;
+  max-height: 600px;
+  overflow-y: auto;
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Chat bubble */
+.chat-msg {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 0.5rem;
+  animation: fadeIn 0.2s ease;
+}
+.chat-msg--mine { justify-content: flex-end; }
+.chat-msg__bubble {
+  max-width: 82%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 14px 14px 14px 4px;
+  background: var(--color-bg-subtle);
+  color: var(--color-text);
+  font-size: 0.84rem;
+  line-height: 1.55;
+  word-wrap: break-word;
+}
+.chat-msg--mine .chat-msg__bubble {
+  border-radius: 14px 14px 4px 14px;
+  background: var(--color-olive);
+  color: #fff;
+}
+.chat-msg__author {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-olive);
+  margin-bottom: 0.15rem;
+}
+.chat-msg__type {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.7;
+  letter-spacing: 0.03em;
+}
+.chat-msg__time {
+  font-size: 0.6rem;
+  opacity: 0.6;
+  margin-top: 0.25rem;
+  text-align: right;
+}
+.chat-msg__date-sep {
+  text-align: center;
+  margin: 1rem 0 0.5rem;
+}
+.chat-msg__date-sep span {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--color-gold-soft);
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── eLibrary Tab ──────────────────────────────────────────── */
+.elibrary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+@media (min-width: 500px) {
+  .elibrary-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.elibrary-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform var(--duration-fast), box-shadow var(--duration-fast), border-color var(--duration-fast);
+  min-height: 140px;
+}
+.elibrary-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-olive);
+  transform: translateY(-2px);
+}
+.elibrary-card:active { transform: scale(0.97); }
+.elibrary-card--placeholder {
+  opacity: 0.55;
+  cursor: default;
+}
+.elibrary-card--placeholder:hover { transform: none; box-shadow: var(--shadow-sm); border-color: var(--color-border); }
+.elibrary-card__icon {
+  font-size: 2rem;
+  margin-bottom: 0.6rem;
+}
+.elibrary-card__name {
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.25rem;
+}
+.elibrary-card__desc {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  margin: 0;
+  flex: 1;
+}
+.elibrary-card__badge {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+.elibrary-card__badge--free { background: var(--color-olive-soft); color: var(--color-olive); }
+.elibrary-card__badge--coming { background: var(--color-bg-subtle); color: var(--color-text-muted); }
+
+/* ── Bottom Navigation Bar (mobile) ───────────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0.4rem 0.5rem;
+  padding-bottom: calc(0.4rem + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1024px) {
+  .bottom-nav { display: none; }
+}
+.bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--color-text-muted);
+  font-size: 0.6rem;
+  font-weight: 600;
+  transition: color var(--duration-fast);
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+}
+.bottom-nav__item:hover, .bottom-nav__item:active { color: var(--color-gold); }
+.bottom-nav__icon { font-size: 1.25rem; }
+.bottom-nav__label { white-space: nowrap; }
+
+/* ── Sidebar quick links ───────────────────────────────────── */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color var(--duration-fast);
+}
+.sidebar-link:hover { color: var(--color-gold); }
+.sidebar-link__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+/* ── Sidebar CTA ───────────────────────────────────────────── */
+.sidebar-cta {
+  background: linear-gradient(135deg, var(--color-olive), #3a5f4e);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  text-align: center;
+  color: #fff;
+}
+.sidebar-cta__title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+.sidebar-cta__text {
+  font-size: 0.78rem;
+  opacity: 0.85;
+  line-height: 1.5;
+  margin-bottom: 0.85rem;
+}
+.sidebar-cta__btn {
+  display: inline-block;
+  padding: 0.55rem 1.25rem;
+  background: var(--color-gold);
+  color: #fff;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform var(--duration-fast);
+}
+.sidebar-cta__btn:hover { transform: translateY(-1px); }
+
+/* ── Music & Media section ─────────────────────────────────── */
+.music-embed {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.music-embed__title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  color: var(--color-text);
+}
+
+/* ── Empty / loading states ────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--color-text-muted);
+}
+.empty-state__icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.6; }
+.empty-state__title {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.4rem;
+}
+.empty-state__text { font-size: 0.85rem; line-height: 1.6; max-width: 320px; margin: 0 auto; }
+
+/* ── Live indicator ────────────────────────────────────────── */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  background: rgba(192,57,43,0.08);
+  border: 1.5px solid rgba(192,57,43,0.25);
+  border-radius: var(--radius-full);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #c0392b;
+  animation: emergencyPulse 3s ease-in-out infinite;
+}
+.live-badge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c0392b;
+  animation: pulse 1.5s infinite;
+}
+@keyframes emergencyPulse { 0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,0.1);}50%{box-shadow:0 0 0 4px rgba(192,57,43,0);} }
+
+/* ── Dark mode overrides ───────────────────────────────────── */
+[data-theme="dark"] .cta-card { background: linear-gradient(135deg, #1a3a2e, #2a4f40); }
+[data-theme="dark"] .sidebar-cta { background: linear-gradient(135deg, #1a3a2e, #2a4f40); }
+  </style>
+</head>
+<body class="community-body" style="background:var(--color-bg);color:var(--color-text);">
+
+<!-- ═══ HEADER — matches site-wide pattern ═══ -->
 <header class="site-header" id="site-header">
   <div class="container">
     <div class="header-left">
@@ -63,367 +984,287 @@
   </div>
 </header>
 
-<!-- ═══ MAIN LAYOUT ═══ -->
-<main class="community-layout">
-  <!-- LEFT SIDEBAR — Channel Navigation -->
-  <aside class="community-nav">
-    <!-- User profile area -->
-    <div class="community-nav__user" id="sidebar-user">
-      <div class="community-nav__avatar" id="sidebar-avatar">?</div>
-      <div style="flex:1;min-width:0;">
-        <div class="community-nav__name" id="sidebar-name">Guest</div>
-        <div class="community-nav__role" id="sidebar-meta"><a href="team.html" style="color:var(--color-gold);text-decoration:none;font-weight:600;font-size:0.75rem;">Sign in →</a></div>
-      </div>
-      <button class="profile-settings-btn" id="sidebar-settings" style="display:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--color-border);background:var(--color-bg-subtle);font-size:0.85rem;cursor:pointer;color:var(--color-text-muted);flex-shrink:0;" title="Profile settings">⚙</button>
-    </div>
+<!-- ═══ CHANNEL TABS (Discord-style) ═══ -->
+<nav class="channel-bar" role="tablist" aria-label="Community channels">
+  <button class="channel-tab is-active" data-channel="home" role="tab" aria-selected="true">
+    <span class="channel-tab__icon">🏠</span> Home
+    <span class="channel-tab__badge" id="badge-home"></span>
+  </button>
+  <button class="channel-tab" data-channel="scripture" role="tab" aria-selected="false">
+    <span class="channel-tab__icon">📖</span> Scripture
+    <span class="channel-tab__badge" id="badge-scripture"></span>
+  </button>
+  <button class="channel-tab" data-channel="prayer" role="tab" aria-selected="false">
+    <span class="channel-tab__icon">🙏</span> Prayer
+    <span class="channel-tab__badge" id="badge-prayer"></span>
+  </button>
+  <button class="channel-tab" data-channel="thanksgiving" role="tab" aria-selected="false">
+    <span class="channel-tab__icon">🎉</span> Thanksgiving
+    <span class="channel-tab__badge" id="badge-thanksgiving"></span>
+  </button>
+  <button class="channel-tab" data-channel="library" role="tab" aria-selected="false">
+    <span class="channel-tab__icon">📚</span> eLibrary
+    <span class="channel-tab__badge" id="badge-library"></span>
+  </button>
+  <span class="channel-bar__spacer"></span>
+  <button class="channel-bar__theme" id="theme-btn" aria-label="Toggle theme">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</nav>
 
-    <p class="community-nav__section">Channels</p>
-    <a href="#" class="community-nav__link is-active" data-channel="home">
-      <span class="community-nav__link-icon">🏠</span> Home
-    </a>
-    <a href="#" class="community-nav__link" data-channel="scripture">
-      <span class="community-nav__link-icon">📖</span> Discuss Scripture
-    </a>
-    <a href="#" class="community-nav__link" data-channel="prayer">
-      <span class="community-nav__link-icon">🙏</span> Prayer & Thanksgiving
-    </a>
-    <a href="#" class="community-nav__link" data-channel="music">
-      <span class="community-nav__link-icon">🎵</span> Music & Media
-    </a>
-    <a href="#" class="community-nav__link" data-channel="library">
-      <span class="community-nav__link-icon">📚</span> eLibrary
-    </a>
+<!-- ═══ MAIN CONTENT ═══ -->
+<div class="social-wrapper">
+  <main class="social-main">
 
-    <p class="community-nav__section">More</p>
-    <a href="donate.html" class="community-nav__link">
-      <span class="community-nav__link-icon">📖</span> Get a Bible
-    </a>
-    <a href="start-here.html" class="community-nav__link">
-      <span class="community-nav__link-icon">🌱</span> Start Here
-    </a>
-    <a href="news.html" class="community-nav__link">
-      <span class="community-nav__link-icon">📰</span> News & Events
-    </a>
-  </aside>
+    <!-- ══ HOME CHANNEL ══ -->
+    <section class="channel-section is-active" id="channel-home">
 
-  <!-- CENTER FEED -->
-  <div class="community-feed">
-    <!-- Feed filter tabs -->
-    <div class="feed-tabs">
-      <select class="feed-channel-select" id="feed-channel-select" aria-label="Select channel">
-        <option value="home" selected>🏠 Home</option>
-        <option value="scripture">📖 Scripture</option>
-        <option value="prayer">🙏 Prayer</option>
-        <option value="music">🎵 Music</option>
-        <option value="library">📚 Library</option>
-      </select>
-      <button class="feed-tab is-active" data-channel="home">All</button>
-      <button class="feed-tab" data-channel="scripture">Scripture</button>
-      <button class="feed-tab" data-channel="prayer">Prayer</button>
-      <button class="feed-tab" data-channel="music">Music</button>
-      <button class="feed-tab" data-channel="library">Library</button>
-      <button class="theme-toggle theme-toggle--inline" aria-label="Switch to dark mode">
-        <span class="theme-toggle__sun"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
-        <span class="theme-toggle__moon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
-      </button>
-    </div>
-
-    <!-- Compose (logged-in only) -->
-    <div class="compose-box" id="community-compose" style="display:none;">
-      <div class="compose-box__header">
-        <div class="compose-box__avatar" id="compose-avatar"></div>
-        <textarea class="compose-box__input" id="compose-input" placeholder="Share something with the community..." rows="2"></textarea>
-      </div>
-      <div class="compose-box__actions">
-        <select id="compose-type" style="border:1.5px solid var(--color-border);border-radius:var(--radius-full);padding:0.4rem 0.75rem;font-size:0.75rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);cursor:pointer;">
-          <option value="message">💬 Discussion</option>
-          <option value="prayer">🙏 Prayer Request</option>
-          <option value="thanksgiving">🎉 Thanksgiving</option>
-          <option value="bible">📖 Scripture Note</option>
-        </select>
-        <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.7rem;color:var(--color-text-muted);cursor:pointer;"><input type="checkbox" id="compose-private" style="width:auto;margin:0;"> Members only</label>
-        <button class="compose-box__action-btn" id="compose-post-btn" style="margin-left:auto;background:var(--color-gold);color:#fff;border-radius:var(--radius-full);padding:0.5rem 1.25rem;font-weight:600;">Post</button>
-      </div>
-    </div>
-
-    <!-- Login prompt for guests -->
-    <div id="community-login-prompt" style="background:var(--color-surface);border:1.5px dashed var(--color-border);border-radius:var(--radius-lg);padding:1.25rem;text-align:center;margin-bottom:1.25rem;">
-      <p style="font-size:0.88rem;color:var(--color-text-muted);margin:0 0 0.6rem;">Join the conversation — post prayers, testimonies, and Bible discussions.</p>
-      <div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;">
-        <a href="team.html" style="display:inline-block;padding:0.55rem 1.25rem;background:var(--color-olive);color:#fff;border-radius:var(--radius-full);font-size:0.82rem;font-weight:600;text-decoration:none;">Sign up →</a>
-        <a href="https://t.me/seedtheword" target="_blank" rel="noopener" style="display:inline-block;padding:0.55rem 1.25rem;background:#0088cc;color:#fff;border-radius:var(--radius-full);font-size:0.82rem;font-weight:600;text-decoration:none;">Join Telegram →</a>
-      </div>
-    </div>
-
-    <!-- Social posts feed (dynamically loaded) -->
-    <div id="community-posts-feed">
-      <div class="post-card" style="padding:2rem;text-align:center;color:var(--color-text-muted);">Loading community feed...</div>
-    </div>
-
-    <!-- ═══ DISCUSS SCRIPTURE SECTION ═══ -->
-    <section class="section channel-section" id="section-scripture" style="display:none;">
-      <h2 class="section-title">📖 Discuss Scripture</h2>
-      <p class="section-desc">Comment on the daily reading, explore passages, or start a discussion. Members can post — everyone can read.</p>
-
-      <!-- Today's Reading (compact, with expand to full view) -->
-      <div class="reading-today-card" id="reading-today-card">
-        <div class="reading-today-card__header">
-          <span class="reading-today-card__label">Today's Reading</span>
-          <button class="reading-today-card__expand" id="expand-reading-btn">View Full Week →</button>
+      <!-- Collapsible Events (mobile) -->
+      <div class="events-collapse" id="events-collapse">
+        <div class="events-collapse__header" id="events-toggle" aria-expanded="false">
+          <div class="events-collapse__label">
+            <span>📅 Upcoming Events</span>
+            <span class="events-collapse__count" id="events-count">2 upcoming</span>
+          </div>
+          <span class="events-collapse__arrow">▼</span>
         </div>
-        <div id="reading-today-content" style="font-size:0.9rem;color:var(--color-text);">Loading...</div>
+        <div class="events-collapse__body">
+          <div class="events-collapse__inner" id="events-list">
+            <div class="event-item">
+              <div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Mon</span></div>
+              <div class="event-item__info"><div class="event-item__title">Fellowship & Worship</div><div class="event-item__time">6:30 PM</div></div>
+            </div>
+            <div class="event-item">
+              <div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Sat</span></div>
+              <div class="event-item__info"><div class="event-item__title">Study Saturday (Livestream)</div><div class="event-item__time">7:00 PM PT on Twitch</div></div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Full week reading (hidden by default, expands) -->
-      <div id="bible-reading-full" style="display:none;margin-top:1rem;">
+      <!-- Join the Conversation CTA -->
+      <div class="cta-card">
+        <h2 class="cta-card__title">Join the Conversation</h2>
+        <p class="cta-card__text">Connect with us in real-time. Bible discussions, prayer requests, and community updates — all in one place.</p>
+        <div class="cta-card__buttons">
+          <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="cta-card__btn cta-card__btn--telegram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+            Telegram Group
+          </a>
+          <a href="https://m.me/seedtheword" target="_blank" rel="noopener" class="cta-card__btn cta-card__btn--messenger">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 4.975 0 11.111c0 3.497 1.745 6.616 4.472 8.652V24l4.086-2.242c1.09.301 2.246.464 3.442.464 6.627 0 12-4.974 12-11.111C24 4.975 18.627 0 12 0zm1.193 14.963l-3.056-3.259-5.963 3.259L10.732 8.2l3.131 3.259 5.888-3.259-6.558 6.763z"/></svg>
+            Messenger
+          </a>
+        </div>
+        <div class="cta-card__active">
+          <span class="cta-card__active-dot"></span>
+          <span>Members active now</span>
+        </div>
+      </div>
+
+      <!-- Compose box (logged-in) -->
+      <div class="compose-box" id="compose-box" style="display:none;">
+        <div class="compose-box__header">
+          <div class="compose-box__avatar" id="compose-avatar"></div>
+          <textarea class="compose-box__input" id="compose-input" placeholder="Share something with the community..." rows="2"></textarea>
+        </div>
+        <div class="compose-box__actions">
+          <select class="compose-box__select" id="compose-type">
+            <option value="message">💬 Discussion</option>
+            <option value="prayer">🙏 Prayer Request</option>
+            <option value="thanksgiving">🎉 Thanksgiving</option>
+            <option value="bible">📖 Scripture Note</option>
+          </select>
+          <button class="compose-box__post-btn" id="compose-post-btn">Post</button>
+        </div>
+      </div>
+
+      <!-- Login prompt (guests) -->
+      <div class="login-prompt" id="login-prompt">
+        <p class="login-prompt__text">Join the conversation — post prayers, testimonies, and Bible discussions.</p>
+        <div class="login-prompt__buttons">
+          <a href="team.html" class="login-prompt__btn login-prompt__btn--primary">Sign up →</a>
+          <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="login-prompt__btn login-prompt__btn--telegram">Join Telegram →</a>
+        </div>
+      </div>
+
+      <!-- Social posts feed -->
+      <div id="posts-feed">
+        <div class="post-card" style="padding:2rem;text-align:center;color:var(--color-text-muted);">Loading community feed...</div>
+      </div>
+    </section>
+
+    <!-- ══ SCRIPTURE CHANNEL ══ -->
+    <section class="channel-section" id="channel-scripture">
+      <h2 class="section-title">📖 Discuss Scripture</h2>
+      <p class="section-desc">Comment on the daily reading, explore passages, or start a discussion.</p>
+
+      <!-- Today's Reading -->
+      <div class="reading-card" id="reading-card">
+        <div class="reading-card__label">Today's Reading</div>
+        <div class="reading-card__text" id="reading-today-text">Loading...</div>
+        <button class="reading-card__expand" id="reading-expand-btn">View Full Week →</button>
+      </div>
+
+      <!-- Full week reading (hidden by default) -->
+      <div id="bible-reading-full" style="display:none;margin-bottom:1.25rem;">
         <div id="bible-plan-container"></div>
         <div id="going-deeper-container"></div>
         <p style="text-align:center;margin-top:1rem;font-size:0.82rem;color:var(--color-text-muted);">
           Brand new? <a href="start-here.html" style="color:var(--color-gold);font-weight:600;text-decoration:none;">Try the 20-day plan first →</a>
         </p>
-        <button class="btn-collapse" id="collapse-reading-btn" style="display:block;margin:1rem auto 0;padding:0.5rem 1rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-full);font-size:0.78rem;font-weight:600;color:var(--color-text-muted);cursor:pointer;">Collapse ↑</button>
+        <button id="reading-collapse-btn" style="display:block;margin:1rem auto 0;padding:0.5rem 1rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-full);font-size:0.78rem;font-weight:600;color:var(--color-text-muted);cursor:pointer;font-family:var(--font-sans);">Collapse ↑</button>
       </div>
 
-      <!-- Scripture discussion thread -->
-      <div class="scripture-discussions" id="scripture-discussions">
-        <p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:1rem;">Loading discussions...</p>
-      </div>
-
-      <!-- Feedback -->
-      <div class="section-feedback">
-        <a href="about.html#contact" class="section-feedback__link">💬 Send feedback to our team</a>
+      <!-- Scripture discussion posts -->
+      <div id="scripture-posts-feed">
+        <div style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading discussions...</div>
       </div>
     </section>
 
-    <!-- ═══ PRAYER & THANKSGIVING SECTION (Telegram-style) ═══ -->
-    <section class="section channel-section" id="section-prayer" style="display:none;">
-      <!-- Header with pill slider -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
-        <h2 class="section-title" style="margin:0;">🙏 Prayer & Thanksgiving</h2>
-        <!-- Archive search -->
-        <button id="prayer-archive-btn" style="padding:0.4rem 0.8rem;border:1.5px solid var(--color-border);border-radius:var(--radius-full);font-size:0.72rem;font-weight:600;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text-muted);cursor:pointer;">📁 Archive</button>
-      </div>
+    <!-- ══ PRAYER CHANNEL ══ -->
+    <section class="channel-section" id="channel-prayer">
+      <h2 class="section-title">🙏 Prayer Requests</h2>
+      <p class="section-desc">Lift up your prayers and the community will stand with you.</p>
 
-      <!-- Pill slider: Prayer / Thanksgiving filter -->
-      <div style="position:relative;display:flex;background:var(--color-bg-subtle);border-radius:999px;padding:3px;margin-bottom:1.25rem;max-width:320px;">
-        <div id="prayer-pill-slider" style="position:absolute;top:3px;left:3px;width:calc(50% - 3px);height:calc(100% - 6px);background:var(--color-olive);border-radius:999px;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);box-shadow:0 2px 8px rgba(44,74,62,0.3);"></div>
-        <button type="button" class="prayer-filter-btn active" data-filter="prayer" style="flex:1;position:relative;z-index:1;padding:0.55rem 0.5rem;border:none;border-radius:999px;font-size:0.78rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;background:transparent;color:#fff;transition:color 0.2s;">🙏 Prayer</button>
-        <button type="button" class="prayer-filter-btn" data-filter="thanksgiving" style="flex:1;position:relative;z-index:1;padding:0.55rem 0.5rem;border:none;border-radius:999px;font-size:0.78rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;background:transparent;color:var(--color-text-muted);transition:color 0.2s;">🎉 Thanksgiving</button>
-      </div>
-
-      <!-- Compose area (members only) -->
+      <!-- Compose (logged-in) -->
       <div id="prayer-compose" style="display:none;margin-bottom:1rem;">
-        <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem;box-shadow:var(--shadow-sm);">
+        <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem;">
           <div style="display:flex;gap:0.6rem;align-items:flex-start;">
             <div id="prayer-compose-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--color-olive-soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;color:var(--color-olive);flex-shrink:0;"></div>
             <div style="flex:1;min-width:0;">
-              <textarea id="prayer-compose-input" placeholder="Share a prayer request or thanksgiving..." rows="3" style="width:100%;padding:0.65rem 0.85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.88rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);resize:vertical;min-height:60px;"></textarea>
+              <textarea id="prayer-compose-input" placeholder="Share a prayer request..." rows="3" style="width:100%;padding:0.65rem 0.85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.88rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);resize:vertical;min-height:60px;"></textarea>
               <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
-                <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;color:var(--color-text-muted);cursor:pointer;"><input type="checkbox" id="prayer-share-telegram" style="width:auto;margin:0;"> Share to Telegram</label>
-                <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;color:var(--color-text-muted);cursor:pointer;"><input type="checkbox" id="prayer-anonymous" style="width:auto;margin:0;"> Anonymous</label>
-                <button id="prayer-send-btn" style="margin-left:auto;padding:0.5rem 1.1rem;background:var(--color-gold);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.78rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;transition:transform 0.15s;">Post</button>
+                <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;color:var(--color-text-muted);cursor:pointer;"><input type="checkbox" id="prayer-anon" style="width:auto;margin:0;"> Anonymous</label>
+                <button id="prayer-send-btn" style="margin-left:auto;padding:0.5rem 1.1rem;background:var(--color-gold);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.78rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;min-height:44px;">Post Prayer</button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Chat feed (Telegram-style messages) -->
-      <div id="prayer-chat-feed" style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);min-height:300px;max-height:600px;overflow-y:auto;padding:1rem;box-shadow:var(--shadow-sm);">
-        <p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem 1rem;">Loading prayer feed...</p>
+      <!-- Chat feed -->
+      <div class="prayer-feed" id="prayer-feed">
+        <p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading prayer feed...</p>
       </div>
+    </section>
 
-      <!-- See more / pagination -->
-      <div id="prayer-load-more" style="text-align:center;margin-top:0.75rem;display:none;">
-        <button id="prayer-more-btn" style="padding:0.5rem 1.5rem;border:1.5px solid var(--color-border);border-radius:var(--radius-full);font-size:0.78rem;font-weight:600;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text-muted);cursor:pointer;">See more...</button>
-      </div>
+    <!-- ══ THANKSGIVING CHANNEL ══ -->
+    <section class="channel-section" id="channel-thanksgiving">
+      <h2 class="section-title">🎉 Thanksgiving & Praise</h2>
+      <p class="section-desc">Celebrate what God has done. Share your testimonies and praise reports.</p>
 
-      <!-- Archive modal (hidden) -->
-      <div id="prayer-archive-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:1rem;">
-        <div style="background:var(--color-bg-elevated);border-radius:var(--radius-lg);width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--color-border);">
-            <h3 style="font-family:var(--font-serif);font-size:1rem;font-weight:700;margin:0;color:var(--color-text);">📁 Prayer Archive</h3>
-            <button id="prayer-archive-close" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--color-bg-subtle);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);">×</button>
-          </div>
-          <div style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--color-border);">
-            <input id="prayer-archive-search" type="search" placeholder="Search prayers & thanksgiving..." style="width:100%;padding:0.6rem 0.85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.85rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);">
-            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-              <select id="prayer-archive-month" style="flex:1;padding:0.45rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.78rem;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text);"></select>
-              <select id="prayer-archive-type" style="padding:0.45rem 0.75rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.78rem;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text);"><option value="all">All</option><option value="prayer">Prayer</option><option value="thanksgiving">Thanksgiving</option></select>
+      <!-- Compose (logged-in) -->
+      <div id="thanks-compose" style="display:none;margin-bottom:1rem;">
+        <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem;">
+          <div style="display:flex;gap:0.6rem;align-items:flex-start;">
+            <div id="thanks-compose-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--color-olive-soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;color:var(--color-olive);flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+              <textarea id="thanks-compose-input" placeholder="Share a testimony or praise report..." rows="3" style="width:100%;padding:0.65rem 0.85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.88rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);resize:vertical;min-height:60px;"></textarea>
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;">
+                <button id="thanks-send-btn" style="margin-left:auto;padding:0.5rem 1.1rem;background:var(--color-gold);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.78rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;min-height:44px;">Post Thanksgiving</button>
+              </div>
             </div>
           </div>
-          <div id="prayer-archive-list" style="flex:1;overflow-y:auto;padding:0.75rem 1.25rem;"></div>
         </div>
       </div>
 
-      <div class="section-feedback" style="margin-top:1rem;">
-        <a href="about.html#contact" class="section-feedback__link">💬 Send feedback to our team</a>
+      <!-- Chat feed -->
+      <div class="prayer-feed" id="thanks-feed">
+        <p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading thanksgiving feed...</p>
       </div>
     </section>
 
-    <!-- ═══ MUSIC & MEDIA SECTION ═══ -->
-    <section class="section channel-section" id="section-music" style="display:none;">
-      <h2 class="section-title">🎵 Music & Media</h2>
-      <p class="section-desc">Our community worship playlist, trending songs, and new additions. Members can add songs to the Spotify playlist.</p>
-
-      <!-- Community Playlist embed -->
-      <div class="music-playlist-card">
-        <div class="music-playlist-card__header">
-          <div>
-            <span class="music-playlist-card__eyebrow">Community Worship Playlist</span>
-            <h3 class="music-playlist-card__title">The songs we worship to</h3>
-          </div>
-          <a href="https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&pt=3cf27aeb2c1ffec6bf48b7345e141c26" target="_blank" rel="noopener" class="music-playlist-card__add-btn">➕ Add Songs</a>
-        </div>
-        <iframe title="Community playlist" src="https://open.spotify.com/embed/playlist/18QMpMTYrFt2KxW1Q9NsvX?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style="border-radius:var(--radius-sm);margin-top:0.75rem;"></iframe>
-      </div>
-
-      <!-- Trending / new in playlist -->
-      <div class="music-trending" id="music-trending">
-        <h3 style="font-size:0.9rem;font-weight:700;color:var(--color-text);margin:1.25rem 0 0.5rem;">🔥 Trending in the Community</h3>
-        <p style="font-size:0.82rem;color:var(--color-text-muted);">New additions show up every Saturday in our Telegram digest.</p>
-      </div>
-
-      <!-- Ministry podcast -->
-      <div style="margin-top:1.25rem;">
-        <h3 style="font-size:0.9rem;font-weight:700;color:var(--color-text);margin:0 0 0.75rem;">🎙️ Ministry Podcast</h3>
-        <iframe title="Seed the Word podcast" src="https://open.spotify.com/embed/show/2rK4fCJuHWp8ji7Cj66EXK?utm_source=generator&theme=0" width="100%" height="232" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style="border-radius:var(--radius-sm);"></iframe>
-      </div>
-
-      <!-- Livestream -->
-      <div style="margin-top:1.25rem;">
-        <h3 style="font-size:0.9rem;font-weight:700;color:var(--color-text);margin:0 0 0.75rem;">📺 Study Saturday (Live)</h3>
-        <div id="livestream-card-container"></div>
-      </div>
-
-      <!-- ═══ FRIENDS IN JESUS (Netflix-style shelves) ═══ -->
-      <div class="friends-section">
-        <h3 class="friends-section__title">✨ Friends in Jesus</h3>
-        <p class="friends-section__desc">Podcasts, sermons, and content from voices we love. Watch, like, recommend, and share.</p>
-
-        <!-- Topic pills (replaces sidebar) -->
-        <div class="friends-topics" id="community-sidebar" role="tablist"></div>
-
-        <!-- Search -->
-        <div class="friends-search">
-          <span class="friends-search__icon">🔍</span>
-          <input type="search" id="community-search-input" class="friends-search__input" placeholder="Search content..." autocomplete="off" aria-label="Search community content" style="-webkit-appearance:none;">
-          <span class="friends-search__count" id="community-search-count"></span>
-          <button class="friends-search__clear" id="community-search-clear" aria-label="Clear search">✕</button>
-        </div>
-
-        <!-- Category header -->
-        <div id="community-category-header" class="friends-category-header"></div>
-
-        <!-- Content grid / shelves -->
-        <div id="community-grid" class="listen-layout"></div>
-      </div>
-
-      <div class="section-feedback">
-        <a href="about.html#contact" class="section-feedback__link">💬 Recommend content or send feedback</a>
-      </div>
-    </section>
-
-    <!-- ═══ eLIBRARY SECTION ═══ -->
-    <section class="section channel-section" id="section-library" style="display:none;">
+    <!-- ══ eLIBRARY CHANNEL ══ -->
+    <section class="channel-section" id="channel-library">
       <h2 class="section-title">📚 eLibrary</h2>
-      <p class="section-desc">Free reading plans, guides, and resources for your walk. Our growing digital collection — with books and ebooks coming soon.</p>
+      <p class="section-desc">Free reading plans, guides, and resources for your walk. Tap any card to start reading.</p>
 
-      <!-- Mobile category toggle -->
-      <button class="store-sidebar-toggle" id="elibrary-mobile-toggle" aria-label="Open category menu" aria-expanded="false" aria-controls="elibrary-sidebar">
-        <span class="store-sidebar-toggle__icon">☰</span>
-        <span>Categories</span>
-      </button>
-
-      <div class="store-layout elibrary-layout">
-        <!-- Sidebar overlay (mobile) -->
-        <div class="store-sidebar-overlay" id="elibrary-sidebar-overlay"></div>
-
-        <!-- Sidebar -->
-        <aside class="store-sidebar elibrary-sidebar" id="elibrary-sidebar">
-          <!-- Rendered by elibrary-catalog.js -->
-        </aside>
-
-        <!-- Main content -->
-        <div class="store-main">
-          <!-- Search -->
-          <div class="store-search">
-            <span class="store-search__icon">🔍</span>
-            <input type="search" id="elibrary-search-input" class="store-search__input" placeholder="Search resources..." autocomplete="off" aria-label="Search eLibrary" style="-webkit-appearance:none;">
-            <span class="store-search__count" id="elibrary-search-count"></span>
-            <button class="store-search__clear" id="elibrary-search-clear" aria-label="Clear search">✕</button>
-          </div>
-
-          <!-- Category header -->
-          <div class="store-category-header" id="elibrary-category-header"></div>
-
-          <!-- Product grid -->
-          <div class="store-grid" id="elibrary-grid"></div>
-        </div>
+      <div class="elibrary-grid" id="elibrary-grid">
+        <!-- Rendered by JS -->
       </div>
 
       <p style="text-align:center;font-size:0.78rem;color:var(--color-text-muted);margin-top:1.25rem;">More resources added regularly. Books and ebooks for resale coming soon.</p>
-
-      <div class="section-feedback">
-        <a href="about.html#contact" class="section-feedback__link">💬 Suggest a resource</a>
-      </div>
     </section>
 
-  </div><!-- /.community-feed -->
+  </main>
 
-  <!-- RIGHT PANEL -->
-  <aside class="community-panel">
-    <!-- Live Event Indicator (hidden by default) -->
-    <div class="panel-live" id="panel-live" style="display:none;">
-      <div class="panel-live__dot"></div>
-      <div class="panel-live__info">
-        <span class="panel-live__label">LIVE NOW</span>
-        <span class="panel-live__title" id="panel-live-title"></span>
+  <!-- ═══ SIDEBAR (desktop only) ═══ -->
+  <aside class="social-sidebar">
+    <!-- Live indicator (hidden by default) -->
+    <div id="sidebar-live" style="display:none;">
+      <div class="live-badge" style="margin-bottom:1rem;width:100%;justify-content:center;">
+        <span class="live-badge__dot"></span>
+        <span id="sidebar-live-title">LIVE NOW</span>
+        <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" style="margin-left:auto;font-size:0.68rem;color:#c0392b;text-decoration:none;font-weight:700;">Watch →</a>
       </div>
-      <a href="#" id="panel-live-link" class="panel-live__btn">Watch →</a>
     </div>
 
-    <!-- Upcoming Events (from Google Calendar) -->
-    <div class="panel-card">
-      <p class="panel-card__title">Upcoming Events</p>
-      <div id="panel-events">
-        <div class="panel-event">
-          <div class="panel-event__date"><span class="panel-event__month">Every</span><span class="panel-event__day">Mon</span></div>
-          <div class="panel-event__info"><div class="panel-event__title">Fellowship & Worship</div><div class="panel-event__time">6:30 PM</div></div>
+    <!-- Upcoming Events -->
+    <div class="sidebar-card">
+      <p class="sidebar-card__title">Upcoming Events</p>
+      <div id="sidebar-events">
+        <div class="event-item">
+          <div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Mon</span></div>
+          <div class="event-item__info"><div class="event-item__title">Fellowship & Worship</div><div class="event-item__time">6:30 PM</div></div>
         </div>
-        <div class="panel-event">
-          <div class="panel-event__date"><span class="panel-event__month">Every</span><span class="panel-event__day">Sat</span></div>
-          <div class="panel-event__info"><div class="panel-event__title">Study Saturday (Livestream)</div><div class="panel-event__time">7:00 PM PT on Twitch</div></div>
+        <div class="event-item">
+          <div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Sat</span></div>
+          <div class="event-item__info"><div class="event-item__title">Study Saturday (Livestream)</div><div class="event-item__time">7:00 PM PT on Twitch</div></div>
         </div>
       </div>
       <a href="news.html" style="display:block;margin-top:0.75rem;font-size:0.78rem;color:var(--color-gold);font-weight:600;text-decoration:none;">See all events →</a>
     </div>
 
-    <!-- Today's Reading (quick view) -->
-    <div class="panel-card">
-      <p class="panel-card__title">Today's Reading</p>
-      <div id="panel-today-reading" style="font-size:0.88rem;color:var(--color-text);margin-bottom:0.5rem;">Loading...</div>
-      <button class="panel-card__expand-btn" id="panel-reading-expand">Open This Week's Plan →</button>
+    <!-- Today's Reading -->
+    <div class="sidebar-card">
+      <p class="sidebar-card__title">Today's Reading</p>
+      <div id="sidebar-reading" style="font-size:0.88rem;color:var(--color-text);margin-bottom:0.5rem;">Loading...</div>
+      <button onclick="switchChannel('scripture')" style="display:block;width:100%;padding:0.5rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;color:var(--color-olive);cursor:pointer;text-align:center;font-family:var(--font-sans);">Open Scripture Tab →</button>
     </div>
 
     <!-- Quick Links -->
-    <div class="panel-card">
-      <p class="panel-card__title">Quick Links</p>
-      <a href="https://t.me/seedtheword" class="panel-quicklink" target="_blank" rel="noopener"><span class="panel-quicklink__icon">💬</span> Telegram</a>
-      <a href="https://www.instagram.com/seedtheword/" class="panel-quicklink" target="_blank" rel="noopener"><span class="panel-quicklink__icon">📸</span> Instagram</a>
-      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" class="panel-quicklink" target="_blank" rel="noopener"><span class="panel-quicklink__icon">🎧</span> Podcast</a>
-      <a href="https://twitch.tv/seedtheword" class="panel-quicklink" target="_blank" rel="noopener"><span class="panel-quicklink__icon">🎮</span> Twitch</a>
-      <a href="donate.html" class="panel-quicklink"><span class="panel-quicklink__icon">📖</span> Get a Free Bible</a>
+    <div class="sidebar-card">
+      <p class="sidebar-card__title">Quick Links</p>
+      <a href="https://t.me/seedtheword" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">💬</span> Telegram</a>
+      <a href="https://www.instagram.com/seedtheword/" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">📸</span> Instagram</a>
+      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">🎧</span> Podcast</a>
+      <a href="https://twitch.tv/seedtheword" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">🎮</span> Twitch</a>
+      <a href="donate.html" class="sidebar-link"><span class="sidebar-link__icon">📖</span> Get a Free Bible</a>
     </div>
 
-    <!-- Team Portal CTA -->
-    <div class="panel-cta">
-      <h3 class="panel-cta__title">Join the Team</h3>
-      <p class="panel-cta__text">Volunteer with us at outreach events and help distribute God's Word.</p>
-      <a href="team.html" class="panel-cta__btn">Team Portal →</a>
+    <!-- Join Team CTA -->
+    <div class="sidebar-cta">
+      <h3 class="sidebar-cta__title">Join the Team</h3>
+      <p class="sidebar-cta__text">Volunteer with us at outreach events and help distribute God's Word.</p>
+      <a href="team.html" class="sidebar-cta__btn">Team Portal →</a>
     </div>
   </aside>
-</main>
+</div>
+
+<!-- ═══ BOTTOM NAV BAR (mobile) ═══ -->
+<nav class="bottom-nav" aria-label="Quick links">
+  <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="bottom-nav__item" title="Telegram">
+    <span class="bottom-nav__icon">💬</span>
+    <span class="bottom-nav__label">Telegram</span>
+  </a>
+  <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="bottom-nav__item" title="Instagram">
+    <span class="bottom-nav__icon">📸</span>
+    <span class="bottom-nav__label">Instagram</span>
+  </a>
+  <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" class="bottom-nav__item" title="Podcast">
+    <span class="bottom-nav__icon">🎧</span>
+    <span class="bottom-nav__label">Podcast</span>
+  </a>
+  <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" class="bottom-nav__item" title="Twitch">
+    <span class="bottom-nav__icon">🎮</span>
+    <span class="bottom-nav__label">Twitch</span>
+  </a>
+  <a href="https://m.me/seedtheword" target="_blank" rel="noopener" class="bottom-nav__item" title="Messenger">
+    <span class="bottom-nav__icon">💌</span>
+    <span class="bottom-nav__label">Messenger</span>
+  </a>
+</nav>
 
 <!-- ═══ FOOTER ═══ -->
 <footer class="site-footer">
@@ -476,339 +1317,466 @@
 <script src="assets/js/main.js?v=9"></script>
 <script src="assets/js/bible-plan.js?v=2"></script>
 <script src="assets/js/layered-plan.js?v=1"></script>
-<script src="assets/js/your-walk.js?v=3" defer></script>
-<script src="assets/js/twitch-integration.js?v=4"></script>
-<script src="assets/js/instagram-feed.js?v=2"></script>
-<script src="assets/js/telegram-stats.js?v=1"></script>
-<script src="assets/js/recommendations.js?v=3"></script>
-<script src="assets/js/community-catalog.js?v=8" defer></script>
-<script src="assets/js/elibrary-catalog.js?v=1" defer></script>
-<script src="assets/js/study-saturday.js?v=7" defer></script>
-<script src="assets/js/prayer-intake.js?v=2"></script>
-<script src="assets/js/community-social.js?v=2"></script>
+<script src="assets/js/lms.js?v=1"></script>
 <script src="assets/js/google-calendar.js?v=16"></script>
-<script src="assets/js/profile-settings.js?v=1"></script>
-<script src="assets/js/nav-auth.js?v=1"></script>
 <script>
-// ═══ SECTION NAVIGATION ═══
+// ═══════════════════════════════════════════════════════════════
+// COMMUNITY SOCIAL PLATFORM — Main Controller
+// ═══════════════════════════════════════════════════════════════
 (function() {
-  var channelSections = { scripture:'section-scripture', prayer:'section-prayer', music:'section-music', library:'section-library' };
-  var allSections = document.querySelectorAll('.channel-section');
-  var postsFeed = document.getElementById('community-posts-feed');
+'use strict';
 
-  function switchChannel(ch) {
-    document.querySelectorAll('.community-nav__link').forEach(function(l){l.classList.remove('is-active');});
-    var activeLink = document.querySelector('.community-nav__link[data-channel="'+ch+'"]');
-    if (activeLink) activeLink.classList.add('is-active');
-    document.querySelectorAll('.feed-tab').forEach(function(t){t.classList.toggle('is-active', t.dataset.channel===ch);});
-    allSections.forEach(function(s){s.style.display='none';});
-    if (ch === 'home') { postsFeed.style.display=''; }
-    else { postsFeed.style.display='none'; if(channelSections[ch]) document.getElementById(channelSections[ch]).style.display=''; }
-    // Sync the mobile select
-    var sel = document.getElementById('feed-channel-select');
-    if (sel) sel.value = ch;
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
+var CONFIG_URL = 'assets/data/site-config.json';
+var handlerUrl = null;
+var session = null;
+var posts = [];
 
-  // Nav link clicks
-  document.querySelectorAll('.community-nav__link[data-channel]').forEach(function(link) {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      switchChannel(this.dataset.channel);
-    });
-  });
-  // Feed tab clicks
-  document.querySelectorAll('.feed-tab[data-channel]').forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      switchChannel(this.dataset.channel);
-    });
-  });
-  // Mobile channel select
-  var channelSelect = document.getElementById('feed-channel-select');
-  if (channelSelect) {
-    channelSelect.addEventListener('change', function() {
-      switchChannel(this.value);
-    });
-  }
-})();
+// ── Helpers ──
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function initials(n) { return (n || '?').split(' ').map(function(w) { return w[0]; }).join('').toUpperCase().slice(0, 2); }
+function timeAgo(ts) {
+  var d = Date.now() - ts, m = Math.floor(d / 60000);
+  if (m < 1) return 'Just now';
+  if (m < 60) return m + 'm ago';
+  var h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  var days = Math.floor(h / 24);
+  if (days < 7) return days + 'd ago';
+  return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+function fmtTime(ts) { return new Date(ts).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+function fmtDate(ts) { return new Date(ts).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }); }
+function isSameDay(a, b) { return new Date(a).toDateString() === new Date(b).toDateString(); }
 
-// ═══ PRAYER & THANKSGIVING CHAT FEED ═══
-(function() {
-  var CONFIG_URL = 'assets/data/site-config.json';
-  var handlerUrl = null;
-  var allMessages = [];
-  var displayedCount = 0;
-  var PAGE_SIZE = 20;
-  var currentFilter = 'prayer';
-  var session = null;
-  try { session = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
+async function getHandlerUrl() {
+  if (handlerUrl) return handlerUrl;
+  var cfg = await fetch(CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store' }).then(function(r) { return r.json(); });
+  handlerUrl = cfg.orderHandlerUrl;
+  return handlerUrl;
+}
+async function postAction(data) {
+  var url = await getHandlerUrl();
+  var res = await fetch(url, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) });
+  var text = await res.text();
+  try { return JSON.parse(text); } catch(e) { return { ok: false }; }
+}
 
-  async function getUrl() {
-    if (handlerUrl) return handlerUrl;
-    var cfg = await fetch(CONFIG_URL+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});
-    handlerUrl = cfg.orderHandlerUrl; return handlerUrl;
-  }
-  async function post(data) {
-    var url = await getUrl();
-    var res = await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});
-    return res.json();
-  }
-  function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
-  function initials(n){return(n||'?').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);}
-  function fmtTime(ts){return new Date(ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
-  function fmtDate(ts){return new Date(ts).toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});}
-  function isSameDay(a,b){var d1=new Date(a),d2=new Date(b);return d1.toDateString()===d2.toDateString();}
-
-  function renderMessage(m) {
-    var isMine = session && m.from && m.from.toLowerCase() === session.name.toLowerCase();
-    var align = isMine ? 'flex-end' : 'flex-start';
-    var bg = isMine ? 'var(--color-olive)' : 'var(--color-bg-subtle)';
-    var color = isMine ? '#fff' : 'var(--color-text)';
-    var borderRadius = isMine ? '14px 14px 4px 14px' : '14px 14px 14px 4px';
-    var typeIcon = m.msg_type === 'thanksgiving' ? '🎉' : '🙏';
-    var authorHtml = !isMine ? '<div style="font-size:0.68rem;font-weight:700;color:var(--color-olive);margin-bottom:0.15rem;">'+esc(m.from||'Anonymous')+'</div>' : '';
-    var prayerBorder = m.msg_type === 'prayer' ? 'border-left:3px solid var(--color-gold);' : (m.msg_type === 'thanksgiving' ? 'border-left:3px solid var(--color-olive);' : '');
-
-    return '<div style="display:flex;justify-content:'+align+';margin-bottom:0.5rem;animation:fadeIn 0.2s ease;">' +
-      '<div style="max-width:82%;padding:0.65rem 0.9rem;border-radius:'+borderRadius+';background:'+bg+';color:'+color+';font-size:0.84rem;line-height:1.55;'+prayerBorder+'position:relative;word-wrap:break-word;">' +
-        authorHtml +
-        '<span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;opacity:0.7;letter-spacing:0.03em;">'+typeIcon+' '+esc(m.msg_type||'prayer')+'</span>' +
-        '<div style="margin-top:0.2rem;">'+esc(m.text)+'</div>' +
-        '<div style="font-size:0.6rem;opacity:0.6;margin-top:0.25rem;text-align:right;">'+fmtTime(m.timestamp)+'</div>' +
-      '</div></div>';
-  }
-
-  function renderFeed(messages) {
-    var feed = document.getElementById('prayer-chat-feed');
-    if (!messages.length) { feed.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">No '+currentFilter+' posts yet. Be the first to share.</p>'; return; }
-
-    var html = '';
-    var lastDate = null;
-    messages.forEach(function(m) {
-      if (!lastDate || !isSameDay(lastDate, m.timestamp)) {
-        html += '<div style="text-align:center;margin:1rem 0 0.5rem;"><span style="display:inline-block;padding:0.25rem 0.75rem;background:var(--color-gold-soft);border-radius:999px;font-size:0.65rem;font-weight:700;color:var(--color-gold);">'+fmtDate(m.timestamp)+'</span></div>';
-        lastDate = m.timestamp;
-      }
-      html += renderMessage(m);
-    });
-    feed.innerHTML = html;
-    feed.scrollTop = feed.scrollHeight;
-  }
-
-  function filterAndRender() {
-    var filtered = allMessages.filter(function(m) { return m.msg_type === currentFilter; });
-    var toShow = filtered.slice(0, displayedCount + PAGE_SIZE);
-    displayedCount = toShow.length;
-    renderFeed(toShow);
-    // Show/hide load more
-    var btn = document.getElementById('prayer-load-more');
-    if (btn) btn.style.display = filtered.length > displayedCount ? '' : 'none';
-  }
-
-  async function loadMessages() {
-    var channel = currentFilter;
-    var token = session ? session.token : null;
-    var payload = token ? {action:'getChatMessages',token:token,channel:channel} : {action:'getChatMessages',passphrase_hash:'public-read',channel:channel};
-    try {
-      var res = await post(payload);
-      if (res.ok && res.messages) {
-        allMessages = res.messages.sort(function(a,b){return a.timestamp - b.timestamp;});
-        displayedCount = 0;
-        filterAndRender();
-      } else { document.getElementById('prayer-chat-feed').innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Could not load messages.</p>'; }
-    } catch(e) { document.getElementById('prayer-chat-feed').innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Network error. Try again.</p>'; }
-  }
-
-  // Pill slider filter
-  document.querySelectorAll('.prayer-filter-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var slider = document.getElementById('prayer-pill-slider');
-      document.querySelectorAll('.prayer-filter-btn').forEach(function(b){b.style.color='var(--color-text-muted)';b.classList.remove('active');});
-      this.style.color='#fff'; this.classList.add('active');
-      currentFilter = this.dataset.filter;
-      slider.style.transform = currentFilter === 'thanksgiving' ? 'translateX(100%)' : 'translateX(0)';
-      loadMessages();
-    });
-  });
-
-  // Compose
+// ── Auth ──
+function checkSession() {
+  try { session = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) { session = null; }
+  var compose = document.getElementById('compose-box');
+  var loginP = document.getElementById('login-prompt');
+  var prayerC = document.getElementById('prayer-compose');
+  var thanksC = document.getElementById('thanks-compose');
+  if (compose) compose.style.display = session ? '' : 'none';
+  if (loginP) loginP.style.display = session ? 'none' : '';
+  if (prayerC) prayerC.style.display = session ? '' : 'none';
+  if (thanksC) thanksC.style.display = session ? '' : 'none';
   if (session) {
-    var compose = document.getElementById('prayer-compose');
-    if (compose) compose.style.display = '';
-    var avatar = document.getElementById('prayer-compose-avatar');
-    if (avatar) avatar.textContent = initials(session.name);
+    var ini = initials(session.name);
+    var avatars = document.querySelectorAll('#compose-avatar, #prayer-compose-avatar, #thanks-compose-avatar');
+    avatars.forEach(function(el) { el.textContent = ini; });
+  }
+}
+
+// ═══ CHANNEL NAVIGATION ═══
+var activeChannel = 'home';
+
+function switchChannel(ch) {
+  activeChannel = ch;
+  // Update tabs
+  document.querySelectorAll('.channel-tab').forEach(function(t) {
+    var isActive = t.dataset.channel === ch;
+    t.classList.toggle('is-active', isActive);
+    t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+  // Update sections
+  document.querySelectorAll('.channel-section').forEach(function(s) { s.classList.remove('is-active'); });
+  var target = document.getElementById('channel-' + ch);
+  if (target) target.classList.add('is-active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+// Make globally accessible for sidebar button
+window.switchChannel = switchChannel;
+
+// Tab clicks
+document.querySelectorAll('.channel-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() { switchChannel(this.dataset.channel); });
+});
+
+// ═══ EVENTS COLLAPSE ═══
+var eventsToggle = document.getElementById('events-toggle');
+var eventsCollapse = document.getElementById('events-collapse');
+if (eventsToggle && eventsCollapse) {
+  eventsToggle.addEventListener('click', function() {
+    eventsCollapse.classList.toggle('is-open');
+    eventsToggle.setAttribute('aria-expanded', eventsCollapse.classList.contains('is-open'));
+  });
+}
+
+// ═══ NOTIFICATION BADGES ═══
+var LAST_SEEN_KEY = 'stwm-community-last-seen';
+function getLastSeen() {
+  try { return JSON.parse(localStorage.getItem(LAST_SEEN_KEY)) || {}; } catch(e) { return {}; }
+}
+function setLastSeen(channel) {
+  var ls = getLastSeen();
+  ls[channel] = Date.now();
+  try { localStorage.setItem(LAST_SEEN_KEY, JSON.stringify(ls)); } catch(e) {}
+}
+function updateBadges(messages) {
+  var ls = getLastSeen();
+  var counts = { scripture: 0, prayer: 0, thanksgiving: 0, home: 0 };
+  messages.forEach(function(m) {
+    var ch = m.msg_type === 'prayer' ? 'prayer' : (m.msg_type === 'thanksgiving' ? 'thanksgiving' : (m.msg_type === 'bible' ? 'scripture' : 'home'));
+    var lastSeen = ls[ch] || 0;
+    if (m.timestamp > lastSeen) counts[ch]++;
+  });
+  Object.keys(counts).forEach(function(ch) {
+    var badge = document.getElementById('badge-' + ch);
+    if (badge) badge.textContent = counts[ch] > 0 ? counts[ch] : '';
+  });
+}
+
+// Mark as seen when switching to channel
+var origSwitch = switchChannel;
+switchChannel = function(ch) {
+  origSwitch(ch);
+  setLastSeen(ch);
+  var badge = document.getElementById('badge-' + ch);
+  if (badge) badge.textContent = '';
+};
+window.switchChannel = switchChannel;
+
+// ═══ SOCIAL FEED (Home tab) ═══
+async function loadFeed() {
+  try {
+    var token = session ? session.token : null;
+    var channels = ['main', 'prayer', 'thanksgiving'];
+    var allMsgs = [];
+
+    var results = await Promise.allSettled(channels.map(function(ch) {
+      var payload = token ? { action: 'getChatMessages', token: token, channel: ch } : { action: 'getChatMessages', passphrase_hash: 'public-read', channel: ch };
+      return postAction(payload);
+    }));
+
+    results.forEach(function(r, i) {
+      if (r.status === 'fulfilled' && r.value.ok && r.value.messages) {
+        r.value.messages.forEach(function(m) {
+          m._channel = channels[i];
+          allMsgs.push(m);
+        });
+      }
+    });
+
+    // Also load announcements
+    try {
+      var annRes = await postAction({ action: 'getAnnouncements', passphrase_hash: 'public-read' });
+      if (annRes.ok && annRes.announcements) {
+        annRes.announcements.forEach(function(a) {
+          allMsgs.push({
+            from: a.from || 'Seed the Word',
+            text: (a.subject ? '**' + a.subject + '**\n\n' : '') + a.body,
+            timestamp: a.timestamp,
+            msg_type: 'announcement',
+            _channel: 'announcements'
+          });
+        });
+      }
+    } catch(e) {}
+
+    posts = allMsgs.sort(function(a, b) { return b.timestamp - a.timestamp; });
+    updateBadges(posts);
+    renderHomeFeed();
+    renderScriptureFeed();
+    renderPrayerFeed('prayer');
+    renderPrayerFeed('thanksgiving');
+  } catch(e) {
+    document.getElementById('posts-feed').innerHTML = '<div class="empty-state"><div class="empty-state__icon">🌐</div><h3 class="empty-state__title">Connection issue</h3><p class="empty-state__text">Could not load the feed. Pull down to refresh.</p></div>';
+  }
+}
+
+function formatBody(text) {
+  if (!text) return '';
+  var formatted = esc(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  formatted = formatted.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  return formatted;
+}
+
+function renderPost(p) {
+  var typeLabels = { announcement: '📢 Announcement', prayer: '🙏 Prayer', thanksgiving: '🎉 Thanksgiving', bible: '📖 Scripture', message: '💬 Discussion', discussion: '💬 Discussion' };
+  var type = p.msg_type || 'message';
+  var typeClass = type === 'message' ? 'discussion' : type;
+  return '<article class="post-card">' +
+    '<div class="post-card__header">' +
+      '<div class="post-card__avatar">' + initials(p.from || 'Anonymous') + '</div>' +
+      '<div class="post-card__meta">' +
+        '<div class="post-card__author">' + esc(p.from || 'Anonymous') + '</div>' +
+        '<div class="post-card__time">' + timeAgo(p.timestamp) + '</div>' +
+        '<span class="post-card__type post-card__type--' + typeClass + '">' + (typeLabels[type] || '💬 Post') + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="post-card__body">' + formatBody(p.text) + '</div>' +
+    '<div class="post-card__actions">' +
+      '<button class="post-card__action" data-action="like"><span>❤️</span> Like</button>' +
+      '<button class="post-card__action" data-action="comment"><span>💬</span> Comment</button>' +
+      '<button class="post-card__action" data-action="share"><span>🔗</span> Share</button>' +
+    '</div>' +
+  '</article>';
+}
+
+function renderHomeFeed() {
+  var feed = document.getElementById('posts-feed');
+  var homePosts = posts.slice(0, 30);
+  if (!homePosts.length) {
+    feed.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📭</div><h3 class="empty-state__title">No posts yet</h3><p class="empty-state__text">Be the first to share something with the community.</p></div>';
+    return;
+  }
+  feed.innerHTML = homePosts.map(renderPost).join('');
+  bindLikeButtons(feed);
+}
+
+function renderScriptureFeed() {
+  var feed = document.getElementById('scripture-posts-feed');
+  var filtered = posts.filter(function(p) { return p.msg_type === 'bible' || (p._channel === 'main' && p.msg_type === 'message'); });
+  if (!filtered.length) {
+    feed.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📖</div><h3 class="empty-state__title">No scripture discussions yet</h3><p class="empty-state__text">Start a conversation about today\'s reading.</p></div>';
+    return;
+  }
+  feed.innerHTML = filtered.slice(0, 20).map(renderPost).join('');
+  bindLikeButtons(feed);
+}
+
+function renderPrayerFeed(type) {
+  var feedId = type === 'prayer' ? 'prayer-feed' : 'thanks-feed';
+  var feed = document.getElementById(feedId);
+  var filtered = posts.filter(function(p) { return p.msg_type === type; }).sort(function(a, b) { return a.timestamp - b.timestamp; });
+
+  if (!filtered.length) {
+    feed.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">No ' + type + ' posts yet. Be the first to share.</p>';
+    return;
   }
 
-  var sendBtn = document.getElementById('prayer-send-btn');
-  if (sendBtn) sendBtn.addEventListener('click', async function() {
+  var html = '';
+  var lastDate = null;
+  filtered.forEach(function(m) {
+    if (!lastDate || !isSameDay(lastDate, m.timestamp)) {
+      html += '<div class="chat-msg__date-sep"><span>' + fmtDate(m.timestamp) + '</span></div>';
+      lastDate = m.timestamp;
+    }
+    var isMine = session && m.from && session.name && m.from.toLowerCase() === session.name.toLowerCase();
+    html += '<div class="chat-msg' + (isMine ? ' chat-msg--mine' : '') + '">' +
+      '<div class="chat-msg__bubble">' +
+        (!isMine ? '<div class="chat-msg__author">' + esc(m.from || 'Anonymous') + '</div>' : '') +
+        '<div class="chat-msg__type">' + (type === 'prayer' ? '🙏 prayer' : '🎉 thanksgiving') + '</div>' +
+        '<div style="margin-top:0.2rem;">' + esc(m.text) + '</div>' +
+        '<div class="chat-msg__time">' + fmtTime(m.timestamp) + '</div>' +
+      '</div></div>';
+  });
+  feed.innerHTML = html;
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function bindLikeButtons(container) {
+  container.querySelectorAll('.post-card__action[data-action="like"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (!session) { alert('Sign in to like posts.'); return; }
+      btn.classList.toggle('is-liked');
+    });
+  });
+}
+
+// ═══ COMPOSE / SEND POST ═══
+var composePostBtn = document.getElementById('compose-post-btn');
+if (composePostBtn) {
+  composePostBtn.addEventListener('click', async function() {
+    if (!session) return;
+    var input = document.getElementById('compose-input');
+    var text = input.value.trim();
+    if (!text) return;
+    var type = document.getElementById('compose-type').value;
+    var channel = type === 'prayer' ? 'prayer' : (type === 'thanksgiving' ? 'thanksgiving' : 'main');
+    composePostBtn.disabled = true;
+    composePostBtn.textContent = '...';
+    try {
+      await postAction({ action: 'sendChatMessage', token: session.token, channel: channel, text: text, msg_type: type, to_user: '' });
+      input.value = '';
+      posts.unshift({ from: session.name, text: text, timestamp: Date.now(), msg_type: type, _channel: channel });
+      renderHomeFeed();
+    } catch(e) { alert('Could not post. Try again.'); }
+    composePostBtn.disabled = false;
+    composePostBtn.textContent = 'Post';
+  });
+}
+
+// Prayer send
+var prayerSendBtn = document.getElementById('prayer-send-btn');
+if (prayerSendBtn) {
+  prayerSendBtn.addEventListener('click', async function() {
     if (!session) return;
     var input = document.getElementById('prayer-compose-input');
     var text = input.value.trim();
     if (!text) return;
-    var shareTg = document.getElementById('prayer-share-telegram').checked;
-    var anon = document.getElementById('prayer-anonymous').checked;
-    input.value = '';
-    sendBtn.disabled = true; sendBtn.textContent = '...';
+    var anon = document.getElementById('prayer-anon').checked;
+    prayerSendBtn.disabled = true;
     try {
-      await post({action:'sendChatMessage',token:session.token,channel:currentFilter,text:text,msg_type:currentFilter,to_user:'',send_telegram:shareTg,anonymous:anon});
-      await loadMessages();
+      await postAction({ action: 'sendChatMessage', token: session.token, channel: 'prayer', text: text, msg_type: 'prayer', to_user: '', anonymous: anon });
+      input.value = '';
+      posts.push({ from: anon ? 'Anonymous' : session.name, text: text, timestamp: Date.now(), msg_type: 'prayer', _channel: 'prayer' });
+      renderPrayerFeed('prayer');
     } catch(e) {}
-    sendBtn.disabled = false; sendBtn.textContent = 'Post';
+    prayerSendBtn.disabled = false;
   });
+}
 
-  // Load more
-  var moreBtn = document.getElementById('prayer-more-btn');
-  if (moreBtn) moreBtn.addEventListener('click', function() { filterAndRender(); });
+// Thanksgiving send
+var thanksSendBtn = document.getElementById('thanks-send-btn');
+if (thanksSendBtn) {
+  thanksSendBtn.addEventListener('click', async function() {
+    if (!session) return;
+    var input = document.getElementById('thanks-compose-input');
+    var text = input.value.trim();
+    if (!text) return;
+    thanksSendBtn.disabled = true;
+    try {
+      await postAction({ action: 'sendChatMessage', token: session.token, channel: 'thanksgiving', text: text, msg_type: 'thanksgiving', to_user: '' });
+      input.value = '';
+      posts.push({ from: session.name, text: text, timestamp: Date.now(), msg_type: 'thanksgiving', _channel: 'thanksgiving' });
+      renderPrayerFeed('thanksgiving');
+    } catch(e) {}
+    thanksSendBtn.disabled = false;
+  });
+}
 
-  // Archive modal
-  var archiveBtn = document.getElementById('prayer-archive-btn');
-  var archiveModal = document.getElementById('prayer-archive-modal');
-  var archiveClose = document.getElementById('prayer-archive-close');
-  if (archiveBtn) archiveBtn.addEventListener('click', function() { archiveModal.style.display = 'flex'; populateArchive(); });
-  if (archiveClose) archiveClose.addEventListener('click', function() { archiveModal.style.display = 'none'; });
-  if (archiveModal) archiveModal.addEventListener('click', function(e) { if (e.target === archiveModal) archiveModal.style.display = 'none'; });
+// ═══ eLIBRARY ═══
+function renderELibrary() {
+  var grid = document.getElementById('elibrary-grid');
+  if (!grid) return;
 
-  // Populate archive months
-  function populateArchive() {
-    var sel = document.getElementById('prayer-archive-month');
-    if (!sel) return;
-    var months = [];
-    var now = new Date();
-    for (var i = 0; i < 12; i++) {
-      var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      months.push({value: d.toISOString().slice(0,7), label: d.toLocaleDateString('en-US',{month:'long',year:'numeric'})});
-    }
-    sel.innerHTML = months.map(function(m){return '<option value="'+m.value+'">'+m.label+'</option>';}).join('');
-    searchArchive();
-  }
+  var courses = [
+    { id: 'four-spiritual-laws', icon: '✝️', name: 'Four Spiritual Laws', desc: 'Interactive Gospel presentation in 4 laws. A classic tool for sharing your faith.', badge: 'free' },
+    { id: '20-day-plan', icon: '📖', name: '20-Day Reading Plan', desc: 'Journey through Scripture in 4 weeks. John, Psalms, Romans, and practical faith.', badge: 'free' },
+    { id: 'what-is-seed', icon: '🌱', name: 'What is Seed the Word?', desc: 'Learn about our ministry, values, and how we operate.', badge: 'free' },
+    { id: 'recommended-listening', icon: '🎧', name: 'Recommended Listening', desc: 'Channels, podcasts, and content from voices we trust.', badge: 'free' },
+    { id: 'how-to-seed', icon: '🌾', name: 'How to Seed', desc: 'Practical evangelism guide — how to share your faith naturally.', badge: 'free' },
+    { id: 'how-to-grow', icon: '💧', name: 'How to Grow', desc: 'The four-movement discipleship process for new believers.', badge: 'free' },
+    { id: 'how-to-harvest', icon: '🌻', name: 'How to Harvest', desc: 'Helping mature believers find their calling and serve.', badge: 'free' },
+    { id: 'marriage-young-adults', icon: '💒', name: 'Marriage & Young Adults', desc: 'Topics for young adult discipleship and relationships.', badge: 'coming', placeholder: true },
+    { id: 'outreach-partnerships', icon: '🤝', name: 'Outreach & Partnerships', desc: 'How partnering with other ministries works.', badge: 'coming', placeholder: true },
+    { id: 'social-media', icon: '📱', name: 'Social Media for Jesus', desc: 'Using your online presence for evangelism.', badge: 'coming', placeholder: true },
+    { id: 'deeper-doctrine', icon: '📜', name: 'Deeper Doctrine', desc: 'Doctrinal training and water baptism preparation.', badge: 'coming', placeholder: true }
+  ];
 
-  // Archive search
-  var archiveSearch = document.getElementById('prayer-archive-search');
-  var archiveMonth = document.getElementById('prayer-archive-month');
-  var archiveType = document.getElementById('prayer-archive-type');
-  if (archiveSearch) archiveSearch.addEventListener('input', searchArchive);
-  if (archiveMonth) archiveMonth.addEventListener('change', searchArchive);
-  if (archiveType) archiveType.addEventListener('change', searchArchive);
+  grid.innerHTML = courses.map(function(c) {
+    var badgeHtml = c.badge === 'free' ? '<span class="elibrary-card__badge elibrary-card__badge--free">Free</span>' : '<span class="elibrary-card__badge elibrary-card__badge--coming">Coming Soon</span>';
+    var placeholderClass = c.placeholder ? ' elibrary-card--placeholder' : '';
+    return '<div class="elibrary-card' + placeholderClass + '" data-course="' + c.id + '">' +
+      '<div class="elibrary-card__icon">' + c.icon + '</div>' +
+      '<h3 class="elibrary-card__name">' + c.name + '</h3>' +
+      '<p class="elibrary-card__desc">' + c.desc + '</p>' +
+      badgeHtml +
+    '</div>';
+  }).join('');
 
-  function searchArchive() {
-    var list = document.getElementById('prayer-archive-list');
-    var query = (document.getElementById('prayer-archive-search').value||'').toLowerCase();
-    var month = document.getElementById('prayer-archive-month').value;
-    var type = document.getElementById('prayer-archive-type').value;
-    var filtered = allMessages.filter(function(m) {
-      var dateMatch = m.timestamp && new Date(m.timestamp).toISOString().slice(0,7) === month;
-      var typeMatch = type === 'all' || m.msg_type === type;
-      var textMatch = !query || (m.text||'').toLowerCase().includes(query) || (m.from||'').toLowerCase().includes(query);
-      return dateMatch && typeMatch && textMatch;
+  // Bind clicks — open LMS viewer (no progress tracking for public)
+  grid.querySelectorAll('.elibrary-card:not(.elibrary-card--placeholder)').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var courseId = this.dataset.course;
+      // For how-to-* courses, open the corresponding page
+      if (courseId === 'how-to-seed') { window.location.href = 'how-to-seed.html'; return; }
+      if (courseId === 'how-to-grow') { window.location.href = 'how-to-grow.html'; return; }
+      if (courseId === 'how-to-harvest') { window.location.href = 'how-to-harvest.html'; return; }
+      // For LMS courses, use the viewer if available
+      if (typeof openCourseViewer === 'function' && courseId !== '20-day-plan') {
+        openCourseViewer(courseId);
+      } else if (typeof openReadingPlan === 'function' && courseId === '20-day-plan') {
+        openReadingPlan(courseId);
+      }
     });
-    if (!filtered.length) { list.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.82rem;padding:1rem;">No results.</p>'; return; }
-    list.innerHTML = filtered.map(function(m) {
-      var icon = m.msg_type === 'thanksgiving' ? '🎉' : '🙏';
-      return '<div style="padding:0.6rem 0;border-bottom:1px solid var(--color-border);font-size:0.82rem;"><strong>'+icon+' '+esc(m.from||'Anonymous')+'</strong> <span style="font-size:0.68rem;color:var(--color-text-muted);">'+fmtDate(m.timestamp)+'</span><div style="color:var(--color-text-secondary);margin-top:0.2rem;">'+esc((m.text||'').substring(0,120))+(m.text.length>120?'...':'')+'</div></div>';
-    }).join('');
-  }
-
-  // Init: load when prayer section becomes visible
-  var prayerSection = document.getElementById('section-prayer');
-  var observer = new MutationObserver(function() {
-    if (prayerSection.style.display !== 'none') { loadMessages(); observer.disconnect(); }
   });
-  observer.observe(prayerSection, {attributes:true,attributeFilter:['style']});
-  // Also load if nav click triggers it
-  document.querySelectorAll('[data-channel="prayer"]').forEach(function(el) {
-    el.addEventListener('click', function() { setTimeout(loadMessages, 50); });
-  });
-})();
+}
 
-// ═══ TODAY'S READING + EXPAND/COLLAPSE ═══
-(function() {
-  var panel = document.getElementById('panel-today-reading');
-  var readingContent = document.getElementById('reading-today-content');
-  function updateReading() {
-    var today = new Date().getDay();
-    var dayCards = document.querySelectorAll('#bible-plan-container .bible-day-card');
-    var text = 'Rest day — catch up or revisit a chapter.';
-    if (dayCards.length) {
-      var idx = today >= 1 && today <= 5 ? today - 1 : -1;
-      if (idx >= 0 && dayCards[idx]) {
-        var title = dayCards[idx].querySelector('.bible-day-card__title, h3, strong');
-        text = title ? title.textContent : 'See today\'s chapter';
-      }
-    }
-    if (panel) panel.textContent = text;
-    if (readingContent) readingContent.textContent = text;
-  }
-  setTimeout(updateReading, 1500);
-
-  // Expand/collapse full reading
-  var expandBtn = document.getElementById('expand-reading-btn');
-  var panelExpand = document.getElementById('panel-reading-expand');
-  var fullReading = document.getElementById('bible-reading-full');
-  var collapseBtn = document.getElementById('collapse-reading-btn');
-  function expand() { if(fullReading) fullReading.style.display=''; }
-  function collapse() { if(fullReading) fullReading.style.display='none'; }
-  if(expandBtn) expandBtn.addEventListener('click', expand);
-  if(panelExpand) panelExpand.addEventListener('click', function(){
-    // Navigate to scripture channel and expand
-    document.querySelector('.community-nav__link[data-channel="scripture"]').click();
-    setTimeout(expand, 100);
-  });
-  if(collapseBtn) collapseBtn.addEventListener('click', collapse);
-})();
-
-// ═══ GOOGLE CALENDAR EVENTS (populate panel from live data) ═══
-(function() {
-  var panelEvents = document.getElementById('panel-events');
-  var panelLive = document.getElementById('panel-live');
-  if (!panelEvents) return;
-
-  function populatePanel() {
-    var cal = window.googleCalendar;
-    if (!cal || !cal.events || !cal.events.length) return;
-
-    var now = new Date();
-    var upcoming = cal.events.filter(function(ev) {
-      var start = cal.getEventStart(ev);
-      return start && start > now;
-    }).slice(0, 5);
-
-    if (!upcoming.length) return;
-
-    panelEvents.innerHTML = upcoming.map(function(ev) {
-      var start = cal.getEventStart(ev);
-      var month = start.toLocaleDateString('en-US', { month: 'short' });
-      var day = start.getDate();
-      var time = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-      var title = ev.summary || 'Event';
-      return '<div class="panel-event"><div class="panel-event__date"><span class="panel-event__month">' + month + '</span><span class="panel-event__day">' + day + '</span></div><div class="panel-event__info"><div class="panel-event__title">' + title + '</div><div class="panel-event__time">' + time + '</div></div></div>';
-    }).join('');
-
-    // Show live indicator if any event is currently live
-    if (panelLive) {
-      var live = cal.events.filter(function(ev) {
-        var start = cal.getEventStart(ev);
-        var end = cal.getEventEnd ? cal.getEventEnd(ev) : null;
-        return start && end && start <= now && end >= now;
-      });
-      if (live.length) {
-        panelLive.style.display = '';
-        var titleEl = panelLive.querySelector('.panel-live__title');
-        if (titleEl) titleEl.textContent = live[0].summary || 'Live Event';
-      }
+// ═══ BIBLE READING ═══
+function updateReadingDisplay() {
+  var today = new Date().getDay();
+  var dayCards = document.querySelectorAll('#bible-plan-container .bible-day-card');
+  var text = 'Rest day — catch up or revisit a chapter.';
+  if (dayCards.length) {
+    var idx = today >= 1 && today <= 5 ? today - 1 : -1;
+    if (idx >= 0 && dayCards[idx]) {
+      var title = dayCards[idx].querySelector('.bible-day-card__title, h3, strong');
+      text = title ? title.textContent : "See today's chapter";
     }
   }
+  var readingText = document.getElementById('reading-today-text');
+  var sidebarReading = document.getElementById('sidebar-reading');
+  if (readingText) readingText.textContent = text;
+  if (sidebarReading) sidebarReading.textContent = text;
+}
+setTimeout(updateReadingDisplay, 1500);
 
-  // google-calendar.js loads async — wait for it to initialize
-  var attempts = 0;
-  var check = setInterval(function() {
-    attempts++;
-    if (window.googleCalendar && window.googleCalendar.events && window.googleCalendar.events.length) {
-      clearInterval(check);
-      populatePanel();
-    } else if (attempts > 40) { // Give up after ~20 seconds
-      clearInterval(check);
-    }
-  }, 500);
+// Expand/collapse reading
+var expandBtn = document.getElementById('reading-expand-btn');
+var collapseBtn = document.getElementById('reading-collapse-btn');
+var fullReading = document.getElementById('bible-reading-full');
+if (expandBtn) expandBtn.addEventListener('click', function() { if (fullReading) fullReading.style.display = ''; });
+if (collapseBtn) collapseBtn.addEventListener('click', function() { if (fullReading) fullReading.style.display = 'none'; });
+
+// ═══ GOOGLE CALENDAR EVENTS ═══
+function populateCalendarEvents() {
+  var cal = window.googleCalendar;
+  if (!cal || !cal.events || !cal.events.length) return;
+  var now = new Date();
+  var upcoming = cal.events.filter(function(ev) {
+    var start = cal.getEventStart(ev);
+    return start && start > now;
+  }).slice(0, 5);
+  if (!upcoming.length) return;
+
+  var html = upcoming.map(function(ev) {
+    var start = cal.getEventStart(ev);
+    var month = start.toLocaleDateString('en-US', { month: 'short' });
+    var day = start.getDate();
+    var time = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    var title = ev.summary || 'Event';
+    return '<div class="event-item"><div class="event-item__date"><span class="event-item__month">' + month + '</span><span class="event-item__day">' + day + '</span></div><div class="event-item__info"><div class="event-item__title">' + title + '</div><div class="event-item__time">' + time + '</div></div></div>';
+  }).join('');
+
+  // Update both mobile and sidebar
+  var evList = document.getElementById('events-list');
+  var sideEvts = document.getElementById('sidebar-events');
+  if (evList) evList.innerHTML = html;
+  if (sideEvts) sideEvts.innerHTML = html;
+  var countEl = document.getElementById('events-count');
+  if (countEl) countEl.textContent = upcoming.length + ' upcoming';
+}
+
+var calAttempts = 0;
+var calCheck = setInterval(function() {
+  calAttempts++;
+  if (window.googleCalendar && window.googleCalendar.events && window.googleCalendar.events.length) {
+    clearInterval(calCheck);
+    populateCalendarEvents();
+  } else if (calAttempts > 40) { clearInterval(calCheck); }
+}, 500);
+
+// ═══ THEME TOGGLE ═══
+var themeBtn = document.getElementById('theme-btn');
+if (themeBtn) {
+  themeBtn.addEventListener('click', function() {
+    var html = document.documentElement;
+    var current = html.getAttribute('data-theme') || 'light';
+    var next = current === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    try { localStorage.setItem('stwm-theme', next); } catch(e) {}
+  });
+}
+
+// ═══ INIT ═══
+checkSession();
+renderELibrary();
+loadFeed();
+
 })();
 </script>
 </body>

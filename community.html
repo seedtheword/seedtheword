@@ -18,941 +18,211 @@
   <link rel="stylesheet" href="assets/css/lms.css?v=1">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
-/* ============================================================
-   Community Social Platform — Mobile-First Redesign
-   Discord/Facebook/X hybrid layout
-   ============================================================ */
+body.community-body{background:var(--color-bg);color:var(--color-text);font-family:var(--font-sans);padding-bottom:68px;}
+@media(min-width:1024px){body.community-body{padding-bottom:0;}}
 
-/* ── Reset for social layout ───────────────────────────────── */
-body.community-body {
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-sans);
-  padding-bottom: 64px; /* space for bottom nav */
-}
-@media (min-width: 1024px) {
-  body.community-body { padding-bottom: 0; }
-}
+/* Channel Bar — centered */
+.channel-bar{position:sticky;top:0;z-index:100;background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border-bottom:1px solid var(--color-border);padding:0.6rem 1rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.channel-bar::-webkit-scrollbar{display:none;}
+.channel-tab{position:relative;display:inline-flex;align-items:center;gap:0.35rem;padding:0.55rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-full);font-size:0.78rem;font-weight:600;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text-muted);cursor:pointer;white-space:nowrap;transition:all var(--duration-fast) var(--ease);flex-shrink:0;min-height:44px;}
+.channel-tab:hover{border-color:var(--color-gold);color:var(--color-gold);}
+.channel-tab.is-active{background:var(--color-gold);border-color:var(--color-gold);color:#fff;}
+.channel-tab__icon{font-size:1rem;}
+.channel-tab__badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:var(--radius-full);background:#e74c3c;color:#fff;font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.channel-tab__badge:empty{display:none;}
+.channel-bar__theme{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--radius-full);border:1.5px solid var(--color-border);background:var(--color-surface);cursor:pointer;flex-shrink:0;color:var(--color-text-muted);margin-left:auto;}
+.channel-bar__theme:hover{border-color:var(--color-gold);color:var(--color-gold);}
 
-/* ── Channel Tabs (Discord-style top bar) ──────────────────── */
-.channel-bar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--color-border);
-  padding: 0.6rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+/* Layout */
+.social-wrapper{max-width:1080px;margin:0 auto;}
+.social-main{max-width:680px;margin:0 auto;padding:1.25rem 1rem;}
+@media(min-width:1024px){
+  .social-wrapper{display:grid;grid-template-columns:1fr 300px;gap:0;}
+  .social-main{max-width:none;padding:1.5rem 2rem;border-right:1px solid var(--color-border);}
+  .social-sidebar{display:block !important;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;padding:1.5rem 1.25rem;scrollbar-width:thin;}
 }
-.channel-bar::-webkit-scrollbar { display: none; }
+.social-sidebar{display:none;}
+.sidebar-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow-sm);}
+.sidebar-card__title{font-family:var(--font-mono);font-size:0.65rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gold);margin:0 0 0.85rem;padding-bottom:0.5rem;border-bottom:1px solid var(--color-border);}
 
-.channel-tab {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.55rem 1rem;
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-full);
-  font-size: 0.78rem;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all var(--duration-fast) var(--ease);
-  flex-shrink: 0;
-  min-height: 44px;
-}
-.channel-tab:hover {
-  border-color: var(--color-gold);
-  color: var(--color-gold);
-}
-.channel-tab.is-active {
-  background: var(--color-gold);
-  border-color: var(--color-gold);
-  color: #fff;
-}
-.channel-tab__icon { font-size: 1rem; }
-.channel-tab__badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: var(--radius-full);
-  background: #e74c3c;
-  color: #fff;
-  font-size: 0.6rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
-}
-.channel-tab__badge:empty { display: none; }
+/* Section Titles — explicit override */
+.community-body .section-title{font-family:var(--font-serif)!important;font-weight:700!important;font-size:1.15rem!important;color:var(--color-text)!important;margin:0 0 0.4rem!important;padding:0!important;border:none!important;text-align:left!important;letter-spacing:normal!important;text-transform:none!important;line-height:1.3!important;}
+.community-body .section-desc{font-family:var(--font-sans)!important;font-size:0.84rem!important;color:var(--color-text-muted)!important;line-height:1.6!important;margin:0 0 1.25rem!important;max-width:560px;padding:0!important;border:none!important;text-align:left!important;font-weight:400!important;}
 
-.channel-bar__spacer { flex: 1; }
-.channel-bar__theme {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  border: 1.5px solid var(--color-border);
-  background: var(--color-surface);
-  cursor: pointer;
-  flex-shrink: 0;
-  color: var(--color-text-muted);
-  transition: border-color var(--duration-fast);
-}
-.channel-bar__theme:hover { border-color: var(--color-gold); color: var(--color-gold); }
+/* Events */
+.events-collapse{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);margin-bottom:1rem;overflow:hidden;box-shadow:var(--shadow-sm);}
+.events-collapse__header{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1rem;cursor:pointer;min-height:44px;}
+.events-collapse__header:hover{background:var(--color-surface-hover);}
+.events-collapse__label{font-size:0.82rem;font-weight:600;color:var(--color-text);display:flex;align-items:center;gap:0.5rem;}
+.events-collapse__count{font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:var(--radius-full);background:var(--color-gold-soft);color:var(--color-gold);}
+.events-collapse__arrow{font-size:0.9rem;color:var(--color-text-muted);transition:transform var(--duration-normal) var(--ease);}
+.events-collapse.is-open .events-collapse__arrow{transform:rotate(180deg);}
+.events-collapse__body{max-height:0;overflow:hidden;transition:max-height var(--duration-normal) var(--ease);}
+.events-collapse.is-open .events-collapse__body{max-height:500px;}
+.events-collapse__inner{padding:0 1rem 1rem;}
+@media(min-width:1024px){.events-collapse{display:none;}}
+.event-item{display:flex;align-items:flex-start;gap:0.65rem;padding:0.55rem 0;border-bottom:1px solid var(--color-border-subtle);}
+.event-item:last-child{border-bottom:none;}
+.event-item__date{width:40px;text-align:center;flex-shrink:0;}
+.event-item__month{font-size:0.6rem;font-weight:700;text-transform:uppercase;color:var(--color-gold);display:block;}
+.event-item__day{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;color:var(--color-text);line-height:1.1;display:block;}
+.event-item__info{flex:1;}
+.event-item__title{font-size:0.82rem;font-weight:600;color:var(--color-text);line-height:1.3;}
+.event-item__time{font-size:0.7rem;color:var(--color-text-muted);margin-top:0.15rem;}
 
-/* ── Main Content Area ─────────────────────────────────────── */
-.social-main {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-@media (min-width: 1024px) {
-  .social-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 0;
-    max-width: 1080px;
-    margin: 0 auto;
-  }
-  .social-main {
-    max-width: none;
-    padding: 1.5rem 2rem;
-    border-right: 1px solid var(--color-border);
-  }
-  .social-sidebar {
-    display: block !important;
-    position: sticky;
-    top: 60px;
-    height: calc(100vh - 60px);
-    overflow-y: auto;
-    padding: 1.5rem 1.25rem;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-border) transparent;
-  }
-}
+/* CTA */
+.cta-card{background:linear-gradient(135deg,var(--color-olive),#3a5f4e);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.25rem;color:#fff;position:relative;overflow:hidden;}
+.cta-card::before{content:'';position:absolute;top:-40%;right:-20%;width:200px;height:200px;background:rgba(255,255,255,0.05);border-radius:50%;}
+.cta-card__title{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;margin:0 0 0.4rem;}
+.cta-card__text{font-size:0.82rem;opacity:0.88;line-height:1.5;margin:0 0 1rem;}
+.cta-card__buttons{display:flex;gap:0.5rem;flex-wrap:wrap;}
+.cta-card__btn{display:inline-flex;align-items:center;gap:0.35rem;padding:0.55rem 1.1rem;border-radius:var(--radius-full);font-size:0.8rem;font-weight:600;text-decoration:none;transition:transform var(--duration-fast);min-height:44px;}
+.cta-card__btn:hover{transform:translateY(-1px);}
+.cta-card__btn--telegram{background:#0088cc;color:#fff;}
+.cta-card__btn--instagram{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;}
+.cta-card__active{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.68rem;opacity:0.75;margin-top:0.6rem;}
+.cta-card__active-dot{width:7px;height:7px;border-radius:50%;background:#2ecc71;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 
-/* ── Sidebar (desktop only) ────────────────────────────────── */
-.social-sidebar {
-  display: none;
-}
-.sidebar-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-  box-shadow: var(--shadow-sm);
-}
-.sidebar-card__title {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-gold);
-  margin: 0 0 0.85rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-border);
-}
+/* Compose */
+.compose-box{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.25rem;box-shadow:var(--shadow-sm);}
+.compose-box__header{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;}
+.compose-box__avatar{width:40px;height:40px;border-radius:var(--radius-full);background:var(--color-olive-soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.78rem;color:var(--color-olive);flex-shrink:0;}
+.compose-box__input{flex:1;padding:0.7rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.88rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);resize:vertical;min-height:44px;}
+.compose-box__input:focus{outline:none;border-color:var(--color-gold);box-shadow:var(--shadow-glow);}
+.compose-box__actions{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+.compose-box__select{border:1.5px solid var(--color-border);border-radius:var(--radius-full);padding:0.4rem 0.75rem;font-size:0.75rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);cursor:pointer;}
+.compose-box__post-btn{margin-left:auto;background:var(--color-gold);color:#fff;border:none;border-radius:var(--radius-full);padding:0.55rem 1.25rem;font-size:0.8rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;min-height:44px;transition:transform var(--duration-fast),box-shadow var(--duration-fast);}
+.compose-box__post-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(217,119,54,0.3);}
+.compose-box__post-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 
-/* ── Events Collapsible (mobile) ───────────────────────────── */
-.events-collapse {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  margin-bottom: 1rem;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-}
-.events-collapse__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 1rem;
-  cursor: pointer;
-  transition: background var(--duration-fast);
-  min-height: 44px;
-}
-.events-collapse__header:hover { background: var(--color-surface-hover); }
-.events-collapse__label {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--color-text);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.events-collapse__count {
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-full);
-  background: var(--color-gold-soft);
-  color: var(--color-gold);
-}
-.events-collapse__arrow {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  transition: transform var(--duration-normal) var(--ease);
-}
-.events-collapse.is-open .events-collapse__arrow { transform: rotate(180deg); }
-.events-collapse__body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height var(--duration-normal) var(--ease);
-}
-.events-collapse.is-open .events-collapse__body { max-height: 500px; }
-.events-collapse__inner { padding: 0 1rem 1rem; }
+/* Login prompt */
+.login-prompt{background:var(--color-surface);border:1.5px dashed var(--color-border);border-radius:var(--radius-lg);padding:1.25rem;text-align:center;margin-bottom:1.25rem;}
+.login-prompt__text{font-size:0.88rem;color:var(--color-text-muted);margin:0 0 0.75rem;}
+.login-prompt__buttons{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;}
+.login-prompt__btn{display:inline-flex;align-items:center;padding:0.55rem 1.25rem;border-radius:var(--radius-full);font-size:0.82rem;font-weight:600;text-decoration:none;min-height:44px;}
+.login-prompt__btn--primary{background:var(--color-olive);color:#fff;}
+.login-prompt__btn--telegram{background:#0088cc;color:#fff;}
 
-@media (min-width: 1024px) {
-  .events-collapse { display: none; } /* shown in sidebar instead */
-}
+/* Post cards */
+.post-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow-sm);animation:postSlideIn 0.3s var(--ease) both;}
+.post-card:hover{box-shadow:var(--shadow-md);}
+@keyframes postSlideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.post-card__header{display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.75rem;}
+.post-card__avatar{width:42px;height:42px;border-radius:var(--radius-full);background:var(--color-olive-soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.78rem;color:var(--color-olive);flex-shrink:0;}
+.post-card__meta{flex:1;min-width:0;}
+.post-card__author{font-weight:600;font-size:0.9rem;color:var(--color-text);line-height:1.3;}
+.post-card__time{font-size:0.72rem;color:var(--color-text-muted);margin-top:0.1rem;}
+.post-card__type{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.62rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:0.2rem 0.55rem;border-radius:var(--radius-full);margin-top:0.2rem;}
+.post-card__type--prayer{background:var(--color-gold-soft);color:var(--color-gold);}
+.post-card__type--thanksgiving{background:var(--color-success-soft);color:var(--color-success);}
+.post-card__type--bible{background:var(--color-info-soft);color:var(--color-info);}
+.post-card__type--discussion{background:var(--color-bg-subtle);color:var(--color-text-secondary);}
+.post-card__type--announcement{background:var(--color-olive-soft);color:var(--color-olive);}
+.post-card__body{font-size:0.92rem;line-height:1.7;color:var(--color-text);margin-bottom:0.75rem;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}
+.post-card__body a{color:var(--color-gold);text-decoration:none;font-weight:500;}
+.post-card__body a:hover{text-decoration:underline;}
+.post-card__stats{display:flex;align-items:center;gap:1rem;padding:0.4rem 0;font-size:0.72rem;color:var(--color-text-muted);}
+.post-card__actions{display:flex;align-items:center;gap:0.25rem;padding-top:0.6rem;border-top:1px solid var(--color-border);}
+.post-card__action{display:flex;align-items:center;gap:0.35rem;padding:0.5rem 0.75rem;border:none;border-radius:var(--radius-sm);font-size:0.76rem;font-weight:600;font-family:var(--font-sans);background:transparent;color:var(--color-text-muted);cursor:pointer;transition:all var(--duration-fast);flex:1;justify-content:center;min-height:44px;}
+.post-card__action:hover{background:var(--color-bg-subtle);color:var(--color-text);}
+.post-card__action.is-liked{color:var(--color-gold);}
+.post-card__action svg{width:16px;height:16px;flex-shrink:0;}
 
-/* Event card items */
-.event-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.65rem;
-  padding: 0.55rem 0;
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-.event-item:last-child { border-bottom: none; }
-.event-item__date {
-  width: 40px;
-  text-align: center;
-  flex-shrink: 0;
-}
-.event-item__month {
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--color-gold);
-  display: block;
-}
-.event-item__day {
-  font-family: var(--font-serif);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-text);
-  line-height: 1.1;
-  display: block;
-}
-.event-item__info { flex: 1; }
-.event-item__title {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--color-text);
-  line-height: 1.3;
-}
-.event-item__time {
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  margin-top: 0.15rem;
-}
+/* Comments */
+.post-card__comments{margin-top:0.75rem;}
+.comment{display:flex;gap:0.5rem;padding:0.5rem 0;}
+.comment__avatar{width:28px;height:28px;border-radius:var(--radius-full);background:var(--color-bg-subtle);display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:700;color:var(--color-text-muted);flex-shrink:0;}
+.comment__body{flex:1;min-width:0;}
+.comment__bubble{background:var(--color-bg-subtle);border-radius:var(--radius-md);padding:0.5rem 0.75rem;}
+.comment__author{font-size:0.72rem;font-weight:700;color:var(--color-text);}
+.comment__text{font-size:0.8rem;color:var(--color-text-secondary);line-height:1.5;word-wrap:break-word;overflow-wrap:break-word;}
+.comment__meta{display:flex;align-items:center;gap:0.75rem;margin-top:0.25rem;font-size:0.65rem;color:var(--color-text-muted);}
+.comment__meta button{border:none;background:none;font-size:0.65rem;font-weight:600;color:var(--color-text-muted);cursor:pointer;padding:0;font-family:var(--font-sans);}
+.comment__meta button:hover{color:var(--color-gold);}
+.comment__replies{margin-left:1.5rem;border-left:2px solid var(--color-border-subtle);padding-left:0.75rem;}
+.comment-compose{display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;}
+.comment-compose__avatar{width:28px;height:28px;border-radius:var(--radius-full);background:var(--color-olive-soft);display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:700;color:var(--color-olive);flex-shrink:0;}
+.comment-compose__input{flex:1;padding:0.5rem 0.75rem;border:1.5px solid var(--color-border);border-radius:var(--radius-full);font-size:0.8rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);min-height:36px;}
+.comment-compose__input:focus{outline:none;border-color:var(--color-gold);}
 
-/* ── Join the Conversation CTA ─────────────────────────────── */
-.cta-card {
-  background: linear-gradient(135deg, var(--color-olive), #3a5f4e);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1.25rem;
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-}
-.cta-card::before {
-  content: '';
-  position: absolute;
-  top: -40%;
-  right: -20%;
-  width: 200px;
-  height: 200px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 50%;
-}
-.cta-card__title {
-  font-family: var(--font-serif);
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 0 0 0.4rem;
-}
-.cta-card__text {
-  font-size: 0.82rem;
-  opacity: 0.88;
-  line-height: 1.5;
-  margin: 0 0 1rem;
-}
-.cta-card__buttons {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-.cta-card__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.55rem 1.1rem;
-  border-radius: var(--radius-full);
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: transform var(--duration-fast), box-shadow var(--duration-fast);
-  min-height: 44px;
-}
-.cta-card__btn:hover { transform: translateY(-1px); }
-.cta-card__btn--telegram { background: #0088cc; color: #fff; }
-.cta-card__btn--messenger { background: #0084ff; color: #fff; }
-.cta-card__active {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.68rem;
-  opacity: 0.75;
-  margin-top: 0.6rem;
-}
-.cta-card__active-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #2ecc71;
-  animation: pulse 1.5s infinite;
-}
-@keyframes pulse { 0%,100%{opacity:1;}50%{opacity:0.4;} }
+/* Share Modal */
+.share-modal{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:1rem;animation:fadeIn 0.15s ease;}
+.share-modal__sheet{background:var(--color-bg-elevated,var(--color-surface));border-radius:var(--radius-lg);width:100%;max-width:360px;padding:1.5rem;box-shadow:var(--shadow-lg);}
+.share-modal__title{font-family:var(--font-serif);font-size:1rem;font-weight:700;margin:0 0 1rem;color:var(--color-text);}
+.share-modal__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1rem;}
+.share-modal__option{display:flex;flex-direction:column;align-items:center;gap:0.3rem;padding:0.75rem 0.5rem;border-radius:var(--radius-sm);cursor:pointer;text-decoration:none;color:var(--color-text);font-size:0.65rem;font-weight:600;border:none;background:none;font-family:var(--font-sans);}
+.share-modal__option:hover{background:var(--color-bg-subtle);}
+.share-modal__option svg{width:28px;height:28px;}
+.share-modal__close{display:block;width:100%;padding:0.6rem;border:1.5px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-surface);font-size:0.8rem;font-weight:600;font-family:var(--font-sans);color:var(--color-text-muted);cursor:pointer;text-align:center;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 
-/* ── Compose Box ───────────────────────────────────────────── */
-.compose-box {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  margin-bottom: 1.25rem;
-  box-shadow: var(--shadow-sm);
-}
-.compose-box__header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-.compose-box__avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-full);
-  background: var(--color-olive-soft);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.78rem;
-  color: var(--color-olive);
-  flex-shrink: 0;
-}
-.compose-box__input {
-  flex: 1;
-  padding: 0.7rem 1rem;
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: 0.88rem;
-  font-family: var(--font-sans);
-  background: var(--color-bg-subtle);
-  color: var(--color-text);
-  resize: vertical;
-  min-height: 44px;
-  transition: border-color var(--duration-fast);
-}
-.compose-box__input:focus {
-  outline: none;
-  border-color: var(--color-gold);
-  box-shadow: var(--shadow-glow);
-}
-.compose-box__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-.compose-box__select {
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-full);
-  padding: 0.4rem 0.75rem;
-  font-size: 0.75rem;
-  font-family: var(--font-sans);
-  background: var(--color-bg-subtle);
-  color: var(--color-text);
-  cursor: pointer;
-}
-.compose-box__post-btn {
-  margin-left: auto;
-  background: var(--color-gold);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-full);
-  padding: 0.55rem 1.25rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  min-height: 44px;
-  transition: transform var(--duration-fast), box-shadow var(--duration-fast);
-}
-.compose-box__post-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(217,119,54,0.3); }
-.compose-box__post-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+/* Channel sections */
+.channel-section{display:none;animation:postSlideIn 0.3s var(--ease) both;}
+.channel-section.is-active{display:block;}
 
-/* ── Login prompt ──────────────────────────────────────────── */
-.login-prompt {
-  background: var(--color-surface);
-  border: 1.5px dashed var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  text-align: center;
-  margin-bottom: 1.25rem;
-}
-.login-prompt__text {
-  font-size: 0.88rem;
-  color: var(--color-text-muted);
-  margin: 0 0 0.75rem;
-}
-.login-prompt__buttons {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.login-prompt__btn {
-  display: inline-block;
-  padding: 0.55rem 1.25rem;
-  border-radius: var(--radius-full);
-  font-size: 0.82rem;
-  font-weight: 600;
-  text-decoration: none;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-}
-.login-prompt__btn--primary { background: var(--color-olive); color: #fff; }
-.login-prompt__btn--telegram { background: #0088cc; color: #fff; }
+/* Reading card */
+.reading-card{background:var(--color-surface);border:1px solid var(--color-border);border-left:3px solid var(--color-gold);border-radius:var(--radius-md);padding:1rem 1.25rem;margin-bottom:1.25rem;}
+.reading-card__label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-gold);margin-bottom:0.4rem;}
+.reading-card__text{font-size:0.92rem;color:var(--color-text);line-height:1.5;}
+.reading-card__expand{margin-top:0.6rem;font-size:0.75rem;font-weight:600;color:var(--color-olive);background:none;border:none;cursor:pointer;padding:0.3rem 0.6rem;border-radius:var(--radius-full);}
+.reading-card__expand:hover{background:var(--color-olive-soft);}
 
-/* ── Post Cards (Facebook/X style) ─────────────────────────── */
-.post-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--duration-normal) var(--ease);
-  animation: postSlideIn 0.3s var(--ease) both;
-}
-.post-card:hover { box-shadow: var(--shadow-md); }
-@keyframes postSlideIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.post-card__header {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 0.85rem;
-}
-.post-card__avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius-full);
-  background: var(--color-olive-soft);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.78rem;
-  color: var(--color-olive);
-  flex-shrink: 0;
-}
-.post-card__meta { flex: 1; min-width: 0; }
-.post-card__author {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--color-text);
-  line-height: 1.3;
-}
-.post-card__time {
-  font-size: 0.72rem;
-  color: var(--color-text-muted);
-  margin-top: 0.1rem;
-}
-.post-card__type {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 0.2rem 0.55rem;
-  border-radius: var(--radius-full);
-  margin-top: 0.2rem;
-}
-.post-card__type--prayer { background: var(--color-gold-soft); color: var(--color-gold); }
-.post-card__type--thanksgiving { background: var(--color-success-soft); color: var(--color-success); }
-.post-card__type--bible { background: var(--color-info-soft); color: var(--color-info); }
-.post-card__type--discussion { background: var(--color-bg-subtle); color: var(--color-text-secondary); }
-.post-card__type--announcement { background: var(--color-olive-soft); color: var(--color-olive); }
+/* Prayer filter */
+.prayer-filter{position:relative;display:inline-flex;background:var(--color-bg-subtle);border-radius:999px;padding:3px;margin-bottom:1.25rem;}
+.prayer-filter__btn{position:relative;z-index:1;padding:0.5rem 1rem;border:none;border-radius:999px;font-size:0.78rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;background:transparent;color:var(--color-text-muted);transition:all 0.2s;min-height:38px;}
+.prayer-filter__btn.is-active{background:var(--color-olive);color:#fff;box-shadow:0 2px 8px rgba(44,74,62,0.3);}
 
-.post-card__body {
-  font-size: 0.92rem;
-  line-height: 1.7;
-  color: var(--color-text);
-  margin-bottom: 0.85rem;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-.post-card__body a { color: var(--color-gold); text-decoration: none; font-weight: 500; }
-.post-card__body a:hover { text-decoration: underline; }
+/* eLibrary */
+.elibrary-grid{display:grid;grid-template-columns:1fr;gap:0.75rem;}
+@media(min-width:500px){.elibrary-grid{grid-template-columns:1fr 1fr;}}
+.elibrary-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.25rem;display:flex;flex-direction:column;cursor:pointer;transition:transform var(--duration-fast),box-shadow var(--duration-fast),border-color var(--duration-fast);min-height:140px;}
+.elibrary-card:hover{box-shadow:var(--shadow-md);border-color:var(--color-olive);transform:translateY(-2px);}
+.elibrary-card:active{transform:scale(0.97);}
+.elibrary-card--placeholder{opacity:0.55;cursor:default;}
+.elibrary-card--placeholder:hover{transform:none;box-shadow:var(--shadow-sm);border-color:var(--color-border);}
+.elibrary-card__icon{font-size:2rem;margin-bottom:0.6rem;}
+.elibrary-card__name{font-family:var(--font-serif);font-size:0.92rem;font-weight:700;color:var(--color-text);margin:0 0 0.25rem;}
+.elibrary-card__desc{font-size:0.75rem;color:var(--color-text-muted);line-height:1.4;margin:0;flex:1;}
+.elibrary-card__badge{display:inline-block;margin-top:0.6rem;font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;padding:0.15rem 0.5rem;border-radius:var(--radius-full);}
+.elibrary-card__badge--free{background:var(--color-olive-soft);color:var(--color-olive);}
+.elibrary-card__badge--coming{background:var(--color-bg-subtle);color:var(--color-text-muted);}
 
-.post-card__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding-top: 0.6rem;
-  border-top: 1px solid var(--color-border);
-}
-.post-card__action {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 0.78rem;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  background: transparent;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: all var(--duration-fast);
-  flex: 1;
-  justify-content: center;
-  min-height: 44px;
-}
-.post-card__action:hover { background: var(--color-bg-subtle); color: var(--color-text); }
-.post-card__action.is-liked { color: var(--color-gold); }
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border-top:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-around;padding:0.5rem 0.5rem;padding-bottom:calc(0.5rem + env(safe-area-inset-bottom,0px));}
+@media(min-width:1024px){.bottom-nav{display:none;}}
+.bottom-nav__item{display:flex;flex-direction:column;align-items:center;gap:0.2rem;padding:0.3rem 0.5rem;border-radius:var(--radius-sm);text-decoration:none;color:var(--color-text-muted);font-size:0.58rem;font-weight:600;min-width:48px;min-height:48px;justify-content:center;transition:color var(--duration-fast);}
+.bottom-nav__item:hover,.bottom-nav__item:active{color:var(--color-gold);}
+.bottom-nav__item svg{width:22px;height:22px;flex-shrink:0;}
+.bottom-nav__label{white-space:nowrap;}
 
-/* ── Channel Sections ──────────────────────────────────────── */
-.channel-section {
-  display: none;
-  animation: postSlideIn 0.3s var(--ease) both;
-}
-.channel-section.is-active { display: block; }
+/* Sidebar */
+.sidebar-link{display:flex;align-items:center;gap:0.55rem;padding:0.5rem 0;font-size:0.82rem;font-weight:500;color:var(--color-text);text-decoration:none;}
+.sidebar-link:hover{color:var(--color-gold);}
+.sidebar-link__icon{width:28px;height:28px;border-radius:var(--radius-sm);background:var(--color-bg-subtle);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;}
+.sidebar-cta{background:linear-gradient(135deg,var(--color-olive),#3a5f4e);border-radius:var(--radius-md);padding:1.25rem;text-align:center;color:#fff;}
+.sidebar-cta__title{font-family:var(--font-serif);font-size:1rem;font-weight:600;margin-bottom:0.4rem;}
+.sidebar-cta__text{font-size:0.78rem;opacity:0.85;line-height:1.5;margin-bottom:0.85rem;}
+.sidebar-cta__btn{display:inline-block;padding:0.55rem 1.25rem;background:var(--color-gold);color:#fff;border-radius:var(--radius-full);font-size:0.8rem;font-weight:600;text-decoration:none;}
 
-.section-title {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--color-text);
-  margin: 0 0 0.5rem;
-}
-.section-desc {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  line-height: 1.6;
-  margin: 0 0 1.25rem;
-  max-width: 560px;
-}
+/* Dark mode */
+[data-theme="dark"] .cta-card{background:linear-gradient(135deg,#1a3a2e,#2a4f40);}
+[data-theme="dark"] .sidebar-cta{background:linear-gradient(135deg,#1a3a2e,#2a4f40);}
 
-/* ── Scripture Tab — Reading Card ──────────────────────────── */
-.reading-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-left: 3px solid var(--color-gold);
-  border-radius: var(--radius-md);
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.25rem;
-}
-.reading-card__label {
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-gold);
-  margin-bottom: 0.4rem;
-}
-.reading-card__text {
-  font-size: 0.92rem;
-  color: var(--color-text);
-  line-height: 1.5;
-}
-.reading-card__expand {
-  margin-top: 0.6rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-olive);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.3rem 0.6rem;
-  border-radius: var(--radius-full);
-  transition: background var(--duration-fast);
-}
-.reading-card__expand:hover { background: var(--color-olive-soft); }
-
-/* ── Prayer Tab — Chat-style ───────────────────────────────── */
-.prayer-filter {
-  position: relative;
-  display: flex;
-  background: var(--color-bg-subtle);
-  border-radius: 999px;
-  padding: 3px;
-  margin-bottom: 1.25rem;
-  max-width: 320px;
-}
-.prayer-filter__slider {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: calc(50% - 3px);
-  height: calc(100% - 6px);
-  background: var(--color-olive);
-  border-radius: 999px;
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  box-shadow: 0 2px 8px rgba(44,74,62,0.3);
-}
-.prayer-filter__btn {
-  flex: 1;
-  position: relative;
-  z-index: 1;
-  padding: 0.55rem 0.5rem;
-  border: none;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  background: transparent;
-  color: var(--color-text-muted);
-  transition: color 0.2s;
-  min-height: 44px;
-}
-.prayer-filter__btn.is-active { color: #fff; }
-
-.prayer-feed {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  min-height: 300px;
-  max-height: 600px;
-  overflow-y: auto;
-  padding: 1rem;
-  box-shadow: var(--shadow-sm);
-}
-
-/* Chat bubble */
-.chat-msg {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 0.5rem;
-  animation: fadeIn 0.2s ease;
-}
-.chat-msg--mine { justify-content: flex-end; }
-.chat-msg__bubble {
-  max-width: 82%;
-  padding: 0.65rem 0.9rem;
-  border-radius: 14px 14px 14px 4px;
-  background: var(--color-bg-subtle);
-  color: var(--color-text);
-  font-size: 0.84rem;
-  line-height: 1.55;
-  word-wrap: break-word;
-}
-.chat-msg--mine .chat-msg__bubble {
-  border-radius: 14px 14px 4px 14px;
-  background: var(--color-olive);
-  color: #fff;
-}
-.chat-msg__author {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: var(--color-olive);
-  margin-bottom: 0.15rem;
-}
-.chat-msg__type {
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  opacity: 0.7;
-  letter-spacing: 0.03em;
-}
-.chat-msg__time {
-  font-size: 0.6rem;
-  opacity: 0.6;
-  margin-top: 0.25rem;
-  text-align: right;
-}
-.chat-msg__date-sep {
-  text-align: center;
-  margin: 1rem 0 0.5rem;
-}
-.chat-msg__date-sep span {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background: var(--color-gold-soft);
-  border-radius: 999px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--color-gold);
-}
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* ── eLibrary Tab ──────────────────────────────────────────── */
-.elibrary-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-}
-@media (min-width: 500px) {
-  .elibrary-grid { grid-template-columns: 1fr 1fr; }
-}
-
-.elibrary-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-  transition: transform var(--duration-fast), box-shadow var(--duration-fast), border-color var(--duration-fast);
-  min-height: 140px;
-}
-.elibrary-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-olive);
-  transform: translateY(-2px);
-}
-.elibrary-card:active { transform: scale(0.97); }
-.elibrary-card--placeholder {
-  opacity: 0.55;
-  cursor: default;
-}
-.elibrary-card--placeholder:hover { transform: none; box-shadow: var(--shadow-sm); border-color: var(--color-border); }
-.elibrary-card__icon {
-  font-size: 2rem;
-  margin-bottom: 0.6rem;
-}
-.elibrary-card__name {
-  font-family: var(--font-serif);
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0 0 0.25rem;
-}
-.elibrary-card__desc {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  line-height: 1.4;
-  margin: 0;
-  flex: 1;
-}
-.elibrary-card__badge {
-  display: inline-block;
-  margin-top: 0.6rem;
-  font-size: 0.62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-full);
-}
-.elibrary-card__badge--free { background: var(--color-olive-soft); color: var(--color-olive); }
-.elibrary-card__badge--coming { background: var(--color-bg-subtle); color: var(--color-text-muted); }
-
-/* ── Bottom Navigation Bar (mobile) ───────────────────────── */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0.4rem 0.5rem;
-  padding-bottom: calc(0.4rem + env(safe-area-inset-bottom, 0px));
-}
-@media (min-width: 1024px) {
-  .bottom-nav { display: none; }
-}
-.bottom-nav__item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-  padding: 0.35rem 0.6rem;
-  border-radius: var(--radius-sm);
-  text-decoration: none;
-  color: var(--color-text-muted);
-  font-size: 0.6rem;
-  font-weight: 600;
-  transition: color var(--duration-fast);
-  min-width: 44px;
-  min-height: 44px;
-  justify-content: center;
-}
-.bottom-nav__item:hover, .bottom-nav__item:active { color: var(--color-gold); }
-.bottom-nav__icon { font-size: 1.25rem; }
-.bottom-nav__label { white-space: nowrap; }
-
-/* ── Sidebar quick links ───────────────────────────────────── */
-.sidebar-link {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.5rem 0;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--color-text);
-  text-decoration: none;
-  transition: color var(--duration-fast);
-}
-.sidebar-link:hover { color: var(--color-gold); }
-.sidebar-link__icon {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  flex-shrink: 0;
-}
-
-/* ── Sidebar CTA ───────────────────────────────────────────── */
-.sidebar-cta {
-  background: linear-gradient(135deg, var(--color-olive), #3a5f4e);
-  border-radius: var(--radius-md);
-  padding: 1.25rem;
-  text-align: center;
-  color: #fff;
-}
-.sidebar-cta__title {
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-}
-.sidebar-cta__text {
-  font-size: 0.78rem;
-  opacity: 0.85;
-  line-height: 1.5;
-  margin-bottom: 0.85rem;
-}
-.sidebar-cta__btn {
-  display: inline-block;
-  padding: 0.55rem 1.25rem;
-  background: var(--color-gold);
-  color: #fff;
-  border-radius: var(--radius-full);
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: transform var(--duration-fast);
-}
-.sidebar-cta__btn:hover { transform: translateY(-1px); }
-
-/* ── Music & Media section ─────────────────────────────────── */
-.music-embed {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-}
-.music-embed__title {
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0 0 0.75rem;
-  color: var(--color-text);
-}
-
-/* ── Empty / loading states ────────────────────────────────── */
-.empty-state {
-  text-align: center;
-  padding: 3rem 2rem;
-  color: var(--color-text-muted);
-}
-.empty-state__icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.6; }
-.empty-state__title {
-  font-family: var(--font-serif);
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 0.4rem;
-}
-.empty-state__text { font-size: 0.85rem; line-height: 1.6; max-width: 320px; margin: 0 auto; }
-
-/* ── Live indicator ────────────────────────────────────────── */
-.live-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.7rem;
-  background: rgba(192,57,43,0.08);
-  border: 1.5px solid rgba(192,57,43,0.25);
-  border-radius: var(--radius-full);
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #c0392b;
-  animation: emergencyPulse 3s ease-in-out infinite;
-}
-.live-badge__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #c0392b;
-  animation: pulse 1.5s infinite;
-}
-@keyframes emergencyPulse { 0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,0.1);}50%{box-shadow:0 0 0 4px rgba(192,57,43,0);} }
-
-/* ── Dark mode overrides ───────────────────────────────────── */
-[data-theme="dark"] .cta-card { background: linear-gradient(135deg, #1a3a2e, #2a4f40); }
-[data-theme="dark"] .sidebar-cta { background: linear-gradient(135deg, #1a3a2e, #2a4f40); }
+/* Empty state */
+.empty-state{text-align:center;padding:3rem 2rem;color:var(--color-text-muted);}
+.empty-state__icon{font-size:2.5rem;margin-bottom:1rem;opacity:0.6;}
+.empty-state__title{font-family:var(--font-serif);font-size:1.1rem;font-weight:600;color:var(--color-text);margin-bottom:0.4rem;}
+.empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
 </head>
-<body class="community-body" style="background:var(--color-bg);color:var(--color-text);">
+<body class="community-body">
 
-<!-- ═══ HEADER — matches site-wide pattern ═══ -->
 <header class="site-header" id="site-header">
   <div class="container">
     <div class="header-left">
-      <a href="index.html" class="site-logo">
-        <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">
-        Seed the Word
-      </a>
-      <div class="header-verse">
-        <span class="header-verse__text">"He answered and said unto them, He that soweth the good seed is the Son of man;" — Matthew 13:37 KJV</span>
-      </div>
+      <a href="index.html" class="site-logo"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img"> Seed the Word</a>
+      <div class="header-verse"><span class="header-verse__text">"He answered and said unto them, He that soweth the good seed is the Son of man;" — Matthew 13:37 KJV</span></div>
     </div>
     <nav id="site-nav">
       <ul class="nav-links">
@@ -965,818 +235,246 @@ body.community-body {
       </ul>
     </nav>
     <div class="header-social">
-      <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="32" height="32"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-      </a>
-      <a href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="32" height="32"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-      </a>
-      <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF" width="32" height="32"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-      </a>
-      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954" width="32" height="32"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
-      </a>
+      <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="32" height="32"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/></svg></a>
+      <a href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="32" height="32"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg></a>
+      <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF" width="32" height="32"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></a>
+      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954" width="32" height="32"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.3-.7.4-1 .2-2.8-1.7-6.4-2.1-10.5-1.2-.4.1-.8-.1-.9-.5s.1-.8.5-.9c4.6-1 8.5-.6 11.6 1.3.4.2.5.7.3 1.1zm1.5-3.3c-.3.4-.8.5-1.3.3-3.2-2-8.1-2.6-12-1.4-.4.1-.9-.1-1-.5-.1-.4.1-.9.5-1c4.4-1.3 9.8-.7 13.5 1.6.4.2.6.8.3 1zm.1-3.4c-3.9-2.3-10.3-2.5-13.9-1.4-.5.2-1-.1-1.2-.6-.2-.5.1-1 .6-1.2 4.2-1.3 11.3-1 15.7 1.6.4.3.6.9.3 1.3-.2.5-.8.6-1.3.3z"/></svg></a>
     </div>
-    <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
-      <span></span><span></span><span></span>
-    </button>
+    <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
   </div>
 </header>
 
-<!-- ═══ CHANNEL TABS (Discord-style) ═══ -->
 <nav class="channel-bar" role="tablist" aria-label="Community channels">
-  <button class="channel-tab is-active" data-channel="home" role="tab" aria-selected="true">
-    <span class="channel-tab__icon">🏠</span> Home
-    <span class="channel-tab__badge" id="badge-home"></span>
-  </button>
-  <button class="channel-tab" data-channel="scripture" role="tab" aria-selected="false">
-    <span class="channel-tab__icon">📖</span> Scripture
-    <span class="channel-tab__badge" id="badge-scripture"></span>
-  </button>
-  <button class="channel-tab" data-channel="prayer" role="tab" aria-selected="false">
-    <span class="channel-tab__icon">🙏</span> Prayer
-    <span class="channel-tab__badge" id="badge-prayer"></span>
-  </button>
-  <button class="channel-tab" data-channel="thanksgiving" role="tab" aria-selected="false">
-    <span class="channel-tab__icon">🎉</span> Thanksgiving
-    <span class="channel-tab__badge" id="badge-thanksgiving"></span>
-  </button>
-  <button class="channel-tab" data-channel="library" role="tab" aria-selected="false">
-    <span class="channel-tab__icon">📚</span> eLibrary
-    <span class="channel-tab__badge" id="badge-library"></span>
-  </button>
-  <span class="channel-bar__spacer"></span>
-  <button class="channel-bar__theme" id="theme-btn" aria-label="Toggle theme">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-  </button>
+  <button class="channel-tab is-active" data-channel="home" role="tab" aria-selected="true"><span class="channel-tab__icon">🏠</span> Home<span class="channel-tab__badge" id="badge-home"></span></button>
+  <button class="channel-tab" data-channel="scripture" role="tab" aria-selected="false"><span class="channel-tab__icon">📖</span> Scripture<span class="channel-tab__badge" id="badge-scripture"></span></button>
+  <button class="channel-tab" data-channel="prayer" role="tab" aria-selected="false"><span class="channel-tab__icon">🙏</span> Prayer<span class="channel-tab__badge" id="badge-prayer"></span></button>
+  <button class="channel-tab" data-channel="library" role="tab" aria-selected="false"><span class="channel-tab__icon">📚</span> eLibrary<span class="channel-tab__badge" id="badge-library"></span></button>
+  <button class="channel-bar__theme" id="theme-btn" aria-label="Toggle theme"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
 </nav>
 
-<!-- ═══ MAIN CONTENT ═══ -->
 <div class="social-wrapper">
   <main class="social-main">
-
-    <!-- ══ HOME CHANNEL ══ -->
     <section class="channel-section is-active" id="channel-home">
-
-      <!-- Collapsible Events (mobile) -->
       <div class="events-collapse" id="events-collapse">
-        <div class="events-collapse__header" id="events-toggle" aria-expanded="false">
-          <div class="events-collapse__label">
-            <span>📅 Upcoming Events</span>
-            <span class="events-collapse__count" id="events-count">2 upcoming</span>
-          </div>
-          <span class="events-collapse__arrow">▼</span>
-        </div>
-        <div class="events-collapse__body">
-          <div class="events-collapse__inner" id="events-list">
-            <div class="event-item">
-              <div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Mon</span></div>
-              <div class="event-item__info"><div class="event-item__title">Fellowship & Worship</div><div class="event-item__time">6:30 PM</div></div>
-            </div>
-            <div class="event-item">
-              <div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Sat</span></div>
-              <div class="event-item__info"><div class="event-item__title">Study Saturday (Livestream)</div><div class="event-item__time">7:00 PM PT on Twitch</div></div>
-            </div>
-          </div>
-        </div>
+        <div class="events-collapse__header" id="events-toggle" aria-expanded="false"><div class="events-collapse__label"><span>📅 Upcoming Events</span><span class="events-collapse__count" id="events-count">2 upcoming</span></div><span class="events-collapse__arrow">▼</span></div>
+        <div class="events-collapse__body"><div class="events-collapse__inner" id="events-list"><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Mon</span></div><div class="event-item__info"><div class="event-item__title">Fellowship &amp; Worship</div><div class="event-item__time">6:30 PM</div></div></div><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Sat</span></div><div class="event-item__info"><div class="event-item__title">Study Saturday (Livestream)</div><div class="event-item__time">7:00 PM PT on Twitch</div></div></div></div></div>
       </div>
-
-      <!-- Join the Conversation CTA -->
-      <div class="cta-card">
-        <h2 class="cta-card__title">Join the Conversation</h2>
-        <p class="cta-card__text">Connect with us in real-time. Bible discussions, prayer requests, and community updates — all in one place.</p>
-        <div class="cta-card__buttons">
-          <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="cta-card__btn cta-card__btn--telegram">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-            Telegram Group
-          </a>
-          <a href="https://m.me/seedtheword" target="_blank" rel="noopener" class="cta-card__btn cta-card__btn--messenger">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 4.975 0 11.111c0 3.497 1.745 6.616 4.472 8.652V24l4.086-2.242c1.09.301 2.246.464 3.442.464 6.627 0 12-4.974 12-11.111C24 4.975 18.627 0 12 0zm1.193 14.963l-3.056-3.259-5.963 3.259L10.732 8.2l3.131 3.259 5.888-3.259-6.558 6.763z"/></svg>
-            Messenger
-          </a>
-        </div>
-        <div class="cta-card__active">
-          <span class="cta-card__active-dot"></span>
-          <span>Members active now</span>
-        </div>
-      </div>
-
-      <!-- Compose box (logged-in) -->
-      <div class="compose-box" id="compose-box" style="display:none;">
-        <div class="compose-box__header">
-          <div class="compose-box__avatar" id="compose-avatar"></div>
-          <textarea class="compose-box__input" id="compose-input" placeholder="Share something with the community..." rows="2"></textarea>
-        </div>
-        <div class="compose-box__actions">
-          <select class="compose-box__select" id="compose-type">
-            <option value="message">💬 Discussion</option>
-            <option value="prayer">🙏 Prayer Request</option>
-            <option value="thanksgiving">🎉 Thanksgiving</option>
-            <option value="bible">📖 Scripture Note</option>
-          </select>
-          <button class="compose-box__post-btn" id="compose-post-btn">Post</button>
-        </div>
-      </div>
-
-      <!-- Login prompt (guests) -->
-      <div class="login-prompt" id="login-prompt">
-        <p class="login-prompt__text">Join the conversation — post prayers, testimonies, and Bible discussions.</p>
-        <div class="login-prompt__buttons">
-          <a href="team.html" class="login-prompt__btn login-prompt__btn--primary">Sign up →</a>
-          <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="login-prompt__btn login-prompt__btn--telegram">Join Telegram →</a>
-        </div>
-      </div>
-
-      <!-- Social posts feed -->
-      <div id="posts-feed">
-        <div class="post-card" style="padding:2rem;text-align:center;color:var(--color-text-muted);">Loading community feed...</div>
-      </div>
+      <div class="cta-card"><h2 class="cta-card__title">Join the Conversation</h2><p class="cta-card__text">Connect with us in real-time. Bible discussions, prayer requests, and community updates.</p><div class="cta-card__buttons"><a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="cta-card__btn cta-card__btn--telegram"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg> Telegram</a><a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="cta-card__btn cta-card__btn--instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98C.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/></svg> Instagram</a></div><div class="cta-card__active"><span class="cta-card__active-dot"></span><span>Members active now</span></div></div>
+      <div class="compose-box" id="compose-box" style="display:none;"><div class="compose-box__header"><div class="compose-box__avatar" id="compose-avatar"></div><textarea class="compose-box__input" id="compose-input" placeholder="Share something with the community..." rows="2"></textarea></div><div class="compose-box__actions"><select class="compose-box__select" id="compose-type"><option value="message">💬 Discussion</option><option value="prayer">🙏 Prayer Request</option><option value="thanksgiving">🎉 Thanksgiving</option><option value="bible">📖 Scripture Note</option></select><button class="compose-box__post-btn" id="compose-post-btn">Post</button></div></div>
+      <div class="login-prompt" id="login-prompt"><p class="login-prompt__text">Join the conversation — post prayers, testimonies, and Bible discussions.</p><div class="login-prompt__buttons"><a href="team.html" class="login-prompt__btn login-prompt__btn--primary">Sign up →</a><a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="login-prompt__btn login-prompt__btn--telegram">Join Telegram →</a></div></div>
+      <div id="posts-feed"><div class="post-card" style="padding:2rem;text-align:center;color:var(--color-text-muted);">Loading community feed...</div></div>
     </section>
 
-    <!-- ══ SCRIPTURE CHANNEL ══ -->
     <section class="channel-section" id="channel-scripture">
       <h2 class="section-title">📖 Discuss Scripture</h2>
       <p class="section-desc">Comment on the daily reading, explore passages, or start a discussion.</p>
-
-      <!-- Today's Reading -->
-      <div class="reading-card" id="reading-card">
-        <div class="reading-card__label">Today's Reading</div>
-        <div class="reading-card__text" id="reading-today-text">Loading...</div>
-        <button class="reading-card__expand" id="reading-expand-btn">View Full Week →</button>
-      </div>
-
-      <!-- Full week reading (hidden by default) -->
-      <div id="bible-reading-full" style="display:none;margin-bottom:1.25rem;">
-        <div id="bible-plan-container"></div>
-        <div id="going-deeper-container"></div>
-        <p style="text-align:center;margin-top:1rem;font-size:0.82rem;color:var(--color-text-muted);">
-          Brand new? <a href="start-here.html" style="color:var(--color-gold);font-weight:600;text-decoration:none;">Try the 20-day plan first →</a>
-        </p>
-        <button id="reading-collapse-btn" style="display:block;margin:1rem auto 0;padding:0.5rem 1rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-full);font-size:0.78rem;font-weight:600;color:var(--color-text-muted);cursor:pointer;font-family:var(--font-sans);">Collapse ↑</button>
-      </div>
-
-      <!-- Scripture discussion posts -->
-      <div id="scripture-posts-feed">
-        <div style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading discussions...</div>
-      </div>
+      <div class="reading-card"><div class="reading-card__label">Today's Reading</div><div class="reading-card__text" id="reading-today-text">Loading...</div><button class="reading-card__expand" id="reading-expand-btn">View Full Week →</button></div>
+      <div id="bible-reading-full" style="display:none;margin-bottom:1.25rem;"><div id="bible-plan-container"></div><div id="going-deeper-container"></div><p style="text-align:center;margin-top:1rem;font-size:0.82rem;color:var(--color-text-muted);">Brand new? <a href="start-here.html" style="color:var(--color-gold);font-weight:600;text-decoration:none;">Try the 20-day plan first →</a></p><button id="reading-collapse-btn" style="display:block;margin:1rem auto 0;padding:0.5rem 1rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-full);font-size:0.78rem;font-weight:600;color:var(--color-text-muted);cursor:pointer;font-family:var(--font-sans);">Collapse ↑</button></div>
+      <div id="scripture-posts-feed"><div style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading discussions...</div></div>
     </section>
 
-    <!-- ══ PRAYER CHANNEL ══ -->
     <section class="channel-section" id="channel-prayer">
-      <h2 class="section-title">🙏 Prayer Requests</h2>
-      <p class="section-desc">Lift up your prayers and the community will stand with you.</p>
-
-      <!-- Compose (logged-in) -->
-      <div id="prayer-compose" style="display:none;margin-bottom:1rem;">
-        <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem;">
-          <div style="display:flex;gap:0.6rem;align-items:flex-start;">
-            <div id="prayer-compose-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--color-olive-soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;color:var(--color-olive);flex-shrink:0;"></div>
-            <div style="flex:1;min-width:0;">
-              <textarea id="prayer-compose-input" placeholder="Share a prayer request..." rows="3" style="width:100%;padding:0.65rem 0.85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.88rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);resize:vertical;min-height:60px;"></textarea>
-              <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
-                <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;color:var(--color-text-muted);cursor:pointer;"><input type="checkbox" id="prayer-anon" style="width:auto;margin:0;"> Anonymous</label>
-                <button id="prayer-send-btn" style="margin-left:auto;padding:0.5rem 1.1rem;background:var(--color-gold);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.78rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;min-height:44px;">Post Prayer</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chat feed -->
-      <div class="prayer-feed" id="prayer-feed">
-        <p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading prayer feed...</p>
-      </div>
+      <h2 class="section-title">🙏 Prayer &amp; Thanksgiving</h2>
+      <p class="section-desc">Lift up prayers and celebrate what God has done. All posts show together with type labels.</p>
+      <div class="prayer-filter" id="prayer-filter"><button type="button" class="prayer-filter__btn is-active" data-filter="all">All</button><button type="button" class="prayer-filter__btn" data-filter="prayer">🙏 Prayer</button><button type="button" class="prayer-filter__btn" data-filter="thanksgiving">🎉 Thanks</button></div>
+      <div id="prayer-compose" style="display:none;margin-bottom:1rem;"><div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem;"><div style="display:flex;gap:0.6rem;align-items:flex-start;"><div id="prayer-compose-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--color-olive-soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;color:var(--color-olive);flex-shrink:0;"></div><div style="flex:1;min-width:0;"><textarea id="prayer-compose-input" placeholder="Share a prayer request or thanksgiving..." rows="3" style="width:100%;padding:0.65rem 0.85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.88rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);resize:vertical;min-height:60px;"></textarea><div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;"><select id="prayer-type-select" style="border:1.5px solid var(--color-border);border-radius:var(--radius-full);padding:0.4rem 0.75rem;font-size:0.75rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);cursor:pointer;"><option value="prayer">🙏 Prayer</option><option value="thanksgiving">🎉 Thanksgiving</option></select><label style="display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;color:var(--color-text-muted);cursor:pointer;"><input type="checkbox" id="prayer-anon" style="width:auto;margin:0;"> Anonymous</label><button id="prayer-send-btn" style="margin-left:auto;padding:0.5rem 1.1rem;background:var(--color-gold);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.78rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;min-height:44px;">Post</button></div></div></div></div></div>
+      <div id="prayer-posts-feed"><div style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading prayer feed...</div></div>
     </section>
 
-    <!-- ══ THANKSGIVING CHANNEL ══ -->
-    <section class="channel-section" id="channel-thanksgiving">
-      <h2 class="section-title">🎉 Thanksgiving & Praise</h2>
-      <p class="section-desc">Celebrate what God has done. Share your testimonies and praise reports.</p>
-
-      <!-- Compose (logged-in) -->
-      <div id="thanks-compose" style="display:none;margin-bottom:1rem;">
-        <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem;">
-          <div style="display:flex;gap:0.6rem;align-items:flex-start;">
-            <div id="thanks-compose-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--color-olive-soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;color:var(--color-olive);flex-shrink:0;"></div>
-            <div style="flex:1;min-width:0;">
-              <textarea id="thanks-compose-input" placeholder="Share a testimony or praise report..." rows="3" style="width:100%;padding:0.65rem 0.85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.88rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);resize:vertical;min-height:60px;"></textarea>
-              <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;">
-                <button id="thanks-send-btn" style="margin-left:auto;padding:0.5rem 1.1rem;background:var(--color-gold);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.78rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;min-height:44px;">Post Thanksgiving</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chat feed -->
-      <div class="prayer-feed" id="thanks-feed">
-        <p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading thanksgiving feed...</p>
-      </div>
-    </section>
-
-    <!-- ══ eLIBRARY CHANNEL ══ -->
     <section class="channel-section" id="channel-library">
       <h2 class="section-title">📚 eLibrary</h2>
       <p class="section-desc">Free reading plans, guides, and resources for your walk. Tap any card to start reading.</p>
-
-      <div class="elibrary-grid" id="elibrary-grid">
-        <!-- Rendered by JS -->
-      </div>
-
-      <p style="text-align:center;font-size:0.78rem;color:var(--color-text-muted);margin-top:1.25rem;">More resources added regularly. Books and ebooks for resale coming soon.</p>
+      <div class="elibrary-grid" id="elibrary-grid"></div>
+      <p style="text-align:center;font-size:0.78rem;color:var(--color-text-muted);margin-top:1.25rem;">More resources added regularly.</p>
     </section>
-
   </main>
 
-  <!-- ═══ SIDEBAR (desktop only) ═══ -->
   <aside class="social-sidebar">
-    <!-- Live indicator (hidden by default) -->
-    <div id="sidebar-live" style="display:none;">
-      <div class="live-badge" style="margin-bottom:1rem;width:100%;justify-content:center;">
-        <span class="live-badge__dot"></span>
-        <span id="sidebar-live-title">LIVE NOW</span>
-        <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" style="margin-left:auto;font-size:0.68rem;color:#c0392b;text-decoration:none;font-weight:700;">Watch →</a>
-      </div>
-    </div>
-
-    <!-- Upcoming Events -->
-    <div class="sidebar-card">
-      <p class="sidebar-card__title">Upcoming Events</p>
-      <div id="sidebar-events">
-        <div class="event-item">
-          <div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Mon</span></div>
-          <div class="event-item__info"><div class="event-item__title">Fellowship & Worship</div><div class="event-item__time">6:30 PM</div></div>
-        </div>
-        <div class="event-item">
-          <div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Sat</span></div>
-          <div class="event-item__info"><div class="event-item__title">Study Saturday (Livestream)</div><div class="event-item__time">7:00 PM PT on Twitch</div></div>
-        </div>
-      </div>
-      <a href="news.html" style="display:block;margin-top:0.75rem;font-size:0.78rem;color:var(--color-gold);font-weight:600;text-decoration:none;">See all events →</a>
-    </div>
-
-    <!-- Today's Reading -->
-    <div class="sidebar-card">
-      <p class="sidebar-card__title">Today's Reading</p>
-      <div id="sidebar-reading" style="font-size:0.88rem;color:var(--color-text);margin-bottom:0.5rem;">Loading...</div>
-      <button onclick="switchChannel('scripture')" style="display:block;width:100%;padding:0.5rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;color:var(--color-olive);cursor:pointer;text-align:center;font-family:var(--font-sans);">Open Scripture Tab →</button>
-    </div>
-
-    <!-- Quick Links -->
-    <div class="sidebar-card">
-      <p class="sidebar-card__title">Quick Links</p>
-      <a href="https://t.me/seedtheword" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">💬</span> Telegram</a>
-      <a href="https://www.instagram.com/seedtheword/" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">📸</span> Instagram</a>
-      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">🎧</span> Podcast</a>
-      <a href="https://twitch.tv/seedtheword" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">🎮</span> Twitch</a>
-      <a href="donate.html" class="sidebar-link"><span class="sidebar-link__icon">📖</span> Get a Free Bible</a>
-    </div>
-
-    <!-- Join Team CTA -->
-    <div class="sidebar-cta">
-      <h3 class="sidebar-cta__title">Join the Team</h3>
-      <p class="sidebar-cta__text">Volunteer with us at outreach events and help distribute God's Word.</p>
-      <a href="team.html" class="sidebar-cta__btn">Team Portal →</a>
-    </div>
+    <div class="sidebar-card"><p class="sidebar-card__title">Upcoming Events</p><div id="sidebar-events"><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Mon</span></div><div class="event-item__info"><div class="event-item__title">Fellowship &amp; Worship</div><div class="event-item__time">6:30 PM</div></div></div><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Sat</span></div><div class="event-item__info"><div class="event-item__title">Study Saturday</div><div class="event-item__time">7:00 PM PT on Twitch</div></div></div></div><a href="news.html" style="display:block;margin-top:0.75rem;font-size:0.78rem;color:var(--color-gold);font-weight:600;text-decoration:none;">See all events →</a></div>
+    <div class="sidebar-card"><p class="sidebar-card__title">Today's Reading</p><div id="sidebar-reading" style="font-size:0.88rem;color:var(--color-text);margin-bottom:0.5rem;">Loading...</div><button onclick="switchChannel('scripture')" style="display:block;width:100%;padding:0.5rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;color:var(--color-olive);cursor:pointer;text-align:center;font-family:var(--font-sans);">Open Scripture Tab →</button></div>
+    <div class="sidebar-card"><p class="sidebar-card__title">Quick Links</p><a href="https://t.me/seedtheword" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">💬</span> Telegram</a><a href="https://www.instagram.com/seedtheword/" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">📸</span> Instagram</a><a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">🎧</span> Podcast</a><a href="https://twitch.tv/seedtheword" class="sidebar-link" target="_blank" rel="noopener"><span class="sidebar-link__icon">🎮</span> Twitch</a><a href="donate.html" class="sidebar-link"><span class="sidebar-link__icon">📖</span> Get a Free Bible</a></div>
+    <div class="sidebar-cta"><h3 class="sidebar-cta__title">Join the Team</h3><p class="sidebar-cta__text">Volunteer with us at outreach events and help distribute God's Word.</p><a href="team.html" class="sidebar-cta__btn">Team Portal →</a></div>
   </aside>
 </div>
 
-<!-- ═══ BOTTOM NAV BAR (mobile) ═══ -->
 <nav class="bottom-nav" aria-label="Quick links">
-  <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="bottom-nav__item" title="Telegram">
-    <span class="bottom-nav__icon">💬</span>
-    <span class="bottom-nav__label">Telegram</span>
-  </a>
-  <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="bottom-nav__item" title="Instagram">
-    <span class="bottom-nav__icon">📸</span>
-    <span class="bottom-nav__label">Instagram</span>
-  </a>
-  <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" class="bottom-nav__item" title="Podcast">
-    <span class="bottom-nav__icon">🎧</span>
-    <span class="bottom-nav__label">Podcast</span>
-  </a>
-  <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" class="bottom-nav__item" title="Twitch">
-    <span class="bottom-nav__icon">🎮</span>
-    <span class="bottom-nav__label">Twitch</span>
-  </a>
-  <a href="https://m.me/seedtheword" target="_blank" rel="noopener" class="bottom-nav__item" title="Messenger">
-    <span class="bottom-nav__icon">💌</span>
-    <span class="bottom-nav__label">Messenger</span>
-  </a>
+  <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="bottom-nav__item" title="Telegram"><svg viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg><span class="bottom-nav__label">Telegram</span></a>
+  <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="bottom-nav__item" title="Instagram"><svg viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98C.014 8.333 0 8.741 0 12s.014 3.668.072 4.948c.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24s3.668-.014 4.948-.072c4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948s-.014-3.667-.072-4.947c-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/></svg><span class="bottom-nav__label">Instagram</span></a>
+  <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" class="bottom-nav__item" title="Spotify"><svg viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.3-.7.4-1 .2-2.8-1.7-6.4-2.1-10.5-1.2-.4.1-.8-.1-.9-.5s.1-.8.5-.9c4.6-1 8.5-.6 11.6 1.3.4.2.5.7.3 1.1zm1.5-3.3c-.3.4-.8.5-1.3.3-3.2-2-8.1-2.6-12-1.4-.4.1-.9-.1-1-.5-.1-.4.1-.9.5-1c4.4-1.3 9.8-.7 13.5 1.6.4.2.6.8.3 1zm.1-3.4c-3.9-2.3-10.3-2.5-13.9-1.4-.5.2-1-.1-1.2-.6-.2-.5.1-1 .6-1.2 4.2-1.3 11.3-1 15.7 1.6.4.3.6.9.3 1.3-.2.5-.8.6-1.3.3z"/></svg><span class="bottom-nav__label">Spotify</span></a>
+  <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" class="bottom-nav__item" title="Twitch"><svg viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg><span class="bottom-nav__label">Twitch</span></a>
+  <a href="donate.html" class="bottom-nav__item" title="Get a Free Bible"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 12h8v2H8v-2zm0 4h6v2H8v-2z"/></svg><span class="bottom-nav__label">Free Bible</span></a>
 </nav>
 
-<!-- ═══ FOOTER ═══ -->
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="footer-brand__row">
-          <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo">
-          <p class="footer-brand__name">Seed the Word Ministry</p>
-        </div>
-        <p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p>
-        <p style="font-size:0.82rem;color:var(--color-text-muted);margin-top:0.75rem;line-height:1.5">Seed the Word is a Washington State registered nonprofit corporation (UBI 606 261 509, effective July 13, 2026).</p>
-      </div>
-      <div>
-        <h4 class="footer-col__title">Navigate</h4>
-        <ul class="footer-nav">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="store.html">Store</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="news.html">News</a></li>
-          <li><a href="community.html">Community</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="footer-col__title">Connect</h4>
-        <div class="footer-connect__icons">
-          <a class="footer-connect__icon" href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg></a>
-          <a class="footer-connect__icon" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
-          <a class="footer-connect__icon" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></a>
-          <a class="footer-connect__icon" href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg></a>
-        </div>
-        <a class="footer-connect__contact" href="connect.html">🤝 Connect with Us</a>
-        <a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a>
-        <a class="footer-connect__contact" href="donate.html">📖 Donate or receive a Bible</a>
-      </div>
+      <div class="footer-brand"><div class="footer-brand__row"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo"><p class="footer-brand__name">Seed the Word Ministry</p></div><p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p><p style="font-size:0.82rem;color:var(--color-text-muted);margin-top:0.75rem;line-height:1.5">Seed the Word is a Washington State registered nonprofit corporation (UBI 606 261 509, effective July 13, 2026).</p></div>
+      <div><h4 class="footer-col__title">Navigate</h4><ul class="footer-nav"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></div>
+      <div><h4 class="footer-col__title">Connect</h4><div class="footer-connect__icons"><a class="footer-connect__icon" href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg></a><a class="footer-connect__icon" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98C.014 8.333 0 8.741 0 12s.014 3.668.072 4.948c.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24s3.668-.014 4.948-.072c4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948s-.014-3.667-.072-4.947c-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/></svg></a><a class="footer-connect__icon" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></a><a class="footer-connect__icon" href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.3-.7.4-1 .2-2.8-1.7-6.4-2.1-10.5-1.2-.4.1-.8-.1-.9-.5s.1-.8.5-.9c4.6-1 8.5-.6 11.6 1.3.4.2.5.7.3 1.1zm1.5-3.3c-.3.4-.8.5-1.3.3-3.2-2-8.1-2.6-12-1.4-.4.1-.9-.1-1-.5-.1-.4.1-.9.5-1c4.4-1.3 9.8-.7 13.5 1.6.4.2.6.8.3 1zm.1-3.4c-3.9-2.3-10.3-2.5-13.9-1.4-.5.2-1-.1-1.2-.6-.2-.5.1-1 .6-1.2 4.2-1.3 11.3-1 15.7 1.6.4.3.6.9.3 1.3-.2.5-.8.6-1.3.3z"/></svg></a></div><a class="footer-connect__contact" href="connect.html">🤝 Connect with Us</a><a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a><a class="footer-connect__contact" href="donate.html">📖 Donate or receive a Bible</a></div>
     </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
-      <ul class="footer-bottom__links">
-        <li><a href="about.html">About</a></li>
-        <li><a href="about.html#contact">Contact</a></li>
-        <li><a href="about.html#careers">Careers</a></li>
-        <li><a href="admin-help.html" style="opacity:0.55;">Admin</a></li>
-      </ul>
-    </div>
+    <div class="footer-bottom"><p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p><ul class="footer-bottom__links"><li><a href="about.html">About</a></li><li><a href="about.html#contact">Contact</a></li><li><a href="about.html#careers">Careers</a></li><li><a href="admin-help.html" style="opacity:0.55;">Admin</a></li></ul></div>
   </div>
 </footer>
 
-<!-- ═══ SCRIPTS ═══ -->
 <script src="assets/js/main.js?v=9"></script>
 <script src="assets/js/bible-plan.js?v=2"></script>
 <script src="assets/js/layered-plan.js?v=1"></script>
 <script src="assets/js/lms.js?v=1"></script>
 <script src="assets/js/google-calendar.js?v=16"></script>
 <script>
-// ═══════════════════════════════════════════════════════════════
-// COMMUNITY SOCIAL PLATFORM — Main Controller
-// ═══════════════════════════════════════════════════════════════
-(function() {
+(function(){
 'use strict';
+var CONFIG_URL='assets/data/site-config.json',handlerUrl=null,session=null,posts=[],prayerFilter='all';
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function initials(n){return(n||'?').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);}
+function timeAgo(ts){var d=Date.now()-ts,m=Math.floor(d/60000);if(m<1)return'Just now';if(m<60)return m+'m ago';var h=Math.floor(m/60);if(h<24)return h+'h ago';var days=Math.floor(h/24);if(days<7)return days+'d ago';return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+async function getHandlerUrl(){if(handlerUrl)return handlerUrl;var cfg=await fetch(CONFIG_URL+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});handlerUrl=cfg.orderHandlerUrl;return handlerUrl;}
+async function postAction(data){var url=await getHandlerUrl();var res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});var text=await res.text();try{return JSON.parse(text);}catch(e){return{ok:false};}}
 
-var CONFIG_URL = 'assets/data/site-config.json';
-var handlerUrl = null;
-var session = null;
-var posts = [];
+// Auth
+function checkSession(){try{session=JSON.parse(localStorage.getItem('stwm-team-session'));}catch(e){session=null;}
+document.getElementById('compose-box').style.display=session?'':'none';
+document.getElementById('login-prompt').style.display=session?'none':'';
+var pc=document.getElementById('prayer-compose');if(pc)pc.style.display=session?'':'none';
+if(session){var ini=initials(session.name);document.querySelectorAll('#compose-avatar,#prayer-compose-avatar').forEach(function(el){el.textContent=ini;});}}
 
-// ── Helpers ──
-function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-function initials(n) { return (n || '?').split(' ').map(function(w) { return w[0]; }).join('').toUpperCase().slice(0, 2); }
-function timeAgo(ts) {
-  var d = Date.now() - ts, m = Math.floor(d / 60000);
-  if (m < 1) return 'Just now';
-  if (m < 60) return m + 'm ago';
-  var h = Math.floor(m / 60);
-  if (h < 24) return h + 'h ago';
-  var days = Math.floor(h / 24);
-  if (days < 7) return days + 'd ago';
-  return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-function fmtTime(ts) { return new Date(ts).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
-function fmtDate(ts) { return new Date(ts).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }); }
-function isSameDay(a, b) { return new Date(a).toDateString() === new Date(b).toDateString(); }
+// Channel nav
+var activeChannel='home';
+function switchChannel(ch){activeChannel=ch;
+document.querySelectorAll('.channel-tab').forEach(function(t){var a=t.dataset.channel===ch;t.classList.toggle('is-active',a);t.setAttribute('aria-selected',a?'true':'false');});
+document.querySelectorAll('.channel-section').forEach(function(s){s.classList.remove('is-active');});
+var target=document.getElementById('channel-'+ch);if(target)target.classList.add('is-active');
+setLastSeen(ch);var badge=document.getElementById('badge-'+ch);if(badge)badge.textContent='';
+window.scrollTo({top:0,behavior:'smooth'});}
+window.switchChannel=switchChannel;
+document.querySelectorAll('.channel-tab').forEach(function(tab){tab.addEventListener('click',function(){switchChannel(this.dataset.channel);});});
 
-async function getHandlerUrl() {
-  if (handlerUrl) return handlerUrl;
-  var cfg = await fetch(CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store' }).then(function(r) { return r.json(); });
-  handlerUrl = cfg.orderHandlerUrl;
-  return handlerUrl;
-}
-async function postAction(data) {
-  var url = await getHandlerUrl();
-  var res = await fetch(url, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) });
-  var text = await res.text();
-  try { return JSON.parse(text); } catch(e) { return { ok: false }; }
-}
+// Events collapse
+var et=document.getElementById('events-toggle'),ec=document.getElementById('events-collapse');
+if(et&&ec)et.addEventListener('click',function(){ec.classList.toggle('is-open');et.setAttribute('aria-expanded',ec.classList.contains('is-open'));});
 
-// ── Auth ──
-function checkSession() {
-  try { session = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) { session = null; }
-  var compose = document.getElementById('compose-box');
-  var loginP = document.getElementById('login-prompt');
-  var prayerC = document.getElementById('prayer-compose');
-  var thanksC = document.getElementById('thanks-compose');
-  if (compose) compose.style.display = session ? '' : 'none';
-  if (loginP) loginP.style.display = session ? 'none' : '';
-  if (prayerC) prayerC.style.display = session ? '' : 'none';
-  if (thanksC) thanksC.style.display = session ? '' : 'none';
-  if (session) {
-    var ini = initials(session.name);
-    var avatars = document.querySelectorAll('#compose-avatar, #prayer-compose-avatar, #thanks-compose-avatar');
-    avatars.forEach(function(el) { el.textContent = ini; });
-  }
-}
+// Badges
+var LAST_SEEN_KEY='stwm-community-last-seen';
+function getLastSeen(){try{return JSON.parse(localStorage.getItem(LAST_SEEN_KEY))||{};}catch(e){return{};}}
+function setLastSeen(ch){var ls=getLastSeen();ls[ch]=Date.now();try{localStorage.setItem(LAST_SEEN_KEY,JSON.stringify(ls));}catch(e){}}
+function updateBadges(msgs){var ls=getLastSeen(),counts={scripture:0,prayer:0,home:0};
+msgs.forEach(function(m){var ch=m.msg_type==='prayer'||m.msg_type==='thanksgiving'?'prayer':(m.msg_type==='bible'?'scripture':'home');if(m.timestamp>(ls[ch]||0))counts[ch]++;});
+Object.keys(counts).forEach(function(ch){var b=document.getElementById('badge-'+ch);if(b)b.textContent=counts[ch]>0?counts[ch]:'';});}
 
-// ═══ CHANNEL NAVIGATION ═══
-var activeChannel = 'home';
+// Load feed
+async function loadFeed(){try{
+var token=session?session.token:null;
+var channels=['main','prayer','thanksgiving'],allMsgs=[];
+var results=await Promise.allSettled(channels.map(function(ch){var p=token?{action:'getChatMessages',token:token,channel:ch}:{action:'getChatMessages',passphrase_hash:'public-read',channel:ch};return postAction(p);}));
+results.forEach(function(r,i){if(r.status==='fulfilled'&&r.value.ok&&r.value.messages)r.value.messages.forEach(function(m){m._channel=channels[i];allMsgs.push(m);});});
+try{var ann=await postAction({action:'getAnnouncements',passphrase_hash:'public-read'});if(ann.ok&&ann.announcements)ann.announcements.forEach(function(a){allMsgs.push({from:a.from||'Seed the Word',text:(a.subject?'**'+a.subject+'**\n\n':'')+a.body,timestamp:a.timestamp,msg_type:'announcement',_channel:'announcements'});});}catch(e){}
+posts=allMsgs.sort(function(a,b){return b.timestamp-a.timestamp;});
+updateBadges(posts);renderHomeFeed();renderScriptureFeed();renderPrayerFeed();
+}catch(e){document.getElementById('posts-feed').innerHTML='<div class="empty-state"><div class="empty-state__icon">🌐</div><h3 class="empty-state__title">Connection issue</h3><p class="empty-state__text">Could not load the feed.</p></div>';}}
 
-function switchChannel(ch) {
-  activeChannel = ch;
-  // Update tabs
-  document.querySelectorAll('.channel-tab').forEach(function(t) {
-    var isActive = t.dataset.channel === ch;
-    t.classList.toggle('is-active', isActive);
-    t.setAttribute('aria-selected', isActive ? 'true' : 'false');
-  });
-  // Update sections
-  document.querySelectorAll('.channel-section').forEach(function(s) { s.classList.remove('is-active'); });
-  var target = document.getElementById('channel-' + ch);
-  if (target) target.classList.add('is-active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-// Make globally accessible for sidebar button
-window.switchChannel = switchChannel;
+function formatBody(t){if(!t)return'';var f=esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');return f.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');}
 
-// Tab clicks
-document.querySelectorAll('.channel-tab').forEach(function(tab) {
-  tab.addEventListener('click', function() { switchChannel(this.dataset.channel); });
-});
+function renderPost(p){
+var typeLabels={announcement:'📢 Announcement',prayer:'🙏 Prayer',thanksgiving:'🎉 Thanksgiving',bible:'📖 Scripture',message:'💬 Discussion'};
+var type=p.msg_type||'message',typeClass=type==='message'?'discussion':type;
+var postId='p-'+p.timestamp+'-'+(p.from||'').replace(/\s/g,'').slice(0,5);
+var likeKey='stwm-likes';var likes=[];try{likes=JSON.parse(localStorage.getItem(likeKey))||[];}catch(e){}
+var isLiked=likes.indexOf(postId)>=0;
+return'<article class="post-card" data-post-id="'+postId+'">'+
+'<div class="post-card__header"><div class="post-card__avatar">'+initials(p.from||'Anonymous')+'</div><div class="post-card__meta"><div class="post-card__author">'+esc(p.from||'Anonymous')+'</div><div class="post-card__time">'+timeAgo(p.timestamp)+'</div><span class="post-card__type post-card__type--'+typeClass+'">'+(typeLabels[type]||'💬 Post')+'</span></div></div>'+
+'<div class="post-card__body">'+formatBody(p.text)+'</div>'+
+'<div class="post-card__actions">'+
+'<button class="post-card__action'+(isLiked?' is-liked':'')+'" data-action="like" data-id="'+postId+'"><svg viewBox="0 0 24 24" fill="'+(isLiked?'currentColor':'none')+'" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Like</button>'+
+'<button class="post-card__action" data-action="comment" data-id="'+postId+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comment</button>'+
+'<button class="post-card__action" data-action="share" data-text="'+esc((p.text||'').slice(0,100))+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>'+
+'</div>'+
+(session?'<div class="post-card__comments"><div class="comment-compose"><div class="comment-compose__avatar">'+initials(session.name)+'</div><input class="comment-compose__input" placeholder="Write a comment..." data-post-id="'+postId+'"></div></div>':'')+
+'</article>';}
 
-// ═══ EVENTS COLLAPSE ═══
-var eventsToggle = document.getElementById('events-toggle');
-var eventsCollapse = document.getElementById('events-collapse');
-if (eventsToggle && eventsCollapse) {
-  eventsToggle.addEventListener('click', function() {
-    eventsCollapse.classList.toggle('is-open');
-    eventsToggle.setAttribute('aria-expanded', eventsCollapse.classList.contains('is-open'));
-  });
-}
+function renderHomeFeed(){var feed=document.getElementById('posts-feed');var hp=posts.slice(0,30);if(!hp.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">📭</div><h3 class="empty-state__title">No posts yet</h3><p class="empty-state__text">Be the first to share.</p></div>';return;}feed.innerHTML=hp.map(renderPost).join('');bindPostActions(feed);}
+function renderScriptureFeed(){var feed=document.getElementById('scripture-posts-feed');var f=posts.filter(function(p){return p.msg_type==='bible'||(p._channel==='main'&&p.msg_type==='message');});if(!f.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">📖</div><h3 class="empty-state__title">No discussions yet</h3><p class="empty-state__text">Start a conversation about today\'s reading.</p></div>';return;}feed.innerHTML=f.slice(0,20).map(renderPost).join('');bindPostActions(feed);}
+function renderPrayerFeed(){var feed=document.getElementById('prayer-posts-feed');var f=posts.filter(function(p){return p.msg_type==='prayer'||p.msg_type==='thanksgiving';});if(prayerFilter!=='all')f=f.filter(function(p){return p.msg_type===prayerFilter;});f.sort(function(a,b){return b.timestamp-a.timestamp;});if(!f.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">🙏</div><h3 class="empty-state__title">No posts yet</h3><p class="empty-state__text">Be the first to share.</p></div>';return;}feed.innerHTML=f.slice(0,30).map(renderPost).join('');bindPostActions(feed);}
 
-// ═══ NOTIFICATION BADGES ═══
-var LAST_SEEN_KEY = 'stwm-community-last-seen';
-function getLastSeen() {
-  try { return JSON.parse(localStorage.getItem(LAST_SEEN_KEY)) || {}; } catch(e) { return {}; }
-}
-function setLastSeen(channel) {
-  var ls = getLastSeen();
-  ls[channel] = Date.now();
-  try { localStorage.setItem(LAST_SEEN_KEY, JSON.stringify(ls)); } catch(e) {}
-}
-function updateBadges(messages) {
-  var ls = getLastSeen();
-  var counts = { scripture: 0, prayer: 0, thanksgiving: 0, home: 0 };
-  messages.forEach(function(m) {
-    var ch = m.msg_type === 'prayer' ? 'prayer' : (m.msg_type === 'thanksgiving' ? 'thanksgiving' : (m.msg_type === 'bible' ? 'scripture' : 'home'));
-    var lastSeen = ls[ch] || 0;
-    if (m.timestamp > lastSeen) counts[ch]++;
-  });
-  Object.keys(counts).forEach(function(ch) {
-    var badge = document.getElementById('badge-' + ch);
-    if (badge) badge.textContent = counts[ch] > 0 ? counts[ch] : '';
-  });
+// Post actions
+function bindPostActions(container){
+container.querySelectorAll('.post-card__action[data-action="like"]').forEach(function(btn){btn.addEventListener('click',function(){
+if(!session){alert('Sign in to like posts.');return;}
+var id=this.dataset.id,likeKey='stwm-likes',likes=[];try{likes=JSON.parse(localStorage.getItem(likeKey))||[];}catch(e){}
+var idx=likes.indexOf(id);if(idx>=0){likes.splice(idx,1);this.classList.remove('is-liked');this.querySelector('svg').setAttribute('fill','none');}else{likes.push(id);this.classList.add('is-liked');this.querySelector('svg').setAttribute('fill','currentColor');}
+try{localStorage.setItem(likeKey,JSON.stringify(likes));}catch(e){}
+// Persist to server
+if(session.token)postAction({action:'sendChatMessage',token:session.token,channel:'likes',text:id,msg_type:'like',to_user:''}).catch(function(){});
+});});
+container.querySelectorAll('.post-card__action[data-action="comment"]').forEach(function(btn){btn.addEventListener('click',function(){
+var card=this.closest('.post-card');var input=card.querySelector('.comment-compose__input');if(input)input.focus();});});
+container.querySelectorAll('.post-card__action[data-action="share"]').forEach(function(btn){btn.addEventListener('click',function(){
+var text=this.dataset.text||'';showShareModal(text);});});
+// Comment submit
+container.querySelectorAll('.comment-compose__input').forEach(function(input){input.addEventListener('keydown',function(e){
+if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();var text=this.value.trim();if(!text||!session)return;
+var commentsEl=this.closest('.post-card__comments');
+var html='<div class="comment"><div class="comment__avatar">'+initials(session.name)+'</div><div class="comment__body"><div class="comment__bubble"><div class="comment__author">'+esc(session.name)+'</div><div class="comment__text">'+esc(text)+'</div></div><div class="comment__meta"><span>Just now</span><button onclick="this.closest(\'.comment\').querySelector(\'.comment__bubble\').insertAdjacentHTML(\'afterend\',\'<div class=comment__replies><div class=comment-compose><input class=comment-compose__input placeholder=Reply...></div></div>\');this.remove();">Reply</button></div></div></div>';
+commentsEl.insertAdjacentHTML('afterbegin',html);this.value='';
+if(session.token)postAction({action:'sendChatMessage',token:session.token,channel:'main',text:text,msg_type:'message',to_user:''}).catch(function(){});
+}});});}
+
+// Share modal
+function showShareModal(text){
+var url=window.location.href,encoded=encodeURIComponent(text+' — '+url);
+var modal=document.createElement('div');modal.className='share-modal';
+modal.innerHTML='<div class="share-modal__sheet"><h3 class="share-modal__title">Share this post</h3><div class="share-modal__grid">'+
+'<a class="share-modal__option" href="https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(text)+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>Telegram</a>'+
+'<a class="share-modal__option" href="https://www.facebook.com/sharer/sharer.php?quote='+encoded+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>Facebook</a>'+
+'<button class="share-modal__option" id="share-copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Link</button>'+
+'<button class="share-modal__option" id="share-native"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>More...</button>'+
+'</div><button class="share-modal__close" id="share-close">Close</button></div>';
+document.body.appendChild(modal);
+modal.addEventListener('click',function(e){if(e.target===modal)modal.remove();});
+modal.querySelector('#share-close').addEventListener('click',function(){modal.remove();});
+modal.querySelector('#share-copy').addEventListener('click',function(){navigator.clipboard.writeText(url).then(function(){this.textContent='Copied!';}.bind(this));});
+modal.querySelector('#share-native').addEventListener('click',function(){if(navigator.share)navigator.share({title:'Seed the Word Community',text:text,url:url});else{navigator.clipboard.writeText(text+' '+url);this.textContent='Copied!';}});
 }
 
-// Mark as seen when switching to channel
-var origSwitch = switchChannel;
-switchChannel = function(ch) {
-  origSwitch(ch);
-  setLastSeen(ch);
-  var badge = document.getElementById('badge-' + ch);
-  if (badge) badge.textContent = '';
-};
-window.switchChannel = switchChannel;
-
-// ═══ SOCIAL FEED (Home tab) ═══
-async function loadFeed() {
-  try {
-    var token = session ? session.token : null;
-    var channels = ['main', 'prayer', 'thanksgiving'];
-    var allMsgs = [];
-
-    var results = await Promise.allSettled(channels.map(function(ch) {
-      var payload = token ? { action: 'getChatMessages', token: token, channel: ch } : { action: 'getChatMessages', passphrase_hash: 'public-read', channel: ch };
-      return postAction(payload);
-    }));
-
-    results.forEach(function(r, i) {
-      if (r.status === 'fulfilled' && r.value.ok && r.value.messages) {
-        r.value.messages.forEach(function(m) {
-          m._channel = channels[i];
-          allMsgs.push(m);
-        });
-      }
-    });
-
-    // Also load announcements
-    try {
-      var annRes = await postAction({ action: 'getAnnouncements', passphrase_hash: 'public-read' });
-      if (annRes.ok && annRes.announcements) {
-        annRes.announcements.forEach(function(a) {
-          allMsgs.push({
-            from: a.from || 'Seed the Word',
-            text: (a.subject ? '**' + a.subject + '**\n\n' : '') + a.body,
-            timestamp: a.timestamp,
-            msg_type: 'announcement',
-            _channel: 'announcements'
-          });
-        });
-      }
-    } catch(e) {}
-
-    posts = allMsgs.sort(function(a, b) { return b.timestamp - a.timestamp; });
-    updateBadges(posts);
-    renderHomeFeed();
-    renderScriptureFeed();
-    renderPrayerFeed('prayer');
-    renderPrayerFeed('thanksgiving');
-  } catch(e) {
-    document.getElementById('posts-feed').innerHTML = '<div class="empty-state"><div class="empty-state__icon">🌐</div><h3 class="empty-state__title">Connection issue</h3><p class="empty-state__text">Could not load the feed. Pull down to refresh.</p></div>';
-  }
-}
-
-function formatBody(text) {
-  if (!text) return '';
-  var formatted = esc(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  formatted = formatted.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
-  return formatted;
-}
-
-function renderPost(p) {
-  var typeLabels = { announcement: '📢 Announcement', prayer: '🙏 Prayer', thanksgiving: '🎉 Thanksgiving', bible: '📖 Scripture', message: '💬 Discussion', discussion: '💬 Discussion' };
-  var type = p.msg_type || 'message';
-  var typeClass = type === 'message' ? 'discussion' : type;
-  return '<article class="post-card">' +
-    '<div class="post-card__header">' +
-      '<div class="post-card__avatar">' + initials(p.from || 'Anonymous') + '</div>' +
-      '<div class="post-card__meta">' +
-        '<div class="post-card__author">' + esc(p.from || 'Anonymous') + '</div>' +
-        '<div class="post-card__time">' + timeAgo(p.timestamp) + '</div>' +
-        '<span class="post-card__type post-card__type--' + typeClass + '">' + (typeLabels[type] || '💬 Post') + '</span>' +
-      '</div>' +
-    '</div>' +
-    '<div class="post-card__body">' + formatBody(p.text) + '</div>' +
-    '<div class="post-card__actions">' +
-      '<button class="post-card__action" data-action="like"><span>❤️</span> Like</button>' +
-      '<button class="post-card__action" data-action="comment"><span>💬</span> Comment</button>' +
-      '<button class="post-card__action" data-action="share"><span>🔗</span> Share</button>' +
-    '</div>' +
-  '</article>';
-}
-
-function renderHomeFeed() {
-  var feed = document.getElementById('posts-feed');
-  var homePosts = posts.slice(0, 30);
-  if (!homePosts.length) {
-    feed.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📭</div><h3 class="empty-state__title">No posts yet</h3><p class="empty-state__text">Be the first to share something with the community.</p></div>';
-    return;
-  }
-  feed.innerHTML = homePosts.map(renderPost).join('');
-  bindLikeButtons(feed);
-}
-
-function renderScriptureFeed() {
-  var feed = document.getElementById('scripture-posts-feed');
-  var filtered = posts.filter(function(p) { return p.msg_type === 'bible' || (p._channel === 'main' && p.msg_type === 'message'); });
-  if (!filtered.length) {
-    feed.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📖</div><h3 class="empty-state__title">No scripture discussions yet</h3><p class="empty-state__text">Start a conversation about today\'s reading.</p></div>';
-    return;
-  }
-  feed.innerHTML = filtered.slice(0, 20).map(renderPost).join('');
-  bindLikeButtons(feed);
-}
-
-function renderPrayerFeed(type) {
-  var feedId = type === 'prayer' ? 'prayer-feed' : 'thanks-feed';
-  var feed = document.getElementById(feedId);
-  var filtered = posts.filter(function(p) { return p.msg_type === type; }).sort(function(a, b) { return a.timestamp - b.timestamp; });
-
-  if (!filtered.length) {
-    feed.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">No ' + type + ' posts yet. Be the first to share.</p>';
-    return;
-  }
-
-  var html = '';
-  var lastDate = null;
-  filtered.forEach(function(m) {
-    if (!lastDate || !isSameDay(lastDate, m.timestamp)) {
-      html += '<div class="chat-msg__date-sep"><span>' + fmtDate(m.timestamp) + '</span></div>';
-      lastDate = m.timestamp;
-    }
-    var isMine = session && m.from && session.name && m.from.toLowerCase() === session.name.toLowerCase();
-    html += '<div class="chat-msg' + (isMine ? ' chat-msg--mine' : '') + '">' +
-      '<div class="chat-msg__bubble">' +
-        (!isMine ? '<div class="chat-msg__author">' + esc(m.from || 'Anonymous') + '</div>' : '') +
-        '<div class="chat-msg__type">' + (type === 'prayer' ? '🙏 prayer' : '🎉 thanksgiving') + '</div>' +
-        '<div style="margin-top:0.2rem;">' + esc(m.text) + '</div>' +
-        '<div class="chat-msg__time">' + fmtTime(m.timestamp) + '</div>' +
-      '</div></div>';
-  });
-  feed.innerHTML = html;
-  feed.scrollTop = feed.scrollHeight;
-}
-
-function bindLikeButtons(container) {
-  container.querySelectorAll('.post-card__action[data-action="like"]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      if (!session) { alert('Sign in to like posts.'); return; }
-      btn.classList.toggle('is-liked');
-    });
-  });
-}
-
-// ═══ COMPOSE / SEND POST ═══
-var composePostBtn = document.getElementById('compose-post-btn');
-if (composePostBtn) {
-  composePostBtn.addEventListener('click', async function() {
-    if (!session) return;
-    var input = document.getElementById('compose-input');
-    var text = input.value.trim();
-    if (!text) return;
-    var type = document.getElementById('compose-type').value;
-    var channel = type === 'prayer' ? 'prayer' : (type === 'thanksgiving' ? 'thanksgiving' : 'main');
-    composePostBtn.disabled = true;
-    composePostBtn.textContent = '...';
-    try {
-      await postAction({ action: 'sendChatMessage', token: session.token, channel: channel, text: text, msg_type: type, to_user: '' });
-      input.value = '';
-      posts.unshift({ from: session.name, text: text, timestamp: Date.now(), msg_type: type, _channel: channel });
-      renderHomeFeed();
-    } catch(e) { alert('Could not post. Try again.'); }
-    composePostBtn.disabled = false;
-    composePostBtn.textContent = 'Post';
-  });
-}
+// Compose
+var cpBtn=document.getElementById('compose-post-btn');
+if(cpBtn)cpBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('compose-input'),text=input.value.trim();if(!text)return;var type=document.getElementById('compose-type').value,channel=type==='prayer'?'prayer':(type==='thanksgiving'?'thanksgiving':'main');cpBtn.disabled=true;cpBtn.textContent='...';try{await postAction({action:'sendChatMessage',token:session.token,channel:channel,text:text,msg_type:type,to_user:''});input.value='';posts.unshift({from:session.name,text:text,timestamp:Date.now(),msg_type:type,_channel:channel});renderHomeFeed();renderPrayerFeed();}catch(e){alert('Could not post.');}cpBtn.disabled=false;cpBtn.textContent='Post';});
 
 // Prayer send
-var prayerSendBtn = document.getElementById('prayer-send-btn');
-if (prayerSendBtn) {
-  prayerSendBtn.addEventListener('click', async function() {
-    if (!session) return;
-    var input = document.getElementById('prayer-compose-input');
-    var text = input.value.trim();
-    if (!text) return;
-    var anon = document.getElementById('prayer-anon').checked;
-    prayerSendBtn.disabled = true;
-    try {
-      await postAction({ action: 'sendChatMessage', token: session.token, channel: 'prayer', text: text, msg_type: 'prayer', to_user: '', anonymous: anon });
-      input.value = '';
-      posts.push({ from: anon ? 'Anonymous' : session.name, text: text, timestamp: Date.now(), msg_type: 'prayer', _channel: 'prayer' });
-      renderPrayerFeed('prayer');
-    } catch(e) {}
-    prayerSendBtn.disabled = false;
-  });
-}
+var psBtn=document.getElementById('prayer-send-btn');
+if(psBtn)psBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('prayer-compose-input'),text=input.value.trim();if(!text)return;var type=document.getElementById('prayer-type-select').value;var anon=document.getElementById('prayer-anon').checked;psBtn.disabled=true;try{await postAction({action:'sendChatMessage',token:session.token,channel:type,text:text,msg_type:type,to_user:'',anonymous:anon});input.value='';posts.unshift({from:anon?'Anonymous':session.name,text:text,timestamp:Date.now(),msg_type:type,_channel:type});renderPrayerFeed();renderHomeFeed();}catch(e){}psBtn.disabled=false;});
 
-// Thanksgiving send
-var thanksSendBtn = document.getElementById('thanks-send-btn');
-if (thanksSendBtn) {
-  thanksSendBtn.addEventListener('click', async function() {
-    if (!session) return;
-    var input = document.getElementById('thanks-compose-input');
-    var text = input.value.trim();
-    if (!text) return;
-    thanksSendBtn.disabled = true;
-    try {
-      await postAction({ action: 'sendChatMessage', token: session.token, channel: 'thanksgiving', text: text, msg_type: 'thanksgiving', to_user: '' });
-      input.value = '';
-      posts.push({ from: session.name, text: text, timestamp: Date.now(), msg_type: 'thanksgiving', _channel: 'thanksgiving' });
-      renderPrayerFeed('thanksgiving');
-    } catch(e) {}
-    thanksSendBtn.disabled = false;
-  });
-}
+// Prayer filter
+document.querySelectorAll('.prayer-filter__btn').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.prayer-filter__btn').forEach(function(b){b.classList.remove('is-active');});this.classList.add('is-active');prayerFilter=this.dataset.filter;renderPrayerFeed();});});
 
-// ═══ eLIBRARY ═══
-function renderELibrary() {
-  var grid = document.getElementById('elibrary-grid');
-  if (!grid) return;
+// eLibrary
+function renderELibrary(){var grid=document.getElementById('elibrary-grid');if(!grid)return;
+var courses=[{id:'four-spiritual-laws',icon:'✝️',name:'Four Spiritual Laws',desc:'Interactive Gospel presentation in 4 laws.',badge:'free'},{id:'20-day-plan',icon:'📖',name:'20-Day Reading Plan',desc:'Journey through Scripture in 4 weeks.',badge:'free'},{id:'what-is-seed',icon:'🌱',name:'What is Seed the Word?',desc:'Learn about our ministry and values.',badge:'free'},{id:'recommended-listening',icon:'🎧',name:'Recommended Listening',desc:'Channels and podcasts we trust.',badge:'free'},{id:'how-to-seed',icon:'🌾',name:'How to Seed',desc:'Practical evangelism guide.',badge:'free'},{id:'how-to-grow',icon:'💧',name:'How to Grow',desc:'Four-movement discipleship process.',badge:'free'},{id:'how-to-harvest',icon:'🌻',name:'How to Harvest',desc:'Helping believers find their calling.',badge:'free'},{id:'marriage-young-adults',icon:'💒',name:'Marriage & Young Adults',desc:'Young adult discipleship topics.',badge:'coming',placeholder:true},{id:'outreach-partnerships',icon:'🤝',name:'Outreach & Partnerships',desc:'Ministry partnerships.',badge:'coming',placeholder:true},{id:'social-media',icon:'📱',name:'Social Media for Jesus',desc:'Online evangelism.',badge:'coming',placeholder:true},{id:'deeper-doctrine',icon:'📜',name:'Deeper Doctrine',desc:'Doctrinal training.',badge:'coming',placeholder:true}];
+grid.innerHTML=courses.map(function(c){return'<div class="elibrary-card'+(c.placeholder?' elibrary-card--placeholder':'')+'" data-course="'+c.id+'"><div class="elibrary-card__icon">'+c.icon+'</div><h3 class="elibrary-card__name">'+c.name+'</h3><p class="elibrary-card__desc">'+c.desc+'</p><span class="elibrary-card__badge elibrary-card__badge--'+(c.badge==='free'?'free':'coming')+'">'+(c.badge==='free'?'Free':'Coming Soon')+'</span></div>';}).join('');
+grid.querySelectorAll('.elibrary-card:not(.elibrary-card--placeholder)').forEach(function(card){card.addEventListener('click',function(){var id=this.dataset.course;
+if(id==='how-to-seed'){window.location.href='how-to-seed.html';return;}
+if(id==='how-to-grow'){window.location.href='how-to-grow.html';return;}
+if(id==='how-to-harvest'){window.location.href='how-to-harvest.html';return;}
+if(window.openCourseViewer&&id!=='20-day-plan'){window.openCourseViewer(id);}
+else if(window.openReadingPlan&&id==='20-day-plan'){window.openReadingPlan(id);}
+else{alert('Course viewer loading... please try again in a moment.');}
+});});}
 
-  var courses = [
-    { id: 'four-spiritual-laws', icon: '✝️', name: 'Four Spiritual Laws', desc: 'Interactive Gospel presentation in 4 laws. A classic tool for sharing your faith.', badge: 'free' },
-    { id: '20-day-plan', icon: '📖', name: '20-Day Reading Plan', desc: 'Journey through Scripture in 4 weeks. John, Psalms, Romans, and practical faith.', badge: 'free' },
-    { id: 'what-is-seed', icon: '🌱', name: 'What is Seed the Word?', desc: 'Learn about our ministry, values, and how we operate.', badge: 'free' },
-    { id: 'recommended-listening', icon: '🎧', name: 'Recommended Listening', desc: 'Channels, podcasts, and content from voices we trust.', badge: 'free' },
-    { id: 'how-to-seed', icon: '🌾', name: 'How to Seed', desc: 'Practical evangelism guide — how to share your faith naturally.', badge: 'free' },
-    { id: 'how-to-grow', icon: '💧', name: 'How to Grow', desc: 'The four-movement discipleship process for new believers.', badge: 'free' },
-    { id: 'how-to-harvest', icon: '🌻', name: 'How to Harvest', desc: 'Helping mature believers find their calling and serve.', badge: 'free' },
-    { id: 'marriage-young-adults', icon: '💒', name: 'Marriage & Young Adults', desc: 'Topics for young adult discipleship and relationships.', badge: 'coming', placeholder: true },
-    { id: 'outreach-partnerships', icon: '🤝', name: 'Outreach & Partnerships', desc: 'How partnering with other ministries works.', badge: 'coming', placeholder: true },
-    { id: 'social-media', icon: '📱', name: 'Social Media for Jesus', desc: 'Using your online presence for evangelism.', badge: 'coming', placeholder: true },
-    { id: 'deeper-doctrine', icon: '📜', name: 'Deeper Doctrine', desc: 'Doctrinal training and water baptism preparation.', badge: 'coming', placeholder: true }
-  ];
+// Bible reading
+function updateReading(){var today=new Date().getDay();var cards=document.querySelectorAll('#bible-plan-container .bible-day-card');var text='Rest day — catch up or revisit a chapter.';if(cards.length){var idx=today>=1&&today<=5?today-1:-1;if(idx>=0&&cards[idx]){var t=cards[idx].querySelector('.bible-day-card__title,h3,strong');text=t?t.textContent:"See today's chapter";}}
+var rt=document.getElementById('reading-today-text'),sr=document.getElementById('sidebar-reading');if(rt)rt.textContent=text;if(sr)sr.textContent=text;}
+setTimeout(updateReading,1500);
+var eb=document.getElementById('reading-expand-btn'),cb=document.getElementById('reading-collapse-btn'),fr=document.getElementById('bible-reading-full');
+if(eb)eb.addEventListener('click',function(){if(fr)fr.style.display='';});
+if(cb)cb.addEventListener('click',function(){if(fr)fr.style.display='none';});
 
-  grid.innerHTML = courses.map(function(c) {
-    var badgeHtml = c.badge === 'free' ? '<span class="elibrary-card__badge elibrary-card__badge--free">Free</span>' : '<span class="elibrary-card__badge elibrary-card__badge--coming">Coming Soon</span>';
-    var placeholderClass = c.placeholder ? ' elibrary-card--placeholder' : '';
-    return '<div class="elibrary-card' + placeholderClass + '" data-course="' + c.id + '">' +
-      '<div class="elibrary-card__icon">' + c.icon + '</div>' +
-      '<h3 class="elibrary-card__name">' + c.name + '</h3>' +
-      '<p class="elibrary-card__desc">' + c.desc + '</p>' +
-      badgeHtml +
-    '</div>';
-  }).join('');
+// Calendar
+var calAttempts=0,calCheck=setInterval(function(){calAttempts++;if(window.googleCalendar&&window.googleCalendar.events&&window.googleCalendar.events.length){clearInterval(calCheck);var cal=window.googleCalendar,now=new Date(),upcoming=cal.events.filter(function(ev){var s=cal.getEventStart(ev);return s&&s>now;}).slice(0,5);if(!upcoming.length)return;var html=upcoming.map(function(ev){var s=cal.getEventStart(ev);return'<div class="event-item"><div class="event-item__date"><span class="event-item__month">'+s.toLocaleDateString('en-US',{month:'short'})+'</span><span class="event-item__day">'+s.getDate()+'</span></div><div class="event-item__info"><div class="event-item__title">'+(ev.summary||'Event')+'</div><div class="event-item__time">'+s.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div></div></div>';}).join('');var el=document.getElementById('events-list'),se=document.getElementById('sidebar-events'),ec2=document.getElementById('events-count');if(el)el.innerHTML=html;if(se)se.innerHTML=html;if(ec2)ec2.textContent=upcoming.length+' upcoming';}else if(calAttempts>40)clearInterval(calCheck);},500);
 
-  // Bind clicks — open LMS viewer (no progress tracking for public)
-  grid.querySelectorAll('.elibrary-card:not(.elibrary-card--placeholder)').forEach(function(card) {
-    card.addEventListener('click', function() {
-      var courseId = this.dataset.course;
-      // For how-to-* courses, open the corresponding page
-      if (courseId === 'how-to-seed') { window.location.href = 'how-to-seed.html'; return; }
-      if (courseId === 'how-to-grow') { window.location.href = 'how-to-grow.html'; return; }
-      if (courseId === 'how-to-harvest') { window.location.href = 'how-to-harvest.html'; return; }
-      // For LMS courses, use the viewer if available
-      if (typeof openCourseViewer === 'function' && courseId !== '20-day-plan') {
-        openCourseViewer(courseId);
-      } else if (typeof openReadingPlan === 'function' && courseId === '20-day-plan') {
-        openReadingPlan(courseId);
-      }
-    });
-  });
-}
+// Theme
+var tb=document.getElementById('theme-btn');if(tb)tb.addEventListener('click',function(){var h=document.documentElement,c=h.getAttribute('data-theme')||'light',n=c==='light'?'dark':'light';h.setAttribute('data-theme',n);try{localStorage.setItem('stwm-theme',n);}catch(e){}});
 
-// ═══ BIBLE READING ═══
-function updateReadingDisplay() {
-  var today = new Date().getDay();
-  var dayCards = document.querySelectorAll('#bible-plan-container .bible-day-card');
-  var text = 'Rest day — catch up or revisit a chapter.';
-  if (dayCards.length) {
-    var idx = today >= 1 && today <= 5 ? today - 1 : -1;
-    if (idx >= 0 && dayCards[idx]) {
-      var title = dayCards[idx].querySelector('.bible-day-card__title, h3, strong');
-      text = title ? title.textContent : "See today's chapter";
-    }
-  }
-  var readingText = document.getElementById('reading-today-text');
-  var sidebarReading = document.getElementById('sidebar-reading');
-  if (readingText) readingText.textContent = text;
-  if (sidebarReading) sidebarReading.textContent = text;
-}
-setTimeout(updateReadingDisplay, 1500);
-
-// Expand/collapse reading
-var expandBtn = document.getElementById('reading-expand-btn');
-var collapseBtn = document.getElementById('reading-collapse-btn');
-var fullReading = document.getElementById('bible-reading-full');
-if (expandBtn) expandBtn.addEventListener('click', function() { if (fullReading) fullReading.style.display = ''; });
-if (collapseBtn) collapseBtn.addEventListener('click', function() { if (fullReading) fullReading.style.display = 'none'; });
-
-// ═══ GOOGLE CALENDAR EVENTS ═══
-function populateCalendarEvents() {
-  var cal = window.googleCalendar;
-  if (!cal || !cal.events || !cal.events.length) return;
-  var now = new Date();
-  var upcoming = cal.events.filter(function(ev) {
-    var start = cal.getEventStart(ev);
-    return start && start > now;
-  }).slice(0, 5);
-  if (!upcoming.length) return;
-
-  var html = upcoming.map(function(ev) {
-    var start = cal.getEventStart(ev);
-    var month = start.toLocaleDateString('en-US', { month: 'short' });
-    var day = start.getDate();
-    var time = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    var title = ev.summary || 'Event';
-    return '<div class="event-item"><div class="event-item__date"><span class="event-item__month">' + month + '</span><span class="event-item__day">' + day + '</span></div><div class="event-item__info"><div class="event-item__title">' + title + '</div><div class="event-item__time">' + time + '</div></div></div>';
-  }).join('');
-
-  // Update both mobile and sidebar
-  var evList = document.getElementById('events-list');
-  var sideEvts = document.getElementById('sidebar-events');
-  if (evList) evList.innerHTML = html;
-  if (sideEvts) sideEvts.innerHTML = html;
-  var countEl = document.getElementById('events-count');
-  if (countEl) countEl.textContent = upcoming.length + ' upcoming';
-}
-
-var calAttempts = 0;
-var calCheck = setInterval(function() {
-  calAttempts++;
-  if (window.googleCalendar && window.googleCalendar.events && window.googleCalendar.events.length) {
-    clearInterval(calCheck);
-    populateCalendarEvents();
-  } else if (calAttempts > 40) { clearInterval(calCheck); }
-}, 500);
-
-// ═══ THEME TOGGLE ═══
-var themeBtn = document.getElementById('theme-btn');
-if (themeBtn) {
-  themeBtn.addEventListener('click', function() {
-    var html = document.documentElement;
-    var current = html.getAttribute('data-theme') || 'light';
-    var next = current === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    try { localStorage.setItem('stwm-theme', next); } catch(e) {}
-  });
-}
-
-// ═══ INIT ═══
-checkSession();
-renderELibrary();
-loadFeed();
-
+// Init
+checkSession();renderELibrary();loadFeed();
 })();
 </script>
 </body>

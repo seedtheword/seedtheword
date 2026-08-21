@@ -731,6 +731,11 @@ async function initLMS() {
   updateProfileBadges();
 }
 
+// Expose viewer functions for external use (e.g. community eLibrary)
+window.openCourseViewer = openCourseViewer;
+window.openReadingPlan = openReadingPlan;
+window.LMS_COURSES = COURSES;
+
 // Hook into training tab click
 var trainingTab = document.querySelector('[data-tab="training"]');
 if (trainingTab) {

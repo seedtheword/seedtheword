@@ -3885,6 +3885,12 @@ function doGet(e) {
     }
   }
 
+  // ── Community Social actions (see docs/apps-script/social-handler.gs) ──
+  if ((payload && payload.action) === 'toggleLike') return handleToggleLike_(payload);
+  if ((payload && payload.action) === 'getLikes') return handleGetLikes_(payload);
+  if ((payload && payload.action) === 'postComment') return handlePostComment_(payload);
+  if ((payload && payload.action) === 'getComments') return handleGetComments_(payload);
+
   return jsonResponse({ ok: false, error: 'unknown-action' });
 }
 

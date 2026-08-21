@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615877,
-  "lastModified": "2026-08-21T00:40:46Z",
+  "lastModified": "2026-08-21T00:55:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -228,16 +228,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5181,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thank you Liam!!!",
-      "ts": "2026-08-07T00:49:17Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5183,

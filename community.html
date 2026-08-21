@@ -30,7 +30,6 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .channel-tab__icon{font-size:1rem;}
 .channel-tab__badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:var(--radius-full);background:#e74c3c;color:#fff;font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
 .channel-tab__badge:empty{display:none;}
-.channel-bar__theme{display:none;}
 
 /* Layout */
 .social-wrapper{max-width:1100px;margin:0 auto;}
@@ -207,9 +206,23 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .sidebar-cta__text{font-size:0.78rem;opacity:0.85;line-height:1.5;margin-bottom:0.85rem;}
 .sidebar-cta__btn{display:inline-block;padding:0.55rem 1.25rem;background:var(--color-gold);color:#fff;border-radius:var(--radius-full);font-size:0.8rem;font-weight:600;text-decoration:none;}
 
-/* Dark mode */
+/* Dark mode — full coverage */
 [data-theme="dark"] .cta-card{background:linear-gradient(135deg,#1a3a2e,#2a4f40);}
 [data-theme="dark"] .sidebar-cta{background:linear-gradient(135deg,#1a3a2e,#2a4f40);}
+[data-theme="dark"] .site-header{background:rgba(15,18,24,0.92)!important;border-bottom-color:var(--color-border)!important;box-shadow:0 4px 30px rgba(0,0,0,0.3)!important;}
+[data-theme="dark"] .site-header.scrolled{background:rgba(15,18,24,0.95)!important;}
+[data-theme="dark"] .site-header .nav-links a{color:var(--color-text-secondary);}
+[data-theme="dark"] .site-header .nav-links a:hover,[data-theme="dark"] .site-header .nav-links a.active{color:var(--color-gold);}
+[data-theme="dark"] .site-logo{color:var(--color-olive)!important;}
+[data-theme="dark"] .hamburger span{background:var(--color-text)!important;}
+[data-theme="dark"] .site-footer{background:var(--color-bg-elevated)!important;color:var(--color-text)!important;border-top:1px solid var(--color-border)!important;}
+[data-theme="dark"] .site-footer a{color:var(--color-text-secondary)!important;}
+[data-theme="dark"] .site-footer a:hover{color:var(--color-gold)!important;}
+[data-theme="dark"] .channel-bar{background:rgba(15,18,24,0.9)!important;border-bottom-color:var(--color-border)!important;}
+[data-theme="dark"] .bottom-nav{background:rgba(15,18,24,0.92)!important;border-top-color:var(--color-border)!important;}
+[data-theme="dark"] #site-nav{background:var(--color-bg-elevated)!important;}
+.footer-theme-toggle{display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.8rem;border:1.5px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-surface);color:var(--color-text-muted);font-size:0.75rem;font-weight:600;font-family:var(--font-sans);cursor:pointer;transition:all var(--duration-fast);vertical-align:middle;margin-left:0.5rem;}
+.footer-theme-toggle:hover{border-color:var(--color-gold);color:var(--color-gold);}
 
 /* Empty state */
 .empty-state{text-align:center;padding:3rem 2rem;color:var(--color-text-muted);}
@@ -319,11 +332,12 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
       <div><h4 class="footer-col__title">Navigate</h4><ul class="footer-nav"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></div>
       <div><h4 class="footer-col__title">Connect</h4><div class="footer-connect__icons"><a class="footer-connect__icon" href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg></a><a class="footer-connect__icon" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98C.014 8.333 0 8.741 0 12s.014 3.668.072 4.948c.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24s3.668-.014 4.948-.072c4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948s-.014-3.667-.072-4.947c-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/></svg></a><a class="footer-connect__icon" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></a><a class="footer-connect__icon" href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.3-.7.4-1 .2-2.8-1.7-6.4-2.1-10.5-1.2-.4.1-.8-.1-.9-.5s.1-.8.5-.9c4.6-1 8.5-.6 11.6 1.3.4.2.5.7.3 1.1zm1.5-3.3c-.3.4-.8.5-1.3.3-3.2-2-8.1-2.6-12-1.4-.4.1-.9-.1-1-.5-.1-.4.1-.9.5-1c4.4-1.3 9.8-.7 13.5 1.6.4.2.6.8.3 1zm.1-3.4c-3.9-2.3-10.3-2.5-13.9-1.4-.5.2-1-.1-1.2-.6-.2-.5.1-1 .6-1.2 4.2-1.3 11.3-1 15.7 1.6.4.3.6.9.3 1.3-.2.5-.8.6-1.3.3z"/></svg></a></div><a class="footer-connect__contact" href="connect.html">🤝 Connect with Us</a><a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a><a class="footer-connect__contact" href="donate.html">📖 Donate or receive a Bible</a></div>
     </div>
-    <div class="footer-bottom"><p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p><ul class="footer-bottom__links"><li><a href="about.html">About</a></li><li><a href="about.html#contact">Contact</a></li><li><a href="about.html#careers">Careers</a></li><li><a href="admin-help.html" style="opacity:0.55;">Admin</a></li></ul></div>
+    <div class="footer-bottom"><p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p><ul class="footer-bottom__links"><li><a href="about.html">About</a></li><li><a href="about.html#contact">Contact</a></li><li><a href="about.html#careers">Careers</a></li><li><a href="admin-help.html" style="opacity:0.55;">Admin</a></li><li><button class="theme-toggle footer-theme-toggle" aria-label="Toggle theme"><span class="theme-toggle__sun"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span><span class="theme-toggle__moon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span></button></li></ul></div>
   </div>
 </footer>
 
 <script src="assets/js/main.js?v=9"></script>
+<script src="assets/js/nav-auth.js?v=1"></script>
 <script src="assets/js/bible-plan.js?v=2"></script>
 <script src="assets/js/layered-plan.js?v=1"></script>
 <script src="assets/js/lms.js?v=1"></script>
@@ -403,10 +417,14 @@ return'<article class="post-card" data-post-id="'+postId+'">'+
 
 function renderComments(comments,postId){
 if(!comments||!comments.length)return'';
+var myName=session?session.name:'';
 return comments.map(function(c){
+var isMine=myName&&c.userId===myName;
 var repliesHtml='';
-if(c.replies&&c.replies.length){repliesHtml='<div class="comment__replies">'+c.replies.map(function(r){return'<div class="comment"><div class="comment__avatar">'+initials(r.userId)+'</div><div class="comment__body"><div class="comment__bubble"><div class="comment__author">'+esc(r.userId)+'</div><div class="comment__text">'+esc(r.text)+'</div></div><div class="comment__meta"><span>'+timeAgo(r.timestamp)+'</span></div></div></div>';}).join('')+'</div>';}
-return'<div class="comment"><div class="comment__avatar">'+initials(c.userId)+'</div><div class="comment__body"><div class="comment__bubble"><div class="comment__author">'+esc(c.userId)+'</div><div class="comment__text">'+esc(c.text)+'</div></div><div class="comment__meta"><span>'+timeAgo(c.timestamp)+'</span>'+(session?'<button class="reply-btn" data-post-id="'+postId+'" data-comment-id="'+c.id+'">Reply</button>':'')+'</div>'+repliesHtml+'</div></div>';}).join('');}
+if(c.replies&&c.replies.length){repliesHtml='<div class="comment__replies">'+c.replies.map(function(r){
+var rMine=myName&&r.userId===myName;
+return'<div class="comment" data-comment-id="'+r.id+'"><div class="comment__avatar">'+initials(r.userId)+'</div><div class="comment__body"><div class="comment__bubble"><div class="comment__author">'+esc(r.userId)+'</div><div class="comment__text">'+esc(r.text)+'</div></div><div class="comment__meta"><span>'+timeAgo(r.timestamp)+'</span>'+(rMine?'<button class="delete-comment-btn" data-post-id="'+postId+'" data-comment-id="'+r.id+'">Delete</button>':'')+'</div></div></div>';}).join('')+'</div>';}
+return'<div class="comment" data-comment-id="'+c.id+'"><div class="comment__avatar">'+initials(c.userId)+'</div><div class="comment__body"><div class="comment__bubble"><div class="comment__author">'+esc(c.userId)+'</div><div class="comment__text">'+esc(c.text)+'</div></div><div class="comment__meta"><span>'+timeAgo(c.timestamp)+'</span>'+(session?'<button class="reply-btn" data-post-id="'+postId+'" data-comment-id="'+c.id+'">Reply</button>':'')+(isMine?'<button class="delete-comment-btn" data-post-id="'+postId+'" data-comment-id="'+c.id+'">Delete</button>':'')+'</div>'+repliesHtml+'</div></div>';}).join('');}
 
 function renderHomeFeed(){var feed=document.getElementById('posts-feed');var hp=posts.slice(0,30);if(!hp.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">📭</div><h3 class="empty-state__title">No posts yet</h3><p class="empty-state__text">Be the first to share.</p></div>';return;}feed.innerHTML=hp.map(renderPost).join('');bindPostActions(feed);
 // Load social data then re-render with counts
@@ -473,11 +491,46 @@ container.querySelectorAll('.reply-btn').forEach(function(btn){btn.addEventListe
 if(!session){alert('Sign in to reply.');return;}
 var postId=this.dataset.postId,commentId=this.dataset.commentId;
 var parent=this.closest('.comment__body');
-if(parent.querySelector('.comment-compose'))return;// already open
+if(parent.querySelector('.comment-compose'))return;
 var replyHtml='<div class="comment-compose" style="margin-top:0.4rem;"><div class="comment-compose__avatar">'+initials(session.name)+'</div><input class="comment-compose__input" placeholder="Reply..." data-post-id="'+postId+'" data-parent-comment-id="'+commentId+'"></div>';
 parent.insertAdjacentHTML('beforeend',replyHtml);
 var newInput=parent.querySelector('.comment-compose__input');
-if(newInput){newInput.focus();bindPostActions(parent);}
+if(newInput){newInput.focus();
+// Bind enter on the new reply input
+newInput.addEventListener('keydown',async function(e){
+if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();var text=this.value.trim();if(!text||!session)return;
+this.disabled=true;this.value='';
+try{var res=await postAction({action:'postComment',token:session.token,postId:postId,text:text,parentCommentId:commentId});
+if(res.ok&&res.comment){
+  if(!commentsCache[postId])commentsCache[postId]=[];
+  var parentComment=commentsCache[postId].find(function(c2){return c2.id===commentId;});
+  if(parentComment){if(!parentComment.replies)parentComment.replies=[];parentComment.replies.push(res.comment);}
+  // Re-render the entire comments section for this post
+  var card=this.closest('.post-card');var commentsEl=card.querySelector('.post-card__comments');
+  if(commentsEl){commentsEl.innerHTML=renderComments(commentsCache[postId]||[],postId)+(session?'<div class="comment-compose"><div class="comment-compose__avatar">'+initials(session.name)+'</div><input class="comment-compose__input" placeholder="Write a comment..." data-post-id="'+postId+'"></div>':'');bindPostActions(commentsEl);}
+}}catch(ex){
+  // Optimistic fallback
+  var replyDiv=document.createElement('div');replyDiv.className='comment';replyDiv.innerHTML='<div class="comment__avatar">'+initials(session.name)+'</div><div class="comment__body"><div class="comment__bubble"><div class="comment__author">'+esc(session.name)+'</div><div class="comment__text">'+esc(text)+'</div></div><div class="comment__meta"><span>Just now</span></div></div>';
+  var repliesContainer=parent.querySelector('.comment__replies');if(!repliesContainer){repliesContainer=document.createElement('div');repliesContainer.className='comment__replies';parent.appendChild(repliesContainer);}repliesContainer.appendChild(replyDiv);
+}this.disabled=false;var composeWrap=this.closest('.comment-compose');if(composeWrap)composeWrap.remove();}});}
+});});
+
+// Delete buttons
+container.querySelectorAll('.delete-comment-btn').forEach(function(btn){btn.addEventListener('click',async function(){
+if(!session)return;
+if(!confirm('Delete this comment?'))return;
+var postId=this.dataset.postId,commentId=this.dataset.commentId;
+// Remove from cache
+if(commentsCache[postId]){
+  commentsCache[postId]=commentsCache[postId].filter(function(c){
+    if(c.id===commentId)return false;
+    if(c.replies)c.replies=c.replies.filter(function(r){return r.id!==commentId;});
+    return true;});
+}
+// Re-render
+var card=this.closest('.post-card');var commentsEl=card.querySelector('.post-card__comments');
+if(commentsEl){commentsEl.innerHTML=renderComments(commentsCache[postId]||[],postId)+(session?'<div class="comment-compose"><div class="comment-compose__avatar">'+initials(session.name)+'</div><input class="comment-compose__input" placeholder="Write a comment..." data-post-id="'+postId+'"></div>':'');bindPostActions(commentsEl);}
+// TODO: server delete when API supports it
 });});}
 
 // Fetch social data (likes + comments) for visible posts
@@ -527,7 +580,10 @@ grid.querySelectorAll('.elibrary-card:not(.elibrary-card--placeholder)').forEach
 if(id==='how-to-seed'){window.location.href='how-to-seed.html';return;}
 if(id==='how-to-grow'){window.location.href='how-to-grow.html';return;}
 if(id==='how-to-harvest'){window.location.href='how-to-harvest.html';return;}
-if(window.openCourseViewer&&id!=='20-day-plan'){window.openCourseViewer(id);}
+if(window.openCourseViewer&&id!=='20-day-plan'){
+  // Public eLibrary: always start from beginning (no progress tracking)
+  if(!session){try{var lmsKey='stwm-lms-progress',p=JSON.parse(localStorage.getItem(lmsKey)||'{}');if(p[id])delete p[id].currentCard;localStorage.setItem(lmsKey,JSON.stringify(p));}catch(x){}}
+  window.openCourseViewer(id);}
 else if(window.openReadingPlan&&id==='20-day-plan'){window.openReadingPlan(id);}
 else{alert('Course viewer loading... please try again in a moment.');}
 });});}

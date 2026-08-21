@@ -13364,3 +13364,44 @@ body.your-walk-modal-open {
   .oss-slide__img { height: 320px; }
   .oss-slide__title { font-size: 1.2rem; }
 }
+
+
+/* ============================================================
+   Site-Wide Dark Mode + Theme Toggle Pill
+   Requires: theme.css variables + theme-toggle.js
+   ============================================================ */
+
+/* ── Theme Toggle Pill (on/off switch) ─────────────────────── */
+.footer-theme-toggle{position:relative;display:inline-block;width:36px;height:20px;background:var(--color-border, #e8e4de);border-radius:10px;cursor:pointer;vertical-align:middle;margin-left:0.5rem;border:none;padding:0;transition:background 0.2s;flex-shrink:0;}
+.footer-theme-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+[data-theme="dark"] .footer-theme-toggle{background:var(--color-gold, #D97736);}
+[data-theme="dark"] .footer-theme-toggle::after{transform:translateX(16px);}
+
+/* ── Dark Mode: Site Header ────────────────────────────────── */
+[data-theme="dark"] .site-header{background:rgba(15,18,24,0.92)!important;border-bottom-color:rgba(46,53,62,0.8)!important;box-shadow:0 4px 30px rgba(0,0,0,0.3)!important;}
+[data-theme="dark"] .site-header.scrolled{background:rgba(15,18,24,0.95)!important;}
+[data-theme="dark"] .site-logo{color:var(--color-olive, #4a8a72)!important;}
+[data-theme="dark"] .nav-links a{color:#a8adb5!important;}
+[data-theme="dark"] .nav-links a:hover,[data-theme="dark"] .nav-links a.active{color:var(--color-gold, #e89850)!important;}
+[data-theme="dark"] .nav-login{border-color:var(--color-gold, #e89850)!important;color:var(--color-gold, #e89850)!important;}
+[data-theme="dark"] .hamburger span{background:#e8e6e3!important;}
+
+/* ── Dark Mode: Mobile Nav ─────────────────────────────────── */
+[data-theme="dark"] #site-nav{background:rgba(26,30,36,0.98)!important;}
+[data-theme="dark"] #site-nav .nav-links a{color:#a8adb5!important;}
+[data-theme="dark"] #site-nav .nav-links a:hover{color:var(--color-gold, #e89850)!important;}
+
+/* ── Dark Mode: Body & Background ──────────────────────────── */
+[data-theme="dark"] body{background:var(--color-bg, #0f1218)!important;color:var(--color-text, #e8e6e3)!important;}
+
+/* ── Dark Mode: Footer ─────────────────────────────────────── */
+[data-theme="dark"] .site-footer{background:var(--color-bg-elevated, #1A1E24)!important;color:#e8e6e3!important;}
+[data-theme="dark"] .site-footer a{color:#a8adb5!important;}
+[data-theme="dark"] .site-footer a:hover{color:var(--color-gold, #e89850)!important;}
+[data-theme="dark"] .footer-bottom{border-top-color:rgba(46,53,62,0.8)!important;}
+[data-theme="dark"] .footer-bottom a{color:#7c8490!important;}
+[data-theme="dark"] .footer-bottom a:hover{color:#e8e6e3!important;}
+
+/* ── Dark Mode: Common Elements ────────────────────────────── */
+[data-theme="dark"] .header-social a svg{opacity:0.85;}
+[data-theme="dark"] .btn-secondary{background:rgba(30,35,41,0.8)!important;border-color:rgba(232,152,80,0.4)!important;color:#e89850!important;}

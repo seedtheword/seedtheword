@@ -22,7 +22,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 @media(min-width:1024px){body.community-body{padding-bottom:0;}}
 
 /* Channel Bar — centered */
-.channel-bar{position:sticky;top:0;z-index:100;background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border-bottom:1px solid var(--color-border);padding:0.6rem 3.5rem 0.6rem 1rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.channel-bar{position:sticky;top:0;z-index:100;background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border-bottom:1px solid var(--color-border);padding:0.6rem 1rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .channel-bar::-webkit-scrollbar{display:none;}
 .channel-tab{position:relative;display:inline-flex;align-items:center;gap:0.35rem;padding:0.55rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-full);font-size:0.78rem;font-weight:600;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text-muted);cursor:pointer;white-space:nowrap;transition:all var(--duration-fast) var(--ease);flex-shrink:0;min-height:44px;}
 .channel-tab:hover{border-color:var(--color-gold);color:var(--color-gold);}
@@ -30,8 +30,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .channel-tab__icon{font-size:1rem;}
 .channel-tab__badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:var(--radius-full);background:#e74c3c;color:#fff;font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
 .channel-tab__badge:empty{display:none;}
-.channel-bar__theme{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--radius-full);border:1.5px solid var(--color-border);background:var(--color-surface);cursor:pointer;flex-shrink:0;color:var(--color-text-muted);position:absolute;right:1rem;}
-.channel-bar__theme:hover{border-color:var(--color-gold);color:var(--color-gold);}
+.channel-bar__theme{display:none;}
 
 /* Layout */
 .social-wrapper{max-width:1100px;margin:0 auto;}
@@ -252,7 +251,6 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
   <button class="channel-tab" data-channel="scripture" role="tab" aria-selected="false"><span class="channel-tab__icon">📖</span> Scripture<span class="channel-tab__badge" id="badge-scripture"></span></button>
   <button class="channel-tab" data-channel="prayer" role="tab" aria-selected="false"><span class="channel-tab__icon">🙏</span> Prayer<span class="channel-tab__badge" id="badge-prayer"></span></button>
   <button class="channel-tab" data-channel="library" role="tab" aria-selected="false"><span class="channel-tab__icon">📚</span> eLibrary<span class="channel-tab__badge" id="badge-library"></span></button>
-  <button class="channel-bar__theme" id="theme-btn" aria-label="Toggle theme"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
 </nav>
 
 <div class="social-wrapper">
@@ -545,8 +543,7 @@ if(cb)cb.addEventListener('click',function(){if(fr)fr.style.display='none';});
 // Calendar
 var calAttempts=0,calCheck=setInterval(function(){calAttempts++;if(window.googleCalendar&&window.googleCalendar.events&&window.googleCalendar.events.length){clearInterval(calCheck);var cal=window.googleCalendar,now=new Date(),upcoming=cal.events.filter(function(ev){var s=cal.getEventStart(ev);return s&&s>now;}).slice(0,5);if(!upcoming.length)return;var html=upcoming.map(function(ev){var s=cal.getEventStart(ev);return'<div class="event-item"><div class="event-item__date"><span class="event-item__month">'+s.toLocaleDateString('en-US',{month:'short'})+'</span><span class="event-item__day">'+s.getDate()+'</span></div><div class="event-item__info"><div class="event-item__title">'+(ev.summary||'Event')+'</div><div class="event-item__time">'+s.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div></div></div>';}).join('');var el=document.getElementById('events-list'),se=document.getElementById('sidebar-events'),ec2=document.getElementById('events-count');if(el)el.innerHTML=html;if(se)se.innerHTML=html;if(ec2)ec2.textContent=upcoming.length+' upcoming';}else if(calAttempts>40)clearInterval(calCheck);},500);
 
-// Theme
-var tb=document.getElementById('theme-btn');if(tb)tb.addEventListener('click',function(){var h=document.documentElement,c=h.getAttribute('data-theme')||'light',n=c==='light'?'dark':'light';h.setAttribute('data-theme',n);try{localStorage.setItem('stwm-theme',n);}catch(e){}});
+// Theme — handled by theme-toggle.js site-wide
 
 // Init
 checkSession();renderELibrary();loadFeed();

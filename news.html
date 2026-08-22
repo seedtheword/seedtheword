@@ -27,6 +27,7 @@
       --serif: 'Playfair Display', Georgia, serif;
       --sans: 'Source Sans 3', system-ui, sans-serif;
       --mono: 'IBM Plex Mono', monospace;
+      --cursive: 'Caveat', cursive;
       --bg-ivory: #FAFAF8;
       --fg: #1A1A1A;
       --fg-muted: #6B6B6B;
@@ -64,13 +65,39 @@
       font-family: var(--sans);
       line-height: 1.75;
     }
+    .news-hero-feature__byline {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.65);
+      margin-top: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .news-hero-feature__byline-name {
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+    }
+    .news-hero-feature__byline-sep {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      display: inline-block;
+    }
+    .news-hero-feature__readtime {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.55);
+    }
 
     /* ── Section backgrounds — warm ivory tones ─────────────────── */
-    #announcements { background: var(--card-bg); }
+    #announcements-calendar { background: var(--surface-muted); }
     #ministry-outreach { background: var(--card-bg); padding: 2.5rem 0 3rem; }
     #share-your-story { background: var(--bg-ivory); }
     #ministry-highlights { background: var(--card-bg); }
-    #calendar-section { background: var(--surface-muted); }
 
     /* ── Outreach card editorial styling ────────────────────────── */
     #ministry-outreach .outreach-card__tag {
@@ -111,11 +138,394 @@
     .outreach-card__actions a {
       color: var(--accent-gold-light, #D4A84B) !important;
     }
+    /* Editorial metadata line on outreach cards */
+    .outreach-card__editorial-meta {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-top: 0.5rem;
+    }
 
     /* ── Tighter newsletter flow ────────────────────────────────── */
     .news-editorial + section,
     section + section { margin-top: 0; }
     section.section { padding: 2.5rem 0; }
+
+    /* ── Editor's Letter ────────────────────────────────────────── */
+    .editors-letter {
+      padding: 2.5rem 0 2rem;
+      background: var(--bg-ivory);
+      border-bottom: 1px solid var(--border-warm);
+    }
+    .editors-letter__inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.75rem;
+      align-items: start;
+    }
+    .editors-letter__accent {
+      font-family: var(--cursive);
+      font-size: 3.5rem;
+      color: var(--accent-gold);
+      line-height: 1;
+      margin-top: -0.25rem;
+    }
+    .editors-letter__body {
+      min-width: 0;
+    }
+    .editors-letter__label {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.6rem;
+    }
+    .editors-letter__text {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      line-height: 1.85;
+      color: var(--fg);
+      margin: 0 0 0.75rem;
+      font-style: italic;
+    }
+    .editors-letter__sig {
+      font-family: var(--cursive);
+      font-size: 1.4rem;
+      color: var(--fg);
+      margin-top: 0.5rem;
+    }
+    .editors-letter__role {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: var(--fg-muted);
+      margin-top: 0.15rem;
+    }
+
+    /* ── Merged Announcements + Calendar Editorial Column ────────── */
+    .whats-coming-up {
+      padding: 2.5rem 0;
+      background: var(--surface-muted);
+    }
+    .whats-coming-up__header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .whats-coming-up__title {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--fg);
+      margin: 0;
+    }
+    .whats-coming-up__actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .whats-coming-up__scroll {
+      max-height: 520px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-warm) transparent;
+    }
+    .whats-coming-up__scroll::-webkit-scrollbar { width: 5px; }
+    .whats-coming-up__scroll::-webkit-scrollbar-track { background: transparent; }
+    .whats-coming-up__scroll::-webkit-scrollbar-thumb { background: var(--border-warm); border-radius: 3px; }
+
+    /* Announcement compact cards */
+    .wcu-announcement {
+      background: var(--card-bg);
+      border: 1px solid var(--border-warm);
+      border-left: 3px solid var(--accent-gold);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+    .wcu-announcement--high {
+      border-left-color: #c0392b;
+    }
+    .wcu-announcement__label {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.3rem;
+    }
+    .wcu-announcement--high .wcu-announcement__label {
+      color: #c0392b;
+    }
+    .wcu-announcement__subject {
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--fg);
+      margin: 0 0 0.3rem;
+      line-height: 1.3;
+    }
+    .wcu-announcement__body {
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      color: var(--fg-muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Calendar event rows */
+    .wcu-event {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--border-warm);
+    }
+    .wcu-event:last-child { border-bottom: none; }
+    .wcu-event__date-badge {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-warm);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .wcu-event__date-badge--live {
+      border-color: #c0392b;
+      background: #fdf2f2;
+    }
+    .wcu-event__month {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+      line-height: 1;
+    }
+    .wcu-event__day {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--fg);
+      line-height: 1.2;
+    }
+    .wcu-event__info {
+      flex: 1;
+      min-width: 0;
+    }
+    .wcu-event__title {
+      font-family: var(--sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--fg);
+      margin: 0 0 0.2rem;
+      line-height: 1.3;
+    }
+    .wcu-event__time {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--fg-muted);
+      letter-spacing: 0.02em;
+    }
+    .wcu-event__live-badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: #c0392b;
+      color: #fff;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      margin-left: 0.5rem;
+      animation: pulse-live 2s infinite;
+    }
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .wcu-empty {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--fg-muted);
+      font-family: var(--sans);
+      font-size: 0.9rem;
+    }
+
+    /* ── Photo-Essay Gallery ─────────────────────────────────────── */
+    .photo-essay {
+      padding: 2.5rem 0;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border-warm);
+    }
+    .photo-essay__header {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+    .photo-essay__label {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.4rem;
+    }
+    .photo-essay__title {
+      font-family: var(--serif);
+      font-size: clamp(1.4rem, 3vw, 1.8rem);
+      font-weight: 400;
+      color: var(--fg);
+      margin: 0;
+    }
+    .photo-essay__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .photo-essay__item {
+      break-inside: avoid;
+    }
+    .photo-essay__item--wide {
+      grid-column: 1 / -1;
+    }
+    .photo-essay__img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      display: block;
+      aspect-ratio: 16/10;
+      object-fit: cover;
+    }
+    .photo-essay__item--wide .photo-essay__img {
+      aspect-ratio: 21/9;
+    }
+    .photo-essay__caption {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      color: var(--fg-muted);
+      line-height: 1.6;
+      margin-top: 0.5rem;
+      padding-left: 0.75rem;
+      border-left: 2px solid var(--accent-gold);
+    }
+    .photo-essay__caption-location {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      color: var(--fg-muted);
+      display: block;
+      margin-top: 0.2rem;
+    }
+    @media (max-width: 600px) {
+      .photo-essay__grid { grid-template-columns: 1fr; }
+      .photo-essay__item--wide { grid-column: auto; }
+    }
+
+    /* ── Testimony Preview Cards ─────────────────────────────────── */
+    .testimony-previews {
+      padding: 2.5rem 0;
+      background: var(--bg-ivory);
+      border-top: 1px solid var(--border-warm);
+    }
+    .testimony-previews__header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .testimony-previews__label {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.4rem;
+    }
+    .testimony-previews__title {
+      font-family: var(--serif);
+      font-size: clamp(1.3rem, 2.5vw, 1.6rem);
+      font-weight: 400;
+      color: var(--fg);
+      margin: 0;
+    }
+    .testimony-previews__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .testimony-preview-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-warm);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .testimony-preview-card:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .testimony-preview-card__img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+    }
+    .testimony-preview-card__body {
+      padding: 1.25rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .testimony-preview-card__quote {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-style: italic;
+      line-height: 1.7;
+      color: var(--fg);
+      margin: 0 0 0.75rem;
+      flex: 1;
+    }
+    .testimony-preview-card__author {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--fg);
+      margin-bottom: 0.6rem;
+    }
+    .testimony-preview-card__link {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .testimony-preview-card__link:hover {
+      color: var(--accent-gold-light);
+    }
 
     /* ==== Share-your-story section + modal ========================= */
 
@@ -157,8 +567,7 @@
       font-style: italic;
     }
 
-    /* Modal shell. Uses flex-center positioning so the form sits nicely
-       on mobile and desktop alike. */
+    /* Modal shell */
     .share-story-modal {
       position: fixed;
       inset: 0;
@@ -236,13 +645,8 @@
       color: var(--muted);
       line-height: 1.7;
     }
-
-    /* Lock the background scroll while the modal is open. */
     body.share-story-modal-open { overflow: hidden; }
 
-    /* Inline variant — Share your story tucked under the testimonies grid
-       inside the same section. Adds a soft top divider so the eyebrow
-       reads as a sub-section, not a fresh page area. */
     .share-story-section--inline {
       max-width: 720px;
       margin: 3rem auto 0;
@@ -255,8 +659,6 @@
       text-align: center;
     }
 
-    /* Highlights section cosmetic tweaks — it was nested inside the
-       combined outreach section before, now it's standalone. */
     .highlights-section .outreach-subheading {
       margin-bottom: 1.5rem;
     }
@@ -325,7 +727,7 @@
       font-family: var(--serif);
       font-weight: 400;
       line-height: 1.1;
-      margin: 0 0 1rem;
+      margin: 0 0 0.75rem;
       text-transform: none;
       letter-spacing: -0.02em;
     }
@@ -427,7 +829,7 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Announcements grid + responsive */
+    /* Announcements grid (legacy — kept for backward compat) */
     .announcements-3col-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -445,9 +847,9 @@
       .news-hero-carousel { min-height: 300px; height: 45vh; }
       .news-hero-feature__content { padding: 1.5rem; }
       .news-hero-feature__title { font-size: 1.5rem; }
+      .editors-letter__inner { grid-template-columns: 1fr; gap: 0.75rem; }
+      .editors-letter__accent { font-size: 2.5rem; }
     }
-
-
   </style>
 </head>
 <body>
@@ -493,31 +895,48 @@
   </div>
 </header>
 
-<!-- Editorial Hero Carousel -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     EDITORIAL HERO CAROUSEL — Enhanced with byline, section tag, read time
+     ═══════════════════════════════════════════════════════════════════ -->
 <div class="news-editorial">
   <div class="news-hero-carousel" id="news-hero-carousel">
     <div class="news-hero-slide is-active">
       <img src="assets/images/ministry-outreach/one-heart-mvmt-cookout-2026/01.jpg" alt="Community Cookout" loading="eager">
       <div class="news-hero-feature__content">
-        <span class="news-hero-feature__tag">Outreach</span>
+        <span class="news-hero-feature__tag">OUTREACH · EVERETT, WA</span>
         <h2 class="news-hero-feature__title">One Heart Movement Cookout</h2>
         <p class="news-hero-feature__desc">Partnering with local ministries to share the Gospel through food and fellowship.</p>
+        <div class="news-hero-feature__byline">
+          <span class="news-hero-feature__byline-name">Seed the Word Team</span>
+          <span class="news-hero-feature__byline-sep"></span>
+          <span class="news-hero-feature__readtime">4 MIN READ</span>
+        </div>
       </div>
     </div>
     <div class="news-hero-slide">
       <img src="assets/images/ministry-outreach/slavic-awakening-bellevue-may-2026/01.jpg" alt="Slavic Christian Awakening" loading="lazy">
       <div class="news-hero-feature__content">
-        <span class="news-hero-feature__tag">Evangelism</span>
+        <span class="news-hero-feature__tag">EVANGELISM · BELLEVUE, WA</span>
         <h2 class="news-hero-feature__title">Slavic Christian Awakening</h2>
         <p class="news-hero-feature__desc">Open-air evangelism in Bellevue Square Park — conversations, Bibles, and prayer.</p>
+        <div class="news-hero-feature__byline">
+          <span class="news-hero-feature__byline-name">David A.</span>
+          <span class="news-hero-feature__byline-sep"></span>
+          <span class="news-hero-feature__readtime">3 MIN READ</span>
+        </div>
       </div>
     </div>
     <div class="news-hero-slide">
       <img src="assets/images/ministry-outreach/for-zion-lgbtq-outreach-june-2026/01.jpg" alt="For Zion Ministries" loading="lazy">
       <div class="news-hero-feature__content">
-        <span class="news-hero-feature__tag">Community</span>
+        <span class="news-hero-feature__tag">COMMUNITY · LAKE STEVENS, WA</span>
         <h2 class="news-hero-feature__title">LGBTQ+ Community Outreach</h2>
         <p class="news-hero-feature__desc">Sitting with For Zion Ministries in Lake Stevens — listening, asking questions, praying.</p>
+        <div class="news-hero-feature__byline">
+          <span class="news-hero-feature__byline-name">For Zion Ministries</span>
+          <span class="news-hero-feature__byline-sep"></span>
+          <span class="news-hero-feature__readtime">5 MIN READ</span>
+        </div>
       </div>
     </div>
     <div class="news-hero-dots">
@@ -528,7 +947,58 @@
   </div>
 </div>
 
-<!-- Ministry Outreach — magazine-style photo cards, placed right after the hero -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     FROM THE MINISTRY — Editor's Letter (Meridian Journal inspired)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="editors-letter" aria-labelledby="editors-letter-title">
+  <div class="editors-letter__inner container">
+    <div class="editors-letter__accent">"</div>
+    <div class="editors-letter__body">
+      <div class="editors-letter__label">From the Ministry</div>
+      <p class="editors-letter__text">
+        Every week we step out in faith — sometimes to a park with Bibles, sometimes to a cookout with strangers who become family. This page is our field journal: the places we've been, the people God brought across our path, and the stories that remind us why we do this. We hope it encourages you to take your own next step.
+      </p>
+      <div class="editors-letter__sig">— David A.</div>
+      <div class="editors-letter__role">Founder, Seed the Word Ministry</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     WHAT'S COMING UP — Merged Announcements + Calendar Editorial Column
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="whats-coming-up section" id="announcements-calendar" aria-labelledby="wcu-title">
+  <div class="container">
+    <div class="whats-coming-up__header">
+      <h2 class="whats-coming-up__title" id="wcu-title">What's Coming Up</h2>
+      <div class="whats-coming-up__actions">
+        <button onclick="window.refreshGoogleCalendar && window.refreshGoogleCalendar()" class="btn btn-primary btn-sm" style="background:linear-gradient(135deg,#2C5F2E 0%,#3a7d3c 100%);">
+          <span>🔄</span> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable editorial column -->
+    <div class="whats-coming-up__scroll" id="wcu-scroll">
+      <!-- Announcements injected here by JS -->
+      <div id="wcu-announcements"></div>
+      <!-- Calendar events rendered here by JS -->
+      <div id="wcu-events">
+        <div class="wcu-empty">Loading events...</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Keep hidden legacy containers for backward compat with google-calendar.js -->
+<div style="display:none" aria-hidden="true">
+  <div id="live-events-container"></div>
+  <div id="upcoming-events-container"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     MINISTRY OUTREACH — Magazine-style photo cards
+     ═══════════════════════════════════════════════════════════════════ -->
 <section class="section section--white outreach-section" id="ministry-outreach">
   <div class="container">
     <h2 class="section-title" style="text-align:center;font-size:clamp(1.5rem,3vw,2rem);text-transform:uppercase;letter-spacing:0.04em;">Latest from the Field</h2>
@@ -577,7 +1047,7 @@
 
     <!-- Share your story CTA — inline at end of outreach section -->
     <div style="margin:2.5rem 0 0;padding:2rem;text-align:center;border-top:1px solid #E8E4DF;">
-      <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.4rem;font-weight:400;color:#1A1A1A;margin:0 0 0.6rem;">✨ Share your story</h3>
+      <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.4rem;font-weight:400;color:#1A1A1A;margin:0 0 0.6rem;">Share your story</h3>
       <p style="font-family:'Source Sans 3',system-ui,sans-serif;font-size:0.95rem;color:#6B6B6B;max-width:580px;margin:0 auto 1.25rem;line-height:1.7;">
         Has God used our ministry to meet you in your walk with Jesus? Drop your testimony, photos, or videos. We'd love to feature them.
       </p>
@@ -592,47 +1062,81 @@
   </div>
 </section>
 
-<!-- 1. Announcements -->
-
-<section class="section section--light" id="announcements" style="padding: 3rem 0;">
+<!-- ═══════════════════════════════════════════════════════════════════
+     PHOTO-ESSAY GALLERY — Full-width outreach photo recaps
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="photo-essay" id="photo-essay" aria-labelledby="photo-essay-title">
   <div class="container">
-
-    <!-- Compact 3-Column Announcements Layout -->
-    <div class="announcements-3col-layout" style="margin-bottom: 2rem;">
-      
-      <!-- Column 1: Live & Current Events -->
-      <div class="announcements-column">
-        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">🔴 Live</h3>
-        <div class="announcements-list" id="live-events-container">
-          <!-- Live events will be populated by JavaScript from Google Calendar -->
-        </div>
-      </div>
-
-      <!-- Column 2: Upcoming Events -->
-      <div class="announcements-column">
-        <h3 class="announcements-column__title" style="font-size: 1rem; margin-bottom: 0.75rem;">📅 Upcoming</h3>
-        <div class="announcements-list" id="upcoming-events-container">
-          <!-- Upcoming events will be populated by JavaScript from Google Calendar -->
-        </div>
-      </div>
-
-
-
+    <div class="photo-essay__header">
+      <div class="photo-essay__label">Photo Essay</div>
+      <h2 class="photo-essay__title" id="photo-essay-title">Scenes from the Field</h2>
     </div>
-    
-    <!-- Quick Navigation -->
-    <div style="text-align: center; margin-top: 1.5rem;">
-      <button onclick="document.getElementById('calendar-section').scrollIntoView({behavior: 'smooth'})" class="btn btn-primary btn-sm">
-        <span>📅</span> View Full Calendar
-      </button>
-      <button onclick="window.refreshGoogleCalendar()" class="btn btn-primary btn-sm" style="margin-left: 0.5rem; background: linear-gradient(135deg, #2C5F2E 0%, #3a7d3c 100%); box-shadow: 0 4px 15px rgba(44, 95, 46, 0.4);">
-        <span>🔄</span> Refresh
-      </button>
+    <div class="photo-essay__grid">
+      <div class="photo-essay__item photo-essay__item--wide">
+        <img class="photo-essay__img" src="assets/images/ministry-outreach/one-heart-mvmt-cookout-2026/01.jpg" alt="Community cookout setup in Everett" loading="lazy">
+        <p class="photo-essay__caption">
+          Setting up for the One Heart Movement cookout — tables, grills, and a stack of Bibles ready for conversations.
+          <span class="photo-essay__caption-location">Everett, WA — Summer 2026</span>
+        </p>
+      </div>
+      <div class="photo-essay__item">
+        <img class="photo-essay__img" src="assets/images/ministry-outreach/slavic-awakening-bellevue-may-2026/01.jpg" alt="Open-air evangelism at Bellevue Square" loading="lazy">
+        <p class="photo-essay__caption">
+          Open-air conversations at Bellevue Square Park during the Slavic Christian Awakening event.
+          <span class="photo-essay__caption-location">Bellevue, WA</span>
+        </p>
+      </div>
+      <div class="photo-essay__item">
+        <img class="photo-essay__img" src="assets/images/ministry-outreach/for-zion-lgbtq-outreach-june-2026/01.jpg" alt="Community outreach in Lake Stevens" loading="lazy">
+        <p class="photo-essay__caption">
+          Listening, asking questions, and praying with the community alongside For Zion Ministries.
+          <span class="photo-essay__caption-location">Lake Stevens, WA</span>
+        </p>
+      </div>
     </div>
   </div>
 </section>
 
-
+<!-- ═══════════════════════════════════════════════════════════════════
+     TESTIMONY ARCHIVE PREVIEWS — Bridge to testimonies.html
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="testimony-previews" id="testimony-previews" aria-labelledby="testimony-previews-title">
+  <div class="container">
+    <div class="testimony-previews__header">
+      <div class="testimony-previews__label">From the Archive</div>
+      <h2 class="testimony-previews__title" id="testimony-previews-title">Recent Testimonies</h2>
+    </div>
+    <div class="testimony-previews__grid" id="testimony-previews-grid">
+      <!-- Testimony preview card 1 -->
+      <article class="testimony-preview-card">
+        <img class="testimony-preview-card__img" src="assets/images/ministry-outreach/one-heart-mvmt-cookout-2026/01.jpg" alt="Community testimony" loading="lazy">
+        <div class="testimony-preview-card__body">
+          <p class="testimony-preview-card__quote">"I found Jesus in private, on my knees, asking for Him to change my life around for the better. He saved me from death."</p>
+          <div class="testimony-preview-card__author">— David A.</div>
+          <a href="testimonies.html" class="testimony-preview-card__link">Read full story →</a>
+        </div>
+      </article>
+      <!-- Testimony preview card 2 -->
+      <article class="testimony-preview-card">
+        <img class="testimony-preview-card__img" src="assets/images/ministry-outreach/slavic-awakening-bellevue-may-2026/01.jpg" alt="Evangelism testimony" loading="lazy">
+        <div class="testimony-preview-card__body">
+          <p class="testimony-preview-card__quote">"A stranger handed me a Bible at the park. That night I opened it for the first time and couldn't stop reading."</p>
+          <div class="testimony-preview-card__author">— Anonymous</div>
+          <a href="testimonies.html" class="testimony-preview-card__link">Read full story →</a>
+        </div>
+      </article>
+      <!-- Testimony preview card 3 -->
+      <article class="testimony-preview-card">
+        <img class="testimony-preview-card__img" src="assets/images/ministry-outreach/for-zion-lgbtq-outreach-june-2026/01.jpg" alt="For Zion outreach testimony" loading="lazy">
+        <div class="testimony-preview-card__body">
+          <p class="testimony-preview-card__quote">"They didn't preach at me — they sat with me. That's when I knew these people were different."</p>
+          <div class="testimony-preview-card__author">— Community Member</div>
+          <a href="testimonies.html" class="testimony-preview-card__link">Read full story →</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
 
 <!-- Share-story modal (keeps working — triggered by the button in Latest from the Field) -->
 <div class="share-story-modal" id="share-story-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="share-story-modal-title">
@@ -649,10 +1153,9 @@
   </div>
 </div>
 
-<!-- 5. Calendar — full schedule sits at the bottom of the page as
-     the "anything else you want to check" landing spot. The scroll
-     button in the Announcements section still targets #calendar-section. -->
-
+<!-- ═══════════════════════════════════════════════════════════════════
+     FULL CALENDAR — scroll target from "What's Coming Up" section
+     ═══════════════════════════════════════════════════════════════════ -->
 <section class="section section--white" id="calendar-section">
   <div class="container">
     <h2 class="section-title">Calendar</h2>
@@ -898,6 +1401,147 @@
   setInterval(function() { goTo((current + 1) % slides.length); }, 5000);
 })();
 </script>
+
+<script>
+// "What's Coming Up" — Merged Announcements + Calendar editorial column
+// Bridges into the existing google-calendar.js and announcements system
+(function() {
+  var wcuAnnouncements = document.getElementById('wcu-announcements');
+  var wcuEvents = document.getElementById('wcu-events');
+
+  // === ANNOUNCEMENTS ===
+  // Try to load announcements from the same backend the old section used
+  async function loadAnnouncements() {
+    try {
+      var cfg = await fetch('assets/data/site-config.json', { cache: 'no-store' }).then(function(r) { return r.json(); });
+      var url = cfg.orderHandlerUrl;
+      if (!url) return;
+
+      var res = await fetch(url + '?action=getAnnouncements', { cache: 'no-store' }).then(function(r) { return r.json(); });
+      if (!res.ok || !res.announcements || res.announcements.length === 0) return;
+
+      var html = '';
+      res.announcements.forEach(function(a) {
+        var isHigh = a.priority === 'high';
+        html += '<div class="wcu-announcement' + (isHigh ? ' wcu-announcement--high' : '') + '">';
+        html += '<div class="wcu-announcement__label">' + (isHigh ? '🔴 URGENT' : '📢 ANNOUNCEMENT') + '</div>';
+        html += '<h4 class="wcu-announcement__subject">' + (a.subject || 'Update') + '</h4>';
+        if (a.body) html += '<p class="wcu-announcement__body">' + a.body + '</p>';
+        html += '</div>';
+      });
+      wcuAnnouncements.innerHTML = html;
+    } catch(e) {
+      // Silently fail — announcements are optional
+    }
+  }
+
+  // === CALENDAR EVENTS ===
+  // Wait for google-calendar.js to expose window.googleCalendar
+  function renderCalendarEvents() {
+    var gc = window.googleCalendar;
+    if (!gc || !gc.events || gc.events.length === 0) {
+      wcuEvents.innerHTML = '<div class="wcu-empty">No upcoming events found.</div>';
+      return;
+    }
+
+    var now = new Date();
+    // Sort events by start time and take next 10
+    var upcoming = gc.events
+      .filter(function(e) { return new Date(e.end || e.start) >= now; })
+      .sort(function(a, b) { return new Date(a.start) - new Date(b.start); })
+      .slice(0, 10);
+
+    if (upcoming.length === 0) {
+      wcuEvents.innerHTML = '<div class="wcu-empty">No upcoming events.</div>';
+      return;
+    }
+
+    var html = '';
+    upcoming.forEach(function(evt) {
+      var start = new Date(evt.start);
+      var isLive = now >= new Date(evt.start) && now <= new Date(evt.end || evt.start);
+      var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      var month = months[start.getMonth()];
+      var day = start.getDate();
+      var time = start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+      html += '<div class="wcu-event">';
+      html += '<div class="wcu-event__date-badge' + (isLive ? ' wcu-event__date-badge--live' : '') + '">';
+      html += '<span class="wcu-event__month">' + month + '</span>';
+      html += '<span class="wcu-event__day">' + day + '</span>';
+      html += '</div>';
+      html += '<div class="wcu-event__info">';
+      html += '<div class="wcu-event__title">' + (evt.summary || evt.title || 'Event') + (isLive ? '<span class="wcu-event__live-badge">LIVE</span>' : '') + '</div>';
+      html += '<div class="wcu-event__time">' + time + (evt.location ? ' · ' + evt.location : '') + '</div>';
+      html += '</div>';
+      html += '</div>';
+    });
+
+    wcuEvents.innerHTML = html;
+  }
+
+  // Poll for google calendar data availability
+  var calAttempts = 0;
+  var calInterval = setInterval(function() {
+    if (window.googleCalendar && window.googleCalendar.events) {
+      clearInterval(calInterval);
+      renderCalendarEvents();
+    } else if (calAttempts++ > 40) {
+      clearInterval(calInterval);
+      wcuEvents.innerHTML = '<div class="wcu-empty">Calendar unavailable — <button onclick="document.getElementById(\'calendar-section\').scrollIntoView({behavior:\'smooth\'})" style="background:none;border:none;color:var(--accent-gold);cursor:pointer;font-weight:600;font-family:inherit;">view full calendar below</button></div>';
+    }
+  }, 500);
+
+  // Also re-render when calendar refreshes
+  var origRefresh = window.refreshGoogleCalendar;
+  window.refreshGoogleCalendar = function() {
+    if (origRefresh) origRefresh();
+    setTimeout(renderCalendarEvents, 2000);
+  };
+
+  loadAnnouncements();
+})();
+</script>
+
+<script>
+// Inject editorial metadata tags onto outreach cards after they load
+(function() {
+  var cardMeta = [
+    { section: 'OUTREACH', city: 'EVERETT, WA', read: '4 MIN READ' },
+    { section: 'EVANGELISM', city: 'BELLEVUE, WA', read: '3 MIN READ' },
+    { section: 'COMMUNITY', city: 'LAKE STEVENS, WA', read: '5 MIN READ' },
+    { section: 'OUTREACH', city: 'SEATTLE, WA', read: '3 MIN READ' },
+    { section: 'EVANGELISM', city: 'MARYSVILLE, WA', read: '4 MIN READ' }
+  ];
+
+  function injectMeta() {
+    var cards = document.querySelectorAll('#ministry-outreach-cards .outreach-card:not(.outreach-card--milestone), #ministry-outreach-cards .outreach-event-card');
+    cards.forEach(function(card, idx) {
+      if (card.querySelector('.outreach-card__editorial-meta')) return;
+      var meta = cardMeta[idx % cardMeta.length];
+      var metaEl = document.createElement('div');
+      metaEl.className = 'outreach-card__editorial-meta';
+      metaEl.textContent = meta.section + ' \u00B7 ' + meta.city + ' \u00B7 ' + meta.read;
+      // Insert into the card's body/content area
+      var body = card.querySelector('.outreach-card__body') || card.querySelector('.outreach-card__content') || card.querySelector('.outreach-event-card__content');
+      if (body) body.appendChild(metaEl);
+    });
+  }
+
+  // Wait for outreach cards to load
+  var attempts = 0;
+  var interval = setInterval(function() {
+    var grid = document.getElementById('ministry-outreach-cards');
+    if (grid && grid.querySelectorAll('.outreach-card, .outreach-event-card').length > 0) {
+      clearInterval(interval);
+      setTimeout(injectMeta, 100);
+    } else if (attempts++ > 30) {
+      clearInterval(interval);
+    }
+  }, 300);
+})();
+</script>
+
 <script src="assets/js/profile-settings.js?v=1"></script>
 <script src="assets/js/nav-auth.js?v=1"></script>
 

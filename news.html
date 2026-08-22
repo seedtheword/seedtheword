@@ -61,7 +61,8 @@
     .wcu-announcement--high .wcu-announcement__label{color:#c0392b}
     .wcu-announcement__subject{font-family:var(--serif);font-size:1rem;font-weight:500;color:var(--fg);margin:0 0 .3rem;line-height:1.3}
     .wcu-announcement__body{font-family:var(--sans);font-size:.85rem;color:var(--fg-muted);line-height:1.6;margin:0}
-    .wcu-event{display:flex;align-items:flex-start;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--border-warm)}
+    .wcu-event{display:flex;align-items:flex-start;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--border-warm);cursor:pointer;transition:background .15s}
+    .wcu-event:hover{background:rgba(184,134,11,.04);border-radius:6px;padding-left:.5rem;margin-left:-.5rem}
     .wcu-event:last-child{border-bottom:none}
     .wcu-event__date-badge{flex-shrink:0;width:48px;height:48px;background:var(--card-bg);border:1px solid var(--border-warm);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center}
     .wcu-event__date-badge--live{border-color:#c0392b;background:#fdf2f2}
@@ -167,26 +168,12 @@
   </div>
 </div>
 
-<section class="editors-letter">
-  <div class="editors-letter__inner container">
-    <div class="editors-letter__accent">&ldquo;</div>
-    <div class="editors-letter__body">
-      <div class="editors-letter__label">From the Ministry</div>
-      <p class="editors-letter__text">Every week we step out in faith — sometimes to a park with Bibles, sometimes to a cookout with strangers who become family. This page is our field journal: the places we've been, the people God brought across our path, and the stories that remind us why we do this.</p>
-      <div class="editors-letter__sig">&mdash; David A.</div>
-      <div class="editors-letter__role">Founder, Seed the Word Ministry</div>
-    </div>
-  </div>
-</section>
+
 
 <section class="whats-coming-up section" id="announcements-calendar">
   <div class="container">
     <div class="whats-coming-up__header">
       <h2 class="whats-coming-up__title">What's Coming Up</h2>
-      <div class="whats-coming-up__actions">
-        <button onclick="document.getElementById('calendar-section').scrollIntoView({behavior:'smooth'})" class="btn btn-primary btn-sm">📅 Full Calendar</button>
-        <button onclick="window.refreshGoogleCalendar&&window.refreshGoogleCalendar()" class="btn btn-primary btn-sm" style="background:linear-gradient(135deg,#2C5F2E,#3a7d3c)">🔄 Refresh</button>
-      </div>
     </div>
     <div class="whats-coming-up__scroll" id="wcu-scroll">
       <div id="wcu-announcements"></div>
@@ -211,18 +198,12 @@
       <p style="font-family:var(--sans);font-size:.88rem;font-weight:600;color:var(--fg);margin:0">— David A.</p>
       <p style="font-family:var(--mono);font-size:.68rem;color:var(--accent-gold);font-weight:500;letter-spacing:.08em;margin:.2rem 0 0">Micah 6:8</p>
     </div>
-    <div style="padding:2rem;text-align:center;border-top:1px solid var(--border-warm)">
-      <h3 style="font-family:var(--serif);font-size:1.4rem;font-weight:400;color:var(--fg);margin:0 0 .6rem">Share your story</h3>
-      <p style="font-family:var(--sans);font-size:.95rem;color:var(--fg-muted);max-width:580px;margin:0 auto 1.25rem;line-height:1.7">Has God used our ministry to meet you in your walk with Jesus? Drop your testimony, photos, or videos.</p>
-      <button type="button" class="btn btn-primary share-story__primary" id="share-story-open">📤 Share photos, video &amp; testimony</button>
-      <div style="margin-top:.5rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap"><a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team</a><a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a></div>
-    </div>
+
   </div>
 </section>
 
 <section class="photo-essay" id="photo-essay">
   <div class="container">
-    <div class="photo-essay__header"><div class="photo-essay__label">Photo Essay</div><h2 class="photo-essay__title">Scenes from the Field</h2></div>
     <div class="photo-essay__grid" id="photo-essay-grid"><div class="wcu-empty">Loading photos...</div></div>
   </div>
 </section>
@@ -235,6 +216,15 @@
       <article class="testimony-preview-card"><img class="testimony-preview-card__img" src="assets/images/ministry-outreach/slavic-awakening-bellevue-may-2026/01.jpg" alt="Evangelism testimony" loading="lazy"><div class="testimony-preview-card__body"><p class="testimony-preview-card__quote">"A stranger handed me a Bible at the park. That night I opened it for the first time and couldn't stop reading."</p><div class="testimony-preview-card__author">— Anonymous</div><a href="testimonies.html" class="testimony-preview-card__link">Read full story →</a></div></article>
       <article class="testimony-preview-card"><img class="testimony-preview-card__img" src="assets/images/ministry-outreach/for-zion-lgbtq-outreach-june-2026/01.jpg" alt="For Zion outreach" loading="lazy"><div class="testimony-preview-card__body"><p class="testimony-preview-card__quote">"They didn't preach at me — they sat with me. That's when I knew these people were different."</p><div class="testimony-preview-card__author">— Community Member</div><a href="testimonies.html" class="testimony-preview-card__link">Read full story →</a></div></article>
     </div>
+  </div>
+</section>
+
+<section class="section" style="padding:2.5rem 0;background:var(--bg-ivory)">
+  <div class="container" style="text-align:center">
+    <h3 style="font-family:var(--serif);font-size:1.4rem;font-weight:400;color:var(--fg);margin:0 0 .6rem">Share your story</h3>
+    <p style="font-family:var(--sans);font-size:.95rem;color:var(--fg-muted);max-width:580px;margin:0 auto 1.25rem;line-height:1.7">Has God used our ministry to meet you in your walk with Jesus? Drop your testimony, photos, or videos.</p>
+    <button type="button" class="btn btn-primary share-story__primary" id="share-story-open">📤 Share photos, video &amp; testimony</button>
+    <div style="margin-top:.5rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap"><a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team</a><a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a></div>
   </div>
 </section>
 
@@ -322,13 +312,24 @@
     var up=gc.events.filter(function(e){var end=e.end&&(e.end.dateTime||e.end.date);return end?new Date(end)>=now:true}).sort(function(a,b){return new Date(a.start.dateTime||a.start.date)-new Date(b.start.dateTime||b.start.date)}).slice(0,10);
     if(!up.length){wcuE.innerHTML='<div class="wcu-empty">No upcoming events.</div>';return}
     var h='';
-    up.forEach(function(ev){
+    up.forEach(function(ev,i){
       var sv=ev.start.dateTime||ev.start.date,ev2=ev.end&&(ev.end.dateTime||ev.end.date);
       var s=new Date(sv),live=ev2?(now>=new Date(sv)&&now<=new Date(ev2)):false;
       var mo=ms[s.getMonth()],dy=s.getDate(),tm=ev.start.dateTime?s.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'All day';
-      h+='<div class="wcu-event"><div class="wcu-event__date-badge'+(live?' wcu-event__date-badge--live':'')+'"><span class="wcu-event__month">'+mo+'</span><span class="wcu-event__day">'+dy+'</span></div><div class="wcu-event__info"><div class="wcu-event__title">'+(ev.summary||'Event')+(live?'<span class="wcu-event__live-badge">LIVE</span>':'')+'</div><div class="wcu-event__time">'+tm+(ev.location?' &middot; '+ev.location:'')+'</div></div></div>';
+      h+='<div class="wcu-event" style="cursor:pointer" data-evt-idx="'+i+'"><div class="wcu-event__date-badge'+(live?' wcu-event__date-badge--live':'')+'"><span class="wcu-event__month">'+mo+'</span><span class="wcu-event__day">'+dy+'</span></div><div class="wcu-event__info"><div class="wcu-event__title">'+(ev.summary||'Event')+(live?'<span class="wcu-event__live-badge">LIVE</span>':'')+'</div><div class="wcu-event__time">'+tm+(ev.location?' &middot; '+ev.location:'')+'</div></div></div>';
     });
     wcuE.innerHTML=h;
+    // Wire click to open event modal via google-calendar.js
+    wcuE.querySelectorAll('.wcu-event').forEach(function(el){
+      el.addEventListener('click',function(){
+        var idx=parseInt(el.dataset.evtIdx);
+        var evt=up[idx];
+        if(evt&&window.googleCalendar&&window.googleCalendar.showEventModal){
+          var startVal=evt.start.dateTime||evt.start.date;
+          window.googleCalendar.showEventModal(evt,new Date(startVal));
+        }
+      });
+    });
   }
 
   var att=0,ci=setInterval(function(){if(window.googleCalendar&&window.googleCalendar.events){clearInterval(ci);renderCal()}else if(att++>40){clearInterval(ci);wcuE.innerHTML='<div class="wcu-empty">Calendar unavailable</div>'}},500);

@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>News — Seed the Word Ministry</title>
   <meta name="description" content="Live calendar, ministry outreach, highlights, and testimonies from Seed the Word Ministry.">
-  <!-- Open Graph (Telegram, WhatsApp, Facebook, LinkedIn link previews) -->
   <meta property="og:site_name" content="Seed the Word Ministry">
   <meta property="og:type" content="website">
   <meta property="og:title" content="News — Seed the Word Ministry">
   <meta property="og:description" content="Live calendar, ministry outreach, and stories from the field.">
   <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <meta property="og:url" content="https://seedtheword.org/news.html">
-  <!-- Twitter card (mirrors OG for some Telegram clients + X) -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="News — Seed the Word Ministry">
   <meta name="twitter:description" content="Live calendar, ministry outreach, and stories from the field.">
@@ -22,1528 +20,353 @@
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
-    /* ── Serif Editorial Tokens (News page) ─────────────────────── */
-    :root {
-      --serif: 'Playfair Display', Georgia, serif;
-      --sans: 'Source Sans 3', system-ui, sans-serif;
-      --mono: 'IBM Plex Mono', monospace;
-      --cursive: 'Caveat', cursive;
-      --bg-ivory: #FAFAF8;
-      --fg: #1A1A1A;
-      --fg-muted: #6B6B6B;
-      --accent-gold: #B8860B;
-      --accent-gold-light: #D4A84B;
-      --border-warm: #E8E4DF;
-      --card-bg: #FFFFFF;
-      --surface-muted: #F5F3F0;
-    }
-    body { font-family: var(--sans); background: var(--bg-ivory); }
-
-    /* ── Editorial typography overrides ──────────────────────────── */
-    .section-title {
-      font-family: var(--serif);
-      font-weight: 400;
-      letter-spacing: -0.01em;
-    }
-
-    /* ── Hero carousel editorial treatment ──────────────────────── */
-    .news-hero-feature__tag {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      background: var(--accent-gold);
-    }
-    .news-hero-feature__title {
-      font-family: var(--serif);
-      font-weight: 400;
-      text-transform: none;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
-    }
-    .news-hero-feature__desc {
-      font-family: var(--sans);
-      line-height: 1.75;
-    }
-    .news-hero-feature__byline {
-      font-family: var(--sans);
-      font-size: 0.82rem;
-      color: rgba(255,255,255,0.65);
-      margin-top: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .news-hero-feature__byline-name {
-      font-weight: 600;
-      color: rgba(255,255,255,0.85);
-    }
-    .news-hero-feature__byline-sep {
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.4);
-      display: inline-block;
-    }
-    .news-hero-feature__readtime {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.04em;
-      color: rgba(255,255,255,0.55);
-    }
-
-    /* ── Section backgrounds — warm ivory tones ─────────────────── */
-    #announcements-calendar { background: var(--surface-muted); }
-    #ministry-outreach { background: var(--card-bg); padding: 2.5rem 0 3rem; }
-    #share-your-story { background: var(--bg-ivory); }
-    #ministry-highlights { background: var(--card-bg); }
-
-    /* ── Outreach card editorial styling ────────────────────────── */
-    #ministry-outreach .outreach-card__tag {
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      background: var(--accent-gold);
-    }
-    #ministry-outreach .outreach-card__title,
-    #ministry-outreach .outreach-event-card__title {
-      font-family: var(--serif);
-      font-weight: 400;
-      font-size: 1.2rem;
-    }
-
-    /* ── Outreach card text visibility on dark backgrounds ───────── */
-    .outreach-card {
-      background: #111;
-    }
-    .outreach-card__body {
-      color: #fff;
-    }
-    .outreach-card__title {
-      color: #fff !important;
-    }
-    .outreach-card__location {
-      color: rgba(255, 255, 255, 0.75) !important;
-    }
-    .outreach-card__body-text {
-      color: rgba(255, 255, 255, 0.88) !important;
-    }
-    .outreach-card__testimony {
-      color: rgba(255, 255, 255, 0.85) !important;
-      background: rgba(255, 255, 255, 0.06) !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-    }
-    .outreach-card__actions a {
-      color: var(--accent-gold-light, #D4A84B) !important;
-    }
-    /* Editorial metadata line on outreach cards */
-    .outreach-card__editorial-meta {
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
-      margin-top: 0.5rem;
-    }
-
-    /* ── Tighter newsletter flow ────────────────────────────────── */
-    .news-editorial + section,
-    section + section { margin-top: 0; }
-    section.section { padding: 2.5rem 0; }
-
-    /* ── Editor's Letter ────────────────────────────────────────── */
-    .editors-letter {
-      padding: 2.5rem 0 2rem;
-      background: var(--bg-ivory);
-      border-bottom: 1px solid var(--border-warm);
-    }
-    .editors-letter__inner {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 1.75rem;
-      align-items: start;
-    }
-    .editors-letter__accent {
-      font-family: var(--cursive);
-      font-size: 3.5rem;
-      color: var(--accent-gold);
-      line-height: 1;
-      margin-top: -0.25rem;
-    }
-    .editors-letter__body {
-      min-width: 0;
-    }
-    .editors-letter__label {
-      font-family: var(--mono);
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--accent-gold);
-      margin-bottom: 0.6rem;
-    }
-    .editors-letter__text {
-      font-family: var(--serif);
-      font-size: 1.05rem;
-      line-height: 1.85;
-      color: var(--fg);
-      margin: 0 0 0.75rem;
-      font-style: italic;
-    }
-    .editors-letter__sig {
-      font-family: var(--cursive);
-      font-size: 1.4rem;
-      color: var(--fg);
-      margin-top: 0.5rem;
-    }
-    .editors-letter__role {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.08em;
-      color: var(--fg-muted);
-      margin-top: 0.15rem;
-    }
-
-    /* ── Merged Announcements + Calendar Editorial Column ────────── */
-    .whats-coming-up {
-      padding: 2.5rem 0;
-      background: var(--surface-muted);
-    }
-    .whats-coming-up__header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 1.25rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .whats-coming-up__title {
-      font-family: var(--serif);
-      font-size: 1.5rem;
-      font-weight: 400;
-      color: var(--fg);
-      margin: 0;
-    }
-    .whats-coming-up__actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-    .whats-coming-up__scroll {
-      max-height: 520px;
-      overflow-y: auto;
-      padding-right: 0.5rem;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border-warm) transparent;
-    }
-    .whats-coming-up__scroll::-webkit-scrollbar { width: 5px; }
-    .whats-coming-up__scroll::-webkit-scrollbar-track { background: transparent; }
-    .whats-coming-up__scroll::-webkit-scrollbar-thumb { background: var(--border-warm); border-radius: 3px; }
-
-    /* Announcement compact cards */
-    .wcu-announcement {
-      background: var(--card-bg);
-      border: 1px solid var(--border-warm);
-      border-left: 3px solid var(--accent-gold);
-      border-radius: 0 8px 8px 0;
-      padding: 1rem 1.25rem;
-      margin-bottom: 0.75rem;
-    }
-    .wcu-announcement--high {
-      border-left-color: #c0392b;
-    }
-    .wcu-announcement__label {
-      font-family: var(--mono);
-      font-size: 0.58rem;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent-gold);
-      margin-bottom: 0.3rem;
-    }
-    .wcu-announcement--high .wcu-announcement__label {
-      color: #c0392b;
-    }
-    .wcu-announcement__subject {
-      font-family: var(--serif);
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--fg);
-      margin: 0 0 0.3rem;
-      line-height: 1.3;
-    }
-    .wcu-announcement__body {
-      font-family: var(--sans);
-      font-size: 0.85rem;
-      color: var(--fg-muted);
-      line-height: 1.6;
-      margin: 0;
-    }
-
-    /* Calendar event rows */
-    .wcu-event {
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
-      padding: 0.85rem 0;
-      border-bottom: 1px solid var(--border-warm);
-    }
-    .wcu-event:last-child { border-bottom: none; }
-    .wcu-event__date-badge {
-      flex-shrink: 0;
-      width: 48px;
-      height: 48px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-warm);
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    .wcu-event__date-badge--live {
-      border-color: #c0392b;
-      background: #fdf2f2;
-    }
-    .wcu-event__month {
-      font-family: var(--mono);
-      font-size: 0.55rem;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--fg-muted);
-      line-height: 1;
-    }
-    .wcu-event__day {
-      font-family: var(--serif);
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--fg);
-      line-height: 1.2;
-    }
-    .wcu-event__info {
-      flex: 1;
-      min-width: 0;
-    }
-    .wcu-event__title {
-      font-family: var(--sans);
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--fg);
-      margin: 0 0 0.2rem;
-      line-height: 1.3;
-    }
-    .wcu-event__time {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--fg-muted);
-      letter-spacing: 0.02em;
-    }
-    .wcu-event__live-badge {
-      display: inline-block;
-      font-family: var(--mono);
-      font-size: 0.55rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      background: #c0392b;
-      color: #fff;
-      padding: 0.15rem 0.45rem;
-      border-radius: 3px;
-      margin-left: 0.5rem;
-      animation: pulse-live 2s infinite;
-    }
-    @keyframes pulse-live {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-    .wcu-empty {
-      text-align: center;
-      padding: 2rem 1rem;
-      color: var(--fg-muted);
-      font-family: var(--sans);
-      font-size: 0.9rem;
-    }
-
-    /* ── Photo-Essay Gallery ─────────────────────────────────────── */
-    .photo-essay {
-      padding: 2.5rem 0;
-      background: var(--card-bg);
-      border-top: 1px solid var(--border-warm);
-    }
-    .photo-essay__header {
-      text-align: center;
-      margin-bottom: 1.75rem;
-    }
-    .photo-essay__label {
-      font-family: var(--mono);
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--accent-gold);
-      margin-bottom: 0.4rem;
-    }
-    .photo-essay__title {
-      font-family: var(--serif);
-      font-size: clamp(1.4rem, 3vw, 1.8rem);
-      font-weight: 400;
-      color: var(--fg);
-      margin: 0;
-    }
-    .photo-essay__grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-    }
-    .photo-essay__item {
-      break-inside: avoid;
-    }
-    .photo-essay__item--wide {
-      grid-column: 1 / -1;
-    }
-    .photo-essay__img {
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-      display: block;
-      aspect-ratio: 16/10;
-      object-fit: cover;
-    }
-    .photo-essay__item--wide .photo-essay__img {
-      aspect-ratio: 21/9;
-    }
-    .photo-essay__caption {
-      font-family: var(--sans);
-      font-size: 0.82rem;
-      color: var(--fg-muted);
-      line-height: 1.6;
-      margin-top: 0.5rem;
-      padding-left: 0.75rem;
-      border-left: 2px solid var(--accent-gold);
-    }
-    .photo-essay__caption-location {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.06em;
-      color: var(--fg-muted);
-      display: block;
-      margin-top: 0.2rem;
-    }
-    @media (max-width: 600px) {
-      .photo-essay__grid { grid-template-columns: 1fr; }
-      .photo-essay__item--wide { grid-column: auto; }
-    }
-
-    /* ── Testimony Preview Cards ─────────────────────────────────── */
-    .testimony-previews {
-      padding: 2.5rem 0;
-      background: var(--bg-ivory);
-      border-top: 1px solid var(--border-warm);
-    }
-    .testimony-previews__header {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    .testimony-previews__label {
-      font-family: var(--mono);
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--accent-gold);
-      margin-bottom: 0.4rem;
-    }
-    .testimony-previews__title {
-      font-family: var(--serif);
-      font-size: clamp(1.3rem, 2.5vw, 1.6rem);
-      font-weight: 400;
-      color: var(--fg);
-      margin: 0;
-    }
-    .testimony-previews__grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.25rem;
-    }
-    .testimony-preview-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-warm);
-      border-radius: 10px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: box-shadow 0.2s ease, transform 0.2s ease;
-    }
-    .testimony-preview-card:hover {
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      transform: translateY(-2px);
-    }
-    .testimony-preview-card__img {
-      width: 100%;
-      height: 160px;
-      object-fit: cover;
-      display: block;
-    }
-    .testimony-preview-card__body {
-      padding: 1.25rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .testimony-preview-card__quote {
-      font-family: var(--serif);
-      font-size: 0.95rem;
-      font-style: italic;
-      line-height: 1.7;
-      color: var(--fg);
-      margin: 0 0 0.75rem;
-      flex: 1;
-    }
-    .testimony-preview-card__author {
-      font-family: var(--sans);
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--fg);
-      margin-bottom: 0.6rem;
-    }
-    .testimony-preview-card__link {
-      font-family: var(--sans);
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--accent-gold);
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-    .testimony-preview-card__link:hover {
-      color: var(--accent-gold-light);
-    }
-
-    /* ==== Share-your-story section + modal ========================= */
-
-    .share-story-section { padding: 3rem 0; }
-    .share-story__lead {
-      max-width: 680px;
-      margin: 0 auto 1.5rem;
-      text-align: center;
-      color: var(--fg-muted);
-      font-family: var(--sans);
-      line-height: 1.75;
-      font-size: 1rem;
-    }
-    .share-story__actions {
-      max-width: 520px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    .share-story__primary {
-      font-size: 1rem;
-      font-family: var(--sans);
-      padding: 0.85rem 1.4rem;
-      margin-bottom: 0.85rem;
-      background: var(--accent-gold);
-      border-radius: 6px;
-    }
-    .share-story__primary:hover { background: var(--accent-gold-light); }
-    .share-story__alts {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 0.75rem;
-    }
-    .share-story__privacy {
-      font-size: 0.82rem;
-      color: var(--fg-muted);
-      margin: 0.75rem 0 0;
-      font-style: italic;
-    }
-
-    /* Modal shell */
-    .share-story-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-    .share-story-modal[hidden] { display: none !important; }
-    .share-story-modal__backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(10, 10, 10, 0.55);
-      backdrop-filter: blur(4px);
-    }
-    .share-story-modal__content {
-      position: relative;
-      background: #fff;
-      border-radius: 14px;
-      max-width: 760px;
-      width: 100%;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-    }
-    .share-story-modal__head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border-warm);
-      background: var(--surface-muted);
-    }
-    .share-story-modal__title {
-      margin: 0;
-      font-family: var(--serif);
-      font-size: 1.1rem;
-      font-weight: 400;
-      color: var(--fg);
-    }
-    .share-story-modal__close {
-      background: none;
-      border: 0;
-      font-size: 1.8rem;
-      line-height: 1;
-      color: #595959;
-      cursor: pointer;
-      padding: 0.15rem 0.5rem;
-      border-radius: 6px;
-      font-family: inherit;
-      min-width: 44px;
-      min-height: 44px;
-    }
-    .share-story-modal__close:hover { color: #0a0a0a; background: #f0f0f0; }
-    .share-story-modal__body {
-      flex: 1;
-      overflow: auto;
-      padding: 0;
-      background: #fff;
-    }
-    .share-story-modal__iframe {
-      width: 100%;
-      height: 70vh;
-      min-height: 420px;
-      border: 0;
-      display: block;
-    }
-    .share-story__fallback {
-      padding: 1.25rem 1.5rem;
-      text-align: center;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-    body.share-story-modal-open { overflow: hidden; }
-
-    .share-story-section--inline {
-      max-width: 720px;
-      margin: 3rem auto 0;
-      padding: 2.5rem 0 0;
-      border-top: 1px solid #e8e4de;
-    }
-    .share-story-section--inline .section-title--sub {
-      font-size: 1.5rem;
-      margin: 0 0 1rem;
-      text-align: center;
-    }
-
-    .highlights-section .outreach-subheading {
-      margin-bottom: 1.5rem;
-    }
-
-    /* News Editorial Magazine — continuous staggered layout */
-    .news-editorial {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0;
-    }
-
-    /* Hero carousel */
-    .news-hero-carousel {
-      position: relative;
-      overflow: hidden;
-      height: 60vh;
-      min-height: 420px;
-      max-height: 600px;
-      background: #0a0a0a;
-    }
-    .news-hero-slide {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: flex-end;
-      opacity: 0;
-      transition: opacity 0.8s ease;
-    }
-    .news-hero-slide.is-active { opacity: 1; z-index: 1; }
-    .news-hero-slide img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.5;
-    }
-    .news-hero-slide::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, transparent 70%);
-    }
-    .news-hero-feature__content {
-      position: relative;
-      z-index: 2;
-      padding: 3rem 4rem;
-      color: #fff;
-      max-width: 700px;
-    }
-    .news-hero-feature__tag {
-      display: inline-block;
-      background: var(--accent-gold);
-      color: #fff;
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      padding: 0.35rem 0.85rem;
-      border-radius: 3px;
-      margin-bottom: 1rem;
-    }
-    .news-hero-feature__title {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-family: var(--serif);
-      font-weight: 400;
-      line-height: 1.1;
-      margin: 0 0 0.75rem;
-      text-transform: none;
-      letter-spacing: -0.02em;
-    }
-    .news-hero-feature__desc {
-      font-size: 1rem;
-      line-height: 1.6;
-      color: rgba(255,255,255,0.8);
-      margin: 0;
-      max-width: 500px;
-    }
-    .news-hero-dots {
-      position: absolute;
-      bottom: 1.25rem;
-      right: 1.5rem;
-      display: flex;
-      gap: 0.4rem;
-      z-index: 5;
-    }
-    .news-hero-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.6);
-      background: transparent;
-      cursor: pointer;
-      transition: all 0.2s;
-      padding: 0;
-    }
-    .news-hero-dot.is-active {
-      background: #fff;
-      border-color: #fff;
-    }
-
-    /* Magazine-style outreach cards — full photo with overlaid text */
-    #ministry-outreach .outreach-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1rem;
-    }
-    #ministry-outreach .outreach-card,
-    #ministry-outreach .outreach-event-card {
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      min-height: 280px;
-      display: flex;
-      align-items: flex-end;
-      background: #222;
-    }
-    #ministry-outreach .outreach-card img,
-    #ministry-outreach .outreach-event-card img,
-    #ministry-outreach .outreach-card .outreach-card__img,
-    #ministry-outreach .outreach-event-card .outreach-event-card__img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    #ministry-outreach .outreach-card::after,
-    #ministry-outreach .outreach-event-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
-      pointer-events: none;
-    }
-    #ministry-outreach .outreach-card__body,
-    #ministry-outreach .outreach-event-card__content,
-    #ministry-outreach .outreach-card__content {
-      position: relative;
-      z-index: 2;
-      padding: 1.5rem;
-      color: #fff;
-    }
-    #ministry-outreach .outreach-card__title,
-    #ministry-outreach .outreach-event-card__title {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: #fff;
-      margin: 0 0 0.25rem;
-      line-height: 1.2;
-    }
-    #ministry-outreach .outreach-card__date,
-    #ministry-outreach .outreach-event-card__meta {
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.7);
-    }
-    #ministry-outreach .outreach-card__tag {
-      display: inline-block;
-      background: var(--gold, #d4a574);
-      color: #fff;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.2rem 0.5rem;
-      border-radius: 3px;
-      margin-bottom: 0.5rem;
-    }
-
-    /* Announcements grid (legacy — kept for backward compat) */
-    .announcements-3col-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-    .announcements-3col-layout .announcements-column {
-      min-width: 0;
-    }
-    @media (max-width: 600px) {
-      .announcements-3col-layout { grid-template-columns: 1fr; }
-    }
-    #announcements .impact-strip { max-width: 100%; }
-
-    @media (max-width: 768px) {
-      .news-hero-carousel { min-height: 300px; height: 45vh; }
-      .news-hero-feature__content { padding: 1.5rem; }
-      .news-hero-feature__title { font-size: 1.5rem; }
-      .editors-letter__inner { grid-template-columns: 1fr; gap: 0.75rem; }
-      .editors-letter__accent { font-size: 2.5rem; }
-    }
+    :root{--serif:'Playfair Display',Georgia,serif;--sans:'Source Sans 3',system-ui,sans-serif;--mono:'IBM Plex Mono',monospace;--cursive:'Caveat',cursive;--bg-ivory:#FAFAF8;--fg:#1A1A1A;--fg-muted:#6B6B6B;--accent-gold:#B8860B;--accent-gold-light:#D4A84B;--border-warm:#E8E4DF;--card-bg:#FFFFFF;--surface-muted:#F5F3F0}
+    body{font-family:var(--sans);background:var(--bg-ivory)}
+    .section-title{font-family:var(--serif);font-weight:400;letter-spacing:-0.01em}
+    .news-editorial{max-width:1200px;margin:0 auto;padding:0}
+    .news-hero-carousel{position:relative;overflow:hidden;height:60vh;min-height:420px;max-height:600px;background:#0a0a0a}
+    .news-hero-slide{position:absolute;inset:0;display:flex;align-items:flex-end;opacity:0;transition:opacity .8s ease}
+    .news-hero-slide.is-active{opacity:1;z-index:1}
+    .news-hero-slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5}
+    .news-hero-slide::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.3) 40%,transparent 70%)}
+    .news-hero-feature__content{position:relative;z-index:2;padding:3rem 4rem;color:#fff;max-width:700px}
+    .news-hero-feature__tag{display:inline-block;background:var(--accent-gold);color:#fff;font-family:var(--mono);font-size:.65rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;padding:.35rem .85rem;border-radius:3px;margin-bottom:1rem}
+    .news-hero-feature__title{font-size:clamp(2rem,5vw,3.5rem);font-family:var(--serif);font-weight:400;line-height:1.1;margin:0 0 .75rem;letter-spacing:-0.02em}
+    .news-hero-feature__desc{font-size:1rem;line-height:1.6;color:rgba(255,255,255,.8);margin:0;max-width:500px;font-family:var(--sans)}
+    .news-hero-feature__byline{font-family:var(--sans);font-size:.82rem;color:rgba(255,255,255,.65);margin-top:.75rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+    .news-hero-feature__byline-name{font-weight:600;color:rgba(255,255,255,.85)}
+    .news-hero-feature__byline-sep{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.4);display:inline-block}
+    .news-hero-feature__readtime{font-family:var(--mono);font-size:.68rem;letter-spacing:.04em;color:rgba(255,255,255,.55)}
+    .news-hero-dots{position:absolute;bottom:1.25rem;right:1.5rem;display:flex;gap:.4rem;z-index:5}
+    .news-hero-dot{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:transparent;cursor:pointer;transition:all .2s;padding:0}
+    .news-hero-dot.is-active{background:#fff;border-color:#fff}
+    .editors-letter{padding:2.5rem 0 2rem;background:var(--bg-ivory);border-bottom:1px solid var(--border-warm)}
+    .editors-letter__inner{max-width:720px;margin:0 auto;padding:0 1.5rem;display:grid;grid-template-columns:auto 1fr;gap:1.75rem;align-items:start}
+    .editors-letter__accent{font-family:var(--cursive);font-size:3.5rem;color:var(--accent-gold);line-height:1;margin-top:-.25rem}
+    .editors-letter__body{min-width:0}
+    .editors-letter__label{font-family:var(--mono);font-size:.62rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--accent-gold);margin-bottom:.6rem}
+    .editors-letter__text{font-family:var(--serif);font-size:1.05rem;line-height:1.85;color:var(--fg);margin:0 0 .75rem;font-style:italic}
+    .editors-letter__sig{font-family:var(--cursive);font-size:1.4rem;color:var(--fg);margin-top:.5rem}
+    .editors-letter__role{font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;color:var(--fg-muted);margin-top:.15rem}
+    .whats-coming-up{padding:2.5rem 0;background:var(--surface-muted)}
+    .whats-coming-up__header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.5rem}
+    .whats-coming-up__title{font-family:var(--serif);font-size:1.5rem;font-weight:400;color:var(--fg);margin:0}
+    .whats-coming-up__actions{display:flex;gap:.5rem}
+    .whats-coming-up__scroll{max-height:520px;overflow-y:auto;padding-right:.5rem;scrollbar-width:thin;scrollbar-color:var(--border-warm) transparent}
+    .whats-coming-up__scroll::-webkit-scrollbar{width:5px}
+    .whats-coming-up__scroll::-webkit-scrollbar-thumb{background:var(--border-warm);border-radius:3px}
+    .wcu-announcement{background:var(--card-bg);border:1px solid var(--border-warm);border-left:3px solid var(--accent-gold);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin-bottom:.75rem}
+    .wcu-announcement--high{border-left-color:#c0392b}
+    .wcu-announcement__label{font-family:var(--mono);font-size:.58rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-gold);margin-bottom:.3rem}
+    .wcu-announcement--high .wcu-announcement__label{color:#c0392b}
+    .wcu-announcement__subject{font-family:var(--serif);font-size:1rem;font-weight:500;color:var(--fg);margin:0 0 .3rem;line-height:1.3}
+    .wcu-announcement__body{font-family:var(--sans);font-size:.85rem;color:var(--fg-muted);line-height:1.6;margin:0}
+    .wcu-event{display:flex;align-items:flex-start;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--border-warm)}
+    .wcu-event:last-child{border-bottom:none}
+    .wcu-event__date-badge{flex-shrink:0;width:48px;height:48px;background:var(--card-bg);border:1px solid var(--border-warm);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .wcu-event__date-badge--live{border-color:#c0392b;background:#fdf2f2}
+    .wcu-event__month{font-family:var(--mono);font-size:.55rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-muted);line-height:1}
+    .wcu-event__day{font-family:var(--serif);font-size:1.1rem;font-weight:600;color:var(--fg);line-height:1.2}
+    .wcu-event__info{flex:1;min-width:0}
+    .wcu-event__title{font-family:var(--sans);font-size:.9rem;font-weight:600;color:var(--fg);margin:0 0 .2rem;line-height:1.3}
+    .wcu-event__time{font-family:var(--mono);font-size:.72rem;color:var(--fg-muted)}
+    .wcu-event__live-badge{display:inline-block;font-family:var(--mono);font-size:.55rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:#c0392b;color:#fff;padding:.15rem .45rem;border-radius:3px;margin-left:.5rem;animation:pulse-live 2s infinite}
+    @keyframes pulse-live{0%,100%{opacity:1}50%{opacity:.6}}
+    .wcu-empty{text-align:center;padding:2rem 1rem;color:var(--fg-muted);font-size:.9rem}
+    .photo-essay{padding:2.5rem 0;background:var(--card-bg);border-top:1px solid var(--border-warm)}
+    .photo-essay__header{text-align:center;margin-bottom:1.75rem}
+    .photo-essay__label{font-family:var(--mono);font-size:.62rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--accent-gold);margin-bottom:.4rem}
+    .photo-essay__title{font-family:var(--serif);font-size:clamp(1.4rem,3vw,1.8rem);font-weight:400;color:var(--fg);margin:0}
+    .photo-essay__grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+    .photo-essay__item{break-inside:avoid}
+    .photo-essay__item--wide{grid-column:1/-1}
+    .photo-essay__img{width:100%;border-radius:8px;display:block;aspect-ratio:16/10;object-fit:cover}
+    .photo-essay__item--wide .photo-essay__img{aspect-ratio:21/9}
+    .photo-essay__caption{font-family:var(--sans);font-size:.82rem;color:var(--fg-muted);line-height:1.6;margin-top:.5rem;padding-left:.75rem;border-left:2px solid var(--accent-gold)}
+    .photo-essay__caption-meta{font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-muted);display:block;margin-top:.2rem}
+    .testimony-previews{padding:2.5rem 0;background:var(--bg-ivory);border-top:1px solid var(--border-warm)}
+    .testimony-previews__header{text-align:center;margin-bottom:1.5rem}
+    .testimony-previews__label{font-family:var(--mono);font-size:.62rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--accent-gold);margin-bottom:.4rem}
+    .testimony-previews__title{font-family:var(--serif);font-size:clamp(1.3rem,2.5vw,1.6rem);font-weight:400;color:var(--fg);margin:0}
+    .testimony-previews__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem}
+    .testimony-preview-card{background:var(--card-bg);border:1px solid var(--border-warm);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s,transform .2s}
+    .testimony-preview-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px)}
+    .testimony-preview-card__img{width:100%;height:160px;object-fit:cover;display:block}
+    .testimony-preview-card__body{padding:1.25rem;flex:1;display:flex;flex-direction:column}
+    .testimony-preview-card__quote{font-family:var(--serif);font-size:.95rem;font-style:italic;line-height:1.7;color:var(--fg);margin:0 0 .75rem;flex:1}
+    .testimony-preview-card__author{font-family:var(--sans);font-size:.82rem;font-weight:600;color:var(--fg);margin-bottom:.6rem}
+    .testimony-preview-card__link{font-family:var(--sans);font-size:.82rem;font-weight:600;color:var(--accent-gold);text-decoration:none}
+    .testimony-preview-card__link:hover{color:var(--accent-gold-light)}
+    .share-story__primary{font-size:1rem;font-family:var(--sans);padding:.85rem 1.4rem;background:var(--accent-gold);border-radius:6px}
+    .share-story__primary:hover{background:var(--accent-gold-light)}
+    .share-story-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
+    .share-story-modal[hidden]{display:none!important}
+    .share-story-modal__backdrop{position:absolute;inset:0;background:rgba(10,10,10,.55);backdrop-filter:blur(4px)}
+    .share-story-modal__content{position:relative;background:#fff;border-radius:14px;max-width:760px;width:100%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden}
+    .share-story-modal__head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border-warm);background:var(--surface-muted)}
+    .share-story-modal__title{margin:0;font-family:var(--serif);font-size:1.1rem;font-weight:400;color:var(--fg)}
+    .share-story-modal__close{background:none;border:0;font-size:1.8rem;line-height:1;color:#595959;cursor:pointer;padding:.15rem .5rem;border-radius:6px;min-width:44px;min-height:44px}
+    .share-story-modal__close:hover{color:#0a0a0a;background:#f0f0f0}
+    .share-story-modal__body{flex:1;overflow:auto;padding:0;background:#fff}
+    .share-story-modal__iframe{width:100%;height:70vh;min-height:420px;border:0;display:block}
+    body.share-story-modal-open{overflow:hidden}
+    .news-editorial+section,section+section{margin-top:0}
+    section.section{padding:2.5rem 0}
+    @media(max-width:768px){.news-hero-carousel{min-height:300px;height:45vh}.news-hero-feature__content{padding:1.5rem}.news-hero-feature__title{font-size:1.5rem}.editors-letter__inner{grid-template-columns:1fr;gap:.75rem}.editors-letter__accent{font-size:2.5rem}}
+    @media(max-width:600px){.photo-essay__grid{grid-template-columns:1fr}.photo-essay__item--wide{grid-column:auto}}
   </style>
 </head>
 <body>
-
 <header class="site-header" id="site-header">
   <div class="container">
     <div class="header-left">
-      <a href="index.html" class="site-logo">
-        <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">
-        Seed the Word
-      </a>
-      <div class="header-verse">
-        <span class="header-verse__text">"He answered and said unto them, He that soweth the good seed is the Son of man;" — Matthew 13:37 KJV</span>
-      </div>
+      <a href="index.html" class="site-logo"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">Seed the Word</a>
+      <div class="header-verse"><span class="header-verse__text">"He answered and said unto them, He that soweth the good seed is the Son of man;" — Matthew 13:37 KJV</span></div>
     </div>
-    <nav id="site-nav">
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="store.html">Store</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="news.html">News</a></li>
-        <li><a href="community.html">Community</a></li>
-        <li><a href="team.html" class="nav-login">Login</a></li>
-      </ul>
-    </nav>
+    <nav id="site-nav"><ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li><li><a href="team.html" class="nav-login">Login</a></li></ul></nav>
     <div class="header-social">
-      <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="32" height="32"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-      </a>
-      <a href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="32" height="32"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-      </a>
-      <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF" width="32" height="32"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-      </a>
-      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954" width="32" height="32"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
-      </a>
+      <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="32" height="32"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+      <a href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="32" height="32"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg></a>
+      <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF" width="32" height="32"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></a>
+      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954" width="32" height="32"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg></a>
     </div>
-    <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
-      <span></span><span></span><span></span>
-    </button>
+    <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
   </div>
 </header>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     EDITORIAL HERO CAROUSEL — Enhanced with byline, section tag, read time
-     ═══════════════════════════════════════════════════════════════════ -->
 <div class="news-editorial">
   <div class="news-hero-carousel" id="news-hero-carousel">
     <div class="news-hero-slide is-active">
       <img src="assets/images/ministry-outreach/one-heart-mvmt-cookout-2026/01.jpg" alt="Community Cookout" loading="eager">
       <div class="news-hero-feature__content">
-        <span class="news-hero-feature__tag">OUTREACH · EVERETT, WA</span>
+        <span class="news-hero-feature__tag">OUTREACH &middot; EVERETT, WA</span>
         <h2 class="news-hero-feature__title">One Heart Movement Cookout</h2>
         <p class="news-hero-feature__desc">Partnering with local ministries to share the Gospel through food and fellowship.</p>
-        <div class="news-hero-feature__byline">
-          <span class="news-hero-feature__byline-name">Seed the Word Team</span>
-          <span class="news-hero-feature__byline-sep"></span>
-          <span class="news-hero-feature__readtime">4 MIN READ</span>
-        </div>
+        <div class="news-hero-feature__byline"><span class="news-hero-feature__byline-name">Seed the Word Team</span><span class="news-hero-feature__byline-sep"></span><span class="news-hero-feature__readtime">4 MIN READ</span></div>
       </div>
     </div>
     <div class="news-hero-slide">
       <img src="assets/images/ministry-outreach/slavic-awakening-bellevue-may-2026/01.jpg" alt="Slavic Christian Awakening" loading="lazy">
       <div class="news-hero-feature__content">
-        <span class="news-hero-feature__tag">EVANGELISM · BELLEVUE, WA</span>
+        <span class="news-hero-feature__tag">EVANGELISM &middot; BELLEVUE, WA</span>
         <h2 class="news-hero-feature__title">Slavic Christian Awakening</h2>
         <p class="news-hero-feature__desc">Open-air evangelism in Bellevue Square Park — conversations, Bibles, and prayer.</p>
-        <div class="news-hero-feature__byline">
-          <span class="news-hero-feature__byline-name">David A.</span>
-          <span class="news-hero-feature__byline-sep"></span>
-          <span class="news-hero-feature__readtime">3 MIN READ</span>
-        </div>
+        <div class="news-hero-feature__byline"><span class="news-hero-feature__byline-name">David A.</span><span class="news-hero-feature__byline-sep"></span><span class="news-hero-feature__readtime">3 MIN READ</span></div>
       </div>
     </div>
     <div class="news-hero-slide">
       <img src="assets/images/ministry-outreach/for-zion-lgbtq-outreach-june-2026/01.jpg" alt="For Zion Ministries" loading="lazy">
       <div class="news-hero-feature__content">
-        <span class="news-hero-feature__tag">COMMUNITY · LAKE STEVENS, WA</span>
+        <span class="news-hero-feature__tag">COMMUNITY &middot; LAKE STEVENS, WA</span>
         <h2 class="news-hero-feature__title">LGBTQ+ Community Outreach</h2>
-        <p class="news-hero-feature__desc">Sitting with For Zion Ministries in Lake Stevens — listening, asking questions, praying.</p>
-        <div class="news-hero-feature__byline">
-          <span class="news-hero-feature__byline-name">For Zion Ministries</span>
-          <span class="news-hero-feature__byline-sep"></span>
-          <span class="news-hero-feature__readtime">5 MIN READ</span>
-        </div>
+        <p class="news-hero-feature__desc">Sitting with For Zion Ministries — listening, asking questions, praying.</p>
+        <div class="news-hero-feature__byline"><span class="news-hero-feature__byline-name">For Zion Ministries</span><span class="news-hero-feature__byline-sep"></span><span class="news-hero-feature__readtime">5 MIN READ</span></div>
       </div>
     </div>
-    <div class="news-hero-dots">
-      <button class="news-hero-dot is-active" data-idx="0"></button>
-      <button class="news-hero-dot" data-idx="1"></button>
-      <button class="news-hero-dot" data-idx="2"></button>
-    </div>
+    <div class="news-hero-dots"><button class="news-hero-dot is-active" data-idx="0"></button><button class="news-hero-dot" data-idx="1"></button><button class="news-hero-dot" data-idx="2"></button></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     FROM THE MINISTRY — Editor's Letter (Meridian Journal inspired)
-     ═══════════════════════════════════════════════════════════════════ -->
-<section class="editors-letter" aria-labelledby="editors-letter-title">
+<section class="editors-letter">
   <div class="editors-letter__inner container">
-    <div class="editors-letter__accent">"</div>
+    <div class="editors-letter__accent">&ldquo;</div>
     <div class="editors-letter__body">
       <div class="editors-letter__label">From the Ministry</div>
-      <p class="editors-letter__text">
-        Every week we step out in faith — sometimes to a park with Bibles, sometimes to a cookout with strangers who become family. This page is our field journal: the places we've been, the people God brought across our path, and the stories that remind us why we do this. We hope it encourages you to take your own next step.
-      </p>
-      <div class="editors-letter__sig">— David A.</div>
+      <p class="editors-letter__text">Every week we step out in faith — sometimes to a park with Bibles, sometimes to a cookout with strangers who become family. This page is our field journal: the places we've been, the people God brought across our path, and the stories that remind us why we do this.</p>
+      <div class="editors-letter__sig">&mdash; David A.</div>
       <div class="editors-letter__role">Founder, Seed the Word Ministry</div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     WHAT'S COMING UP — Merged Announcements + Calendar Editorial Column
-     ═══════════════════════════════════════════════════════════════════ -->
-<section class="whats-coming-up section" id="announcements-calendar" aria-labelledby="wcu-title">
+<section class="whats-coming-up section" id="announcements-calendar">
   <div class="container">
     <div class="whats-coming-up__header">
-      <h2 class="whats-coming-up__title" id="wcu-title">What's Coming Up</h2>
+      <h2 class="whats-coming-up__title">What's Coming Up</h2>
       <div class="whats-coming-up__actions">
-        <button onclick="window.refreshGoogleCalendar && window.refreshGoogleCalendar()" class="btn btn-primary btn-sm" style="background:linear-gradient(135deg,#2C5F2E 0%,#3a7d3c 100%);">
-          <span>🔄</span> Refresh
-        </button>
+        <button onclick="document.getElementById('calendar-section').scrollIntoView({behavior:'smooth'})" class="btn btn-primary btn-sm">📅 Full Calendar</button>
+        <button onclick="window.refreshGoogleCalendar&&window.refreshGoogleCalendar()" class="btn btn-primary btn-sm" style="background:linear-gradient(135deg,#2C5F2E,#3a7d3c)">🔄 Refresh</button>
       </div>
     </div>
-
-    <!-- Scrollable editorial column -->
     <div class="whats-coming-up__scroll" id="wcu-scroll">
-      <!-- Announcements injected here by JS -->
       <div id="wcu-announcements"></div>
-      <!-- Calendar events rendered here by JS -->
-      <div id="wcu-events">
-        <div class="wcu-empty">Loading events...</div>
-      </div>
+      <div id="wcu-events"><div class="wcu-empty">Loading events...</div></div>
     </div>
   </div>
 </section>
+<div style="display:none" aria-hidden="true"><div id="live-events-container"></div><div id="upcoming-events-container"></div></div>
 
-<!-- Keep hidden legacy containers for backward compat with google-calendar.js -->
-<div style="display:none" aria-hidden="true">
-  <div id="live-events-container"></div>
-  <div id="upcoming-events-container"></div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════
-     MINISTRY OUTREACH — Magazine-style photo cards
-     ═══════════════════════════════════════════════════════════════════ -->
-<section class="section section--white outreach-section" id="ministry-outreach">
+<section class="section section--white" id="ministry-outreach" style="padding:2.5rem 0 2rem">
   <div class="container">
-    <h2 class="section-title" style="text-align:center;font-size:clamp(1.5rem,3vw,2rem);text-transform:uppercase;letter-spacing:0.04em;">Latest from the Field</h2>
-    <p style="font-family:'Caveat',cursive;font-size:1.3rem;color:var(--accent-gold, #B8860B);margin:-0.5rem 0 1.75rem;text-align:center;font-weight:700;">Seed the Word</p>
-
-    <!-- Ministry milestone celebration -->
-    <div style="margin:0 0 2.5rem;padding:2rem 2rem;background:linear-gradient(135deg,rgba(26,26,26,0.04) 0%,rgba(26,26,26,0.02) 100%);border:1px solid #E8E4DF;border-top:3px solid #B8860B;border-radius:12px;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
-      <!-- Badge -->
-      <div style="flex-shrink:0;text-align:center;">
-        <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#1A1A1A,#333);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.2);margin:0 auto 0.5rem;">
-          <span style="font-size:1.5rem;line-height:1;">📖</span>
-        </div>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:#6B6B6B;">Milestone</span>
-      </div>
-      <!-- Content -->
-      <div style="flex:1;min-width:220px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:#B8860B;margin-bottom:0.4rem;">Since March 20, 2026 — Ministry Launch</div>
-        <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.4rem,2.5vw,1.8rem);font-weight:400;color:#1A1A1A;margin:0 0 0.4rem;letter-spacing:-0.01em;">Over 500 Bibles Given Away</h3>
-        <p style="font-family:'Source Sans 3',system-ui,sans-serif;font-size:0.9rem;color:#4a4a4a;margin:0 0 1rem;line-height:1.65;">From outreach events, community cookouts, and street evangelism across Washington State — every Bible represents a person God placed in our path. To God be the glory.</p>
-        <a href="testimonies.html#ministry-gallery" style="display:inline-flex;align-items:center;gap:0.4rem;font-family:'Source Sans 3',system-ui,sans-serif;font-size:0.85rem;font-weight:600;color:#B8860B;text-decoration:none;border-bottom:1px solid rgba(184,134,11,0.3);padding-bottom:1px;">Read the full story →</a>
-      </div>
-      <!-- Counter -->
-      <div style="flex-shrink:0;text-align:center;min-width:100px;">
-        <div id="news-bible-counter" style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(2.5rem,5vw,3.5rem);font-weight:700;color:#B8860B;line-height:1;">—</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:#6B6B6B;margin-top:0.2rem;">Bibles given</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(184,134,11,0.6);margin-top:0.1rem;">Updated live</div>
-      </div>
+    <h2 class="section-title" style="text-align:center;font-size:clamp(1.5rem,3vw,2rem);text-transform:uppercase;letter-spacing:.04em">Latest from the Field</h2>
+    <p style="font-family:var(--cursive);font-size:1.3rem;color:var(--accent-gold);margin:-.5rem 0 1.75rem;text-align:center;font-weight:700">Seed the Word</p>
+    <div style="margin:0 0 2.5rem;padding:2rem;background:linear-gradient(135deg,rgba(26,26,26,.04),rgba(26,26,26,.02));border:1px solid var(--border-warm);border-top:3px solid var(--accent-gold);border-radius:12px;display:flex;align-items:center;gap:2rem;flex-wrap:wrap">
+      <div style="flex-shrink:0;text-align:center"><div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#1A1A1A,#333);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.2);margin:0 auto .5rem"><span style="font-size:1.5rem">📖</span></div><span style="font-family:var(--mono);font-size:.6rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-muted)">Milestone</span></div>
+      <div style="flex:1;min-width:220px"><div style="font-family:var(--mono);font-size:.65rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--accent-gold);margin-bottom:.4rem">Since March 20, 2026 — Ministry Launch</div><h3 style="font-family:var(--serif);font-size:clamp(1.4rem,2.5vw,1.8rem);font-weight:400;color:var(--fg);margin:0 0 .4rem">Over 500 Bibles Given Away</h3><p style="font-family:var(--sans);font-size:.9rem;color:#4a4a4a;margin:0 0 1rem;line-height:1.65">From outreach events, community cookouts, and street evangelism across Washington State — every Bible represents a person God placed in our path.</p><a href="testimonies.html#ministry-gallery" style="font-family:var(--sans);font-size:.85rem;font-weight:600;color:var(--accent-gold);text-decoration:none;border-bottom:1px solid rgba(184,134,11,.3)">Read the full story →</a></div>
+      <div style="flex-shrink:0;text-align:center;min-width:100px"><div id="news-bible-counter" style="font-family:var(--serif);font-size:clamp(2.5rem,5vw,3.5rem);font-weight:700;color:var(--accent-gold);line-height:1">—</div><div style="font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-muted);margin-top:.2rem">Bibles given</div><div style="font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(184,134,11,.6);margin-top:.1rem">Updated live</div></div>
     </div>
-
-    <!-- David's testimony — directly under the milestone -->
-    <div style="margin:0 0 2.5rem;padding:1.75rem 2rem;background:#fff;border:1px solid #E8E4DF;border-left:4px solid #2C5F2E;border-radius:0 10px 10px 0;">
-      <p style="font-family:'Playfair Display',Georgia,serif;font-size:1.1rem;font-style:italic;line-height:1.8;color:#1A1A1A;margin:0 0 0.75rem;">
-        I found Jesus in private, on my knees, asking for Him to change my life around for the better.
-        He saved me from death and He promised me a life full of happiness.
-        Not only here on earth but in eternity where He will take me to partake in His reign forevermore.
-      </p>
-      <div style="width:40px;height:1px;background:#E8E4DF;margin:0.75rem 0;"></div>
-      <p style="font-family:'Source Sans 3',system-ui,sans-serif;font-size:0.88rem;font-weight:600;color:#1A1A1A;margin:0;">— David A.</p>
-      <p style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:#B8860B;font-weight:500;letter-spacing:0.08em;margin:0.2rem 0 0;">Micah 6:8</p>
+    <div style="margin:0 0 2.5rem;padding:1.75rem 2rem;background:var(--card-bg);border:1px solid var(--border-warm);border-left:4px solid #2C5F2E;border-radius:0 10px 10px 0">
+      <p style="font-family:var(--serif);font-size:1.1rem;font-style:italic;line-height:1.8;color:var(--fg);margin:0 0 .75rem">I found Jesus in private, on my knees, asking for Him to change my life around for the better. He saved me from death and He promised me a life full of happiness. Not only here on earth but in eternity where He will take me to partake in His reign forevermore.</p>
+      <div style="width:40px;height:1px;background:var(--border-warm);margin:.75rem 0"></div>
+      <p style="font-family:var(--sans);font-size:.88rem;font-weight:600;color:var(--fg);margin:0">— David A.</p>
+      <p style="font-family:var(--mono);font-size:.68rem;color:var(--accent-gold);font-weight:500;letter-spacing:.08em;margin:.2rem 0 0">Micah 6:8</p>
     </div>
-
-    <!-- Outreach event cards with their own carousels -->
-    <div class="outreach-grid" id="ministry-outreach-cards" aria-live="polite">
-      <!-- Populated by assets/js/ministry-outreach.js -->
-    </div>
-
-    <!-- Share your story CTA — inline at end of outreach section -->
-    <div style="margin:2.5rem 0 0;padding:2rem;text-align:center;border-top:1px solid #E8E4DF;">
-      <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.4rem;font-weight:400;color:#1A1A1A;margin:0 0 0.6rem;">Share your story</h3>
-      <p style="font-family:'Source Sans 3',system-ui,sans-serif;font-size:0.95rem;color:#6B6B6B;max-width:580px;margin:0 auto 1.25rem;line-height:1.7;">
-        Has God used our ministry to meet you in your walk with Jesus? Drop your testimony, photos, or videos. We'd love to feature them.
-      </p>
-      <button type="button" class="btn btn-primary share-story__primary" id="share-story-open" style="margin-bottom:0.5rem;">
-        📤 Share photos, video &amp; testimony
-      </button>
-      <div style="margin-top:0.5rem;display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;">
-        <a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team</a>
-        <a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a>
-      </div>
+    <div style="padding:2rem;text-align:center;border-top:1px solid var(--border-warm)">
+      <h3 style="font-family:var(--serif);font-size:1.4rem;font-weight:400;color:var(--fg);margin:0 0 .6rem">Share your story</h3>
+      <p style="font-family:var(--sans);font-size:.95rem;color:var(--fg-muted);max-width:580px;margin:0 auto 1.25rem;line-height:1.7">Has God used our ministry to meet you in your walk with Jesus? Drop your testimony, photos, or videos.</p>
+      <button type="button" class="btn btn-primary share-story__primary" id="share-story-open">📤 Share photos, video &amp; testimony</button>
+      <div style="margin-top:.5rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap"><a class="btn btn-secondary btn-sm" href="about.html#contact">✉️ Email the team</a><a class="btn btn-secondary btn-sm" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener">📷 Tag us on Instagram</a></div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     PHOTO-ESSAY GALLERY — Full-width outreach photo recaps
-     ═══════════════════════════════════════════════════════════════════ -->
-<section class="photo-essay" id="photo-essay" aria-labelledby="photo-essay-title">
+<section class="photo-essay" id="photo-essay">
   <div class="container">
-    <div class="photo-essay__header">
-      <div class="photo-essay__label">Photo Essay</div>
-      <h2 class="photo-essay__title" id="photo-essay-title">Scenes from the Field</h2>
-    </div>
-    <div class="photo-essay__grid">
-      <div class="photo-essay__item photo-essay__item--wide">
-        <img class="photo-essay__img" src="assets/images/ministry-outreach/one-heart-mvmt-cookout-2026/01.jpg" alt="Community cookout setup in Everett" loading="lazy">
-        <p class="photo-essay__caption">
-          Setting up for the One Heart Movement cookout — tables, grills, and a stack of Bibles ready for conversations.
-          <span class="photo-essay__caption-location">Everett, WA — Summer 2026</span>
-        </p>
-      </div>
-      <div class="photo-essay__item">
-        <img class="photo-essay__img" src="assets/images/ministry-outreach/slavic-awakening-bellevue-may-2026/01.jpg" alt="Open-air evangelism at Bellevue Square" loading="lazy">
-        <p class="photo-essay__caption">
-          Open-air conversations at Bellevue Square Park during the Slavic Christian Awakening event.
-          <span class="photo-essay__caption-location">Bellevue, WA</span>
-        </p>
-      </div>
-      <div class="photo-essay__item">
-        <img class="photo-essay__img" src="assets/images/ministry-outreach/for-zion-lgbtq-outreach-june-2026/01.jpg" alt="Community outreach in Lake Stevens" loading="lazy">
-        <p class="photo-essay__caption">
-          Listening, asking questions, and praying with the community alongside For Zion Ministries.
-          <span class="photo-essay__caption-location">Lake Stevens, WA</span>
-        </p>
-      </div>
-    </div>
+    <div class="photo-essay__header"><div class="photo-essay__label">Photo Essay</div><h2 class="photo-essay__title">Scenes from the Field</h2></div>
+    <div class="photo-essay__grid" id="photo-essay-grid"><div class="wcu-empty">Loading photos...</div></div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     TESTIMONY ARCHIVE PREVIEWS — Bridge to testimonies.html
-     ═══════════════════════════════════════════════════════════════════ -->
-<section class="testimony-previews" id="testimony-previews" aria-labelledby="testimony-previews-title">
+<section class="testimony-previews" id="testimony-previews">
   <div class="container">
-    <div class="testimony-previews__header">
-      <div class="testimony-previews__label">From the Archive</div>
-      <h2 class="testimony-previews__title" id="testimony-previews-title">Recent Testimonies</h2>
-    </div>
-    <div class="testimony-previews__grid" id="testimony-previews-grid">
-      <!-- Testimony preview card 1 -->
-      <article class="testimony-preview-card">
-        <img class="testimony-preview-card__img" src="assets/images/ministry-outreach/one-heart-mvmt-cookout-2026/01.jpg" alt="Community testimony" loading="lazy">
-        <div class="testimony-preview-card__body">
-          <p class="testimony-preview-card__quote">"I found Jesus in private, on my knees, asking for Him to change my life around for the better. He saved me from death."</p>
-          <div class="testimony-preview-card__author">— David A.</div>
-          <a href="testimonies.html" class="testimony-preview-card__link">Read full story →</a>
-        </div>
-      </article>
-      <!-- Testimony preview card 2 -->
-      <article class="testimony-preview-card">
-        <img class="testimony-preview-card__img" src="assets/images/ministry-outreach/slavic-awakening-bellevue-may-2026/01.jpg" alt="Evangelism testimony" loading="lazy">
-        <div class="testimony-preview-card__body">
-          <p class="testimony-preview-card__quote">"A stranger handed me a Bible at the park. That night I opened it for the first time and couldn't stop reading."</p>
-          <div class="testimony-preview-card__author">— Anonymous</div>
-          <a href="testimonies.html" class="testimony-preview-card__link">Read full story →</a>
-        </div>
-      </article>
-      <!-- Testimony preview card 3 -->
-      <article class="testimony-preview-card">
-        <img class="testimony-preview-card__img" src="assets/images/ministry-outreach/for-zion-lgbtq-outreach-june-2026/01.jpg" alt="For Zion outreach testimony" loading="lazy">
-        <div class="testimony-preview-card__body">
-          <p class="testimony-preview-card__quote">"They didn't preach at me — they sat with me. That's when I knew these people were different."</p>
-          <div class="testimony-preview-card__author">— Community Member</div>
-          <a href="testimonies.html" class="testimony-preview-card__link">Read full story →</a>
-        </div>
-      </article>
+    <div class="testimony-previews__header"><div class="testimony-previews__label">From the Archive</div><h2 class="testimony-previews__title">Recent Testimonies</h2></div>
+    <div class="testimony-previews__grid">
+      <article class="testimony-preview-card"><img class="testimony-preview-card__img" src="assets/images/ministry-outreach/one-heart-mvmt-cookout-2026/01.jpg" alt="Community testimony" loading="lazy"><div class="testimony-preview-card__body"><p class="testimony-preview-card__quote">"I found Jesus in private, on my knees, asking for Him to change my life around for the better. He saved me from death."</p><div class="testimony-preview-card__author">— David A.</div><a href="testimonies.html" class="testimony-preview-card__link">Read full story →</a></div></article>
+      <article class="testimony-preview-card"><img class="testimony-preview-card__img" src="assets/images/ministry-outreach/slavic-awakening-bellevue-may-2026/01.jpg" alt="Evangelism testimony" loading="lazy"><div class="testimony-preview-card__body"><p class="testimony-preview-card__quote">"A stranger handed me a Bible at the park. That night I opened it for the first time and couldn't stop reading."</p><div class="testimony-preview-card__author">— Anonymous</div><a href="testimonies.html" class="testimony-preview-card__link">Read full story →</a></div></article>
+      <article class="testimony-preview-card"><img class="testimony-preview-card__img" src="assets/images/ministry-outreach/for-zion-lgbtq-outreach-june-2026/01.jpg" alt="For Zion outreach" loading="lazy"><div class="testimony-preview-card__body"><p class="testimony-preview-card__quote">"They didn't preach at me — they sat with me. That's when I knew these people were different."</p><div class="testimony-preview-card__author">— Community Member</div><a href="testimonies.html" class="testimony-preview-card__link">Read full story →</a></div></article>
     </div>
   </div>
 </section>
 
-<!-- Share-story modal (keeps working — triggered by the button in Latest from the Field) -->
 <div class="share-story-modal" id="share-story-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="share-story-modal-title">
   <div class="share-story-modal__backdrop" id="share-story-modal-backdrop"></div>
   <div class="share-story-modal__content">
-    <header class="share-story-modal__head">
-      <h3 class="share-story-modal__title" id="share-story-modal-title">Share your story</h3>
-      <button type="button" class="share-story-modal__close" id="share-story-modal-close" aria-label="Close">&times;</button>
-    </header>
-    <div class="share-story-modal__body" id="share-story-modal-body">
-      <!-- Google Form iframe (or a fallback message) injected by
-           assets/js/share-story.js when the modal opens. -->
-    </div>
+    <header class="share-story-modal__head"><h3 class="share-story-modal__title" id="share-story-modal-title">Share your story</h3><button type="button" class="share-story-modal__close" id="share-story-modal-close" aria-label="Close">&times;</button></header>
+    <div class="share-story-modal__body" id="share-story-modal-body"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     FULL CALENDAR — scroll target from "What's Coming Up" section
-     ═══════════════════════════════════════════════════════════════════ -->
 <section class="section section--white" id="calendar-section">
   <div class="container">
     <h2 class="section-title">Calendar</h2>
-    
-    <!-- Ministry Calendar -->
     <div class="calendar-container">
-      <div class="calendar-header">
-        <button class="calendar-nav-btn" id="prev-month">‹</button>
-        <h3 class="calendar-month" id="calendar-month">January 2026</h3>
-        <button class="calendar-nav-btn" id="next-month">›</button>
-      </div>
-      
-      <div class="calendar-grid" id="calendar-grid">
-        <!-- Calendar will be generated by JavaScript -->
-      </div>
-      
-      <div class="calendar-legend">
-        <div class="legend-item">
-          <span class="legend-dot live"></span>
-          <span>Live</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot today"></span>
-          <span>Today</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot upcoming"></span>
-          <span>This Week</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot future"></span>
-          <span>Future</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot ongoing"></span>
-          <span>Recurring</span>
-        </div>
-        <div class="legend-item" style="margin-left: auto; font-size: 0.8rem; color: var(--muted);">
-          <span id="calendar-last-updated">Loading...</span>
-        </div>
-      </div>
+      <div class="calendar-header"><button class="calendar-nav-btn" id="prev-month">&lsaquo;</button><h3 class="calendar-month" id="calendar-month">January 2026</h3><button class="calendar-nav-btn" id="next-month">&rsaquo;</button></div>
+      <div class="calendar-grid" id="calendar-grid"></div>
+      <div class="calendar-legend"><div class="legend-item"><span class="legend-dot live"></span><span>Live</span></div><div class="legend-item"><span class="legend-dot today"></span><span>Today</span></div><div class="legend-item"><span class="legend-dot upcoming"></span><span>This Week</span></div><div class="legend-item"><span class="legend-dot future"></span><span>Future</span></div><div class="legend-item"><span class="legend-dot ongoing"></span><span>Recurring</span></div><div class="legend-item" style="margin-left:auto;font-size:.8rem;color:var(--muted)"><span id="calendar-last-updated">Loading...</span></div></div>
     </div>
-    
-    <!-- Event Details Modal -->
-    <div class="event-modal" id="event-modal">
-      <div class="event-modal__backdrop"></div>
-      <div class="event-modal__content">
-        <button class="event-modal__close" id="event-modal-close">&times;</button>
-        <div class="event-modal__body" id="event-modal-body">
-          <!-- Event details will be populated here -->
-        </div>
-      </div>
-    </div>
+    <div class="event-modal" id="event-modal"><div class="event-modal__backdrop"></div><div class="event-modal__content"><button class="event-modal__close" id="event-modal-close">&times;</button><div class="event-modal__body" id="event-modal-body"></div></div></div>
   </div>
 </section>
-
-<!-- Ways to Help section removed per team decision -->
 
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
-      <!-- Brand -->
-      <div class="footer-brand">
-        <div class="footer-brand__row">
-          <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo">
-          <p class="footer-brand__name">Seed the Word Ministry</p>
-        </div>
-        <p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p>
-        <p style="font-size:0.82rem;color:var(--muted);margin-top:0.75rem;line-height:1.5">Seed the Word is a Washington State registered nonprofit corporation (UBI 606 261 509, effective July 13, 2026).</p>
-      </div>
-
-      <!-- Navigate -->
-      <div>
-        <h4 class="footer-col__title">Navigate</h4>
-        <ul class="footer-nav">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="store.html">Store</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="news.html">News</a></li>
-          <li><a href="community.html">Community</a></li>
-        </ul>
-      </div>
-
-      <!-- Connect -->
-      <div>
-        <h4 class="footer-col__title">Connect</h4>
-        <div class="footer-connect__icons">
-          <a class="footer-connect__icon" href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-          </a>
-          <a class="footer-connect__icon" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-          </a>
-          <a class="footer-connect__icon" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-          </a>
-          <a class="footer-connect__icon" href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
-          </a>
-        </div>
-        <a class="footer-connect__contact" href="connect.html">🤝 Connect with Us</a>
-        <a class="footer-connect__contact" href="about.html#contact">
-          ✉️ Contact us
-        </a>
-        <a class="footer-connect__contact" href="donate.html">
-          📖 Donate or receive a Bible
-        </a>
-      </div>
+      <div class="footer-brand"><div class="footer-brand__row"><img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo"><p class="footer-brand__name">Seed the Word Ministry</p></div><p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p><p style="font-size:.82rem;color:var(--muted);margin-top:.75rem;line-height:1.5">Seed the Word is a Washington State registered nonprofit corporation (UBI 606 261 509, effective July 13, 2026).</p></div>
+      <div><h4 class="footer-col__title">Navigate</h4><ul class="footer-nav"><li><a href="index.html">Home</a></li><li><a href="store.html">Store</a></li><li><a href="about.html">About</a></li><li><a href="news.html">News</a></li><li><a href="community.html">Community</a></li></ul></div>
+      <div><h4 class="footer-col__title">Connect</h4><div class="footer-connect__icons"><a class="footer-connect__icon" href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg></a><a class="footer-connect__icon" href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a><a class="footer-connect__icon" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></a><a class="footer-connect__icon" href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg></a></div><a class="footer-connect__contact" href="connect.html">🤝 Connect with Us</a><a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a><a class="footer-connect__contact" href="donate.html">📖 Donate or receive a Bible</a></div>
     </div>
-
-    <div class="footer-bottom">
-      <p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
-      <ul class="footer-bottom__links">
-        <li><a href="about.html">About</a></li>
-        <li><a href="about.html#contact">Contact</a></li>
-        <li><a href="about.html#careers">Careers</a></li>
-        <li><a href="admin-help.html" style="opacity:0.55;">Admin</a></li>
-        <li><button class="theme-toggle footer-theme-toggle" aria-label="Toggle theme"></button></li>
-      </ul>
-    </div>
+    <div class="footer-bottom"><p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p><ul class="footer-bottom__links"><li><a href="about.html">About</a></li><li><a href="about.html#contact">Contact</a></li><li><a href="about.html#careers">Careers</a></li><li><a href="admin-help.html" style="opacity:.55">Admin</a></li><li><button class="theme-toggle footer-theme-toggle" aria-label="Toggle theme"></button></li></ul></div>
   </div>
 </footer>
 
 <script src="assets/js/main.js?v=9"></script>
 <script src="assets/js/google-calendar.js?v=16"></script>
 <script src="assets/js/livestream.js?v=2"></script>
-<script src="assets/js/ministry-outreach.js?v=3"></script>
 <script src="assets/js/ministry-impact.js?v=3" defer></script>
 <script src="assets/js/share-story.js?v=1" defer></script>
 <script src="assets/js/testimonies.js?v=4" defer></script>
 
 <script>
-// Live Bible counter for milestone section — mirrors ministry-impact.js pattern
-(function() {
-  var CACHE_KEY = 'stw_ministry_stats';
-  var CACHE_TTL = 5 * 60 * 1000; // 5 min
-
-  function animateCount(el, target) {
-    var start = 0;
-    var duration = 1200;
-    var startTime = null;
-    function step(ts) {
-      if (!startTime) startTime = ts;
-      var progress = Math.min((ts - startTime) / duration, 1);
-      var eased = 1 - Math.pow(1 - progress, 3);
-      el.textContent = Math.floor(eased * target).toLocaleString();
-      if (progress < 1) requestAnimationFrame(step);
-      else el.textContent = target.toLocaleString();
-    }
-    requestAnimationFrame(step);
-  }
-
-  async function loadCount() {
-    var el = document.getElementById('news-bible-counter');
-    if (!el) return;
-
-    // 1. Try cache first for instant display
-    var count = 0;
-    try {
-      var cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
-      if (cached.total) { count = cached.total; animateCount(el, count); }
-    } catch(_) {}
-
-    // 2. Load config to get handler URL + fallback count
-    var orderHandlerUrl = '';
-    try {
-      var cfg = await fetch('assets/data/site-config.json', { cache: 'no-store' }).then(function(r) { return r.json(); });
-      orderHandlerUrl = cfg.orderHandlerUrl || '';
-      if (!count && cfg.biblesGivenAway) { count = cfg.biblesGivenAway; animateCount(el, count); }
-    } catch(_) {}
-
-    // 3. Fetch live stats from Apps Script
-    if (!orderHandlerUrl) return;
-    try {
-      var cached2 = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
-      var cacheAge = cached2.ts ? Date.now() - cached2.ts : Infinity;
-      if (cacheAge > CACHE_TTL) {
-        var live = await fetch(orderHandlerUrl + '?action=getMinistryStats', { cache: 'no-store' }).then(function(r) { return r.json(); });
-        if (live.ok && live.total) {
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ total: live.total, goal: live.goal, ts: Date.now() }));
-          animateCount(el, live.total);
-        }
-      }
-    } catch(_) {}
-  }
-
-  loadCount();
-
-  // Inject milestone card into outreach grid after JS populates it
-  function injectMilestoneCard() {
-    var grid = document.getElementById('ministry-outreach-cards');
-    if (!grid || grid.querySelector('.outreach-card--milestone')) return;
-    var card = document.createElement('article');
-    card.className = 'outreach-card outreach-card--milestone';
-    card.style.cssText = 'background:linear-gradient(135deg,#1A1A1A 0%,#2a1f0a 100%);position:relative;display:flex;flex-direction:column;border-radius:12px;overflow:hidden;min-height:280px;border:1px solid rgba(184,134,11,0.3);';
-    card.innerHTML = '' +
-      '<div style="position:absolute;inset:0;background:url(assets/images/backgrounds/bible-ministry-1.jpg) center/cover no-repeat;opacity:0.18;"></div>' +
-      '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(26,16,2,0.97) 0%,rgba(26,16,2,0.6) 60%,transparent 100%);"></div>' +
-      '<div style="position:relative;z-index:2;padding:1.5rem;display:flex;flex-direction:column;flex:1;">' +
-        '<div style="margin-bottom:auto;">' +
-          '<span style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:0.6rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;background:rgba(184,134,11,0.9);color:#fff;padding:0.25rem 0.6rem;border-radius:3px;margin-bottom:0.75rem;">🏆 Ministry Milestone</span>' +
-          '<div style="font-family:\'Playfair Display\',Georgia,serif;font-size:2.5rem;font-weight:700;color:#D4A84B;line-height:1;margin-bottom:0.2rem;">500+</div>' +
-          '<h3 style="font-family:\'Playfair Display\',Georgia,serif;font-size:1.15rem;font-weight:400;color:#fff;margin:0 0 0.4rem;line-height:1.25;">Bibles Given Away</h3>' +
-          '<p style="font-size:0.8rem;color:rgba(255,255,255,0.7);font-style:italic;margin:0 0 0.35rem;">Since March 20, 2026</p>' +
-          '<p style="font-size:0.82rem;color:rgba(255,255,255,0.65);line-height:1.5;margin:0;">Across outreach events, cookouts, and street evangelism in Washington State.</p>' +
-        '</div>' +
-        '<div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(184,134,11,0.25);">' +
-          '<a href="testimonies.html#ministry-gallery" style="display:inline-flex;align-items:center;gap:0.3rem;font-size:0.8rem;font-weight:600;color:#D4A84B;text-decoration:none;">📸 View all photos →</a>' +
-        '</div>' +
-      '</div>';
-    grid.insertBefore(card, grid.firstChild);
-  }
-
-  // Wait for ministry-outreach.js to populate the grid
-  var attempts = 0;
-  var interval = setInterval(function() {
-    var grid = document.getElementById('ministry-outreach-cards');
-    if ((grid && grid.children.length > 0) || attempts++ > 20) {
-      clearInterval(interval);
-      injectMilestoneCard();
-    }
-  }, 200);
+// Bible counter
+(function(){
+  var CK='stw_ministry_stats',TTL=3e5;
+  function anim(el,t){var d=1200,s=null;function step(ts){if(!s)s=ts;var p=Math.min((ts-s)/d,1);el.textContent=Math.floor((1-Math.pow(1-p,3))*t).toLocaleString();if(p<1)requestAnimationFrame(step);else el.textContent=t.toLocaleString()}requestAnimationFrame(step)}
+  async function go(){var el=document.getElementById('news-bible-counter');if(!el)return;var c=0;try{var x=JSON.parse(localStorage.getItem(CK)||'{}');if(x.total){c=x.total;anim(el,c)}}catch(e){}var url='';try{var cfg=await fetch('assets/data/site-config.json',{cache:'no-store'}).then(function(r){return r.json()});url=cfg.orderHandlerUrl||'';if(!c&&cfg.biblesGivenAway){c=cfg.biblesGivenAway;anim(el,c)}}catch(e){}if(!url)return;try{var x2=JSON.parse(localStorage.getItem(CK)||'{}');if((x2.ts?Date.now()-x2.ts:1/0)>TTL){var lv=await fetch(url+'?action=getMinistryStats',{cache:'no-store'}).then(function(r){return r.json()});if(lv.ok&&lv.total){localStorage.setItem(CK,JSON.stringify({total:lv.total,goal:lv.goal,ts:Date.now()}));anim(el,lv.total)}}}catch(e){}}
+  go();
 })();
 </script>
-
 <script>
-// News hero carousel
-(function() {
-  var slides = document.querySelectorAll('.news-hero-slide');
-  var dots = document.querySelectorAll('.news-hero-dot');
-  if (slides.length < 2) return;
-  var current = 0;
-  function goTo(idx) {
-    slides[current].classList.remove('is-active');
-    dots[current].classList.remove('is-active');
-    current = idx;
-    slides[current].classList.add('is-active');
-    dots[current].classList.add('is-active');
-  }
-  dots.forEach(function(dot) {
-    dot.addEventListener('click', function() { goTo(parseInt(dot.dataset.idx)); });
-  });
-  setInterval(function() { goTo((current + 1) % slides.length); }, 5000);
-})();
+// Hero carousel
+(function(){var slides=document.querySelectorAll('.news-hero-slide'),dots=document.querySelectorAll('.news-hero-dot');if(slides.length<2)return;var cur=0;function go(i){slides[cur].classList.remove('is-active');dots[cur].classList.remove('is-active');cur=i;slides[cur].classList.add('is-active');dots[cur].classList.add('is-active')}dots.forEach(function(d){d.addEventListener('click',function(){go(+d.dataset.idx)})});setInterval(function(){go((cur+1)%slides.length)},5000)})();
 </script>
-
 <script>
-// "What's Coming Up" — Merged Announcements + Calendar editorial column
-// Bridges into the existing google-calendar.js and announcements system
-(function() {
-  var wcuAnnouncements = document.getElementById('wcu-announcements');
-  var wcuEvents = document.getElementById('wcu-events');
+// What's Coming Up: Announcements (POST with passphrase) + Calendar events
+(function(){
+  var wcuA=document.getElementById('wcu-announcements'),wcuE=document.getElementById('wcu-events');
 
-  // === ANNOUNCEMENTS ===
-  // Try to load announcements from the same backend the old section used
-  async function loadAnnouncements() {
-    try {
-      var cfg = await fetch('assets/data/site-config.json', { cache: 'no-store' }).then(function(r) { return r.json(); });
-      var url = cfg.orderHandlerUrl;
-      if (!url) return;
-
-      var res = await fetch(url + '?action=getAnnouncements', { cache: 'no-store' }).then(function(r) { return r.json(); });
-      if (!res.ok || !res.announcements || res.announcements.length === 0) return;
-
-      var html = '';
-      res.announcements.forEach(function(a) {
-        var isHigh = a.priority === 'high';
-        html += '<div class="wcu-announcement' + (isHigh ? ' wcu-announcement--high' : '') + '">';
-        html += '<div class="wcu-announcement__label">' + (isHigh ? '🔴 URGENT' : '📢 ANNOUNCEMENT') + '</div>';
-        html += '<h4 class="wcu-announcement__subject">' + (a.subject || 'Update') + '</h4>';
-        if (a.body) html += '<p class="wcu-announcement__body">' + a.body + '</p>';
-        html += '</div>';
+  // Announcements via POST (matches community.html pattern)
+  async function loadAnn(){
+    try{
+      var cfg=await fetch('assets/data/site-config.json',{cache:'no-store'}).then(function(r){return r.json()});
+      var url=cfg.orderHandlerUrl;if(!url)return;
+      var res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getAnnouncements',passphrase_hash:'public-read'})}).then(function(r){return r.json()});
+      if(!res.ok||!res.announcements||!res.announcements.length)return;
+      var h='';
+      res.announcements.forEach(function(a){
+        var hi=a.priority==='high';
+        h+='<div class="wcu-announcement'+(hi?' wcu-announcement--high':'')+'">';
+        h+='<div class="wcu-announcement__label">'+(hi?'🔴 URGENT':'📢 ANNOUNCEMENT')+'</div>';
+        h+='<h4 class="wcu-announcement__subject">'+(a.subject||'Update')+'</h4>';
+        if(a.body)h+='<p class="wcu-announcement__body">'+a.body+'</p>';
+        h+='</div>';
       });
-      wcuAnnouncements.innerHTML = html;
-    } catch(e) {
-      // Silently fail — announcements are optional
-    }
+      wcuA.innerHTML=h;
+    }catch(e){}
   }
 
-  // === CALENDAR EVENTS ===
-  // Wait for google-calendar.js to expose window.googleCalendar
-  function renderCalendarEvents() {
-    var gc = window.googleCalendar;
-    if (!gc || !gc.events || gc.events.length === 0) {
-      wcuEvents.innerHTML = '<div class="wcu-empty">No upcoming events found.</div>';
-      return;
-    }
-
-    var now = new Date();
-    // Sort events by start time and take next 10
-    var upcoming = gc.events
-      .filter(function(e) { return new Date(e.end || e.start) >= now; })
-      .sort(function(a, b) { return new Date(a.start) - new Date(b.start); })
-      .slice(0, 10);
-
-    if (upcoming.length === 0) {
-      wcuEvents.innerHTML = '<div class="wcu-empty">No upcoming events.</div>';
-      return;
-    }
-
-    var html = '';
-    upcoming.forEach(function(evt) {
-      var start = new Date(evt.start);
-      var isLive = now >= new Date(evt.start) && now <= new Date(evt.end || evt.start);
-      var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-      var month = months[start.getMonth()];
-      var day = start.getDate();
-      var time = start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-
-      html += '<div class="wcu-event">';
-      html += '<div class="wcu-event__date-badge' + (isLive ? ' wcu-event__date-badge--live' : '') + '">';
-      html += '<span class="wcu-event__month">' + month + '</span>';
-      html += '<span class="wcu-event__day">' + day + '</span>';
-      html += '</div>';
-      html += '<div class="wcu-event__info">';
-      html += '<div class="wcu-event__title">' + (evt.summary || evt.title || 'Event') + (isLive ? '<span class="wcu-event__live-badge">LIVE</span>' : '') + '</div>';
-      html += '<div class="wcu-event__time">' + time + (evt.location ? ' · ' + evt.location : '') + '</div>';
-      html += '</div>';
-      html += '</div>';
+  // Calendar events
+  function renderCal(){
+    var gc=window.googleCalendar;
+    if(!gc||!gc.events||!gc.events.length){wcuE.innerHTML='<div class="wcu-empty">No upcoming events found.</div>';return}
+    var now=new Date(),ms=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    var up=gc.events.filter(function(e){var end=e.end&&(e.end.dateTime||e.end.date);return end?new Date(end)>=now:true}).sort(function(a,b){return new Date(a.start.dateTime||a.start.date)-new Date(b.start.dateTime||b.start.date)}).slice(0,10);
+    if(!up.length){wcuE.innerHTML='<div class="wcu-empty">No upcoming events.</div>';return}
+    var h='';
+    up.forEach(function(ev){
+      var sv=ev.start.dateTime||ev.start.date,ev2=ev.end&&(ev.end.dateTime||ev.end.date);
+      var s=new Date(sv),live=ev2?(now>=new Date(sv)&&now<=new Date(ev2)):false;
+      var mo=ms[s.getMonth()],dy=s.getDate(),tm=ev.start.dateTime?s.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'All day';
+      h+='<div class="wcu-event"><div class="wcu-event__date-badge'+(live?' wcu-event__date-badge--live':'')+'"><span class="wcu-event__month">'+mo+'</span><span class="wcu-event__day">'+dy+'</span></div><div class="wcu-event__info"><div class="wcu-event__title">'+(ev.summary||'Event')+(live?'<span class="wcu-event__live-badge">LIVE</span>':'')+'</div><div class="wcu-event__time">'+tm+(ev.location?' &middot; '+ev.location:'')+'</div></div></div>';
     });
-
-    wcuEvents.innerHTML = html;
+    wcuE.innerHTML=h;
   }
 
-  // Poll for google calendar data availability
-  var calAttempts = 0;
-  var calInterval = setInterval(function() {
-    if (window.googleCalendar && window.googleCalendar.events) {
-      clearInterval(calInterval);
-      renderCalendarEvents();
-    } else if (calAttempts++ > 40) {
-      clearInterval(calInterval);
-      wcuEvents.innerHTML = '<div class="wcu-empty">Calendar unavailable — <button onclick="document.getElementById(\'calendar-section\').scrollIntoView({behavior:\'smooth\'})" style="background:none;border:none;color:var(--accent-gold);cursor:pointer;font-weight:600;font-family:inherit;">view full calendar below</button></div>';
-    }
-  }, 500);
-
-  // Also re-render when calendar refreshes
-  var origRefresh = window.refreshGoogleCalendar;
-  window.refreshGoogleCalendar = function() {
-    if (origRefresh) origRefresh();
-    setTimeout(renderCalendarEvents, 2000);
-  };
-
-  loadAnnouncements();
+  var att=0,ci=setInterval(function(){if(window.googleCalendar&&window.googleCalendar.events){clearInterval(ci);renderCal()}else if(att++>40){clearInterval(ci);wcuE.innerHTML='<div class="wcu-empty">Calendar unavailable</div>'}},500);
+  var orig=window.refreshGoogleCalendar;
+  window.refreshGoogleCalendar=function(){if(orig)orig();setTimeout(renderCal,2000)};
+  loadAnn();
 })();
 </script>
-
 <script>
-// Inject editorial metadata tags onto outreach cards after they load
-(function() {
-  var cardMeta = [
-    { section: 'OUTREACH', city: 'EVERETT, WA', read: '4 MIN READ' },
-    { section: 'EVANGELISM', city: 'BELLEVUE, WA', read: '3 MIN READ' },
-    { section: 'COMMUNITY', city: 'LAKE STEVENS, WA', read: '5 MIN READ' },
-    { section: 'OUTREACH', city: 'SEATTLE, WA', read: '3 MIN READ' },
-    { section: 'EVANGELISM', city: 'MARYSVILLE, WA', read: '4 MIN READ' }
-  ];
-
-  function injectMeta() {
-    var cards = document.querySelectorAll('#ministry-outreach-cards .outreach-card:not(.outreach-card--milestone), #ministry-outreach-cards .outreach-event-card');
-    cards.forEach(function(card, idx) {
-      if (card.querySelector('.outreach-card__editorial-meta')) return;
-      var meta = cardMeta[idx % cardMeta.length];
-      var metaEl = document.createElement('div');
-      metaEl.className = 'outreach-card__editorial-meta';
-      metaEl.textContent = meta.section + ' \u00B7 ' + meta.city + ' \u00B7 ' + meta.read;
-      // Insert into the card's body/content area
-      var body = card.querySelector('.outreach-card__body') || card.querySelector('.outreach-card__content') || card.querySelector('.outreach-event-card__content');
-      if (body) body.appendChild(metaEl);
+// Photo-essay: dynamically loads from ministry-outreach.json
+(function(){
+  var grid=document.getElementById('photo-essay-grid');if(!grid)return;
+  var BASE='assets/images/ministry-outreach';
+  fetch('assets/data/ministry-outreach.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(data){
+    var events=data.events||[];if(!events.length){grid.innerHTML='<div class="wcu-empty">No photos yet.</div>';return}
+    // Load first image from each event's manifest
+    Promise.all(events.map(function(ev){
+      return fetch(BASE+'/'+ev.folder+'/images.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(m){
+        var media=(m.media||[]).filter(function(x){return x&&x.file&&x.type!=='video'});
+        return media.length?{ev:ev,img:BASE+'/'+ev.folder+'/'+media[0].file,caption:media[0].caption||ev.body||''}:null;
+      }).catch(function(){return null});
+    })).then(function(items){
+      items=items.filter(Boolean);if(!items.length){grid.innerHTML='<div class="wcu-empty">No photos yet.</div>';return}
+      var h='';
+      items.forEach(function(item,i){
+        var wide=i===0?' photo-essay__item--wide':'';
+        h+='<div class="photo-essay__item'+wide+'">';
+        h+='<img class="photo-essay__img" src="'+item.img+'" alt="'+item.ev.title+'" loading="lazy">';
+        h+='<p class="photo-essay__caption">'+item.caption;
+        h+='<span class="photo-essay__caption-meta">'+item.ev.location+' &middot; '+item.ev.date+'</span></p>';
+        h+='</div>';
+      });
+      grid.innerHTML=h;
     });
-  }
-
-  // Wait for outreach cards to load
-  var attempts = 0;
-  var interval = setInterval(function() {
-    var grid = document.getElementById('ministry-outreach-cards');
-    if (grid && grid.querySelectorAll('.outreach-card, .outreach-event-card').length > 0) {
-      clearInterval(interval);
-      setTimeout(injectMeta, 100);
-    } else if (attempts++ > 30) {
-      clearInterval(interval);
-    }
-  }, 300);
+  }).catch(function(){grid.innerHTML='<div class="wcu-empty">Could not load photos.</div>'});
 })();
 </script>
-
 <script src="assets/js/profile-settings.js?v=1"></script>
 <script src="assets/js/nav-auth.js?v=1"></script>
-
 </body>
 </html>

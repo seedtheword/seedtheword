@@ -1,15 +1,7 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-08-21T23:25:00+00:00",
+  "updated": "2026-08-22T15:21:24+00:00",
   "events": {
-    "25kuaov73j04g910fkqjr2rnv7@google.com": {
-      "title": "Identity Youth/FRESH WIND CONFERENCE",
-      "start": "2026-08-08T02:00:00+00:00",
-      "lastPosted": "2026-08-08T02:26:00+00:00",
-      "upcomingPosted": true,
-      "reminderPosted": true,
-      "livePosted": true
-    },
     "4rgb5m0739ujjr8vbrmds262l2@google.com": {
       "title": "SEED THE WORD YOUNG ADULTS/BIBLE STUDY",
       "start": "2026-08-11T01:30:00+00:00",
@@ -52,44 +44,74 @@
     "5f3l9ct2238vb47alh6s2mopd0@google.com": {
       "title": "SEED THE WORD YOUNG ADULTS/BIBLE STUDY",
       "start": "2026-08-18T01:30:00+00:00",
-      "lastPosted": "2026-08-17T22:41:19+00:00",
+      "lastPosted": "2026-08-22T15:21:24+00:00",
       "overviewPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "recapPosted": true
     },
     "ccqjaoj5cko66b9h68r6ab9k6krm8bb16hj38b9h6srjidhnc8oj8ohkck@google.com": {
       "title": "",
       "start": "2026-08-20",
-      "lastPosted": "2026-08-19T21:16:39+00:00",
+      "lastPosted": "2026-08-22T15:21:24+00:00",
       "overviewPosted": true,
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "recapPosted": true
     },
     "5b318kv39lfjpvokieoqs4m7jp@google.com": {
       "title": "Holy Spirit Conference HUNGRYGEN",
       "start": "2026-08-21",
-      "lastPosted": "2026-08-20T21:04:34+00:00",
+      "lastPosted": "2026-08-22T15:21:24+00:00",
       "overviewPosted": true,
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "recapPosted": true
     },
     "nc05f43hl38lr41a8f1hnv3jt4@google.com": {
       "title": "Identity Prayer Night",
       "start": "2026-08-21T02:00:00+00:00",
-      "lastPosted": "2026-08-20T23:19:27+00:00",
+      "lastPosted": "2026-08-22T15:21:24+00:00",
       "overviewPosted": true,
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "recapPosted": true
     },
     "rd50pcf30s0vlngsf558dtqgn4@google.com": {
       "title": "Identity Youth",
       "start": "2026-08-22T02:00:00+00:00",
-      "lastPosted": "2026-08-21T23:25:00+00:00",
+      "lastPosted": "2026-08-22T15:21:24+00:00",
       "overviewPosted": true,
       "upcomingPosted": true,
-      "reminderPosted": true
+      "reminderPosted": true,
+      "recapPosted": true
+    },
+    "vos6u5kob6g7psd1gag31kbp0g@google.com": {
+      "title": "SEED THE WORD YOUNG ADULTS/BIBLE STUDY",
+      "start": "2026-08-25T01:30:00+00:00",
+      "lastPosted": "2026-08-22T15:21:24+00:00",
+      "recapPosted": true
+    },
+    "p2m26oh6iji2vnm2i8m1l93kjo@google.com": {
+      "title": "Identity Prayer Night",
+      "start": "2026-08-28T02:00:00+00:00",
+      "lastPosted": "2026-08-22T15:21:24+00:00",
+      "recapPosted": true
+    },
+    "thprlp453ljqv5uq3ibhts3u4s@google.com": {
+      "title": "Identity Youth",
+      "start": "2026-08-29T02:00:00+00:00",
+      "lastPosted": "2026-08-22T15:21:24+00:00",
+      "recapPosted": true
+    },
+    "jres85apq8781e8ldg58cbg9oc@google.com": {
+      "title": "COMMUNITY COOKOUT!",
+      "start": "2026-08-29T19:00:00+00:00",
+      "lastPosted": "2026-08-22T15:21:24+00:00",
+      "recapPosted": true
     }
   },
   "schedule": {
-    "lastOverview": "2026-08-17"
+    "lastOverview": "2026-08-17",
+    "lastRecap": "2026-08-22"
   }
 }

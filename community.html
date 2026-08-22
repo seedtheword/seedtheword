@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <link rel="stylesheet" href="assets/css/lms.css?v=1">
+  <link rel="stylesheet" href="assets/css/store-catalog.css?v=10">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
 body.community-body{background:var(--color-bg);color:var(--color-text);font-family:var(--font-sans);padding-bottom:68px;}
@@ -266,6 +267,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
   <button class="channel-tab" data-channel="scripture" role="tab" aria-selected="false"><span class="channel-tab__icon">📖</span> Scripture<span class="channel-tab__badge" id="badge-scripture"></span></button>
   <button class="channel-tab" data-channel="prayer" role="tab" aria-selected="false"><span class="channel-tab__icon">🙏</span> Prayer<span class="channel-tab__badge" id="badge-prayer"></span></button>
   <button class="channel-tab" data-channel="library" role="tab" aria-selected="false"><span class="channel-tab__icon">📚</span> eLibrary<span class="channel-tab__badge" id="badge-library"></span></button>
+  <button class="channel-tab" data-channel="friends" role="tab" aria-selected="false"><span class="channel-tab__icon">✨</span> Friends<span class="channel-tab__badge" id="badge-friends"></span></button>
 </nav>
 
 <div class="social-wrapper">
@@ -309,6 +311,13 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
       <div class="elibrary-grid" id="elibrary-grid"></div>
       <p style="text-align:center;font-size:0.78rem;color:var(--color-text-muted);margin-top:1.25rem;">More resources added regularly.</p>
     </section>
+    <section class="channel-section" id="channel-friends">
+      <div class="section-header-card">
+        <h2 class="section-title">✨ Friends in Jesus</h2>
+        <p class="section-desc">Podcasts, sermons, and content from voices we love. Ministries we walk alongside.</p>
+      </div>
+      <div id="friends-catalog-mount"></div>
+    </section>
   </main>
 
   <aside class="social-sidebar">
@@ -344,6 +353,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 <script src="assets/js/layered-plan.js?v=1"></script>
 <script src="assets/js/lms.js?v=1"></script>
 <script src="assets/js/google-calendar.js?v=16"></script>
+<script src="assets/js/community-catalog.js?v=2"></script>
 <script>
 (function(){
 'use strict';

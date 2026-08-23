@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615891,
-  "lastModified": "2026-08-23T15:25:40Z",
+  "lastModified": "2026-08-23T21:54:25Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -234,16 +234,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5202,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "In Jesus' name",
-      "ts": "2026-08-09T21:51:24Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5203,

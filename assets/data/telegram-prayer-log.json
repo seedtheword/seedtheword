@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615911,
-  "lastModified": "2026-08-24T20:14:32Z",
+  "lastUpdateId": 669615912,
+  "lastModified": "2026-08-24T23:25:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -369,6 +369,16 @@
       "kind": "telegram",
       "text": "i need prayer for patience",
       "ts": "2026-08-24T00:26:06Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5388,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request 8/24/2026:\n\nI have a prayer request for Sophia. We're praying that she gets comfort from Jesus because she's concerned for her mother who has passed away and claims to be a Christian. She's also planning to visit our young adults and she's pregnant, so let's pray for that. \n\nLet's pray that Jesus brings more young adults in His name",
+      "ts": "2026-08-24T23:24:53Z"
     }
   ]
 }

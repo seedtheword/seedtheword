@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615895,
-  "lastModified": "2026-08-23T23:08:28Z",
+  "lastUpdateId": 669615898,
+  "lastModified": "2026-08-24T00:10:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -353,6 +353,16 @@
       "kind": "telegram",
       "text": "Prayer Request 8/21/2026:\n\nPraying for Jenna, she's a homeless person right next to our home and I noticed her on her way to the bus station, she was smoking but I offered her the word of God, water, and snacks and she accepted\n\nHope to bring her to a church and encounter Jesus and then I asked her to meet me on Monday so I could bring her to our young adults",
       "ts": "2026-08-21T17:20:35Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5367,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Can we also pray for Brandon per his request, his arborist test coming up soon and for better sleep schedule for him!",
+      "ts": "2026-08-24T00:03:24Z"
     }
   ]
 }

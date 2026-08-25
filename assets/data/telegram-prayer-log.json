@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615927,
-  "lastModified": "2026-08-25T20:12:59Z",
+  "lastUpdateId": 669615930,
+  "lastModified": "2026-08-25T20:25:49Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -389,6 +389,16 @@
       "kind": "telegram",
       "text": "Brothers & sisters, I also want to raise up Sam in prayer especially in India where it's very difficult to minister and be a disciple of Jesus Christ \n\nWe want to see India 4 Jesus",
       "ts": "2026-08-25T20:12:19Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5404,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Sam Elijah this is our prayer and thanksgiving topic thread, please feel free to post here and other topics",
+      "ts": "2026-08-25T20:13:41Z"
     }
   ]
 }

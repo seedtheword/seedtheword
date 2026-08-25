@@ -20,6 +20,35 @@
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=29">
   <script src="assets/js/theme-toggle.js?v=1"></script>
+  <style>
+    .btn-bible-glass {
+      display: inline-block;
+      padding: 0.75rem 1.6rem;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+      opacity: 0;
+      animation: heroTextReveal 0.6s ease-out 4.7s forwards;
+    }
+    .btn-bible-glass:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.5);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn-bible-glass { opacity: 1; animation: none; }
+    }
+  </style>
 </head>
 <body>
 
@@ -108,8 +137,10 @@
     <h1 class="hero__text hero__text--main">Seed the Word</h1>
     <p class="hero__text hero__text--intro">that is</p>
     <h2 class="hero__text hero__text--name">Jesus <span class="hero__cross"><svg viewBox="0 0 24 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="hero__cross-svg"><rect x="10" y="0" width="4" height="40" rx="1" fill="currentColor"/><rect x="2" y="10" width="20" height="4" rx="1" fill="currentColor"/></svg></span> Christ</h2>
-    <a href="about.html" class="btn btn-jesus">Who is Jesus?</a>
-    <a href="donate.html" class="btn btn-jesus" style="margin-left:0.5rem;background:#fff;color:#2C5F2E;border:2px solid #fff;">Get a FREE Bible</a>
+    <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+      <a href="about.html" class="btn btn-jesus">Who is Jesus?</a>
+      <a href="donate.html" class="btn btn-bible-glass">Get a FREE Bible</a>
+    </div>
     <a href="#showcase" class="hero__scroll-indicator">
       <span>↓</span>
     </a>

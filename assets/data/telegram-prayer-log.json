@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615924,
-  "lastModified": "2026-08-25T20:10:37Z",
+  "lastUpdateId": 669615927,
+  "lastModified": "2026-08-25T20:12:59Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -379,6 +379,16 @@
       "kind": "telegram",
       "text": "Prayer Request 8/24/2026:\n\nI have a prayer request for Sophia. We're praying that she gets comfort from Jesus because she's concerned for her mother who has passed away and claims to be a Christian. She's also planning to visit our young adults and she's pregnant, so let's pray for that. \n\nLet's pray that Jesus brings more young adults in His name",
       "ts": "2026-08-24T23:24:53Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5401,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Brothers & sisters, I also want to raise up Sam in prayer especially in India where it's very difficult to minister and be a disciple of Jesus Christ \n\nWe want to see India 4 Jesus",
+      "ts": "2026-08-25T20:12:19Z"
     }
   ]
 }

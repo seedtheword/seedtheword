@@ -61,14 +61,13 @@ var EXPENSE_LABELS = {
 // MENU (adds to existing onOpen or creates new)
 // ══════════════════════════════════════════════════════════════════════
 
-// If you already have onOpen in finance-reports.gs, merge this into it.
-// Otherwise this standalone version works:
-function onOpen_financeSync() {
+// This creates the STW Reports menu. If your Order Ledger already has an
+// onOpen() function elsewhere, merge these addItem lines into it instead
+// of having two onOpen functions (only one will run).
+function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu('STW Reports')
     .addItem('Sync to Finance Archive (Now)', 'syncFinanceArchive')
-    .addItem('Generate Monthly P&L (Current Year)', 'generateMonthlyPL')
-    .addItem('Generate Annual P&L (Multi-Year)', 'generateAnnualPL')
     .addSeparator()
     .addItem('Setup Nightly Auto-Sync', 'setupFinanceSyncTrigger')
     .addToUi();

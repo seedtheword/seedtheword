@@ -61,17 +61,13 @@ var EXPENSE_LABELS = {
 // MENU (adds to existing onOpen or creates new)
 // ══════════════════════════════════════════════════════════════════════
 
-// This creates the STW Reports menu. If your Order Ledger already has an
-// onOpen() function elsewhere, merge these addItem lines into it instead
-// of having two onOpen functions (only one will run).
-function onOpen() {
-  var ui = SpreadsheetApp.getUi();
-  ui.createMenu('STW Reports')
-    .addItem('Sync to Finance Archive (Now)', 'syncFinanceArchive')
-    .addSeparator()
-    .addItem('Setup Nightly Auto-Sync', 'setupFinanceSyncTrigger')
-    .addToUi();
-}
+// NOTE: The menu for these functions lives in admin-dashboard.gs onOpen()
+// under STW Admin → Finance Archive. Do NOT add a second onOpen() here —
+// Apps Script only runs one onOpen and it would override the STW Admin menu.
+//
+// The two functions this file exposes to the menu are:
+//   syncFinanceArchive        — sync Order Ledger → STW Finances archive
+//   setupFinanceSyncTrigger   — enable nightly auto-sync
 
 // ══════════════════════════════════════════════════════════════════════
 // TRIGGER SETUP — Run once to enable nightly sync

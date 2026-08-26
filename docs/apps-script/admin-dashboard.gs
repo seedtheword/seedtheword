@@ -67,6 +67,11 @@ function onOpen() {
     .addItem('Generate Monthly Finance Report', 'showMonthlyReportDialog')
     .addSeparator()
     .addItem('View Dashboard', 'showDashboard')
+    // ── Finance Archive (STW Finances spreadsheet) ──
+    .addSeparator()
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('Finance Archive')
+      .addItem('Sync to Finance Archive (Now)', 'syncFinanceArchive')
+      .addItem('Setup Nightly Auto-Sync', 'setupFinanceSyncTrigger'))
     .addToUi();
 }
 

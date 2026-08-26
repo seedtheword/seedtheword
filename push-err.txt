@@ -1,2 +1,0 @@
-To https://github.com/seedtheword/seedtheword.git
-   6638372a..a9ce2d47  main -> main

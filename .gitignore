@@ -29,6 +29,31 @@ assets/videos/*.mp4
 # Personal documents — never commit
 inv-id.JPG
 
+# Temporary git command output files (created by tooling — never commit)
+git-out.txt
+git-err.txt
+push-out.txt
+push-out2.txt
+push-err.txt
+push-output.txt
+push-result.txt
+push-stdout.txt
+push-stderr.txt
+pull-out.txt
+pull-err.txt
+pull-result.txt
+pull-stdout.txt
+pull-stderr.txt
+status.txt
+commitmsg.txt
+gp*.txt
+pp.txt
+pr.txt
+pr2.txt
+
+# Local backup files
+community.html.backup
+
 # Sibling project: standalone moft-evangelism repo lives in this folder
 # but is NOT part of the STW repo. It has its own .git inside.
 moft-evangelism/

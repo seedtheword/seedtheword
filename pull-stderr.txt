@@ -1,4 +1,0 @@
-From https://github.com/seedtheword/seedtheword
- * branch              main       -> FETCH_HEAD
-   993cd23a..8f104ff3  main       -> origin/main
-Rebasing (1/1)Successfully rebased and updated refs/heads/main.

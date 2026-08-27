@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615944,
-  "lastModified": "2026-08-27T01:40:35Z",
+  "lastUpdateId": 669615946,
+  "lastModified": "2026-08-27T08:25:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -409,6 +409,16 @@
       "kind": "telegram",
       "text": "I decided to be brave, I had a phyciatrist appointment, and we decided to cut my med dose from 20mg to 10mg for anxiety and depression, and so I am going to probably really struggle when I make that change to my med dose, next month. So please pray I have the courage to fight the lows the meds used to manage. That God may transform my mind in those weeks to come next month, and people will be there to support me in those moments when the hurt gets too much. I want to be made whole... transform my mind and soul. And so In faith I do this.  This process will probably start late September after YA camp at SOLYA, so if suddenly I go rogue, I literally might not be in my right mind.",
       "ts": "2026-08-26T20:47:37Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5420,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "@Davy_Lep W prayer here Liam",
+      "ts": "2026-08-27T08:21:45Z"
     }
   ]
 }

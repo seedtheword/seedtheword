@@ -176,14 +176,27 @@
     var maxOffset = Math.max(0, (cards.length * cardWidth) - wrap.clientWidth);
 
     var willChangeTimer = null;
-    function updatePosition() {
-      // Promote the track to its own compositor layer only during the slide so
-      // the 0.6s transform transition stays smooth on weak/integrated GPUs,
-      // then release it so we don't keep a permanent layer around.
-      track.style.willChange = 'transform';
+    // When animating (arrow clicks / drag release) we use the CSS transition.
+    // While actively dragging we turn the transition OFF so the track follows
+    // the finger/cursor 1:1, then turn it back on for the smooth glide-to-rest.
+    function setTransition(on) {
+      track.style.transition = on ? 'transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none';
+    }
+    function applyTransform() {
       track.style.transform = 'translateX(' + (-currentOffset) + 'px)';
+    }
+    function updatePosition() {
+      // Promote to its own layer only around the movement, then release so we
+      // don't keep a permanent GPU layer.
+      track.style.willChange = 'transform';
+      setTransition(true);
+      applyTransform();
       if (willChangeTimer) clearTimeout(willChangeTimer);
       willChangeTimer = setTimeout(function() { track.style.willChange = 'auto'; }, 700);
+    }
+    function clampOffset() {
+      if (currentOffset < 0) currentOffset = 0;
+      if (currentOffset > maxOffset) currentOffset = maxOffset;
     }
 
     leftBtn.addEventListener('click', function() {
@@ -195,6 +208,61 @@
       currentOffset = Math.min(maxOffset, currentOffset + cardWidth);
       updatePosition();
     });
+
+    // ── Drag / swipe support (mouse + touch) ──
+    var dragging = false;
+    var startX = 0;
+    var startOffset = 0;
+    var moved = false;
+
+    function pointerX(e) {
+      return e.touches && e.touches.length ? e.touches[0].clientX : e.clientX;
+    }
+
+    function dragStart(e) {
+      dragging = true;
+      moved = false;
+      startX = pointerX(e);
+      startOffset = currentOffset;
+      track.style.willChange = 'transform';
+      setTransition(false); // 1:1 follow while dragging
+      wrap.classList.add('is-dragging');
+    }
+
+    function dragMove(e) {
+      if (!dragging) return;
+      var dx = pointerX(e) - startX;
+      if (Math.abs(dx) > 4) moved = true;
+      currentOffset = startOffset - dx;
+      clampOffset();
+      applyTransform();
+      // Prevent the page from scrolling while dragging the carousel horizontally
+      if (e.cancelable && e.touches) e.preventDefault();
+    }
+
+    function dragEnd() {
+      if (!dragging) return;
+      dragging = false;
+      wrap.classList.remove('is-dragging');
+      // Snap to the nearest card and glide there smoothly.
+      currentOffset = Math.round(currentOffset / cardWidth) * cardWidth;
+      clampOffset();
+      updatePosition();
+    }
+
+    // Mouse
+    wrap.addEventListener('mousedown', function(e) { e.preventDefault(); dragStart(e); });
+    window.addEventListener('mousemove', dragMove);
+    window.addEventListener('mouseup', dragEnd);
+    // Touch
+    wrap.addEventListener('touchstart', dragStart, { passive: true });
+    wrap.addEventListener('touchmove', dragMove, { passive: false });
+    wrap.addEventListener('touchend', dragEnd);
+    wrap.addEventListener('touchcancel', dragEnd);
+    // Don't let a drag trigger a card link click
+    track.addEventListener('click', function(e) {
+      if (moved) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
 
     window.addEventListener('resize', function() {
       maxOffset = Math.max(0, (cards.length * cardWidth) - wrap.clientWidth);

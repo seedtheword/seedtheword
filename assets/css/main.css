@@ -13197,7 +13197,15 @@ body.your-walk-modal-open {
   position: relative;
   overflow: hidden;
   border-radius: 16px;
+  cursor: grab;
+  /* Allow vertical page scroll but let JS handle horizontal drag */
+  touch-action: pan-y;
 }
+.careers-carousel__wrap.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+.careers-carousel__wrap.is-dragging .glass-role { pointer-events: none; }
 .careers-carousel__track {
   display: flex;
   gap: 1.5rem;

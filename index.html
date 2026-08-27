@@ -18,7 +18,7 @@
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <title>Home — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
-  <link rel="stylesheet" href="assets/css/main.css?v=31">
+  <link rel="stylesheet" href="assets/css/main.css?v=32">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
     .btn-bible-glass {
@@ -161,17 +161,11 @@
   background-size: cover;
   background-position: top center;
   opacity: 0;
-  transform: scale(1.0);
-  transition: opacity 2s ease-in-out, transform 8s ease-in-out;
-  /* NOTE: will-change is intentionally NOT set on every slide. Promoting all
-     19 full-screen slides to their own GPU layer at once exhausts memory on
-     weak/integrated GPUs and causes the crossfade to drop frames (looks like a
-     hard cut). We only promote the two slides currently transitioning. */
-}
-/* Only the active + leaving slides get a compositor layer while animating */
-.hero-carousel__slide--active,
-.hero-carousel__slide--leaving {
-  will-change: opacity, transform;
+  /* Start slightly zoomed so the active state can pan/zoom noticeably (GTA-V
+     Ken Burns). will-change is managed by JS on only the 2-3 slides that are
+     actually transitioning, so we don't keep 19 GPU layers alive at once. */
+  transform: scale(1.06);
+  transition: opacity 2s ease-in-out, transform 8s ease-out;
 }
 /* Desktop: center positioning works better for landscape crop */
 @media (min-width: 768px) {
@@ -179,18 +173,23 @@
 }
 .hero-carousel__slide--active {
   opacity: 1;
-  transform: scale(1.02) translateY(-0.5%);
+  transform: scale(1.12) translateY(-1.2%);
 }
 .hero-carousel__slide:nth-child(even).hero-carousel__slide--active {
-  transform: scale(1.02) translateY(0.3%);
+  transform: scale(1.12) translateY(1%);
 }
 .hero-carousel__slide:nth-child(3n).hero-carousel__slide--active {
-  transform: scale(1.02) translateX(0.3%);
+  transform: scale(1.12) translateX(1.2%);
 }
 .hero-carousel__slide--leaving {
   opacity: 0;
-  transform: scale(1.03);
+  transform: scale(1.14);
   transition: opacity 2s ease-in-out, transform 2s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-carousel__slide,
+  .hero-carousel__slide--active,
+  .hero-carousel__slide--leaving { transition: opacity 0.8s ease-in-out; transform: none; }
 }
 /* Remove the old video styles if present */
 .hero__video { display: none !important; }
@@ -251,21 +250,37 @@
   slides[order[0]].classList.add('hero-carousel__slide--active');
   current = 0;
 
-  setInterval(function() {
+  // Promote the very first slide's layer so its opening pan is smooth.
+  slides[order[0]].style.willChange = 'opacity, transform';
+
+  function advance() {
     var prev = order[current];
     current = (current + 1) % order.length;
     var next = order[current];
 
-    slides[prev].classList.remove('hero-carousel__slide--active');
-    slides[prev].classList.add('hero-carousel__slide--leaving');
+    // Pre-promote the incoming slide to its own GPU layer BEFORE we start its
+    // transform, so the browser has a frame to prepare the layer. Without this
+    // lead time, weak GPUs skip the Ken Burns pan and hard-cut. We do this on a
+    // rAF so the promotion and the class change land on separate frames.
+    slides[next].style.willChange = 'opacity, transform';
 
-    slides[next].classList.remove('hero-carousel__slide--leaving');
-    slides[next].classList.add('hero-carousel__slide--active');
+    requestAnimationFrame(function() {
+      slides[prev].classList.remove('hero-carousel__slide--active');
+      slides[prev].classList.add('hero-carousel__slide--leaving');
 
+      slides[next].classList.remove('hero-carousel__slide--leaving');
+      slides[next].classList.add('hero-carousel__slide--active');
+    });
+
+    // After the crossfade finishes, drop the leaving slide's layer so we never
+    // keep more than ~2-3 promoted slides alive at once (keeps memory low).
     setTimeout(function() {
       slides[prev].classList.remove('hero-carousel__slide--leaving');
+      slides[prev].style.willChange = 'auto';
     }, 2200);
-  }, interval);
+  }
+
+  setInterval(advance, interval);
 })();
 </script>
 
@@ -700,7 +715,7 @@
 
 <script src="assets/js/main.js?v=11"></script>
 <script src="assets/js/ministry-impact.js?v=4" defer></script>
-<script src="assets/js/homepage-showcase.js?v=2"></script>
+<script src="assets/js/homepage-showcase.js?v=3"></script>
 <script src="assets/js/profile-settings.js?v=1"></script>
 <script src="assets/js/nav-auth.js?v=1"></script>
 </body>

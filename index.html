@@ -18,7 +18,7 @@
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <title>Home — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
-  <link rel="stylesheet" href="assets/css/main.css?v=30">
+  <link rel="stylesheet" href="assets/css/main.css?v=31">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
     .btn-bible-glass {
@@ -37,7 +37,7 @@
       text-shadow: 0 1px 4px rgba(0,0,0,0.3);
       transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
       opacity: 0;
-      animation: heroTextReveal 0.6s ease-out 4.7s forwards;
+      animation: heroTextReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) 4.7s forwards;
     }
     .btn-bible-glass:hover {
       background: rgba(255,255,255,0.25);
@@ -163,6 +163,14 @@
   opacity: 0;
   transform: scale(1.0);
   transition: opacity 2s ease-in-out, transform 8s ease-in-out;
+  /* NOTE: will-change is intentionally NOT set on every slide. Promoting all
+     19 full-screen slides to their own GPU layer at once exhausts memory on
+     weak/integrated GPUs and causes the crossfade to drop frames (looks like a
+     hard cut). We only promote the two slides currently transitioning. */
+}
+/* Only the active + leaving slides get a compositor layer while animating */
+.hero-carousel__slide--active,
+.hero-carousel__slide--leaving {
   will-change: opacity, transform;
 }
 /* Desktop: center positioning works better for landscape crop */
@@ -692,7 +700,7 @@
 
 <script src="assets/js/main.js?v=11"></script>
 <script src="assets/js/ministry-impact.js?v=4" defer></script>
-<script src="assets/js/homepage-showcase.js?v=1"></script>
+<script src="assets/js/homepage-showcase.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=1"></script>
 <script src="assets/js/nav-auth.js?v=1"></script>
 </body>

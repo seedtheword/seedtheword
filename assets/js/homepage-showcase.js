@@ -175,8 +175,15 @@
     var cards = track.querySelectorAll('.glass-role');
     var maxOffset = Math.max(0, (cards.length * cardWidth) - wrap.clientWidth);
 
+    var willChangeTimer = null;
     function updatePosition() {
+      // Promote the track to its own compositor layer only during the slide so
+      // the 0.6s transform transition stays smooth on weak/integrated GPUs,
+      // then release it so we don't keep a permanent layer around.
+      track.style.willChange = 'transform';
       track.style.transform = 'translateX(' + (-currentOffset) + 'px)';
+      if (willChangeTimer) clearTimeout(willChangeTimer);
+      willChangeTimer = setTimeout(function() { track.style.willChange = 'auto'; }, 700);
     }
 
     leftBtn.addEventListener('click', function() {

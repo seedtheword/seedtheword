@@ -3017,6 +3017,100 @@ function getInventoryReport_(params) {
   }
 }
 
+// ── Store catalog (live pricing from the "Lists" tab) ───────────
+//
+// Reads the Lists tab of the STW Order Ledger spreadsheet and returns
+// the shopper-facing catalog. Columns (no header row; data starts row 1):
+//   B = product id (join key to store-products.json)      [index 1]
+//   D = full description shown to shoppers                  [index 3]
+//   E = per-unit BASE/internal price (dollars)              [index 4]
+//   F = pack size (optional; blank/1 = sold as single unit) [index 5]
+//   G = explicit pack retail price (optional, dollars)      [index 6]
+// Columns A and C are inventory-management only and ignored here.
+//
+// Money is returned in integer CENTS to keep the client's math exact.
+// `retailPriceCents` is the rounded storefront price (base rounded UP to
+// the next whole dollar minus one cent: 2.00->299, 0.05->99, 6.70->699).
+// The client still uses base for tax/processor math; retail is display.
+//
+// Cached for 5 minutes so the storefront stays fast; edits to the sheet
+// appear within a few minutes. Read stops at the first blank id so new
+// rows are picked up automatically.
+function getStoreCatalog_() {
+  var cache = CacheService.getScriptCache();
+  var cached = cache.get('stw_catalog_v1');
+  if (cached) {
+    try { return JSON.parse(cached); } catch (e) { /* fall through to rebuild */ }
+  }
+
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName('Lists');
+  if (!sheet) return { ok: false, error: 'lists-tab-missing' };
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 1) return { ok: true, items: [], cachedAt: new Date().toISOString() };
+
+  // Read columns B..G (2..7) for all rows in one call.
+  var values = sheet.getRange(1, 2, lastRow, 6).getValues(); // [B,C,D,E,F,G]
+  var items = [];
+  for (var i = 0; i < values.length; i++) {
+    var row = values[i];
+    var id = String(row[0] || '').trim();      // B
+    if (!id) continue;                           // stop-gap: skip blank ids
+    var description = String(row[2] || '').trim(); // D
+    var baseDollars = parseFloat(row[3]);          // E
+    if (isNaN(baseDollars)) continue;              // no price -> not sellable here
+    var baseCents = Math.round(baseDollars * 100);
+
+    var packSize = parseInt(row[4], 10);           // F
+    if (isNaN(packSize) || packSize < 1) packSize = 1;
+
+    var retailCents = roundUpToRetailCents_(baseCents);
+
+    var packBaseCents = baseCents * packSize;
+    var packRetailCents;
+    var explicitPack = parseFloat(row[5]);         // G
+    if (!isNaN(explicitPack)) {
+      packRetailCents = Math.round(explicitPack * 100);
+    } else {
+      packRetailCents = roundUpToRetailCents_(packBaseCents);
+    }
+
+    items.push({
+      id: id,
+      description: description,
+      baseCents: baseCents,
+      retailCents: retailCents,
+      packSize: packSize,
+      packBaseCents: packBaseCents,
+      packRetailCents: packRetailCents
+    });
+  }
+
+  var result = { ok: true, items: items, cachedAt: new Date().toISOString() };
+  try { cache.put('stw_catalog_v1', JSON.stringify(result), 300); } catch (e) {}
+  return result;
+}
+
+// Round a base price (in cents) UP to the next whole dollar, then minus
+// one cent, so it reads as a normal ".99" retail price and is always >= base.
+//   99 (=$0.99) stays 99; 100 (=$1.00) -> 199; 200 -> 299; 670 -> 699.
+function roundUpToRetailCents_(cents) {
+  if (cents <= 0) return 0;
+  var dollarsUp = Math.ceil(cents / 100); // next whole dollar (>= the value)
+  // If the base is exactly a whole dollar (e.g. 200 = $2.00), we still want
+  // to present $2.99 per the agreed rule (round base UP to next whole dollar).
+  if (cents % 100 === 0) dollarsUp = (cents / 100) + 1;
+  return dollarsUp * 100 - 1;
+}
+
+// Allow the catalog cache to be flushed on demand (e.g. after a price edit)
+// via ?action=flushCatalog — handy for the admin without waiting 5 minutes.
+function flushStoreCatalogCache_() {
+  try { CacheService.getScriptCache().remove('stw_catalog_v1'); } catch (e) {}
+  return { ok: true, flushed: true };
+}
+
 function getMinistryStats_() {
   // ID → language mapping for aggregating item-level stock into
   // language-level "inStock" array (used by ministry-impact.js).
@@ -3838,6 +3932,23 @@ function doGet(e) {
       (e && e.parameter && e.parameter.token) || '',
       (e && e.parameter) || {}
     );
+  }
+
+  if (action === 'getCatalog') {
+    try {
+      return jsonResponse(getStoreCatalog_());
+    } catch (err) {
+      console.log('getCatalog failed:', err);
+      return jsonResponse({ ok: false, error: 'catalog-read-failed' });
+    }
+  }
+
+  if (action === 'flushCatalog') {
+    try {
+      return jsonResponse(flushStoreCatalogCache_());
+    } catch (err) {
+      return jsonResponse({ ok: false, error: 'catalog-flush-failed' });
+    }
   }
 
   if (action === 'getMinistryStats') {

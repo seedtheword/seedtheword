@@ -554,6 +554,10 @@
       return;
     }
 
+    // Overlay live pricing from the Lists sheet before first render.
+    // Graceful: keeps JSON prices if the backend isn't reachable/deployed.
+    await mergeLiveCatalog();
+
     // Build search index
     searchIndex = buildSearchIndex(products);
 
@@ -650,6 +654,47 @@
         renderGrid();
       }
     } catch(_) {}
+  }
+
+  // ── Live pricing from the Lists sheet (getCatalog) ───────────
+  // Overlays live retail/base pricing + pack size onto matching products
+  // by id. Fully graceful: on any failure the store keeps its JSON prices.
+  async function mergeLiveCatalog() {
+    try {
+      var cfgRes = await fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!cfgRes.ok) return;
+      var cfg = await cfgRes.json();
+      if (!cfg.orderHandlerUrl) return;
+
+      var res = await fetch(cfg.orderHandlerUrl + '?action=getCatalog', { cache: 'no-store' });
+      if (!res.ok) return;
+      var data = await res.json();
+      if (!data || !data.ok || !Array.isArray(data.items)) return;
+
+      var byId = {};
+      data.items.forEach(function (it) { byId[it.id] = it; });
+
+      products.forEach(function (p) {
+        var live = byId[p.id];
+        if (!live) return; // e.g. Amazon picks not in the sheet — leave as-is
+        p.baseCents = live.baseCents;
+        p.retailCents = live.retailCents;
+        p.packSize = live.packSize || 1;
+        p.packBaseCents = live.packBaseCents;
+        p.packRetailCents = live.packRetailCents;
+        // Display price uses the pack retail when sold in packs, else unit retail.
+        var displayCents = p.packSize > 1 ? live.packRetailCents : live.retailCents;
+        p.price = formatCents_(displayCents) + (p.packSize > 1 ? ' / pack of ' + p.packSize : '');
+        // Prefer the sheet's fuller description when present.
+        if (live.description) p.description = live.description;
+      });
+    } catch (_) { /* keep existing JSON prices */ }
+  }
+
+  function formatCents_(cents) {
+    if (window.STW_Cart && window.STW_Cart.formatCents) return window.STW_Cart.formatCents(cents);
+    var n = Math.round(Number(cents) || 0);
+    return '$' + Math.floor(n / 100) + '.' + String(n % 100).padStart(2, '0');
   }
 
   // ── Public API ──────────────────────────────────────────────

@@ -18,7 +18,7 @@
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <title>Home — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
-  <link rel="stylesheet" href="assets/css/main.css?v=29">
+  <link rel="stylesheet" href="assets/css/main.css?v=30">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
     .btn-bible-glass {
@@ -518,15 +518,25 @@
           <stop offset="85%" stop-color="#ffffff" stop-opacity="0.9"/>
           <stop offset="100%" stop-color="#ffffff" stop-opacity="0.15"/>
         </linearGradient>
-        <filter id="pathGlow">
-          <feGaussianBlur stdDeviation="2.2" result="blur"/>
-          <feMerge>
-            <feMergeNode in="blur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
       </defs>
-      <!-- A gently curving S-path drawn top to bottom -->
+      <!-- A gently curving S-path drawn top to bottom.
+           Glow is faked with a wide, low-opacity underlay stroke instead of an
+           feGaussianBlur filter (which re-rasterizes every frame and tanks
+           desktop scroll performance). -->
+      <path
+        d="
+          M 50 0
+          C 35 120, 70 220, 50 340
+          S 30 500, 50 620
+          S 70 780, 50 920
+          L 50 1000
+        "
+        fill="none"
+        stroke="url(#pathGrad)"
+        stroke-width="7"
+        stroke-linecap="round"
+        opacity="0.28"
+      />
       <path
         d="
           M 50 0
@@ -540,7 +550,6 @@
         stroke-width="3"
         stroke-linecap="round"
         stroke-dasharray="6 10"
-        filter="url(#pathGlow)"
       />
     </svg>
 

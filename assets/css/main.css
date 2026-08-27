@@ -165,12 +165,15 @@ ul { margin: 0; padding: 0; list-style: none; }
 .site-header {
   position: sticky; top: 0; z-index: 999;
   height: 80px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  /* Slightly more opaque so we can use a much lighter blur. A heavy 20px
+     backdrop blur behind a 90%-opaque bar is nearly invisible but forces a
+     full-width reblur on every scroll frame — the main desktop jank source. */
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(6px) saturate(140%);
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
-  transition: all .3s ease;
+  transition: box-shadow .3s ease, background .3s ease;
 }
 .site-header.scrolled { 
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
@@ -9553,6 +9556,11 @@ a.contact-card:hover .contact-card__cta span {
   overflow: hidden;
   padding: 6rem 0 5rem;
   color: rgba(255, 255, 255, 0.92);
+  /* Skip rendering this tall section until it nears the viewport. Big win for
+     initial paint and scroll cost. The intrinsic size keeps the scrollbar
+     stable before the section is rendered. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1400px;
   /* Deep night-sky backdrop */
   background:
     radial-gradient(ellipse at 20% 15%, rgba(212, 165, 116, 0.18), transparent 55%),
@@ -9678,6 +9686,7 @@ a.contact-card:hover .contact-card__cta span {
 .waypoint--right .waypoint__marker { grid-column: 2; }
 
 .waypoint__marker {
+  position: relative;
   width: 64px;
   height: 64px;
   border-radius: 50%;
@@ -9691,16 +9700,33 @@ a.contact-card:hover .contact-card__cta span {
     rgba(244, 232, 211, 0.95) 40%,
     rgba(212, 165, 116, 0.85) 100%
   );
+  /* Static base glow (not animated — cheap) */
   box-shadow:
     0 0 0 6px rgba(255, 255, 255, 0.06),
     0 0 28px rgba(255, 255, 255, 0.35),
     0 0 60px rgba(212, 165, 116, 0.45);
   border: 2px solid rgba(255, 255, 255, 0.4);
+}
+/* The pulsing glow lives on a pseudo-element that animates only opacity, which
+   the compositor can handle without per-frame repaints (animating box-shadow
+   directly forces a repaint every frame). */
+.waypoint__marker::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 8px rgba(255, 255, 255, 0.10),
+    0 0 42px rgba(255, 255, 255, 0.55),
+    0 0 88px rgba(212, 165, 116, 0.65);
+  opacity: 0;
   animation: waypointPulse 3.8s ease-in-out infinite;
+  will-change: opacity;
+  pointer-events: none;
 }
 @keyframes waypointPulse {
-  0%, 100% { box-shadow: 0 0 0 6px rgba(255,255,255,0.06), 0 0 28px rgba(255,255,255,0.35), 0 0 60px rgba(212,165,116,0.45); }
-  50%      { box-shadow: 0 0 0 8px rgba(255,255,255,0.10), 0 0 42px rgba(255,255,255,0.55), 0 0 88px rgba(212,165,116,0.65); }
+  0%, 100% { opacity: 0; }
+  50%      { opacity: 1; }
 }
 
 .waypoint__icon {
@@ -9714,7 +9740,8 @@ a.contact-card:hover .contact-card__cta span {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
   transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
@@ -9776,6 +9803,7 @@ a.contact-card:hover .contact-card__cta span {
 }
 .waypoint__marker--repeat {
   animation: waypointSpin 10s linear infinite;
+  will-change: transform;
 }
 @keyframes waypointSpin {
   from { transform: rotate(0deg); }
@@ -9790,10 +9818,18 @@ a.contact-card:hover .contact-card__cta span {
   display: inline-block;
   /* counter-rotate so "↻" stays legible while the marker spins */
   animation: waypointCounterSpin 10s linear infinite;
+  will-change: transform;
 }
 @keyframes waypointCounterSpin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(-360deg); }
+}
+
+/* Respect reduced-motion: stop the continuous roadmap animations entirely */
+@media (prefers-reduced-motion: reduce) {
+  .waypoint__marker::before { animation: none; opacity: 0.5; }
+  .waypoint__marker--repeat,
+  .waypoint--repeat .waypoint__icon { animation: none; }
 }
 .waypoint__repeat-label {
   margin: 1rem 0 0.25rem;

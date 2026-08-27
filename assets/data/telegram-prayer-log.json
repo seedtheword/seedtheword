@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615947,
-  "lastModified": "2026-08-27T15:40:37Z",
+  "lastUpdateId": 669615955,
+  "lastModified": "2026-08-27T19:55:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -246,16 +246,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5256,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Going around Everett inviting people to young adults and informing them of the back to school bash this Saturday. I just had a simple prayer that Jesus shows me where I need to go and who needs to hear about this and stepped out in faith. First one today, so pray for me too!",
-      "ts": "2026-08-13T19:45:58Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5271,

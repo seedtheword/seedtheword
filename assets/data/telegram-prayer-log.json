@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615944,
-  "lastModified": "2026-08-27T01:25:40Z",
+  "lastModified": "2026-08-27T01:40:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -240,26 +240,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5249,
-      "userId": 8045440327,
-      "displayName": "✝️🙏PRAYER DOG🐺🥀 I am L.A.W.",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I don't know about the website but here's a prayer for them 👍",
-      "ts": "2026-08-13T01:32:19Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5250,
-      "userId": 8045440327,
-      "displayName": "✝️🙏PRAYER DOG🐺🥀 I am L.A.W.",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Additionally sent more people your way, including the couple, so you might have people show up at your group, I am sharing the QR code",
-      "ts": "2026-08-13T01:33:06Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5256,

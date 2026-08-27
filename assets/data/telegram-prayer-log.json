@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615946,
-  "lastModified": "2026-08-27T15:17:40Z",
+  "lastUpdateId": 669615947,
+  "lastModified": "2026-08-27T15:40:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -425,6 +425,16 @@
       "kind": "telegram",
       "text": "@Davy_Lep W prayer here Liam",
       "ts": "2026-08-27T08:21:45Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5425,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "what a week for reflection and how God moves, deeply hurting for our young adults and praying in Jesus' name",
+      "ts": "2026-08-27T15:26:04Z"
     }
   ]
 }

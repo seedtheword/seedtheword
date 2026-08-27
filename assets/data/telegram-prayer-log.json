@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615944,
-  "lastModified": "2026-08-26T20:55:55Z",
+  "lastModified": "2026-08-27T01:25:40Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -240,16 +240,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5247,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "🙏PRAYER DOG🙏 3 prayers from around the world",
-      "ts": "2026-08-13T01:16:52Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5249,

@@ -150,3 +150,27 @@
 [data-theme="dark"] .customizer__swatch { background: #14181f; border-color: #2e353e; color: #e8e6e3; }
 [data-theme="dark"] .customizer__upload-btn { background: #14181f; }
 [data-theme="dark"] .customizer__ov-text { color: #f4f1ec; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+
+/* ============================================================
+   Bundle-builder — light/dark consistency (option-1 alignment)
+   The .bb-* surfaces hardcode #fff; flip them in dark mode. A few
+   sections use inline style="background:#fff" so we need !important.
+   ============================================================ */
+[data-theme="dark"] .bb-section,
+[data-theme="dark"] section.bb-section[style*="background"] { background: #14181f !important; }
+[data-theme="dark"] .bb-cart,
+[data-theme="dark"] .bb-form,
+[data-theme="dark"] .bb-success,
+[data-theme="dark"] #bb-outreach-details { background: #1e2329 !important; border-color: #2e353e !important; color: #e8e6e3; }
+[data-theme="dark"] .bb-form input,
+[data-theme="dark"] .bb-form select,
+[data-theme="dark"] .bb-form textarea { background: #14181f !important; color: #e8e6e3 !important; border-color: #2e353e !important; }
+[data-theme="dark"] .bb-section__title,
+[data-theme="dark"] .bb-section__desc,
+[data-theme="dark"] .bb-cart *,
+[data-theme="dark"] .bb-form label { color: #e8e6e3; }
+[data-theme="dark"] .bb-qty__btn { background: #1e2329; }
+[data-theme="dark"] .bb-stock-note { color: #a8adb5; }
+/* The "Add bundle to cart" button uses an inline white bg — keep it a
+   readable outlined gold button in dark mode. */
+[data-theme="dark"] #bb-add-cart { background: #1e2329 !important; }

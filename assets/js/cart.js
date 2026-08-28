@@ -153,7 +153,12 @@
         packSize: item.packSize && item.packSize > 1 ? item.packSize : 1,
         variant: item.variant || null,
         customizationId: item.customizationId || null,
-        isBundle: !!item.isBundle
+        isBundle: !!item.isBundle,
+        isCustom: !!item.isCustom,
+        // Customizer payload (spec + optional base64 artwork) carried through to
+        // checkout, where the backend uploads artwork to Drive.
+        customSpec: item.customSpec || null,
+        artworkData: item.artworkData || ''
       });
     }
     persistAndNotify();

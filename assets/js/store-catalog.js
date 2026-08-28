@@ -199,9 +199,11 @@
             'Add to Cart' +
           '</button>' +
         '</div>' +
-        (isBundleEligible(p)
-          ? '<a href="bundle-builder.html?bundle=essentials&item=' + esc(p.id) + '" class="store-card__customize" data-stop-detail>Customize this &rarr;</a>'
-          : '');
+        (p.customizable
+          ? '<button type="button" class="store-card__customize" data-customize="' + esc(p.id) + '" data-stop-detail>Customize this &rarr;</button>'
+          : (isBundleEligible(p)
+              ? '<a href="bundle-builder.html?bundle=essentials&item=' + esc(p.id) + '" class="store-card__customize" data-stop-detail>Customize this &rarr;</a>'
+              : ''));
     }
 
     // Favorite (heart) toggle — top-left on the image.
@@ -351,6 +353,19 @@
         });
         flashAdded(btn);
         if (ctrl) { ctrl.dataset.qty = '1'; var v = ctrl.querySelector('.store-card__qty-value'); if (v) v.textContent = '1'; }
+      });
+    });
+
+    // Customize buttons -> open the customizer modal.
+    document.querySelectorAll('[data-customize]').forEach(function(btn) {
+      if (btn.dataset.czBound) return;
+      btn.dataset.czBound = 'true';
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = btn.getAttribute('data-customize');
+        var p = products.find(function(x) { return x.id === id; });
+        if (p && window.STW_Customizer) window.STW_Customizer.open(p);
       });
     });
 
@@ -519,9 +534,11 @@
             '</div>' +
           '</div>' +
           '<button type="button" class="store-detail__cta store-detail__cta--primary" data-detail-add>Add to Cart</button>' +
-          (isBundleEligible(p)
-            ? '<a href="bundle-builder.html?bundle=essentials&item=' + esc(p.id) + '" class="store-detail__cta store-detail__cta--customize">Customize this &rarr;</a>'
-            : '') +
+          (p.customizable
+            ? '<button type="button" class="store-detail__cta store-detail__cta--customize" data-detail-customize>Customize this &rarr;</button>'
+            : (isBundleEligible(p)
+                ? '<a href="bundle-builder.html?bundle=essentials&item=' + esc(p.id) + '" class="store-detail__cta store-detail__cta--customize">Customize this &rarr;</a>'
+                : '')) +
         '</div>';
     }
 
@@ -620,6 +637,15 @@
           image: (p.image || gallery[0] || ''), unitPriceCents: unitCents, qty: q, packSize: p.packSize || 1
         });
         flashAdded(addBtn);
+      });
+    }
+
+    // ── Customize from detail -> open customizer ──
+    var czBtn = overlay.querySelector('[data-detail-customize]');
+    if (czBtn) {
+      czBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (window.STW_Customizer) { closeDetail(); window.STW_Customizer.open(p); }
       });
     }
 

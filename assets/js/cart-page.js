@@ -162,7 +162,10 @@
         unitPriceCents: l.unitPriceCents,
         lineTotalCents: l.lineTotalCents,
         isBundle: !!l.isBundle,
-        customizationId: l.customizationId || null
+        isCustom: !!l.isCustom,
+        customizationId: l.customizationId || null,
+        customSpec: l.customSpec || null,
+        artworkData: l.artworkData || ''
       };
     });
     var wantsShipping = document.getElementById('co-ship').checked;

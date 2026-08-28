@@ -3041,6 +3041,22 @@ var STORE_ORDER_HEADERS = [
   'subtotal_cents', 'currency', 'item_count', 'items_json', 'status'
 ];
 
+// Upload customer-provided artwork (base64 data URL) to a Drive folder,
+// mirroring the receipt/testimony upload pattern. Returns a public view URL.
+function uploadCustomArtwork_(dataUrl, orderId, idx) {
+  var parts = String(dataUrl).split(',');
+  var mimeMatch = parts[0].match(/data:(.*?);/);
+  var mimeType = mimeMatch ? mimeMatch[1] : 'image/png';
+  var blob = Utilities.newBlob(Utilities.base64Decode(parts[1]), mimeType);
+  var ext = (mimeType.split('/')[1] || 'png').replace('jpeg', 'jpg');
+  blob.setName('artwork_' + (orderId || 'order') + '_' + (idx || 0) + '_' + Date.now() + '.' + ext);
+  var folders = DriveApp.getFoldersByName('STW Custom Artwork');
+  var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder('STW Custom Artwork');
+  var file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return file.getUrl();
+}
+
 function handlePlaceOrder_(payload) {
   try {
     var name = String((payload && payload.name) || '').trim();
@@ -3056,11 +3072,25 @@ function handlePlaceOrder_(payload) {
     // real charge/tax happens at the payment step.
     var subtotalCents = 0;
     var itemCount = 0;
-    var clean = items.map(function (it) {
+    var orderIdForArt = 'STW-' + new Date().getFullYear() + '-' +
+      Utilities.getUuid().replace(/-/g, '').slice(0, 8).toUpperCase();
+    var clean = items.map(function (it, itemIdx) {
       var qty = Math.max(1, parseInt(it.qty, 10) || 1);
       var unit = Math.max(0, Math.round(Number(it.unitPriceCents) || 0));
       subtotalCents += unit * qty;
       itemCount += qty;
+
+      // Custom line: carry the option spec, and upload any artwork to Drive.
+      var customSpec = null;
+      var artworkUrl = '';
+      if (it.isCustom && it.customSpec && typeof it.customSpec === 'object') {
+        customSpec = it.customSpec;
+        if (it.artworkData && String(it.artworkData).indexOf('data:') === 0) {
+          try { artworkUrl = uploadCustomArtwork_(it.artworkData, orderIdForArt, itemIdx); }
+          catch (e) { artworkUrl = 'upload_failed'; }
+        }
+      }
+
       return {
         productId: String(it.productId || ''),
         name: String(it.name || ''),
@@ -3069,7 +3099,10 @@ function handlePlaceOrder_(payload) {
         unitPriceCents: unit,
         lineTotalCents: unit * qty,
         isBundle: !!it.isBundle,
-        customizationId: it.customizationId || null
+        isCustom: !!it.isCustom,
+        customizationId: it.customizationId || null,
+        customSpec: customSpec,
+        artworkUrl: artworkUrl
       };
     });
 
@@ -3087,8 +3120,7 @@ function handlePlaceOrder_(payload) {
       }
     }
 
-    var orderId = 'STW-' + new Date().getFullYear() + '-' +
-      Utilities.getUuid().replace(/-/g, '').slice(0, 8).toUpperCase();
+    var orderId = orderIdForArt; // reuse the id generated for artwork filenames
     var receivedAt = new Date().toISOString();
 
     // Write to StoreOrders tab (create + header if missing).
@@ -3217,12 +3249,35 @@ function checkFreeClaimAllowed_(email, phone) {
   };
 }
 
+function customSpecHtml_(it) {
+  if (!it.isCustom || !it.customSpec) return '';
+  var lines = [];
+  try {
+    var spec = it.customSpec;
+    Object.keys(spec).forEach(function (k) {
+      var v = spec[k];
+      if (v === '' || v === null || v === undefined) return;
+      lines.push('<span style="color:' + STW_MUTED + ';">' + escapeHtml(k) + ':</span> ' + escapeHtml(String(v)));
+    });
+  } catch (e) {}
+  if (it.artworkUrl && it.artworkUrl !== 'upload_failed') {
+    lines.push('<a href="' + it.artworkUrl + '" style="color:' + STW_GREEN + ';">View uploaded artwork</a>');
+  } else if (it.artworkUrl === 'upload_failed') {
+    lines.push('<span style="color:#c0392b;">Artwork upload failed — follow up with customer</span>');
+  }
+  if (!lines.length) return '';
+  return '<div style="font-size:12.5px;line-height:1.6;color:' + STW_TEXT + ';padding:4px 0 8px;">&#8627; ' + lines.join('<br>&nbsp;&nbsp;') + '</div>';
+}
+
 function storeOrderItemsTableHtml_(items) {
   var rows = items.map(function (it) {
     var qtyLabel = it.qty + (it.packSize > 1 ? ' x pack of ' + it.packSize : '');
+    var custom = customSpecHtml_(it);
     return '<tr>' +
       '<td style="padding:8px 0;border-bottom:1px solid ' + STW_BORDER + ';font-size:14px;">' + escapeHtml(it.name) +
-        (it.isBundle ? ' <span style="color:' + STW_GOLD + ';font-size:12px;">(custom bundle)</span>' : '') + '</td>' +
+        (it.isBundle ? ' <span style="color:' + STW_GOLD + ';font-size:12px;">(custom bundle)</span>' : '') +
+        (it.isCustom ? ' <span style="color:' + STW_GOLD + ';font-size:12px;">(customized)</span>' : '') +
+        custom + '</td>' +
       '<td style="padding:8px 0;border-bottom:1px solid ' + STW_BORDER + ';font-size:14px;text-align:center;">' + escapeHtml(qtyLabel) + '</td>' +
       '<td style="padding:8px 0;border-bottom:1px solid ' + STW_BORDER + ';font-size:14px;text-align:right;">' + centsToDollars_(it.lineTotalCents) + '</td>' +
       '</tr>';
@@ -3425,8 +3480,15 @@ function getStoreCatalog_() {
   var lastRow = sheet.getLastRow();
   if (lastRow < 1) return { ok: true, items: [], cachedAt: new Date().toISOString() };
 
-  // Read columns B..G (2..7) for all rows in one call.
-  var values = sheet.getRange(1, 2, lastRow, 6).getValues(); // [B,C,D,E,F,G]
+  // Read columns B..H (2..8) for all rows in one call.
+  //   B id, C(ignored), D description, E base price, F pack size,
+  //   G explicit pack price, H customizable flag ("YES").
+  var values = sheet.getRange(1, 2, lastRow, 7).getValues(); // [B,C,D,E,F,G,H]
+
+  // Pull the CustomOptions tab (if present) and group by product_id so we can
+  // attach each customizable product's option list.
+  var optionsByProduct = readCustomOptions_(ss);
+
   var items = [];
   for (var i = 0; i < values.length; i++) {
     var row = values[i];
@@ -3451,6 +3513,10 @@ function getStoreCatalog_() {
       packRetailCents = roundUpToRetailCents_(packBaseCents);
     }
 
+    var customFlag = String(row[6] || '').trim().toUpperCase(); // H
+    var isCustomizable = (customFlag === 'YES' || customFlag === 'Y' || customFlag === 'TRUE');
+    var options = isCustomizable ? (optionsByProduct[id] || []) : [];
+
     items.push({
       id: id,
       description: description,
@@ -3458,13 +3524,57 @@ function getStoreCatalog_() {
       retailCents: retailCents,
       packSize: packSize,
       packBaseCents: packBaseCents,
-      packRetailCents: packRetailCents
+      packRetailCents: packRetailCents,
+      customizable: isCustomizable && options.length > 0,
+      options: options
     });
   }
 
   var result = { ok: true, items: items, cachedAt: new Date().toISOString() };
   try { cache.put('stw_catalog_v1', JSON.stringify(result), 300); } catch (e) {}
   return result;
+}
+
+// Read the CustomOptions tab into { product_id: [ {key,label,type,maxChars,
+// priceAddCents,required,choices:[{label,image}],zone}, ... ] }.
+// Tab schema (row 1 = headers, data from row 2):
+//   A product_id | B option_key | C label | D type | E max_chars |
+//   F price_add_cents | G required | H choices | I zone
+// type: text | style | producttype | image | checkbox
+// choices (for style/producttype): "Label|imgUrl;Label2|imgUrl2"
+// zone (for text overlay position): main | secondary | sleeve  OR  "x,y,w" %.
+function readCustomOptions_(ss) {
+  var out = {};
+  var sheet = ss.getSheetByName('CustomOptions');
+  if (!sheet) return out;
+  var last = sheet.getLastRow();
+  if (last < 2) return out;
+  var vals = sheet.getRange(1, 1, last, 9).getValues();
+  for (var r = 1; r < vals.length; r++) {
+    var row = vals[r];
+    var pid = String(row[0] || '').trim();
+    var key = String(row[1] || '').trim();
+    if (!pid || !key) continue;
+    var choicesRaw = String(row[7] || '').trim();
+    var choices = choicesRaw ? choicesRaw.split(';').map(function (c) {
+      var parts = c.split('|');
+      return { label: (parts[0] || '').trim(), image: (parts[1] || '').trim() };
+    }).filter(function (c) { return c.label; }) : [];
+    var priceAdd = parseInt(row[5], 10);
+    var maxChars = parseInt(row[4], 10);
+    if (!out[pid]) out[pid] = [];
+    out[pid].push({
+      key: key,
+      label: String(row[2] || '').trim(),
+      type: (String(row[3] || 'text').trim().toLowerCase()),
+      maxChars: isNaN(maxChars) ? 0 : maxChars,
+      priceAddCents: isNaN(priceAdd) ? 0 : priceAdd,
+      required: String(row[6] || '').trim().toUpperCase() === 'YES',
+      choices: choices,
+      zone: String(row[8] || '').trim()
+    });
+  }
+  return out;
 }
 
 // Round a base price (in cents) UP to the next whole dollar, then minus

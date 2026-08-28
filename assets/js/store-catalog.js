@@ -106,6 +106,38 @@
     return map[category] || '📋';
   }
 
+  // Resolve a product's per-unit (or per-pack) price in integer cents for the
+  // cart. Prefers live sheet pricing (retailCents/packRetailCents from
+  // getCatalog); falls back to parsing the display price string; returns null
+  // if we truly can't determine a price (then Add to Cart is disabled).
+  function productUnitCents(p) {
+    if (p.packSize && p.packSize > 1 && typeof p.packRetailCents === 'number') return p.packRetailCents;
+    if (typeof p.retailCents === 'number') return p.retailCents;
+    // Fallback: parse a "$2", "$2.99", "$2 each" style string.
+    if (p.price) {
+      var m = String(p.price).match(/\$?\s*(\d+(?:\.\d{1,2})?)/);
+      if (m) {
+        var cents = Math.round(parseFloat(m[1]) * 100);
+        return window.STW_Cart ? window.STW_Cart.retailCentsFromBase(cents) : cents;
+      }
+    }
+    return null;
+  }
+
+  // Bundle-eligible = physical items we can personalize/customize via the
+  // bundle builder (Bibles today; extendable later to art/hoodies/etc.).
+  function isBundleEligible(p) {
+    return p.category === 'bibles';
+  }
+
+  function priceDisplay(p) {
+    if (p.price) return esc(p.price);
+    var cents = productUnitCents(p);
+    if (cents == null) return 'Free';
+    var s = window.STW_Cart ? window.STW_Cart.formatCents(cents) : ('$' + (cents / 100).toFixed(2));
+    return esc(s + (p.packSize > 1 ? ' / pack of ' + p.packSize : ''));
+  }
+
   function renderProductCard(p) {
     var imageHTML;
     var gallery = p.gallery || (p.image ? [p.image] : []);
@@ -143,38 +175,55 @@
       }
     }
 
+    var unitCents = productUnitCents(p);
+    var outOfStock = (p.category === 'bibles' && p.stockCount === 0);
+
     var actionHTML;
     if (p.category === 'amazon' && p.url) {
-      actionHTML = '<a href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" class="store-card__action store-card__action--amazon">View on Amazon →</a>';
-    } else if (p.category === 'bibles') {
-      if (p.stockCount === 0) {
-        actionHTML = '<span class="store-card__action store-card__action--disabled">Out of Stock</span>';
-      } else {
-        // Inline quantity selector + Add to Bundle
-        actionHTML =
-          '<div class="store-card__qty-row">' +
-            '<div class="store-card__qty-control" data-product-id="' + esc(p.id) + '">' +
-              '<button class="store-card__qty-btn" data-dir="-1" aria-label="Decrease quantity">−</button>' +
-              '<span class="store-card__qty-value">1</span>' +
-              '<button class="store-card__qty-btn" data-dir="1" aria-label="Increase quantity">+</button>' +
-            '</div>' +
-            '<a href="bundle-builder.html?bundle=essentials&item=' + esc(p.id) + '" class="store-card__action store-card__action--primary store-card__action--add">Add to Bundle</a>' +
-          '</div>';
-      }
+      // Third-party items link out; not part of our cart.
+      actionHTML = '<a href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" class="store-card__action store-card__action--amazon" data-stop-detail>View on Amazon &rarr;</a>';
+    } else if (outOfStock) {
+      actionHTML = '<span class="store-card__action store-card__action--disabled">Out of Stock</span>';
+    } else if (unitCents == null) {
+      // Price not yet available (backend not deployed) — friendly state.
+      actionHTML = '<span class="store-card__action store-card__action--disabled">Pricing soon</span>';
     } else {
-      actionHTML = '<span class="store-card__action store-card__action--secondary">Learn More</span>';
+      actionHTML =
+        '<div class="store-card__qty-row">' +
+          '<div class="store-card__qty-control" data-product-id="' + esc(p.id) + '">' +
+            '<button class="store-card__qty-btn" data-dir="-1" type="button" aria-label="Decrease quantity">&minus;</button>' +
+            '<span class="store-card__qty-value">1</span>' +
+            '<button class="store-card__qty-btn" data-dir="1" type="button" aria-label="Increase quantity">+</button>' +
+          '</div>' +
+          '<button type="button" class="store-card__action store-card__action--primary store-card__action--cart" data-add-cart="' + esc(p.id) + '" data-stop-detail>' +
+            'Add to Cart' +
+          '</button>' +
+        '</div>' +
+        (isBundleEligible(p)
+          ? '<a href="bundle-builder.html?bundle=essentials&item=' + esc(p.id) + '" class="store-card__customize" data-stop-detail>Customize this &rarr;</a>'
+          : '');
     }
+
+    // Favorite (heart) toggle — top-left on the image.
+    var fav = (window.STW_Cart && window.STW_Cart.isFavorite(p.id));
+    var favHTML =
+      '<button type="button" class="store-card__fav' + (fav ? ' is-fav' : '') + '" ' +
+        'data-fav="' + esc(p.id) + '" data-stop-detail aria-pressed="' + (fav ? 'true' : 'false') + '" ' +
+        'aria-label="' + (fav ? 'Remove from favorites' : 'Add to favorites') + '" title="Save to favorites">' +
+        '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 21s-6.716-4.297-9.193-7.06C1.07 12.06 1 9.36 2.76 7.67a4.5 4.5 0 0 1 6.36.02L12 10.6l2.88-2.9a4.5 4.5 0 0 1 6.36-.02c1.76 1.69 1.69 4.39-.05 6.27C18.716 16.703 12 21 12 21z"/></svg>' +
+      '</button>';
 
     return (
       '<article class="store-card" data-product-id="' + esc(p.id) + '">' +
         imageHTML +
         itemNumHTML +
+        favHTML +
         '<div class="store-card__body">' +
           '<h3 class="store-card__title">' + esc(p.name) + '</h3>' +
           nativeHTML +
           '<p class="store-card__desc">' + esc(p.description) + '</p>' +
           '<div class="store-card__meta">' +
-            '<span class="store-card__price">' + esc(p.price || 'Free') + '</span>' +
+            '<span class="store-card__price">' + priceDisplay(p) + '</span>' +
             sellerHTML +
             stockHTML +
           '</div>' +
@@ -255,33 +304,85 @@
     initQtyControls();
   }
 
-  // ── Quantity selector controls ──────────────────────────────
+  // ── Quantity selector + Add to Cart + Favorite controls ─────
   function initQtyControls() {
+    // Quantity steppers: track qty on the control element's dataset.
     document.querySelectorAll('.store-card__qty-control').forEach(function(ctrl) {
       if (ctrl.dataset.qtyBound) return;
       ctrl.dataset.qtyBound = 'true';
-
+      ctrl.dataset.qty = '1';
       var valueEl = ctrl.querySelector('.store-card__qty-value');
-      var qty = 1;
-      var maxQty = 10;
-
+      var maxQty = 99;
       ctrl.querySelectorAll('.store-card__qty-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
           var dir = parseInt(btn.dataset.dir, 10);
-          qty = Math.max(1, Math.min(maxQty, qty + dir));
-          valueEl.textContent = qty;
-
-          // Update the "Add to Bundle" link with qty param
-          var addBtn = ctrl.parentElement.querySelector('.store-card__action--add');
-          if (addBtn) {
-            var href = addBtn.getAttribute('href').replace(/&qty=\d+/, '');
-            addBtn.setAttribute('href', href + '&qty=' + qty);
-          }
+          var qty = Math.max(1, Math.min(maxQty, (parseInt(ctrl.dataset.qty, 10) || 1) + dir));
+          ctrl.dataset.qty = String(qty);
+          if (valueEl) valueEl.textContent = qty;
         });
       });
     });
+
+    // Add to Cart buttons.
+    document.querySelectorAll('[data-add-cart]').forEach(function(btn) {
+      if (btn.dataset.cartBound) return;
+      btn.dataset.cartBound = 'true';
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = btn.getAttribute('data-add-cart');
+        var p = products.find(function(x) { return x.id === id; });
+        if (!p || !window.STW_Cart) return;
+        var cents = productUnitCents(p);
+        if (cents == null) return;
+        var row = btn.closest('.store-card__qty-row');
+        var ctrl = row && row.querySelector('.store-card__qty-control');
+        var qty = ctrl ? (parseInt(ctrl.dataset.qty, 10) || 1) : 1;
+        window.STW_Cart.add({
+          productId: p.id,
+          name: p.name,
+          description: p.description,
+          image: (p.image || (p.gallery && p.gallery[0]) || ''),
+          unitPriceCents: cents,
+          qty: qty,
+          packSize: p.packSize || 1
+        });
+        flashAdded(btn);
+        if (ctrl) { ctrl.dataset.qty = '1'; var v = ctrl.querySelector('.store-card__qty-value'); if (v) v.textContent = '1'; }
+      });
+    });
+
+    // Favorite (heart) toggles.
+    document.querySelectorAll('[data-fav]').forEach(function(btn) {
+      if (btn.dataset.favBound) return;
+      btn.dataset.favBound = 'true';
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!window.STW_Cart) return;
+        var id = btn.getAttribute('data-fav');
+        var nowFav = window.STW_Cart.toggleFavorite(id);
+        btn.classList.toggle('is-fav', nowFav);
+        btn.setAttribute('aria-pressed', nowFav ? 'true' : 'false');
+        btn.setAttribute('aria-label', nowFav ? 'Remove from favorites' : 'Add to favorites');
+      });
+    });
+  }
+
+  // Brief "Added ✓" confirmation on an Add to Cart button.
+  function flashAdded(btn) {
+    if (btn.dataset.flashing) return;
+    btn.dataset.flashing = '1';
+    var original = btn.innerHTML;
+    btn.classList.add('is-added');
+    btn.innerHTML = 'Added \u2713';
+    setTimeout(function() {
+      btn.classList.remove('is-added');
+      btn.innerHTML = original;
+      delete btn.dataset.flashing;
+    }, 1100);
   }
 
   // ── Render sidebar ──────────────────────────────────────────
@@ -365,7 +466,9 @@
     document.querySelectorAll('.store-card[data-product-id]').forEach(function(card) {
       if (card.dataset.detailBound) return;
       card.dataset.detailBound = 'true';
-      card.querySelector('.store-card__body').addEventListener('click', function() {
+      card.querySelector('.store-card__body').addEventListener('click', function(e) {
+        // Don't open the detail view when an action control was clicked.
+        if (e.target.closest('[data-stop-detail]') || e.target.closest('.store-card__qty-control')) return;
         var id = card.dataset.productId;
         var product = products.find(function(p) { return p.id === id; });
         if (product) openProductDetail(product);
@@ -375,64 +478,186 @@
 
   function openProductDetail(p) {
     var gallery = p.gallery || (p.image ? [p.image] : []);
-    var galleryHTML = gallery.length ? gallery.map(function(src, i) {
-      return '<img class="' + (i === 0 ? 'is-active' : '') + '" src="' + esc(src) + '" alt="' + esc(p.name) + '" style="width:100%;height:100%;object-fit:contain;position:absolute;inset:0;opacity:' + (i===0?'1':'0') + ';transition:opacity 0.5s;">';
-    }).join('') : '<div style="font-size:4rem;text-align:center;padding:3rem;">' + getCategoryPlaceholder(p.category) + '</div>';
+    var mainHTML = gallery.length
+      ? gallery.map(function(src, i) {
+          return '<img class="store-detail__main-img' + (i === 0 ? ' is-active' : '') + '" src="' + esc(src) + '" alt="' + esc(p.name) + '" data-idx="' + i + '">';
+        }).join('')
+      : '<div class="store-detail__placeholder">' + getCategoryPlaceholder(p.category) + '</div>';
+
+    // Thumbnail strip (Gideons-style) when there's more than one image.
+    var thumbsHTML = gallery.length > 1
+      ? '<div class="store-detail__thumbs">' + gallery.map(function(src, i) {
+          return '<button type="button" class="store-detail__thumb' + (i === 0 ? ' is-active' : '') + '" data-idx="' + i + '" aria-label="View image ' + (i + 1) + '">' +
+            '<img src="' + esc(src) + '" alt=""></button>';
+        }).join('') + '</div>'
+      : '';
 
     var nativeName = p.nativeName ? '<span class="store-detail__native">' + esc(p.nativeName) + '</span>' : '';
-
     var itemNumber = p.id ? '<span class="store-detail__item-num">Item #' + esc(p.id) + '</span>' : '';
+
+    var unitCents = productUnitCents(p);
+    var outOfStock = (p.category === 'bibles' && p.stockCount === 0);
+    var isFav = (window.STW_Cart && window.STW_Cart.isFavorite(p.id));
+
+    // Right-column call to action varies by product type.
+    var ctaHTML = '';
+    if (p.category === 'amazon' && p.url) {
+      ctaHTML = '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" class="store-detail__cta store-detail__cta--amazon">View on Amazon &rarr;</a>';
+    } else if (outOfStock) {
+      ctaHTML = '<span class="store-detail__cta store-detail__cta--disabled">Out of Stock</span>';
+    } else if (unitCents == null) {
+      ctaHTML = '<span class="store-detail__cta store-detail__cta--disabled">Pricing soon</span>';
+    } else {
+      ctaHTML =
+        '<div class="store-detail__buy">' +
+          '<div class="store-detail__qty">' +
+            '<label class="store-detail__qty-label">Quantity</label>' +
+            '<div class="store-card__qty-control store-detail__qty-control" data-detail-qty>' +
+              '<button class="store-card__qty-btn" data-dir="-1" type="button" aria-label="Decrease">&minus;</button>' +
+              '<span class="store-card__qty-value">1</span>' +
+              '<button class="store-card__qty-btn" data-dir="1" type="button" aria-label="Increase">+</button>' +
+            '</div>' +
+          '</div>' +
+          '<button type="button" class="store-detail__cta store-detail__cta--primary" data-detail-add>Add to Cart</button>' +
+          (isBundleEligible(p)
+            ? '<a href="bundle-builder.html?bundle=essentials&item=' + esc(p.id) + '" class="store-detail__cta store-detail__cta--customize">Customize this &rarr;</a>'
+            : '') +
+        '</div>';
+    }
+
+    var favBtnHTML =
+      '<button type="button" class="store-detail__fav' + (isFav ? ' is-fav' : '') + '" data-detail-fav aria-pressed="' + (isFav ? 'true' : 'false') + '">' +
+        '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 21s-6.716-4.297-9.193-7.06C1.07 12.06 1 9.36 2.76 7.67a4.5 4.5 0 0 1 6.36.02L12 10.6l2.88-2.9a4.5 4.5 0 0 1 6.36-.02c1.76 1.69 1.69 4.39-.05 6.27C18.716 16.703 12 21 12 21z"/></svg>' +
+        '<span>' + (isFav ? 'Saved to Favorites' : 'Add to Favorites') + '</span>' +
+      '</button>';
+
+    // "Other Products" — up to 4 more from the same category.
+    var others = products.filter(function(x) { return x.category === p.category && x.id !== p.id; }).slice(0, 4);
+    var otherHTML = others.length
+      ? '<div class="store-detail__others">' +
+          '<h3 class="store-detail__others-title">Other Products</h3>' +
+          '<div class="store-detail__others-grid">' +
+            others.map(function(o) {
+              var img = (o.image || (o.gallery && o.gallery[0]) || '');
+              return '<button type="button" class="store-detail__other" data-other-id="' + esc(o.id) + '">' +
+                (img ? '<img src="' + esc(img) + '" alt="' + esc(o.name) + '">' : '<span class="store-detail__other-ph">' + getCategoryPlaceholder(o.category) + '</span>') +
+                '<span class="store-detail__other-name">' + esc(o.name) + '</span>' +
+                '<span class="store-detail__other-price">' + priceDisplay(o) + '</span>' +
+              '</button>';
+            }).join('') +
+          '</div>' +
+        '</div>'
+      : '';
 
     var overlay = document.createElement('div');
     overlay.className = 'store-lightbox store-detail-modal';
     overlay.innerHTML =
-      '<div class="store-detail">' +
-        '<button class="store-lightbox__close">&times;</button>' +
-        '<div class="store-detail__gallery">' + galleryHTML + '</div>' +
-        '<div class="store-detail__body">' +
-          '<h2 class="store-detail__title">' + esc(p.name) + '</h2>' +
-          nativeName +
-          itemNumber +
-          '<p class="store-detail__desc">' + esc(p.description) + '</p>' +
-          '<div class="store-detail__meta">' +
-            '<span class="store-detail__price">' + esc(p.price || 'Free') + '</span>' +
-            (p.stockCount !== null && p.stockCount !== undefined ? '<span class="store-detail__stock' + (p.stockCount === 0 ? ' store-detail__stock--out' : '') + '">' + (p.stockCount === 0 ? 'Out of Stock' : p.stockCount + ' in stock') + '</span>' : '') +
+      '<div class="store-detail" role="dialog" aria-modal="true" aria-label="' + esc(p.name) + '">' +
+        '<button class="store-lightbox__close store-detail__close">&times;</button>' +
+        '<div class="store-detail__cols">' +
+          '<div class="store-detail__left">' +
+            '<div class="store-detail__gallery">' + mainHTML + '</div>' +
+            thumbsHTML +
           '</div>' +
-          (p.category === 'bibles' && p.stockCount !== 0 ? '<a href="bundle-builder.html?bundle=essentials" class="store-detail__cta store-detail__cta--primary">Add to Bundle</a>' : '') +
-          (p.category === 'amazon' && p.url ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" class="store-detail__cta store-detail__cta--amazon">View on Amazon →</a>' : '') +
+          '<div class="store-detail__body">' +
+            '<h2 class="store-detail__title">' + esc(p.name) + '</h2>' +
+            nativeName +
+            itemNumber +
+            '<div class="store-detail__meta">' +
+              '<span class="store-detail__price">' + priceDisplay(p) + '</span>' +
+              (p.stockCount !== null && p.stockCount !== undefined ? '<span class="store-detail__stock' + (p.stockCount === 0 ? ' store-detail__stock--out' : '') + '">' + (p.stockCount === 0 ? 'Out of Stock' : p.stockCount + ' in stock') + '</span>' : '') +
+            '</div>' +
+            '<p class="store-detail__desc">' + esc(p.description) + '</p>' +
+            ctaHTML +
+            favBtnHTML +
+          '</div>' +
         '</div>' +
+        otherHTML +
       '</div>';
 
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
 
-    // Gallery cycling in detail modal
-    var detailImgs = overlay.querySelectorAll('.store-detail__gallery img');
-    if (detailImgs.length > 1) {
-      var idx = 0;
-      var timer = setInterval(function() {
-        detailImgs[idx].style.opacity = '0';
-        idx = (idx + 1) % detailImgs.length;
-        detailImgs[idx].style.opacity = '1';
-      }, 4000);
-      overlay._galleryTimer = timer;
+    // ── Gallery: thumbnail select + click-to-lightbox ──
+    var mainImgs = overlay.querySelectorAll('.store-detail__main-img');
+    var thumbs = overlay.querySelectorAll('.store-detail__thumb');
+    function showImg(idx) {
+      mainImgs.forEach(function(im) { im.classList.toggle('is-active', parseInt(im.dataset.idx, 10) === idx); });
+      thumbs.forEach(function(t) { t.classList.toggle('is-active', parseInt(t.dataset.idx, 10) === idx); });
+    }
+    thumbs.forEach(function(t) {
+      t.addEventListener('click', function(e) { e.stopPropagation(); showImg(parseInt(t.dataset.idx, 10)); });
+    });
+    mainImgs.forEach(function(im) {
+      im.addEventListener('click', function(e) { e.stopPropagation(); openLightbox(im.src); });
+    });
+
+    // ── Quantity stepper in detail ──
+    var qtyCtrl = overlay.querySelector('[data-detail-qty]');
+    if (qtyCtrl) {
+      qtyCtrl.dataset.qty = '1';
+      var qVal = qtyCtrl.querySelector('.store-card__qty-value');
+      qtyCtrl.querySelectorAll('.store-card__qty-btn').forEach(function(b) {
+        b.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var dir = parseInt(b.dataset.dir, 10);
+          var q = Math.max(1, Math.min(99, (parseInt(qtyCtrl.dataset.qty, 10) || 1) + dir));
+          qtyCtrl.dataset.qty = String(q);
+          if (qVal) qVal.textContent = q;
+        });
+      });
     }
 
+    // ── Add to Cart from detail ──
+    var addBtn = overlay.querySelector('[data-detail-add]');
+    if (addBtn) {
+      addBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!window.STW_Cart || unitCents == null) return;
+        var q = qtyCtrl ? (parseInt(qtyCtrl.dataset.qty, 10) || 1) : 1;
+        window.STW_Cart.add({
+          productId: p.id, name: p.name, description: p.description,
+          image: (p.image || gallery[0] || ''), unitPriceCents: unitCents, qty: q, packSize: p.packSize || 1
+        });
+        flashAdded(addBtn);
+      });
+    }
+
+    // ── Favorite toggle from detail ──
+    var favBtn = overlay.querySelector('[data-detail-fav]');
+    if (favBtn) {
+      favBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!window.STW_Cart) return;
+        var now = window.STW_Cart.toggleFavorite(p.id);
+        favBtn.classList.toggle('is-fav', now);
+        favBtn.setAttribute('aria-pressed', now ? 'true' : 'false');
+        var lbl = favBtn.querySelector('span');
+        if (lbl) lbl.textContent = now ? 'Saved to Favorites' : 'Add to Favorites';
+      });
+    }
+
+    // ── Other Products: open that product's detail ──
+    overlay.querySelectorAll('[data-other-id]').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var oid = btn.getAttribute('data-other-id');
+        var op = products.find(function(x) { return x.id === oid; });
+        closeDetail();
+        if (op) openProductDetail(op);
+      });
+    });
+
+    function closeDetail() {
+      overlay.remove();
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', keyHandler);
+    }
     overlay.addEventListener('click', function(e) {
-      if (e.target === overlay || e.target.classList.contains('store-lightbox__close')) {
-        if (overlay._galleryTimer) clearInterval(overlay._galleryTimer);
-        overlay.remove();
-        document.body.style.overflow = '';
-      }
+      if (e.target === overlay || e.target.classList.contains('store-detail__close')) closeDetail();
     });
-    document.addEventListener('keydown', function handler(e) {
-      if (e.key === 'Escape') {
-        if (overlay._galleryTimer) clearInterval(overlay._galleryTimer);
-        overlay.remove();
-        document.body.style.overflow = '';
-        document.removeEventListener('keydown', handler);
-      }
-    });
+    function keyHandler(e) { if (e.key === 'Escape') closeDetail(); }
+    document.addEventListener('keydown', keyHandler);
   }
 
   // ── Render sidebar ──────────────────────────────────────────

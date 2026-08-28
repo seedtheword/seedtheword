@@ -110,8 +110,9 @@
   // cart. Prefers live sheet pricing (retailCents/packRetailCents from
   // getCatalog); falls back to parsing the display price string; returns null
   // if we truly can't determine a price (then Add to Cart is disabled).
+  // SINGLE-unit price (default). Packs are an optional bulk choice, never
+  // forced — see packUnitCents / the Single|Pack toggle.
   function productUnitCents(p) {
-    if (p.packSize && p.packSize > 1 && typeof p.packRetailCents === 'number') return p.packRetailCents;
     if (typeof p.retailCents === 'number') return p.retailCents;
     // Fallback: parse a "$2", "$2.99", "$2 each" style string.
     if (p.price) {
@@ -124,18 +125,32 @@
     return null;
   }
 
+  function hasPack(p) { return p.packSize && p.packSize > 1 && typeof p.packRetailCents === 'number'; }
+
+  // Price of ONE pack (all N units), when the shopper chooses the pack option.
+  function packUnitCents(p) {
+    if (typeof p.packRetailCents === 'number') return p.packRetailCents;
+    var single = productUnitCents(p);
+    return single == null ? null : single * (p.packSize || 1);
+  }
+
   // Bundle-eligible = physical items we can personalize/customize via the
   // bundle builder (Bibles today; extendable later to art/hoodies/etc.).
   function isBundleEligible(p) {
     return p.category === 'bibles';
   }
 
+  function fmt(cents) {
+    return window.STW_Cart ? window.STW_Cart.formatCents(cents) : ('$' + (Math.round(cents) / 100).toFixed(2));
+  }
+
+  // Shows the single price by default; if there's a pack, notes the pack deal.
   function priceDisplay(p) {
-    if (p.price) return esc(p.price);
-    var cents = productUnitCents(p);
-    if (cents == null) return 'Free';
-    var s = window.STW_Cart ? window.STW_Cart.formatCents(cents) : ('$' + (cents / 100).toFixed(2));
-    return esc(s + (p.packSize > 1 ? ' / pack of ' + p.packSize : ''));
+    var single = productUnitCents(p);
+    if (single == null) return p.price ? esc(p.price) : 'Free';
+    var out = fmt(single) + ' each';
+    if (hasPack(p)) out += ' · pack of ' + p.packSize + ' ' + fmt(packUnitCents(p));
+    return esc(out);
   }
 
   function renderProductCard(p) {
@@ -188,9 +203,18 @@
       // Price not yet available (backend not deployed) — friendly state.
       actionHTML = '<span class="store-card__action store-card__action--disabled">Pricing soon</span>';
     } else {
+      // Optional Single / Pack toggle — only when the product has a pack.
+      // Single is the DEFAULT so individual purchasing always works.
+      var packToggleHTML = hasPack(p)
+        ? '<div class="store-card__variant" role="group" aria-label="Buy as single or pack" data-variant-group="' + esc(p.id) + '">' +
+            '<button type="button" class="store-card__variant-btn is-selected" data-variant="single" data-stop-detail>Single &middot; ' + fmt(productUnitCents(p)) + '</button>' +
+            '<button type="button" class="store-card__variant-btn" data-variant="pack" data-stop-detail>Pack of ' + p.packSize + ' &middot; ' + fmt(packUnitCents(p)) + '</button>' +
+          '</div>'
+        : '';
       actionHTML =
+        packToggleHTML +
         '<div class="store-card__qty-row">' +
-          '<div class="store-card__qty-control" data-product-id="' + esc(p.id) + '">' +
+          '<div class="store-card__qty-control" data-product-id="' + esc(p.id) + '" data-variant="single">' +
             '<button class="store-card__qty-btn" data-dir="-1" type="button" aria-label="Decrease quantity">&minus;</button>' +
             '<span class="store-card__qty-value">1</span>' +
             '<button class="store-card__qty-btn" data-dir="1" type="button" aria-label="Increase quantity">+</button>' +
@@ -327,6 +351,24 @@
       });
     });
 
+    // Single / Pack variant toggle (only present when the product has a pack).
+    document.querySelectorAll('[data-variant-group]').forEach(function(group) {
+      if (group.dataset.variantBound) return;
+      group.dataset.variantBound = 'true';
+      group.querySelectorAll('.store-card__variant-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          group.querySelectorAll('.store-card__variant-btn').forEach(function(b) { b.classList.remove('is-selected'); });
+          btn.classList.add('is-selected');
+          // Record the choice on the sibling qty-control so Add to Cart reads it.
+          var card = group.closest('.store-card');
+          var ctrl = card && card.querySelector('.store-card__qty-control');
+          if (ctrl) ctrl.dataset.variant = btn.dataset.variant;
+        });
+      });
+    });
+
     // Add to Cart buttons.
     document.querySelectorAll('[data-add-cart]').forEach(function(btn) {
       if (btn.dataset.cartBound) return;
@@ -337,19 +379,24 @@
         var id = btn.getAttribute('data-add-cart');
         var p = products.find(function(x) { return x.id === id; });
         if (!p || !window.STW_Cart) return;
-        var cents = productUnitCents(p);
-        if (cents == null) return;
         var row = btn.closest('.store-card__qty-row');
         var ctrl = row && row.querySelector('.store-card__qty-control');
         var qty = ctrl ? (parseInt(ctrl.dataset.qty, 10) || 1) : 1;
+        var variant = (ctrl && ctrl.dataset.variant) || 'single';
+        var asPack = (variant === 'pack' && hasPack(p));
+
+        var cents = asPack ? packUnitCents(p) : productUnitCents(p);
+        if (cents == null) return;
+
         window.STW_Cart.add({
           productId: p.id,
-          name: p.name,
+          name: p.name + (asPack ? ' (Pack of ' + p.packSize + ')' : ''),
           description: p.description,
           image: (p.image || (p.gallery && p.gallery[0]) || ''),
           unitPriceCents: cents,
           qty: qty,
-          packSize: p.packSize || 1
+          packSize: asPack ? p.packSize : 1,
+          variant: asPack ? ('pack' + p.packSize) : 'single'
         });
         flashAdded(btn);
         if (ctrl) { ctrl.dataset.qty = '1'; var v = ctrl.querySelector('.store-card__qty-value'); if (v) v.textContent = '1'; }

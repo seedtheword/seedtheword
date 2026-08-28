@@ -2032,3 +2032,31 @@
   .store-detail { padding: 1.5rem 1.15rem 1.75rem; }
   .store-detail__others-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ── Single / Pack variant toggle (optional bulk buy, single is default) ── */
+.store-card__variant {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0 0 0.6rem;
+}
+.store-card__variant-btn {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1.5px solid #e8e4de;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--muted, #6b6b6b);
+  cursor: pointer;
+  line-height: 1.2;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.store-card__variant-btn:hover { border-color: var(--green, #2C5F2E); }
+.store-card__variant-btn.is-selected {
+  border-color: var(--green, #2C5F2E);
+  background: rgba(44, 95, 46, 0.08);
+  color: var(--green, #2C5F2E);
+}
+[data-theme="dark"] .store-card__variant-btn { background: #14181f; border-color: #2e353e; color: #a8adb5; }
+[data-theme="dark"] .store-card__variant-btn.is-selected { background: rgba(74,138,114,0.15); border-color: #4a8a72; color: #cfe8dd; }

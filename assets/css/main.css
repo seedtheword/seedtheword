@@ -327,30 +327,40 @@ ul { margin: 0; padding: 0; list-style: none; }
 .nav-auth-dropdown__item:hover { background: #f5f5f5; }
 .nav-auth-dropdown__item--danger { color: #c62828; }
 .nav-auth-dropdown__item--danger:hover { background: #ffebee; }
-/* Mobile: show auth dropdown inline in nav */
+/* Mobile: render the auth dropdown as a full-width vertical list inside the
+   open mobile nav (NOT a floating absolute box, and NOT a horizontal row of
+   chips — that caused the scattered white boxes over the hero). */
 @media (max-width: 768px) {
+  .nav-auth-wrap { width: 100%; }
   .nav-auth-dropdown {
     position: static;
     box-shadow: none;
     border: none;
     border-radius: 0;
     background: transparent;
+    min-width: 0;
+    width: 100%;
     padding: 0;
-    margin: 0;
+    margin: 0.25rem 0 0;
     animation: none;
   }
   .nav-auth-wrap.is-open .nav-auth-dropdown {
     display: flex;
-    gap: 0.5rem;
-    padding: 0.4rem 0;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
   }
   .nav-auth-dropdown__item {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.82rem;
-    border-radius: 8px;
-    background: #f5f5f5;
-    text-align: center;
+    width: 100%;
+    padding: 0.85rem 0;
+    font-size: 1rem;
+    text-align: left;
+    background: transparent;
+    border-radius: 0;
+    border-top: 1px solid rgba(0,0,0,0.06);
   }
+  .nav-auth-dropdown__item:hover { background: transparent; }
+  .nav-auth-dropdown__item--danger:hover { background: transparent; }
 }
 @keyframes navDropFade {
   from { opacity: 0; transform: translateY(-6px); }
@@ -2835,10 +2845,13 @@ ul { margin: 0; padding: 0; list-style: none; }
     transition: max-height .4s ease, padding .4s ease;
     padding: 0 32px;
   }
-  #site-nav.open { 
-    max-height: 400px; 
+  #site-nav.open {
+    /* Allow the full menu (including the expanded account list) to fit, and
+       scroll within the viewport instead of spilling over the page. */
+    max-height: calc(100vh - 80px);
     padding: 16px 32px 24px;
-    overflow: visible;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .nav-links { 
     flex-direction: column; 
@@ -13491,3 +13504,158 @@ body.your-walk-modal-open {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 [data-theme="dark"] .nav-cart { color: #f0ece4; }
+
+/* ============================================================
+   FULL-PAGE DARK MODE (consolidated)
+   ------------------------------------------------------------
+   Root cause this fixes: most section/card/content rules hardcode
+   light colors (#fff, #1a1a1a, rgba(255,255,255,...)) and main.css
+   has its OWN token set (--text/--light/--border/etc.) that never
+   changed in dark mode — so only header/footer flipped.
+
+   Two-pronged fix:
+   1) Remap main.css's own tokens to dark values under [data-theme="dark"]
+      so every rule that already uses var(--text) etc. flips automatically.
+   2) Targeted overrides for common hardcoded light surfaces.
+   theme.css remains the source of truth for the --color-* tokens.
+   ============================================================ */
+
+/* 1) Bridge the token systems: remap main.css tokens in dark mode. */
+[data-theme="dark"] {
+  --text:   #e8e6e3;
+  --dark:   #e8e6e3;
+  --muted:  #a8adb5;
+  --light:  #161a20;
+  --border: #2e353e;
+  --glass-bg: rgba(30, 35, 41, 0.85);
+  --glass-border: rgba(46, 53, 62, 0.8);
+}
+
+/* 2) Page background + base text (belt-and-suspenders over the existing body rule). */
+[data-theme="dark"] body {
+  background: #0f1218 !important;
+  background-attachment: fixed;
+  color: #e8e6e3 !important;
+}
+
+/* Generic content text: headings/paragraphs that hardcode dark ink go light. */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] p,
+[data-theme="dark"] li,
+[data-theme="dark"] blockquote,
+[data-theme="dark"] figcaption,
+[data-theme="dark"] label,
+[data-theme="dark"] cite,
+[data-theme="dark"] dd,
+[data-theme="dark"] dt {
+  color: #e8e6e3;
+}
+
+/* Section backgrounds — these hardcode light gradients/whites. */
+[data-theme="dark"] .section--light,
+[data-theme="dark"] .section--white,
+[data-theme="dark"] .section--glass,
+[data-theme="dark"] .community-strip {
+  background: #14181f !important;
+}
+[data-theme="dark"] .section--jesus-background::before {
+  background: rgba(15, 18, 24, 0.9) !important;
+}
+[data-theme="dark"] .section--jesus-background .section-title {
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+
+/* Card / panel surfaces that hardcode white or translucent-white. */
+[data-theme="dark"] .testimony-card,
+[data-theme="dark"] .video-card,
+[data-theme="dark"] .qr-card,
+[data-theme="dark"] .bundle-card,
+[data-theme="dark"] .summary-panel,
+[data-theme="dark"] .announcements-column,
+[data-theme="dark"] .contact-sidebar,
+[data-theme="dark"] .ways-card,
+[data-theme="dark"] .builder-mission,
+[data-theme="dark"] .donation-panel,
+[data-theme="dark"] .jesus-content-box,
+[data-theme="dark"] .gospel-accordion,
+[data-theme="dark"] .hero__content {
+  background: #1e2329 !important;
+  border-color: #2e353e !important;
+  color: #e8e6e3 !important;
+}
+
+/* Inputs, selects, textareas across forms. */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: #1e2329 !important;
+  color: #e8e6e3 !important;
+  border-color: #2e353e !important;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder { color: #7c8490 !important; }
+
+/* Store catalog (store-catalog.css hardcodes #fff cards). */
+[data-theme="dark"] .store-catalog-section { background: #0f1218 !important; }
+[data-theme="dark"] .store-card,
+[data-theme="dark"] .store-detail,
+[data-theme="dark"] .store-card__image,
+[data-theme="dark"] .store-card__slideshow,
+[data-theme="dark"] .store-detail__gallery,
+[data-theme="dark"] .store-detail__thumb,
+[data-theme="dark"] .store-detail__other {
+  background: #1e2329 !important;
+  border-color: #2e353e !important;
+}
+[data-theme="dark"] .store-card__title,
+[data-theme="dark"] .store-card__desc,
+[data-theme="dark"] .store-detail__title,
+[data-theme="dark"] .store-detail__desc,
+[data-theme="dark"] .store-sidebar__item,
+[data-theme="dark"] .store-detail__other-name { color: #e8e6e3 !important; }
+[data-theme="dark"] .store-search__input { background: #1e2329 !important; color: #e8e6e3 !important; border-color: #2e353e !important; }
+[data-theme="dark"] .store-card__item-num { background: rgba(30,35,41,0.9) !important; color: #a8adb5 !important; }
+
+/* Cart page (cart.css hardcodes #fff and --light backgrounds). */
+[data-theme="dark"] .cart-page { background: #0f1218 !important; }
+[data-theme="dark"] .cart-items,
+[data-theme="dark"] .cart-summary,
+[data-theme="dark"] .checkout-form,
+[data-theme="dark"] .cart-item__img,
+[data-theme="dark"] .cart-fav { background: #1e2329 !important; border-color: #2e353e !important; }
+[data-theme="dark"] .cart-page__title,
+[data-theme="dark"] .cart-item__name,
+[data-theme="dark"] .cart-item__linetotal,
+[data-theme="dark"] .cart-summary__title,
+[data-theme="dark"] .cart-summary__total,
+[data-theme="dark"] .checkout-form__title,
+[data-theme="dark"] .cart-fav__name { color: #e8e6e3 !important; }
+
+/* Profile modal (inline styles use --color-* tokens which already flip via
+   theme.css — nothing needed here, left as a note). */
+
+/* Keep intentionally-dark text on light/gold highlighter backgrounds readable
+   in dark mode (these verses use dark ink on a yellow highlight on purpose). */
+[data-theme="dark"] .who-is-jesus-hero__verse p,
+[data-theme="dark"] .section--bible-says .bible-highlight {
+  color: #1a1a1a;
+}
+/* Hero copy that sits over photographic/dark overlays must stay light. */
+[data-theme="dark"] .hero__content--simple .hero__text,
+[data-theme="dark"] .who-is-jesus-hero__title,
+[data-theme="dark"] .store-hero-impact__title { color: #fff; }
+
+/* Dark mode: auth dropdown items (desktop float + mobile inline list). */
+[data-theme="dark"] .nav-auth-dropdown { background: #1a1e24; border-color: #2e353e; }
+[data-theme="dark"] .nav-auth-dropdown__item { color: #e8e6e3; }
+[data-theme="dark"] .nav-auth-dropdown__item:hover { background: #282e36; }
+[data-theme="dark"] .nav-auth-dropdown__item--danger { color: #e05555; }
+@media (max-width: 768px) {
+  [data-theme="dark"] .nav-auth-dropdown { background: transparent; }
+  [data-theme="dark"] .nav-auth-dropdown__item { border-top-color: rgba(255,255,255,0.08); }
+  [data-theme="dark"] .nav-auth-dropdown__item:hover { background: transparent; }
+}

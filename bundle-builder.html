@@ -647,6 +647,7 @@
     </div>
 
     <button class="bb-submit" type="submit" id="bb-submit">Submit Order</button>
+    <button class="bb-submit bb-submit--cart" type="button" id="bb-add-cart" style="margin-top:0.75rem;background:#fff;color:var(--gold,#B8860B);border:1.5px solid var(--gold,#B8860B);">Add bundle to cart 🛒</button>
   </form>
 
   <!-- Success message -->
@@ -714,6 +715,8 @@
 </footer>
 
 <script src="assets/js/main.js?v=9"></script>
+<script src="assets/js/cart.js?v=1"></script>
+<script src="assets/js/cart-badge.js?v=1"></script>
 <script>
 (function() {
   'use strict';
@@ -1117,6 +1120,60 @@
       alert('Order submission failed: ' + (err.message || 'Network error. Please try again.'));
     });
   });
+
+  // ── Add the configured bundle to the shared cart (handoff to cart.html) ──
+  // Computes a total from the current Bible selections (retail-rounded) and
+  // adds ONE cart line marked isBundle, carrying the full configuration so the
+  // team sees exactly what was customized. Personalization/add-ons are recorded
+  // in the config summary; their pricing is confirmed at follow-up.
+  function bundleUnitCents(p) {
+    if (!p) return 0;
+    if (typeof p.retailCents === 'number') return p.retailCents;
+    var m = p.price && String(p.price).match(/\$?\s*(\d+(?:\.\d{1,2})?)/);
+    if (m) {
+      var base = Math.round(parseFloat(m[1]) * 100);
+      return (window.STW_Cart && window.STW_Cart.retailCentsFromBase) ? window.STW_Cart.retailCentsFromBase(base) : base;
+    }
+    return 0;
+  }
+
+  var addCartBtn = document.getElementById('bb-add-cart');
+  if (addCartBtn) {
+    addCartBtn.addEventListener('click', function() {
+      if (!window.STW_Cart) { window.location.href = 'cart.html'; return; }
+      var ids = Object.keys(cart).filter(function(id) { return cart[id] > 0; });
+      if (!ids.length) { alert('Add at least one Bible to your bundle first.'); return; }
+
+      var totalCents = 0;
+      var bibleCount = 0;
+      var names = [];
+      ids.forEach(function(id) {
+        var p = getProduct(id);
+        var qty = cart[id];
+        bibleCount += qty;
+        totalCents += bundleUnitCents(p) * qty;
+        names.push((p ? p.name : id) + ' x' + qty);
+      });
+
+      var config = buildConfigString();
+      // Unique id so two differently-configured bundles stay separate lines.
+      var customizationId = 'bnd' + Date.now().toString(36);
+
+      window.STW_Cart.add({
+        productId: 'custom-bundle',
+        name: 'Custom Bundle (' + bibleCount + ' Bible' + (bibleCount !== 1 ? 's' : '') + ')',
+        description: names.join(', ') + (config ? ' — ' + config : ''),
+        image: '',
+        unitPriceCents: totalCents,
+        qty: 1,
+        isBundle: true,
+        customizationId: customizationId
+      });
+
+      addCartBtn.textContent = 'Added ✓ Going to cart…';
+      setTimeout(function() { window.location.href = 'cart.html'; }, 700);
+    });
+  }
 
   // ── Load data ──
   Promise.all([

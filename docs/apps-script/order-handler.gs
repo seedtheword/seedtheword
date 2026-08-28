@@ -216,6 +216,9 @@ function doPost(e) {
   if ((payload && payload.action) === 'quickCheckout') {
     return handleQuickCheckout_(payload);
   }
+  if ((payload && payload.action) === 'placeOrder') {
+    return handlePlaceOrder_(payload);
+  }
   if ((payload && payload.action) === 'visitorSignup') {
     return handleVisitorSignup_(payload);
   }
@@ -3015,6 +3018,174 @@ function getInventoryReport_(params) {
     console.log('getInventoryReport_ error:', err);
     return { ok: false, error: String(err) };
   }
+}
+
+// ── Store cart checkout (placeOrder) ────────────────────────────
+//
+// Receives a cart from cart.html and records it on the StoreOrders tab,
+// then emails the shopper a confirmation and notifies the team. This is a
+// SEPARATE tab from the bundle "Orders" tab so it doesn't collide with the
+// existing order-status workflow. Payment is NOT processed here — tax and
+// card capture are deferred to the payment processor (PayPal) later; for now
+// we confirm the order and follow up by email (esp. when shipping is needed).
+//
+// Expected payload:
+//   { action:'placeOrder', name, email, phone, wantsShipping (bool),
+//     shippingAddress, notes, subtotalCents, currency,
+//     items: [{ productId, name, qty, packSize, unitPriceCents,
+//               lineTotalCents, isBundle, customizationId }] }
+var STORE_ORDERS_TAB = 'StoreOrders';
+var STORE_ORDER_HEADERS = [
+  'order_id', 'received_at', 'name', 'email', 'phone',
+  'wants_shipping', 'shipping_address', 'notes',
+  'subtotal_cents', 'currency', 'item_count', 'items_json', 'status'
+];
+
+function handlePlaceOrder_(payload) {
+  try {
+    var name = String((payload && payload.name) || '').trim();
+    var email = String((payload && payload.email) || '').trim();
+    var items = (payload && Array.isArray(payload.items)) ? payload.items : [];
+
+    if (!name || !email) return jsonResponse({ ok: false, error: 'Missing name or email.' });
+    if (!items.length) return jsonResponse({ ok: false, error: 'Cart is empty.' });
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return jsonResponse({ ok: false, error: 'Invalid email.' });
+
+    // Recompute the subtotal server-side from the line items — never trust the
+    // client's total. Each line's unit price is what the client sent (retail);
+    // real charge/tax happens at the payment step.
+    var subtotalCents = 0;
+    var itemCount = 0;
+    var clean = items.map(function (it) {
+      var qty = Math.max(1, parseInt(it.qty, 10) || 1);
+      var unit = Math.max(0, Math.round(Number(it.unitPriceCents) || 0));
+      subtotalCents += unit * qty;
+      itemCount += qty;
+      return {
+        productId: String(it.productId || ''),
+        name: String(it.name || ''),
+        qty: qty,
+        packSize: parseInt(it.packSize, 10) || 1,
+        unitPriceCents: unit,
+        lineTotalCents: unit * qty,
+        isBundle: !!it.isBundle,
+        customizationId: it.customizationId || null
+      };
+    });
+
+    var wantsShipping = !!(payload && payload.wantsShipping);
+    var shippingAddress = String((payload && payload.shippingAddress) || '').trim();
+    var notes = String((payload && payload.notes) || '').trim();
+    var phone = String((payload && payload.phone) || '').trim();
+
+    var orderId = 'STW-' + new Date().getFullYear() + '-' +
+      Utilities.getUuid().replace(/-/g, '').slice(0, 8).toUpperCase();
+    var receivedAt = new Date().toISOString();
+
+    // Write to StoreOrders tab (create + header if missing).
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName(STORE_ORDERS_TAB);
+    if (!sheet) {
+      sheet = ss.insertSheet(STORE_ORDERS_TAB);
+      sheet.appendRow(STORE_ORDER_HEADERS);
+    }
+    sheet.appendRow([
+      orderId, receivedAt, name, email, phone,
+      wantsShipping ? 'YES' : 'no', shippingAddress, notes,
+      subtotalCents, String((payload && payload.currency) || 'USD'),
+      itemCount, JSON.stringify(clean), 'new'
+    ]);
+
+    // Emails — never let an email failure fail the order.
+    var emailsSent = [];
+    try {
+      sendStoreOrderShopperEmail_(email, name, orderId, clean, subtotalCents, wantsShipping);
+      emailsSent.push('shopper');
+    } catch (e) { console.log('placeOrder shopper email failed:', e); }
+    try {
+      sendStoreOrderTeamEmail_(orderId, name, email, phone, clean, subtotalCents, wantsShipping, shippingAddress, notes);
+      emailsSent.push('team');
+    } catch (e) { console.log('placeOrder team email failed:', e); }
+
+    return jsonResponse({ ok: true, orderId: orderId, subtotalCents: subtotalCents, emailsSent: emailsSent });
+  } catch (err) {
+    console.log('handlePlaceOrder_ error:', err);
+    return jsonResponse({ ok: false, error: 'order-write-failed' });
+  }
+}
+
+function storeOrderItemsTableHtml_(items) {
+  var rows = items.map(function (it) {
+    var qtyLabel = it.qty + (it.packSize > 1 ? ' x pack of ' + it.packSize : '');
+    return '<tr>' +
+      '<td style="padding:8px 0;border-bottom:1px solid ' + STW_BORDER + ';font-size:14px;">' + escapeHtml(it.name) +
+        (it.isBundle ? ' <span style="color:' + STW_GOLD + ';font-size:12px;">(custom bundle)</span>' : '') + '</td>' +
+      '<td style="padding:8px 0;border-bottom:1px solid ' + STW_BORDER + ';font-size:14px;text-align:center;">' + escapeHtml(qtyLabel) + '</td>' +
+      '<td style="padding:8px 0;border-bottom:1px solid ' + STW_BORDER + ';font-size:14px;text-align:right;">' + centsToDollars_(it.lineTotalCents) + '</td>' +
+      '</tr>';
+  }).join('');
+  return '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;margin:8px 0 4px;">' +
+    '<tr>' +
+      '<td style="padding:0 0 6px;font-size:12px;font-weight:700;color:' + STW_MUTED + ';">Item</td>' +
+      '<td style="padding:0 0 6px;font-size:12px;font-weight:700;color:' + STW_MUTED + ';text-align:center;">Qty</td>' +
+      '<td style="padding:0 0 6px;font-size:12px;font-weight:700;color:' + STW_MUTED + ';text-align:right;">Total</td>' +
+    '</tr>' + rows + '</table>';
+}
+
+function centsToDollars_(cents) {
+  var n = Math.round(Number(cents) || 0);
+  return '$' + Math.floor(n / 100) + '.' + ('0' + (n % 100)).slice(-2);
+}
+
+function sendStoreOrderShopperEmail_(email, name, orderId, items, subtotalCents, wantsShipping) {
+  var body = '';
+  body += '<p style="margin:0 0 16px;font-size:15px;">Dear <strong>' + escapeHtml(name) + '</strong>,</p>';
+  body += '<p style="margin:0 0 16px;font-size:14.5px;line-height:1.65;">Thank you for your order from Seed the Word Ministry. ' +
+    'Here\'s what we received. Tax and any final total are confirmed at payment; ' +
+    (wantsShipping
+      ? 'since you asked for shipping, a team member will email you to arrange delivery and any shipping cost.'
+      : 'a team member will follow up to coordinate pickup.') + '</p>';
+  body += storeOrderItemsTableHtml_(items);
+  body += '<p style="margin:10px 0 0;font-size:15px;text-align:right;"><strong>Subtotal: ' + centsToDollars_(subtotalCents) + '</strong> ' +
+    '<span style="color:' + STW_MUTED + ';font-size:12px;">(before tax)</span></p>';
+  body += '<div style="margin:14px 0;">Reference: <code style="background:#f4ece0;padding:2px 6px;border-radius:4px;font-size:12.5px;">' + escapeHtml(orderId) + '</code></div>';
+  body += '<p style="margin:18px 0 4px;font-size:14.5px;">Thank you for partnering with us.</p>';
+  body += '<p style="margin:0;font-size:14.5px;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
+
+  var html = emailShell({
+    headerTitle: 'Your order is confirmed',
+    headerSubtitle: 'Order ' + orderId,
+    bodyHtml: body,
+    footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
+    includeMinistryFooter: true
+  });
+
+  var plain = 'Dear ' + name + ',\n\nThank you for your order (' + orderId + ') from Seed the Word Ministry.\n' +
+    items.map(function (it) { return '- ' + it.name + ' x' + it.qty + '  ' + centsToDollars_(it.lineTotalCents); }).join('\n') +
+    '\n\nSubtotal (before tax): ' + centsToDollars_(subtotalCents) +
+    (wantsShipping ? '\n\nYou asked for shipping — we\'ll email you to arrange delivery.' : '') +
+    '\n\nThe Seed the Word team\n' + TEAM_INBOX;
+
+  MailApp.sendEmail({ to: email, subject: 'Your Seed the Word order — ' + orderId, body: plain, htmlBody: html, name: 'Seed the Word Ministry' });
+}
+
+function sendStoreOrderTeamEmail_(orderId, name, email, phone, items, subtotalCents, wantsShipping, shippingAddress, notes) {
+  var body = '';
+  body += '<p style="margin:0 0 12px;font-size:14.5px;"><strong>' + escapeHtml(name) + '</strong> placed a store order.</p>';
+  body += '<p style="margin:0 0 4px;font-size:13.5px;">Email: ' + escapeHtml(email) + (phone ? ' &nbsp;·&nbsp; ' + escapeHtml(phone) : '') + '</p>';
+  body += '<p style="margin:0 0 12px;font-size:13.5px;">Shipping: ' + (wantsShipping ? '<strong style="color:' + STW_GOLD + ';">REQUESTED</strong> — ' + escapeHtml(shippingAddress || '(no address given)') : 'pickup') + '</p>';
+  body += storeOrderItemsTableHtml_(items);
+  body += '<p style="margin:10px 0 0;font-size:15px;text-align:right;"><strong>Subtotal: ' + centsToDollars_(subtotalCents) + '</strong></p>';
+  if (notes) body += '<p style="margin:12px 0 0;font-size:13.5px;color:' + STW_MUTED + ';">Notes: ' + escapeHtml(notes) + '</p>';
+  body += '<div style="margin:12px 0 0;">Reference: <code style="background:#f4ece0;padding:2px 6px;border-radius:4px;">' + escapeHtml(orderId) + '</code></div>';
+
+  var html = emailShell({
+    headerTitle: 'New store order',
+    headerSubtitle: orderId + ' · ' + name + (wantsShipping ? ' · SHIP' : ''),
+    bodyHtml: body,
+    footerHtml: '<p>— Seed the Word store</p>'
+  });
+  MailApp.sendEmail({ to: TEAM_INBOX, subject: 'New store order ' + orderId + (wantsShipping ? ' (SHIP)' : ''), body: 'New store order ' + orderId + ' from ' + name + ' (' + email + ').', htmlBody: html, name: 'Seed the Word Store', replyTo: email });
 }
 
 // ── Store catalog (live pricing from the "Lists" tab) ───────────

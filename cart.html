@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Your cart — Seed the Word Ministry store.">
+  <meta property="og:title" content="Your Cart — Seed the Word Ministry">
+  <meta property="og:description" content="Review your items and check out.">
+  <title>Cart — Seed the Word Ministry</title>
+  <link rel="stylesheet" href="assets/css/theme.css?v=1">
+  <link rel="stylesheet" href="assets/css/main.css?v=32">
+  <link rel="stylesheet" href="assets/css/store-catalog.css?v=11">
+  <link rel="stylesheet" href="assets/css/cart.css?v=1">
+  <script src="assets/js/theme-toggle.js?v=1"></script>
+</head>
+<body>
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <div class="header-left">
+      <a href="index.html" class="site-logo">
+        <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">
+        Seed the Word
+      </a>
+      <div class="header-verse">
+        <span class="header-verse__text">"He answered and said unto them, He that soweth the good seed is the Son of man;" — Matthew 13:37 KJV</span>
+      </div>
+    </div>
+    <nav id="site-nav">
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="store.html">Store</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="community.html">Community</a></li>
+        <li><a href="team.html" class="nav-login">Login</a></li>
+      </ul>
+    </nav>
+    <div class="header-social"></div>
+    <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main class="cart-page">
+  <div class="container">
+    <p class="cart-crumb"><a href="store.html">Store</a> / <strong>Cart</strong></p>
+    <h1 class="cart-page__title">Your Cart</h1>
+
+    <!-- Empty state -->
+    <div class="cart-empty" id="cart-empty" hidden>
+      <div class="cart-empty__icon">🛒</div>
+      <h2 class="cart-empty__title">Your cart is empty</h2>
+      <p class="cart-empty__hint">Browse the store to find Bibles, tracts, and more.</p>
+      <a href="store.html" class="cart-empty__btn">Go to the Store →</a>
+    </div>
+
+    <!-- Cart + checkout layout -->
+    <div class="cart-layout" id="cart-layout" hidden>
+      <!-- Left: line items + checkout form -->
+      <div class="cart-main">
+        <div class="cart-items" id="cart-items"></div>
+
+        <!-- Checkout form (revealed on "Proceed to checkout") -->
+        <form class="checkout-form" id="checkout-form" hidden novalidate>
+          <h2 class="checkout-form__title">Your details</h2>
+          <div class="checkout-field">
+            <label for="co-name">Full name *</label>
+            <input type="text" id="co-name" autocomplete="name" required>
+          </div>
+          <div class="checkout-field">
+            <label for="co-email">Email *</label>
+            <input type="email" id="co-email" autocomplete="email" required>
+          </div>
+          <div class="checkout-field">
+            <label for="co-phone">Phone (optional)</label>
+            <input type="tel" id="co-phone" autocomplete="tel">
+          </div>
+
+          <label class="checkout-ship-toggle">
+            <input type="checkbox" id="co-ship">
+            <span>I'd like this shipped to me (we'll email you to arrange shipping &amp; any cost)</span>
+          </label>
+
+          <div class="checkout-ship-fields" id="co-ship-fields" hidden>
+            <div class="checkout-field">
+              <label for="co-addr">Street address</label>
+              <input type="text" id="co-addr" autocomplete="street-address">
+            </div>
+            <div class="checkout-field-row">
+              <div class="checkout-field">
+                <label for="co-city">City</label>
+                <input type="text" id="co-city" autocomplete="address-level2">
+              </div>
+              <div class="checkout-field">
+                <label for="co-state">State</label>
+                <input type="text" id="co-state" autocomplete="address-level1" value="WA">
+              </div>
+              <div class="checkout-field">
+                <label for="co-zip">ZIP</label>
+                <input type="text" id="co-zip" autocomplete="postal-code" inputmode="numeric">
+              </div>
+            </div>
+          </div>
+
+          <div class="checkout-field">
+            <label for="co-notes">Order notes (optional)</label>
+            <textarea id="co-notes" rows="2" placeholder="Anything we should know?"></textarea>
+          </div>
+
+          <!-- Honeypot -->
+          <input type="text" id="co-gotcha" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;" aria-hidden="true">
+
+          <p class="checkout-note">
+            Tax is calculated at payment. Payment is handled securely at the next step
+            <span class="checkout-note__soft">(card checkout coming soon — for now we confirm your order and follow up by email).</span>
+          </p>
+
+          <button type="submit" class="checkout-submit" id="checkout-submit">Place order →</button>
+          <p class="checkout-status" id="checkout-status" hidden></p>
+        </form>
+      </div>
+
+      <!-- Right: order summary -->
+      <aside class="cart-summary" id="cart-summary">
+        <h2 class="cart-summary__title">Order Summary</h2>
+        <div class="cart-summary__row">
+          <span>Subtotal</span>
+          <span id="cart-subtotal">$0.00</span>
+        </div>
+        <div class="cart-summary__row cart-summary__row--muted">
+          <span>Shipping</span>
+          <span>Arranged after order</span>
+        </div>
+        <div class="cart-summary__row cart-summary__row--muted">
+          <span>Tax</span>
+          <span>Calculated at payment</span>
+        </div>
+        <div class="cart-summary__total">
+          <span>Total (before tax)</span>
+          <span id="cart-total">$0.00</span>
+        </div>
+        <button type="button" class="cart-summary__checkout" id="proceed-btn">Proceed to checkout →</button>
+        <a href="store.html" class="cart-summary__continue">← Continue shopping</a>
+        <a href="bundle-builder.html?bundle=essentials" class="cart-summary__customize">✨ Build a custom bundle</a>
+      </aside>
+    </div>
+
+    <!-- Success state -->
+    <div class="cart-success" id="cart-success" hidden>
+      <div class="cart-success__check">✓</div>
+      <h2 class="cart-success__title">Order received!</h2>
+      <p class="cart-success__msg" id="cart-success-msg">Thank you. We've emailed your confirmation and a team member will follow up personally.</p>
+      <a href="store.html" class="cart-success__btn">Back to the Store</a>
+    </div>
+
+    <!-- Favorites strip -->
+    <section class="cart-favorites" id="cart-favorites" hidden>
+      <h2 class="cart-favorites__title">Your Favorites</h2>
+      <div class="cart-favorites__grid" id="cart-favorites-grid"></div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
+      <ul class="footer-bottom__links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="store.html">Store</a></li>
+        <li><a href="community.html">Community</a></li>
+        <li><button class="theme-toggle footer-theme-toggle" aria-label="Toggle theme"></button></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js?v=11"></script>
+<script src="assets/js/cart.js?v=1"></script>
+<script src="assets/js/cart-badge.js?v=1"></script>
+<script src="assets/js/nav-auth.js?v=1"></script>
+<script src="assets/js/cart-page.js?v=1"></script>
+</body>
+</html>

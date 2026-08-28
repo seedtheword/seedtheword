@@ -414,6 +414,13 @@ function handleUpdateProfile_(payload) {
     sheet.getRange(1, carrierCol + 1).setValue('carrier');
   }
 
+  // Newsletter opt-in column (add if missing).
+  var newsletterCol = headers.indexOf('newsletter_opt_in');
+  if (newsletterCol === -1) {
+    newsletterCol = sheet.getLastColumn(); // append after current last used column
+    sheet.getRange(1, newsletterCol + 1).setValue('newsletter_opt_in');
+  }
+
   var token = String(payload.token || '').trim();
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][tokenCol]).trim() === token) {
@@ -423,6 +430,10 @@ function handleUpdateProfile_(payload) {
       if (telegramCol >= 0 && payload.telegram_username !== undefined) sheet.getRange(row, telegramCol + 1).setValue(String(payload.telegram_username || '').trim());
       sheet.getRange(row, notifyCol + 1).setValue(String(payload.notify_pref || 'email'));
       sheet.getRange(row, carrierCol + 1).setValue(String(payload.carrier || ''));
+      if (payload.newsletter_opt_in !== undefined) {
+        var nlVal = (payload.newsletter_opt_in === 'YES' || payload.newsletter_opt_in === true) ? 'YES' : 'no';
+        sheet.getRange(row, newsletterCol + 1).setValue(nlVal);
+      }
 
       // Also update the name if provided
       var nameCol = headers.indexOf('name');

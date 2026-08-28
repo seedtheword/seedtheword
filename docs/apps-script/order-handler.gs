@@ -3078,6 +3078,15 @@ function handlePlaceOrder_(payload) {
     var notes = String((payload && payload.notes) || '').trim();
     var phone = String((payload && payload.phone) || '').trim();
 
+    // Anti-abuse: for FREE orders (give-aways, subtotal 0), enforce the
+    // per-identity claim limit server-side. Paid orders are unrestricted.
+    if (subtotalCents === 0) {
+      var claim = checkFreeClaimAllowed_(email, phone);
+      if (!claim.allowed) {
+        return jsonResponse({ ok: false, error: claim.reason, code: 'claim-limit' });
+      }
+    }
+
     var orderId = 'STW-' + new Date().getFullYear() + '-' +
       Utilities.getUuid().replace(/-/g, '').slice(0, 8).toUpperCase();
     var receivedAt = new Date().toISOString();
@@ -3102,6 +3111,12 @@ function handlePlaceOrder_(payload) {
       sendStoreOrderShopperEmail_(email, name, orderId, clean, subtotalCents, wantsShipping);
       emailsSent.push('shopper');
     } catch (e) { console.log('placeOrder shopper email failed:', e); }
+    if (wantsShipping) {
+      try {
+        sendShippingFollowupEmail_(email, name, orderId, shippingAddress);
+        emailsSent.push('shipping-followup');
+      } catch (e) { console.log('placeOrder shipping followup failed:', e); }
+    }
     try {
       sendStoreOrderTeamEmail_(orderId, name, email, phone, clean, subtotalCents, wantsShipping, shippingAddress, notes);
       emailsSent.push('team');
@@ -3112,6 +3127,94 @@ function handlePlaceOrder_(payload) {
     console.log('handlePlaceOrder_ error:', err);
     return jsonResponse({ ok: false, error: 'order-write-failed' });
   }
+}
+
+// ── My Orders (account order history) ───────────────────────────
+// Returns a shopper's orders from the StoreOrders tab, matched by email.
+// Optionally scoped tighter if a valid team token is supplied. This is a
+// read of the user's OWN orders by their email; it does not expose others'.
+function getMyOrders_(email, token) {
+  email = String(email || '').trim().toLowerCase();
+  if (!email) return { ok: false, error: 'email-required' };
+
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName(STORE_ORDERS_TAB);
+  if (!sheet) return { ok: true, orders: [] };
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { ok: true, orders: [] };
+
+  var values = sheet.getRange(1, 1, lastRow, STORE_ORDER_HEADERS.length).getValues();
+  var headers = values[0];
+  var idx = {};
+  headers.forEach(function (h, i) { idx[h] = i; });
+
+  var orders = [];
+  for (var r = 1; r < values.length; r++) {
+    var row = values[r];
+    if (String(row[idx.email] || '').trim().toLowerCase() !== email) continue;
+    orders.push({
+      order_id: String(row[idx.order_id] || ''),
+      received_at: String(row[idx.received_at] || ''),
+      wants_shipping: String(row[idx.wants_shipping] || ''),
+      subtotal_cents: Number(row[idx.subtotal_cents] || 0),
+      item_count: Number(row[idx.item_count] || 0),
+      items_json: String(row[idx.items_json] || '[]'),
+      status: String(row[idx.status] || 'new')
+    });
+  }
+  // Most recent first.
+  orders.reverse();
+  return { ok: true, orders: orders };
+}
+
+// ── Anti-abuse: free-item claim limits ──────────────────────────
+//
+// Identity for dedup = normalized EMAIL + PHONE (either match counts as the
+// same person). These thresholds are CONFIGURABLE — adjust to your policy.
+// A "free claim" = an order whose subtotal is 0 (give-away Bibles/tracts).
+// The check runs server-side (the only place it can't be bypassed) and looks
+// back over CLAIM_WINDOW_DAYS across the StoreOrders tab.
+var FREE_CLAIM_MAX = 1;          // max free claims per identity within the window
+var FREE_CLAIM_WINDOW_DAYS = 90; // rolling window
+
+function normPhone_(p) { return String(p || '').replace(/\D/g, ''); }
+
+// Returns { allowed: bool, priorClaims: n, reason: string }.
+function checkFreeClaimAllowed_(email, phone) {
+  email = String(email || '').trim().toLowerCase();
+  var phoneDigits = normPhone_(phone);
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName(STORE_ORDERS_TAB);
+  if (!sheet) return { allowed: true, priorClaims: 0 };
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { allowed: true, priorClaims: 0 };
+
+  var values = sheet.getRange(1, 1, lastRow, STORE_ORDER_HEADERS.length).getValues();
+  var headers = values[0];
+  var idx = {}; headers.forEach(function (h, i) { idx[h] = i; });
+
+  var cutoff = Date.now() - FREE_CLAIM_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+  var count = 0;
+  for (var r = 1; r < values.length; r++) {
+    var row = values[r];
+    if (Number(row[idx.subtotal_cents] || 0) > 0) continue; // only free claims
+    var when = Date.parse(String(row[idx.received_at] || '')) || 0;
+    if (when < cutoff) continue;
+    var rowEmail = String(row[idx.email] || '').trim().toLowerCase();
+    var rowPhone = normPhone_(row[idx.phone]);
+    var emailMatch = email && rowEmail && rowEmail === email;
+    var phoneMatch = phoneDigits && rowPhone && rowPhone === phoneDigits;
+    if (emailMatch || phoneMatch) count++;
+  }
+  return {
+    allowed: count < FREE_CLAIM_MAX,
+    priorClaims: count,
+    reason: count >= FREE_CLAIM_MAX
+      ? ('This looks like a repeat free claim (limit ' + FREE_CLAIM_MAX + ' per ' + FREE_CLAIM_WINDOW_DAYS + ' days). Please reach out and we\'ll gladly help.')
+      : ''
+  };
 }
 
 function storeOrderItemsTableHtml_(items) {
@@ -3186,6 +3289,107 @@ function sendStoreOrderTeamEmail_(orderId, name, email, phone, items, subtotalCe
     footerHtml: '<p>— Seed the Word store</p>'
   });
   MailApp.sendEmail({ to: TEAM_INBOX, subject: 'New store order ' + orderId + (wantsShipping ? ' (SHIP)' : ''), body: 'New store order ' + orderId + ' from ' + name + ' (' + email + ').', htmlBody: html, name: 'Seed the Word Store', replyTo: email });
+}
+
+// ── Phase 5: additional branded email templates ─────────────────
+//
+// All use the shared emailShell() so branding stays consistent (green/gold
+// top band, mono eyebrow, serif headline, Psalm 119:105 verse band, Walk-with-
+// us cards, footer). Copy below is a STARTING POINT — edit the wording freely.
+
+// Welcome / account-created email.
+function sendWelcomeEmail_(email, name) {
+  if (!email) return;
+  var body = '';
+  body += '<p style="margin:0 0 16px;font-size:15px;">Welcome, <strong>' + escapeHtml(name || 'friend') + '</strong>!</p>';
+  body += '<p style="margin:0 0 16px;font-size:14.5px;line-height:1.65;">We\'re so glad you\'re here. Your Seed the Word account lets you save favorites, track your orders, and stay connected with what God is doing through this ministry.</p>';
+  body += '<p style="margin:0 0 20px;font-size:14.5px;line-height:1.65;">Whenever you\'re ready, browse the store, request a Bible, or simply walk the reading plan with us.</p>';
+  body += '<p style="margin:0;font-size:14.5px;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
+  var html = emailShell({
+    headerTitle: 'Welcome to Seed the Word',
+    headerSubtitle: 'Your account is ready',
+    bodyHtml: body,
+    footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
+    includeMinistryFooter: true
+  });
+  MailApp.sendEmail({ to: email, subject: 'Welcome to Seed the Word Ministry', body: 'Welcome, ' + (name || 'friend') + '! Your Seed the Word account is ready.', htmlBody: html, name: 'Seed the Word Ministry' });
+}
+
+// Shipping-needed follow-up — sent when an order's shipping checkbox was ticked.
+// Call sendShippingFollowupEmail_(email, name, orderId, address).
+function sendShippingFollowupEmail_(email, name, orderId, address) {
+  if (!email) return;
+  var body = '';
+  body += '<p style="margin:0 0 16px;font-size:15px;">Dear <strong>' + escapeHtml(name || 'friend') + '</strong>,</p>';
+  body += '<p style="margin:0 0 16px;font-size:14.5px;line-height:1.65;">Thank you for your order (' + escapeHtml(orderId || '') + '). You asked for it to be shipped, so we\'re reaching out to arrange delivery.</p>';
+  if (address) body += '<p style="margin:0 0 16px;font-size:14px;">We have this address on file: <em>' + escapeHtml(address) + '</em>. If that\'s not right, just reply with the correct one.</p>';
+  body += '<p style="margin:0 0 20px;font-size:14.5px;line-height:1.65;">Reply to this email to confirm your address and we\'ll follow up with any shipping details. <!-- EDIT: add shipping cost / timeframe policy here --></p>';
+  body += '<p style="margin:0;font-size:14.5px;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
+  var html = emailShell({
+    headerTitle: 'Let\'s arrange your shipping',
+    headerSubtitle: 'Order ' + (orderId || ''),
+    bodyHtml: body,
+    footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
+    includeMinistryFooter: false
+  });
+  MailApp.sendEmail({ to: email, subject: 'Arranging shipping for your order ' + (orderId || ''), body: 'We\'d like to arrange shipping for your order ' + (orderId || '') + '. Please reply to confirm your address.', htmlBody: html, name: 'Seed the Word Ministry' });
+}
+
+// Email verification code — the honest anti-abuse tool (proves a reachable
+// human) instead of covert tracking. Generates + emails a 6-digit code; the
+// caller stores/verifies it (e.g. before fulfilling a free claim).
+function sendVerificationCodeEmail_(email, code) {
+  if (!email || !code) return;
+  var body = '';
+  body += '<p style="margin:0 0 16px;font-size:14.5px;line-height:1.65;">Use this code to confirm your email address:</p>';
+  body += '<div style="text-align:center;margin:18px 0;"><span style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:30px;letter-spacing:0.3em;font-weight:700;color:' + STW_GREEN + ';background:#f4ece0;padding:14px 22px;border-radius:10px;">' + escapeHtml(code) + '</span></div>';
+  body += '<p style="margin:0 0 8px;font-size:13px;color:' + STW_MUTED + ';">This code expires shortly. If you didn\'t request it, you can ignore this email.</p>';
+  var html = emailShell({
+    headerTitle: 'Your verification code',
+    headerSubtitle: '',
+    bodyHtml: body,
+    footerHtml: 'Seed the Word Ministry',
+    includeMinistryFooter: false
+  });
+  MailApp.sendEmail({ to: email, subject: 'Your Seed the Word verification code: ' + code, body: 'Your Seed the Word verification code is: ' + code, htmlBody: html, name: 'Seed the Word Ministry' });
+}
+
+// Newsletter / announcements template (Maple Park content model, STW branding).
+// `sections` = [{ heading, html }] rendered as underlined-heading blocks like the
+// Maple Park "News & Announcements" email. Returns the full HTML (does not send).
+// Wire an admin-gated `sendNewsletter` action to fan this out to opted-in
+// subscribers (newsletter_opt_in = 'YES') — batch with GmailApp quota in mind.
+function buildNewsletterHtml_(title, dateLabel, sections) {
+  var body = '';
+  if (dateLabel) {
+    body += '<p style="margin:0 0 18px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:' + STW_MUTED + ';font-weight:700;">' + escapeHtml(dateLabel) + '</p>';
+  }
+  (sections || []).forEach(function (sec) {
+    body += '<h3 style="font-family:Georgia,\'Times New Roman\',serif;font-size:16px;font-weight:700;color:' + STW_GREEN + ';margin:22px 0 8px;border-bottom:2px solid ' + STW_GOLD + ';padding-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;">' + escapeHtml(sec.heading || '') + '</h3>';
+    body += '<div style="font-size:14px;line-height:1.65;color:' + STW_TEXT + ';">' + (sec.html || '') + '</div>';
+  });
+  return emailShell({
+    headerTitle: title || 'News & Announcements',
+    headerSubtitle: dateLabel || '',
+    bodyHtml: body,
+    footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="' + SITE_URL + 'news.html" style="color:' + STW_GREEN + ';">Read more news</a><br>' +
+      '<span style="font-size:11px;color:' + STW_MUTED + ';">You\'re receiving this because you opted into the Seed the Word newsletter. ' +
+      'Reply "unsubscribe" to stop.</span>',
+    includeMinistryFooter: true
+  });
+}
+
+// Example newsletter payload builder — mirrors the Maple Park sections but in
+// STW branding. EDIT the copy; this is here so you can see the shape.
+function exampleNewsletterHtml_() {
+  return buildNewsletterHtml_('News & Announcements', 'This Week', [
+    { heading: 'Young Adults at Maple Park',
+      html: '<p>Our Young Adults group meets <strong>Mondays at Maple Park</strong> (doors 6:30, start 7:00). Come early, stay late, bring a friend.</p>' },
+    { heading: 'This Week\'s Outreach',
+      html: '<p>Join us as we share the Gospel and give away Bibles. <a href="' + SITE_URL + 'news.html" style="color:' + STW_GREEN + ';">See where we\'ll be &rarr;</a></p>' },
+    { heading: 'From the Word',
+      html: '<p style="font-style:italic;">"Thy word is a lamp unto my feet, and a light unto my path." — Psalm 119:105</p>' }
+  ]);
 }
 
 // ── Store catalog (live pricing from the "Lists" tab) ───────────
@@ -4119,6 +4323,18 @@ function doGet(e) {
       return jsonResponse(flushStoreCatalogCache_());
     } catch (err) {
       return jsonResponse({ ok: false, error: 'catalog-flush-failed' });
+    }
+  }
+
+  if (action === 'getMyOrders') {
+    try {
+      return jsonResponse(getMyOrders_(
+        (e && e.parameter && e.parameter.email) || '',
+        (e && e.parameter && e.parameter.token) || ''
+      ));
+    } catch (err) {
+      console.log('getMyOrders failed:', err);
+      return jsonResponse({ ok: false, error: 'orders-read-failed' });
     }
   }
 

@@ -73,13 +73,22 @@
     loginLink.id = 'nav-auth-btn';
     loginLink.classList.add('nav-login--authed');
 
-    // Create dropdown
+    // Create dropdown. Staff-only entries (Team Portal) are role-gated so a
+    // pure shopper account doesn't see internal tools. Everyone gets My Orders
+    // + Profile Settings.
+    var role = (session.role || 'member').toLowerCase();
+    var isStaff = role === 'admin' || role === 'super_admin';
+    var teamPortalItem = isStaff
+      ? '<a class="nav-auth-dropdown__item" href="team.html" style="text-decoration:none;color:inherit;">Team Portal</a>'
+      : '';
+
     var dropdown = document.createElement('div');
     dropdown.className = 'nav-auth-dropdown';
     dropdown.id = 'nav-auth-dropdown';
     dropdown.innerHTML =
-      '<a class="nav-auth-dropdown__item" href="team.html" style="text-decoration:none;color:inherit;">Team Portal</a>' +
+      '<a class="nav-auth-dropdown__item" href="orders.html" style="text-decoration:none;color:inherit;">My Orders</a>' +
       '<button class="nav-auth-dropdown__item" id="nav-auth-profile">Profile Settings</button>' +
+      teamPortalItem +
       '<button class="nav-auth-dropdown__item nav-auth-dropdown__item--danger" id="nav-auth-logout">Log out</button>';
     parentLi.appendChild(dropdown);
 
@@ -104,6 +113,25 @@
     // Log out
     document.getElementById('nav-auth-logout').addEventListener('click', clearSession);
   }
+
+  // ── Public auth API (role-based gating helpers) ──────────────
+  // Usage: STW_Auth.isLoggedIn(), STW_Auth.getRole(), STW_Auth.hasRole('admin'),
+  // STW_Auth.isAdmin(), STW_Auth.getSession(). Roles: member < admin < super_admin.
+  var ROLE_RANK = { member: 1, admin: 2, super_admin: 3 };
+  window.STW_Auth = {
+    getSession: getSession,
+    isLoggedIn: function () { var s = getSession(); return !!(s && s.name); },
+    getRole: function () { var s = getSession(); return (s && s.role) ? String(s.role).toLowerCase() : null; },
+    hasRole: function (min) {
+      var s = getSession(); if (!s) return false;
+      var have = ROLE_RANK[String(s.role || 'member').toLowerCase()] || 0;
+      var need = ROLE_RANK[String(min || 'member').toLowerCase()] || 0;
+      return have >= need;
+    },
+    isAdmin: function () { var s = getSession(); if (!s) return false; var r = String(s.role || '').toLowerCase(); return r === 'admin' || r === 'super_admin'; },
+    isSuperAdmin: function () { var s = getSession(); return !!(s && String(s.role || '').toLowerCase() === 'super_admin'); },
+    logout: clearSession
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Your orders — Seed the Word Ministry.">
+  <title>My Orders — Seed the Word Ministry</title>
+  <link rel="stylesheet" href="assets/css/theme.css?v=1">
+  <link rel="stylesheet" href="assets/css/main.css?v=32">
+  <link rel="stylesheet" href="assets/css/cart.css?v=1">
+  <script src="assets/js/theme-toggle.js?v=1"></script>
+</head>
+<body>
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <div class="header-left">
+      <a href="index.html" class="site-logo">
+        <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="site-logo__img">
+        Seed the Word
+      </a>
+    </div>
+    <nav id="site-nav">
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="store.html">Store</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="community.html">Community</a></li>
+        <li><a href="team.html" class="nav-login">Login</a></li>
+      </ul>
+    </nav>
+    <div class="header-social"></div>
+    <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main class="cart-page">
+  <div class="container" style="max-width:900px;">
+    <p class="cart-crumb"><a href="store.html">Store</a> / <strong>My Orders</strong></p>
+    <h1 class="cart-page__title">My Orders</h1>
+
+    <div id="orders-signedout" hidden style="text-align:center;padding:2.5rem 1rem;">
+      <p style="color:var(--muted,#6b6b6b);margin:0 0 1rem;">Log in to see your order history.</p>
+      <a href="team.html" class="cart-empty__btn">Log in</a>
+    </div>
+
+    <div id="orders-loading" style="text-align:center;padding:2.5rem 1rem;color:var(--muted,#6b6b6b);">Loading your orders…</div>
+
+    <div id="orders-empty" hidden style="text-align:center;padding:2.5rem 1rem;">
+      <div style="font-size:2.5rem;">📦</div>
+      <p style="color:var(--muted,#6b6b6b);margin:0.75rem 0 1rem;">You have no orders yet.</p>
+      <a href="store.html" class="cart-empty__btn">Go to the Store →</a>
+    </div>
+
+    <div id="orders-list"></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <p>&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
+      <ul class="footer-bottom__links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="store.html">Store</a></li>
+        <li><button class="theme-toggle footer-theme-toggle" aria-label="Toggle theme"></button></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js?v=11"></script>
+<script src="assets/js/cart.js?v=1"></script>
+<script src="assets/js/cart-badge.js?v=1"></script>
+<script src="assets/js/nav-auth.js?v=2"></script>
+<script src="assets/js/profile-settings.js?v=2"></script>
+<script>
+(function () {
+  'use strict';
+  var Cart = window.STW_Cart;
+  function money(c) { return Cart ? Cart.formatCents(c) : ('$' + (c / 100).toFixed(2)); }
+  function esc(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
+
+  var loadingEl = document.getElementById('orders-loading');
+  var emptyEl = document.getElementById('orders-empty');
+  var signedOutEl = document.getElementById('orders-signedout');
+  var listEl = document.getElementById('orders-list');
+
+  var session = null;
+  try { session = JSON.parse(localStorage.getItem('stwm-team-session')); } catch (e) {}
+
+  if (!session || !session.email) {
+    loadingEl.hidden = true;
+    signedOutEl.hidden = false;
+    return;
+  }
+
+  fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : {}; })
+    .then(function (cfg) {
+      if (!cfg.orderHandlerUrl) throw new Error('no backend');
+      var u = cfg.orderHandlerUrl + '?action=getMyOrders&email=' + encodeURIComponent(session.email) +
+        (session.token ? '&token=' + encodeURIComponent(session.token) : '');
+      return fetch(u, { cache: 'no-store' });
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      loadingEl.hidden = true;
+      var orders = (res && res.ok && res.orders) ? res.orders : [];
+      if (!orders.length) { emptyEl.hidden = false; return; }
+      listEl.innerHTML = orders.map(renderOrder).join('');
+    })
+    .catch(function () {
+      loadingEl.hidden = true;
+      emptyEl.hidden = false;
+    });
+
+  function renderOrder(o) {
+    var items = [];
+    try { items = JSON.parse(o.items_json || '[]'); } catch (e) {}
+    var itemRows = items.map(function (it) {
+      return '<div style="display:flex;justify-content:space-between;font-size:0.88rem;padding:0.35rem 0;border-bottom:1px solid #f0ebe4;">' +
+        '<span>' + esc(it.name) + ' &times;' + esc(it.qty) + '</span>' +
+        '<span>' + money(it.lineTotalCents || 0) + '</span></div>';
+    }).join('');
+    var status = esc(o.status || 'new');
+    var when = o.received_at ? new Date(o.received_at).toLocaleDateString() : '';
+    return '' +
+      '<div class="cart-items" style="margin-bottom:1.25rem;padding:1.25rem;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">' +
+          '<strong>' + esc(o.order_id || '') + '</strong>' +
+          '<span class="store-card__stock">' + status + '</span>' +
+        '</div>' +
+        '<div style="font-size:0.8rem;color:var(--muted,#6b6b6b);margin-bottom:0.5rem;">' + when +
+          (o.wants_shipping === 'YES' ? ' · Shipping requested' : '') + '</div>' +
+        itemRows +
+        '<div style="text-align:right;font-weight:800;margin-top:0.6rem;">Subtotal: ' + money(o.subtotal_cents || 0) + '</div>' +
+      '</div>';
+  }
+})();
+</script>
+</body>
+</html>

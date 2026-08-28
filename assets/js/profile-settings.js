@@ -71,6 +71,11 @@
                 '<select name="carrier" id="profile-carrier" style="width:100%;padding:0.55rem;border:1.5px solid var(--color-border,#e0dbd6);border-radius:8px;font-size:0.82rem;font-family:Inter,sans-serif;background:var(--color-surface,#fff);color:var(--color-text,#1A1E24);"><option value="">Select...</option><option value="tmobile">T-Mobile</option><option value="att">AT&T</option><option value="verizon">Verizon</option><option value="sprint">Sprint</option><option value="metro">Metro</option><option value="boost">Boost</option><option value="cricket">Cricket</option><option value="mint">Mint</option><option value="visible">Visible</option><option value="fi">Google Fi</option><option value="other">Other</option></select>' +
               '</div>' +
             '</fieldset>' +
+            '<!-- Newsletter opt-in -->' +
+            '<label style="display:flex;align-items:flex-start;gap:0.5rem;margin:0 0 1rem;font-size:0.82rem;cursor:pointer;line-height:1.4;">' +
+              '<input type="checkbox" name="newsletter_opt_in" id="profile-newsletter" style="width:auto;margin:0.15rem 0 0;">' +
+              '<span>Send me the Seed the Word newsletter (news, events, and encouragement).</span>' +
+            '</label>' +
             '<!-- Password Change -->' +
             '<fieldset style="border:1.5px solid var(--color-border,#e0dbd6);border-radius:10px;padding:1rem;margin:0 0 1rem;">' +
               '<legend style="font-size:0.75rem;font-weight:700;padding:0 0.4rem;color:#2C4A3E;">Change Password</legend>' +
@@ -163,6 +168,10 @@
     document.getElementById('profile-carrier-wrap').style.display = pref === 'sms' ? 'block' : 'none';
     if (session.carrier) document.getElementById('profile-carrier').value = session.carrier;
 
+    // Newsletter opt-in
+    var nl = document.getElementById('profile-newsletter');
+    if (nl) nl.checked = (session.newsletter_opt_in === true || session.newsletter_opt_in === 'true' || session.newsletter_opt_in === 'YES');
+
     // Clear status
     document.getElementById('profile-status').textContent = '';
 
@@ -227,6 +236,8 @@
     session.telegram_username = updates.telegram_username || '';
     session.notify_pref = updates.notify_pref || 'email';
     session.carrier = updates.carrier || '';
+    var nlEl = document.getElementById('profile-newsletter');
+    session.newsletter_opt_in = !!(nlEl && nlEl.checked);
     saveSession(session);
 
     // Post to backend
@@ -242,7 +253,8 @@
         phone: session.phone,
         telegram_username: session.telegram_username,
         notify_pref: session.notify_pref,
-        carrier: session.carrier
+        carrier: session.carrier,
+        newsletter_opt_in: session.newsletter_opt_in ? 'YES' : 'no'
       };
       if (passwordHash) payload.new_password_hash = passwordHash;
       // Include profile pic data for Drive upload if changed

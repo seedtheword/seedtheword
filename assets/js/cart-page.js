@@ -133,6 +133,20 @@
   function showCheckout() {
     form.hidden = false;
     proceedBtn.textContent = 'Checkout ↓';
+
+    // Prefill from the logged-in account when available.
+    try {
+      var sess = JSON.parse(localStorage.getItem('stwm-team-session'));
+      if (sess) {
+        var n = document.getElementById('co-name');
+        var em = document.getElementById('co-email');
+        var ph = document.getElementById('co-phone');
+        if (n && !n.value && sess.name) n.value = sess.name;
+        if (em && !em.value && sess.email) em.value = sess.email;
+        if (ph && !ph.value && sess.phone) ph.value = sess.phone;
+      }
+    } catch (e) {}
+
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
     var nameEl = document.getElementById('co-name');
     if (nameEl) nameEl.focus();
@@ -161,8 +175,11 @@
         (document.getElementById('co-zip').value || '').trim()
       ].filter(Boolean).join(', ');
     }
+    var sess = null;
+    try { sess = JSON.parse(localStorage.getItem('stwm-team-session')); } catch (e) {}
     return {
       action: 'placeOrder',
+      token: (sess && sess.token) || '',
       name: (document.getElementById('co-name').value || '').trim(),
       email: (document.getElementById('co-email').value || '').trim(),
       phone: (document.getElementById('co-phone').value || '').trim(),

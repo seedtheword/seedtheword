@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615955,
-  "lastModified": "2026-08-27T19:55:39Z",
+  "lastUpdateId": 669615961,
+  "lastModified": "2026-08-28T19:55:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -425,6 +425,26 @@
       "kind": "telegram",
       "text": "what a week for reflection and how God moves, deeply hurting for our young adults and praying in Jesus' name",
       "ts": "2026-08-27T15:26:04Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5439,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request 8/28/2026:\n\nA prayer request for our friend Jeremiah in Alaska, Jeremiah sent in this picture of his broken hand and would like us to lift him in prayer for healing.\n\nMay God's mercy and grace abound for us all.",
+      "ts": "2026-08-28T18:52:56Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5442,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thank you Liam🙌🔥🙏",
+      "ts": "2026-08-28T19:53:23Z"
     }
   ]
 }

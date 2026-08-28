@@ -10511,3 +10511,94 @@ function installYourWalk() {
   console.log('Next: set yourWalk.endpointUrl + yourWalk.enabled in telegram-bot.json,');
   console.log('  bump cache busters, run installAllTimeTriggers() to register the cron.');
 }
+
+
+// ════════════════════════════════════════════════════════════════
+// COMMERCE SETUP (one-time, run-once helper)
+// ────────────────────────────────────────────────────────────────
+// Run stwCommerceSetup() ONCE from the Apps Script editor after pasting
+// this file. It creates the tabs the store commerce features need on the
+// STW Order Ledger spreadsheet:
+//   1. "CustomOptions" tab (headers + example rows) — product customizer.
+//   2. "StoreOrders" tab (headers) — where cart orders land.
+//   3. A note on Lists!H1 explaining the "customizable" flag (column H).
+//
+// SAFE TO RE-RUN: only creates what's missing; never overwrites data.
+//
+// HOW TO RUN: function dropdown → stwCommerceSetup → Run → authorize.
+// Then Deploy → Manage deployments → Edit → New version → Deploy.
+// ════════════════════════════════════════════════════════════════
+function stwCommerceSetup() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var log = [];
+
+  // ── 1. CustomOptions tab ──────────────────────────────────────
+  // One row per option per product. Columns:
+  //   A product_id     — matches the id in Lists column B
+  //   B option_key      — machine key (main_text, main_style, sleeve_text...)
+  //   C label           — shown to the shopper
+  //   D type            — text | style | producttype | image | checkbox
+  //   E max_chars       — character limit for text types (blank = none)
+  //   F price_add_cents — add-on price in CENTS (e.g. 100 = +$1.00)
+  //   G required        — YES to require before Add to Cart
+  //   H choices         — for style/producttype: "Label|imgUrl;Label2|imgUrl2"
+  //   I zone            — text overlay spot: main | secondary | sleeve
+  //                        OR explicit "x,y,width" as % of the preview
+  var customOptions = ss.getSheetByName('CustomOptions');
+  if (!customOptions) {
+    customOptions = ss.insertSheet('CustomOptions');
+    customOptions.appendRow([
+      'product_id', 'option_key', 'label', 'type',
+      'max_chars', 'price_add_cents', 'required', 'choices', 'zone'
+    ]);
+    // Example rows for a hypothetical "custom-hoodie" product. Delete or
+    // edit these; they only exist to show the format. To activate, also
+    // put YES in the Lists tab column H for the matching product id.
+    customOptions.appendRow(['custom-hoodie', 'main_text',    'Custom Main Text',      'text',        34,   0,   'YES', '',                           'main']);
+    customOptions.appendRow(['custom-hoodie', 'main_style',   'Main Text Style',       'style',       0,    0,   '',    'Curve|;Not Curve|',          '']);
+    customOptions.appendRow(['custom-hoodie', 'second_text',  'Custom Secondary Text', 'text',        50,   0,   '',    '',                           'secondary']);
+    customOptions.appendRow(['custom-hoodie', 'sleeve_text',  'Custom Sleeve Text',    'text',        1000, 100, '',    '',                           'sleeve']);
+    customOptions.appendRow(['custom-hoodie', 'product_type', 'Select Product Type',   'producttype', 0,    0,   'YES', 'T-Shirt|;Crewneck|;Hoodie|', '']);
+    customOptions.appendRow(['custom-hoodie', 'artwork',      'Upload Your Artwork',   'image',       0,    0,   '',    '',                           '']);
+    customOptions.getRange(1, 1, 1, 9).setFontWeight('bold').setBackground('#2C5F2E').setFontColor('#ffffff');
+    customOptions.setFrozenRows(1);
+    log.push('Created "CustomOptions" tab with headers + example rows for "custom-hoodie".');
+  } else {
+    log.push('"CustomOptions" tab already exists — left untouched.');
+  }
+
+  // ── 2. StoreOrders tab ────────────────────────────────────────
+  var storeOrders = ss.getSheetByName(STORE_ORDERS_TAB);
+  if (!storeOrders) {
+    storeOrders = ss.insertSheet(STORE_ORDERS_TAB);
+    storeOrders.appendRow(STORE_ORDER_HEADERS);
+    storeOrders.getRange(1, 1, 1, STORE_ORDER_HEADERS.length).setFontWeight('bold').setBackground('#2C5F2E').setFontColor('#ffffff');
+    storeOrders.setFrozenRows(1);
+    log.push('Created "' + STORE_ORDERS_TAB + '" tab with headers.');
+  } else {
+    log.push('"' + STORE_ORDERS_TAB + '" tab already exists — left untouched.');
+  }
+
+  // ── 3. Lists tab — column H "customizable" reminder ───────────
+  var lists = ss.getSheetByName('Lists');
+  if (lists) {
+    // Lists has NO header row (data starts row 1), so we don't add one.
+    // Only drop a note on H1 if column H is currently empty (never clobber data).
+    var hVals = lists.getRange(1, 8, Math.max(1, lists.getLastRow()), 1).getValues();
+    var hHasData = hVals.some(function (r) { return String(r[0]).trim() !== ''; });
+    if (!hHasData) {
+      lists.getRange(1, 8).setNote('Customizable flag: put YES here for any product row you want customizable in the store. Leave blank otherwise.');
+      log.push('Added a note on Lists!H1 explaining the customizable flag (column H).');
+    } else {
+      log.push('Lists column H already has data — left untouched (put YES to mark a product customizable).');
+    }
+  } else {
+    log.push('WARNING: "Lists" tab not found — check the spreadsheet.');
+  }
+
+  var summary = 'STW Commerce setup complete:\n - ' + log.join('\n - ') +
+    '\n\nNext: Deploy > Manage deployments > Edit > New version > Deploy.';
+  Logger.log(summary);
+  try { SpreadsheetApp.getUi().alert(summary); } catch (e) { /* headless run: log only */ }
+  return summary;
+}

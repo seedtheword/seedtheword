@@ -13659,3 +13659,10 @@ body.your-walk-modal-open {
   [data-theme="dark"] .nav-auth-dropdown__item { border-top-color: rgba(255,255,255,0.08); }
   [data-theme="dark"] .nav-auth-dropdown__item:hover { background: transparent; }
 }
+
+/* Cart badge must stay visible on mobile (it's a sibling of the hamburger,
+   not inside .header-social which is hidden on narrow phones). Without this,
+   mobile shoppers have no way to reach the cart / checkout. */
+@media (max-width: 480px) {
+  .nav-cart { display: inline-flex !important; margin-left: auto; margin-right: 0.25rem; }
+}

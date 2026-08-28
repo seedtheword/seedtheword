@@ -54,17 +54,20 @@
 
     var badge = buildBadge();
 
-    // Preferred slot: start of .header-social. Fallbacks keep it robust
-    // across pages whose header markup varies slightly.
-    var social = header.querySelector('.header-social');
+    // Place the cart badge right BEFORE the hamburger, as a direct child of
+    // the header row — NOT inside .header-social (that container is hidden on
+    // narrow phones, which would hide the cart and block mobile checkout).
     var hamburger = header.querySelector('.hamburger');
-    if (social) {
-      social.insertBefore(badge, social.firstChild);
-    } else if (hamburger && hamburger.parentNode) {
+    if (hamburger && hamburger.parentNode) {
       hamburger.parentNode.insertBefore(badge, hamburger);
     } else {
-      var nav = header.querySelector('#site-nav') || header.querySelector('.container') || header;
-      nav.appendChild(badge);
+      var social = header.querySelector('.header-social');
+      if (social && social.parentNode) {
+        social.parentNode.insertBefore(badge, social.nextSibling);
+      } else {
+        var nav = header.querySelector('#site-nav') || header.querySelector('.container') || header;
+        nav.appendChild(badge);
+      }
     }
 
     updateCount(badge);

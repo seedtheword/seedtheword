@@ -284,6 +284,13 @@
   // ── Public API ──
   window.stwProfile = { open: openModal, close: closeModal };
 
+  // If nav-auth re-hydrates the session from the backend (cross-device sync)
+  // while the modal is open, refresh the visible fields so the user isn't
+  // looking at stale values.
+  window.addEventListener('stwSessionRefreshed', function () {
+    if (modal && modal.style.display === 'flex') openModal();
+  });
+
   // ── Auto-bind triggers ──
   function bindTriggers() {
     // Any element with data-action="open-profile" or id containing "profile-settings"

@@ -219,6 +219,9 @@ function doPost(e) {
   if ((payload && payload.action) === 'placeOrder') {
     return handlePlaceOrder_(payload);
   }
+  if ((payload && payload.action) === 'getProfile') {
+    return handleGetProfile_(payload);
+  }
   if ((payload && payload.action) === 'visitorSignup') {
     return handleVisitorSignup_(payload);
   }
@@ -3040,6 +3043,59 @@ var STORE_ORDER_HEADERS = [
   'wants_shipping', 'shipping_address', 'notes',
   'subtotal_cents', 'currency', 'item_count', 'items_json', 'status'
 ];
+
+// ── Cross-device account sync: return the full member profile by token ──
+// The client re-hydrates its localStorage session from this on every page
+// load, so profile/role/settings changes made on one device show up on all
+// devices (the TeamMembers sheet is the shared source of truth).
+function handleGetProfile_(payload) {
+  try {
+    var token = String((payload && payload.token) || '').trim();
+    if (!token) return jsonResponse({ ok: false, error: 'Token required' });
+
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName('TeamMembers');
+    if (!sheet || sheet.getLastRow() < 2) return jsonResponse({ ok: false, error: 'Not found' });
+
+    var data = sheet.getDataRange().getValues();
+    var headers = data[0].map(function (h) { return String(h).trim(); });
+    function col(name, fallbackIdx) {
+      var idx = headers.indexOf(name);
+      return idx === -1 ? (fallbackIdx == null ? -1 : fallbackIdx) : idx;
+    }
+    // Standard columns 1-9 have fixed positions; the rest are by header name.
+    var tokenIdx = 0, nameIdx = 1, roleIdx = 5, totalIdx = 7, tgIdx = 8;
+    var emailIdx = col('email', 3);
+    var phoneIdx = col('phone', 4);
+    var notifyIdx = col('notify_pref');
+    var carrierIdx = col('carrier');
+    var newsletterIdx = col('newsletter_opt_in');
+    var picIdx = col('profile_pic_url');
+
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][tokenIdx]).trim() === token) {
+        var row = data[i];
+        return jsonResponse({
+          ok: true,
+          name: row[nameIdx] || '',
+          email: emailIdx >= 0 ? (row[emailIdx] || '') : '',
+          phone: phoneIdx >= 0 ? (row[phoneIdx] || '') : '',
+          role: row[roleIdx] || 'member',
+          telegram_username: row[tgIdx] || '',
+          notify_pref: notifyIdx >= 0 ? (row[notifyIdx] || 'email') : 'email',
+          carrier: carrierIdx >= 0 ? (row[carrierIdx] || '') : '',
+          newsletter_opt_in: newsletterIdx >= 0 ? (row[newsletterIdx] || 'no') : 'no',
+          profile_pic_url: picIdx >= 0 ? (row[picIdx] || '') : '',
+          total_scans: parseInt(row[totalIdx], 10) || 0
+        });
+      }
+    }
+    return jsonResponse({ ok: false, error: 'User not found' });
+  } catch (err) {
+    console.log('handleGetProfile_ error:', err);
+    return jsonResponse({ ok: false, error: 'profile-read-failed' });
+  }
+}
 
 // Upload customer-provided artwork (base64 data URL) to a Drive folder,
 // mirroring the receipt/testimony upload pattern. Returns a public view URL.

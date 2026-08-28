@@ -36,6 +36,77 @@
     return false;
   }
 
+  // Re-hydrate the local session from the backend so profile/role/settings
+  // changes made on ANOTHER device show up here. localStorage is per-device;
+  // the TeamMembers sheet is the shared source of truth. Fire-and-forget:
+  // the badge renders immediately from the local copy, then updates if the
+  // fresh data differs.
+  function rehydrateSession() {
+    var session = getSession();
+    if (!session || !session.token) return;
+    fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (cfg) {
+        if (!cfg.orderHandlerUrl) return null;
+        return fetch(cfg.orderHandlerUrl, {
+          method: 'POST', redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'getProfile', token: session.token })
+        }).then(function (r) { return r.json(); });
+      })
+      .then(function (res) {
+        if (!res || !res.ok) return;
+        var s = getSession();
+        if (!s) return;
+        s.name = res.name || s.name;
+        s.email = res.email || '';
+        s.phone = res.phone || '';
+        s.role = res.role || s.role || 'member';
+        s.telegram_username = res.telegram_username || '';
+        s.notify_pref = res.notify_pref || 'email';
+        s.carrier = res.carrier || '';
+        s.newsletter_opt_in = (res.newsletter_opt_in === 'YES' || res.newsletter_opt_in === true);
+        if (res.profile_pic_url) s.profilePicUrl = res.profile_pic_url;
+        if (typeof res.total_scans === 'number') s.totalScans = res.total_scans;
+        try { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); } catch (e) {}
+        refreshBadge(s);
+        try { window.dispatchEvent(new CustomEvent('stwSessionRefreshed', { detail: s })); } catch (e) {}
+      })
+      .catch(function () { /* offline / backend not deployed — keep local copy */ });
+  }
+
+  // Update the already-rendered nav badge to reflect a refreshed session
+  // (name, avatar, and role-gated Team Portal visibility).
+  function refreshBadge(session) {
+    var loginLink = document.getElementById('nav-auth-btn');
+    if (!loginLink) return;
+    var firstName = (session.name || '').split(' ')[0];
+    var pic = session.profilePicUrl || session.profilePic || '';
+    loginLink.innerHTML = pic
+      ? '<img class="nav-auth-avatar" src="' + pic + '" alt=""> ' + firstName
+      : firstName;
+    // Role-gate the Team Portal item.
+    var dropdown = document.getElementById('nav-auth-dropdown');
+    if (dropdown) {
+      var role = (session.role || 'member').toLowerCase();
+      var isStaff = role === 'admin' || role === 'super_admin';
+      var existing = dropdown.querySelector('[data-team-portal]');
+      if (isStaff && !existing) {
+        var a = document.createElement('a');
+        a.className = 'nav-auth-dropdown__item';
+        a.href = 'team.html';
+        a.setAttribute('data-team-portal', '');
+        a.style.textDecoration = 'none';
+        a.style.color = 'inherit';
+        a.textContent = 'Team Portal';
+        var profileBtn = document.getElementById('nav-auth-profile');
+        dropdown.insertBefore(a, profileBtn ? profileBtn.nextSibling : null);
+      } else if (!isStaff && existing) {
+        existing.remove();
+      }
+    }
+  }
+
   function init() {
     var session = getSession();
     if (!session || !session.name) return;
@@ -79,7 +150,7 @@
     var role = (session.role || 'member').toLowerCase();
     var isStaff = role === 'admin' || role === 'super_admin';
     var teamPortalItem = isStaff
-      ? '<a class="nav-auth-dropdown__item" href="team.html" style="text-decoration:none;color:inherit;">Team Portal</a>'
+      ? '<a class="nav-auth-dropdown__item" href="team.html" data-team-portal style="text-decoration:none;color:inherit;">Team Portal</a>'
       : '';
 
     var dropdown = document.createElement('div');
@@ -112,6 +183,10 @@
 
     // Log out
     document.getElementById('nav-auth-logout').addEventListener('click', clearSession);
+
+    // Pull the latest profile/role from the backend so this device reflects
+    // changes made elsewhere (cross-device sync).
+    rehydrateSession();
   }
 
   // ── Public auth API (role-based gating helpers) ──────────────

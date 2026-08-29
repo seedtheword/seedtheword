@@ -362,6 +362,31 @@
           <p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">No expenses logged yet.</p>
         </div>
       </div>
+
+      <!-- Bookkeeper report generator (monthly / annual P&L) -->
+      <div class="glass-card" id="finance-report-card">
+        <h3 class="glass-card__title">📊 Generate Report</h3>
+        <p style="color:var(--color-text-muted);font-size:0.84rem;margin:0 0 1rem;">Monthly or annual profit &amp; loss, grouped by category. Export to CSV or print.</p>
+        <div class="finance-form__row" style="align-items:flex-end;">
+          <div class="finance-form__field">
+            <label for="finance-report-scope">Report</label>
+            <select id="finance-report-scope">
+              <option value="month">Monthly</option>
+              <option value="year">Annual</option>
+            </select>
+          </div>
+          <div class="finance-form__field" id="finance-report-month-wrap">
+            <label for="finance-report-month">Month</label>
+            <input type="month" id="finance-report-month">
+          </div>
+          <div class="finance-form__field" id="finance-report-year-wrap" style="display:none;">
+            <label for="finance-report-year">Year</label>
+            <input type="number" id="finance-report-year" min="2020" max="2100" step="1" placeholder="2026">
+          </div>
+        </div>
+        <button type="button" class="btn btn--green" id="finance-report-run" style="width:100%;margin-top:0.5rem;">Generate Report</button>
+        <div id="finance-report-output" style="margin-top:1.25rem;"></div>
+      </div>
     </div>
 
     <!-- Messages Tab — Redesigned Telegram-style Chat -->
@@ -1086,6 +1111,119 @@
       if (vendorInput && session) vendorInput.value = session.name;
     });
   }
+
+  // ── Finance report generator (bookkeeper) ──
+  (function initFinanceReport() {
+    var scopeSel = document.getElementById('finance-report-scope');
+    var monthWrap = document.getElementById('finance-report-month-wrap');
+    var yearWrap = document.getElementById('finance-report-year-wrap');
+    var monthInput = document.getElementById('finance-report-month');
+    var yearInput = document.getElementById('finance-report-year');
+    var runBtn = document.getElementById('finance-report-run');
+    var out = document.getElementById('finance-report-output');
+    if (!scopeSel || !runBtn || !out) return;
+
+    // Defaults: current month / current year.
+    var now = new Date();
+    var ym = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2);
+    if (monthInput && !monthInput.value) monthInput.value = ym;
+    if (yearInput && !yearInput.value) yearInput.value = now.getFullYear();
+
+    scopeSel.addEventListener('change', function () {
+      var isYear = scopeSel.value === 'year';
+      monthWrap.style.display = isYear ? 'none' : '';
+      yearWrap.style.display = isYear ? '' : 'none';
+    });
+
+    function money(cents) { return '$' + (Math.round(cents) / 100).toFixed(2); }
+    function esc(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
+
+    var lastReport = null;
+
+    runBtn.addEventListener('click', function () {
+      var session = getSession();
+      if (!session) { out.innerHTML = '<p style="color:#c0392b;">Please log in.</p>'; return; }
+      var isYear = scopeSel.value === 'year';
+      var period = isYear ? String(yearInput.value || '').trim() : String(monthInput.value || '').trim();
+      if (!period) { out.innerHTML = '<p style="color:#c0392b;">Pick a period.</p>'; return; }
+
+      runBtn.disabled = true; runBtn.textContent = 'Generating…';
+      out.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;">Loading report…</p>';
+
+      post({ action: 'getFinanceReport', token: session.token, period: period })
+        .then(function (res) {
+          if (!res || !res.ok) { out.innerHTML = '<p style="color:#c0392b;">' + esc((res && res.error) || 'Report failed.') + '</p>'; return; }
+          lastReport = res;
+          renderReport(res);
+        })
+        .catch(function (e) { out.innerHTML = '<p style="color:#c0392b;">Could not load report: ' + esc(e.message) + '</p>'; })
+        .finally(function () { runBtn.disabled = false; runBtn.textContent = 'Generate Report'; });
+    });
+
+    function rows(list) {
+      if (!list.length) return '<tr><td colspan="2" style="color:var(--color-text-muted);padding:0.4rem 0;">None</td></tr>';
+      return list.map(function (r) {
+        return '<tr><td style="padding:0.35rem 0;">' + esc(r.category) + '</td>' +
+          '<td style="padding:0.35rem 0;text-align:right;">' + money(r.amountCents) + '</td></tr>';
+      }).join('');
+    }
+
+    function renderReport(res) {
+      var t = res.totals || {};
+      var label = res.scope === 'year' ? ('Year ' + res.period) : ('Month ' + res.period);
+      out.innerHTML =
+        '<div id="finance-report-printable">' +
+          '<h4 style="margin:0 0 0.25rem;color:var(--color-text);">Seed the Word Ministry</h4>' +
+          '<p style="margin:0 0 1rem;color:var(--color-text-muted);font-size:0.85rem;">Profit &amp; Loss — ' + esc(label) + ' · ' + esc(res.count) + ' entries</p>' +
+          '<table style="width:100%;border-collapse:collapse;font-size:0.9rem;">' +
+            '<tr><th colspan="2" style="text-align:left;color:var(--color-olive);border-bottom:2px solid var(--color-olive);padding:0.4rem 0;">Revenue</th></tr>' +
+            rows(res.income) +
+            '<tr><td style="padding:0.4rem 0;font-weight:800;border-top:1px solid var(--color-border);">Total Revenue</td><td style="padding:0.4rem 0;text-align:right;font-weight:800;border-top:1px solid var(--color-border);">' + money(t.incomeCents) + '</td></tr>' +
+            '<tr><th colspan="2" style="text-align:left;color:#a6251f;border-bottom:2px solid #a6251f;padding:0.6rem 0 0.4rem;">Expenses</th></tr>' +
+            rows(res.expense) +
+            '<tr><td style="padding:0.4rem 0;font-weight:800;border-top:1px solid var(--color-border);">Total Expenses</td><td style="padding:0.4rem 0;text-align:right;font-weight:800;border-top:1px solid var(--color-border);">' + money(t.expenseCents) + '</td></tr>' +
+            '<tr><td style="padding:0.6rem 0;font-weight:800;font-size:1.05rem;">Net Earnings</td><td style="padding:0.6rem 0;text-align:right;font-weight:800;font-size:1.05rem;color:' + ((t.netCents || 0) >= 0 ? 'var(--color-olive)' : '#a6251f') + ';">' + money(t.netCents) + '</td></tr>' +
+          '</table>' +
+        '</div>' +
+        '<div style="display:flex;gap:0.5rem;margin-top:1rem;">' +
+          '<button type="button" class="btn" id="finance-report-csv" style="flex:1;">⬇ CSV</button>' +
+          '<button type="button" class="btn" id="finance-report-print" style="flex:1;">🖨 Print</button>' +
+        '</div>';
+
+      document.getElementById('finance-report-csv').addEventListener('click', function () { downloadCsv(res); });
+      document.getElementById('finance-report-print').addEventListener('click', function () { printReport(res); });
+    }
+
+    function downloadCsv(res) {
+      var lines = [['Section', 'Category', 'Amount']];
+      res.income.forEach(function (r) { lines.push(['Revenue', r.category, (r.amountCents / 100).toFixed(2)]); });
+      lines.push(['Revenue', 'TOTAL REVENUE', (res.totals.incomeCents / 100).toFixed(2)]);
+      res.expense.forEach(function (r) { lines.push(['Expense', r.category, (r.amountCents / 100).toFixed(2)]); });
+      lines.push(['Expense', 'TOTAL EXPENSES', (res.totals.expenseCents / 100).toFixed(2)]);
+      lines.push(['Net', 'NET EARNINGS', (res.totals.netCents / 100).toFixed(2)]);
+      var csv = lines.map(function (row) {
+        return row.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+      }).join('\r\n');
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'STW-PL-' + res.period + '.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+
+    function printReport(res) {
+      var node = document.getElementById('finance-report-printable');
+      if (!node) return;
+      var w = window.open('', '_blank');
+      w.document.write('<html><head><title>STW P&amp;L ' + res.period + '</title>' +
+        '<style>body{font-family:Georgia,serif;padding:2rem;color:#1a1a1a;}table{width:100%;border-collapse:collapse;}th,td{padding:6px 0;}</style>' +
+        '</head><body>' + node.innerHTML + '</body></html>');
+      w.document.close();
+      w.focus();
+      setTimeout(function () { w.print(); }, 250);
+    }
+  })();
 
   // ── Wire dashboard "Add Manual" tile ──
   var dashManual = document.getElementById('dash-add-manual');

@@ -353,3 +353,103 @@ function handleRecoverAccount_(payload) {
     return jsonResponse({ ok: false, error: err.message });
   }
 }
+
+
+// ── Finance Report (on-demand monthly / annual P&L for the bookkeeper) ──
+// Payload: { action:'getFinanceReport', token, period }
+//   period = 'YYYY-MM' for a month, or 'YYYY' for a full year.
+// Returns income & expense totals grouped by category, plus net, so the
+// Team Portal can render a P&L table + CSV/print export. Admin-gated.
+// Reads the live Finances tab (cols A-J, data from row 3; row 2 = totals formula).
+function handleGetFinanceReport_(payload) {
+  try {
+    var member = validateTeamToken_(payload.token);
+    if (!member) return jsonResponse({ ok: false, error: 'Invalid session' });
+    var role = (member.role || '').toLowerCase();
+    if (role !== 'admin' && role !== 'super_admin') {
+      return jsonResponse({ ok: false, error: 'Admin access required' });
+    }
+
+    var period = String(payload.period || '').trim();
+    // Determine scope: month (YYYY-MM) or year (YYYY).
+    var isMonth = /^\d{4}-\d{2}$/.test(period);
+    var isYear = /^\d{4}$/.test(period);
+    if (!isMonth && !isYear) {
+      return jsonResponse({ ok: false, error: 'period must be YYYY-MM or YYYY' });
+    }
+
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName(FINANCES_TAB);
+    if (!sheet) return jsonResponse({ ok: true, period: period, income: [], expense: [], totals: { income: 0, expense: 0, net: 0 }, count: 0 });
+
+    var last = sheet.getLastRow();
+    if (last < 3) return jsonResponse({ ok: true, period: period, income: [], expense: [], totals: { income: 0, expense: 0, net: 0 }, count: 0 });
+
+    var data = sheet.getRange(3, 1, last - 2, 10).getValues(); // A..J from row 3
+    var incomeMap = {}, expenseMap = {};
+    var totalIncome = 0, totalExpense = 0, count = 0;
+
+    function periodKey_(dateVal) {
+      var d;
+      if (dateVal instanceof Date) { d = dateVal; }
+      else {
+        var s = String(dateVal || '').trim();
+        if (!s) return '';
+        d = new Date(s);
+        if (isNaN(d.getTime())) {
+          // Fall back to string prefix matching for odd formats.
+          return s;
+        }
+      }
+      var y = d.getFullYear();
+      var m = ('0' + (d.getMonth() + 1)).slice(-2);
+      return isMonth ? (y + '-' + m) : String(y);
+    }
+
+    for (var i = 0; i < data.length; i++) {
+      var row = data[i];
+      if (!row[0] && !row[4]) continue; // blank row
+      var key = periodKey_(row[0]);
+      // For odd string dates, allow startsWith match on the period.
+      var match = (key === period) || (typeof key === 'string' && key.indexOf(period) === 0);
+      if (!match) continue;
+
+      var type = String(row[1] || 'expense').toLowerCase();
+      var category = String(row[2] || 'uncategorized').trim() || 'uncategorized';
+      var amount = parseFloat(row[4]) || 0;
+      count++;
+
+      // Treat anything that isn't clearly income as an expense.
+      var isIncome = (type.indexOf('income') !== -1 || type.indexOf('donation') !== -1);
+      if (isIncome) {
+        incomeMap[category] = (incomeMap[category] || 0) + amount;
+        totalIncome += amount;
+      } else {
+        expenseMap[category] = (expenseMap[category] || 0) + amount;
+        totalExpense += amount;
+      }
+    }
+
+    function toSortedList_(map) {
+      return Object.keys(map).map(function (k) {
+        return { category: k, amountCents: Math.round(map[k] * 100) };
+      }).sort(function (a, b) { return b.amountCents - a.amountCents; });
+    }
+
+    return jsonResponse({
+      ok: true,
+      period: period,
+      scope: isMonth ? 'month' : 'year',
+      income: toSortedList_(incomeMap),
+      expense: toSortedList_(expenseMap),
+      totals: {
+        incomeCents: Math.round(totalIncome * 100),
+        expenseCents: Math.round(totalExpense * 100),
+        netCents: Math.round((totalIncome - totalExpense) * 100)
+      },
+      count: count
+    });
+  } catch (err) {
+    return jsonResponse({ ok: false, error: err.message });
+  }
+}

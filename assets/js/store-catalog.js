@@ -153,6 +153,67 @@
     return esc(out);
   }
 
+  // ── Custom-painted Bible inspiration slideshow (Bibles category only) ──
+  // A promotional gallery shown above "Choose Your Bundle" to encourage
+  // people to request a custom-painted Bible via the builder.
+  var CUSTOM_BIBLE_INSPO = [
+    { src: 'assets/images/store/custom-bible-white-floral-cross.jpg', cap: 'White florals & gold cross' },
+    { src: 'assets/images/store/custom-bible-lamb-pastoral.jpg', cap: 'Pastoral scene & lamb' },
+    { src: 'assets/images/store/custom-bible-angel.jpg', cap: 'Guardian angel' },
+    { src: 'assets/images/store/custom-bible-grey-floral.jpg', cap: 'Grey floral New Testament' },
+    { src: 'assets/images/store/custom-bible-pink-russian.jpg', cap: 'Pink leaf motif' }
+  ];
+  function customBibleInspoHtml() {
+    var slides = CUSTOM_BIBLE_INSPO.map(function (it, i) {
+      return '<figure class="store-inspo__slide' + (i === 0 ? ' is-active' : '') + '" data-idx="' + i + '">' +
+        '<img src="' + esc(it.src) + '" alt="' + esc(it.cap) + '" loading="lazy">' +
+        '<figcaption>' + esc(it.cap) + '</figcaption></figure>';
+    }).join('');
+    var dots = CUSTOM_BIBLE_INSPO.map(function (_, i) {
+      return '<button type="button" class="store-inspo__dot' + (i === 0 ? ' is-active' : '') + '" data-idx="' + i + '" aria-label="View example ' + (i + 1) + '"></button>';
+    }).join('');
+    return '<div class="store-inspo" style="grid-column:1/-1;">' +
+        '<p class="store-inspo__eyebrow">Made by hand</p>' +
+        '<h3 class="store-inspo__title">Custom-Painted Bibles</h3>' +
+        '<p class="store-inspo__sub">Every cover is a canvas — florals, scenes, lettering, even your own design. Start a bundle and choose <strong>“Cover painting”</strong> to request one.</p>' +
+        '<div class="store-inspo__stage" data-inspo-stage>' +
+          '<button type="button" class="store-inspo__arrow store-inspo__arrow--prev" data-dir="-1" aria-label="Previous">&lsaquo;</button>' +
+          slides +
+          '<button type="button" class="store-inspo__arrow store-inspo__arrow--next" data-dir="1" aria-label="Next">&rsaquo;</button>' +
+        '</div>' +
+        '<div class="store-inspo__dots">' + dots + '</div>' +
+        '<a href="bundle-builder.html" class="store-inspo__cta">Design a custom Bible &rarr;</a>' +
+      '</div>';
+  }
+  function initCustomBibleInspo() {
+    var stage = document.querySelector('[data-inspo-stage]');
+    if (!stage || stage.dataset.inited) return;
+    stage.dataset.inited = 'true';
+    var slides = stage.querySelectorAll('.store-inspo__slide');
+    var dots = document.querySelectorAll('.store-inspo__dot');
+    if (slides.length < 2) return;
+    var current = 0, timer = null;
+    function show(idx) {
+      current = (idx + slides.length) % slides.length;
+      slides.forEach(function (s, i) { s.classList.toggle('is-active', i === current); });
+      dots.forEach(function (d, i) { d.classList.toggle('is-active', i === current); });
+    }
+    function start() { timer = setInterval(function () { show(current + 1); }, 4500); }
+    function stop() { if (timer) { clearInterval(timer); timer = null; } }
+    stage.querySelectorAll('.store-inspo__arrow').forEach(function (a) {
+      a.addEventListener('click', function () { stop(); show(current + parseInt(a.dataset.dir, 10)); });
+    });
+    dots.forEach(function (d) {
+      d.addEventListener('click', function () { stop(); show(parseInt(d.dataset.idx, 10)); });
+    });
+    // Click a slide to open it full-size.
+    slides.forEach(function (s) {
+      var img = s.querySelector('img');
+      if (img) s.addEventListener('click', function () { openLightbox(img.src); });
+    });
+    start();
+  }
+
   function renderProductCard(p) {
     var imageHTML;
     var gallery = p.gallery || (p.image ? [p.image] : []);
@@ -284,7 +345,8 @@
 
     var bundleHtml = '';
     if (activeCategory === 'bibles') {
-      bundleHtml = '<div class="store-bundle-section" style="grid-column:1/-1; margin-bottom:1.5rem;">' +
+      bundleHtml = customBibleInspoHtml() +
+        '<div class="store-bundle-section" style="grid-column:1/-1; margin-bottom:1.5rem;">' +
         '<h3 style="font-size:1.3rem; font-weight:800; color:var(--dark); margin:0 0 0.5rem; text-align:center;">Choose Your Bundle</h3>' +
         '<p style="color:var(--muted); font-size:0.9rem; margin:0 0 1.5rem; text-align:center;">Curated packages for every stage of faith — customize in our builder.</p>' +
         '<div class="bundle-cards">' +
@@ -322,6 +384,7 @@
       // Re-init bundle slideshows after render
       setTimeout(function() {
         if (window.initBundleSlideshows) window.initBundleSlideshows();
+        initCustomBibleInspo();
       }, 100);
     }
     gridEl.innerHTML = bundleHtml + filtered.map(renderProductCard).join('');

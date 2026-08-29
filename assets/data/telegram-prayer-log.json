@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669615990,
-  "lastModified": "2026-08-29T19:55:39Z",
+  "lastModified": "2026-08-29T20:25:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -252,16 +252,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5279,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Praying for you Liam, in Jesus' name",
-      "ts": "2026-08-15T20:23:08Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5302,

@@ -332,6 +332,102 @@
       margin: 0 auto;
     }
 
+    /* ── Inspiration gallery (custom-painted Bibles) ── */
+    .bb-inspo {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 1rem;
+      text-align: center;
+    }
+    .bb-inspo__eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold, #B8860B);
+      margin: 0 0 0.4rem;
+      font-weight: 700;
+    }
+    .bb-inspo__title {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      color: var(--green, #2C5F2E);
+      margin: 0 0 0.6rem;
+      line-height: 1.1;
+    }
+    .bb-inspo__sub {
+      font-size: 0.98rem;
+      line-height: 1.6;
+      color: var(--muted, #666);
+      max-width: 640px;
+      margin: 0 auto 1.5rem;
+    }
+    .bb-inspo__sub strong { color: var(--gold, #B8860B); }
+    .bb-inspo__strip {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(210px, 1fr);
+      gap: 1.1rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: 0.5rem 0.25rem 1rem;
+      -webkit-overflow-scrolling: touch;
+    }
+    .bb-inspo__strip::-webkit-scrollbar { height: 8px; }
+    .bb-inspo__strip::-webkit-scrollbar-thumb { background: rgba(44,95,46,.25); border-radius: 999px; }
+    .bb-inspo__item {
+      scroll-snap-align: start;
+      margin: 0;
+      background: #fff;
+      border: 1px solid #e8e4de;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0,0,0,.07);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .bb-inspo__item:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,.13); }
+    .bb-inspo__item img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+      background: #f4f1ec;
+    }
+    .bb-inspo__item figcaption {
+      font-family: 'Caveat', cursive;
+      font-size: 1.15rem;
+      color: var(--green, #2C5F2E);
+      padding: 0.5rem 0.75rem 0.75rem;
+    }
+    .bb-inspo__note {
+      font-size: 0.8rem;
+      font-style: italic;
+      color: var(--muted, #666);
+      margin: 0.5rem 0 0;
+    }
+    [data-theme="dark"] .bb-inspo__item { background: #1e2329; border-color: #2e353e; }
+    [data-theme="dark"] .bb-inspo__item img { background: #14181f; }
+    [data-theme="dark"] .bb-inspo__sub,
+    [data-theme="dark"] .bb-inspo__note { color: #a8adb5; }
+
+    /* ── Step hierarchy polish: number badge + clearer separation ── */
+    .bb-section__title span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.9rem;
+      height: 1.9rem;
+      padding: 0 0.4rem;
+      background: var(--green, #2C5F2E);
+      color: #fff !important;
+      border-radius: 999px;
+      font-size: 0.62em;
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      vertical-align: middle;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 767px) {
       .bb-form__address-grid {
@@ -341,6 +437,8 @@
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 1rem;
       }
+      .bb-inspo__strip { grid-auto-columns: minmax(160px, 78%); }
+      .bb-inspo__item img { height: 200px; }
     }
   </style>
 </head>
@@ -392,6 +490,39 @@
   <h1 class="bb-hero__title">Build Your Bundle</h1>
   <p class="bb-hero__sub">Choose Bibles in any language, set quantities, and we'll hand-pack each one with prayer and a personal note.</p>
   <div id="bb-bundle-hint" class="bb-hero__bundle-hint" style="display:none;"></div>
+</section>
+
+<!-- Inspiration: custom hand-painted Bibles (drives engagement toward the
+     Special-order / customization options in Step 4). Non-functional showcase. -->
+<section class="bb-inspo">
+  <div class="bb-inspo__head">
+    <p class="bb-inspo__eyebrow">Made by hand</p>
+    <h2 class="bb-inspo__title">Custom-Painted Bibles</h2>
+    <p class="bb-inspo__sub">Every cover is a canvas. Florals, scenes, lettering, even your own design — our team hand-paints Bibles to make the Word personal. Want one? Choose <strong>“Cover painting”</strong> under Add-ons &amp; Personalization below.</p>
+  </div>
+  <div class="bb-inspo__strip" role="list" aria-label="Custom-painted Bible examples">
+    <figure class="bb-inspo__item" role="listitem">
+      <img src="assets/images/store/custom-bible-white-floral-cross.jpg" alt="Brown leather Bible hand-painted with white florals and a gold cross" loading="lazy">
+      <figcaption>White florals &amp; gold cross</figcaption>
+    </figure>
+    <figure class="bb-inspo__item" role="listitem">
+      <img src="assets/images/store/custom-bible-lamb-pastoral.jpg" alt="Black Bible hand-painted with a resting lamb, tree, and cross in a meadow" loading="lazy">
+      <figcaption>Pastoral scene &amp; lamb</figcaption>
+    </figure>
+    <figure class="bb-inspo__item" role="listitem">
+      <img src="assets/images/store/custom-bible-angel.jpg" alt="Bible hand-painted with a detailed guardian angel" loading="lazy">
+      <figcaption>Guardian angel</figcaption>
+    </figure>
+    <figure class="bb-inspo__item" role="listitem">
+      <img src="assets/images/store/custom-bible-grey-floral.jpg" alt="Grey New Testament with hand-painted pink flowers and gold border" loading="lazy">
+      <figcaption>Grey floral NT</figcaption>
+    </figure>
+    <figure class="bb-inspo__item" role="listitem">
+      <img src="assets/images/store/custom-bible-pink-russian.jpg" alt="Pink Russian Bible with hand-painted white leaf motifs" loading="lazy">
+      <figcaption>Pink leaf motif</figcaption>
+    </figure>
+  </div>
+  <p class="bb-inspo__note">Custom artwork is arranged with our team — start your bundle below and select the options you'd like.</p>
 </section>
 
 <!-- Step 1: Select Bibles -->

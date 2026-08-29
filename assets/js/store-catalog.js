@@ -206,10 +206,13 @@
     dots.forEach(function (d) {
       d.addEventListener('click', function () { stop(); show(parseInt(d.dataset.idx, 10)); });
     });
-    // Click a slide to open it full-size.
+    // Click a slide to open it full-size. Open the CURRENTLY-ACTIVE slide's
+    // image (not a per-element closure) so it always matches what's shown.
     slides.forEach(function (s) {
-      var img = s.querySelector('img');
-      if (img) s.addEventListener('click', function () { openLightbox(img.src); });
+      s.addEventListener('click', function () {
+        var activeImg = slides[current] && slides[current].querySelector('img');
+        if (activeImg) openLightbox(activeImg.src);
+      });
     });
     start();
   }

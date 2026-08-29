@@ -17,7 +17,7 @@
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
-  <link rel="stylesheet" href="assets/css/main.css?v=33">
+  <link rel="stylesheet" href="assets/css/main.css?v=34">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
     :root{--serif:'Playfair Display',Georgia,serif;--sans:'Source Sans 3',system-ui,sans-serif;--mono:'IBM Plex Mono',monospace;--cursive:'Caveat',cursive;--bg-ivory:#FAFAF8;--fg:#1A1A1A;--fg-muted:#6B6B6B;--accent-gold:#B8860B;--accent-gold-light:#D4A84B;--border-warm:#E8E4DF;--card-bg:#FFFFFF;--surface-muted:#F5F3F0}
@@ -191,6 +191,15 @@
       <div style="flex-shrink:0;text-align:center"><div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#1A1A1A,#333);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.2);margin:0 auto .5rem"><span style="font-size:1.5rem">📖</span></div><span style="font-family:var(--mono);font-size:.6rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-muted)">Milestone</span></div>
       <div style="flex:1;min-width:220px"><div style="font-family:var(--mono);font-size:.65rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--accent-gold);margin-bottom:.4rem">Since March 20, 2026 — Ministry Launch</div><h3 style="font-family:var(--serif);font-size:clamp(1.4rem,2.5vw,1.8rem);font-weight:400;color:var(--fg);margin:0 0 .4rem">Over 500 Bibles Given Away</h3><p style="font-family:var(--sans);font-size:.9rem;color:#4a4a4a;margin:0 0 1rem;line-height:1.65">From outreach events, community cookouts, and street evangelism across Washington State — every Bible represents a person God placed in our path.</p><a href="testimonies.html#ministry-gallery" style="font-family:var(--sans);font-size:.85rem;font-weight:600;color:var(--accent-gold);text-decoration:none;border-bottom:1px solid rgba(184,134,11,.3)">Read the full story →</a></div>
       <div style="flex-shrink:0;text-align:center;min-width:100px"><div id="news-bible-counter" style="font-family:var(--serif);font-size:clamp(2.5rem,5vw,3.5rem);font-weight:700;color:var(--accent-gold);line-height:1">—</div><div style="font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-muted);margin-top:.2rem">Bibles given</div><div style="font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(184,134,11,.6);margin-top:.1rem">Updated live</div></div>
+      <div class="bible-goal" style="flex-basis:100%;width:100%;margin-top:.5rem">
+        <div class="bible-goal__row" style="display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:.4rem">
+          <span>Goal: 70,000 Bibles by 2027</span>
+          <span class="bible-goal__pct" id="news-bible-goal-pct" style="font-weight:700;color:#2C5F2E">0%</span>
+        </div>
+        <div class="bible-goal__track" style="position:relative;height:12px;background:rgba(44,95,46,.12);border-radius:999px;overflow:hidden">
+          <div class="bible-goal__fill" id="news-bible-goal-fill" style="position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#2C5F2E,#4a9d4e);border-radius:999px;transition:width 1.4s cubic-bezier(.25,.1,.25,1)"></div>
+        </div>
+      </div>
     </div>
     <div style="margin:0 0 2.5rem;padding:1.75rem 2rem;background:var(--card-bg);border:1px solid var(--border-warm);border-left:4px solid #2C5F2E;border-radius:0 10px 10px 0">
       <p style="font-family:var(--serif);font-size:1.1rem;font-style:italic;line-height:1.8;color:var(--fg);margin:0 0 .75rem">I found Jesus in private, on my knees, asking for Him to change my life around for the better. He saved me from death and He promised me a life full of happiness. Not only here on earth but in eternity where He will take me to partake in His reign forevermore.</p>
@@ -271,7 +280,9 @@
 (function(){
   var CK='stw_ministry_stats',TTL=3e5;
   function anim(el,t){var d=1200,s=null;function step(ts){if(!s)s=ts;var p=Math.min((ts-s)/d,1);el.textContent=Math.floor((1-Math.pow(1-p,3))*t).toLocaleString();if(p<1)requestAnimationFrame(step);else el.textContent=t.toLocaleString()}requestAnimationFrame(step)}
-  async function go(){var el=document.getElementById('news-bible-counter');if(!el)return;var c=0;try{var x=JSON.parse(localStorage.getItem(CK)||'{}');if(x.total){c=x.total;anim(el,c)}}catch(e){}var url='';try{var cfg=await fetch('assets/data/site-config.json',{cache:'no-store'}).then(function(r){return r.json()});url=cfg.orderHandlerUrl||'';if(!c&&cfg.biblesGivenAway){c=cfg.biblesGivenAway;anim(el,c)}}catch(e){}if(!url)return;try{var x2=JSON.parse(localStorage.getItem(CK)||'{}');if((x2.ts?Date.now()-x2.ts:1/0)>TTL){var lv=await fetch(url+'?action=getMinistryStats',{cache:'no-store'}).then(function(r){return r.json()});if(lv.ok&&lv.total){localStorage.setItem(CK,JSON.stringify({total:lv.total,goal:lv.goal,ts:Date.now()}));anim(el,lv.total)}}}catch(e){}}
+  var GOAL=70000;
+  function setGoal(count,goal){goal=goal||GOAL;var fill=document.getElementById('news-bible-goal-fill'),pctEl=document.getElementById('news-bible-goal-pct');if(!fill||!pctEl||!count)return;var pct=Math.min(100,(count/goal)*100);var shown=pct<1?pct.toFixed(1):Math.round(pct);pctEl.textContent=shown+'%';fill.style.width=Math.max(1.2,pct)+'%';}
+  async function go(){var el=document.getElementById('news-bible-counter');if(!el)return;var c=0,g=GOAL;try{var x=JSON.parse(localStorage.getItem(CK)||'{}');if(x.total){c=x.total;if(x.goal)g=x.goal;anim(el,c);setGoal(c,g)}}catch(e){}var url='';try{var cfg=await fetch('assets/data/site-config.json',{cache:'no-store'}).then(function(r){return r.json()});url=cfg.orderHandlerUrl||'';if(cfg.biblesGoal2026)g=cfg.biblesGoal2026;if(!c&&cfg.biblesGivenAway){c=cfg.biblesGivenAway;anim(el,c);setGoal(c,g)}}catch(e){}if(!url)return;try{var x2=JSON.parse(localStorage.getItem(CK)||'{}');if((x2.ts?Date.now()-x2.ts:1/0)>TTL){var lv=await fetch(url+'?action=getMinistryStats',{cache:'no-store'}).then(function(r){return r.json()});if(lv.ok&&lv.total){if(lv.goal)g=lv.goal;localStorage.setItem(CK,JSON.stringify({total:lv.total,goal:lv.goal,ts:Date.now()}));anim(el,lv.total);setGoal(lv.total,g)}}}catch(e){}}
   go();
 })();
 </script>

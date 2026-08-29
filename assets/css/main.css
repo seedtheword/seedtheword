@@ -13666,3 +13666,29 @@ body.your-walk-modal-open {
 @media (max-width: 480px) {
   .nav-cart { display: inline-flex !important; margin-left: auto; margin-right: 0.25rem; }
 }
+
+/* ── Bibles-given progress bar (news milestone card) ── */
+.bible-goal__fill {
+  position: relative;
+}
+/* Soft breathing pulse on the green fill to feel "live/inching". */
+.bible-goal__fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  background-size: 200% 100%;
+  animation: bibleGoalShimmer 2.6s ease-in-out infinite;
+}
+@keyframes bibleGoalShimmer {
+  0%   { background-position: 120% 0; opacity: 0.9; }
+  50%  { opacity: 0.5; }
+  100% { background-position: -20% 0; opacity: 0.9; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bible-goal__fill::after { animation: none; }
+  .bible-goal__fill { transition: none !important; }
+}
+[data-theme="dark"] .bible-goal__track { background: rgba(74,138,114,0.18); }
+[data-theme="dark"] .bible-goal__pct { color: #5ca888 !important; }

@@ -1,15 +1,7 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-08-28T23:56:01+00:00",
+  "updated": "2026-08-29T15:26:13+00:00",
   "events": {
-    "kho4rdaagq7380idak21gl43a0@google.com": {
-      "title": "Identity Youth",
-      "start": "2026-08-15T02:00:00+00:00",
-      "lastPosted": "2026-08-15T02:26:00+00:00",
-      "upcomingPosted": true,
-      "reminderPosted": true,
-      "livePosted": true
-    },
     "34mca01781g3bliv83hi490ibj@google.com": {
       "title": "COMMUNITY COOKOUT!",
       "start": "2026-08-15T19:00:00+00:00",
@@ -65,7 +57,7 @@
     "vos6u5kob6g7psd1gag31kbp0g@google.com": {
       "title": "SEED THE WORD YOUNG ADULTS/BIBLE STUDY",
       "start": "2026-08-25T01:30:00+00:00",
-      "lastPosted": "2026-08-24T22:49:57+00:00",
+      "lastPosted": "2026-08-29T15:26:13+00:00",
       "recapPosted": true,
       "overviewPosted": true,
       "reminderPosted": true
@@ -73,7 +65,7 @@
     "p2m26oh6iji2vnm2i8m1l93kjo@google.com": {
       "title": "Identity Prayer Night",
       "start": "2026-08-28T02:00:00+00:00",
-      "lastPosted": "2026-08-27T23:26:01+00:00",
+      "lastPosted": "2026-08-29T15:26:13+00:00",
       "recapPosted": true,
       "overviewPosted": true,
       "upcomingPosted": true,
@@ -82,7 +74,7 @@
     "thprlp453ljqv5uq3ibhts3u4s@google.com": {
       "title": "SLAVIC AWAKENING YOUTH",
       "start": "2026-08-29T02:30:00+00:00",
-      "lastPosted": "2026-08-28T23:56:01+00:00",
+      "lastPosted": "2026-08-29T15:26:13+00:00",
       "recapPosted": true,
       "overviewPosted": true,
       "upcomingPosted": true,
@@ -91,13 +83,19 @@
     "jres85apq8781e8ldg58cbg9oc@google.com": {
       "title": "COMMUNITY COOKOUT!",
       "start": "2026-08-29T19:00:00+00:00",
-      "lastPosted": "2026-08-24T14:11:07+00:00",
+      "lastPosted": "2026-08-29T15:26:13+00:00",
       "recapPosted": true,
       "overviewPosted": true
+    },
+    "5bbsab8nn2oodre479l83kr1qm@google.com": {
+      "title": "SEED THE WORD EVANGELISM",
+      "start": "2026-08-31T22:00:00+00:00",
+      "lastPosted": "2026-08-29T15:26:13+00:00",
+      "recapPosted": true
     }
   },
   "schedule": {
     "lastOverview": "2026-08-24",
-    "lastRecap": "2026-08-22"
+    "lastRecap": "2026-08-29"
   }
 }

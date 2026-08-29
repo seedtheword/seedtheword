@@ -549,6 +549,24 @@
       "inStock": true,
       "language": null,
       "stockCount": null
+    },
+    {
+      "id": "custom-hoodie",
+      "name": "Custom Embroidered Hoodie",
+      "nativeName": null,
+      "category": "merch",
+      "description": "Design your own faith hoodie — add your custom text, choose a style, pick your product type, and even upload your own artwork. Hand-arranged by our team.",
+      "price": "$34.99",
+      "image": "assets/images/store/custom-hoodie.jpg",
+      "gallery": [
+        "assets/images/store/custom-hoodie.jpg"
+      ],
+      "url": null,
+      "tags": ["hoodie", "custom", "personalized", "embroidered", "apparel", "merch", "design your own"],
+      "seller": null,
+      "inStock": true,
+      "language": null,
+      "stockCount": null
     }
   ]
 }

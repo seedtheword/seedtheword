@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669615979,
-  "lastModified": "2026-08-28T21:55:33Z",
+  "lastUpdateId": 669615990,
+  "lastModified": "2026-08-29T19:55:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -243,29 +243,15 @@
       "messageId": 5422,
       "entryCount": 8,
       "postedAt": "2026-08-27T15:17:40Z"
+    },
+    "2026-W35-sat": {
+      "since": "2026-08-29T15:17:31Z",
+      "messageId": 5470,
+      "entryCount": 3,
+      "postedAt": "2026-08-29T15:17:36Z"
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5271,
-      "userId": 8045440327,
-      "displayName": "✝️🙏PRAYER DOG🐺🥀 I am L.A.W.",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Guys, I got into a bike crash, my arms are jacked up, I am able to type this with slight pain, but I can't easy bend my arms without extreme pain, same with lifting, or even the pressure applied to when you hold the handlebars on the bike, and I have work tomorrow. Please pray for me, that I will heal, that this is just going to go away tomorrow, that somehow a miracle will occur so I can just miraculously heal, and if not, that I just heal quickly.",
-      "ts": "2026-08-15T00:44:45Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5277,
-      "userId": 8045440327,
-      "displayName": "✝️🙏PRAYER DOG🐺🥀 I am L.A.W.",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hairline fracture on one arm, and sprained joint on the other. I am going to just focus on healing",
-      "ts": "2026-08-15T19:50:35Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5279,

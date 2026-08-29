@@ -222,6 +222,13 @@ function doPost(e) {
   if ((payload && payload.action) === 'getProfile') {
     return handleGetProfile_(payload);
   }
+  // ── Super-admin content CMS (see content-handler.gs) ──
+  if ((payload && payload.action) === 'listOutreachStories') return handleListOutreachStories_(payload);
+  if ((payload && payload.action) === 'saveOutreachStory') return handleSaveOutreachStory_(payload);
+  if ((payload && payload.action) === 'deleteOutreachStory') return handleDeleteOutreachStory_(payload);
+  if ((payload && payload.action) === 'listTestimonies') return handleListTestimonies_(payload);
+  if ((payload && payload.action) === 'saveTestimony') return handleSaveTestimony_(payload);
+  if ((payload && payload.action) === 'deleteTestimony') return handleDeleteTestimony_(payload);
   if ((payload && payload.action) === 'visitorSignup') {
     return handleVisitorSignup_(payload);
   }
@@ -4501,6 +4508,15 @@ function doGet(e) {
     } catch (err) {
       console.log('getMyOrders failed:', err);
       return jsonResponse({ ok: false, error: 'orders-read-failed' });
+    }
+  }
+
+  if (action === 'getPublishedContent') {
+    try {
+      return jsonResponse(getPublishedContent_());
+    } catch (err) {
+      console.log('getPublishedContent failed:', err);
+      return jsonResponse({ ok: false, error: 'content-read-failed' });
     }
   }
 

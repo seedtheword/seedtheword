@@ -23,8 +23,35 @@
   const NEWS_GRID_LIMIT = 6;
   let cache = null;
 
+  // Try the live backend first via the getPublishedContent action, then fall
+  // back to the repo JSON. This lets super-admins publish from the Team Portal
+  // without editing repo files, while the page never breaks if the backend is
+  // unreachable or not yet deployed.
+  async function loadLiveTestimonies() {
+    try {
+      const cfg = await fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); });
+      if (!cfg || !cfg.orderHandlerUrl) return null;
+      const res = await fetch(cfg.orderHandlerUrl + '?action=getPublishedContent', { cache: 'no-store' });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (!data || !data.ok || !Array.isArray(data.testimonies)) return null;
+      // Normalize to the shape testimonies.js expects: published true, name, body.
+      return data.testimonies.map(function (t) {
+        return {
+          id: t.id, name: t.name, anonymous: !!t.anonymous, published: true,
+          publishedAt: t.publishedAt || '', excerpt: t.excerpt || '',
+          body: t.body || '', mediaUrl: t.mediaUrl || '', anchorVerse: t.anchorVerse || ''
+        };
+      });
+    } catch (e) { return null; }
+  }
+
   async function loadManifest() {
     if (cache) return cache;
+    // 1) Live backend first, when it has any published testimonies.
+    const live = await loadLiveTestimonies();
+    if (live && live.length) { cache = live; return cache; }
+    // 2) Fallback: repo JSON.
     try {
       const res = await fetch(MANIFEST_URL + '?t=' + Date.now(), { cache: 'no-store' });
       if (!res.ok) throw new Error('http-' + res.status);

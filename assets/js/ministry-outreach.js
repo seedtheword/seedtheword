@@ -22,6 +22,40 @@ const PHOTO_HOLD_MS = 5500;
 // Events shown on news.html before "See more" kicks in
 const NEWS_PAGE_LIMIT = 4;
 
+// Live sheet-backed stories (super-admin published via getPublishedContent).
+// These are single-image cards appended after the folder-based photo essays,
+// so the rich existing galleries stay intact and new stories publish live.
+async function loadLiveOutreachStories() {
+  try {
+    const cfg = await fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json());
+    if (!cfg || !cfg.orderHandlerUrl) return [];
+    const res = await fetch(cfg.orderHandlerUrl + '?action=getPublishedContent', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data && data.ok && Array.isArray(data.stories)) ? data.stories : [];
+  } catch (e) { return []; }
+}
+
+function renderLiveStoryCard(s) {
+  const img = s.image
+    ? `<div class="outreach-card__media"><div class="outreach-slide active"><img class="outreach-slide__img" src="${escapeAttr(s.image)}" alt="${escapeAttr(s.title || 'Outreach')}"></div></div>`
+    : '';
+  return `
+    <article class="outreach-card glass-morphism">
+      ${img}
+      <div class="outreach-card__body">
+        <p class="outreach-card__date">${escapeHtml(s.date || '')}</p>
+        <h4 class="outreach-card__title">${escapeHtml(s.title || 'Outreach')}</h4>
+        <p class="outreach-card__location">${escapeHtml(s.location || '')}</p>
+        <p class="outreach-card__body-text">${escapeHtml(s.body || '')}</p>
+        <div class="outreach-card__actions">
+          <a class="outreach-card__cta" href="about.html#contact">Share your testimony <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
 async function initMinistryOutreach() {
   const newsMount       = document.getElementById('ministry-outreach-cards');
   const storiesMount    = document.getElementById('ministry-stories-cards');
@@ -89,6 +123,14 @@ async function initMinistryOutreach() {
     const filler = primary.length < 2 ? renderInvitationCard(false) : '';
 
     newsMount.innerHTML = primaryHtml + filler + overflowHtml;
+
+    // Append live super-admin-published stories (single-image cards) at the
+    // top, so freshly-published outreach shows first. Graceful: no-op if none.
+    loadLiveOutreachStories().then(function (liveStories) {
+      if (!liveStories || !liveStories.length) return;
+      var html = liveStories.map(renderLiveStoryCard).join('');
+      newsMount.insertAdjacentHTML('afterbegin', html);
+    });
 
     // Wire overflow toggle
     const toggleBtn = newsMount.querySelector('#outreach-overflow-toggle');

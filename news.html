@@ -273,7 +273,7 @@
 <script src="assets/js/livestream.js?v=2"></script>
 <script src="assets/js/ministry-impact.js?v=3" defer></script>
 <script src="assets/js/share-story.js?v=1" defer></script>
-<script src="assets/js/testimonies.js?v=4" defer></script>
+<script src="assets/js/testimonies.js?v=5" defer></script>
 
 <script>
 // Bible counter
@@ -354,27 +354,47 @@
 (function(){
   var grid=document.getElementById('photo-essay-grid');if(!grid)return;
   var BASE='assets/images/ministry-outreach';
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  // Live super-admin-published stories (getPublishedContent). Single-image
+  // items merged in FRONT of the folder-based photo essays. Graceful: if the
+  // backend isn't deployed/reachable, returns [] and the page is unchanged.
+  function loadLiveStories(){
+    return fetch('assets/data/site-config.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();}).then(function(cfg){
+      if(!cfg||!cfg.orderHandlerUrl)return [];
+      return fetch(cfg.orderHandlerUrl+'?action=getPublishedContent',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){
+        if(!d||!d.ok||!Array.isArray(d.stories))return [];
+        return d.stories.filter(function(s){return s&&s.image;}).map(function(s){
+          return {live:true,img:s.image,caption:s.body||'',title:s.title||'Outreach',location:s.location||'',date:s.date||''};
+        });
+      }).catch(function(){return [];});
+    }).catch(function(){return [];});
+  }
   fetch('assets/data/ministry-outreach.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(data){
-    var events=data.events||[];if(!events.length){grid.innerHTML='<div class="wcu-empty">No photos yet.</div>';return}
+    var events=data.events||[];
     // Load first image from each event's manifest
-    Promise.all(events.map(function(ev){
+    return Promise.all(events.map(function(ev){
       return fetch(BASE+'/'+ev.folder+'/images.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(m){
         var media=(m.media||[]).filter(function(x){return x&&x.file&&x.type!=='video'});
-        return media.length?{ev:ev,img:BASE+'/'+ev.folder+'/'+media[0].file,caption:media[0].caption||ev.body||''}:null;
+        return media.length?{img:BASE+'/'+ev.folder+'/'+media[0].file,caption:media[0].caption||ev.body||'',title:ev.title,location:ev.location,date:ev.date}:null;
       }).catch(function(){return null});
-    })).then(function(items){
-      items=items.filter(Boolean);if(!items.length){grid.innerHTML='<div class="wcu-empty">No photos yet.</div>';return}
-      var h='';
-      items.forEach(function(item,i){
-        var wide=i===0?' photo-essay__item--wide':'';
-        h+='<div class="photo-essay__item'+wide+'">';
-        h+='<img class="photo-essay__img" src="'+item.img+'" alt="'+item.ev.title+'" loading="lazy">';
-        h+='<p class="photo-essay__caption">'+item.caption;
-        h+='<span class="photo-essay__caption-meta">'+item.ev.location+' &middot; '+item.ev.date+'</span></p>';
-        h+='</div>';
-      });
-      grid.innerHTML=h;
+    }));
+  }).then(function(folderItems){
+    return loadLiveStories().then(function(live){
+      // Live stories first (newest featured), then folder-based essays.
+      return live.concat((folderItems||[]).filter(Boolean));
     });
+  }).then(function(items){
+    if(!items.length){grid.innerHTML='<div class="wcu-empty">No photos yet.</div>';return}
+    var h='';
+    items.forEach(function(item,i){
+      var wide=i===0?' photo-essay__item--wide':'';
+      h+='<div class="photo-essay__item'+wide+'">';
+      h+='<img class="photo-essay__img" src="'+esc(item.img)+'" alt="'+esc(item.title)+'" loading="lazy">';
+      h+='<p class="photo-essay__caption">'+esc(item.caption);
+      h+='<span class="photo-essay__caption-meta">'+esc(item.location)+' &middot; '+esc(item.date)+'</span></p>';
+      h+='</div>';
+    });
+    grid.innerHTML=h;
   }).catch(function(){grid.innerHTML='<div class="wcu-empty">Could not load photos.</div>'});
 })();
 </script>

@@ -273,7 +273,6 @@ function doPost(e) {
   // ── Finance actions (see docs/apps-script/finance-handler.gs) ──
   if ((payload && payload.action) === 'logFinanceEntry') return handleLogFinanceEntry_(payload);
   if ((payload && payload.action) === 'getFinanceEntries') return handleGetFinanceEntries_(payload);
-  if ((payload && payload.action) === 'getFinanceReport') return handleGetFinanceReport_(payload);
   if ((payload && payload.action) === 'deleteFinanceEntry') return handleDeleteFinanceEntry_(payload);
   if ((payload && payload.action) === 'editFinanceEntry') return handleEditFinanceEntry_(payload);
   if ((payload && payload.action) === 'getEventNames') return handleGetEventNames_(payload);

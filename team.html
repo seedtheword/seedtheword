@@ -10,6 +10,11 @@
   <link rel="stylesheet" href="assets/css/main.css?v=33">
   <link rel="stylesheet" href="assets/css/team-social.css?v=4">
   <link rel="stylesheet" href="assets/css/lms.css?v=1">
+  <style>
+    .content-subtab { transition: box-shadow 0.15s, transform 0.15s, outline-color 0.15s; outline: 2px solid transparent; }
+    .content-subtab--active { outline: 2px solid var(--color-olive, #2c5f2e); box-shadow: 0 4px 16px rgba(44,95,46,0.18); transform: translateY(-2px); }
+    #tab-content textarea:focus { outline: none; border-color: var(--color-olive, #2c5f2e); }
+  </style>
   <script src="assets/js/theme-toggle.js?v=1"></script>
 </head>
 <body>
@@ -172,6 +177,7 @@
       <button class="main-tab" data-tab="messages"><span class="main-tab__icon">💬</span> Chat</button>
       <button class="main-tab" data-tab="forum"><span class="main-tab__icon">📝</span> Forum</button>
       <button class="main-tab" data-tab="training"><span class="main-tab__icon">📚</span> Train</button>
+      <button class="main-tab" data-tab="content" id="tab-btn-content" style="display:none;"><span class="main-tab__icon">✨</span> Content</button>
     </nav>
 
     <!-- Dashboard Tab — Mobile-first tile grid -->
@@ -495,6 +501,159 @@
       </div>
     </div>
 
+    <!-- Content Tab — SUPER-ADMIN ONLY: publish outreach stories + testimonies live to the News page, plus calendar shortcut -->
+    <div class="tab-panel" id="tab-content" hidden>
+
+      <!-- Super-admin landing / privileges explainer -->
+      <div class="glass-card" style="border:1px solid rgba(212,175,55,0.35);background:linear-gradient(135deg,rgba(212,175,55,0.07),rgba(44,95,46,0.04));">
+        <h3 class="glass-card__title" style="display:flex;align-items:center;gap:0.4rem;">✨ Super-Admin Content Studio</h3>
+        <p style="color:var(--color-text-muted);font-size:0.82rem;line-height:1.6;margin:0 0 0.75rem;">
+          You're seeing this because you're a <strong style="color:var(--color-text);">super-admin</strong>. Beyond a normal admin (scanning, finance, chat), you can publish content that appears <strong>live on the public News page</strong>, no code or file edits needed.
+        </p>
+        <ul style="color:var(--color-text-muted);font-size:0.8rem;line-height:1.7;margin:0;padding-left:1.1rem;">
+          <li><strong>Outreach Stories</strong> — add a story with a photo; it shows at the top of the News photo essay.</li>
+          <li><strong>Testimonies</strong> — review, publish, or unpublish testimonies that appear on News + the Testimonies page.</li>
+          <li><strong>Calendar</strong> — add ministry events straight from Google Calendar.</li>
+        </ul>
+      </div>
+
+      <!-- Content sub-nav -->
+      <div class="dash-stats" style="grid-template-columns:1fr 1fr;">
+        <button class="dash-stat dash-stat--secondary content-subtab content-subtab--active" data-csub="stories" style="cursor:pointer;border:none;">
+          <div class="dash-stat__icon">📸</div>
+          <div class="dash-stat__number" id="content-stories-count">–</div>
+          <div class="dash-stat__label">Outreach Stories</div>
+        </button>
+        <button class="dash-stat dash-stat--finance content-subtab" data-csub="testimonies" style="cursor:pointer;border:none;">
+          <div class="dash-stat__icon">🗣️</div>
+          <div class="dash-stat__number" id="content-testimonies-count">–</div>
+          <div class="dash-stat__label">Testimonies</div>
+        </button>
+      </div>
+
+      <!-- ── Outreach Stories sub-panel ── -->
+      <div id="content-sub-stories">
+        <div class="glass-card">
+          <h3 class="glass-card__title">➕ <span id="story-form-mode">New</span> Outreach Story</h3>
+          <form id="story-form" class="finance-form" novalidate>
+            <input type="hidden" id="story-id">
+            <div class="finance-form__row">
+              <div class="finance-form__field">
+                <label for="story-date">Date</label>
+                <input type="date" id="story-date">
+              </div>
+              <div class="finance-form__field">
+                <label for="story-sort">Sort Order</label>
+                <input type="number" id="story-sort" placeholder="0" step="1" inputmode="numeric">
+              </div>
+            </div>
+            <div class="finance-form__field">
+              <label for="story-title">Title</label>
+              <input type="text" id="story-title" placeholder="e.g. Bellevue Park Outreach" required>
+            </div>
+            <div class="finance-form__field">
+              <label for="story-location">Location</label>
+              <input type="text" id="story-location" placeholder="e.g. Bellevue, WA">
+            </div>
+            <div class="finance-form__field">
+              <label for="story-body">Story</label>
+              <textarea id="story-body" rows="3" placeholder="What happened? A few sentences." style="width:100%;box-sizing:border-box;font:inherit;padding:0.6rem;border:1px solid var(--color-border);border-radius:var(--radius-md);resize:vertical;"></textarea>
+            </div>
+            <div class="finance-form__field">
+              <label for="story-image">Image URL</label>
+              <input type="url" id="story-image" placeholder="https://... (public image link)">
+            </div>
+            <div class="finance-form__field">
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                <input type="checkbox" id="story-published" style="width:auto;"> Published (visible on News)
+              </label>
+            </div>
+            <div class="finance-form__status" id="story-status"></div>
+            <div style="display:flex;gap:0.5rem;">
+              <button type="submit" class="btn btn--green" style="flex:1;">💾 Save Story</button>
+              <button type="button" class="btn" id="story-reset" style="flex:0 0 auto;background:var(--color-surface);border:1px solid var(--color-border);">Clear</button>
+            </div>
+          </form>
+        </div>
+        <div class="glass-card">
+          <h3 class="glass-card__title">📸 All Outreach Stories</h3>
+          <div id="stories-list">
+            <p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">Loading…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Testimonies sub-panel ── -->
+      <div id="content-sub-testimonies" hidden>
+        <div class="glass-card">
+          <h3 class="glass-card__title">➕ <span id="testimony-form-mode">New</span> Testimony</h3>
+          <form id="testimony-form" class="finance-form" novalidate>
+            <input type="hidden" id="testimony-id">
+            <div class="finance-form__row">
+              <div class="finance-form__field">
+                <label for="testimony-name">Name</label>
+                <input type="text" id="testimony-name" placeholder="First name or full name">
+              </div>
+              <div class="finance-form__field">
+                <label for="testimony-date">Published Date</label>
+                <input type="date" id="testimony-date">
+              </div>
+            </div>
+            <div class="finance-form__field">
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                <input type="checkbox" id="testimony-anon" style="width:auto;"> Show as Anonymous
+              </label>
+            </div>
+            <div class="finance-form__field">
+              <label for="testimony-excerpt">Short Excerpt</label>
+              <input type="text" id="testimony-excerpt" placeholder="One-line pull quote for cards">
+            </div>
+            <div class="finance-form__field">
+              <label for="testimony-body">Full Testimony</label>
+              <textarea id="testimony-body" rows="4" placeholder="The full story in their words." style="width:100%;box-sizing:border-box;font:inherit;padding:0.6rem;border:1px solid var(--color-border);border-radius:var(--radius-md);resize:vertical;"></textarea>
+            </div>
+            <div class="finance-form__row">
+              <div class="finance-form__field">
+                <label for="testimony-verse">Anchor Verse</label>
+                <input type="text" id="testimony-verse" placeholder="e.g. John 3:16">
+              </div>
+              <div class="finance-form__field">
+                <label for="testimony-media">Media URL</label>
+                <input type="url" id="testimony-media" placeholder="https://... (optional)">
+              </div>
+            </div>
+            <div class="finance-form__field">
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                <input type="checkbox" id="testimony-published" style="width:auto;"> Published (visible on site)
+              </label>
+            </div>
+            <div class="finance-form__status" id="testimony-status"></div>
+            <div style="display:flex;gap:0.5rem;">
+              <button type="submit" class="btn btn--green" style="flex:1;">💾 Save Testimony</button>
+              <button type="button" class="btn" id="testimony-reset" style="flex:0 0 auto;background:var(--color-surface);border:1px solid var(--color-border);">Clear</button>
+            </div>
+          </form>
+        </div>
+        <div class="glass-card">
+          <h3 class="glass-card__title">🗣️ All Testimonies</h3>
+          <div id="testimonies-admin-list">
+            <p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">Loading…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Calendar shortcut ── -->
+      <div class="glass-card">
+        <h3 class="glass-card__title">📅 Ministry Calendar</h3>
+        <p style="color:var(--color-text-muted);font-size:0.82rem;line-height:1.55;margin:0 0 0.75rem;">
+          Events are managed in Google Calendar. Add or edit ministry events there; the homepage feed reads from it.
+        </p>
+        <a class="btn btn--green" href="https://calendar.google.com/calendar/r/eventedit" target="_blank" rel="noopener" style="width:100%;display:block;text-align:center;box-sizing:border-box;">➕ Add Event in Google Calendar &rarr;</a>
+        <a class="btn" href="https://calendar.google.com/calendar/r" target="_blank" rel="noopener" style="width:100%;display:block;text-align:center;box-sizing:border-box;margin-top:0.5rem;background:var(--color-surface);border:1px solid var(--color-border);">Open Full Calendar</a>
+      </div>
+
+    </div>
+
   </div><!-- /view-portal -->
 
   <!-- Picker Modal -->
@@ -573,11 +732,16 @@
 
     var role = (s.role || 'member').toLowerCase();
     var isTeam = (role === 'admin' || role === 'super_admin');
+    var isSuper = (role === 'super_admin');
 
     // Tab buttons
     var dashTab = document.querySelector('[data-tab="dashboard"]');
     var scanTab = document.querySelector('[data-tab="scanner"]');
     var financeTab = document.querySelector('[data-tab="finance"]');
+    var contentTab = document.getElementById('tab-btn-content');
+
+    // Content Studio is super-admin only
+    if (contentTab) contentTab.style.display = isSuper ? '' : 'none';
 
     if (!isTeam) {
       // Hide Dash, Scan, and Finance tabs for regular members
@@ -1162,6 +1326,253 @@
     load: loadFinanceEntries,
     getEntries: function() { return financeEntries; }
   };
+})();
+</script>
+
+<!-- ═══ CONTENT TAB: super-admin CMS (outreach stories + testimonies) ═══ -->
+<script>
+(function() {
+  var CONFIG_URL = 'assets/data/site-config.json';
+  var handlerUrl = null;
+  var storiesCache = [];
+  var testimoniesCache = [];
+  var loaded = false;
+
+  async function getUrl() {
+    if (handlerUrl) return handlerUrl;
+    var cfg = await fetch(CONFIG_URL + '?t=' + Date.now(), {cache:'no-store'}).then(function(r){return r.json();});
+    handlerUrl = cfg.orderHandlerUrl;
+    return handlerUrl;
+  }
+  async function post(data) {
+    var url = await getUrl();
+    var res = await fetch(url, {method:'POST', redirect:'follow', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(data)});
+    var text = await res.text();
+    try { return JSON.parse(text); } catch(e) { throw new Error('Invalid server response'); }
+  }
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) { return null; }
+  }
+  function esc(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
+  function isSuper() {
+    var s = getSession();
+    return s && String(s.role || '').toLowerCase() === 'super_admin';
+  }
+  function boolYes(v) { return String(v).toUpperCase() === 'YES' || v === true; }
+
+  // ── Sub-tab switching ──
+  function showSub(which) {
+    document.querySelectorAll('.content-subtab').forEach(function(b){
+      b.classList.toggle('content-subtab--active', b.dataset.csub === which);
+    });
+    var st = document.getElementById('content-sub-stories');
+    var te = document.getElementById('content-sub-testimonies');
+    if (st) st.hidden = which !== 'stories';
+    if (te) te.hidden = which !== 'testimonies';
+  }
+  document.querySelectorAll('.content-subtab').forEach(function(btn){
+    btn.addEventListener('click', function(){ showSub(this.dataset.csub); });
+  });
+
+  // ── Outreach stories ──
+  async function loadStories() {
+    var list = document.getElementById('stories-list');
+    var session = getSession();
+    if (!session) return;
+    try {
+      var res = await post({action:'listOutreachStories', token: session.token});
+      if (res.ok && res.stories) { storiesCache = res.stories; renderStories(); }
+      else { list.innerHTML = '<p style="color:#c0392b;font-size:0.82rem;text-align:center;">' + esc(res.error || 'Could not load stories.') + '</p>'; }
+    } catch(e) {
+      list.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.82rem;text-align:center;">Backend not reachable. Deploy the content handler and try again.</p>';
+    }
+  }
+  function renderStories() {
+    var list = document.getElementById('stories-list');
+    var countEl = document.getElementById('content-stories-count');
+    if (countEl) countEl.textContent = storiesCache.length;
+    if (!storiesCache.length) { list.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">No stories yet.</p>'; return; }
+    list.innerHTML = storiesCache.map(function(s, i){
+      var pub = boolYes(s.published);
+      return '<div class="finance-entry">' +
+        '<div class="finance-entry__icon">' + (pub ? '🟢' : '⚪') + '</div>' +
+        '<div class="finance-entry__info">' +
+          '<div class="finance-entry__desc">' + esc(s.title || 'Untitled') + '</div>' +
+          '<div class="finance-entry__meta">' + esc(s.date || '') + (s.location ? ' · ' + esc(s.location) : '') + ' · ' + (pub ? 'Published' : 'Draft') + '</div>' +
+        '</div>' +
+        '<button class="finance-entry__edit" data-idx="' + i + '" title="Edit">✏️</button>' +
+        '<button class="finance-entry__delete" data-idx="' + i + '" title="Delete">×</button>' +
+      '</div>';
+    }).join('');
+    list.querySelectorAll('.finance-entry__edit').forEach(function(b){ b.addEventListener('click', function(){ editStory(parseInt(this.dataset.idx)); }); });
+    list.querySelectorAll('.finance-entry__delete').forEach(function(b){ b.addEventListener('click', function(){ deleteStory(parseInt(this.dataset.idx)); }); });
+  }
+  function editStory(idx) {
+    var s = storiesCache[idx]; if (!s) return;
+    document.getElementById('story-id').value = s.id || '';
+    document.getElementById('story-date').value = s.date || '';
+    document.getElementById('story-sort').value = s.sort_order || '';
+    document.getElementById('story-title').value = s.title || '';
+    document.getElementById('story-location').value = s.location || '';
+    document.getElementById('story-body').value = s.body || '';
+    document.getElementById('story-image').value = s.image_url || '';
+    document.getElementById('story-published').checked = boolYes(s.published);
+    document.getElementById('story-form-mode').textContent = 'Edit';
+    document.getElementById('story-form').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  function resetStoryForm() {
+    document.getElementById('story-form').reset();
+    document.getElementById('story-id').value = '';
+    document.getElementById('story-form-mode').textContent = 'New';
+    document.getElementById('story-status').textContent = '';
+  }
+  async function deleteStory(idx) {
+    var s = storiesCache[idx]; if (!s) return;
+    if (!confirm('Delete story "' + (s.title || 'Untitled') + '"?')) return;
+    var session = getSession();
+    try {
+      var res = await post({action:'deleteOutreachStory', token: session.token, id: s.id});
+      if (res.ok) loadStories(); else alert(res.error || 'Delete failed.');
+    } catch(e) { alert('Could not delete: ' + e.message); }
+  }
+  var storyForm = document.getElementById('story-form');
+  if (storyForm) {
+    storyForm.addEventListener('submit', async function(e){
+      e.preventDefault();
+      var status = document.getElementById('story-status');
+      var title = document.getElementById('story-title').value.trim();
+      if (!title) { status.textContent = 'Title is required.'; status.style.color = '#c0392b'; return; }
+      var session = getSession();
+      if (!session) { status.textContent = 'Not logged in.'; status.style.color = '#c0392b'; return; }
+      var story = {
+        id: document.getElementById('story-id').value.trim(),
+        date: document.getElementById('story-date').value,
+        title: title,
+        location: document.getElementById('story-location').value.trim(),
+        body: document.getElementById('story-body').value.trim(),
+        image_url: document.getElementById('story-image').value.trim(),
+        sort_order: document.getElementById('story-sort').value,
+        published: document.getElementById('story-published').checked ? 'YES' : 'NO'
+      };
+      var btn = storyForm.querySelector('button[type="submit"]');
+      btn.disabled = true; btn.textContent = 'Saving...'; status.textContent = '';
+      try {
+        var res = await post({action:'saveOutreachStory', token: session.token, story: story});
+        if (res.ok) { status.textContent = '✓ Saved'; status.style.color = 'var(--color-olive)'; resetStoryForm(); loadStories(); }
+        else { status.textContent = res.error || 'Save failed.'; status.style.color = '#c0392b'; }
+      } catch(err) { status.textContent = 'Could not save: ' + err.message; status.style.color = '#c0392b'; }
+      finally { btn.disabled = false; btn.textContent = '💾 Save Story'; }
+    });
+  }
+  var storyReset = document.getElementById('story-reset');
+  if (storyReset) storyReset.addEventListener('click', resetStoryForm);
+
+  // ── Testimonies ──
+  async function loadTestimonies() {
+    var list = document.getElementById('testimonies-admin-list');
+    var session = getSession();
+    if (!session) return;
+    try {
+      var res = await post({action:'listTestimonies', token: session.token});
+      if (res.ok && res.testimonies) { testimoniesCache = res.testimonies; renderTestimonies(); }
+      else { list.innerHTML = '<p style="color:#c0392b;font-size:0.82rem;text-align:center;">' + esc(res.error || 'Could not load testimonies.') + '</p>'; }
+    } catch(e) {
+      list.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.82rem;text-align:center;">Backend not reachable. Deploy the content handler and try again.</p>';
+    }
+  }
+  function renderTestimonies() {
+    var list = document.getElementById('testimonies-admin-list');
+    var countEl = document.getElementById('content-testimonies-count');
+    if (countEl) countEl.textContent = testimoniesCache.length;
+    if (!testimoniesCache.length) { list.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">No testimonies yet.</p>'; return; }
+    list.innerHTML = testimoniesCache.map(function(t, i){
+      var pub = boolYes(t.published);
+      var anon = boolYes(t.anonymous);
+      var name = anon ? 'Anonymous' : (t.name || 'Unnamed');
+      return '<div class="finance-entry">' +
+        '<div class="finance-entry__icon">' + (pub ? '🟢' : '⚪') + '</div>' +
+        '<div class="finance-entry__info">' +
+          '<div class="finance-entry__desc">' + esc(name) + '</div>' +
+          '<div class="finance-entry__meta">' + esc(t.excerpt || (t.body || '').slice(0, 50)) + ' · ' + (pub ? 'Published' : 'Draft') + '</div>' +
+        '</div>' +
+        '<button class="finance-entry__edit" data-idx="' + i + '" title="Edit">✏️</button>' +
+        '<button class="finance-entry__delete" data-idx="' + i + '" title="Delete">×</button>' +
+      '</div>';
+    }).join('');
+    list.querySelectorAll('.finance-entry__edit').forEach(function(b){ b.addEventListener('click', function(){ editTestimony(parseInt(this.dataset.idx)); }); });
+    list.querySelectorAll('.finance-entry__delete').forEach(function(b){ b.addEventListener('click', function(){ deleteTestimony(parseInt(this.dataset.idx)); }); });
+  }
+  function editTestimony(idx) {
+    var t = testimoniesCache[idx]; if (!t) return;
+    document.getElementById('testimony-id').value = t.id || '';
+    document.getElementById('testimony-name').value = t.name || '';
+    document.getElementById('testimony-date').value = t.published_at || '';
+    document.getElementById('testimony-anon').checked = boolYes(t.anonymous);
+    document.getElementById('testimony-excerpt').value = t.excerpt || '';
+    document.getElementById('testimony-body').value = t.body || '';
+    document.getElementById('testimony-verse').value = t.anchor_verse || '';
+    document.getElementById('testimony-media').value = t.media_url || '';
+    document.getElementById('testimony-published').checked = boolYes(t.published);
+    document.getElementById('testimony-form-mode').textContent = 'Edit';
+    document.getElementById('testimony-form').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  function resetTestimonyForm() {
+    document.getElementById('testimony-form').reset();
+    document.getElementById('testimony-id').value = '';
+    document.getElementById('testimony-form-mode').textContent = 'New';
+    document.getElementById('testimony-status').textContent = '';
+  }
+  async function deleteTestimony(idx) {
+    var t = testimoniesCache[idx]; if (!t) return;
+    if (!confirm('Delete this testimony?')) return;
+    var session = getSession();
+    try {
+      var res = await post({action:'deleteTestimony', token: session.token, id: t.id});
+      if (res.ok) loadTestimonies(); else alert(res.error || 'Delete failed.');
+    } catch(e) { alert('Could not delete: ' + e.message); }
+  }
+  var testimonyForm = document.getElementById('testimony-form');
+  if (testimonyForm) {
+    testimonyForm.addEventListener('submit', async function(e){
+      e.preventDefault();
+      var status = document.getElementById('testimony-status');
+      var session = getSession();
+      if (!session) { status.textContent = 'Not logged in.'; status.style.color = '#c0392b'; return; }
+      var anon = document.getElementById('testimony-anon').checked;
+      var name = document.getElementById('testimony-name').value.trim();
+      if (!anon && !name) { status.textContent = 'Add a name or mark anonymous.'; status.style.color = '#c0392b'; return; }
+      var testimony = {
+        id: document.getElementById('testimony-id').value.trim(),
+        name: name,
+        anonymous: anon ? 'YES' : 'NO',
+        published_at: document.getElementById('testimony-date').value,
+        excerpt: document.getElementById('testimony-excerpt').value.trim(),
+        body: document.getElementById('testimony-body').value.trim(),
+        anchor_verse: document.getElementById('testimony-verse').value.trim(),
+        media_url: document.getElementById('testimony-media').value.trim(),
+        published: document.getElementById('testimony-published').checked ? 'YES' : 'NO'
+      };
+      var btn = testimonyForm.querySelector('button[type="submit"]');
+      btn.disabled = true; btn.textContent = 'Saving...'; status.textContent = '';
+      try {
+        var res = await post({action:'saveTestimony', token: session.token, testimony: testimony});
+        if (res.ok) { status.textContent = '✓ Saved'; status.style.color = 'var(--color-olive)'; resetTestimonyForm(); loadTestimonies(); }
+        else { status.textContent = res.error || 'Save failed.'; status.style.color = '#c0392b'; }
+      } catch(err) { status.textContent = 'Could not save: ' + err.message; status.style.color = '#c0392b'; }
+      finally { btn.disabled = false; btn.textContent = '💾 Save Testimony'; }
+    });
+  }
+  var testimonyReset = document.getElementById('testimony-reset');
+  if (testimonyReset) testimonyReset.addEventListener('click', resetTestimonyForm);
+
+  // ── Load data when the Content tab is first opened ──
+  var contentTabBtn = document.getElementById('tab-btn-content');
+  if (contentTabBtn) {
+    contentTabBtn.addEventListener('click', function(){
+      if (!isSuper()) return;
+      if (!loaded) { loaded = true; loadStories(); loadTestimonies(); }
+    });
+  }
 })();
 </script>
 

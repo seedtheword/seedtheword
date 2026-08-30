@@ -5,28 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Help — Seed the Word</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
   <style>
     /* ============================================================
-       Admin Help page — v4 (Serif Editorial Design System)
-       Matches community.html / news.html: Playfair Display headings,
-       Source Sans 3 body, IBM Plex Mono labels, gold accents (#B8860B),
+       Admin Help page — v5 (modernized to site design language)
+       Site fonts: Fraunces headings, Inter body, IBM Plex Mono labels,
+       gold accents (#B8860B),
        warm ivory background (#FAFAF8), rule lines.
        Navigation: category tabs + an alphabet rail that reveals
        topics as you hover (or tap on mobile).
        ============================================================ */
 
     :root {
-      /* ── Serif Editorial Design System ──────────────────────────
-         Matches community.html / news.html: Playfair Display serif,
-         Source Sans 3 sans, IBM Plex Mono mono, gold accents, warm
+      /* ── Design tokens (aligned to site fonts) ──────────────────
+         Fraunces serif, Inter sans, IBM Plex Mono mono, gold accents, warm
          ivory background. Palette still targets WCAG AA 4.5:1. */
-      --ah-serif:  'Playfair Display', Georgia, serif;
-      --ah-sans:   'Source Sans 3', system-ui, sans-serif;
+      --ah-serif:  'Fraunces', Georgia, serif;
+      --ah-sans:   'Inter', system-ui, sans-serif;
       --ah-mono:   'IBM Plex Mono', monospace;
       --ah-ink:    #1A1A1A;           /* body + headings */
       --ah-ink-2:  #2C2C2C;           /* second-level text */
@@ -1072,7 +1071,25 @@
         Seed the Word
       </a>
     </div>
-    <div style="font-size: 0.9rem; color: var(--muted);">Admin area</div>
+    <nav id="site-nav">
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="store.html">Store</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="community.html">Community</a></li>
+        <li><a href="team.html" class="nav-login active">Team Portal</a></li>
+      </ul>
+    </nav>
+    <div class="header-social">
+      <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" width="32" height="32"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+      <a href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="32" height="32"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg></a>
+      <a href="https://twitch.tv/seedtheword" target="_blank" rel="noopener" aria-label="Twitch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9146FF" width="32" height="32"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></a>
+      <a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener" aria-label="Spotify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954" width="32" height="32"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg></a>
+    </div>
+    <button class="hamburger" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
 
@@ -1137,27 +1154,35 @@
 
   <!-- Quick-access field tools (field-logger integration) -->
   <div id="admin-field-tools" class="admin-field-tools" hidden>
-    <a href="admin/field-log.html" target="_blank" rel="noopener" class="admin-field-tools__link">
-      <span class="admin-field-tools__icon">📋</span>
-      <span class="admin-field-tools__text">
-        <strong>Field Log</strong>
-        <small>Log inventory at events</small>
-      </span>
-      <span class="admin-field-tools__arrow">→</span>
-    </a>
-    <a href="admin/field-log.html" target="_blank" rel="noopener" class="admin-field-tools__link">
+    <a href="team.html" class="admin-field-tools__link">
       <span class="admin-field-tools__icon">📊</span>
       <span class="admin-field-tools__text">
-        <strong>Dashboard</strong>
-        <small>View totals in the spreadsheet</small>
+        <strong>Team Portal — Dashboard</strong>
+        <small>Live stats, scan QR, log inventory</small>
       </span>
       <span class="admin-field-tools__arrow">→</span>
     </a>
-    <a href="admin/messaging.html" target="_blank" rel="noopener" class="admin-field-tools__link">
-      <span class="admin-field-tools__icon">📨</span>
+    <a href="team.html" class="admin-field-tools__link">
+      <span class="admin-field-tools__icon">💰</span>
       <span class="admin-field-tools__text">
-        <strong>Team Messaging</strong>
-        <small>Announcements, DMs & member notes</small>
+        <strong>Finance</strong>
+        <small>Log expenses, receipts &amp; reports</small>
+      </span>
+      <span class="admin-field-tools__arrow">→</span>
+    </a>
+    <a href="team.html" class="admin-field-tools__link">
+      <span class="admin-field-tools__icon">✨</span>
+      <span class="admin-field-tools__text">
+        <strong>Content Studio <em style="font-style:normal;opacity:0.6;font-size:0.85em;">(super-admin)</em></strong>
+        <small>Publish outreach stories &amp; testimonies live</small>
+      </span>
+      <span class="admin-field-tools__arrow">→</span>
+    </a>
+    <a href="team.html" class="admin-field-tools__link">
+      <span class="admin-field-tools__icon">💬</span>
+      <span class="admin-field-tools__text">
+        <strong>Team Chat</strong>
+        <small>Announcements, DMs &amp; forum</small>
       </span>
       <span class="admin-field-tools__arrow">→</span>
     </a>
@@ -2088,6 +2113,12 @@
 
   <h2>🙌 Managing Ministry Outreach cards (news.html)</h2>
   <p>The "Ministry Outreach &amp; Highlights" section on the News page leads with up to <strong>3 outreach cards</strong>, each with its own rotating slideshow of photos and videos. Each card represents one real outreach (a date, a location, a short write-up, an optional testimony). New events are added by dropping a new folder of media in and appending one entry to a master index — no HTML edits needed.</p>
+
+  <div class="admin-card" style="border-left:4px solid var(--ah-accent);background:rgba(184,134,11,0.05);">
+    <p class="admin-card__label">✨ New — no-code publishing (super-admin)</p>
+    <p class="admin-card__title">Content Studio in the Team Portal</p>
+    <p>Super-admins can now publish an outreach story <em>or</em> a testimony straight from the <a href="team.html">Team Portal → <strong>Content</strong> tab</a> — no repo edits. A story added there (title, location, a few sentences, one image URL) appears <strong>live</strong> at the top of the News photo essay within a couple of minutes. Testimonies published there show on News + the Testimonies page. The site reads these live and quietly falls back to the JSON/folder method below if the backend is ever offline, so <strong>both approaches work together</strong>. Use the folder method below when you want a rich multi-photo slideshow; use the Content Studio for a quick single-image story.</p>
+  </div>
 
   <div class="admin-card">
     <p class="admin-card__label">Master index (what the page shows)</p>
@@ -3368,6 +3399,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
       });
   })();
 </script>
+<script src="assets/js/main.js?v=20"></script>
 <script src="assets/js/profile-settings.js?v=3"></script>
 <script src="assets/js/nav-auth.js?v=3"></script>
 

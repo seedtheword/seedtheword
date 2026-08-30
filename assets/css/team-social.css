@@ -711,6 +711,51 @@
   .profile-card__stats { justify-content: center; }
 }
 
+/* ── Option A: on desktop, tabs WRAP so none are unreachable ──
+   Mobile keeps the horizontal touch-scroll (unchanged). On non-touch
+   / wider viewports there is no scroll affordance, so we wrap every
+   tab onto as many rows as needed and size each to its content. */
+@media (min-width: 561px) {
+  .main-tabs {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+  .main-tab {
+    flex: 0 0 auto;      /* size to content instead of stretching */
+    padding: 0.6rem 1rem;
+  }
+}
+
+/* ── Option B: roomier DESKTOP layout (CSS-only, no DOM changes) ──
+   Below 768px the portal is untouched (mobile-first phone column).
+   At >=768px we widen the column and let the stat/tile grids spread
+   using auto-fit so cards keep a sensible size instead of stretching.
+   No structural or JS changes, so nothing we built breaks. */
+@media (min-width: 768px) {
+  .team-page {
+    max-width: 900px;
+    padding: 0 1.5rem;
+  }
+  /* Hero + finance stat cards spread to fill the wider column */
+  .dash-stats,
+  .stat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  }
+  /* Quick-action tiles: comfortable auto-fit grid */
+  .dash-tiles {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  /* A touch more padding on cards for a fuller feel */
+  .glass-card { padding: 1.4rem 1.5rem; }
+}
+
+/* Extra breathing room on large screens */
+@media (min-width: 1100px) {
+  .team-page { max-width: 1040px; }
+}
+
 
 /* ── Redesigned Chat Topic Sidebar ─────────────────────────── */
 .chat-topic--active {

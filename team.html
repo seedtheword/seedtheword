@@ -11,9 +11,44 @@
   <link rel="stylesheet" href="assets/css/team-social.css?v=4">
   <link rel="stylesheet" href="assets/css/lms.css?v=1">
   <style>
-    .content-subtab { transition: box-shadow 0.15s, transform 0.15s, outline-color 0.15s; outline: 2px solid transparent; }
-    .content-subtab--active { outline: 2px solid var(--color-olive, #2c5f2e); box-shadow: 0 4px 16px rgba(44,95,46,0.18); transform: translateY(-2px); }
-    #tab-content textarea:focus { outline: none; border-color: var(--color-olive, #2c5f2e); }
+    /* ── Content Studio — SocialPulse-inspired look (emerald, white cards) ── */
+    #tab-content { --sp-green:#10b981; --sp-green-dark:#059669; --sp-ink:#0f172a; --sp-muted:#64748b; --sp-line:#e5e9f0; --sp-card:#ffffff; --sp-bg:#f6f8fb; }
+    [data-theme="dark"] #tab-content { --sp-ink:#e8eaed; --sp-muted:#9aa4b2; --sp-line:#2a2f37; --sp-card:#1a1e24; --sp-bg:#12151a; }
+
+    /* Header row: title + subtitle + New pill */
+    .sp-head { display:flex; align-items:flex-start; justify-content:space-between; gap:0.75rem; margin:0.25rem 0 1rem; }
+    .sp-head__title { font-family:'Fraunces',Georgia,serif; font-size:1.4rem; font-weight:600; color:var(--sp-ink); margin:0; line-height:1.15; }
+    .sp-head__sub { font-size:0.8rem; color:var(--sp-muted); margin:0.2rem 0 0; }
+    .sp-newbtn { flex:0 0 auto; display:inline-flex; align-items:center; gap:0.35rem; background:var(--sp-green); color:#fff; border:none; border-radius:999px; padding:0.5rem 0.95rem; font-size:0.8rem; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(16,185,129,0.3); transition:background 0.15s, transform 0.15s; }
+    .sp-newbtn:hover { background:var(--sp-green-dark); transform:translateY(-1px); }
+
+    /* Privileges strip */
+    .sp-privs { background:var(--sp-card); border:1px solid var(--sp-line); border-radius:14px; padding:0.9rem 1rem; margin:0 0 1rem; box-shadow:0 1px 3px rgba(15,23,42,0.05); }
+    .sp-privs__eyebrow { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.66rem; letter-spacing:0.09em; text-transform:uppercase; font-weight:800; color:var(--sp-green-dark); background:rgba(16,185,129,0.1); border-radius:999px; padding:0.2rem 0.6rem; margin-bottom:0.5rem; }
+    .sp-privs p { font-size:0.8rem; color:var(--sp-muted); line-height:1.55; margin:0; }
+    .sp-privs strong { color:var(--sp-ink); }
+
+    /* Metric cards (sub-tab switcher styled like SocialPulse stats) */
+    .sp-metrics { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin:0 0 1.1rem; }
+    .sp-metric { position:relative; text-align:left; background:var(--sp-card); border:1px solid var(--sp-line); border-radius:14px; padding:0.85rem 0.95rem; cursor:pointer; box-shadow:0 1px 3px rgba(15,23,42,0.05); transition:border-color 0.15s, box-shadow 0.15s, transform 0.15s; font:inherit; }
+    .sp-metric:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(15,23,42,0.08); }
+    .sp-metric__dot { position:absolute; top:0.9rem; right:0.9rem; width:9px; height:9px; border-radius:50%; background:#cbd5e1; }
+    .sp-metric--active { border-color:var(--sp-green); box-shadow:0 4px 16px rgba(16,185,129,0.18); }
+    .sp-metric--active .sp-metric__dot { background:var(--sp-green); }
+    .sp-metric__label { font-size:0.72rem; color:var(--sp-muted); font-weight:600; margin:0 0 0.15rem; }
+    .sp-metric__num { font-size:1.6rem; font-weight:800; color:var(--sp-ink); line-height:1; letter-spacing:-0.01em; }
+    .sp-metric__hint { font-size:0.68rem; color:var(--sp-muted); margin-top:0.35rem; }
+    .sp-metric__hint b { color:var(--sp-green-dark); font-weight:700; }
+
+    /* Content cards + list rows */
+    #tab-content .glass-card { background:var(--sp-card); border:1px solid var(--sp-line); border-radius:16px; box-shadow:0 1px 3px rgba(15,23,42,0.05); }
+    #tab-content .glass-card__title { font-family:'Fraunces',Georgia,serif; font-weight:600; color:var(--sp-ink); }
+    #tab-content textarea:focus, #tab-content input:focus, #tab-content select:focus { outline:none; border-color:var(--sp-green); box-shadow:0 0 0 3px rgba(16,185,129,0.12); }
+    #tab-content .btn--green { background:var(--sp-green); border-color:var(--sp-green); }
+    #tab-content .btn--green:hover { background:var(--sp-green-dark); }
+    .sp-status-pill { display:inline-flex; align-items:center; gap:0.3rem; font-size:0.66rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:999px; }
+    .sp-status-pill--live { background:rgba(16,185,129,0.12); color:var(--sp-green-dark); }
+    .sp-status-pill--draft { background:rgba(100,116,139,0.12); color:var(--sp-muted); }
   </style>
   <script src="assets/js/theme-toggle.js?v=1"></script>
 </head>
@@ -504,30 +539,34 @@
     <!-- Content Tab — SUPER-ADMIN ONLY: publish outreach stories + testimonies live to the News page, plus calendar shortcut -->
     <div class="tab-panel" id="tab-content" hidden>
 
-      <!-- Super-admin landing / privileges explainer -->
-      <div class="glass-card" style="border:1px solid rgba(212,175,55,0.35);background:linear-gradient(135deg,rgba(212,175,55,0.07),rgba(44,95,46,0.04));">
-        <h3 class="glass-card__title" style="display:flex;align-items:center;gap:0.4rem;">✨ Super-Admin Content Studio</h3>
-        <p style="color:var(--color-text-muted);font-size:0.82rem;line-height:1.6;margin:0 0 0.75rem;">
-          You're seeing this because you're a <strong style="color:var(--color-text);">super-admin</strong>. Beyond a normal admin (scanning, finance, chat), you can publish content that appears <strong>live on the public News page</strong>, no code or file edits needed.
-        </p>
-        <ul style="color:var(--color-text-muted);font-size:0.8rem;line-height:1.7;margin:0;padding-left:1.1rem;">
-          <li><strong>Outreach Stories</strong> — add a story with a photo; it shows at the top of the News photo essay.</li>
-          <li><strong>Testimonies</strong> — review, publish, or unpublish testimonies that appear on News + the Testimonies page.</li>
-          <li><strong>Calendar</strong> — add ministry events straight from Google Calendar.</li>
-        </ul>
+      <!-- SocialPulse-style header -->
+      <div class="sp-head">
+        <div>
+          <h2 class="sp-head__title">Content Studio</h2>
+          <p class="sp-head__sub">Publish live across your News page</p>
+        </div>
+        <button type="button" class="sp-newbtn" id="sp-new-btn"><span aria-hidden="true">＋</span> New</button>
       </div>
 
-      <!-- Content sub-nav -->
-      <div class="dash-stats" style="grid-template-columns:1fr 1fr;">
-        <button class="dash-stat dash-stat--secondary content-subtab content-subtab--active" data-csub="stories" style="cursor:pointer;border:none;">
-          <div class="dash-stat__icon">📸</div>
-          <div class="dash-stat__number" id="content-stories-count">–</div>
-          <div class="dash-stat__label">Outreach Stories</div>
+      <!-- Privileges strip -->
+      <div class="sp-privs">
+        <span class="sp-privs__eyebrow">✨ Super-admin</span>
+        <p>Beyond a normal admin, you publish content that appears <strong>live on the public site</strong> — no code or file edits. Add <strong>outreach stories</strong> (top of the News photo essay), review &amp; publish <strong>testimonies</strong> (News + Testimonies page), and post <strong>calendar events</strong> via Google Calendar.</p>
+      </div>
+
+      <!-- Metric cards double as the sub-tab switcher (SocialPulse stat style) -->
+      <div class="sp-metrics">
+        <button type="button" class="sp-metric sp-metric--active content-subtab content-subtab--active" data-csub="stories">
+          <span class="sp-metric__dot"></span>
+          <p class="sp-metric__label">📸 Outreach Stories</p>
+          <div class="sp-metric__num" id="content-stories-count">–</div>
+          <p class="sp-metric__hint">published <b id="content-stories-live">0</b> live</p>
         </button>
-        <button class="dash-stat dash-stat--finance content-subtab" data-csub="testimonies" style="cursor:pointer;border:none;">
-          <div class="dash-stat__icon">🗣️</div>
-          <div class="dash-stat__number" id="content-testimonies-count">–</div>
-          <div class="dash-stat__label">Testimonies</div>
+        <button type="button" class="sp-metric content-subtab" data-csub="testimonies">
+          <span class="sp-metric__dot"></span>
+          <p class="sp-metric__label">🗣️ Testimonies</p>
+          <div class="sp-metric__num" id="content-testimonies-count">–</div>
+          <p class="sp-metric__hint">published <b id="content-testimonies-live">0</b> live</p>
         </button>
       </div>
 
@@ -1361,9 +1400,13 @@
   function boolYes(v) { return String(v).toUpperCase() === 'YES' || v === true; }
 
   // ── Sub-tab switching ──
+  var currentSub = 'stories';
   function showSub(which) {
+    currentSub = which;
     document.querySelectorAll('.content-subtab').forEach(function(b){
-      b.classList.toggle('content-subtab--active', b.dataset.csub === which);
+      var on = b.dataset.csub === which;
+      b.classList.toggle('content-subtab--active', on);
+      b.classList.toggle('sp-metric--active', on);
     });
     var st = document.getElementById('content-sub-stories');
     var te = document.getElementById('content-sub-testimonies');
@@ -1373,6 +1416,22 @@
   document.querySelectorAll('.content-subtab').forEach(function(btn){
     btn.addEventListener('click', function(){ showSub(this.dataset.csub); });
   });
+
+  // "+ New" pill: focus the active sub-panel's form for a fresh entry
+  var spNewBtn = document.getElementById('sp-new-btn');
+  if (spNewBtn) {
+    spNewBtn.addEventListener('click', function(){
+      if (currentSub === 'stories') {
+        if (typeof resetStoryForm === 'function') resetStoryForm();
+        var sf = document.getElementById('story-form');
+        if (sf) { sf.scrollIntoView({behavior:'smooth', block:'start'}); var t = document.getElementById('story-title'); if (t) t.focus(); }
+      } else {
+        if (typeof resetTestimonyForm === 'function') resetTestimonyForm();
+        var tf = document.getElementById('testimony-form');
+        if (tf) { tf.scrollIntoView({behavior:'smooth', block:'start'}); var n = document.getElementById('testimony-name'); if (n) n.focus(); }
+      }
+    });
+  }
 
   // ── Outreach stories ──
   async function loadStories() {
@@ -1390,15 +1449,18 @@
   function renderStories() {
     var list = document.getElementById('stories-list');
     var countEl = document.getElementById('content-stories-count');
+    var liveEl = document.getElementById('content-stories-live');
     if (countEl) countEl.textContent = storiesCache.length;
+    if (liveEl) liveEl.textContent = storiesCache.filter(function(s){ return boolYes(s.published); }).length;
     if (!storiesCache.length) { list.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">No stories yet.</p>'; return; }
     list.innerHTML = storiesCache.map(function(s, i){
       var pub = boolYes(s.published);
+      var pill = pub ? '<span class="sp-status-pill sp-status-pill--live">● Live</span>' : '<span class="sp-status-pill sp-status-pill--draft">Draft</span>';
       return '<div class="finance-entry">' +
-        '<div class="finance-entry__icon">' + (pub ? '🟢' : '⚪') + '</div>' +
+        '<div class="finance-entry__icon">📸</div>' +
         '<div class="finance-entry__info">' +
           '<div class="finance-entry__desc">' + esc(s.title || 'Untitled') + '</div>' +
-          '<div class="finance-entry__meta">' + esc(s.date || '') + (s.location ? ' · ' + esc(s.location) : '') + ' · ' + (pub ? 'Published' : 'Draft') + '</div>' +
+          '<div class="finance-entry__meta">' + esc(s.date || '') + (s.location ? ' · ' + esc(s.location) : '') + ' ' + pill + '</div>' +
         '</div>' +
         '<button class="finance-entry__edit" data-idx="' + i + '" title="Edit">✏️</button>' +
         '<button class="finance-entry__delete" data-idx="' + i + '" title="Delete">×</button>' +
@@ -1483,17 +1545,20 @@
   function renderTestimonies() {
     var list = document.getElementById('testimonies-admin-list');
     var countEl = document.getElementById('content-testimonies-count');
+    var liveEl = document.getElementById('content-testimonies-live');
     if (countEl) countEl.textContent = testimoniesCache.length;
+    if (liveEl) liveEl.textContent = testimoniesCache.filter(function(t){ return boolYes(t.published); }).length;
     if (!testimoniesCache.length) { list.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">No testimonies yet.</p>'; return; }
     list.innerHTML = testimoniesCache.map(function(t, i){
       var pub = boolYes(t.published);
       var anon = boolYes(t.anonymous);
       var name = anon ? 'Anonymous' : (t.name || 'Unnamed');
+      var pill = pub ? '<span class="sp-status-pill sp-status-pill--live">● Live</span>' : '<span class="sp-status-pill sp-status-pill--draft">Draft</span>';
       return '<div class="finance-entry">' +
-        '<div class="finance-entry__icon">' + (pub ? '🟢' : '⚪') + '</div>' +
+        '<div class="finance-entry__icon">🗣️</div>' +
         '<div class="finance-entry__info">' +
           '<div class="finance-entry__desc">' + esc(name) + '</div>' +
-          '<div class="finance-entry__meta">' + esc(t.excerpt || (t.body || '').slice(0, 50)) + ' · ' + (pub ? 'Published' : 'Draft') + '</div>' +
+          '<div class="finance-entry__meta">' + esc(t.excerpt || (t.body || '').slice(0, 50)) + ' ' + pill + '</div>' +
         '</div>' +
         '<button class="finance-entry__edit" data-idx="' + i + '" title="Edit">✏️</button>' +
         '<button class="finance-entry__delete" data-idx="' + i + '" title="Delete">×</button>' +

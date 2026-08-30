@@ -543,145 +543,27 @@
       <div class="sp-head">
         <div>
           <h2 class="sp-head__title">Content Studio</h2>
-          <p class="sp-head__sub">Publish live across your News page</p>
+          <p class="sp-head__sub">Your full super-admin workspace</p>
         </div>
-        <button type="button" class="sp-newbtn" id="sp-new-btn"><span aria-hidden="true">＋</span> New</button>
       </div>
 
       <!-- Privileges strip -->
       <div class="sp-privs">
         <span class="sp-privs__eyebrow">✨ Super-admin</span>
-        <p>Beyond a normal admin, you publish content that appears <strong>live on the public site</strong> — no code or file edits. Add <strong>outreach stories</strong> (top of the News photo essay), review &amp; publish <strong>testimonies</strong> (News + Testimonies page), and post <strong>calendar events</strong> via Google Calendar.</p>
+        <p>Beyond a normal admin, you get a full-page studio to publish content <strong>live on the public site</strong> and manage operations — no code or file edits. Publish <strong>outreach stories</strong> &amp; <strong>testimonies</strong>, review ministry <strong>stats</strong>, manage <strong>inventory</strong>, set member <strong>roles</strong>, and post <strong>announcements</strong>.</p>
       </div>
 
-      <!-- Metric cards double as the sub-tab switcher (SocialPulse stat style) -->
-      <div class="sp-metrics">
-        <button type="button" class="sp-metric sp-metric--active content-subtab content-subtab--active" data-csub="stories">
-          <span class="sp-metric__dot"></span>
-          <p class="sp-metric__label">📸 Outreach Stories</p>
-          <div class="sp-metric__num" id="content-stories-count">–</div>
-          <p class="sp-metric__hint">published <b id="content-stories-live">0</b> live</p>
-        </button>
-        <button type="button" class="sp-metric content-subtab" data-csub="testimonies">
-          <span class="sp-metric__dot"></span>
-          <p class="sp-metric__label">🗣️ Testimonies</p>
-          <div class="sp-metric__num" id="content-testimonies-count">–</div>
-          <p class="sp-metric__hint">published <b id="content-testimonies-live">0</b> live</p>
-        </button>
+      <!-- Launch card: opens the full SocialPulse-styled dashboard -->
+      <div class="glass-card" style="text-align:center;">
+        <div style="width:56px;height:56px;border-radius:16px;margin:0.25rem auto 0.75rem;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.6rem;">✨</div>
+        <h3 class="glass-card__title" style="margin-bottom:0.35rem;">Open the Content Studio</h3>
+        <p style="color:var(--color-text-muted);font-size:0.82rem;line-height:1.55;margin:0 0 1rem;">
+          A dedicated dashboard for outreach stories, testimonies, inventory, members, and announcements — best on a larger screen, and fully usable on mobile.
+        </p>
+        <a class="btn btn--green" href="admin/dashboard.html" style="width:100%;display:block;text-align:center;box-sizing:border-box;">Open Content Studio &rarr;</a>
       </div>
 
-      <!-- ── Outreach Stories sub-panel ── -->
-      <div id="content-sub-stories">
-        <div class="glass-card">
-          <h3 class="glass-card__title">➕ <span id="story-form-mode">New</span> Outreach Story</h3>
-          <form id="story-form" class="finance-form" novalidate>
-            <input type="hidden" id="story-id">
-            <div class="finance-form__row">
-              <div class="finance-form__field">
-                <label for="story-date">Date</label>
-                <input type="date" id="story-date">
-              </div>
-              <div class="finance-form__field">
-                <label for="story-sort">Sort Order</label>
-                <input type="number" id="story-sort" placeholder="0" step="1" inputmode="numeric">
-              </div>
-            </div>
-            <div class="finance-form__field">
-              <label for="story-title">Title</label>
-              <input type="text" id="story-title" placeholder="e.g. Bellevue Park Outreach" required>
-            </div>
-            <div class="finance-form__field">
-              <label for="story-location">Location</label>
-              <input type="text" id="story-location" placeholder="e.g. Bellevue, WA">
-            </div>
-            <div class="finance-form__field">
-              <label for="story-body">Story</label>
-              <textarea id="story-body" rows="3" placeholder="What happened? A few sentences." style="width:100%;box-sizing:border-box;font:inherit;padding:0.6rem;border:1px solid var(--color-border);border-radius:var(--radius-md);resize:vertical;"></textarea>
-            </div>
-            <div class="finance-form__field">
-              <label for="story-image">Image URL</label>
-              <input type="url" id="story-image" placeholder="https://... (public image link)">
-            </div>
-            <div class="finance-form__field">
-              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-                <input type="checkbox" id="story-published" style="width:auto;"> Published (visible on News)
-              </label>
-            </div>
-            <div class="finance-form__status" id="story-status"></div>
-            <div style="display:flex;gap:0.5rem;">
-              <button type="submit" class="btn btn--green" style="flex:1;">💾 Save Story</button>
-              <button type="button" class="btn" id="story-reset" style="flex:0 0 auto;background:var(--color-surface);border:1px solid var(--color-border);">Clear</button>
-            </div>
-          </form>
-        </div>
-        <div class="glass-card">
-          <h3 class="glass-card__title">📸 All Outreach Stories</h3>
-          <div id="stories-list">
-            <p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">Loading…</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Testimonies sub-panel ── -->
-      <div id="content-sub-testimonies" hidden>
-        <div class="glass-card">
-          <h3 class="glass-card__title">➕ <span id="testimony-form-mode">New</span> Testimony</h3>
-          <form id="testimony-form" class="finance-form" novalidate>
-            <input type="hidden" id="testimony-id">
-            <div class="finance-form__row">
-              <div class="finance-form__field">
-                <label for="testimony-name">Name</label>
-                <input type="text" id="testimony-name" placeholder="First name or full name">
-              </div>
-              <div class="finance-form__field">
-                <label for="testimony-date">Published Date</label>
-                <input type="date" id="testimony-date">
-              </div>
-            </div>
-            <div class="finance-form__field">
-              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-                <input type="checkbox" id="testimony-anon" style="width:auto;"> Show as Anonymous
-              </label>
-            </div>
-            <div class="finance-form__field">
-              <label for="testimony-excerpt">Short Excerpt</label>
-              <input type="text" id="testimony-excerpt" placeholder="One-line pull quote for cards">
-            </div>
-            <div class="finance-form__field">
-              <label for="testimony-body">Full Testimony</label>
-              <textarea id="testimony-body" rows="4" placeholder="The full story in their words." style="width:100%;box-sizing:border-box;font:inherit;padding:0.6rem;border:1px solid var(--color-border);border-radius:var(--radius-md);resize:vertical;"></textarea>
-            </div>
-            <div class="finance-form__row">
-              <div class="finance-form__field">
-                <label for="testimony-verse">Anchor Verse</label>
-                <input type="text" id="testimony-verse" placeholder="e.g. John 3:16">
-              </div>
-              <div class="finance-form__field">
-                <label for="testimony-media">Media URL</label>
-                <input type="url" id="testimony-media" placeholder="https://... (optional)">
-              </div>
-            </div>
-            <div class="finance-form__field">
-              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-                <input type="checkbox" id="testimony-published" style="width:auto;"> Published (visible on site)
-              </label>
-            </div>
-            <div class="finance-form__status" id="testimony-status"></div>
-            <div style="display:flex;gap:0.5rem;">
-              <button type="submit" class="btn btn--green" style="flex:1;">💾 Save Testimony</button>
-              <button type="button" class="btn" id="testimony-reset" style="flex:0 0 auto;background:var(--color-surface);border:1px solid var(--color-border);">Clear</button>
-            </div>
-          </form>
-        </div>
-        <div class="glass-card">
-          <h3 class="glass-card__title">🗣️ All Testimonies</h3>
-          <div id="testimonies-admin-list">
-            <p style="color:var(--color-text-muted);font-size:0.84rem;text-align:center;">Loading…</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Calendar shortcut ── -->
+      <!-- Calendar shortcut -->
       <div class="glass-card">
         <h3 class="glass-card__title">📅 Ministry Calendar</h3>
         <p style="color:var(--color-text-muted);font-size:0.82rem;line-height:1.55;margin:0 0 0.75rem;">
@@ -1631,13 +1513,12 @@
   if (testimonyReset) testimonyReset.addEventListener('click', resetTestimonyForm);
 
   // ── Load data when the Content tab is first opened ──
-  var contentTabBtn = document.getElementById('tab-btn-content');
-  if (contentTabBtn) {
-    contentTabBtn.addEventListener('click', function(){
-      if (!isSuper()) return;
-      if (!loaded) { loaded = true; loadStories(); loadTestimonies(); }
-    });
-  }
+  // NOTE: the in-tab CMS forms were moved to the full-page Content Studio
+  // (admin/dashboard.html). The Content tab now just launches that page, so
+  // there is no in-tab data to load here. The handlers above are inert
+  // (all guarded with `if (element)`) because their form elements no longer
+  // exist in this document.
+  void loaded; void loadStories; void loadTestimonies; void isSuper;
 })();
 </script>
 

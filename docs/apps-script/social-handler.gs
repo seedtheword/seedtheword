@@ -184,6 +184,7 @@ function handlePostComment_(payload) {
   try {
     var user = validateTeamToken_(String(payload.token || ''));
     if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    if (!socialRateOk_(user.name, 'comment')) return jsonResponse({ ok: false, error: 'Slow down — too many comments. Try again in a minute.' });
 
     var postId = String(payload.postId || '').trim();
     var text = String(payload.text || '').trim();
@@ -252,6 +253,7 @@ function handleGetComments_(payload) {
         var entry = {
           id: String(data[i][3]),
           userId: data[i][2],
+          role: socialRoleOf_(data[i][2]),
           text: data[i][4],
           timestamp: Number(data[i][3]),
           parentCommentId: data[i][5] || null
@@ -283,6 +285,321 @@ function handleGetComments_(payload) {
     return jsonResponse({ ok: true, comments: result });
   } catch (err) {
     Logger.log('getComments error: ' + err);
+    return jsonResponse({ ok: false, error: 'Server error' });
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// POSTS — first-class community posts (the real feed)
+// ──────────────────────────────────────────────────────────────────────
+// Posts tab columns:
+//   A: id          (post id, e.g. "post-<uuid8>")
+//   B: timestamp   (epoch ms of creation)
+//   C: author      (team member name)
+//   D: author_role (member | admin | super_admin — snapshot at post time)
+//   E: text        (body, max 5000)
+//   F: media_url   (optional image/video URL)
+//   G: channel     (main | prayer | thanksgiving | scripture)
+//   H: pinned      (YES/'' — super-admin pin to top)
+//   I: hidden      (YES/'' — soft-delete / moderated out of public view)
+//   J: edited_at   (epoch ms of last edit, '' if never)
+// ══════════════════════════════════════════════════════════════════════
+
+var POSTS_TAB = 'Posts';
+var POSTS_HEADERS = ['id', 'timestamp', 'author', 'author_role', 'text', 'media_url', 'channel', 'pinned', 'hidden', 'edited_at'];
+
+function getPostsSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName(POSTS_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(POSTS_TAB);
+    sheet.getRange(1, 1, 1, POSTS_HEADERS.length).setValues([POSTS_HEADERS]);
+    sheet.getRange(1, 1, 1, POSTS_HEADERS.length).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(5, 360);
+  }
+  return sheet;
+}
+
+function socialNewId_(prefix) {
+  return prefix + '-' + Utilities.getUuid().replace(/-/g, '').slice(0, 8);
+}
+
+function socialIsSuper_(user) {
+  return user && String(user.role || '').toLowerCase() === 'super_admin';
+}
+
+// Look up a member's current role by name (for enriching comment authors).
+var _socialRoleCache = null;
+function socialRoleOf_(name) {
+  if (!name) return 'member';
+  if (!_socialRoleCache) {
+    _socialRoleCache = {};
+    try {
+      var sh = getTeamSheet_();
+      if (sh.getLastRow() >= 2) {
+        var d = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues();
+        for (var i = 0; i < d.length; i++) {
+          _socialRoleCache[String(d[i][1]).toLowerCase().trim()] = String(d[i][5] || 'member').toLowerCase();
+        }
+      }
+    } catch (e) {}
+  }
+  return _socialRoleCache[String(name).toLowerCase().trim()] || 'member';
+}
+
+// Simple per-user rate limit for create actions (posts/comments).
+// Uses the script cache: max N writes per rolling window.
+function socialRateOk_(userName, kind) {
+  try {
+    var cache = CacheService.getScriptCache();
+    var key = 'social_rate_' + kind + '_' + String(userName).toLowerCase().replace(/[^a-z0-9]/g, '');
+    var n = parseInt(cache.get(key) || '0', 10);
+    if (n >= 12) return false;           // max 12 creates per window
+    cache.put(key, String(n + 1), 60);   // 60-second rolling window
+    return true;
+  } catch (e) { return true; }           // fail open — never block on cache error
+}
+
+// ── ACTION: createPost ────────────────────────────────────────────────
+// { action:'createPost', token, text, media_url?, channel? }
+function handleCreatePost_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    if (!socialRateOk_(user.name, 'post')) return jsonResponse({ ok: false, error: 'Slow down — too many posts. Try again in a minute.' });
+
+    var text = String(payload.text || '').trim();
+    var media = String(payload.media_url || '').trim();
+    if (!text && !media) return jsonResponse({ ok: false, error: 'Post is empty' });
+    if (text.length > 5000) return jsonResponse({ ok: false, error: 'Post too long (max 5000)' });
+
+    var channel = String(payload.channel || 'main').trim() || 'main';
+    var id = socialNewId_('post');
+    var ts = Date.now();
+    var role = String(user.role || 'member').toLowerCase();
+
+    getPostsSheet_().appendRow([id, ts, user.name, role, text, media, channel, '', '', '']);
+    return jsonResponse({
+      ok: true,
+      post: {
+        id: id, timestamp: ts, author: user.name, author_role: role,
+        text: text, media_url: media, channel: channel, pinned: false, hidden: false,
+        likeCount: 0, userLiked: false, commentCount: 0
+      }
+    });
+  } catch (err) {
+    Logger.log('createPost error: ' + err);
+    return jsonResponse({ ok: false, error: 'Server error' });
+  }
+}
+
+// ── ACTION: getFeed ───────────────────────────────────────────────────
+// { action:'getFeed', token?|passphrase_hash:'public-read', channel?, limit?, before? }
+// Returns posts (newest first, pinned first) with like/comment counts +
+// the caller's like state. Hidden posts are excluded for the public and
+// shown (flagged) only to super-admins.
+function handleGetFeed_(payload) {
+  try {
+    var auth = validateAdminOrPublicOrToken_(payload);
+    if (!auth) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var viewer = auth.user ? auth.user.name : null;
+    var viewerIsSuper = socialIsSuper_(auth.user);
+
+    var channel = String(payload.channel || '').trim(); // '' = all channels
+    var limit = Math.min(parseInt(payload.limit, 10) || 50, 100);
+
+    var psheet = getPostsSheet_();
+    var plast = psheet.getLastRow();
+    var posts = [];
+    if (plast >= 2) {
+      var pdata = psheet.getRange(2, 1, plast - 1, POSTS_HEADERS.length).getValues();
+      for (var i = 0; i < pdata.length; i++) {
+        var r = pdata[i];
+        var id = String(r[0] || '');
+        if (!id) continue;
+        var hidden = String(r[8]).toUpperCase() === 'YES';
+        if (hidden && !viewerIsSuper) continue;
+        if (channel && String(r[6]) !== channel) continue;
+        posts.push({
+          id: id, timestamp: Number(r[1]) || 0, author: String(r[2] || ''),
+          author_role: String(r[3] || 'member').toLowerCase(), text: String(r[4] || ''),
+          media_url: String(r[5] || ''), channel: String(r[6] || 'main'),
+          pinned: String(r[7]).toUpperCase() === 'YES', hidden: hidden,
+          edited: !!r[9]
+        });
+      }
+    }
+
+    // Aggregate likes + comment counts from the Social tab in one pass.
+    var likeCounts = {}, likedByViewer = {}, commentCounts = {};
+    var ssheet = getSocialSheet_();
+    var slast = ssheet.getLastRow();
+    if (slast >= 2) {
+      var sdata = ssheet.getRange(2, 1, slast - 1, 3).getValues(); // type, postId, userId
+      for (var s = 0; s < sdata.length; s++) {
+        var t = sdata[s][0], pid = sdata[s][1], uid = sdata[s][2];
+        if (t === 'like') {
+          likeCounts[pid] = (likeCounts[pid] || 0) + 1;
+          if (viewer && uid === viewer) likedByViewer[pid] = true;
+        } else if (t === 'comment' || t === 'reply') {
+          commentCounts[pid] = (commentCounts[pid] || 0) + 1;
+        }
+      }
+    }
+    for (var j = 0; j < posts.length; j++) {
+      var pid2 = posts[j].id;
+      posts[j].likeCount = likeCounts[pid2] || 0;
+      posts[j].userLiked = !!likedByViewer[pid2];
+      posts[j].commentCount = commentCounts[pid2] || 0;
+    }
+
+    // Sort: pinned first, then newest.
+    posts.sort(function (a, b) {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+      return b.timestamp - a.timestamp;
+    });
+    if (posts.length > limit) posts = posts.slice(0, limit);
+
+    return jsonResponse({ ok: true, posts: posts, viewerIsSuper: viewerIsSuper });
+  } catch (err) {
+    Logger.log('getFeed error: ' + err);
+    return jsonResponse({ ok: false, error: 'Server error' });
+  }
+}
+
+// Find a post's row by id; returns row index (1-based) or -1.
+function socialFindPostRow_(sheet, id) {
+  var last = sheet.getLastRow();
+  if (last < 2) return -1;
+  var ids = sheet.getRange(2, 1, last - 1, 1).getValues();
+  for (var i = 0; i < ids.length; i++) {
+    if (String(ids[i][0]) === id) return i + 2;
+  }
+  return -1;
+}
+
+// ── ACTION: editPost ──────────────────────────────────────────────────
+// { action:'editPost', token, id, text?, media_url? }  — author only
+function handleEditPost_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var id = String(payload.id || '').trim();
+    if (!id) return jsonResponse({ ok: false, error: 'Missing id' });
+
+    var sheet = getPostsSheet_();
+    var row = socialFindPostRow_(sheet, id);
+    if (row < 0) return jsonResponse({ ok: false, error: 'Not found' });
+
+    var vals = sheet.getRange(row, 1, 1, POSTS_HEADERS.length).getValues()[0];
+    var isAuthor = String(vals[2]).toLowerCase().trim() === String(user.name).toLowerCase().trim();
+    if (!isAuthor && !socialIsSuper_(user)) return jsonResponse({ ok: false, error: 'Not your post' });
+
+    var text = String(payload.text != null ? payload.text : vals[4]).trim();
+    if (text.length > 5000) return jsonResponse({ ok: false, error: 'Post too long (max 5000)' });
+    var media = String(payload.media_url != null ? payload.media_url : vals[5]).trim();
+
+    sheet.getRange(row, 5).setValue(text);       // text
+    sheet.getRange(row, 6).setValue(media);      // media_url
+    sheet.getRange(row, 10).setValue(Date.now()); // edited_at
+    return jsonResponse({ ok: true });
+  } catch (err) {
+    Logger.log('editPost error: ' + err);
+    return jsonResponse({ ok: false, error: 'Server error' });
+  }
+}
+
+// ── ACTION: deletePost ────────────────────────────────────────────────
+// { action:'deletePost', token, id }  — author or super-admin
+function handleDeletePost_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var id = String(payload.id || '').trim();
+    if (!id) return jsonResponse({ ok: false, error: 'Missing id' });
+
+    var sheet = getPostsSheet_();
+    var row = socialFindPostRow_(sheet, id);
+    if (row < 0) return jsonResponse({ ok: false, error: 'Not found' });
+
+    var author = String(sheet.getRange(row, 3).getValue()).toLowerCase().trim();
+    var isAuthor = author === String(user.name).toLowerCase().trim();
+    if (!isAuthor && !socialIsSuper_(user)) return jsonResponse({ ok: false, error: 'Not allowed' });
+
+    sheet.deleteRow(row);
+    return jsonResponse({ ok: true });
+  } catch (err) {
+    Logger.log('deletePost error: ' + err);
+    return jsonResponse({ ok: false, error: 'Server error' });
+  }
+}
+
+// ── ACTION: moderatePost ──────────────────────────────────────────────
+// { action:'moderatePost', token, id, op }  op = hide | unhide | pin | unpin
+// Super-admin only.
+function handleModeratePost_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!socialIsSuper_(user)) return jsonResponse({ ok: false, error: 'Super-admin only' });
+    var id = String(payload.id || '').trim();
+    var op = String(payload.op || '').trim();
+    if (!id || !op) return jsonResponse({ ok: false, error: 'Missing id/op' });
+
+    var sheet = getPostsSheet_();
+    var row = socialFindPostRow_(sheet, id);
+    if (row < 0) return jsonResponse({ ok: false, error: 'Not found' });
+
+    if (op === 'hide') sheet.getRange(row, 9).setValue('YES');
+    else if (op === 'unhide') sheet.getRange(row, 9).setValue('');
+    else if (op === 'pin') sheet.getRange(row, 8).setValue('YES');
+    else if (op === 'unpin') sheet.getRange(row, 8).setValue('');
+    else return jsonResponse({ ok: false, error: 'Unknown op' });
+
+    return jsonResponse({ ok: true });
+  } catch (err) {
+    Logger.log('moderatePost error: ' + err);
+    return jsonResponse({ ok: false, error: 'Server error' });
+  }
+}
+
+// ── ACTION: deleteComment ─────────────────────────────────────────────
+// { action:'deleteComment', token, commentId }  — author or super-admin
+// commentId is the comment's timestamp id (column D of the Social tab).
+function handleDeleteComment_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var commentId = String(payload.commentId || '').trim();
+    if (!commentId) return jsonResponse({ ok: false, error: 'Missing commentId' });
+
+    var sheet = getSocialSheet_();
+    var last = sheet.getLastRow();
+    if (last < 2) return jsonResponse({ ok: false, error: 'Not found' });
+    var data = sheet.getRange(2, 1, last - 1, 7).getValues();
+    var isSuper = socialIsSuper_(user);
+
+    // Delete the comment/reply plus any replies whose parentId == commentId.
+    // Collect target rows, delete bottom-up to keep indices valid.
+    var rowsToDelete = [];
+    for (var i = 0; i < data.length; i++) {
+      var type = data[i][0], author = String(data[i][2]).toLowerCase().trim();
+      var tsId = String(data[i][3]), parentId = String(data[i][5]);
+      if ((type === 'comment' || type === 'reply') && tsId === commentId) {
+        if (author !== String(user.name).toLowerCase().trim() && !isSuper) {
+          return jsonResponse({ ok: false, error: 'Not allowed' });
+        }
+        rowsToDelete.push(i + 2);
+      } else if (type === 'reply' && parentId === commentId) {
+        rowsToDelete.push(i + 2); // orphaned reply to a deleted comment
+      }
+    }
+    if (!rowsToDelete.length) return jsonResponse({ ok: false, error: 'Not found' });
+    rowsToDelete.sort(function (a, b) { return b - a; });
+    for (var d = 0; d < rowsToDelete.length; d++) sheet.deleteRow(rowsToDelete[d]);
+    return jsonResponse({ ok: true });
+  } catch (err) {
+    Logger.log('deleteComment error: ' + err);
     return jsonResponse({ ok: false, error: 'Server error' });
   }
 }

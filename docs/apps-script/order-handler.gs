@@ -277,6 +277,20 @@ function doPost(e) {
   // ── Chat message actions ──
   if ((payload && payload.action) === 'sendChatMessage') return handleSendChatMessage_(payload);
   if ((payload && payload.action) === 'getChatMessages') return handleGetChatMessages_(payload);
+
+  // ── Community Social: likes / comments / replies (see social-handler.gs) ──
+  if ((payload && payload.action) === 'toggleLike') return handleToggleLike_(payload);
+  if ((payload && payload.action) === 'getLikes') return handleGetLikes_(payload);
+  if ((payload && payload.action) === 'postComment') return handlePostComment_(payload);
+  if ((payload && payload.action) === 'getComments') return handleGetComments_(payload);
+  if ((payload && payload.action) === 'deleteComment') return handleDeleteComment_(payload);
+
+  // ── Community Posts feed (first-class posts, see social-handler.gs) ──
+  if ((payload && payload.action) === 'createPost') return handleCreatePost_(payload);
+  if ((payload && payload.action) === 'getFeed') return handleGetFeed_(payload);
+  if ((payload && payload.action) === 'editPost') return handleEditPost_(payload);
+  if ((payload && payload.action) === 'deletePost') return handleDeletePost_(payload);
+  if ((payload && payload.action) === 'moderatePost') return handleModeratePost_(payload);
   // ── Finance actions (see docs/apps-script/finance-handler.gs) ──
   if ((payload && payload.action) === 'logFinanceEntry') return handleLogFinanceEntry_(payload);
   if ((payload && payload.action) === 'getFinanceEntries') return handleGetFinanceEntries_(payload);
@@ -4564,12 +4578,6 @@ function doGet(e) {
       return jsonResponse({ ok: false, error: 'admin-digest-data-failed' });
     }
   }
-
-  // ── Community Social actions (see docs/apps-script/social-handler.gs) ──
-  if ((payload && payload.action) === 'toggleLike') return handleToggleLike_(payload);
-  if ((payload && payload.action) === 'getLikes') return handleGetLikes_(payload);
-  if ((payload && payload.action) === 'postComment') return handlePostComment_(payload);
-  if ((payload && payload.action) === 'getComments') return handleGetComments_(payload);
 
   return jsonResponse({ ok: false, error: 'unknown-action' });
 }

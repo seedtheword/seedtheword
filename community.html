@@ -151,6 +151,27 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .comment-compose__input{flex:1;padding:0.5rem 0.75rem;border:1.5px solid var(--color-border);border-radius:var(--radius-full);font-size:0.8rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);min-height:36px;}
 .comment-compose__input:focus{outline:none;border-color:var(--color-gold);}
 
+/* Role / verification badges */
+.role-badge{display:inline-flex;align-items:center;font-size:0.6rem;font-weight:800;letter-spacing:0.02em;padding:0.08rem 0.4rem;border-radius:999px;margin-left:0.25rem;vertical-align:middle;}
+.role-badge--super{background:rgba(16,185,129,0.14);color:#059669;}
+.role-badge--admin{background:rgba(59,130,246,0.14);color:#2563eb;}
+.role-badge--member{background:rgba(100,116,139,0.12);color:var(--color-text-muted);}
+/* Post owner / moderation menu */
+.post-card__menu{position:relative;margin-left:auto;}
+.post-card__menu-btn{background:none;border:none;font-size:1.2rem;line-height:1;color:var(--color-text-muted);cursor:pointer;padding:0.2rem 0.5rem;border-radius:8px;}
+.post-card__menu-btn:hover{background:var(--color-surface-hover);}
+.post-card__menu-list{position:absolute;top:100%;right:0;background:var(--color-surface);border:1px solid var(--color-border);border-radius:10px;box-shadow:var(--shadow-md);padding:0.3rem;z-index:20;min-width:140px;display:flex;flex-direction:column;}
+.post-card__menu-list button{background:none;border:none;text-align:left;padding:0.5rem 0.7rem;font-size:0.8rem;color:var(--color-text);cursor:pointer;border-radius:7px;font-family:var(--font-sans);}
+.post-card__menu-list button:hover{background:var(--color-surface-hover);}
+/* Post media + flags */
+.post-card__media{margin:0.5rem 0;border-radius:var(--radius-sm);overflow:hidden;}
+.post-card__media img{width:100%;display:block;max-height:420px;object-fit:cover;}
+.post-flag{font-size:0.6rem;font-weight:700;color:var(--color-text-muted);margin-left:0.3rem;}
+.post-flag--pin{color:var(--color-gold);}
+.post-flag--hidden{color:#dc2626;}
+.post-card--hidden{opacity:0.6;border-style:dashed;}
+.post-edit{margin:0.5rem 0;}
+
 /* Share Modal */
 .share-modal{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:1rem;animation:fadeIn 0.15s ease;}
 .share-modal__sheet{background:var(--color-bg-elevated,var(--color-surface));border-radius:var(--radius-lg);width:100%;max-width:360px;padding:1.5rem;box-shadow:var(--shadow-lg);}
@@ -360,9 +381,11 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 <script>
 (function(){
 'use strict';
-var CONFIG_URL='assets/data/site-config.json',handlerUrl=null,session=null,posts=[],prayerFilter='all',likesCache={},commentsCache={};
+var CONFIG_URL='assets/data/site-config.json',handlerUrl=null,session=null,posts=[],prayerFilter='all',likesCache={},commentsCache={},viewerIsSuper=false,feedPollTimer=null;
 function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 function initials(n){return(n||'?').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);}
+// Verification / role badge next to an author name.
+function roleBadge(role){var r=String(role||'').toLowerCase();if(r==='super_admin')return'<span class="role-badge role-badge--super" title="Ministry leader">✓ Leader</span>';if(r==='admin')return'<span class="role-badge role-badge--admin" title="Team admin">✓ Team</span>';if(r==='member')return'<span class="role-badge role-badge--member" title="Team member">Member</span>';return'';}
 function timeAgo(ts){var d=Date.now()-ts,m=Math.floor(d/60000);if(m<1)return'Just now';if(m<60)return m+'m ago';var h=Math.floor(m/60);if(h<24)return h+'h ago';var days=Math.floor(h/24);if(days<7)return days+'d ago';return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 async function getHandlerUrl(){if(handlerUrl)return handlerUrl;var cfg=await fetch(CONFIG_URL+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});handlerUrl=cfg.orderHandlerUrl;return handlerUrl;}
 async function postAction(data){var url=await getHandlerUrl();var res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});var text=await res.text();try{return JSON.parse(text);}catch(e){return{ok:false};}}
@@ -397,37 +420,61 @@ function updateBadges(msgs){var ls=getLastSeen(),counts={scripture:0,prayer:0,ho
 msgs.forEach(function(m){var ch=m.msg_type==='prayer'||m.msg_type==='thanksgiving'?'prayer':(m.msg_type==='bible'?'scripture':'home');if(m.timestamp>(ls[ch]||0))counts[ch]++;});
 Object.keys(counts).forEach(function(ch){var b=document.getElementById('badge-'+ch);if(b)b.textContent=counts[ch]>0?counts[ch]:'';});}
 
-// Load feed
+// Load feed — first-class Posts (getFeed) merged with read-only announcements.
 async function loadFeed(){try{
 var token=session?session.token:null;
-var channels=['main','prayer','thanksgiving'],allMsgs=[];
-var results=await Promise.allSettled(channels.map(function(ch){var p=token?{action:'getChatMessages',token:token,channel:ch}:{action:'getChatMessages',passphrase_hash:'public-read',channel:ch};return postAction(p);}));
-results.forEach(function(r,i){if(r.status==='fulfilled'&&r.value.ok&&r.value.messages)r.value.messages.forEach(function(m){m._channel=channels[i];allMsgs.push(m);});});
-try{var ann=await postAction({action:'getAnnouncements',passphrase_hash:'public-read'});if(ann.ok&&ann.announcements)ann.announcements.forEach(function(a){allMsgs.push({from:a.from||'Seed the Word',text:(a.subject?'**'+a.subject+'**\n\n':'')+a.body,timestamp:a.timestamp,msg_type:'announcement',_channel:'announcements'});});}catch(e){}
-posts=allMsgs.sort(function(a,b){return b.timestamp-a.timestamp;});
+var allPosts=[];
+// 1) Real posts from the Posts backend (likes/comments counts baked in).
+var feedPayload=token?{action:'getFeed',token:token,limit:60}:{action:'getFeed',passphrase_hash:'public-read',limit:60};
+var feedRes=await postAction(feedPayload);
+if(feedRes&&feedRes.ok&&feedRes.posts){
+  viewerIsSuper=!!feedRes.viewerIsSuper;
+  feedRes.posts.forEach(function(p){
+    var t=p.channel==='prayer'?'prayer':(p.channel==='thanksgiving'?'thanksgiving':(p.channel==='scripture'?'bible':'message'));
+    allPosts.push({id:p.id,from:p.author,role:p.author_role,text:p.text,media_url:p.media_url,timestamp:p.timestamp,msg_type:t,_channel:p.channel||'main',pinned:p.pinned,hidden:p.hidden,edited:p.edited,likeCount:p.likeCount||0,userLiked:!!p.userLiked,commentCount:p.commentCount||0,_isPost:true});
+    likesCache[p.id]={count:p.likeCount||0,userLiked:!!p.userLiked};
+  });
+}
+// 2) Announcements as read-only "system" posts (not likeable/commentable entities of their own).
+try{var ann=await postAction({action:'getAnnouncements',passphrase_hash:'public-read'});if(ann.ok&&ann.announcements)ann.announcements.forEach(function(a){allPosts.push({id:'ann-'+a.timestamp,from:a.from||'Seed the Word',role:'super_admin',text:(a.subject?'**'+a.subject+'**\n\n':'')+a.body,timestamp:a.timestamp,msg_type:'announcement',_channel:'announcements',_isPost:false,_readonly:true});});}catch(e){}
+posts=allPosts.sort(function(a,b){if(!!a.pinned!==!!b.pinned)return a.pinned?-1:1;return b.timestamp-a.timestamp;});
 updateBadges(posts);renderHomeFeed();renderScriptureFeed();renderPrayerFeed();
-}catch(e){document.getElementById('posts-feed').innerHTML='<div class="empty-state"><div class="empty-state__icon">🌐</div><h3 class="empty-state__title">Connection issue</h3><p class="empty-state__text">Could not load the feed.</p></div>';}}
+}catch(e){document.getElementById('posts-feed').innerHTML='<div class="empty-state"><div class="empty-state__icon">🌐</div><h3 class="empty-state__title">Connection issue</h3><p class="empty-state__text">Could not load the feed. If the backend was just deployed, refresh in a moment.</p></div>';}}
 
 function formatBody(t){if(!t)return'';var f=esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');return f.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');}
 
 function renderPost(p){
 var typeLabels={announcement:'📢 Announcement',prayer:'🙏 Prayer',thanksgiving:'🎉 Thanksgiving',bible:'📖 Scripture',message:'💬 Discussion'};
 var type=p.msg_type||'message',typeClass=type==='message'?'discussion':type;
-var postId='p-'+p.timestamp+'-'+(p.from||'').replace(/\s/g,'').slice(0,5);
-var likeData=likesCache[postId]||{count:0,userLiked:false};
+var postId=p.id;
+var likeData=likesCache[postId]||{count:p.likeCount||0,userLiked:!!p.userLiked};
 var isLiked=likeData.userLiked;
 var commentsData=commentsCache[postId]||[];
-var commentCount=commentsData.reduce(function(n,c){return n+1+(c.replies?c.replies.length:0);},0);
-return'<article class="post-card" data-post-id="'+postId+'">'+
-'<div class="post-card__header"><div class="post-card__avatar">'+initials(p.from||'Anonymous')+'</div><div class="post-card__meta"><div class="post-card__author">'+esc(p.from||'Anonymous')+'</div><div class="post-card__time">'+timeAgo(p.timestamp)+'</div><span class="post-card__type post-card__type--'+typeClass+'">'+(typeLabels[type]||'💬 Post')+'</span></div></div>'+
-'<div class="post-card__body">'+formatBody(p.text)+'</div>'+
+var commentCount=commentsData.length?commentsData.reduce(function(n,c){return n+1+(c.replies?c.replies.length:0);},0):(p.commentCount||0);
+var isMine=session&&p.from&&session.name===p.from&&!p._readonly;
+var canModerate=viewerIsSuper&&p._isPost;
+// Owner/moderation menu
+var menu='';
+if(isMine||canModerate){
+  menu='<div class="post-card__menu"><button class="post-card__menu-btn" data-action="menu" aria-label="Post options">⋯</button><div class="post-card__menu-list" hidden>'+
+    (isMine?'<button data-action="edit" data-id="'+postId+'">✏️ Edit</button>':'')+
+    ((isMine||canModerate)?'<button data-action="delete" data-id="'+postId+'">🗑️ Delete</button>':'')+
+    (canModerate?'<button data-action="pin" data-id="'+postId+'">'+(p.pinned?'📌 Unpin':'📌 Pin')+'</button>':'')+
+    (canModerate?'<button data-action="hide" data-id="'+postId+'">'+(p.hidden?'👁️ Unhide':'🚫 Hide')+'</button>':'')+
+  '</div></div>';
+}
+var media=p.media_url?'<div class="post-card__media"><img src="'+esc(p.media_url)+'" alt="" loading="lazy"></div>':'';
+var flags=(p.pinned?'<span class="post-flag post-flag--pin">📌 Pinned</span>':'')+(p.hidden?'<span class="post-flag post-flag--hidden">Hidden</span>':'')+(p.edited?'<span class="post-flag">edited</span>':'');
+return'<article class="post-card'+(p.hidden?' post-card--hidden':'')+'" data-post-id="'+postId+'" data-channel="'+esc(p._channel||'main')+'">'+
+'<div class="post-card__header"><div class="post-card__avatar">'+initials(p.from||'Anonymous')+'</div><div class="post-card__meta"><div class="post-card__author">'+esc(p.from||'Anonymous')+' '+roleBadge(p.role)+'</div><div class="post-card__time">'+timeAgo(p.timestamp)+' '+flags+'</div><span class="post-card__type post-card__type--'+typeClass+'">'+(typeLabels[type]||'💬 Post')+'</span></div>'+menu+'</div>'+
+'<div class="post-card__body" data-role="body">'+formatBody(p.text)+'</div>'+media+
 '<div class="post-card__stats">'+(likeData.count?'<span>'+likeData.count+' like'+(likeData.count>1?'s':'')+'</span>':'')+(commentCount?'<span>'+commentCount+' comment'+(commentCount>1?'s':'')+'</span>':'')+'</div>'+
 '<div class="post-card__actions">'+
 '<button class="post-card__action'+(isLiked?' is-liked':'')+'" data-action="like" data-id="'+postId+'"><svg viewBox="0 0 24 24" fill="'+(isLiked?'currentColor':'none')+'" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Like</button>'+
 '<button class="post-card__action" data-action="comment" data-id="'+postId+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comment</button>'+
 '<button class="post-card__action" data-action="share" data-text="'+esc((p.text||'').slice(0,100))+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>'+
 '</div>'+
-'<div class="post-card__comments" data-post-id="'+postId+'">'+renderComments(commentsData,postId)+(session?'<div class="comment-compose"><div class="comment-compose__avatar">'+initials(session.name)+'</div><input class="comment-compose__input" placeholder="Write a comment..." data-post-id="'+postId+'"></div>':'')+'</div>'+
+(p._isPost?'<div class="post-card__comments" data-post-id="'+postId+'">'+renderComments(commentsData,postId)+(session?'<div class="comment-compose"><div class="comment-compose__avatar">'+initials(session.name)+'</div><input class="comment-compose__input" placeholder="Write a comment..." data-post-id="'+postId+'"></div>':'')+'</div>':'')+
 '</article>';}
 
 function renderComments(comments,postId){
@@ -438,19 +485,16 @@ var isMine=myName&&c.userId===myName;
 var repliesHtml='';
 if(c.replies&&c.replies.length){repliesHtml='<div class="comment__replies">'+c.replies.map(function(r){
 var rMine=myName&&r.userId===myName;
-return'<div class="comment" data-comment-id="'+r.id+'"><div class="comment__avatar">'+initials(r.userId)+'</div><div class="comment__body"><div class="comment__bubble"><div class="comment__author">'+esc(r.userId)+'</div><div class="comment__text">'+esc(r.text)+'</div></div><div class="comment__meta"><span>'+timeAgo(r.timestamp)+'</span>'+(rMine?'<button class="delete-comment-btn" data-post-id="'+postId+'" data-comment-id="'+r.id+'">Delete</button>':'')+'</div></div></div>';}).join('')+'</div>';}
-return'<div class="comment" data-comment-id="'+c.id+'"><div class="comment__avatar">'+initials(c.userId)+'</div><div class="comment__body"><div class="comment__bubble"><div class="comment__author">'+esc(c.userId)+'</div><div class="comment__text">'+esc(c.text)+'</div></div><div class="comment__meta"><span>'+timeAgo(c.timestamp)+'</span>'+(session?'<button class="reply-btn" data-post-id="'+postId+'" data-comment-id="'+c.id+'">Reply</button>':'')+(isMine?'<button class="delete-comment-btn" data-post-id="'+postId+'" data-comment-id="'+c.id+'">Delete</button>':'')+'</div>'+repliesHtml+'</div></div>';}).join('');}
+return'<div class="comment" data-comment-id="'+r.id+'"><div class="comment__avatar">'+initials(r.userId)+'</div><div class="comment__body"><div class="comment__bubble"><div class="comment__author">'+esc(r.userId)+' '+roleBadge(r.role)+'</div><div class="comment__text">'+esc(r.text)+'</div></div><div class="comment__meta"><span>'+timeAgo(r.timestamp)+'</span>'+((rMine||viewerIsSuper)?'<button class="delete-comment-btn" data-post-id="'+postId+'" data-comment-id="'+r.id+'">Delete</button>':'')+'</div></div></div>';}).join('')+'</div>';}
+return'<div class="comment" data-comment-id="'+c.id+'"><div class="comment__avatar">'+initials(c.userId)+'</div><div class="comment__body"><div class="comment__bubble"><div class="comment__author">'+esc(c.userId)+' '+roleBadge(c.role)+'</div><div class="comment__text">'+esc(c.text)+'</div></div><div class="comment__meta"><span>'+timeAgo(c.timestamp)+'</span>'+(session?'<button class="reply-btn" data-post-id="'+postId+'" data-comment-id="'+c.id+'">Reply</button>':'')+((isMine||viewerIsSuper)?'<button class="delete-comment-btn" data-post-id="'+postId+'" data-comment-id="'+c.id+'">Delete</button>':'')+'</div>'+repliesHtml+'</div></div>';}).join('');}
 
+function postIdsOf(list){return list.filter(function(p){return p._isPost;}).map(function(p){return p.id;});}
 function renderHomeFeed(){var feed=document.getElementById('posts-feed');var hp=posts.slice(0,30);if(!hp.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">📭</div><h3 class="empty-state__title">No posts yet</h3><p class="empty-state__text">Be the first to share.</p></div>';return;}feed.innerHTML=hp.map(renderPost).join('');bindPostActions(feed);
-// Load social data then re-render with counts
-var ids=hp.map(function(p){return'p-'+p.timestamp+'-'+(p.from||'').replace(/\s/g,'').slice(0,5);});
-loadSocialData(ids).then(function(){feed.innerHTML=hp.map(renderPost).join('');bindPostActions(feed);});}
+loadSocialData(postIdsOf(hp)).then(function(){feed.innerHTML=hp.map(renderPost).join('');bindPostActions(feed);});}
 function renderScriptureFeed(){var feed=document.getElementById('scripture-posts-feed');var f=posts.filter(function(p){return p.msg_type==='bible'||(p._channel==='main'&&p.msg_type==='message');});if(!f.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">📖</div><h3 class="empty-state__title">No discussions yet</h3><p class="empty-state__text">Start a conversation about today\'s reading.</p></div>';return;}var shown=f.slice(0,20);feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);
-var ids=shown.map(function(p){return'p-'+p.timestamp+'-'+(p.from||'').replace(/\s/g,'').slice(0,5);});
-loadSocialData(ids).then(function(){feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);});}
+loadSocialData(postIdsOf(shown)).then(function(){feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);});}
 function renderPrayerFeed(){var feed=document.getElementById('prayer-posts-feed');var f=posts.filter(function(p){return p.msg_type==='prayer'||p.msg_type==='thanksgiving';});if(prayerFilter!=='all')f=f.filter(function(p){return p.msg_type===prayerFilter;});f.sort(function(a,b){return b.timestamp-a.timestamp;});if(!f.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">🙏</div><h3 class="empty-state__title">No posts yet</h3><p class="empty-state__text">Be the first to share.</p></div>';return;}var shown=f.slice(0,30);feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);
-var ids=shown.map(function(p){return'p-'+p.timestamp+'-'+(p.from||'').replace(/\s/g,'').slice(0,5);});
-loadSocialData(ids).then(function(){feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);});}
+loadSocialData(postIdsOf(shown)).then(function(){feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);});}
 
 // Post actions — server-side likes & comments
 function bindPostActions(container){
@@ -530,33 +574,47 @@ if(res.ok&&res.comment){
 }this.disabled=false;var composeWrap=this.closest('.comment-compose');if(composeWrap)composeWrap.remove();}});}
 });});
 
-// Delete buttons
+// Delete comment — persists via deleteComment
 container.querySelectorAll('.delete-comment-btn').forEach(function(btn){btn.addEventListener('click',async function(){
 if(!session)return;
 if(!confirm('Delete this comment?'))return;
 var postId=this.dataset.postId,commentId=this.dataset.commentId;
-// Remove from cache
+try{await postAction({action:'deleteComment',token:session.token,commentId:commentId});}catch(e){}
+// Remove from cache (comment + any of its replies)
 if(commentsCache[postId]){
   commentsCache[postId]=commentsCache[postId].filter(function(c){
     if(c.id===commentId)return false;
     if(c.replies)c.replies=c.replies.filter(function(r){return r.id!==commentId;});
     return true;});
 }
-// Re-render
 var card=this.closest('.post-card');var commentsEl=card.querySelector('.post-card__comments');
 if(commentsEl){commentsEl.innerHTML=renderComments(commentsCache[postId]||[],postId)+(session?'<div class="comment-compose"><div class="comment-compose__avatar">'+initials(session.name)+'</div><input class="comment-compose__input" placeholder="Write a comment..." data-post-id="'+postId+'"></div>':'');bindPostActions(commentsEl);}
-// TODO: server delete when API supports it
+});});
+
+// Post owner / moderation menu (edit, delete, pin, hide)
+container.querySelectorAll('.post-card__menu-btn').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();var list=this.nextElementSibling;if(list)list.hidden=!list.hidden;});});
+container.querySelectorAll('.post-card__menu-list button').forEach(function(btn){btn.addEventListener('click',async function(){
+if(!session)return;var op=this.dataset.action,id=this.dataset.id,card=this.closest('.post-card');
+if(op==='delete'){if(!confirm('Delete this post?'))return;try{await postAction({action:'deletePost',token:session.token,id:id});posts=posts.filter(function(p){return p.id!==id;});renderHomeFeed();renderScriptureFeed();renderPrayerFeed();}catch(e){alert('Could not delete.');}return;}
+if(op==='pin'){try{var isPinned=posts.find(function(p){return p.id===id;});await postAction({action:'moderatePost',token:session.token,id:id,op:isPinned&&isPinned.pinned?'unpin':'pin'});loadFeed();}catch(e){}return;}
+if(op==='hide'){try{var ph=posts.find(function(p){return p.id===id;});await postAction({action:'moderatePost',token:session.token,id:id,op:ph&&ph.hidden?'unhide':'hide'});loadFeed();}catch(e){}return;}
+if(op==='edit'){startEditPost(id,card);return;}
 });});}
 
-// Fetch social data (likes + comments) for visible posts
+// Inline edit for a post the user owns
+function startEditPost(id,card){var p=posts.find(function(x){return x.id===id;});if(!p||!card)return;var bodyEl=card.querySelector('[data-role="body"]');if(!bodyEl||card.querySelector('.post-edit'))return;
+var box=document.createElement('div');box.className='post-edit';box.innerHTML='<textarea class="compose-box__input" style="width:100%;">'+esc(p.text)+'</textarea><div style="display:flex;gap:0.5rem;margin-top:0.4rem;"><button class="compose-box__post-btn" data-save>Save</button><button class="post-card__action" data-cancel>Cancel</button></div>';
+bodyEl.style.display='none';bodyEl.insertAdjacentElement('afterend',box);
+box.querySelector('[data-cancel]').addEventListener('click',function(){box.remove();bodyEl.style.display='';});
+box.querySelector('[data-save]').addEventListener('click',async function(){var text=box.querySelector('textarea').value.trim();if(!text)return;this.disabled=true;try{await postAction({action:'editPost',token:session.token,id:id,text:text});p.text=text;p.edited=true;renderHomeFeed();renderScriptureFeed();renderPrayerFeed();}catch(e){alert('Could not save.');this.disabled=false;}});}
+
+// Fetch comments for visible posts (likes already come baked into getFeed).
 async function loadSocialData(postIds){
 if(!postIds.length)return;
 try{
-  var likePayload=session?{action:'getLikes',token:session.token,postIds:postIds}:{action:'getLikes',passphrase_hash:'public-read',postIds:postIds};
   var commentPayload=session?{action:'getComments',token:session.token,postIds:postIds}:{action:'getComments',passphrase_hash:'public-read',postIds:postIds};
-  var[likesRes,commentsRes]=await Promise.allSettled([postAction(likePayload),postAction(commentPayload)]);
-  if(likesRes.status==='fulfilled'&&likesRes.value.ok)Object.assign(likesCache,likesRes.value.likes);
-  if(commentsRes.status==='fulfilled'&&commentsRes.value.ok)Object.assign(commentsCache,commentsRes.value.comments);
+  var commentsRes=await postAction(commentPayload);
+  if(commentsRes&&commentsRes.ok&&commentsRes.comments)Object.assign(commentsCache,commentsRes.comments);
 }catch(e){/* silent — use empty caches */}}
 
 // Share modal
@@ -578,11 +636,11 @@ modal.querySelector('#share-native').addEventListener('click',function(){if(navi
 
 // Compose
 var cpBtn=document.getElementById('compose-post-btn');
-if(cpBtn)cpBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('compose-input'),text=input.value.trim();if(!text)return;var type=document.getElementById('compose-type').value,channel=type==='prayer'?'prayer':(type==='thanksgiving'?'thanksgiving':'main');cpBtn.disabled=true;cpBtn.textContent='...';try{await postAction({action:'sendChatMessage',token:session.token,channel:channel,text:text,msg_type:type,to_user:''});input.value='';posts.unshift({from:session.name,text:text,timestamp:Date.now(),msg_type:type,_channel:channel});renderHomeFeed();renderPrayerFeed();}catch(e){alert('Could not post.');}cpBtn.disabled=false;cpBtn.textContent='Post';});
+if(cpBtn)cpBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('compose-input'),text=input.value.trim();if(!text)return;var type=document.getElementById('compose-type').value,channel=type==='prayer'?'prayer':(type==='thanksgiving'?'thanksgiving':(type==='bible'?'scripture':'main'));cpBtn.disabled=true;cpBtn.textContent='...';try{var res=await postAction({action:'createPost',token:session.token,channel:channel,text:text});if(res&&res.ok){input.value='';loadFeed();}else{alert((res&&res.error)||'Could not post.');}}catch(e){alert('Could not post.');}cpBtn.disabled=false;cpBtn.textContent='Post';});
 
 // Prayer send
 var psBtn=document.getElementById('prayer-send-btn');
-if(psBtn)psBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('prayer-compose-input'),text=input.value.trim();if(!text)return;var type=document.getElementById('prayer-type-select').value;var anon=document.getElementById('prayer-anon').checked;psBtn.disabled=true;try{await postAction({action:'sendChatMessage',token:session.token,channel:type,text:text,msg_type:type,to_user:'',anonymous:anon});input.value='';posts.unshift({from:anon?'Anonymous':session.name,text:text,timestamp:Date.now(),msg_type:type,_channel:type});renderPrayerFeed();renderHomeFeed();}catch(e){}psBtn.disabled=false;});
+if(psBtn)psBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('prayer-compose-input'),text=input.value.trim();if(!text)return;var type=document.getElementById('prayer-type-select').value;var anon=document.getElementById('prayer-anon').checked;psBtn.disabled=true;try{var res=await postAction({action:'createPost',token:session.token,channel:type,text:(anon?'[Anonymous] ':'')+text});if(res&&res.ok){input.value='';loadFeed();}}catch(e){}psBtn.disabled=false;});
 
 // Prayer filter
 document.querySelectorAll('.prayer-filter__btn').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.prayer-filter__btn').forEach(function(b){b.classList.remove('is-active');});this.classList.add('is-active');prayerFilter=this.dataset.filter;renderPrayerFeed();});});
@@ -618,6 +676,12 @@ var calAttempts=0,calCheck=setInterval(function(){calAttempts++;if(window.google
 
 // Init
 checkSession();renderELibrary();loadFeed();
+// Lightweight near-real-time: refresh the feed every 45s while the tab is
+// visible (skips work in the background to avoid needless backend calls).
+feedPollTimer=setInterval(function(){if(document.visibilityState==='visible')loadFeed();},45000);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')loadFeed();});
+// Close any open post menus on outside click.
+document.addEventListener('click',function(){document.querySelectorAll('.post-card__menu-list').forEach(function(l){l.hidden=true;});});
 })();
 </script>
 </body>

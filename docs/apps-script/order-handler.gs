@@ -288,6 +288,7 @@ function doPost(e) {
   // ── Community Posts feed (first-class posts, see social-handler.gs) ──
   if ((payload && payload.action) === 'createPost') return handleCreatePost_(payload);
   if ((payload && payload.action) === 'getFeed') return handleGetFeed_(payload);
+  if ((payload && payload.action) === 'uploadImage') return handleUploadImage_(payload);
   if ((payload && payload.action) === 'editPost') return handleEditPost_(payload);
   if ((payload && payload.action) === 'deletePost') return handleDeletePost_(payload);
   if ((payload && payload.action) === 'moderatePost') return handleModeratePost_(payload);

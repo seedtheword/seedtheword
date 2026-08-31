@@ -201,6 +201,9 @@ function handlePostComment_(payload) {
 
     sheet.appendRow([type, postId, user.name, timestamp, text, parentId, channel]);
 
+    // @mention notifications on comments/replies.
+    try { socialNotifyMentions_(socialParseMentions_(text), user.name, 'a comment', text); } catch (e) {}
+
     return jsonResponse({
       ok: true,
       comment: {
@@ -393,6 +396,9 @@ function handleCreatePost_(payload) {
         sendTelegramFromAppsScript_('@seedtheword', emoji + ' <b>' + label + ' from ' + user.name + '</b>\n\n' + text, 21);
       } catch (e) {}
     }
+
+    // @mention notifications.
+    try { socialNotifyMentions_(socialParseMentions_(text), user.name, 'a community post', text); } catch (e) {}
 
     return jsonResponse({
       ok: true,
@@ -616,4 +622,97 @@ function handleDeleteComment_(payload) {
     Logger.log('deleteComment error: ' + err);
     return jsonResponse({ ok: false, error: 'Server error' });
   }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ACTION: uploadImage — base64 image → Drive → public URL
+// { action:'uploadImage', token, dataUrl:'data:image/jpeg;base64,...', filename? }
+// Any valid team member may upload. Saves to Drive folder
+// "STW Community Uploads" (anyone-with-link can view) and returns a URL
+// usable as an <img src>. Guards type + size.
+// ══════════════════════════════════════════════════════════════════════
+
+var COMMUNITY_UPLOAD_FOLDER = 'STW Community Uploads';
+
+function socialUploadFolder_() {
+  var it = DriveApp.getFoldersByName(COMMUNITY_UPLOAD_FOLDER);
+  if (it.hasNext()) return it.next();
+  return DriveApp.createFolder(COMMUNITY_UPLOAD_FOLDER);
+}
+
+function handleUploadImage_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    if (!socialRateOk_(user.name, 'upload')) return jsonResponse({ ok: false, error: 'Too many uploads — try again in a minute.' });
+
+    var dataUrl = String(payload.dataUrl || '');
+    var m = dataUrl.match(/^data:(image\/(png|jpe?g|gif|webp));base64,(.+)$/i);
+    if (!m) return jsonResponse({ ok: false, error: 'Only PNG, JPG, GIF, or WEBP images are allowed.' });
+    var mime = m[1];
+    var b64 = m[3];
+
+    // Size guard (~6MB of base64 ≈ 4.5MB image).
+    if (b64.length > 6 * 1024 * 1024) return jsonResponse({ ok: false, error: 'Image too large (max ~4MB).' });
+
+    var bytes = Utilities.base64Decode(b64);
+    var ext = mime.split('/')[1].replace('jpeg', 'jpg');
+    var safeName = String(payload.filename || 'upload').replace(/[^a-zA-Z0-9._-]/g, '').slice(0, 40) || 'upload';
+    var blob = Utilities.newBlob(bytes, mime, 'stw-' + Date.now() + '-' + safeName + '.' + ext);
+
+    var file = socialUploadFolder_().createFile(blob);
+    try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
+
+    // Direct-view URL that works in <img src>.
+    var url = 'https://drive.google.com/uc?export=view&id=' + file.getId();
+    return jsonResponse({ ok: true, url: url, id: file.getId() });
+  } catch (err) {
+    Logger.log('uploadImage error: ' + err);
+    return jsonResponse({ ok: false, error: 'Upload failed' });
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// @MENTIONS — parse @Name against team members, relay a Telegram notice.
+// Called from handleCreatePost_ / handlePostComment_ (see below).
+// Returns the list of matched member names (for optional storage/rendering).
+// ══════════════════════════════════════════════════════════════════════
+
+function socialTeamNames_() {
+  // Cached list of {name, lower} for mention matching.
+  var out = [];
+  try {
+    var sh = getTeamSheet_();
+    if (sh.getLastRow() >= 2) {
+      var d = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues();
+      for (var i = 0; i < d.length; i++) {
+        var nm = String(d[i][1] || '').trim();
+        if (nm) out.push({ name: nm, lower: nm.toLowerCase() });
+      }
+    }
+  } catch (e) {}
+  return out;
+}
+
+function socialParseMentions_(text) {
+  // Match @Name or @First Last against known team members (longest first).
+  var names = socialTeamNames_().sort(function (a, b) { return b.name.length - a.name.length; });
+  var lowerText = String(text || '').toLowerCase();
+  var hits = [];
+  for (var i = 0; i < names.length; i++) {
+    if (lowerText.indexOf('@' + names[i].lower) !== -1 && hits.indexOf(names[i].name) === -1) {
+      hits.push(names[i].name);
+    }
+  }
+  return hits;
+}
+
+function socialNotifyMentions_(mentions, byName, context, snippet) {
+  if (!mentions || !mentions.length) return;
+  if (typeof sendTelegramFromAppsScript_ !== 'function') return;
+  try {
+    var who = mentions.map(function (n) { return '@' + n; }).join(', ');
+    var msg = '🔔 <b>' + byName + '</b> mentioned ' + who + ' in ' + context + '\n\n' + String(snippet || '').slice(0, 200);
+    sendTelegramFromAppsScript_('@seedtheword', msg, null);
+  } catch (e) {}
 }

@@ -79,6 +79,14 @@ Project settings (gear) → Script properties:
 
 ---
 
+## Community rich posts (photos + @mentions) — needs redeploy
+
+The community feed now supports **photo attachments** and **@mention notifications**:
+- `social-handler.gs` gained `handleUploadImage_` (base64 → Drive folder **"STW Community Uploads"** → public URL) and `@mention` parsing that relays a Telegram notice. `handleCreatePost_` also relays prayer/thanksgiving posts to Telegram thread 21 when the poster ticks "Share to Telegram".
+- `order-handler.gs` routes the new `uploadImage` action.
+
+To activate: repaste **`social-handler.gs`** + **`order-handler.gs`** into the P1 web-app project and **redeploy**. On the first photo upload, Apps Script will prompt to authorize **Drive** access (one time). No new setup function needed — the upload folder auto-creates.
+
 ## Current status — what still needs doing (update as you go)
 
 - [ ] **P1: paste `content-handler.gs`** + redeploy + run `stwContentSetup()` → Content Studio stories/testimonies + live News content.

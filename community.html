@@ -542,7 +542,7 @@ function initials(n){return(n||'?').split(' ').map(function(w){return w[0];}).jo
 function roleBadge(role){var r=String(role||'').toLowerCase();if(r==='super_admin')return'<span class="role-badge role-badge--super" title="Ministry leader">✓ Leader</span>';if(r==='admin')return'<span class="role-badge role-badge--admin" title="Team admin">✓ Team</span>';if(r==='member')return'<span class="role-badge role-badge--member" title="Team member">Member</span>';return'';}
 function timeAgo(ts){var d=Date.now()-ts,m=Math.floor(d/60000);if(m<1)return'Just now';if(m<60)return m+'m ago';var h=Math.floor(m/60);if(h<24)return h+'h ago';var days=Math.floor(h/24);if(days<7)return days+'d ago';return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 async function getHandlerUrl(){if(handlerUrl)return handlerUrl;var cfg=await fetch(CONFIG_URL+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});handlerUrl=cfg.orderHandlerUrl;return handlerUrl;}
-async function postAction(data){var url=await getHandlerUrl();var res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});var text=await res.text();try{return JSON.parse(text);}catch(e){return{ok:false};}}
+async function postAction(data,timeoutMs){var url=await getHandlerUrl();var ctrl=(typeof AbortController!=='undefined')?new AbortController():null;var to=ctrl?setTimeout(function(){ctrl.abort();},timeoutMs||15000):null;try{var res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data),signal:ctrl?ctrl.signal:undefined});var text=await res.text();if(to)clearTimeout(to);try{return JSON.parse(text);}catch(e){return{ok:false};}}catch(e){if(to)clearTimeout(to);return{ok:false,error:'timeout'};}}
 
 // Normalize a Google Drive share/uc URL to the reliable lh3 image host
 // (uc?export=view often 403s when hotlinked in <img>; lh3/d/<id> works).
@@ -623,13 +623,22 @@ function updateBadges(msgs){var ls=getLastSeen(),counts={scripture:0,prayer:0,ho
 msgs.forEach(function(m){var ch=m.msg_type==='prayer'||m.msg_type==='thanksgiving'?'prayer':(m.msg_type==='bible'?'scripture':'home');if(m.timestamp>(ls[ch]||0))counts[ch]++;});
 Object.keys(counts).forEach(function(ch){var b=document.getElementById('badge-'+ch);if(b)b.textContent=counts[ch]>0?counts[ch]:'';});}
 
-// Load feed — first-class Posts (getFeed) merged with read-only announcements.
-async function loadFeed(){try{
+// Instant paint: show the last cached feed immediately so the page is never
+// stuck on "Loading…" while the (slow) Apps Script round-trips run.
+var FEED_CACHE_KEY='stwm-community-feed-v1';
+function paintCachedFeed(){try{var c=JSON.parse(localStorage.getItem(FEED_CACHE_KEY));if(c&&c.length){posts=c;renderHomeFeed();renderScriptureFeed();renderPrayerFeed();updateHeroStats();return true;}}catch(e){}return false;}
+
+// Load feed — getFeed + getAnnouncements run IN PARALLEL (not serialized).
+async function loadFeed(){
 var token=session?session.token:null;
-var allPosts=[];
-// 1) Real posts from the Posts backend (likes/comments counts baked in).
 var feedPayload=token?{action:'getFeed',token:token,limit:60}:{action:'getFeed',passphrase_hash:'public-read',limit:60};
-var feedRes=await postAction(feedPayload);
+var results;
+try{ results=await Promise.all([postAction(feedPayload),postAction({action:'getAnnouncements',passphrase_hash:'public-read'})]); }
+catch(e){ results=[null,null]; }
+var feedRes=results[0], ann=results[1];
+// If both failed and we already painted a cache, keep the cache (don't wipe).
+if((!feedRes||!feedRes.ok)&&(!ann||!ann.ok)){ if(!posts.length){document.getElementById('posts-feed').innerHTML='<div class="empty-state"><div class="empty-state__icon">🌐</div><h3 class="empty-state__title">Connection issue</h3><p class="empty-state__text">Could not reach the community server. Pull to refresh in a moment.</p></div>';} return; }
+var allPosts=[];
 if(feedRes&&feedRes.ok&&feedRes.posts){
   viewerIsSuper=!!feedRes.viewerIsSuper;
   feedRes.posts.forEach(function(p){
@@ -638,12 +647,12 @@ if(feedRes&&feedRes.ok&&feedRes.posts){
     likesCache[p.id]={count:p.likeCount||0,userLiked:!!p.userLiked};
   });
 }
-// 2) Announcements as read-only "system" posts (not likeable/commentable entities of their own).
-try{var ann=await postAction({action:'getAnnouncements',passphrase_hash:'public-read'});if(ann.ok&&ann.announcements)ann.announcements.forEach(function(a){allPosts.push({id:'ann-'+a.timestamp,from:a.from||'Seed the Word',role:'super_admin',text:(a.subject?'**'+a.subject+'**\n\n':'')+a.body,timestamp:a.timestamp,msg_type:'announcement',_channel:'announcements',_isPost:false,_readonly:true});});}catch(e){}
+if(ann&&ann.ok&&ann.announcements)ann.announcements.forEach(function(a){allPosts.push({id:'ann-'+a.timestamp,from:a.from||'Seed the Word',role:'super_admin',text:(a.subject?'**'+a.subject+'**\n\n':'')+a.body,timestamp:a.timestamp,msg_type:'announcement',_channel:'announcements',_isPost:false,_readonly:true});});
 posts=allPosts.sort(function(a,b){if(!!a.pinned!==!!b.pinned)return a.pinned?-1:1;return b.timestamp-a.timestamp;});
 lastFeedLoad=Date.now();
+try{localStorage.setItem(FEED_CACHE_KEY,JSON.stringify(posts.slice(0,40)));}catch(e){}
 updateBadges(posts);renderHomeFeed();renderScriptureFeed();renderPrayerFeed();updateHeroStats();
-}catch(e){document.getElementById('posts-feed').innerHTML='<div class="empty-state"><div class="empty-state__icon">🌐</div><h3 class="empty-state__title">Connection issue</h3><p class="empty-state__text">Could not load the feed. If the backend was just deployed, refresh in a moment.</p></div>';}}
+}
 
 function updateHeroStats(){
   var postsEl=document.getElementById('fk-stat-posts'),prayEl=document.getElementById('fk-stat-prayers');
@@ -1170,7 +1179,7 @@ function renderStory(){
 // Theme — handled by theme-toggle.js site-wide
 
 // Init
-checkSession();renderELibrary();loadFeed();loadStories();
+checkSession();renderELibrary();paintCachedFeed();loadFeed();loadStories();
 // No aggressive polling — Apps Script round-trips are slow, and constant
 // re-renders made the feed feel sluggish. The feed loads once on open and
 // updates optimistically after the user's own actions. A gentle refresh

@@ -335,10 +335,6 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <div class="hero-dash" id="hero-dash">
           <!-- Activity summary injected by renderHomeDashboard() -->
         </div>
-        <!-- Hidden reading-plan source: updateReading() reads today's chapter from here. -->
-        <div id="bible-plan-container" hidden></div>
-        <div id="going-deeper-container" hidden></div>
-        <span id="reading-today-text" hidden></span>
       </div>
 
       <!-- Stories rail (Instagram-style, 24h ephemeral) -->
@@ -368,6 +364,22 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
       <div class="section-header-card">
         <h2 class="section-title">📖 Discuss Scripture</h2>
         <p class="section-desc">Read today's chapter, highlight verses, keep private notes, and discuss it with the community.</p>
+      </div>
+
+      <!-- Today's Reading band (moved here from Home) — collapsible plan + going-deeper -->
+      <div class="reading-band" id="reading-band">
+        <button class="reading-band__head" id="reading-band-toggle" aria-expanded="false" aria-controls="reading-band-body">
+          <span class="reading-band__eyebrow">📖 Today's Reading</span>
+          <span class="reading-band__today" id="reading-today-text">Loading…</span>
+          <span class="reading-band__chev" aria-hidden="true">▾</span>
+        </button>
+        <div class="reading-band__body" id="reading-band-body">
+          <div class="reading-band__inner">
+            <div id="bible-plan-container"></div>
+            <div id="going-deeper-container"></div>
+            <p class="reading-band__foot">Brand new? <a href="start-here.html">Try the 20-day plan first →</a></p>
+          </div>
+        </div>
       </div>
 
       <!-- Group chats / forum topics -->
@@ -1047,7 +1059,15 @@ if(hr){var reading=(window.BiblePlan&&window.BiblePlan.getReadingForDate)?window
   else hr.textContent=text;}
 }
 setTimeout(updateReading,1500);
-// (The old collapsible reading-band was folded into the hero header.)
+// Smooth expand/collapse of the Today's Reading band (now in Discuss Scripture).
+var rbToggle=document.getElementById('reading-band-toggle'),rbBody=document.getElementById('reading-band-body'),rbBand=document.getElementById('reading-band');
+if(rbToggle&&rbBody&&rbBand){
+  rbToggle.addEventListener('click',function(){
+    var open=rbBand.classList.toggle('is-open');
+    rbToggle.setAttribute('aria-expanded',open?'true':'false');
+    rbBody.style.maxHeight=open?(rbBody.scrollHeight+40)+'px':'0px';
+  });
+}
 
 // Calendar
 var calAttempts=0,calCheck=setInterval(function(){calAttempts++;if(window.googleCalendar&&window.googleCalendar.events&&window.googleCalendar.events.length){clearInterval(calCheck);var cal=window.googleCalendar,now=new Date(),upcoming=cal.events.filter(function(ev){var s=cal.getEventStart(ev);return s&&s>now;}).slice(0,5);if(!upcoming.length)return;var html=upcoming.map(function(ev){var s=cal.getEventStart(ev);return'<div class="event-item"><div class="event-item__date"><span class="event-item__month">'+s.toLocaleDateString('en-US',{month:'short'})+'</span><span class="event-item__day">'+s.getDate()+'</span></div><div class="event-item__info"><div class="event-item__title">'+(ev.summary||'Event')+'</div><div class="event-item__time">'+s.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div></div></div>';}).join('');var el=document.getElementById('events-list'),se=document.getElementById('sidebar-events'),ec2=document.getElementById('events-count');if(el)el.innerHTML=html;if(se)se.innerHTML=html;if(ec2)ec2.textContent=upcoming.length+' upcoming';}else if(calAttempts>40)clearInterval(calCheck);},500);

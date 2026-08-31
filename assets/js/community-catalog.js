@@ -416,6 +416,9 @@
       ? '<a href="' + esc(item.url) + '" target="_blank" rel="noopener" class="store-card__action store-card__action--primary">Visit →</a>'
       : '';
 
+    // Social chips (Instagram / Spotify / etc.) from the partner's socials[].
+    var socialHTML = socialChips(item.socials);
+
     return (
       '<article class="store-card">' +
         imageHTML +
@@ -425,10 +428,25 @@
           '<div class="store-card__meta">' +
             '<span class="store-card__price">👤 ' + esc(item.pointOfContact) + '</span>' +
           '</div>' +
+          socialHTML +
           actionHTML +
         '</div>' +
       '</article>'
     );
+  }
+
+  // Render a row of social chips from a socials[] array of {platform,handle,url}.
+  function socialChips(socials) {
+    if (!socials || !socials.length) return '';
+    var icons = { instagram: '📸', spotify: '🎧', youtube: '▶️', twitter: '𝕏', facebook: 'f', tiktok: '🎵', website: '🌐' };
+    var chips = socials.map(function (s) {
+      var plat = String(s.platform || '').toLowerCase();
+      var label = s.handle ? esc(s.handle) : (plat.charAt(0).toUpperCase() + plat.slice(1));
+      var url = s.url || (plat === 'instagram' && s.handle ? 'https://instagram.com/' + String(s.handle).replace(/^@/, '') : '#');
+      return '<a class="social-chip social-chip--' + esc(plat) + '" href="' + esc(url) + '" target="_blank" rel="noopener">' +
+        '<span class="social-chip__ico">' + (icons[plat] || '🔗') + '</span>' + label + '</a>';
+    }).join('');
+    return '<div class="social-chips">' + chips + '</div>';
   }
 
   function renderMessageCard(item) {

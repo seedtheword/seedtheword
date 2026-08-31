@@ -292,6 +292,8 @@ function doPost(e) {
   if ((payload && payload.action) === 'uploadImage') return handleUploadImage_(payload);
   if ((payload && payload.action) === 'createStory') return handleCreateStory_(payload);
   if ((payload && payload.action) === 'getStories') return handleGetStories_(payload);
+  if ((payload && payload.action) === 'saveStudyMark') return handleSaveStudyMark_(payload);
+  if ((payload && payload.action) === 'getStudyMarks') return handleGetStudyMarks_(payload);
   if ((payload && payload.action) === 'editPost') return handleEditPost_(payload);
   if ((payload && payload.action) === 'deletePost') return handleDeletePost_(payload);
   if ((payload && payload.action) === 'moderatePost') return handleModeratePost_(payload);

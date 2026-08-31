@@ -546,3 +546,50 @@
 /* menu button sits neatly in the header */
 .community-body #posts-feed .post-card__menu,
 .community-body #scripture-posts-feed .post-card__menu { align-self: flex-start; }
+
+/* ── Scripture study reader ──────────────────────────────── */
+.reader-card { background: var(--fk-card); border: 1px solid var(--fk-line); border-radius: var(--fk-radius-lg); padding: 1.25rem 1.4rem; margin-bottom: 1rem; box-shadow: var(--sp-shadow, 0 1px 3px rgba(26,30,36,0.05)); }
+.reader-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
+.reader-card__eyebrow { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fk-accent); font-weight: 700; }
+.reader-card__ref { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 600; margin: 0.15rem 0 0; }
+.reader-card__yv { font-size: 0.78rem; font-weight: 700; color: var(--fk-accent); text-decoration: none; white-space: nowrap; }
+.reader-card__yv:hover { text-decoration: underline; }
+.reader-card__verses { font-size: 1.02rem; line-height: 1.85; color: var(--fk-ink); }
+.reader-loading { color: var(--fk-muted); font-size: 0.9rem; }
+.reader-card__trans { font-size: 0.72rem; color: var(--fk-muted); margin: 1rem 0 0; font-style: italic; }
+.verse { cursor: pointer; border-radius: 4px; padding: 0 1px; transition: background 0.15s; }
+.verse:hover { background: rgba(217,119,54,0.06); }
+.verse__num { font-size: 0.66rem; font-weight: 700; color: var(--fk-muted); margin-right: 2px; vertical-align: super; }
+.verse--selected { outline: 2px solid var(--fk-accent); outline-offset: 1px; }
+.verse--hl-yellow { background: rgba(255,214,0,0.35); }
+.verse--hl-green { background: rgba(52,199,89,0.28); }
+.verse--hl-blue { background: rgba(0,122,255,0.22); }
+.verse--hl-pink { background: rgba(255,45,146,0.22); }
+[data-theme="dark"] .verse--hl-yellow { background: rgba(255,214,0,0.25); }
+.verse__note-dot { font-size: 0.7rem; margin-left: 2px; }
+
+/* Verse action bar */
+.verse-actions { position: sticky; bottom: 0.5rem; z-index: 30; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; background: var(--fk-card); border: 1px solid var(--fk-line); border-radius: 999px; padding: 0.5rem 0.9rem; box-shadow: 0 6px 20px rgba(15,23,42,0.14); margin-bottom: 1rem; }
+.verse-actions[hidden] { display: none !important; }
+.verse-actions__ref { font-weight: 700; font-size: 0.82rem; color: var(--fk-ink); }
+.verse-actions__swatches { display: flex; gap: 0.35rem; }
+.hl-swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--fk-card); box-shadow: 0 0 0 1px var(--fk-line); cursor: pointer; padding: 0; font-size: 0.8rem; }
+.hl-swatch--yellow { background: #ffd600; }
+.hl-swatch--green { background: #34c759; }
+.hl-swatch--blue { background: #007aff; }
+.hl-swatch--pink { background: #ff2d92; }
+.hl-swatch--clear { background: var(--color-bg-subtle); color: var(--fk-muted); }
+.verse-actions__note { margin-left: auto; background: var(--fk-accent); color: #fff; border: none; border-radius: 999px; padding: 0.45rem 0.9rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+
+/* Note modal */
+.note-modal { position: fixed; inset: 0; z-index: 500; background: rgba(15,18,24,0.45); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.note-modal[hidden] { display: none !important; }
+.note-modal__sheet { background: var(--fk-card); border-radius: 16px; width: 100%; max-width: 440px; padding: 1.25rem; box-shadow: 0 20px 60px rgba(15,23,42,0.3); }
+.note-modal__title { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 600; margin: 0 0 0.35rem; }
+.note-modal__verse { font-size: 0.85rem; color: var(--fk-muted); font-style: italic; margin: 0 0 0.75rem; max-height: 4.5em; overflow: auto; }
+.note-modal__sheet textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--fk-line); border-radius: 10px; padding: 0.7rem; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; background: var(--color-bg-subtle); color: var(--fk-ink); }
+.note-modal__actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.85rem; }
+.note-modal__btn { border: 1px solid var(--fk-line); background: var(--fk-card); border-radius: 999px; padding: 0.5rem 1rem; font-size: 0.82rem; font-weight: 700; cursor: pointer; color: var(--fk-ink); }
+.note-modal__btn--save { background: var(--fk-accent); color: #fff; border-color: var(--fk-accent); }
+.scripture-disc__head { margin: 1.25rem 0 0.75rem; }
+.scripture-disc__head h3 { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 600; margin: 0; }

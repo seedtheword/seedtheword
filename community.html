@@ -283,7 +283,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=11">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=12">
 </head>
 <body class="community-body">
 
@@ -377,8 +377,38 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 
     <section class="channel-section" id="channel-scripture">
       <div class="section-header-card">
-        <h2 class="section-title">📖 Discuss Scripture</h2>
-        <p class="section-desc">Comment on the daily reading, explore passages, or start a discussion.</p>
+        <h2 class="section-title">📖 Today's Scripture</h2>
+        <p class="section-desc">Read today's chapter, highlight verses, keep private notes, and discuss it with the community.</p>
+      </div>
+
+      <!-- Study reader: today's chapter text (WEB via bible-api.com) -->
+      <div class="reader-card" id="reader-card">
+        <div class="reader-card__head">
+          <div><span class="reader-card__eyebrow">Today's Reading</span><h3 class="reader-card__ref" id="reader-ref">Loading…</h3></div>
+          <a class="reader-card__yv" id="reader-yv" href="https://www.bible.com/" target="_blank" rel="noopener">Open in YouVersion →</a>
+        </div>
+        <div class="reader-card__verses" id="reader-verses"><p class="reader-loading">Loading today's chapter…</p></div>
+        <p class="reader-card__trans">World English Bible (public domain). Tap a verse to highlight or add a note.</p>
+      </div>
+
+      <!-- Verse action bar (appears when a verse is tapped) -->
+      <div class="verse-actions" id="verse-actions" hidden>
+        <span class="verse-actions__ref" id="verse-actions-ref"></span>
+        <div class="verse-actions__swatches">
+          <button class="hl-swatch hl-swatch--yellow" data-color="yellow" title="Yellow"></button>
+          <button class="hl-swatch hl-swatch--green" data-color="green" title="Green"></button>
+          <button class="hl-swatch hl-swatch--blue" data-color="blue" title="Blue"></button>
+          <button class="hl-swatch hl-swatch--pink" data-color="pink" title="Pink"></button>
+          <button class="hl-swatch hl-swatch--clear" data-color="" title="Clear">⌀</button>
+        </div>
+        <button class="verse-actions__note" id="verse-note-btn">📝 Note</button>
+      </div>
+
+      <!-- Day-scoped discussion -->
+      <div class="scripture-disc__head"><h3 id="scripture-disc-title">💬 Discussion</h3></div>
+      <div id="scripture-compose" class="compose-box" style="display:none;">
+        <div class="compose-box__header"><div class="compose-box__avatar" id="scripture-compose-avatar"></div><div style="flex:1;min-width:0;position:relative;"><textarea class="compose-box__input" id="scripture-input" placeholder="Share a thought on today's chapter… use @ to mention" rows="2"></textarea><div class="mention-menu" id="scripture-mention-menu" hidden></div></div></div>
+        <div class="compose-box__actions"><button class="compose-box__post-btn" id="scripture-post-btn" style="margin-left:auto;">Post to discussion</button></div>
       </div>
       <div id="scripture-posts-feed"><div style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading discussions...</div></div>
     </section>
@@ -425,6 +455,16 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
     <div class="sidebar-card"><p class="sidebar-card__title">Today's Reading</p><div id="sidebar-reading" style="font-size:0.88rem;color:var(--color-text);margin-bottom:0.5rem;">Loading...</div><button onclick="switchChannel('scripture')" style="display:block;width:100%;padding:0.5rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;color:var(--color-olive);cursor:pointer;text-align:center;font-family:var(--font-sans);">Open Scripture Tab →</button></div>
     <div class="sidebar-cta"><h3 class="sidebar-cta__title">Join the Team</h3><p class="sidebar-cta__text">Volunteer with us at outreach events and help distribute God's Word.</p><a href="team.html" class="sidebar-cta__btn">Team Portal →</a></div>
   </aside>
+</div>
+
+<!-- Verse note popover -->
+<div class="note-modal" id="note-modal" hidden>
+  <div class="note-modal__sheet">
+    <h3 class="note-modal__title" id="note-modal-ref">Note</h3>
+    <p class="note-modal__verse" id="note-modal-verse"></p>
+    <textarea id="note-modal-text" placeholder="Your private note on this verse…" rows="4"></textarea>
+    <div class="note-modal__actions"><button id="note-modal-cancel" class="note-modal__btn">Cancel</button><button id="note-modal-save" class="note-modal__btn note-modal__btn--save">Save note</button></div>
+  </div>
 </div>
 
 <!-- Story viewer overlay -->
@@ -545,7 +585,8 @@ function checkSession(){try{session=JSON.parse(localStorage.getItem('stwm-team-s
 document.getElementById('compose-box').style.display=session?'':'none';
 document.getElementById('login-prompt').style.display=session?'none':'';
 var pc=document.getElementById('prayer-compose');if(pc)pc.style.display=session?'':'none';
-if(session){var ini=initials(session.name);document.querySelectorAll('#compose-avatar,#prayer-compose-avatar').forEach(function(el){el.textContent=ini;});}}
+var sc=document.getElementById('scripture-compose');if(sc)sc.style.display=session?'':'none';
+if(session){var ini=initials(session.name);document.querySelectorAll('#compose-avatar,#prayer-compose-avatar,#scripture-compose-avatar').forEach(function(el){el.textContent=ini;});}}
 
 // Channel nav
 var activeChannel='home';
@@ -554,6 +595,8 @@ document.querySelectorAll('.channel-tab').forEach(function(t){var a=t.dataset.ch
 document.querySelectorAll('.channel-section').forEach(function(s){s.classList.remove('is-active');});
 var target=document.getElementById('channel-'+ch);if(target)target.classList.add('is-active');
 setLastSeen(ch);var badge=document.getElementById('badge-'+ch);if(badge)badge.textContent='';
+// Lazily load the Scripture reader the first time that channel is opened.
+if(ch==='scripture'&&!readerRef&&typeof loadReader==='function')loadReader();
 window.scrollTo({top:0,behavior:'smooth'});}
 window.switchChannel=switchChannel;
 document.querySelectorAll('.channel-tab').forEach(function(tab){tab.addEventListener('click',function(){switchChannel(this.dataset.channel);});});
@@ -904,6 +947,84 @@ if(rbToggle&&rbBody&&rbBand){
 
 // Calendar
 var calAttempts=0,calCheck=setInterval(function(){calAttempts++;if(window.googleCalendar&&window.googleCalendar.events&&window.googleCalendar.events.length){clearInterval(calCheck);var cal=window.googleCalendar,now=new Date(),upcoming=cal.events.filter(function(ev){var s=cal.getEventStart(ev);return s&&s>now;}).slice(0,5);if(!upcoming.length)return;var html=upcoming.map(function(ev){var s=cal.getEventStart(ev);return'<div class="event-item"><div class="event-item__date"><span class="event-item__month">'+s.toLocaleDateString('en-US',{month:'short'})+'</span><span class="event-item__day">'+s.getDate()+'</span></div><div class="event-item__info"><div class="event-item__title">'+(ev.summary||'Event')+'</div><div class="event-item__time">'+s.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div></div></div>';}).join('');var el=document.getElementById('events-list'),se=document.getElementById('sidebar-events'),ec2=document.getElementById('events-count');if(el)el.innerHTML=html;if(se)se.innerHTML=html;if(ec2)ec2.textContent=upcoming.length+' upcoming';}else if(calAttempts>40)clearInterval(calCheck);},500);
+
+// ── Scripture study reader (today's chapter + highlights + notes) ──
+var readerRef=null, studyMarks={}, activeVerseRef=null;
+function bookForYouVersion(book){ // YouVersion uses USFM-ish book codes; map common NT books
+  var m={'Matthew':'MAT','Mark':'MRK','Luke':'LUK','John':'JHN','Acts':'ACT','Romans':'ROM','1 Corinthians':'1CO','2 Corinthians':'2CO','Galatians':'GAL','Ephesians':'EPH','Philippians':'PHP','Colossians':'COL','1 Thessalonians':'1TH','2 Thessalonians':'2TH','1 Timothy':'1TI','2 Timothy':'2TI','Titus':'TIT','Philemon':'PHM','Hebrews':'HEB','James':'JAS','1 Peter':'1PE','2 Peter':'2PE','1 John':'1JN','2 John':'2JN','3 John':'3JN','Jude':'JUD','Revelation':'REV'};
+  return m[book]||'';
+}
+async function loadReader(){
+  var refEl=document.getElementById('reader-ref'),versesEl=document.getElementById('reader-verses'),yvEl=document.getElementById('reader-yv'),discTitle=document.getElementById('scripture-disc-title');
+  if(!refEl||!versesEl)return;
+  var reading=(window.BiblePlan&&window.BiblePlan.getReadingForDate)?window.BiblePlan.getReadingForDate(new Date()):null;
+  if(!reading){refEl.textContent='Rest day';versesEl.innerHTML='<p class="reader-loading">No set reading today — revisit a chapter or catch up. Discussion is still open below.</p>';if(discTitle)discTitle.textContent='💬 Discussion';return;}
+  readerRef=reading.book+' '+reading.chapter;
+  refEl.textContent=readerRef;
+  if(discTitle)discTitle.textContent='💬 Discussion — '+readerRef;
+  var yvCode=bookForYouVersion(reading.book);
+  if(yvEl&&yvCode)yvEl.href='https://www.bible.com/bible/1/'+yvCode+'.'+reading.chapter; // KJV id=1 as a safe default
+  try{
+    var res=await fetch('https://bible-api.com/'+encodeURIComponent(readerRef)+'?translation=web',{cache:'default'}).then(function(r){return r.ok?r.json():null;});
+    if(!res||!res.verses||!res.verses.length){versesEl.innerHTML='<p class="reader-loading">Could not load the chapter text. <a href="'+(yvEl?yvEl.href:'#')+'" target="_blank" rel="noopener">Read it on YouVersion →</a></p>';return;}
+    versesEl.innerHTML=res.verses.map(function(v){var ref=readerRef+':'+v.verse;return '<span class="verse" data-ref="'+esc(ref)+'" data-verse="'+v.verse+'"><sup class="verse__num">'+v.verse+'</sup>'+esc(v.text.trim())+' </span>';}).join('');
+    versesEl.querySelectorAll('.verse').forEach(function(el){el.addEventListener('click',function(){onVerseTap(this);});});
+    loadStudyMarks();
+  }catch(e){versesEl.innerHTML='<p class="reader-loading">Could not load the chapter text (offline?). <a href="'+(yvEl?yvEl.href:'#')+'" target="_blank" rel="noopener">Read on YouVersion →</a></p>';}
+}
+async function loadStudyMarks(){
+  if(!session||!readerRef)return;
+  try{var res=await postAction({action:'getStudyMarks',token:session.token,chapter:readerRef});
+    if(res&&res.ok&&res.marks){studyMarks={};res.marks.forEach(function(m){if(!studyMarks[m.ref])studyMarks[m.ref]={};studyMarks[m.ref][m.type]=m;});applyStudyMarks();}
+  }catch(e){}
+}
+function applyStudyMarks(){
+  document.querySelectorAll('#reader-verses .verse').forEach(function(el){
+    var ref=el.dataset.ref;el.className='verse';el.querySelector('.verse__note-dot')&&el.querySelector('.verse__note-dot').remove();
+    var m=studyMarks[ref];if(!m)return;
+    if(m.highlight&&m.highlight.color)el.classList.add('verse--hl','verse--hl-'+m.highlight.color);
+    if(m.note&&m.note.text){el.classList.add('verse--noted');el.insertAdjacentHTML('beforeend','<span class="verse__note-dot" title="You have a note here">📝</span>');}
+  });
+}
+function onVerseTap(el){
+  if(!session){alert('Log in to highlight and take notes.');return;}
+  activeVerseRef=el.dataset.ref;
+  var bar=document.getElementById('verse-actions');document.getElementById('verse-actions-ref').textContent=activeVerseRef;
+  bar.hidden=false;bar.scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.querySelectorAll('#reader-verses .verse--selected').forEach(function(v){v.classList.remove('verse--selected');});el.classList.add('verse--selected');
+}
+async function saveMark(type,color,text){
+  if(!session||!activeVerseRef)return;
+  try{await postAction({action:'saveStudyMark',token:session.token,ref:activeVerseRef,type:type,color:color||'',text:text||''});
+    if(!studyMarks[activeVerseRef])studyMarks[activeVerseRef]={};
+    if(type==='highlight'){if(color)studyMarks[activeVerseRef].highlight={color:color};else delete studyMarks[activeVerseRef].highlight;}
+    if(type==='note'){if(text)studyMarks[activeVerseRef].note={text:text};else delete studyMarks[activeVerseRef].note;}
+    applyStudyMarks();
+  }catch(e){alert('Could not save.');}
+}
+(function(){
+  var bar=document.getElementById('verse-actions');if(!bar)return;
+  bar.querySelectorAll('.hl-swatch').forEach(function(b){b.addEventListener('click',function(){saveMark('highlight',this.dataset.color,'');});});
+  var noteBtn=document.getElementById('verse-note-btn'),modal=document.getElementById('note-modal'),modalText=document.getElementById('note-modal-text');
+  if(noteBtn)noteBtn.addEventListener('click',function(){if(!activeVerseRef)return;document.getElementById('note-modal-ref').textContent=activeVerseRef;var vEl=document.querySelector('#reader-verses .verse[data-ref="'+activeVerseRef.replace(/"/g,'')+'"]');document.getElementById('note-modal-verse').textContent=vEl?vEl.textContent.replace(/^\d+/,'').replace('📝','').trim():'';var existing=studyMarks[activeVerseRef]&&studyMarks[activeVerseRef].note;modalText.value=existing?existing.text:'';modal.hidden=false;modalText.focus();});
+  document.getElementById('note-modal-cancel').addEventListener('click',function(){modal.hidden=true;});
+  document.getElementById('note-modal-save').addEventListener('click',function(){saveMark('note','',modalText.value.trim());modal.hidden=true;});
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.hidden=true;});
+})();
+
+// Scripture day-scoped discussion composer -> createPost channel 'scripture' tagged with the chapter ref
+(function(){
+  var btn=document.getElementById('scripture-post-btn');if(!btn)return;
+  wireMention(document.getElementById('scripture-input'),document.getElementById('scripture-mention-menu'));
+  var av=document.getElementById('scripture-compose-avatar');
+  btn.addEventListener('click',async function(){
+    if(!session)return;var input=document.getElementById('scripture-input'),text=input.value.trim();if(!text)return;
+    var body=(readerRef?'['+readerRef+'] ':'')+text;
+    btn.disabled=true;btn.textContent='…';
+    try{var res=await postAction({action:'createPost',token:session.token,channel:'scripture',text:body});if(res&&res.ok){input.value='';input.style.height='auto';addPostOptimistic(res.post,{from:session.name,role:(session.role||'member'),text:body,channel:'scripture'});}else{alert((res&&res.error)||'Could not post.');}}catch(e){alert('Could not post.');}
+    btn.disabled=false;btn.textContent='Post to discussion';
+  });
+})();
 
 // ── Stories rail (24h ephemeral photos) ──
 var storiesData=[];

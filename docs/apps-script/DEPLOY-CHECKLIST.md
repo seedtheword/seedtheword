@@ -93,7 +93,7 @@ The community feed now supports **photo attachments** and **@mention notificatio
 > `social-handler.gs`. A duplicate top-level identifier takes the ENTIRE web app
 > down (login included).
 
-Also added since: **Stories** (`createStory`/`getStories`, 24h ephemeral, auto-creating `CommunityStories` tab), **`deleteAnnouncement`** (super-admin removes announcements, in `team-messaging-handlers.gs`), and the community **Messages** panel (uses the existing `sendDm`/`getDmContacts`/`getDmMessages`).
+Also added since: **Scripture study** (`saveStudyMark`/`getStudyMarks`, per-user verse highlights + notes, auto-creating `StudyNotes` tab), **Stories** (`createStory`/`getStories`, 24h ephemeral, auto-creating `CommunityStories` tab), **`deleteAnnouncement`** (super-admin removes announcements, in `team-messaging-handlers.gs`), and the community **Messages** panel (uses the existing `sendDm`/`getDmContacts`/`getDmMessages`).
 
 To activate all of the above: repaste **`social-handler.gs`**, **`team-messaging-handlers.gs`**, and **`order-handler.gs`** into the P1 web-app project and **redeploy**. On the first photo/story upload, Apps Script prompts once to authorize **Drive**. No setup functions needed — the `Stories` + upload folder auto-create.
 

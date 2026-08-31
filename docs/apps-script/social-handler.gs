@@ -786,3 +786,85 @@ function handleGetStories_(payload) {
     return jsonResponse({ ok: true, stories: out });
   } catch (err) { Logger.log('getStories error: ' + err); return jsonResponse({ ok: false, error: 'Server error' }); }
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// STUDY MARKS — per-user verse highlights + notes (Scripture reader)
+// StudyNotes tab: id | user | ref | type | color | text | updated_at
+//   ref   = "Romans 9:5"  (book chapter:verse)
+//   type  = "highlight" | "note"
+//   color = highlight color key (yellow/green/blue/pink) | ''
+//   text  = note body | ''
+// ══════════════════════════════════════════════════════════════════════
+
+var STUDY_TAB = 'StudyNotes';
+var STUDY_HEADERS = ['id', 'user', 'ref', 'type', 'color', 'text', 'updated_at'];
+
+function getStudySheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName(STUDY_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(STUDY_TAB);
+    sheet.getRange(1, 1, 1, STUDY_HEADERS.length).setValues([STUDY_HEADERS]);
+    sheet.getRange(1, 1, 1, STUDY_HEADERS.length).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+// { action:'saveStudyMark', token, ref, type:'highlight'|'note', color?, text? }
+// Highlights: one per (user, ref) — re-saving overwrites (or clears if color '').
+// Notes: one note per (user, ref) — re-saving overwrites (or clears if text '').
+function handleSaveStudyMark_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var ref = String(payload.ref || '').trim();
+    var type = String(payload.type || '').trim();
+    if (!ref || (type !== 'highlight' && type !== 'note')) return jsonResponse({ ok: false, error: 'Bad ref/type' });
+    var color = String(payload.color || '').trim();
+    var text = String(payload.text || '').trim().slice(0, 2000);
+
+    var sheet = getStudySheet_();
+    var last = sheet.getLastRow();
+    var uname = String(user.name).toLowerCase();
+    var existingRow = -1;
+    if (last >= 2) {
+      var d = sheet.getRange(2, 1, last - 1, STUDY_HEADERS.length).getValues();
+      for (var i = 0; i < d.length; i++) {
+        if (String(d[i][1]).toLowerCase() === uname && String(d[i][2]) === ref && String(d[i][3]) === type) { existingRow = i + 2; break; }
+      }
+    }
+    var cleared = (type === 'highlight' && !color) || (type === 'note' && !text);
+    if (cleared) {
+      if (existingRow > 0) sheet.deleteRow(existingRow);
+      return jsonResponse({ ok: true, cleared: true });
+    }
+    var row = [existingRow > 0 ? sheet.getRange(existingRow, 1).getValue() : socialNewId_('sm'), user.name, ref, type, color, text, Date.now()];
+    if (existingRow > 0) sheet.getRange(existingRow, 1, 1, STUDY_HEADERS.length).setValues([row]);
+    else sheet.appendRow(row);
+    return jsonResponse({ ok: true });
+  } catch (err) { Logger.log('saveStudyMark error: ' + err); return jsonResponse({ ok: false, error: 'Server error' }); }
+}
+
+// { action:'getStudyMarks', token, chapter:'Romans 9' }  — this user's marks for the chapter
+function handleGetStudyMarks_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var chapter = String(payload.chapter || '').trim(); // "Romans 9"
+    var sheet = getStudySheet_();
+    var last = sheet.getLastRow();
+    var out = [];
+    if (last >= 2) {
+      var d = sheet.getRange(2, 1, last - 1, STUDY_HEADERS.length).getValues();
+      var uname = String(user.name).toLowerCase();
+      for (var i = 0; i < d.length; i++) {
+        if (String(d[i][1]).toLowerCase() !== uname) continue;
+        var ref = String(d[i][2]);
+        if (chapter && ref.indexOf(chapter + ':') !== 0) continue; // marks for this chapter only
+        out.push({ ref: ref, type: String(d[i][3]), color: String(d[i][4] || ''), text: String(d[i][5] || '') });
+      }
+    }
+    return jsonResponse({ ok: true, marks: out });
+  } catch (err) { Logger.log('getStudyMarks error: ' + err); return jsonResponse({ ok: false, error: 'Server error' }); }
+}

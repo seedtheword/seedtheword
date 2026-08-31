@@ -283,7 +283,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=17">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=18">
 </head>
 <body class="community-body">
 
@@ -377,10 +377,36 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 
     <section class="channel-section" id="channel-scripture">
       <div class="section-header-card">
-        <h2 class="section-title">📖 Today's Scripture</h2>
+        <h2 class="section-title">📖 Discuss Scripture</h2>
         <p class="section-desc">Read today's chapter, highlight verses, keep private notes, and discuss it with the community.</p>
       </div>
 
+      <!-- Group chats / forum topics -->
+      <div class="groups-block" id="groups-block">
+        <div class="groups-block__head">
+          <div><span class="groups-block__eyebrow">Group Chats</span><h3 class="groups-block__title">Study together</h3></div>
+          <button type="button" class="groups-block__new" id="groups-new-btn">＋ New group</button>
+        </div>
+        <p class="groups-block__hint">Create a group chat for any topic — a book, a sermon, a question — and name it whatever you like. Everyone in the community can join the conversation.</p>
+        <div class="groups-list" id="groups-list"><div class="groups-list__loading">Loading groups…</div></div>
+      </div>
+
+      <!-- Group chat room (shown when a group is open; hides the reader/discussion) -->
+      <div class="group-room" id="group-room" hidden>
+        <div class="group-room__bar">
+          <button type="button" class="group-room__back" id="group-back-btn">‹ All groups</button>
+          <div class="group-room__titles"><h3 class="group-room__name" id="group-room-name"></h3><span class="group-room__desc" id="group-room-desc"></span></div>
+          <button type="button" class="group-room__menu" id="group-room-menu" title="Group options" hidden>⋯</button>
+        </div>
+        <div id="group-room-feed" class="group-room__feed"><div style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading messages…</div></div>
+        <div id="group-compose" class="compose-box" style="display:none;">
+          <div class="compose-box__header"><div class="compose-box__avatar" id="group-compose-avatar"></div><div style="flex:1;min-width:0;position:relative;"><textarea class="compose-box__input" id="group-input" placeholder="Message this group… use @ to mention" rows="2"></textarea><div class="mention-menu" id="group-mention-menu" hidden></div></div></div>
+          <div class="compose-box__actions" id="group-compose-actions"><button class="compose-box__post-btn" id="group-post-btn" style="margin-left:auto;">Send</button></div>
+        </div>
+      </div>
+
+      <!-- Reader + day discussion (hidden while a group room is open) -->
+      <div id="scripture-main">
       <!-- Study reader: today's chapter text (WEB via bible-api.com) -->
       <div class="reader-card" id="reader-card">
         <div class="reader-card__head">
@@ -418,6 +444,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <div class="compose-box__actions"><button class="compose-box__post-btn" id="scripture-post-btn" style="margin-left:auto;">Post to discussion</button></div>
       </div>
       <div id="scripture-posts-feed"><div style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading discussions...</div></div>
+      </div><!-- /#scripture-main -->
     </section>
 
     <section class="channel-section" id="channel-prayer">
@@ -607,6 +634,7 @@ var target=document.getElementById('channel-'+ch);if(target)target.classList.add
 setLastSeen(ch);var badge=document.getElementById('badge-'+ch);if(badge)badge.textContent='';
 // Lazily load the Scripture reader the first time that channel is opened.
 if(ch==='scripture'&&!readerRef&&typeof loadReader==='function')loadReader();
+if(ch==='scripture'&&typeof loadGroups==='function')loadGroups();
 window.scrollTo({top:0,behavior:'smooth'});}
 window.switchChannel=switchChannel;
 document.querySelectorAll('.channel-tab').forEach(function(tab){tab.addEventListener('click',function(){switchChannel(this.dataset.channel);});});
@@ -1092,6 +1120,137 @@ async function saveMark(type,color,text){
     btn.disabled=true;btn.textContent='…';
     try{var res=await postAction({action:'createPost',token:session.token,channel:'scripture',text:body});if(res&&res.ok){input.value='';input.style.height='auto';addPostOptimistic(res.post,{from:session.name,role:(session.role||'member'),text:body,channel:'scripture'});}else{alert((res&&res.error)||'Could not post.');}}catch(e){alert('Could not post.');}
     btn.disabled=false;btn.textContent='Post to discussion';
+  });
+})();
+
+// ── Group chats / forum topics ─────────────────────────────────────────
+// Groups are named rooms. Messages inside a group are ordinary posts with
+// channel = 'group:<id>' so likes/comments/replies reuse the feed machinery.
+var groupsData=[], groupPosts=[], currentGroup=null;
+var GROUP_MINISTRY_VOICE='Seed the Word';
+
+async function loadGroups(){
+  var list=document.getElementById('groups-list');if(!list)return;
+  try{
+    var res=await postAction(session?{action:'listGroups',token:session.token}:{action:'listGroups',passphrase_hash:'public-read'});
+    groupsData=(res&&res.ok&&res.groups)?res.groups:[];
+  }catch(e){groupsData=[];}
+  renderGroupsList();
+}
+function renderGroupsList(){
+  var list=document.getElementById('groups-list');if(!list)return;
+  if(!groupsData.length){list.innerHTML='<div class="groups-list__empty">No groups yet. '+(session?'Create the first one!':'Sign in to start one.')+'</div>';return;}
+  list.innerHTML=groupsData.map(function(g){
+    return '<button type="button" class="group-card" data-group="'+esc(g.id)+'">'+
+      '<span class="group-card__icon">💬</span>'+
+      '<span class="group-card__info"><span class="group-card__name">'+esc(g.name)+'</span>'+
+      (g.description?'<span class="group-card__desc">'+esc(g.description)+'</span>':'')+
+      '<span class="group-card__meta">'+(g.messageCount||0)+' message'+(g.messageCount===1?'':'s')+' · started by '+esc((g.creator||'').split(' ')[0]||'someone')+'</span></span>'+
+      '<span class="group-card__chev">›</span></button>';
+  }).join('');
+  list.querySelectorAll('.group-card').forEach(function(b){b.addEventListener('click',function(){openGroup(this.dataset.group);});});
+}
+async function openGroup(id){
+  var g=groupsData.filter(function(x){return x.id===id;})[0];if(!g)return;
+  currentGroup=g;
+  document.getElementById('groups-block').hidden=true;
+  document.getElementById('scripture-main').hidden=true;
+  var room=document.getElementById('group-room');room.hidden=false;
+  document.getElementById('group-room-name').textContent=g.name;
+  document.getElementById('group-room-desc').textContent=g.description||'';
+  // Group options menu for creator/super-admin (rename/delete).
+  var canManage=session&&(viewerIsSuper||(g.creator&&session.name===g.creator));
+  var menuBtn=document.getElementById('group-room-menu');if(menuBtn)menuBtn.hidden=!canManage;
+  // Compose visibility + super-admin "reply as".
+  var compose=document.getElementById('group-compose');if(compose)compose.style.display=session?'':'none';
+  ensureReplyAsControl();
+  var av=document.getElementById('group-compose-avatar');if(av&&session)av.textContent=initials(session.name);
+  var feed=document.getElementById('group-room-feed');feed.innerHTML='<div style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading messages…</div>';
+  try{
+    var res=await postAction(session?{action:'getFeed',token:session.token,channel:'group:'+id,limit:80}:{action:'getFeed',passphrase_hash:'public-read',channel:'group:'+id,limit:80});
+    if(res&&res.ok){viewerIsSuper=!!res.viewerIsSuper;groupPosts=(res.posts||[]).map(mapServerPost).sort(function(a,b){return a.timestamp-b.timestamp;});}
+    else groupPosts=[];
+  }catch(e){groupPosts=[];}
+  renderGroupRoom();
+}
+function mapServerPost(p){
+  var t=p.channel==='prayer'?'prayer':(p.channel==='thanksgiving'?'thanksgiving':(p.channel==='scripture'?'bible':'message'));
+  likesCache[p.id]={count:p.likeCount||0,userLiked:!!p.userLiked};
+  return {id:p.id,from:p.author,role:p.author_role,text:p.text,media_url:p.media_url,timestamp:p.timestamp,msg_type:t,_channel:p.channel||'main',pinned:p.pinned,hidden:p.hidden,edited:p.edited,likeCount:p.likeCount||0,userLiked:!!p.userLiked,commentCount:p.commentCount||0,_isPost:true};
+}
+function renderGroupRoom(){
+  var feed=document.getElementById('group-room-feed');if(!feed)return;
+  if(!groupPosts.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">💬</div><h3 class="empty-state__title">No messages yet</h3><p class="empty-state__text">Be the first to share in this group.</p></div>';return;}
+  feed.innerHTML=groupPosts.map(renderPost).join('');bindPostActions(feed);
+}
+function closeGroup(){
+  currentGroup=null;
+  var room=document.getElementById('group-room');if(room)room.hidden=true;
+  document.getElementById('groups-block').hidden=false;
+  document.getElementById('scripture-main').hidden=false;
+  loadGroups();
+}
+// Super-admin only: a "Reply as" selector (own profile OR ministry voice).
+function ensureReplyAsControl(){
+  var actions=document.getElementById('group-compose-actions');if(!actions)return;
+  var existing=document.getElementById('group-replyas');
+  if(!(session&&String(session.role||'').toLowerCase()==='super_admin')){if(existing)existing.remove();return;}
+  if(existing)return;
+  var sel=document.createElement('select');sel.id='group-replyas';sel.className='compose-box__select';sel.style.marginRight='auto';
+  sel.innerHTML='<option value="">Reply as '+esc(session.name)+'</option><option value="'+esc(GROUP_MINISTRY_VOICE)+'">Reply as '+esc(GROUP_MINISTRY_VOICE)+'</option>';
+  actions.insertBefore(sel,actions.firstChild);
+}
+// Compose in a group room.
+(function(){
+  var btn=document.getElementById('group-post-btn');if(!btn)return;
+  wireMention(document.getElementById('group-input'),document.getElementById('group-mention-menu'));
+  btn.addEventListener('click',async function(){
+    if(!session||!currentGroup)return;
+    var input=document.getElementById('group-input'),text=input.value.trim();if(!text)return;
+    var payload={action:'createPost',token:session.token,channel:'group:'+currentGroup.id,text:text};
+    var replyAsSel=document.getElementById('group-replyas');
+    var replyAs=replyAsSel?replyAsSel.value:'';
+    if(replyAs)payload.reply_as=replyAs;
+    btn.disabled=true;btn.textContent='…';
+    try{
+      var res=await postAction(payload);
+      if(res&&res.ok){input.value='';input.style.height='auto';
+        groupPosts.push(mapServerPost(res.post));renderGroupRoom();
+        var feed=document.getElementById('group-room-feed');if(feed)feed.scrollTop=feed.scrollHeight;
+      }else{alert((res&&res.error)||'Could not send.');}
+    }catch(e){alert('Could not send.');}
+    btn.disabled=false;btn.textContent='Send';
+  });
+})();
+// New-group + back + group options.
+(function(){
+  var newBtn=document.getElementById('groups-new-btn');
+  if(newBtn)newBtn.addEventListener('click',async function(){
+    if(!session){alert('Sign in to create a group.');return;}
+    var name=prompt('Name your group chat (e.g. "Romans deep-dive", "Sunday sermon"):');
+    if(!name||!name.trim())return;
+    var desc=prompt('Short description (optional):')||'';
+    newBtn.disabled=true;
+    try{var res=await postAction({action:'createGroup',token:session.token,name:name.trim(),description:desc.trim()});
+      if(res&&res.ok&&res.group){groupsData.unshift(res.group);renderGroupsList();openGroup(res.group.id);}
+      else alert((res&&res.error)||'Could not create group.');
+    }catch(e){alert('Could not create group.');}
+    newBtn.disabled=false;
+  });
+  var backBtn=document.getElementById('group-back-btn');if(backBtn)backBtn.addEventListener('click',closeGroup);
+  var menuBtn=document.getElementById('group-room-menu');if(menuBtn)menuBtn.addEventListener('click',async function(){
+    if(!currentGroup)return;
+    var choice=prompt('Type "rename" to rename this group, or "delete" to remove it:');
+    if(!choice)return;choice=choice.trim().toLowerCase();
+    if(choice==='rename'){
+      var nm=prompt('New group name:',currentGroup.name);if(!nm||!nm.trim())return;
+      var res=await postAction({action:'renameGroup',token:session.token,id:currentGroup.id,name:nm.trim()});
+      if(res&&res.ok){currentGroup.name=nm.trim();document.getElementById('group-room-name').textContent=nm.trim();}else alert((res&&res.error)||'Could not rename.');
+    }else if(choice==='delete'){
+      if(!confirm('Remove this group? Messages are hidden but kept.'))return;
+      var r2=await postAction({action:'deleteGroup',token:session.token,id:currentGroup.id});
+      if(r2&&r2.ok){closeGroup();}else alert((r2&&r2.error)||'Could not delete.');
+    }
   });
 })();
 

@@ -294,6 +294,11 @@ function doPost(e) {
   if ((payload && payload.action) === 'getStories') return handleGetStories_(payload);
   if ((payload && payload.action) === 'saveStudyMark') return handleSaveStudyMark_(payload);
   if ((payload && payload.action) === 'getStudyMarks') return handleGetStudyMarks_(payload);
+  // ── Community group chats / forum topics (see social-handler.gs) ──
+  if ((payload && payload.action) === 'createGroup') return handleCreateGroup_(payload);
+  if ((payload && payload.action) === 'listGroups') return handleListGroups_(payload);
+  if ((payload && payload.action) === 'renameGroup') return handleRenameGroup_(payload);
+  if ((payload && payload.action) === 'deleteGroup') return handleDeleteGroup_(payload);
   if ((payload && payload.action) === 'editPost') return handleEditPost_(payload);
   if ((payload && payload.action) === 'deletePost') return handleDeletePost_(payload);
   if ((payload && payload.action) === 'moderatePost') return handleModeratePost_(payload);

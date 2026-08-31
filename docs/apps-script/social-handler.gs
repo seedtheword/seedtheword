@@ -382,7 +382,16 @@ function handleCreatePost_(payload) {
     var ts = Date.now();
     var role = String(user.role || 'member').toLowerCase();
 
-    getPostsSheet_().appendRow([id, ts, user.name, role, text, media, channel, '', '', '']);
+    // "Reply as" — super-admins may post under a different display name (e.g.
+    // the "Seed the Word" ministry voice). Ignored for non-super-admins so a
+    // member can never impersonate. When used, author becomes the chosen name
+    // but we still stamp author_role so the Leader badge renders.
+    var author = user.name;
+    if (socialIsSuper_(user) && payload.reply_as && String(payload.reply_as).trim()) {
+      author = String(payload.reply_as).trim().slice(0, 80);
+    }
+
+    getPostsSheet_().appendRow([id, ts, author, role, text, media, channel, '', '', '']);
 
     // Optional relay to the Telegram Prayer & Thanksgiving topic (thread 21),
     // mirroring the old sendChatMessage behavior. Only for prayer/thanksgiving
@@ -398,12 +407,15 @@ function handleCreatePost_(payload) {
     }
 
     // @mention notifications.
-    try { socialNotifyMentions_(socialParseMentions_(text), user.name, 'a community post', text); } catch (e) {}
+    try { socialNotifyMentions_(socialParseMentions_(text), author, 'a community post', text); } catch (e) {}
+
+    // Bump the group's last-activity timestamp so group lists sort by recency.
+    if (channel.indexOf('group:') === 0) { try { groupTouch_(channel.slice(6), ts); } catch (e) {} }
 
     return jsonResponse({
       ok: true,
       post: {
-        id: id, timestamp: ts, author: user.name, author_role: role,
+        id: id, timestamp: ts, author: author, author_role: role,
         text: text, media_url: media, channel: channel, pinned: false, hidden: false,
         likeCount: 0, userLiked: false, commentCount: 0
       }
@@ -867,4 +879,196 @@ function handleGetStudyMarks_(payload) {
     }
     return jsonResponse({ ok: true, marks: out });
   } catch (err) { Logger.log('getStudyMarks error: ' + err); return jsonResponse({ ok: false, error: 'Server error' }); }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════
+// COMMUNITY GROUP CHATS / FORUM TOPICS
+// ══════════════════════════════════════════════════════════════════════
+//
+// Members create named group chats ("topics") to discuss Scripture. Each
+// group is a row in the CommunityGroups tab. The messages inside a group
+// are ordinary Posts rows whose `channel` = 'group:<groupId>', so likes,
+// comments, replies, edit and delete all reuse the existing Posts/Social
+// machinery — no new message store needed.
+//
+// Add these routes to doPost() in order-handler.gs:
+//   if ((payload && payload.action) === 'createGroup') return handleCreateGroup_(payload);
+//   if ((payload && payload.action) === 'listGroups')  return handleListGroups_(payload);
+//   if ((payload && payload.action) === 'renameGroup') return handleRenameGroup_(payload);
+//   if ((payload && payload.action) === 'deleteGroup') return handleDeleteGroup_(payload);
+//
+// NOTE: COMMUNITY_GROUPS_TAB is a UNIQUE top-level const — do NOT reuse an
+// existing tab-name identifier (past bug: a duplicate top-level const across
+// P1 files is a fatal SyntaxError that kills the whole web app incl login).
+
+var COMMUNITY_GROUPS_TAB = 'CommunityGroups';
+var COMMUNITY_GROUPS_HEADERS = ['id', 'name', 'description', 'creator', 'created_at', 'last_activity', 'archived'];
+
+function getCommunityGroupsSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName(COMMUNITY_GROUPS_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(COMMUNITY_GROUPS_TAB);
+    sheet.getRange(1, 1, 1, COMMUNITY_GROUPS_HEADERS.length).setValues([COMMUNITY_GROUPS_HEADERS]);
+    sheet.getRange(1, 1, 1, COMMUNITY_GROUPS_HEADERS.length).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(2, 220);
+    sheet.setColumnWidth(3, 320);
+  }
+  return sheet;
+}
+
+function groupFindRow_(sheet, id) {
+  var last = sheet.getLastRow();
+  if (last < 2) return -1;
+  var ids = sheet.getRange(2, 1, last - 1, 1).getValues();
+  for (var i = 0; i < ids.length; i++) { if (String(ids[i][0]) === id) return i + 2; }
+  return -1;
+}
+
+// Bump a group's last_activity when a message is posted to it.
+function groupTouch_(groupId, ts) {
+  var sheet = getCommunityGroupsSheet_();
+  var row = groupFindRow_(sheet, String(groupId));
+  if (row > 0) sheet.getRange(row, 6).setValue(ts || Date.now());
+}
+
+// ── ACTION: createGroup ───────────────────────────────────────────────
+// { action:'createGroup', token, name, description? }
+function handleCreateGroup_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    if (!socialRateOk_(user.name, 'group')) return jsonResponse({ ok: false, error: 'Slow down — try again in a minute.' });
+
+    var name = String(payload.name || '').trim();
+    if (!name) return jsonResponse({ ok: false, error: 'Group needs a name' });
+    if (name.length > 80) name = name.slice(0, 80);
+    var desc = String(payload.description || '').trim().slice(0, 300);
+
+    var sheet = getCommunityGroupsSheet_();
+    // Prevent duplicate names (case-insensitive) among active groups.
+    var last = sheet.getLastRow();
+    if (last >= 2) {
+      var rows = sheet.getRange(2, 1, last - 1, COMMUNITY_GROUPS_HEADERS.length).getValues();
+      for (var i = 0; i < rows.length; i++) {
+        if (String(rows[i][6]).toUpperCase() !== 'YES' &&
+            String(rows[i][1]).toLowerCase().trim() === name.toLowerCase()) {
+          return jsonResponse({ ok: false, error: 'A group with that name already exists' });
+        }
+      }
+    }
+
+    var id = socialNewId_('grp');
+    var ts = Date.now();
+    sheet.appendRow([id, name, desc, user.name, ts, ts, '']);
+    return jsonResponse({
+      ok: true,
+      group: { id: id, name: name, description: desc, creator: user.name, created_at: ts, last_activity: ts, messageCount: 0 }
+    });
+  } catch (err) {
+    Logger.log('createGroup error: ' + err);
+    return jsonResponse({ ok: false, error: 'Server error' });
+  }
+}
+
+// ── ACTION: listGroups ────────────────────────────────────────────────
+// { action:'listGroups', token?|passphrase_hash:'public-read' }
+// Returns active groups (newest activity first) with a message count each.
+function handleListGroups_(payload) {
+  try {
+    var auth = validateAdminOrPublicOrToken_(payload);
+    if (!auth) return jsonResponse({ ok: false, error: 'Unauthorized' });
+
+    var sheet = getCommunityGroupsSheet_();
+    var last = sheet.getLastRow();
+    var groups = [];
+    if (last >= 2) {
+      var rows = sheet.getRange(2, 1, last - 1, COMMUNITY_GROUPS_HEADERS.length).getValues();
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        if (!String(r[0])) continue;
+        if (String(r[6]).toUpperCase() === 'YES') continue; // archived
+        groups.push({
+          id: String(r[0]), name: String(r[1] || ''), description: String(r[2] || ''),
+          creator: String(r[3] || ''), created_at: Number(r[4]) || 0,
+          last_activity: Number(r[5]) || Number(r[4]) || 0, messageCount: 0
+        });
+      }
+    }
+
+    // Count messages per group from the Posts tab (channel = 'group:<id>').
+    if (groups.length) {
+      var counts = {};
+      var psheet = getPostsSheet_();
+      var plast = psheet.getLastRow();
+      if (plast >= 2) {
+        var chans = psheet.getRange(2, 7, plast - 1, 1).getValues(); // channel column
+        for (var c = 0; c < chans.length; c++) {
+          var ch = String(chans[c][0] || '');
+          if (ch.indexOf('group:') === 0) { var gid = ch.slice(6); counts[gid] = (counts[gid] || 0) + 1; }
+        }
+      }
+      for (var g = 0; g < groups.length; g++) groups[g].messageCount = counts[groups[g].id] || 0;
+    }
+
+    groups.sort(function (a, b) { return b.last_activity - a.last_activity; });
+    return jsonResponse({ ok: true, groups: groups });
+  } catch (err) {
+    Logger.log('listGroups error: ' + err);
+    return jsonResponse({ ok: false, error: 'Server error' });
+  }
+}
+
+// ── ACTION: renameGroup ───────────────────────────────────────────────
+// { action:'renameGroup', token, id, name?, description? }  — creator or super-admin
+function handleRenameGroup_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var id = String(payload.id || '').trim();
+    if (!id) return jsonResponse({ ok: false, error: 'Missing id' });
+
+    var sheet = getCommunityGroupsSheet_();
+    var row = groupFindRow_(sheet, id);
+    if (row < 0) return jsonResponse({ ok: false, error: 'Not found' });
+    var creator = String(sheet.getRange(row, 4).getValue()).toLowerCase().trim();
+    if (creator !== String(user.name).toLowerCase().trim() && !socialIsSuper_(user)) {
+      return jsonResponse({ ok: false, error: 'Not allowed' });
+    }
+    if (payload.name != null) {
+      var nm = String(payload.name).trim().slice(0, 80);
+      if (nm) sheet.getRange(row, 2).setValue(nm);
+    }
+    if (payload.description != null) sheet.getRange(row, 3).setValue(String(payload.description).trim().slice(0, 300));
+    return jsonResponse({ ok: true });
+  } catch (err) {
+    Logger.log('renameGroup error: ' + err);
+    return jsonResponse({ ok: false, error: 'Server error' });
+  }
+}
+
+// ── ACTION: deleteGroup ───────────────────────────────────────────────
+// { action:'deleteGroup', token, id }  — creator or super-admin (archives it)
+function handleDeleteGroup_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var id = String(payload.id || '').trim();
+    if (!id) return jsonResponse({ ok: false, error: 'Missing id' });
+
+    var sheet = getCommunityGroupsSheet_();
+    var row = groupFindRow_(sheet, id);
+    if (row < 0) return jsonResponse({ ok: false, error: 'Not found' });
+    var creator = String(sheet.getRange(row, 4).getValue()).toLowerCase().trim();
+    if (creator !== String(user.name).toLowerCase().trim() && !socialIsSuper_(user)) {
+      return jsonResponse({ ok: false, error: 'Not allowed' });
+    }
+    sheet.getRange(row, 7).setValue('YES'); // archived (soft-delete keeps history)
+    return jsonResponse({ ok: true });
+  } catch (err) {
+    Logger.log('deleteGroup error: ' + err);
+    return jsonResponse({ ok: false, error: 'Server error' });
+  }
 }

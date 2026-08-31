@@ -283,7 +283,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=19">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=20">
 </head>
 <body class="community-body">
 
@@ -324,39 +324,25 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 <div class="social-wrapper">
   <main class="social-main">
     <section class="channel-section is-active" id="channel-home">
-      <!-- Home hero — Today's Reading + live activity dashboard -->
-      <div class="fk-hero fk-hero--dash">
-        <div class="hero-reading">
-          <span class="hero-reading__eyebrow">📖 Today's Reading</span>
-          <h1 class="hero-reading__ref" id="hero-reading-ref">Loading…</h1>
-          <div class="hero-reading__actions">
-            <button type="button" class="hero-reading__btn hero-reading__btn--primary" onclick="switchChannel('scripture')">Read &amp; discuss →</button>
-            <a class="hero-reading__btn" id="hero-reading-yv" href="https://www.bible.com/" target="_blank" rel="noopener">Open in YouVersion</a>
-          </div>
-        </div>
+      <!-- Home hero — Today's Reading leads, with a soft activity summary below -->
+      <div class="fk-hero fk-hero--reading">
+        <span class="fk-hero__eyebrow">📖 Today's Reading</span>
+        <button type="button" class="hero-reading__ref-btn" onclick="switchChannel('scripture')" title="Read &amp; discuss in Scripture">
+          <span class="hero-reading__ref" id="hero-reading-ref">Loading…</span>
+          <span class="hero-reading__go">Read &amp; discuss in Scripture →</span>
+        </button>
+        <p class="fk-hero__sub">Walk through today's chapter together — read it, highlight verses, keep your notes, and talk it over in <button type="button" class="hero-inline-link" onclick="switchChannel('scripture')">Discuss Scripture</button>. <a class="hero-inline-link" id="hero-reading-yv" href="https://www.bible.com/" target="_blank" rel="noopener">Open in YouVersion</a> · <a class="hero-inline-link" href="start-here.html">New here? Start the 20-day plan</a></p>
         <div class="hero-dash" id="hero-dash">
-          <!-- Activity mini-cards injected by renderHomeDashboard() -->
+          <!-- Activity summary injected by renderHomeDashboard() -->
         </div>
+        <!-- Hidden reading-plan source: updateReading() reads today's chapter from here. -->
+        <div id="bible-plan-container" hidden></div>
+        <div id="going-deeper-container" hidden></div>
+        <span id="reading-today-text" hidden></span>
       </div>
 
       <!-- Stories rail (Instagram-style, 24h ephemeral) -->
       <div class="stories-rail" id="stories-rail"></div>
-
-      <!-- Today's Reading band — integrated into the Home hero -->
-      <div class="reading-band" id="reading-band">
-        <button class="reading-band__head" id="reading-band-toggle" aria-expanded="false" aria-controls="reading-band-body">
-          <span class="reading-band__eyebrow">📖 Today's Reading</span>
-          <span class="reading-band__today" id="reading-today-text">Loading…</span>
-          <span class="reading-band__chev" aria-hidden="true">▾</span>
-        </button>
-        <div class="reading-band__body" id="reading-band-body">
-          <div class="reading-band__inner">
-            <div id="bible-plan-container"></div>
-            <div id="going-deeper-container"></div>
-            <p class="reading-band__foot">Brand new? <a href="start-here.html">Try the 20-day plan first →</a> · <button type="button" class="reading-band__jump" onclick="switchChannel('scripture')">Discuss today's reading →</button></p>
-          </div>
-        </div>
-      </div>
 
       <!-- Category tiles → jump into channels -->
       <div class="fk-eyebrow-row"><div><span class="fk-eyebrow">Explore</span><h2>Where to next?</h2></div></div>
@@ -700,58 +686,47 @@ function updateHeroStats(){ renderHomeDashboard(); }
 // Home activity dashboard — recent notes, posts, prayers/thanksgivings, eLibrary
 // picks, and quick links to Discuss Scripture group chats. Built from data already
 // in memory (posts, groupsData, eLibrary courses) plus the notes cache.
-function heroCard(icon,title,items,footHtml){
-  var body = items&&items.length
-    ? items.map(function(it){return '<li class="hd-item"'+(it.onclick?' data-jump="'+esc(it.onclick)+'"':'')+'>'+(it.icon?'<span class="hd-item__icon">'+it.icon+'</span>':'')+'<span class="hd-item__text">'+it.html+'</span></li>';}).join('')
-    : '<li class="hd-item hd-item--empty">'+esc(items&&items.empty||'Nothing yet.')+'</li>';
-  return '<div class="hd-card"><div class="hd-card__head"><span class="hd-card__icon">'+icon+'</span><span class="hd-card__title">'+esc(title)+'</span></div><ul class="hd-card__list">'+body+'</ul>'+(footHtml?'<div class="hd-card__foot">'+footHtml+'</div>':'')+'</div>';
-}
 function shortText(t,n){t=String(t||'').replace(/^\[[^\]]*\]\s*/,'').replace(/\s+/g,' ').trim();return t.length>n?t.slice(0,n-1)+'…':t;}
+// A soft, warm activity summary that lives inside the hero — quiet labels,
+// one-line rows, no hard boxes. Matches the community's design language.
+function heroSection(label,rowsHtml,moreHtml){
+  if(!rowsHtml)return'';
+  return '<div class="hd-sec"><div class="hd-sec__label">'+esc(label)+(moreHtml?'<span class="hd-sec__more">'+moreHtml+'</span>':'')+'</div><div class="hd-sec__rows">'+rowsHtml+'</div></div>';
+}
 function renderHomeDashboard(){
   var dash=document.getElementById('hero-dash');if(!dash)return;
   var isPost=function(p){return p._isPost;};
-  var recentPosts=posts.filter(function(p){return isPost(p)&&(p._channel==='main'||p.msg_type==='message'||p.msg_type==='bible');}).slice(0,3);
-  var recentPray=posts.filter(function(p){return p.msg_type==='prayer'||p.msg_type==='thanksgiving';}).slice(0,3);
-  var withComments=posts.filter(function(p){return isPost(p)&&p.commentCount>0;}).slice(0,3);
-  var cards=[];
+  var recentPosts=posts.filter(function(p){return isPost(p)&&(p._channel==='main'||p.msg_type==='message'||p.msg_type==='bible');}).slice(0,2);
+  var recentPray=posts.filter(function(p){return p.msg_type==='prayer'||p.msg_type==='thanksgiving';}).slice(0,2);
+  var secs=[];
 
-  // 1) Recent Scripture notes (private) — from cache; kick off a load if empty.
-  var noteItems=[];
-  if(session){
-    if(allNotesCache===null&&typeof loadAllNotes==='function'){loadAllNotes().then(function(){renderHomeDashboard();});}
-    (allNotesCache||[]).slice(0,3).forEach(function(n){noteItems.push({icon:'📝',html:'<button class="hd-link" data-note="'+esc(n.ref)+'"><strong>'+esc(n.ref)+'</strong> — '+esc(shortText(n.text,60))+'</button>'});});
-  }
-  noteItems.empty=session?'No notes yet — tap a verse in the reader.':'Sign in to keep Scripture notes.';
-  cards.push(heroCard('📝','Your Scripture Notes',noteItems,'<button class="hd-more" onclick="switchChannel(\'scripture\')">Open reader →</button>'));
+  // Your Scripture notes (private) — kick off a load if we don't have them yet.
+  if(session&&allNotesCache===null&&typeof loadAllNotes==='function'){loadAllNotes().then(function(){renderHomeDashboard();});}
+  var notes=session?(allNotesCache||[]).slice(0,2):[];
+  var noteRows=notes.map(function(n){return '<button type="button" class="hd-row hd-row--btn" data-note="'+esc(n.ref)+'"><span class="hd-row__key">'+esc(n.ref)+'</span><span class="hd-row__val">'+esc(shortText(n.text,52))+'</span></button>';}).join('');
+  secs.push(heroSection('Your Scripture Notes',noteRows,'<button type="button" class="hd-link-btn" onclick="switchChannel(\'scripture\')">'+(session?'view all':'sign in')+'</button>'));
 
-  // 2) Recent posts.
-  var postItems=recentPosts.map(function(p){return {icon:'💬',html:'<strong>'+esc((p.from||'Someone').split(' ')[0])+'</strong> '+esc(shortText(p.text,64))};});postItems.empty='No posts yet.';
-  cards.push(heroCard('🗨️','Latest Posts',postItems,'<button class="hd-more" onclick="document.getElementById(\'posts-feed\').scrollIntoView({behavior:\'smooth\'})">See the feed →</button>'));
+  // Latest posts.
+  var postRows=recentPosts.map(function(p){return '<div class="hd-row"><span class="hd-row__key">'+esc((p.from||'Someone').split(' ')[0])+'</span><span class="hd-row__val">'+esc(shortText(p.text,56))+'</span></div>';}).join('');
+  secs.push(heroSection('Latest in the Feed',postRows,'<button type="button" class="hd-link-btn" onclick="document.getElementById(\'posts-feed\').scrollIntoView({behavior:\'smooth\'})">open feed</button>'));
 
-  // 3) Prayers & thanksgivings.
-  var prayItems=recentPray.map(function(p){return {icon:p.msg_type==='thanksgiving'?'🎉':'🙏',html:'<strong>'+esc((p.from||'Someone').split(' ')[0])+'</strong> '+esc(shortText(p.text,64))};});prayItems.empty='No prayers or thanksgivings yet.';
-  cards.push(heroCard('🙏','Prayer & Thanksgiving',prayItems,'<button class="hd-more" onclick="switchChannel(\'prayer\')">Open prayer wall →</button>'));
+  // Prayer & thanksgiving.
+  var prayRows=recentPray.map(function(p){return '<div class="hd-row"><span class="hd-row__key">'+(p.msg_type==='thanksgiving'?'🎉':'🙏')+' '+esc((p.from||'Someone').split(' ')[0])+'</span><span class="hd-row__val">'+esc(shortText(p.text,52))+'</span></div>';}).join('');
+  secs.push(heroSection('Prayer & Thanksgiving',prayRows,'<button type="button" class="hd-link-btn" onclick="switchChannel(\'prayer\')">prayer wall</button>'));
 
-  // 4) Recent comments/discussion activity.
-  var comItems=withComments.map(function(p){return {icon:'💭',html:esc(shortText(p.text,44))+' <span class="hd-count">'+p.commentCount+' 💬</span>'};});comItems.empty='No comments yet.';
-  cards.push(heroCard('💭','Active Discussions',comItems));
+  // eLibrary picks.
+  var libRows='';
+  try{ if(typeof ELIBRARY_COURSES!=='undefined'&&ELIBRARY_COURSES){libRows=ELIBRARY_COURSES.filter(function(c){return c.badge==='free';}).slice(0,2).map(function(c){return '<div class="hd-row"><span class="hd-row__key">'+esc(c.icon)+' '+esc(c.name)+'</span><span class="hd-row__val">'+esc(shortText(c.desc,44))+'</span></div>';}).join('');} }catch(e){}
+  secs.push(heroSection('From the eLibrary',libRows,'<button type="button" class="hd-link-btn" onclick="switchChannel(\'library\')">browse</button>'));
 
-  // 5) eLibrary picks (from the static courses list; prefer "free").
-  var libItems=[];
-  try{ if(typeof ELIBRARY_COURSES!=='undefined'&&ELIBRARY_COURSES){ELIBRARY_COURSES.filter(function(c){return c.badge==='free';}).slice(0,3).forEach(function(c){libItems.push({icon:c.icon,html:'<strong>'+esc(c.name)+'</strong> — '+esc(shortText(c.desc,48))});});} }catch(e){}
-  libItems.empty='Library coming soon.';
-  cards.push(heroCard('📚','From the eLibrary',libItems,'<button class="hd-more" onclick="switchChannel(\'library\')">Browse eLibrary →</button>'));
+  // Discuss Scripture group chats (quick links).
+  var groups=(typeof groupsData!=='undefined'?groupsData:[]).slice(0,3);
+  var grpRows=groups.map(function(g){return '<button type="button" class="hd-chip" data-group="'+esc(g.id)+'">💬 '+esc(g.name)+(g.messageCount?' <span class="hd-chip__n">'+g.messageCount+'</span>':'')+'</button>';}).join('');
+  var grpBlock = grpRows ? '<div class="hd-sec hd-sec--chips"><div class="hd-sec__label">Discuss Scripture Groups<span class="hd-sec__more"><button type="button" class="hd-link-btn" onclick="switchChannel(\'scripture\')">all groups</button></span></div><div class="hd-chips">'+grpRows+'</div></div>' : '';
 
-  // 6) Group chat quick links (Discuss Scripture).
-  var grpItems=[];
-  (typeof groupsData!=='undefined'?groupsData:[]).slice(0,4).forEach(function(g){grpItems.push({icon:'💬',html:'<button class="hd-link" data-group="'+esc(g.id)+'"><strong>'+esc(g.name)+'</strong> <span class="hd-count">'+(g.messageCount||0)+'</span></button>'});});
-  grpItems.empty='No group chats yet.';
-  cards.push(heroCard('👥','Discuss Scripture Groups',grpItems,'<button class="hd-more" onclick="switchChannel(\'scripture\')">See all groups →</button>'));
-
-  dash.innerHTML=cards.join('');
-  // Wire jump links.
-  dash.querySelectorAll('.hd-link[data-note]').forEach(function(b){b.addEventListener('click',function(){switchChannel('scripture');var r=this.dataset.note;setTimeout(function(){if(typeof jumpToNote==='function')jumpToNote(r);},400);});});
-  dash.querySelectorAll('.hd-link[data-group]').forEach(function(b){b.addEventListener('click',function(){var id=this.dataset.group;switchChannel('scripture');setTimeout(function(){if(typeof openGroup==='function')openGroup(id);},400);});});
+  dash.innerHTML = secs.join('') + grpBlock;
+  dash.querySelectorAll('.hd-row--btn[data-note]').forEach(function(b){b.addEventListener('click',function(){var r=this.dataset.note;switchChannel('scripture');setTimeout(function(){if(typeof jumpToNote==='function')jumpToNote(r);},400);});});
+  dash.querySelectorAll('.hd-chip[data-group]').forEach(function(b){b.addEventListener('click',function(){var id=this.dataset.group;switchChannel('scripture');setTimeout(function(){if(typeof openGroup==='function')openGroup(id);},400);});});
 }
 
 function formatBody(t){if(!t)return'';var f=esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');f=f.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
@@ -1072,15 +1047,7 @@ if(hr){var reading=(window.BiblePlan&&window.BiblePlan.getReadingForDate)?window
   else hr.textContent=text;}
 }
 setTimeout(updateReading,1500);
-// Smooth expand/collapse of the reading band (animate max-height).
-var rbToggle=document.getElementById('reading-band-toggle'),rbBody=document.getElementById('reading-band-body'),rbBand=document.getElementById('reading-band');
-if(rbToggle&&rbBody&&rbBand){
-  rbToggle.addEventListener('click',function(){
-    var open=rbBand.classList.toggle('is-open');
-    rbToggle.setAttribute('aria-expanded',open?'true':'false');
-    rbBody.style.maxHeight=open?(rbBody.scrollHeight+40)+'px':'0px';
-  });
-}
+// (The old collapsible reading-band was folded into the hero header.)
 
 // Calendar
 var calAttempts=0,calCheck=setInterval(function(){calAttempts++;if(window.googleCalendar&&window.googleCalendar.events&&window.googleCalendar.events.length){clearInterval(calCheck);var cal=window.googleCalendar,now=new Date(),upcoming=cal.events.filter(function(ev){var s=cal.getEventStart(ev);return s&&s>now;}).slice(0,5);if(!upcoming.length)return;var html=upcoming.map(function(ev){var s=cal.getEventStart(ev);return'<div class="event-item"><div class="event-item__date"><span class="event-item__month">'+s.toLocaleDateString('en-US',{month:'short'})+'</span><span class="event-item__day">'+s.getDate()+'</span></div><div class="event-item__info"><div class="event-item__title">'+(ev.summary||'Event')+'</div><div class="event-item__time">'+s.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div></div></div>';}).join('');var el=document.getElementById('events-list'),se=document.getElementById('sidebar-events'),ec2=document.getElementById('events-count');if(el)el.innerHTML=html;if(se)se.innerHTML=html;if(ec2)ec2.textContent=upcoming.length+' upcoming';}else if(calAttempts>40)clearInterval(calCheck);},500);

@@ -19,27 +19,50 @@
   background: var(--color-bg);
 }
 
-/* ── Channel bar → warm pill nav ─────────────────────────── */
+/* ── Channel bar → real underline tab bar (Instagram/YouTube feel) ── */
 .community-body .channel-bar {
-  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
-  padding: 0.7rem 1rem;
+  background: color-mix(in srgb, var(--color-bg) 90%, transparent);
+  border-bottom: 1px solid var(--fk-line);
+  padding: 0;
+  gap: 0;
+  justify-content: center;
+  box-shadow: 0 1px 0 rgba(26,30,36,0.02);
 }
 .community-body .channel-tab {
-  border-radius: 999px;
-  border-color: transparent;
-  background: transparent;
+  position: relative;
+  border: none !important;
+  background: transparent !important;
+  border-radius: 0;
+  padding: 0.95rem 1.15rem;
   font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--fk-muted);
+  min-height: 52px;
+  box-shadow: none !important;
+}
+.community-body .channel-tab::after {
+  content: '';
+  position: absolute;
+  left: 0.9rem; right: 0.9rem; bottom: 0;
+  height: 2.5px;
+  border-radius: 3px 3px 0 0;
+  background: var(--fk-accent);
+  transform: scaleX(0);
+  transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
 }
 .community-body .channel-tab:hover {
-  background: var(--fk-accent-soft, rgba(217,119,54,0.08));
-  color: var(--fk-accent);
-  border-color: transparent;
+  color: var(--fk-ink);
+  background: transparent !important;
 }
 .community-body .channel-tab.is-active {
-  background: var(--fk-accent);
-  border-color: var(--fk-accent);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(217,119,54,0.28);
+  color: var(--fk-accent);
+  background: transparent !important;
+}
+.community-body .channel-tab.is-active::after { transform: scaleX(1); }
+.community-body .channel-tab__icon { font-size: 1.05rem; }
+/* On desktop, dock the tab bar just under the header for an app-like feel */
+@media (min-width: 1024px) {
+  .community-body .channel-bar { justify-content: flex-start; padding-left: max(2rem, calc((100vw - 1240px) / 2 + 2rem)); }
 }
 
 /* ── Section header cards → editorial eyebrow + serif title ── */

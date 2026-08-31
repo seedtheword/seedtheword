@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669616016,
-  "lastModified": "2026-08-31T18:25:49Z",
+  "lastModified": "2026-08-31T18:40:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -258,16 +258,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5303,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Amen and absolutely will do! I'll meet up with you to give you more of these flyers. That's so amazing to hear!!!",
-      "ts": "2026-08-17T18:34:21Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5305,

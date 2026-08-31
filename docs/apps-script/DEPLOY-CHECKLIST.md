@@ -85,7 +85,9 @@ The community feed now supports **photo attachments** and **@mention notificatio
 - `social-handler.gs` gained `handleUploadImage_` (base64 → Drive folder **"STW Community Uploads"** → public URL) and `@mention` parsing that relays a Telegram notice. `handleCreatePost_` also relays prayer/thanksgiving posts to Telegram thread 21 when the poster ticks "Share to Telegram".
 - `order-handler.gs` routes the new `uploadImage` action.
 
-To activate: repaste **`social-handler.gs`** + **`order-handler.gs`** into the P1 web-app project and **redeploy**. On the first photo upload, Apps Script will prompt to authorize **Drive** access (one time). No new setup function needed — the upload folder auto-creates.
+Also added since: **Stories** (`createStory`/`getStories`, 24h ephemeral, auto-creating `Stories` tab), **`deleteAnnouncement`** (super-admin removes announcements, in `team-messaging-handlers.gs`), and the community **Messages** panel (uses the existing `sendDm`/`getDmContacts`/`getDmMessages`).
+
+To activate all of the above: repaste **`social-handler.gs`**, **`team-messaging-handlers.gs`**, and **`order-handler.gs`** into the P1 web-app project and **redeploy**. On the first photo/story upload, Apps Script prompts once to authorize **Drive**. No setup functions needed — the `Stories` + upload folder auto-create.
 
 ## Current status — what still needs doing (update as you go)
 

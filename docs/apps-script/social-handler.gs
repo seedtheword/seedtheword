@@ -716,3 +716,70 @@ function socialNotifyMentions_(mentions, byName, context, snippet) {
     sendTelegramFromAppsScript_('@seedtheword', msg, null);
   } catch (e) {}
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// STORIES — 24h ephemeral photo posts (Instagram-style rail)
+// Stories tab: id | author | author_role | image | caption | created_at | expires_at
+// ══════════════════════════════════════════════════════════════════════
+
+var STORIES_TAB = 'Stories';
+var STORIES_HEADERS = ['id', 'author', 'author_role', 'image', 'caption', 'created_at', 'expires_at'];
+var STORY_TTL_MS = 24 * 60 * 60 * 1000;
+
+function getStoriesSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName(STORIES_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(STORIES_TAB);
+    sheet.getRange(1, 1, 1, STORIES_HEADERS.length).setValues([STORIES_HEADERS]);
+    sheet.getRange(1, 1, 1, STORIES_HEADERS.length).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+// { action:'createStory', token, image, caption? }
+function handleCreateStory_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    if (!socialRateOk_(user.name, 'story')) return jsonResponse({ ok: false, error: 'Too many stories — try again in a minute.' });
+    var image = String(payload.image || '').trim();
+    if (!image) return jsonResponse({ ok: false, error: 'A photo is required for a story.' });
+    var now = Date.now();
+    var id = socialNewId_('story');
+    getStoriesSheet_().appendRow([id, user.name, String(user.role || 'member').toLowerCase(), image, String(payload.caption || '').slice(0, 200), now, now + STORY_TTL_MS]);
+    return jsonResponse({ ok: true, id: id });
+  } catch (err) { Logger.log('createStory error: ' + err); return jsonResponse({ ok: false, error: 'Server error' }); }
+}
+
+// { action:'getStories', token?|passphrase_hash:'public-read' }
+// Returns non-expired stories, newest first, grouped is done client-side.
+function handleGetStories_(payload) {
+  try {
+    var auth = validateAdminOrPublicOrToken_(payload);
+    if (!auth) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var sheet = getStoriesSheet_();
+    var last = sheet.getLastRow();
+    var out = [];
+    var now = Date.now();
+    if (last >= 2) {
+      var data = sheet.getRange(2, 1, last - 1, STORIES_HEADERS.length).getValues();
+      var staleRows = [];
+      for (var i = 0; i < data.length; i++) {
+        var exp = Number(data[i][6]) || 0;
+        if (exp && exp < now) { staleRows.push(i + 2); continue; }  // expired
+        if (!data[i][0]) continue;
+        out.push({
+          id: String(data[i][0]), author: String(data[i][1]), author_role: String(data[i][2] || 'member'),
+          image: String(data[i][3]), caption: String(data[i][4] || ''), created_at: Number(data[i][5]) || 0
+        });
+      }
+      // Opportunistic cleanup of a few expired rows (bottom-up).
+      staleRows.sort(function (a, b) { return b - a; });
+      for (var s = 0; s < Math.min(staleRows.length, 20); s++) { try { sheet.deleteRow(staleRows[s]); } catch (e) {} }
+    }
+    out.sort(function (a, b) { return b.created_at - a.created_at; });
+    return jsonResponse({ ok: true, stories: out });
+  } catch (err) { Logger.log('getStories error: ' + err); return jsonResponse({ ok: false, error: 'Server error' }); }
+}

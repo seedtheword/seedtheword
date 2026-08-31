@@ -283,7 +283,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=9">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=10">
 </head>
 <body class="community-body">
 
@@ -335,6 +335,9 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
           <div><div class="fk-hero__stat-num">Daily</div><div class="fk-hero__stat-label">Verse cards</div></div>
         </div>
       </div>
+
+      <!-- Stories rail (Instagram-style, 24h ephemeral) -->
+      <div class="stories-rail" id="stories-rail"></div>
 
       <!-- Today's Reading band — integrated into the Home hero -->
       <div class="reading-band" id="reading-band">
@@ -422,6 +425,19 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
     <div class="sidebar-card"><p class="sidebar-card__title">Today's Reading</p><div id="sidebar-reading" style="font-size:0.88rem;color:var(--color-text);margin-bottom:0.5rem;">Loading...</div><button onclick="switchChannel('scripture')" style="display:block;width:100%;padding:0.5rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;color:var(--color-olive);cursor:pointer;text-align:center;font-family:var(--font-sans);">Open Scripture Tab →</button></div>
     <div class="sidebar-cta"><h3 class="sidebar-cta__title">Join the Team</h3><p class="sidebar-cta__text">Volunteer with us at outreach events and help distribute God's Word.</p><a href="team.html" class="sidebar-cta__btn">Team Portal →</a></div>
   </aside>
+</div>
+
+<!-- Story viewer overlay -->
+<input type="file" id="story-file-input" accept="image/*" hidden>
+<div class="story-viewer" id="story-viewer" hidden>
+  <div class="story-viewer__inner">
+    <div class="story-viewer__bar"><div class="story-viewer__progress" id="story-progress"></div></div>
+    <div class="story-viewer__head"><span class="story-viewer__av" id="story-viewer-av"></span><span class="story-viewer__author" id="story-viewer-author"></span><button class="story-viewer__close" id="story-viewer-close" aria-label="Close">×</button></div>
+    <img class="story-viewer__img" id="story-viewer-img" alt="story">
+    <p class="story-viewer__caption" id="story-viewer-caption"></p>
+    <button class="story-viewer__nav story-viewer__nav--prev" id="story-prev" aria-label="Previous">‹</button>
+    <button class="story-viewer__nav story-viewer__nav--next" id="story-next" aria-label="Next">›</button>
+  </div>
 </div>
 
 <!-- Messages: floating launcher + slide-in drawer (team members only) -->
@@ -889,6 +905,44 @@ if(rbToggle&&rbBody&&rbBand){
 // Calendar
 var calAttempts=0,calCheck=setInterval(function(){calAttempts++;if(window.googleCalendar&&window.googleCalendar.events&&window.googleCalendar.events.length){clearInterval(calCheck);var cal=window.googleCalendar,now=new Date(),upcoming=cal.events.filter(function(ev){var s=cal.getEventStart(ev);return s&&s>now;}).slice(0,5);if(!upcoming.length)return;var html=upcoming.map(function(ev){var s=cal.getEventStart(ev);return'<div class="event-item"><div class="event-item__date"><span class="event-item__month">'+s.toLocaleDateString('en-US',{month:'short'})+'</span><span class="event-item__day">'+s.getDate()+'</span></div><div class="event-item__info"><div class="event-item__title">'+(ev.summary||'Event')+'</div><div class="event-item__time">'+s.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div></div></div>';}).join('');var el=document.getElementById('events-list'),se=document.getElementById('sidebar-events'),ec2=document.getElementById('events-count');if(el)el.innerHTML=html;if(se)se.innerHTML=html;if(ec2)ec2.textContent=upcoming.length+' upcoming';}else if(calAttempts>40)clearInterval(calCheck);},500);
 
+// ── Stories rail (24h ephemeral photos) ──
+var storiesData=[];
+async function loadStories(){
+  var rail=document.getElementById('stories-rail');if(!rail)return;
+  var mine=session?'<button class="story-bubble story-bubble--add" id="story-add"><span class="story-bubble__ring"><span class="story-bubble__av">'+esc(initials(session.name))+'</span></span><span class="story-bubble__plus">＋</span><span class="story-bubble__label">Your story</span></button>':'';
+  var items='';
+  try{
+    var res=await postAction(session?{action:'getStories',token:session.token}:{action:'getStories',passphrase_hash:'public-read'});
+    storiesData=(res&&res.ok&&res.stories)?res.stories:[];
+    items=storiesData.map(function(s,i){return '<button class="story-bubble" data-idx="'+i+'"><span class="story-bubble__ring story-bubble__ring--live"><img class="story-bubble__img" src="'+esc(s.image)+'" alt=""></span><span class="story-bubble__label">'+esc((s.author||'').split(' ')[0])+'</span></button>';}).join('');
+  }catch(e){storiesData=[];}
+  if(!mine&&!items){rail.style.display='none';return;}
+  rail.style.display='';rail.innerHTML=mine+items;
+  var addBtn=document.getElementById('story-add');if(addBtn)addBtn.addEventListener('click',function(){document.getElementById('story-file-input').click();});
+  rail.querySelectorAll('.story-bubble[data-idx]').forEach(function(b){b.addEventListener('click',function(){openStory(parseInt(this.dataset.idx));});});
+}
+(function(){var fi=document.getElementById('story-file-input');if(fi)fi.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;this.value='';var url=await uploadPhoto(f);if(!url)return;var cap=prompt('Add a caption (optional):','')||'';try{var res=await postAction({action:'createStory',token:session.token,image:url,caption:cap});if(res&&res.ok)loadStories();else alert((res&&res.error)||'Could not post story.');}catch(e){alert('Could not post story.');}});})();
+// Story viewer
+var storyIdx=0,storyTimer=null;
+function openStory(i){storyIdx=i;var v=document.getElementById('story-viewer');if(!v)return;v.hidden=false;renderStory();}
+function closeStory(){var v=document.getElementById('story-viewer');if(v)v.hidden=true;if(storyTimer)clearTimeout(storyTimer);}
+function renderStory(){
+  var s=storiesData[storyIdx];if(!s){closeStory();return;}
+  document.getElementById('story-viewer-img').src=s.image;
+  document.getElementById('story-viewer-av').textContent=initials(s.author);
+  document.getElementById('story-viewer-author').textContent=s.author+' · '+timeAgo(s.created_at);
+  document.getElementById('story-viewer-caption').textContent=s.caption||'';
+  if(storyTimer)clearTimeout(storyTimer);
+  storyTimer=setTimeout(function(){if(storyIdx<storiesData.length-1){storyIdx++;renderStory();}else{closeStory();}},6000);
+}
+(function(){
+  var c=document.getElementById('story-viewer-close'),p=document.getElementById('story-prev'),n=document.getElementById('story-next'),v=document.getElementById('story-viewer');
+  if(c)c.addEventListener('click',closeStory);
+  if(p)p.addEventListener('click',function(){if(storyIdx>0){storyIdx--;renderStory();}});
+  if(n)n.addEventListener('click',function(){if(storyIdx<storiesData.length-1){storyIdx++;renderStory();}else{closeStory();}});
+  if(v)v.addEventListener('click',function(e){if(e.target===v)closeStory();});
+})();
+
 // ── Messages panel (DMs) — team members only, uses existing DM backend ──
 (function(){
   var fab=document.getElementById('msg-fab'),drawer=document.getElementById('msg-drawer');
@@ -938,7 +992,7 @@ var calAttempts=0,calCheck=setInterval(function(){calAttempts++;if(window.google
 // Theme — handled by theme-toggle.js site-wide
 
 // Init
-checkSession();renderELibrary();loadFeed();
+checkSession();renderELibrary();loadFeed();loadStories();
 // No aggressive polling — Apps Script round-trips are slow, and constant
 // re-renders made the feed feel sluggish. The feed loads once on open and
 // updates optimistically after the user's own actions. A gentle refresh

@@ -367,3 +367,36 @@
 }
 .community-body #prayer-posts-feed .post-card:hover { transform: none; box-shadow: none; }
 .community-body #prayer-posts-feed .post-card__media { margin-left: 0; margin-right: 0; }
+
+/* ── Rich composer: photo attach, preview, @mention ──────── */
+.community-body .compose-box__photo-btn {
+  background: var(--color-bg-subtle); border: 1px solid var(--fk-line);
+  border-radius: 999px; padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 600;
+  color: var(--fk-ink2, var(--color-text)); cursor: pointer; font-family: var(--font-sans);
+}
+.community-body .compose-box__photo-btn:hover { border-color: var(--fk-accent); color: var(--fk-accent); }
+.community-body .compose-attach {
+  position: relative; margin: 0.6rem 0; border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--fk-line); max-width: 280px;
+}
+.community-body .compose-attach img { width: 100%; display: block; max-height: 220px; object-fit: cover; }
+.community-body .compose-attach__remove {
+  position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 50%;
+  border: none; background: rgba(0,0,0,0.6); color: #fff; font-size: 1rem; cursor: pointer; line-height: 1;
+}
+/* @mention autocomplete dropdown */
+.community-body .mention-menu {
+  position: absolute; left: 0; right: 0; top: 100%; z-index: 40; margin-top: 4px;
+  background: var(--fk-card); border: 1px solid var(--fk-line); border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.14); overflow: hidden; max-height: 220px; overflow-y: auto;
+}
+.community-body .mention-menu__item {
+  display: block; width: 100%; text-align: left; background: none; border: none;
+  padding: 0.55rem 0.85rem; font-size: 0.84rem; color: var(--fk-ink); cursor: pointer; font-family: var(--font-sans);
+}
+.community-body .mention-menu__item:hover { background: var(--fk-accent-soft, rgba(217,119,54,0.1)); color: var(--fk-accent); }
+/* @mention token rendered in a post/comment */
+.community-body .mention-tag {
+  color: var(--fk-accent); font-weight: 700; background: rgba(217,119,54,0.08);
+  padding: 0 0.2rem; border-radius: 4px;
+}

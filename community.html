@@ -282,7 +282,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=4">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=5">
 </head>
 <body class="community-body">
 
@@ -366,7 +366,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <div class="events-collapse__header" id="events-toggle" aria-expanded="false"><div class="events-collapse__label"><span>📅 Upcoming Events</span><span class="events-collapse__count" id="events-count">2 upcoming</span></div><span class="events-collapse__arrow">▼</span></div>
         <div class="events-collapse__body"><div class="events-collapse__inner" id="events-list"><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Mon</span></div><div class="event-item__info"><div class="event-item__title">Fellowship &amp; Worship</div><div class="event-item__time">6:30 PM</div></div></div><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Sat</span></div><div class="event-item__info"><div class="event-item__title">Study Saturday (Livestream)</div><div class="event-item__time">7:00 PM PT on Twitch</div></div></div></div></div>
       </div>
-      <div class="compose-box" id="compose-box" style="display:none;"><div class="compose-box__header"><div class="compose-box__avatar" id="compose-avatar"></div><textarea class="compose-box__input" id="compose-input" placeholder="Share something with the community..." rows="2"></textarea></div><div class="compose-box__actions"><select class="compose-box__select" id="compose-type"><option value="message">💬 Discussion</option><option value="prayer">🙏 Prayer Request</option><option value="thanksgiving">🎉 Thanksgiving</option><option value="bible">📖 Scripture Note</option></select><button class="compose-box__post-btn" id="compose-post-btn">Post</button></div></div>
+      <div class="compose-box" id="compose-box" style="display:none;"><div class="compose-box__header"><div class="compose-box__avatar" id="compose-avatar"></div><div style="flex:1;min-width:0;position:relative;"><textarea class="compose-box__input" id="compose-input" placeholder="Share something with the community... use @ to mention someone" rows="2"></textarea><div class="mention-menu" id="compose-mention-menu" hidden></div></div></div><div class="compose-attach" id="compose-attach-preview" hidden><img id="compose-attach-img" alt="attachment preview"><button type="button" class="compose-attach__remove" id="compose-attach-remove" title="Remove photo">×</button></div><div class="compose-box__actions"><input type="file" id="compose-photo-input" accept="image/*" hidden><button type="button" class="compose-box__photo-btn" id="compose-photo-btn" title="Add photo">📷 Photo</button><select class="compose-box__select" id="compose-type"><option value="message">💬 Discussion</option><option value="prayer">🙏 Prayer Request</option><option value="thanksgiving">🎉 Thanksgiving</option><option value="bible">📖 Scripture Note</option></select><button class="compose-box__post-btn" id="compose-post-btn">Post</button></div></div>
       <div class="login-prompt" id="login-prompt"><p class="login-prompt__text">Join the conversation — post prayers, testimonies, and Bible discussions.</p><div class="login-prompt__buttons"><a href="team.html" class="login-prompt__btn login-prompt__btn--primary">Sign up →</a><a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="login-prompt__btn login-prompt__btn--telegram">Join Telegram →</a></div></div>
       <div id="posts-feed"><div class="post-card" style="padding:2rem;text-align:center;color:var(--color-text-muted);">Loading community feed...</div></div>
     </section>
@@ -385,7 +385,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <p class="section-desc">Lift up prayers and celebrate what God has done. All posts show together with type labels.</p>
       </div>
       <div class="prayer-filter" id="prayer-filter"><span class="prayer-filter__slider" id="prayer-filter-slider"></span><button type="button" class="prayer-filter__btn is-active" data-filter="all">All</button><button type="button" class="prayer-filter__btn" data-filter="prayer">🙏 Prayer</button><button type="button" class="prayer-filter__btn" data-filter="thanksgiving">🎉 Thanks</button></div>
-      <div id="prayer-compose" style="display:none;margin-bottom:1rem;"><div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem;"><div style="display:flex;gap:0.6rem;align-items:flex-start;"><div id="prayer-compose-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--color-olive-soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;color:var(--color-olive);flex-shrink:0;"></div><div style="flex:1;min-width:0;"><textarea id="prayer-compose-input" placeholder="Share a prayer request or thanksgiving..." rows="3" style="width:100%;padding:0.65rem 0.85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.88rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);resize:vertical;min-height:60px;"></textarea><div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;"><select id="prayer-type-select" style="border:1.5px solid var(--color-border);border-radius:var(--radius-full);padding:0.4rem 0.75rem;font-size:0.75rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);cursor:pointer;"><option value="prayer">🙏 Prayer</option><option value="thanksgiving">🎉 Thanksgiving</option></select><label style="display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;color:var(--color-text-muted);cursor:pointer;"><input type="checkbox" id="prayer-share-telegram" style="width:auto;margin:0;"> Share to Telegram</label><label style="display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;color:var(--color-text-muted);cursor:pointer;"><input type="checkbox" id="prayer-anon" style="width:auto;margin:0;"> Anonymous</label><button id="prayer-send-btn" style="margin-left:auto;padding:0.5rem 1.1rem;background:var(--color-gold);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.78rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;min-height:44px;">Post</button></div></div></div></div></div>
+      <div id="prayer-compose" style="display:none;margin-bottom:1rem;"><div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem;"><div style="display:flex;gap:0.6rem;align-items:flex-start;"><div id="prayer-compose-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--color-olive-soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;color:var(--color-olive);flex-shrink:0;"></div><div style="flex:1;min-width:0;"><div style="position:relative;"><textarea id="prayer-compose-input" placeholder="Share a prayer request or thanksgiving... use @ to mention" rows="3" style="width:100%;padding:0.65rem 0.85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.88rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);resize:vertical;min-height:60px;"></textarea><div class="mention-menu" id="prayer-mention-menu" hidden></div></div><div class="compose-attach" id="prayer-attach-preview" hidden><img id="prayer-attach-img" alt="attachment preview"><button type="button" class="compose-attach__remove" id="prayer-attach-remove" title="Remove photo">×</button></div><div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;"><input type="file" id="prayer-photo-input" accept="image/*" hidden><button type="button" class="compose-box__photo-btn" id="prayer-photo-btn" title="Add photo">📷</button><select id="prayer-type-select" style="border:1.5px solid var(--color-border);border-radius:var(--radius-full);padding:0.4rem 0.75rem;font-size:0.75rem;font-family:var(--font-sans);background:var(--color-bg-subtle);color:var(--color-text);cursor:pointer;"><option value="prayer">🙏 Prayer</option><option value="thanksgiving">🎉 Thanksgiving</option></select><label style="display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;color:var(--color-text-muted);cursor:pointer;"><input type="checkbox" id="prayer-share-telegram" style="width:auto;margin:0;"> Share to Telegram</label><label style="display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;color:var(--color-text-muted);cursor:pointer;"><input type="checkbox" id="prayer-anon" style="width:auto;margin:0;"> Anonymous</label><button id="prayer-send-btn" style="margin-left:auto;padding:0.5rem 1.1rem;background:var(--color-gold);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.78rem;font-weight:700;font-family:var(--font-sans);cursor:pointer;min-height:44px;">Post</button></div></div></div></div></div>
       <div id="prayer-posts-feed"><div style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading prayer feed...</div></div>
     </section>
 
@@ -461,6 +461,46 @@ function timeAgo(ts){var d=Date.now()-ts,m=Math.floor(d/60000);if(m<1)return'Jus
 async function getHandlerUrl(){if(handlerUrl)return handlerUrl;var cfg=await fetch(CONFIG_URL+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});handlerUrl=cfg.orderHandlerUrl;return handlerUrl;}
 async function postAction(data){var url=await getHandlerUrl();var res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});var text=await res.text();try{return JSON.parse(text);}catch(e){return{ok:false};}}
 
+// ── Shared: photo upload (base64 -> Drive via uploadImage) ──
+function fileToDataUrl(file){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=rej;r.readAsDataURL(file);});}
+async function uploadPhoto(file){
+  if(!session){alert('Sign in to add a photo.');return null;}
+  if(!/^image\//.test(file.type)){alert('Please choose an image.');return null;}
+  if(file.size>4.5*1024*1024){alert('Image too large (max ~4MB).');return null;}
+  var dataUrl=await fileToDataUrl(file);
+  var res=await postAction({action:'uploadImage',token:session.token,dataUrl:dataUrl,filename:file.name});
+  if(res&&res.ok&&res.url)return res.url;
+  alert((res&&res.error)||'Upload failed. (Backend may need deploying.)');return null;
+}
+
+// ── Shared: @mention autocomplete against known authors ──
+function mentionCandidates(){
+  var set={};if(session&&session.name)set[session.name]=1;
+  posts.forEach(function(p){if(p.from&&p.from!=='Anonymous')set[p.from]=1;});
+  Object.keys(commentsCache).forEach(function(pid){(commentsCache[pid]||[]).forEach(function(c){if(c.userId)set[c.userId]=1;(c.replies||[]).forEach(function(r){if(r.userId)set[r.userId]=1;});});});
+  return Object.keys(set);
+}
+// Wire an @mention dropdown to a textarea + menu element.
+function wireMention(input,menu){
+  if(!input||!menu)return;
+  function close(){menu.hidden=true;menu.innerHTML='';}
+  input.addEventListener('input',function(){
+    var val=input.value,pos=input.selectionStart;
+    var upto=val.slice(0,pos);var m=upto.match(/@([\w]*)$/);
+    if(!m){close();return;}
+    var q=m[1].toLowerCase();
+    var matches=mentionCandidates().filter(function(n){return n.toLowerCase().indexOf(q)!==-1;}).slice(0,6);
+    if(!matches.length){close();return;}
+    menu.innerHTML=matches.map(function(n){return '<button type="button" class="mention-menu__item" data-name="'+esc(n)+'">'+esc(n)+'</button>';}).join('');
+    menu.hidden=false;
+    menu.querySelectorAll('.mention-menu__item').forEach(function(b){b.addEventListener('click',function(){
+      var name=this.dataset.name;var start=upto.replace(/@([\w]*)$/,'@'+name+' ');
+      input.value=start+val.slice(pos);input.focus();close();
+    });});
+  });
+  input.addEventListener('blur',function(){setTimeout(close,150);});
+}
+
 // Auth
 function checkSession(){try{session=JSON.parse(localStorage.getItem('stwm-team-session'));}catch(e){session=null;}
 document.getElementById('compose-box').style.display=session?'':'none';
@@ -518,7 +558,9 @@ function updateHeroStats(){
   if(prayEl)prayEl.textContent=posts.filter(function(p){return p.msg_type==='prayer'||p.msg_type==='thanksgiving';}).length;
 }
 
-function formatBody(t){if(!t)return'';var f=esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');return f.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');}
+function formatBody(t){if(!t)return'';var f=esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');f=f.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
+// Highlight @mentions (name may contain a space, e.g. @David Ageyev). Match @Word optionally + one more capitalized word.
+return f.replace(/@([A-Za-z][\w]*(?:\s[A-Z][\w]*)?)/g,'<span class="mention-tag">@$1</span>');}
 
 function renderPost(p){
 var typeLabels={announcement:'📢 Announcement',prayer:'🙏 Prayer',thanksgiving:'🎉 Thanksgiving',bible:'📖 Scripture',message:'💬 Discussion'};
@@ -747,11 +789,22 @@ modal.querySelector('#share-native').addEventListener('click',function(){if(navi
 
 // Compose
 var cpBtn=document.getElementById('compose-post-btn');
-if(cpBtn)cpBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('compose-input'),text=input.value.trim();if(!text)return;var type=document.getElementById('compose-type').value,channel=type==='prayer'?'prayer':(type==='thanksgiving'?'thanksgiving':(type==='bible'?'scripture':'main'));cpBtn.disabled=true;cpBtn.textContent='...';try{var res=await postAction({action:'createPost',token:session.token,channel:channel,text:text});if(res&&res.ok){input.value='';loadFeed();}else{alert((res&&res.error)||'Could not post.');}}catch(e){alert('Could not post.');}cpBtn.disabled=false;cpBtn.textContent='Post';});
+var composeMedia=null;
+wireMention(document.getElementById('compose-input'),document.getElementById('compose-mention-menu'));
+var cpPhotoBtn=document.getElementById('compose-photo-btn'),cpPhotoInput=document.getElementById('compose-photo-input'),cpPreview=document.getElementById('compose-attach-preview'),cpPreviewImg=document.getElementById('compose-attach-img'),cpRemove=document.getElementById('compose-attach-remove');
+if(cpPhotoBtn&&cpPhotoInput){cpPhotoBtn.addEventListener('click',function(){cpPhotoInput.click();});
+cpPhotoInput.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;cpPhotoBtn.disabled=true;cpPhotoBtn.textContent='Uploading…';var url=await uploadPhoto(f);cpPhotoBtn.disabled=false;cpPhotoBtn.textContent='📷 Photo';this.value='';if(url){composeMedia=url;if(cpPreviewImg)cpPreviewImg.src=url;if(cpPreview)cpPreview.hidden=false;}});}
+if(cpRemove)cpRemove.addEventListener('click',function(){composeMedia=null;if(cpPreview)cpPreview.hidden=true;if(cpPreviewImg)cpPreviewImg.src='';});
+if(cpBtn)cpBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('compose-input'),text=input.value.trim();if(!text&&!composeMedia)return;var type=document.getElementById('compose-type').value,channel=type==='prayer'?'prayer':(type==='thanksgiving'?'thanksgiving':(type==='bible'?'scripture':'main'));cpBtn.disabled=true;cpBtn.textContent='...';try{var res=await postAction({action:'createPost',token:session.token,channel:channel,text:text,media_url:composeMedia||''});if(res&&res.ok){input.value='';composeMedia=null;if(cpPreview)cpPreview.hidden=true;loadFeed();}else{alert((res&&res.error)||'Could not post.');}}catch(e){alert('Could not post.');}cpBtn.disabled=false;cpBtn.textContent='Post';});
 
 // Prayer send
 var psBtn=document.getElementById('prayer-send-btn');
-if(psBtn)psBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('prayer-compose-input'),text=input.value.trim();if(!text)return;var type=document.getElementById('prayer-type-select').value;var anon=document.getElementById('prayer-anon').checked;var tg=document.getElementById('prayer-share-telegram');var shareTg=tg?tg.checked:false;psBtn.disabled=true;try{var res=await postAction({action:'createPost',token:session.token,channel:type,text:(anon?'[Anonymous] ':'')+text,share_telegram:shareTg});if(res&&res.ok){input.value='';if(tg)tg.checked=false;loadFeed();}}catch(e){}psBtn.disabled=false;});
+var prayerMedia=null;
+wireMention(document.getElementById('prayer-compose-input'),document.getElementById('prayer-mention-menu'));
+var prPhotoBtn=document.getElementById('prayer-photo-btn'),prPhotoInput=document.getElementById('prayer-photo-input'),prPreview=document.getElementById('prayer-attach-preview'),prPreviewImg=document.getElementById('prayer-attach-img'),prRemove=document.getElementById('prayer-attach-remove');
+if(prPhotoBtn&&prPhotoInput){prPhotoBtn.addEventListener('click',function(){prPhotoInput.click();});prPhotoInput.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;prPhotoBtn.disabled=true;var url=await uploadPhoto(f);prPhotoBtn.disabled=false;this.value='';if(url){prayerMedia=url;if(prPreviewImg)prPreviewImg.src=url;if(prPreview)prPreview.hidden=false;}});}
+if(prRemove)prRemove.addEventListener('click',function(){prayerMedia=null;if(prPreview)prPreview.hidden=true;if(prPreviewImg)prPreviewImg.src='';});
+if(psBtn)psBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('prayer-compose-input'),text=input.value.trim();if(!text&&!prayerMedia)return;var type=document.getElementById('prayer-type-select').value;var anon=document.getElementById('prayer-anon').checked;var tg=document.getElementById('prayer-share-telegram');var shareTg=tg?tg.checked:false;psBtn.disabled=true;try{var res=await postAction({action:'createPost',token:session.token,channel:type,text:(anon?'[Anonymous] ':'')+text,media_url:prayerMedia||'',share_telegram:shareTg});if(res&&res.ok){input.value='';prayerMedia=null;if(prPreview)prPreview.hidden=true;if(tg)tg.checked=false;loadFeed();}}catch(e){}psBtn.disabled=false;});
 
 // Prayer filter — animated sliding pill highlight
 function movePrayerSlider(){var slider=document.getElementById('prayer-filter-slider');var btns=document.querySelectorAll('.prayer-filter__btn');if(!slider||!btns.length)return;var active=document.querySelector('.prayer-filter__btn.is-active')||btns[0];slider.style.width=active.offsetWidth+'px';slider.style.transform='translateX('+active.offsetLeft+'px)';}

@@ -380,6 +380,20 @@ function handleCreatePost_(payload) {
     var role = String(user.role || 'member').toLowerCase();
 
     getPostsSheet_().appendRow([id, ts, user.name, role, text, media, channel, '', '', '']);
+
+    // Optional relay to the Telegram Prayer & Thanksgiving topic (thread 21),
+    // mirroring the old sendChatMessage behavior. Only for prayer/thanksgiving
+    // when the poster opted in. Requires sendTelegramFromAppsScript_ (team-messaging-handlers.gs).
+    if ((payload.share_telegram === true || payload.share_telegram === 'true') &&
+        (channel === 'prayer' || channel === 'thanksgiving') &&
+        typeof sendTelegramFromAppsScript_ === 'function') {
+      try {
+        var emoji = channel === 'prayer' ? '🙏' : '🎉';
+        var label = channel === 'prayer' ? 'Prayer Request' : 'Thanksgiving';
+        sendTelegramFromAppsScript_('@seedtheword', emoji + ' <b>' + label + ' from ' + user.name + '</b>\n\n' + text, 21);
+      } catch (e) {}
+    }
+
     return jsonResponse({
       ok: true,
       post: {

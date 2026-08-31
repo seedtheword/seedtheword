@@ -320,3 +320,50 @@
   background: none; border: none; cursor: pointer; font-family: inherit; font-size: inherit;
 }
 .reading-band__jump:hover, .reading-band__foot a:hover { text-decoration: underline; }
+
+/* ── Prayer & Thanksgiving — Telegram-style dashboard ────── */
+.community-body #prayer-filter {
+  position: relative;
+  display: inline-flex;
+  background: var(--color-bg-subtle);
+  border-radius: 999px;
+  padding: 3px;
+  margin-bottom: 1.25rem;
+}
+.community-body .prayer-filter__slider {
+  position: absolute; top: 3px; left: 0;
+  height: calc(100% - 6px);
+  background: var(--color-olive);
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(44,74,62,0.3);
+  transition: transform 0.32s cubic-bezier(0.4,0,0.2,1), width 0.32s cubic-bezier(0.4,0,0.2,1);
+  z-index: 0;
+}
+.community-body .prayer-filter__btn {
+  position: relative; z-index: 1;
+  background: transparent !important;
+  transition: color 0.2s;
+}
+.community-body .prayer-filter__btn.is-active { background: transparent !important; color: #fff !important; }
+/* Telegram-style chat feed container */
+.community-body #prayer-posts-feed {
+  background: var(--fk-card);
+  border: 1px solid var(--fk-line);
+  border-radius: var(--fk-radius-lg);
+  padding: 1rem;
+  min-height: 280px;
+  max-height: 640px;
+  overflow-y: auto;
+  box-shadow: var(--sp-shadow, 0 1px 3px rgba(26,30,36,0.05));
+  scrollbar-width: thin;
+}
+/* Prayer/thanksgiving posts read as chat bubbles, tighter than feed cards */
+.community-body #prayer-posts-feed .post-card {
+  border: none;
+  border-radius: 14px;
+  background: var(--color-bg-subtle);
+  margin-bottom: 0.6rem;
+  box-shadow: none;
+}
+.community-body #prayer-posts-feed .post-card:hover { transform: none; box-shadow: none; }
+.community-body #prayer-posts-feed .post-card__media { margin-left: 0; margin-right: 0; }

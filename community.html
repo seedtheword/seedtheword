@@ -282,7 +282,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=2">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=3">
 </head>
 <body class="community-body">
 
@@ -335,6 +335,22 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         </div>
       </div>
 
+      <!-- Today's Reading band — integrated into the Home hero -->
+      <div class="reading-band" id="reading-band">
+        <button class="reading-band__head" id="reading-band-toggle" aria-expanded="false" aria-controls="reading-band-body">
+          <span class="reading-band__eyebrow">📖 Today's Reading</span>
+          <span class="reading-band__today" id="reading-today-text">Loading…</span>
+          <span class="reading-band__chev" aria-hidden="true">▾</span>
+        </button>
+        <div class="reading-band__body" id="reading-band-body">
+          <div class="reading-band__inner">
+            <div id="bible-plan-container"></div>
+            <div id="going-deeper-container"></div>
+            <p class="reading-band__foot">Brand new? <a href="start-here.html">Try the 20-day plan first →</a> · <button type="button" class="reading-band__jump" onclick="switchChannel('scripture')">Discuss today's reading →</button></p>
+          </div>
+        </div>
+      </div>
+
       <!-- Category tiles → jump into channels -->
       <div class="fk-eyebrow-row"><div><span class="fk-eyebrow">Explore</span><h2>Where to next?</h2></div></div>
       <div class="fk-tiles">
@@ -360,8 +376,6 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <h2 class="section-title">📖 Discuss Scripture</h2>
         <p class="section-desc">Comment on the daily reading, explore passages, or start a discussion.</p>
       </div>
-      <div class="reading-card"><div class="reading-card__label">Today's Reading</div><div class="reading-card__text" id="reading-today-text">Loading...</div><button class="reading-card__expand" id="reading-expand-btn">View Full Week →</button></div>
-      <div id="bible-reading-full" style="display:none;margin-bottom:1.25rem;"><div id="bible-plan-container"></div><div id="going-deeper-container"></div><p style="text-align:center;margin-top:1rem;font-size:0.82rem;color:var(--color-text-muted);">Brand new? <a href="start-here.html" style="color:var(--color-gold);font-weight:600;text-decoration:none;">Try the 20-day plan first →</a></p><button id="reading-collapse-btn" style="display:block;margin:1rem auto 0;padding:0.5rem 1rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-full);font-size:0.78rem;font-weight:600;color:var(--color-text-muted);cursor:pointer;font-family:var(--font-sans);">Collapse ↑</button></div>
       <div id="scripture-posts-feed"><div style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading discussions...</div></div>
     </section>
 
@@ -758,13 +772,19 @@ else if(window.openReadingPlan&&id==='20-day-plan'){window.openReadingPlan(id);}
 else{alert('Course viewer loading... please try again in a moment.');}
 });});}
 
-// Bible reading
-function updateReading(){var today=new Date().getDay();var cards=document.querySelectorAll('#bible-plan-container .bible-day-card');var text='Rest day — catch up or revisit a chapter.';if(cards.length){var idx=today>=1&&today<=5?today-1:-1;if(idx>=0&&cards[idx]){var t=cards[idx].querySelector('.bible-day-card__title,h3,strong');text=t?t.textContent:"See today's chapter";}}
+// Bible reading — hero "Today's Reading" band
+function updateReading(){var today=new Date().getDay();var cards=document.querySelectorAll('#bible-plan-container .bible-day-card');var text='Rest day — catch up or revisit a chapter.';if(cards.length){var idx=today>=1&&today<=5?today-1:-1;if(idx>=0&&cards[idx]){var t=cards[idx].querySelector('.bible-day-card__reading,.bible-day-card__title,h3,strong');text=t?t.textContent.trim():"See today's chapter";}}
 var rt=document.getElementById('reading-today-text'),sr=document.getElementById('sidebar-reading');if(rt)rt.textContent=text;if(sr)sr.textContent=text;}
 setTimeout(updateReading,1500);
-var eb=document.getElementById('reading-expand-btn'),cb=document.getElementById('reading-collapse-btn'),fr=document.getElementById('bible-reading-full');
-if(eb)eb.addEventListener('click',function(){if(fr)fr.style.display='';});
-if(cb)cb.addEventListener('click',function(){if(fr)fr.style.display='none';});
+// Smooth expand/collapse of the reading band (animate max-height).
+var rbToggle=document.getElementById('reading-band-toggle'),rbBody=document.getElementById('reading-band-body'),rbBand=document.getElementById('reading-band');
+if(rbToggle&&rbBody&&rbBand){
+  rbToggle.addEventListener('click',function(){
+    var open=rbBand.classList.toggle('is-open');
+    rbToggle.setAttribute('aria-expanded',open?'true':'false');
+    rbBody.style.maxHeight=open?(rbBody.scrollHeight+40)+'px':'0px';
+  });
+}
 
 // Calendar
 var calAttempts=0,calCheck=setInterval(function(){calAttempts++;if(window.googleCalendar&&window.googleCalendar.events&&window.googleCalendar.events.length){clearInterval(calCheck);var cal=window.googleCalendar,now=new Date(),upcoming=cal.events.filter(function(ev){var s=cal.getEventStart(ev);return s&&s>now;}).slice(0,5);if(!upcoming.length)return;var html=upcoming.map(function(ev){var s=cal.getEventStart(ev);return'<div class="event-item"><div class="event-item__date"><span class="event-item__month">'+s.toLocaleDateString('en-US',{month:'short'})+'</span><span class="event-item__day">'+s.getDate()+'</span></div><div class="event-item__info"><div class="event-item__title">'+(ev.summary||'Event')+'</div><div class="event-item__time">'+s.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div></div></div>';}).join('');var el=document.getElementById('events-list'),se=document.getElementById('sidebar-events'),ec2=document.getElementById('events-count');if(el)el.innerHTML=html;if(se)se.innerHTML=html;if(ec2)ec2.textContent=upcoming.length+' upcoming';}else if(calAttempts>40)clearInterval(calCheck);},500);

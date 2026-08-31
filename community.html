@@ -921,14 +921,17 @@ if(cpPhotoBtn&&cpPhotoInput){cpPhotoBtn.addEventListener('click',function(){cpPh
 cpPhotoInput.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;cpPhotoBtn.disabled=true;cpPhotoBtn.textContent='Uploading…';var url=await uploadPhoto(f);cpPhotoBtn.disabled=false;cpPhotoBtn.textContent='📷 Photo';this.value='';if(url){composeMedia=url;if(cpPreviewImg)cpPreviewImg.src=driveImg(url);if(cpPreview)cpPreview.hidden=false;}});}
 if(cpRemove)cpRemove.addEventListener('click',function(){composeMedia=null;if(cpPreview)cpPreview.hidden=true;if(cpPreviewImg)cpPreviewImg.src='';});
 // Scripture Note passage picker: reveal a book/chapter/verse selector when type='bible'
-(function(){
+// NOTE: called from Init (after BIBLE_BOOKS is defined) — must NOT run inline here,
+// or BIBLE_BOOKS is still undefined and .map() throws, halting the whole script.
+function initComposeRefPicker(){
   var typeSel=document.getElementById('compose-type'),refRow=document.getElementById('compose-ref-row'),refBook=document.getElementById('compose-ref-book'),refCh=document.getElementById('compose-ref-ch'),refV=document.getElementById('compose-ref-v');
   if(!typeSel||!refRow||!refBook)return;
-  refBook.innerHTML='<option value="">Book…</option>'+(window.BIBLE_BOOKS||BIBLE_BOOKS).map(function(b){return '<option value="'+esc(b[0])+'">'+esc(b[0])+'</option>';}).join('');
+  var books=(typeof BIBLE_BOOKS!=='undefined'&&BIBLE_BOOKS)||window.BIBLE_BOOKS||[];
+  refBook.innerHTML='<option value="">Book…</option>'+books.map(function(b){return '<option value="'+esc(b[0])+'">'+esc(b[0])+'</option>';}).join('');
   function fillCh(){var b=refBook.value;var n=b?chaptersOf(b):0;var o='<option value="">Ch…</option>';for(var c=1;c<=n;c++)o+='<option value="'+c+'">'+c+'</option>';refCh.innerHTML=o;}
   refBook.addEventListener('change',fillCh);fillCh();
   typeSel.addEventListener('change',function(){refRow.hidden=this.value!=='bible';});
-})();
+}
 if(cpBtn)cpBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('compose-input'),text=input.value.trim();if(!text&&!composeMedia)return;var type=document.getElementById('compose-type').value,channel=type==='prayer'?'prayer':(type==='thanksgiving'?'thanksgiving':(type==='bible'?'scripture':'main'));var media=composeMedia;
   var body=text;
   if(type==='bible'){var rb=document.getElementById('compose-ref-book').value,rc=document.getElementById('compose-ref-ch').value,rv=(document.getElementById('compose-ref-v').value||'').trim();if(rb&&rc){body='['+rb+' '+rc+(rv?':'+rv:'')+'] '+text;}}
@@ -1179,7 +1182,7 @@ function renderStory(){
 // Theme — handled by theme-toggle.js site-wide
 
 // Init
-checkSession();renderELibrary();paintCachedFeed();loadFeed();loadStories();
+checkSession();renderELibrary();initComposeRefPicker();paintCachedFeed();loadFeed();loadStories();
 // No aggressive polling — Apps Script round-trips are slow, and constant
 // re-renders made the feed feel sluggish. The feed loads once on open and
 // updates optimistically after the user's own actions. A gentle refresh

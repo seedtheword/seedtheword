@@ -17,6 +17,10 @@
   <link rel="stylesheet" href="assets/css/main.css?v=33">
   <link rel="stylesheet" href="assets/css/lms.css?v=1">
   <link rel="stylesheet" href="assets/css/store-catalog.css?v=10">
+  <!-- Friends section styles (topic pills, search, listen/partner cards).
+       Loaded BEFORE the inline <style> below, so the page's inline feed
+       styles (.post-card/.compose-box) still win by source order. -->
+  <link rel="stylesheet" href="assets/css/community-social.css?v=5">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
 body.community-body{background:var(--color-bg);color:var(--color-text);font-family:var(--font-sans);padding-bottom:68px;}
@@ -32,13 +36,17 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .channel-tab__badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:var(--radius-full);background:#e74c3c;color:#fff;font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
 .channel-tab__badge:empty{display:none;}
 
-/* Layout */
+/* Layout — mobile-first single column; fuller multi-column on desktop */
 .social-wrapper{max-width:1100px;margin:0 auto;}
 .social-main{max-width:680px;margin:0 auto;padding:1.25rem 1rem;}
 @media(min-width:1024px){
-  .social-wrapper{display:grid;grid-template-columns:1fr 320px;gap:0;}
-  .social-main{max-width:660px;margin:0 auto;padding:1.5rem 2.5rem;border-right:1px solid var(--color-border);}
-  .social-sidebar{display:block !important;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;padding:1.5rem 1.25rem;scrollbar-width:thin;}
+  .social-wrapper{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:0;max-width:1240px;align-items:start;}
+  .social-main{max-width:760px;margin:0 auto;padding:1.75rem 3rem;border-right:1px solid var(--color-border);min-height:calc(100vh - 60px);}
+  .social-sidebar{display:block !important;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;padding:1.75rem 1.5rem;scrollbar-width:thin;}
+}
+@media(min-width:1440px){
+  .social-wrapper{grid-template-columns:minmax(0,1fr) 380px;max-width:1400px;}
+  .social-main{max-width:860px;padding:2rem 3.5rem;}
 }
 .social-sidebar{display:none;}
 .sidebar-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow-sm);}
@@ -354,7 +362,17 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <h2 class="section-title">✨ Friends in Jesus</h2>
         <p class="section-desc">Podcasts, sermons, and content from voices we love. Ministries we walk alongside.</p>
       </div>
-      <div id="friends-catalog-mount"></div>
+      <!-- Friends catalog — populated by community-catalog.js from recommendations.json -->
+      <div class="friends-section" id="friends-catalog-mount">
+        <div class="friends-search">
+          <input type="search" id="community-search-input" class="friends-search__input" placeholder="Search listening, partners, messages..." autocomplete="off">
+          <button id="community-search-clear" class="friends-search__clear" aria-label="Clear search">×</button>
+          <span id="community-search-count" class="friends-search__count"></span>
+        </div>
+        <div id="community-sidebar" class="friends-topics" role="tablist" aria-label="Friends categories"></div>
+        <div id="community-category-header" class="friends-cat-header"></div>
+        <div id="community-grid"></div>
+      </div>
     </section>
   </main>
 

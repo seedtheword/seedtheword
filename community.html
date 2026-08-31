@@ -283,7 +283,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=14">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=15">
 </head>
 <body class="community-body">
 
@@ -475,7 +475,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 </div>
 
 <!-- Story viewer overlay -->
-<input type="file" id="story-file-input" accept="image/*" hidden>
+<input type="file" id="story-file-input" accept="image/*" capture="environment" hidden>
 <div class="story-viewer" id="story-viewer" hidden>
   <div class="story-viewer__inner">
     <div class="story-viewer__bar"><div class="story-viewer__progress" id="story-progress"></div></div>
@@ -544,6 +544,9 @@ function timeAgo(ts){var d=Date.now()-ts,m=Math.floor(d/60000);if(m<1)return'Jus
 async function getHandlerUrl(){if(handlerUrl)return handlerUrl;var cfg=await fetch(CONFIG_URL+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});handlerUrl=cfg.orderHandlerUrl;return handlerUrl;}
 async function postAction(data){var url=await getHandlerUrl();var res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});var text=await res.text();try{return JSON.parse(text);}catch(e){return{ok:false};}}
 
+// Normalize a Google Drive share/uc URL to the reliable lh3 image host
+// (uc?export=view often 403s when hotlinked in <img>; lh3/d/<id> works).
+function driveImg(url){if(!url)return url;var m=String(url).match(/[?&]id=([\w-]+)/)||String(url).match(/\/d\/([\w-]+)/);if(m)return 'https://lh3.googleusercontent.com/d/'+m[1]+'=w1200';return url;}
 // ── Shared: photo upload (base64 -> Drive via uploadImage) ──
 function fileToDataUrl(file){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=rej;r.readAsDataURL(file);});}
 async function uploadPhoto(file){
@@ -676,7 +679,7 @@ if(isMine||canModerate||(viewerIsSuper&&isAnnouncement)){
   if(canModerate)items+='<button data-action="hide" data-id="'+postId+'">'+(p.hidden?'👁️ Unhide':'🚫 Hide')+'</button>';
   menu='<div class="post-card__menu"><button class="post-card__menu-btn" data-action="menu" aria-label="Post options">⋯</button><div class="post-card__menu-list" hidden>'+items+'</div></div>';
 }
-var media=p.media_url?'<div class="post-card__media"><img src="'+esc(p.media_url)+'" alt="" loading="lazy"></div>':'';
+var media=p.media_url?'<div class="post-card__media"><img src="'+esc(driveImg(p.media_url))+'" alt="" loading="lazy"></div>':'';
 var flags=(p.pinned?'<span class="post-flag post-flag--pin">📌 Pinned</span>':'')+(p.hidden?'<span class="post-flag post-flag--hidden">Hidden</span>':'')+(p.edited?'<span class="post-flag">edited</span>':'');
 return'<article class="post-card'+(p.hidden?' post-card--hidden':'')+'" data-post-id="'+postId+'" data-channel="'+esc(p._channel||'main')+'">'+
 '<div class="post-card__header"><div class="post-card__avatar" data-author="'+esc(p.from||'Anonymous')+'" data-role="'+esc(p.role||'')+'">'+initials(p.from||'Anonymous')+'</div><div class="post-card__meta"><div class="post-card__author"><button class="author-link" data-author="'+esc(p.from||'Anonymous')+'" data-role="'+esc(p.role||'')+'">'+esc(p.from||'Anonymous')+'</button> '+roleBadge(p.role)+'</div><div class="post-card__time">'+timeAgo(p.timestamp)+' '+flags+'</div><span class="post-card__type post-card__type--'+typeClass+'">'+(typeLabels[type]||'💬 Post')+'</span></div>'+menu+'</div>'+
@@ -906,7 +909,7 @@ var composeMedia=null;
 wireMention(document.getElementById('compose-input'),document.getElementById('compose-mention-menu'));
 var cpPhotoBtn=document.getElementById('compose-photo-btn'),cpPhotoInput=document.getElementById('compose-photo-input'),cpPreview=document.getElementById('compose-attach-preview'),cpPreviewImg=document.getElementById('compose-attach-img'),cpRemove=document.getElementById('compose-attach-remove');
 if(cpPhotoBtn&&cpPhotoInput){cpPhotoBtn.addEventListener('click',function(){cpPhotoInput.click();});
-cpPhotoInput.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;cpPhotoBtn.disabled=true;cpPhotoBtn.textContent='Uploading…';var url=await uploadPhoto(f);cpPhotoBtn.disabled=false;cpPhotoBtn.textContent='📷 Photo';this.value='';if(url){composeMedia=url;if(cpPreviewImg)cpPreviewImg.src=url;if(cpPreview)cpPreview.hidden=false;}});}
+cpPhotoInput.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;cpPhotoBtn.disabled=true;cpPhotoBtn.textContent='Uploading…';var url=await uploadPhoto(f);cpPhotoBtn.disabled=false;cpPhotoBtn.textContent='📷 Photo';this.value='';if(url){composeMedia=url;if(cpPreviewImg)cpPreviewImg.src=driveImg(url);if(cpPreview)cpPreview.hidden=false;}});}
 if(cpRemove)cpRemove.addEventListener('click',function(){composeMedia=null;if(cpPreview)cpPreview.hidden=true;if(cpPreviewImg)cpPreviewImg.src='';});
 // Scripture Note passage picker: reveal a book/chapter/verse selector when type='bible'
 (function(){
@@ -1089,7 +1092,7 @@ async function loadStories(){
   try{
     var res=await postAction(session?{action:'getStories',token:session.token}:{action:'getStories',passphrase_hash:'public-read'});
     storiesData=(res&&res.ok&&res.stories)?res.stories:[];
-    items=storiesData.map(function(s,i){return '<button class="story-bubble" data-idx="'+i+'"><span class="story-bubble__ring story-bubble__ring--live"><img class="story-bubble__img" src="'+esc(s.image)+'" alt=""></span><span class="story-bubble__label">'+esc((s.author||'').split(' ')[0])+'</span></button>';}).join('');
+    items=storiesData.map(function(s,i){return '<button class="story-bubble" data-idx="'+i+'"><span class="story-bubble__ring story-bubble__ring--live"><img class="story-bubble__img" src="'+esc(driveImg(s.image))+'" alt="" onerror="this.style.opacity=0.3"></span><span class="story-bubble__label">'+esc((s.author||'').split(' ')[0])+'</span></button>';}).join('');
   }catch(e){storiesData=[];}
   if(!mine&&!items){rail.style.display='none';return;}
   rail.style.display='';rail.innerHTML=mine+items;
@@ -1103,7 +1106,7 @@ function openStory(i){storyIdx=i;var v=document.getElementById('story-viewer');i
 function closeStory(){var v=document.getElementById('story-viewer');if(v)v.hidden=true;if(storyTimer)clearTimeout(storyTimer);}
 function renderStory(){
   var s=storiesData[storyIdx];if(!s){closeStory();return;}
-  document.getElementById('story-viewer-img').src=s.image;
+  document.getElementById('story-viewer-img').src=driveImg(s.image);
   document.getElementById('story-viewer-av').textContent=initials(s.author);
   document.getElementById('story-viewer-author').textContent=s.author+' · '+timeAgo(s.created_at);
   document.getElementById('story-viewer-caption').textContent=s.caption||'';

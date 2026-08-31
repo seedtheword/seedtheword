@@ -496,7 +496,7 @@
 .story-viewer__av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--color-olive), #3a5f4e); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.72rem; }
 .story-viewer__author { font-size: 0.85rem; font-weight: 600; flex: 1; }
 .story-viewer__close { background: none; border: none; color: #fff; font-size: 1.6rem; cursor: pointer; line-height: 1; }
-.story-viewer__img { flex: 1; width: 100%; object-fit: contain; min-height: 0; }
+.story-viewer__img { flex: 1 1 auto; width: 100%; height: auto; max-height: 78vh; object-fit: contain; min-height: 200px; background: #000; display: block; }
 .story-viewer__caption { color: #fff; text-align: center; padding: 0.75rem 1.25rem; font-size: 0.9rem; }
 .story-viewer__nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; }
 .story-viewer__nav--prev { left: 0.5rem; }

@@ -389,6 +389,7 @@
   color: var(--fk-ink2, var(--color-text)); cursor: pointer; font-family: var(--font-sans);
 }
 .community-body .compose-box__photo-btn:hover { border-color: var(--fk-accent); color: var(--fk-accent); }
+.community-body .compose-attach[hidden], .community-body .mention-menu[hidden] { display: none !important; }
 .community-body .compose-attach {
   position: relative; margin: 0.6rem 0; border-radius: 12px; overflow: hidden;
   border: 1px solid var(--fk-line); max-width: 280px;

@@ -593,3 +593,12 @@
 .note-modal__btn--save { background: var(--fk-accent); color: #fff; border-color: var(--fk-accent); }
 .scripture-disc__head { margin: 1.25rem 0 0.75rem; }
 .scripture-disc__head h3 { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 600; margin: 0; }
+
+/* ── Reader book/chapter picker ──────────────────────────── */
+.reader-nav { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
+.reader-nav__btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--fk-line); background: var(--fk-card); color: var(--fk-ink); font-size: 1.2rem; line-height: 1; cursor: pointer; flex-shrink: 0; }
+.reader-nav__btn:hover { border-color: var(--fk-accent); color: var(--fk-accent); }
+.reader-nav__book, .reader-nav__ch { border: 1px solid var(--fk-line); border-radius: 10px; padding: 0.45rem 0.6rem; font-family: var(--font-sans); font-size: 0.82rem; background: var(--color-bg-subtle); color: var(--fk-ink); cursor: pointer; }
+.reader-nav__book { flex: 1; min-width: 120px; }
+.reader-nav__book:focus, .reader-nav__ch:focus { outline: none; border-color: var(--fk-accent); }
+.reader-nav__today { margin-left: auto; background: var(--fk-accent-soft, rgba(217,119,54,0.1)); color: var(--fk-accent); border: none; border-radius: 999px; padding: 0.45rem 0.8rem; font-size: 0.76rem; font-weight: 700; cursor: pointer; white-space: nowrap; }

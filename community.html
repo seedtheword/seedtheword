@@ -283,7 +283,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=12">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=13">
 </head>
 <body class="community-body">
 
@@ -384,8 +384,15 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
       <!-- Study reader: today's chapter text (WEB via bible-api.com) -->
       <div class="reader-card" id="reader-card">
         <div class="reader-card__head">
-          <div><span class="reader-card__eyebrow">Today's Reading</span><h3 class="reader-card__ref" id="reader-ref">Loading…</h3></div>
+          <div><span class="reader-card__eyebrow" id="reader-eyebrow">Today's Reading</span><h3 class="reader-card__ref" id="reader-ref">Loading…</h3></div>
           <a class="reader-card__yv" id="reader-yv" href="https://www.bible.com/" target="_blank" rel="noopener">Open in YouVersion →</a>
+        </div>
+        <div class="reader-nav">
+          <button class="reader-nav__btn" id="reader-prev" title="Previous chapter">‹</button>
+          <select class="reader-nav__book" id="reader-book-select"></select>
+          <select class="reader-nav__ch" id="reader-ch-select"></select>
+          <button class="reader-nav__btn" id="reader-next" title="Next chapter">›</button>
+          <button class="reader-nav__today" id="reader-today-btn" title="Jump to today's reading">📖 Today</button>
         </div>
         <div class="reader-card__verses" id="reader-verses"><p class="reader-loading">Loading today's chapter…</p></div>
         <p class="reader-card__trans">World English Bible (public domain). Tap a verse to highlight or add a note.</p>
@@ -954,22 +961,55 @@ function bookForYouVersion(book){ // YouVersion uses USFM-ish book codes; map co
   var m={'Matthew':'MAT','Mark':'MRK','Luke':'LUK','John':'JHN','Acts':'ACT','Romans':'ROM','1 Corinthians':'1CO','2 Corinthians':'2CO','Galatians':'GAL','Ephesians':'EPH','Philippians':'PHP','Colossians':'COL','1 Thessalonians':'1TH','2 Thessalonians':'2TH','1 Timothy':'1TI','2 Timothy':'2TI','Titus':'TIT','Philemon':'PHM','Hebrews':'HEB','James':'JAS','1 Peter':'1PE','2 Peter':'2PE','1 John':'1JN','2 John':'2JN','3 John':'3JN','Jude':'JUD','Revelation':'REV'};
   return m[book]||'';
 }
+// Full 66-book list with chapter counts (for the picker).
+var BIBLE_BOOKS=[['Genesis',50],['Exodus',40],['Leviticus',27],['Numbers',36],['Deuteronomy',34],['Joshua',24],['Judges',21],['Ruth',4],['1 Samuel',31],['2 Samuel',24],['1 Kings',22],['2 Kings',25],['1 Chronicles',29],['2 Chronicles',36],['Ezra',10],['Nehemiah',13],['Esther',10],['Job',42],['Psalms',150],['Proverbs',31],['Ecclesiastes',12],['Song of Solomon',8],['Isaiah',66],['Jeremiah',52],['Lamentations',5],['Ezekiel',48],['Daniel',12],['Hosea',14],['Joel',3],['Amos',9],['Obadiah',1],['Jonah',4],['Micah',7],['Nahum',3],['Habakkuk',3],['Zephaniah',3],['Haggai',2],['Zechariah',14],['Malachi',4],['Matthew',28],['Mark',16],['Luke',24],['John',21],['Acts',28],['Romans',16],['1 Corinthians',16],['2 Corinthians',13],['Galatians',6],['Ephesians',6],['Philippians',4],['Colossians',4],['1 Thessalonians',5],['2 Thessalonians',3],['1 Timothy',6],['2 Timothy',4],['Titus',3],['Philemon',1],['Hebrews',13],['James',5],['1 Peter',5],['2 Peter',3],['1 John',5],['2 John',1],['3 John',1],['Jude',1],['Revelation',22]];
+var readerBook='', readerChapter=0, todayRef=null;
+function chaptersOf(book){for(var i=0;i<BIBLE_BOOKS.length;i++)if(BIBLE_BOOKS[i][0]===book)return BIBLE_BOOKS[i][1];return 1;}
+function populateChapterSelect(book,ch){var sel=document.getElementById('reader-ch-select');if(!sel)return;var n=chaptersOf(book);var opts='';for(var c=1;c<=n;c++)opts+='<option value="'+c+'"'+(c===ch?' selected':'')+'>Chapter '+c+'</option>';sel.innerHTML=opts;}
+function buildReaderPicker(){
+  var bookSel=document.getElementById('reader-book-select');if(!bookSel||bookSel.dataset.built)return;
+  bookSel.dataset.built='1';
+  bookSel.innerHTML=BIBLE_BOOKS.map(function(b){return '<option value="'+esc(b[0])+'">'+esc(b[0])+'</option>';}).join('');
+  bookSel.addEventListener('change',function(){var b=this.value;populateChapterSelect(b,1);loadChapter(b,1,false);});
+  document.getElementById('reader-ch-select').addEventListener('change',function(){loadChapter(readerBook,parseInt(this.value)||1,false);});
+  document.getElementById('reader-prev').addEventListener('click',function(){navChapter(-1);});
+  document.getElementById('reader-next').addEventListener('click',function(){navChapter(1);});
+  document.getElementById('reader-today-btn').addEventListener('click',function(){if(todayRef)loadChapter(todayRef.book,todayRef.chapter,true);});
+}
+function navChapter(dir){
+  var idx=BIBLE_BOOKS.findIndex(function(b){return b[0]===readerBook;});if(idx<0)return;
+  var ch=readerChapter+dir;
+  if(ch<1){ if(idx>0){idx--; ch=BIBLE_BOOKS[idx][1];} else return; }
+  else if(ch>BIBLE_BOOKS[idx][1]){ if(idx<BIBLE_BOOKS.length-1){idx++; ch=1;} else return; }
+  loadChapter(BIBLE_BOOKS[idx][0],ch,false);
+}
 async function loadReader(){
-  var refEl=document.getElementById('reader-ref'),versesEl=document.getElementById('reader-verses'),yvEl=document.getElementById('reader-yv'),discTitle=document.getElementById('scripture-disc-title');
-  if(!refEl||!versesEl)return;
+  buildReaderPicker();
   var reading=(window.BiblePlan&&window.BiblePlan.getReadingForDate)?window.BiblePlan.getReadingForDate(new Date()):null;
-  if(!reading){refEl.textContent='Rest day';versesEl.innerHTML='<p class="reader-loading">No set reading today — revisit a chapter or catch up. Discussion is still open below.</p>';if(discTitle)discTitle.textContent='💬 Discussion';return;}
-  readerRef=reading.book+' '+reading.chapter;
+  todayRef=reading?{book:reading.book,chapter:reading.chapter}:{book:'John',chapter:1};
+  loadChapter(todayRef.book,todayRef.chapter,true);
+}
+async function loadChapter(book,chapter,isToday){
+  var refEl=document.getElementById('reader-ref'),versesEl=document.getElementById('reader-verses'),yvEl=document.getElementById('reader-yv'),discTitle=document.getElementById('scripture-disc-title'),eyebrow=document.getElementById('reader-eyebrow');
+  if(!refEl||!versesEl)return;
+  readerBook=book;readerChapter=chapter;readerRef=book+' '+chapter;
   refEl.textContent=readerRef;
+  if(eyebrow)eyebrow.textContent=isToday?"Today's Reading":'Bible';
   if(discTitle)discTitle.textContent='💬 Discussion — '+readerRef;
-  var yvCode=bookForYouVersion(reading.book);
-  if(yvEl&&yvCode)yvEl.href='https://www.bible.com/bible/1/'+yvCode+'.'+reading.chapter; // KJV id=1 as a safe default
+  // sync picker
+  var bookSel=document.getElementById('reader-book-select');if(bookSel&&bookSel.value!==book)bookSel.value=book;
+  populateChapterSelect(book,chapter);
+  var yvCode=bookForYouVersion(book);
+  if(yvEl)yvEl.href=yvCode?('https://www.bible.com/bible/1/'+yvCode+'.'+chapter):('https://www.bible.com/search/bible?q='+encodeURIComponent(readerRef));
+  versesEl.innerHTML='<p class="reader-loading">Loading '+esc(readerRef)+'…</p>';
   try{
     var res=await fetch('https://bible-api.com/'+encodeURIComponent(readerRef)+'?translation=web',{cache:'default'}).then(function(r){return r.ok?r.json():null;});
     if(!res||!res.verses||!res.verses.length){versesEl.innerHTML='<p class="reader-loading">Could not load the chapter text. <a href="'+(yvEl?yvEl.href:'#')+'" target="_blank" rel="noopener">Read it on YouVersion →</a></p>';return;}
     versesEl.innerHTML=res.verses.map(function(v){var ref=readerRef+':'+v.verse;return '<span class="verse" data-ref="'+esc(ref)+'" data-verse="'+v.verse+'"><sup class="verse__num">'+v.verse+'</sup>'+esc(v.text.trim())+' </span>';}).join('');
     versesEl.querySelectorAll('.verse').forEach(function(el){el.addEventListener('click',function(){onVerseTap(this);});});
+    studyMarks={};document.getElementById('verse-actions').hidden=true;
     loadStudyMarks();
+    versesEl.scrollIntoView({behavior:'smooth',block:'nearest'});
   }catch(e){versesEl.innerHTML='<p class="reader-loading">Could not load the chapter text (offline?). <a href="'+(yvEl?yvEl.href:'#')+'" target="_blank" rel="noopener">Read on YouVersion →</a></p>';}
 }
 async function loadStudyMarks(){

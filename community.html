@@ -248,14 +248,16 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .sidebar-link{display:flex;align-items:center;gap:0.55rem;padding:0.5rem 0;font-size:0.82rem;font-weight:500;color:var(--color-text);text-decoration:none;}
 .sidebar-link:hover{color:var(--color-gold);}
 .sidebar-link__icon{width:28px;height:28px;border-radius:var(--radius-sm);background:var(--color-bg-subtle);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;}
-.sidebar-cta{background:linear-gradient(135deg,#1a1a1a,#2a2a2a);border-radius:var(--radius-md);padding:1.25rem;text-align:center;color:#fff;border:1px solid rgba(184,134,11,0.15);}
-.sidebar-cta__title{font-family:var(--font-serif);font-size:1rem;font-weight:600;margin-bottom:0.4rem;letter-spacing:-0.01em;}
-.sidebar-cta__text{font-size:0.78rem;opacity:0.75;line-height:1.5;margin-bottom:0.85rem;}
-.sidebar-cta__btn{display:inline-block;padding:0.55rem 1.25rem;background:var(--color-gold);color:#fff;border-radius:var(--radius-full);font-size:0.8rem;font-weight:600;text-decoration:none;}
+.sidebar-cta{background:linear-gradient(135deg,var(--color-olive-soft),var(--color-gold-soft));border-radius:var(--radius-lg);padding:1.35rem;text-align:center;color:var(--color-text);border:1px solid var(--color-border);position:relative;overflow:hidden;}
+.sidebar-cta::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--color-olive),var(--color-gold));}
+.sidebar-cta__title{font-family:var(--font-serif);font-size:1.05rem;font-weight:600;margin-bottom:0.4rem;letter-spacing:-0.01em;color:var(--color-text);}
+.sidebar-cta__text{font-size:0.78rem;color:var(--color-text-muted);line-height:1.5;margin-bottom:0.9rem;}
+.sidebar-cta__btn{display:inline-block;padding:0.6rem 1.3rem;background:linear-gradient(135deg,var(--color-olive),#3a5f4e);color:#fff;border-radius:var(--radius-full);font-size:0.8rem;font-weight:700;text-decoration:none;box-shadow:0 4px 14px rgba(44,74,62,0.22);transition:transform 0.15s;}
+.sidebar-cta__btn:hover{transform:translateY(-1px);}
 
 /* Dark mode — full coverage */
 [data-theme="dark"] .cta-card{background:linear-gradient(135deg,#0f1218,#1a2030);border-color:rgba(184,134,11,0.25);}
-[data-theme="dark"] .sidebar-cta{background:linear-gradient(135deg,#0f1218,#1a2030);border-color:rgba(184,134,11,0.2);}
+[data-theme="dark"] .sidebar-cta{background:linear-gradient(135deg,var(--color-olive-soft),var(--color-gold-soft));border-color:var(--color-border);}
 [data-theme="dark"] .site-header{background:rgba(15,18,24,0.92)!important;border-bottom-color:var(--color-border)!important;box-shadow:0 4px 30px rgba(0,0,0,0.3)!important;}
 [data-theme="dark"] .site-header.scrolled{background:rgba(15,18,24,0.95)!important;}
 [data-theme="dark"] .site-header .nav-links a{color:var(--color-text-secondary);}
@@ -403,7 +405,6 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
   <aside class="social-sidebar">
     <div class="sidebar-card"><p class="sidebar-card__title">Upcoming Events</p><div id="sidebar-events"><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Mon</span></div><div class="event-item__info"><div class="event-item__title">Fellowship &amp; Worship</div><div class="event-item__time">6:30 PM</div></div></div><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Sat</span></div><div class="event-item__info"><div class="event-item__title">Study Saturday</div><div class="event-item__time">7:00 PM PT on Twitch</div></div></div></div><a href="news.html" style="display:block;margin-top:0.75rem;font-size:0.78rem;color:var(--color-gold);font-weight:600;text-decoration:none;">See all events →</a></div>
     <div class="sidebar-card"><p class="sidebar-card__title">Today's Reading</p><div id="sidebar-reading" style="font-size:0.88rem;color:var(--color-text);margin-bottom:0.5rem;">Loading...</div><button onclick="switchChannel('scripture')" style="display:block;width:100%;padding:0.5rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;color:var(--color-olive);cursor:pointer;text-align:center;font-family:var(--font-sans);">Open Scripture Tab →</button></div>
-    <div class="sidebar-card"><p class="sidebar-card__title">Go Deeper</p><a href="how-to-grow.html" class="sidebar-link"><span class="sidebar-link__icon">🌱</span> How to Grow</a><a href="how-to-seed.html" class="sidebar-link"><span class="sidebar-link__icon">🌾</span> How to Seed</a><a href="news.html" class="sidebar-link"><span class="sidebar-link__icon">📰</span> Ministry News</a><a href="donate.html" class="sidebar-link"><span class="sidebar-link__icon">📖</span> Get a Free Bible</a></div>
     <div class="sidebar-cta"><h3 class="sidebar-cta__title">Join the Team</h3><p class="sidebar-cta__text">Volunteer with us at outreach events and help distribute God's Word.</p><a href="team.html" class="sidebar-cta__btn">Team Portal →</a></div>
   </aside>
 </div>
@@ -433,7 +434,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 <script src="assets/js/layered-plan.js?v=1"></script>
 <script src="assets/js/lms.js?v=1"></script>
 <script src="assets/js/google-calendar.js?v=16"></script>
-<script src="assets/js/community-catalog.js?v=4"></script>
+<script src="assets/js/community-catalog.js?v=5"></script>
 <script>
 (function(){
 'use strict';

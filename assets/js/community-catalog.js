@@ -110,6 +110,12 @@
         else if (item.id) url = 'https://youtube.com/channel/' + item.id;
       }
 
+      // Prefer a repo-local image (reliable) → explicit JSON image → JSON
+      // thumbnail (fragile external CDN) → letter fallback. Local convention:
+      // assets/images/friends/<slug>.jpg  (slug = lowercased title, a-z0-9).
+      var slug = String(item.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      var localThumb = slug ? 'assets/images/friends/' + slug + '.jpg' : '';
+
       all.push({
         id: 'listen-' + i,
         category: 'listening',
@@ -119,7 +125,8 @@
         type: item.type || item.feedType || '',
         url: url,
         note: item.note || '',
-        thumbnail: item.thumbnail || '',
+        localThumb: localThumb,
+        thumbnail: item.image || item.thumbnail || '',
         spotifyId: item.id || '',
         youtubeId: item.id || '',
         shelf: item.shelf || '',
@@ -246,8 +253,7 @@
       html += renderFeaturedHero(featured[0]);
     }
 
-    // 2. Social promo banner
-    html += renderSocialBanner();
+    // (Removed the social promo banner — redundant with header/bottom-nav socials.)
 
     // 3. Channel shelves by tag
     if (teaching.length) {
@@ -350,11 +356,14 @@
 
     var initial = (item.title || '?').charAt(0).toUpperCase();
     var fallbackSpan = '<span class="listen-card__initial">' + esc(initial) + '</span>';
-    if (item.thumbnail) {
-      // Real image. External YouTube/Spotify CDN URLs can expire/hotlink-block,
-      // so we render the img AND the fallback tile together; a post-render pass
-      // (wireThumbFallbacks) hides whichever is broken. No fragile inline onerror.
-      thumbContent = '<img class="listen-card__img" src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy">' + fallbackSpan;
+    // Resilient src chain: local repo image first (reliable), then the JSON
+    // thumbnail as data-alt-src (tried once on error), then the letter tile.
+    // wireThumbFallbacks() handles the error hops after render.
+    var primary = item.localThumb || item.thumbnail;
+    if (primary) {
+      var altAttr = (item.localThumb && item.thumbnail && item.thumbnail !== item.localThumb)
+        ? ' data-alt-src="' + esc(item.thumbnail) + '"' : '';
+      thumbContent = '<img class="listen-card__img" src="' + esc(primary) + '"' + altAttr + ' alt="' + esc(item.title) + '" loading="lazy">' + fallbackSpan;
     } else {
       thumbClass = ' listen-card__thumb--initial';
       thumbContent = fallbackSpan;
@@ -514,9 +523,16 @@
   // Each thumbnail renders <img> + a fallback tile; we hide whichever is wrong.
   function wireThumbFallbacks(root) {
     root.querySelectorAll('.listen-card__img, .store-card__image img').forEach(function (img) {
-      function fail() { img.style.display = 'none'; var t = img.parentNode; if (t) t.classList.add('is-fallback'); }
-      if (img.complete && img.naturalWidth === 0) { fail(); return; }   // already errored
-      img.addEventListener('error', fail);
+      function reveal() { img.style.display = 'none'; var t = img.parentNode; if (t) t.classList.add('is-fallback'); }
+      function onErr() {
+        // One retry with the alternate source (e.g. the JSON CDN thumbnail),
+        // then give up and reveal the branded letter/emoji tile.
+        var alt = img.getAttribute('data-alt-src');
+        if (alt) { img.removeAttribute('data-alt-src'); img.src = alt; return; }
+        reveal();
+      }
+      if (img.complete && img.naturalWidth === 0) { onErr(); return; } // already errored
+      img.addEventListener('error', onErr);
     });
   }
 

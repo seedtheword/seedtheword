@@ -285,7 +285,7 @@
     }
 
     var thumbContent = item.thumbnail
-      ? '<img src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy" onerror="this.style.display=\'none\';">'
+      ? '<img class="listen-card__img" src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy">'
       : '';
 
     return (
@@ -351,12 +351,11 @@
     var initial = (item.title || '?').charAt(0).toUpperCase();
     var fallbackSpan = '<span class="listen-card__initial">' + esc(initial) + '</span>';
     if (item.thumbnail) {
-      // Real image, but external YouTube/Spotify CDN URLs can expire/hotlink-block.
-      // onerror swaps in the clean initial-letter tile so it never looks broken.
-      thumbContent = '<img src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy" ' +
-        'onerror="this.style.display=\'none\';this.parentNode.classList.add(\'listen-card__thumb--initial\');this.insertAdjacentHTML(\'afterend\',\'' + fallbackSpan.replace(/'/g, "\\'") + '\');">';
+      // Real image. External YouTube/Spotify CDN URLs can expire/hotlink-block,
+      // so we render the img AND the fallback tile together; a post-render pass
+      // (wireThumbFallbacks) hides whichever is broken. No fragile inline onerror.
+      thumbContent = '<img class="listen-card__img" src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy">' + fallbackSpan;
     } else {
-      // Styled initial letter fallback
       thumbClass = ' listen-card__thumb--initial';
       thumbContent = fallbackSpan;
     }
@@ -401,8 +400,8 @@
   // ── Render cards (non-listening categories) ─────────────────
   function renderPartnerCard(item) {
     var imageHTML = item.photo
-      ? '<div class="store-card__image"><img src="' + esc(item.photo) + '" alt="' + esc(item.title) + '" loading="lazy" onerror="this.parentNode.innerHTML=\'🤝\';"></div>'
-      : '<div class="store-card__image">🤝</div>';
+      ? '<div class="store-card__image"><img src="' + esc(item.photo) + '" alt="' + esc(item.title) + '" loading="lazy"><span class="store-card__image-fallback">🤝</span></div>'
+      : '<div class="store-card__image is-fallback"><span class="store-card__image-fallback">🤝</span></div>';
 
     var actionHTML = item.url
       ? '<a href="' + esc(item.url) + '" target="_blank" rel="noopener" class="store-card__action store-card__action--primary">Visit →</a>'
@@ -494,7 +493,7 @@
     if (activeCategory === 'listening') {
       gridEl.className = 'listen-layout';
       gridEl.innerHTML = renderListeningShelf();
-      fetchMissingThumbnails();
+      wireThumbFallbacks(gridEl);
       return;
     }
 
@@ -508,100 +507,17 @@
     }
 
     gridEl.innerHTML = filtered.map(renderCard).join('');
+    wireThumbFallbacks(gridEl);
   }
 
-  // ── Fetch missing thumbnails via oEmbed ─────────────────────
-  var thumbnailCache = {};
-
-  function fetchMissingThumbnails() {
-    // Any element still awaiting a dynamic thumbnail (featured hero without a
-    // static thumbnail, or a card carrying data-*-id). The listen cards now
-    // render static thumbnails with an onerror fallback, so this mainly
-    // covers the hero's loading state.
-    var cards = gridEl.querySelectorAll('.store-card__image--loading, .listen-hero__thumb--loading, [data-youtube-id], [data-spotify-id]');
-    cards.forEach(function (el) {
-      var spotifyId = el.getAttribute('data-spotify-id');
-      var spotifyType = el.getAttribute('data-spotify-type');
-      var youtubeId = el.getAttribute('data-youtube-id');
-
-      if (spotifyId) {
-        fetchSpotifyThumbnail(el, spotifyId, spotifyType);
-      } else if (youtubeId) {
-        fetchYouTubeThumbnail(el, youtubeId);
-      }
+  // Attach load/error handlers programmatically (no fragile inline onerror).
+  // Each thumbnail renders <img> + a fallback tile; we hide whichever is wrong.
+  function wireThumbFallbacks(root) {
+    root.querySelectorAll('.listen-card__img, .store-card__image img').forEach(function (img) {
+      function fail() { img.style.display = 'none'; var t = img.parentNode; if (t) t.classList.add('is-fallback'); }
+      if (img.complete && img.naturalWidth === 0) { fail(); return; }   // already errored
+      img.addEventListener('error', fail);
     });
-  }
-
-  function fetchSpotifyThumbnail(el, id, type) {
-    var cacheKey = 'spotify-' + id;
-    if (thumbnailCache[cacheKey]) {
-      applyThumbnail(el, thumbnailCache[cacheKey]);
-      return;
-    }
-
-    var spotifyUrl = 'https://open.spotify.com/' + (type || 'episode') + '/' + id;
-    var oembedUrl = 'https://open.spotify.com/oembed?url=' + encodeURIComponent(spotifyUrl);
-
-    fetch(oembedUrl)
-      .then(function (res) { return res.ok ? res.json() : null; })
-      .then(function (data) {
-        if (data && data.thumbnail_url) {
-          thumbnailCache[cacheKey] = data.thumbnail_url;
-          applyThumbnail(el, data.thumbnail_url);
-        }
-      })
-      .catch(function () { /* keep emoji fallback */ });
-  }
-
-  function fetchYouTubeThumbnail(el, channelId) {
-    var cacheKey = 'youtube-' + channelId;
-    if (thumbnailCache[cacheKey]) {
-      applyThumbnail(el, thumbnailCache[cacheKey]);
-      return;
-    }
-
-    // Try YouTube oEmbed via a recent video from the channel using Google's
-    // search-based approach. YouTube oEmbed only works for videos, not channels.
-    // Use googleapis YouTube search to find one video, then get its thumbnail.
-    // Fallback: try the noembed service which sometimes works.
-    var channelUrl = 'https://www.youtube.com/channel/' + channelId;
-    var oembedUrl = 'https://noembed.com/embed?url=' + encodeURIComponent(channelUrl);
-
-    fetch(oembedUrl)
-      .then(function (res) { return res.ok ? res.json() : null; })
-      .then(function (data) {
-        if (data && data.thumbnail_url) {
-          thumbnailCache[cacheKey] = data.thumbnail_url;
-          applyThumbnail(el, data.thumbnail_url);
-        } else {
-          // Fallback: show styled initial
-          showInitialFallback(el);
-        }
-      })
-      .catch(function () {
-        showInitialFallback(el);
-      });
-  }
-
-  function showInitialFallback(el) {
-    var card = el.closest('.listen-card') || el.closest('.listen-hero');
-    var title = card ? (card.querySelector('.listen-card__name, .listen-hero__title') || {}).textContent : '';
-    var initial = (title || 'Y').charAt(0).toUpperCase();
-    el.innerHTML = '<span class="listen-card__initial">' + initial + '</span>';
-    el.classList.remove('store-card__image--loading');
-    el.classList.add('listen-card__thumb--initial');
-  }
-
-  function applyThumbnail(el, url) {
-    var img = document.createElement('img');
-    img.src = url;
-    img.alt = '';
-    img.loading = 'lazy';
-    img.onload = function () {
-      el.textContent = '';
-      el.appendChild(img);
-      el.classList.remove('store-card__image--loading');
-    };
   }
 
   // ── Render sidebar (now horizontal topic pills) ──────────────

@@ -722,17 +722,20 @@ function socialNotifyMentions_(mentions, byName, context, snippet) {
 // Stories tab: id | author | author_role | image | caption | created_at | expires_at
 // ══════════════════════════════════════════════════════════════════════
 
-var STORIES_TAB = 'Stories';
-var STORIES_HEADERS = ['id', 'author', 'author_role', 'image', 'caption', 'created_at', 'expires_at'];
-var STORY_TTL_MS = 24 * 60 * 60 * 1000;
+// NOTE: order-handler.gs already declares STORIES_TAB/STORIES_HEADERS for the
+// testimony-submission pipeline. These community-stories constants MUST use
+// distinct names or the whole Apps Script project fails to compile.
+var COMMUNITY_STORIES_TAB = 'CommunityStories';
+var COMMUNITY_STORIES_HEADERS = ['id', 'author', 'author_role', 'image', 'caption', 'created_at', 'expires_at'];
+var COMMUNITY_STORY_TTL_MS = 24 * 60 * 60 * 1000;
 
 function getStoriesSheet_() {
   var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
-  var sheet = ss.getSheetByName(STORIES_TAB);
+  var sheet = ss.getSheetByName(COMMUNITY_STORIES_TAB);
   if (!sheet) {
-    sheet = ss.insertSheet(STORIES_TAB);
-    sheet.getRange(1, 1, 1, STORIES_HEADERS.length).setValues([STORIES_HEADERS]);
-    sheet.getRange(1, 1, 1, STORIES_HEADERS.length).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet = ss.insertSheet(COMMUNITY_STORIES_TAB);
+    sheet.getRange(1, 1, 1, COMMUNITY_STORIES_HEADERS.length).setValues([COMMUNITY_STORIES_HEADERS]);
+    sheet.getRange(1, 1, 1, COMMUNITY_STORIES_HEADERS.length).setFontWeight('bold').setBackground('#E8E4DF');
     sheet.setFrozenRows(1);
   }
   return sheet;
@@ -748,7 +751,7 @@ function handleCreateStory_(payload) {
     if (!image) return jsonResponse({ ok: false, error: 'A photo is required for a story.' });
     var now = Date.now();
     var id = socialNewId_('story');
-    getStoriesSheet_().appendRow([id, user.name, String(user.role || 'member').toLowerCase(), image, String(payload.caption || '').slice(0, 200), now, now + STORY_TTL_MS]);
+    getStoriesSheet_().appendRow([id, user.name, String(user.role || 'member').toLowerCase(), image, String(payload.caption || '').slice(0, 200), now, now + COMMUNITY_STORY_TTL_MS]);
     return jsonResponse({ ok: true, id: id });
   } catch (err) { Logger.log('createStory error: ' + err); return jsonResponse({ ok: false, error: 'Server error' }); }
 }
@@ -764,7 +767,7 @@ function handleGetStories_(payload) {
     var out = [];
     var now = Date.now();
     if (last >= 2) {
-      var data = sheet.getRange(2, 1, last - 1, STORIES_HEADERS.length).getValues();
+      var data = sheet.getRange(2, 1, last - 1, COMMUNITY_STORIES_HEADERS.length).getValues();
       var staleRows = [];
       for (var i = 0; i < data.length; i++) {
         var exp = Number(data[i][6]) || 0;

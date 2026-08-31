@@ -85,7 +85,15 @@ The community feed now supports **photo attachments** and **@mention notificatio
 - `social-handler.gs` gained `handleUploadImage_` (base64 → Drive folder **"STW Community Uploads"** → public URL) and `@mention` parsing that relays a Telegram notice. `handleCreatePost_` also relays prayer/thanksgiving posts to Telegram thread 21 when the poster ticks "Share to Telegram".
 - `order-handler.gs` routes the new `uploadImage` action.
 
-Also added since: **Stories** (`createStory`/`getStories`, 24h ephemeral, auto-creating `Stories` tab), **`deleteAnnouncement`** (super-admin removes announcements, in `team-messaging-handlers.gs`), and the community **Messages** panel (uses the existing `sendDm`/`getDmContacts`/`getDmMessages`).
+> ⚠️ **Naming fix (important):** community stories use `COMMUNITY_STORIES_TAB` /
+> `CommunityStories` sheet — NOT `STORIES_TAB`, which order-handler.gs already
+> uses for the testimony pipeline. If you ever see
+> `SyntaxError: Identifier 'STORIES_TAB' has already been declared`, an old copy
+> of the stories code is still pasted somewhere; repaste the current
+> `social-handler.gs`. A duplicate top-level identifier takes the ENTIRE web app
+> down (login included).
+
+Also added since: **Stories** (`createStory`/`getStories`, 24h ephemeral, auto-creating `CommunityStories` tab), **`deleteAnnouncement`** (super-admin removes announcements, in `team-messaging-handlers.gs`), and the community **Messages** panel (uses the existing `sendDm`/`getDmContacts`/`getDmMessages`).
 
 To activate all of the above: repaste **`social-handler.gs`**, **`team-messaging-handlers.gs`**, and **`order-handler.gs`** into the P1 web-app project and **redeploy**. On the first photo/story upload, Apps Script prompts once to authorize **Drive**. No setup functions needed — the `Stories` + upload folder auto-create.
 

@@ -682,3 +682,51 @@
 .group-room__menu { border: none; background: none; font-size: 1.2rem; color: var(--fk-muted, #8a8178); cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 8px; }
 .group-room__menu:hover { background: var(--fk-bg-subtle, #f0ece5); }
 .group-room__feed { display: flex; flex-direction: column; gap: 0.75rem; max-height: 60vh; overflow-y: auto; scroll-behavior: smooth; padding-right: 0.2rem; }
+
+
+/* ── Home hero: Today's Reading + activity dashboard ─────────────────── */
+.fk-hero--dash { display: flex; flex-direction: column; gap: 1rem; }
+.hero-reading { }
+.hero-reading__eyebrow { font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fk-muted, #8a8178); font-weight: 700; }
+.hero-reading__ref { font-family: var(--font-serif); font-size: 1.9rem; line-height: 1.1; margin: 0.25rem 0 0.6rem; color: var(--fk-text, #2b2823); }
+.hero-reading__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.hero-reading__btn { display: inline-flex; align-items: center; font-size: 0.8rem; font-weight: 600; padding: 0.5rem 0.9rem; border-radius: 999px; text-decoration: none; cursor: pointer; border: 1px solid var(--fk-border, #e6e0d8); background: var(--fk-card, #fff); color: var(--fk-text, #2b2823); transition: transform 0.15s, box-shadow 0.15s; }
+.hero-reading__btn--primary { background: linear-gradient(135deg, var(--fk-accent, #c4622d), #b8551f); color: #fff; border-color: transparent; }
+.hero-reading__btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(26,30,36,0.12); }
+
+.hero-dash { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
+@media (min-width: 620px) { .hero-dash { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 980px) { .hero-dash { grid-template-columns: repeat(3, 1fr); } }
+.hd-card { background: var(--fk-card, #fff); border: 1px solid var(--fk-border, #e6e0d8); border-radius: 12px; padding: 0.7rem 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; min-width: 0; }
+.hd-card__head { display: flex; align-items: center; gap: 0.4rem; }
+.hd-card__icon { font-size: 1rem; }
+.hd-card__title { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: var(--fk-muted, #8a8178); }
+.hd-card__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.hd-item { display: flex; align-items: flex-start; gap: 0.4rem; font-size: 0.8rem; line-height: 1.35; color: var(--fk-text, #2b2823); }
+.hd-item__icon { flex-shrink: 0; }
+.hd-item__text { min-width: 0; overflow-wrap: anywhere; }
+.hd-item--empty { color: var(--fk-muted, #8a8178); font-style: italic; }
+.hd-count { color: var(--fk-muted, #8a8178); font-size: 0.72rem; }
+.hd-link { background: none; border: none; padding: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.hd-link:hover { color: var(--fk-accent, #c4622d); }
+.hd-card__foot { margin-top: 0.15rem; }
+.hd-more { background: none; border: none; padding: 0; font-size: 0.75rem; font-weight: 600; color: var(--fk-accent, #c4622d); cursor: pointer; }
+.hd-more:hover { text-decoration: underline; }
+
+/* ── My Scripture Notes list ─────────────────────────────────────────── */
+.mynotes { background: var(--fk-card, #fff); border: 1px solid var(--fk-border, #e6e0d8); border-radius: 12px; padding: 0.85rem 1rem; margin: 0.75rem 0; }
+.mynotes__head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.mynotes__title { font-family: var(--font-serif); font-size: 1rem; margin: 0; }
+.mynotes__toggle { border: 1px solid var(--fk-border, #e6e0d8); background: var(--fk-bg-subtle, #faf7f2); font-size: 0.74rem; font-weight: 600; padding: 0.35rem 0.7rem; border-radius: 999px; cursor: pointer; color: var(--fk-accent, #c4622d); white-space: nowrap; }
+.mynotes__toggle:hover { background: var(--fk-card, #fff); }
+.mynotes__hint { font-size: 0.74rem; color: var(--fk-muted, #8a8178); margin: 0.35rem 0 0.6rem; }
+.mynotes__list { display: flex; flex-direction: column; gap: 0.5rem; }
+.mynotes__empty { font-size: 0.8rem; color: var(--fk-muted, #8a8178); font-style: italic; padding: 0.35rem 0; }
+.mynote { display: flex; align-items: flex-start; gap: 0.5rem; border: 1px solid var(--fk-border, #e6e0d8); background: var(--fk-bg-subtle, #faf7f2); border-radius: 10px; padding: 0.5rem 0.65rem; }
+.mynote__body { flex: 1; min-width: 0; }
+.mynote__ref { background: none; border: none; padding: 0; font: inherit; font-weight: 700; font-size: 0.8rem; color: var(--fk-accent, #c4622d); cursor: pointer; }
+.mynote__ref:hover { text-decoration: underline; }
+.mynote__text { font-size: 0.82rem; line-height: 1.4; margin: 0.15rem 0 0; color: var(--fk-text, #2b2823); overflow-wrap: anywhere; }
+.mynote__actions { display: flex; gap: 0.15rem; flex-shrink: 0; }
+.mynote__edit, .mynote__del { background: none; border: none; cursor: pointer; font-size: 0.85rem; padding: 0.2rem 0.3rem; border-radius: 6px; opacity: 0.7; }
+.mynote__edit:hover, .mynote__del:hover { opacity: 1; background: var(--fk-card, #fff); }

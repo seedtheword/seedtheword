@@ -283,7 +283,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=18">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=19">
 </head>
 <body class="community-body">
 
@@ -324,15 +324,18 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 <div class="social-wrapper">
   <main class="social-main">
     <section class="channel-section is-active" id="channel-home">
-      <!-- Forkful-style discovery hero -->
-      <div class="fk-hero">
-        <span class="fk-hero__eyebrow">The Community</span>
-        <h1 class="fk-hero__title">Grow in faith, <em>together</em></h1>
-        <p class="fk-hero__sub">Share what God's doing, lift each other in prayer, and walk through Scripture side by side, this is where our community lives between Sundays.</p>
-        <div class="fk-hero__stats">
-          <div><div class="fk-hero__stat-num" id="fk-stat-posts">—</div><div class="fk-hero__stat-label">Posts</div></div>
-          <div><div class="fk-hero__stat-num" id="fk-stat-prayers">—</div><div class="fk-hero__stat-label">Prayers</div></div>
-          <div><div class="fk-hero__stat-num">Daily</div><div class="fk-hero__stat-label">Verse cards</div></div>
+      <!-- Home hero — Today's Reading + live activity dashboard -->
+      <div class="fk-hero fk-hero--dash">
+        <div class="hero-reading">
+          <span class="hero-reading__eyebrow">📖 Today's Reading</span>
+          <h1 class="hero-reading__ref" id="hero-reading-ref">Loading…</h1>
+          <div class="hero-reading__actions">
+            <button type="button" class="hero-reading__btn hero-reading__btn--primary" onclick="switchChannel('scripture')">Read &amp; discuss →</button>
+            <a class="hero-reading__btn" id="hero-reading-yv" href="https://www.bible.com/" target="_blank" rel="noopener">Open in YouVersion</a>
+          </div>
+        </div>
+        <div class="hero-dash" id="hero-dash">
+          <!-- Activity mini-cards injected by renderHomeDashboard() -->
         </div>
       </div>
 
@@ -435,6 +438,16 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
           <button class="hl-swatch hl-swatch--clear" data-color="" title="Clear">⌀</button>
         </div>
         <button class="verse-actions__note" id="verse-note-btn">📝 Note</button>
+      </div>
+
+      <!-- My Notes — this user's private notes; current chapter + view-all toggle -->
+      <div class="mynotes" id="mynotes-block">
+        <div class="mynotes__head">
+          <h3 class="mynotes__title">📝 My Scripture Notes</h3>
+          <button type="button" class="mynotes__toggle" id="mynotes-toggle" data-scope="chapter">View all my notes</button>
+        </div>
+        <p class="mynotes__hint" id="mynotes-hint">Your private notes on this chapter. Only you can see these.</p>
+        <div class="mynotes__list" id="mynotes-list"></div>
       </div>
 
       <!-- Day-scoped discussion -->
@@ -682,10 +695,63 @@ try{localStorage.setItem(FEED_CACHE_KEY,JSON.stringify(posts.slice(0,40)));}catc
 updateBadges(posts);renderHomeFeed();renderScriptureFeed();renderPrayerFeed();updateHeroStats();
 }
 
-function updateHeroStats(){
-  var postsEl=document.getElementById('fk-stat-posts'),prayEl=document.getElementById('fk-stat-prayers');
-  if(postsEl)postsEl.textContent=posts.filter(function(p){return p._isPost;}).length;
-  if(prayEl)prayEl.textContent=posts.filter(function(p){return p.msg_type==='prayer'||p.msg_type==='thanksgiving';}).length;
+function updateHeroStats(){ renderHomeDashboard(); }
+
+// Home activity dashboard — recent notes, posts, prayers/thanksgivings, eLibrary
+// picks, and quick links to Discuss Scripture group chats. Built from data already
+// in memory (posts, groupsData, eLibrary courses) plus the notes cache.
+function heroCard(icon,title,items,footHtml){
+  var body = items&&items.length
+    ? items.map(function(it){return '<li class="hd-item"'+(it.onclick?' data-jump="'+esc(it.onclick)+'"':'')+'>'+(it.icon?'<span class="hd-item__icon">'+it.icon+'</span>':'')+'<span class="hd-item__text">'+it.html+'</span></li>';}).join('')
+    : '<li class="hd-item hd-item--empty">'+esc(items&&items.empty||'Nothing yet.')+'</li>';
+  return '<div class="hd-card"><div class="hd-card__head"><span class="hd-card__icon">'+icon+'</span><span class="hd-card__title">'+esc(title)+'</span></div><ul class="hd-card__list">'+body+'</ul>'+(footHtml?'<div class="hd-card__foot">'+footHtml+'</div>':'')+'</div>';
+}
+function shortText(t,n){t=String(t||'').replace(/^\[[^\]]*\]\s*/,'').replace(/\s+/g,' ').trim();return t.length>n?t.slice(0,n-1)+'…':t;}
+function renderHomeDashboard(){
+  var dash=document.getElementById('hero-dash');if(!dash)return;
+  var isPost=function(p){return p._isPost;};
+  var recentPosts=posts.filter(function(p){return isPost(p)&&(p._channel==='main'||p.msg_type==='message'||p.msg_type==='bible');}).slice(0,3);
+  var recentPray=posts.filter(function(p){return p.msg_type==='prayer'||p.msg_type==='thanksgiving';}).slice(0,3);
+  var withComments=posts.filter(function(p){return isPost(p)&&p.commentCount>0;}).slice(0,3);
+  var cards=[];
+
+  // 1) Recent Scripture notes (private) — from cache; kick off a load if empty.
+  var noteItems=[];
+  if(session){
+    if(allNotesCache===null&&typeof loadAllNotes==='function'){loadAllNotes().then(function(){renderHomeDashboard();});}
+    (allNotesCache||[]).slice(0,3).forEach(function(n){noteItems.push({icon:'📝',html:'<button class="hd-link" data-note="'+esc(n.ref)+'"><strong>'+esc(n.ref)+'</strong> — '+esc(shortText(n.text,60))+'</button>'});});
+  }
+  noteItems.empty=session?'No notes yet — tap a verse in the reader.':'Sign in to keep Scripture notes.';
+  cards.push(heroCard('📝','Your Scripture Notes',noteItems,'<button class="hd-more" onclick="switchChannel(\'scripture\')">Open reader →</button>'));
+
+  // 2) Recent posts.
+  var postItems=recentPosts.map(function(p){return {icon:'💬',html:'<strong>'+esc((p.from||'Someone').split(' ')[0])+'</strong> '+esc(shortText(p.text,64))};});postItems.empty='No posts yet.';
+  cards.push(heroCard('🗨️','Latest Posts',postItems,'<button class="hd-more" onclick="document.getElementById(\'posts-feed\').scrollIntoView({behavior:\'smooth\'})">See the feed →</button>'));
+
+  // 3) Prayers & thanksgivings.
+  var prayItems=recentPray.map(function(p){return {icon:p.msg_type==='thanksgiving'?'🎉':'🙏',html:'<strong>'+esc((p.from||'Someone').split(' ')[0])+'</strong> '+esc(shortText(p.text,64))};});prayItems.empty='No prayers or thanksgivings yet.';
+  cards.push(heroCard('🙏','Prayer & Thanksgiving',prayItems,'<button class="hd-more" onclick="switchChannel(\'prayer\')">Open prayer wall →</button>'));
+
+  // 4) Recent comments/discussion activity.
+  var comItems=withComments.map(function(p){return {icon:'💭',html:esc(shortText(p.text,44))+' <span class="hd-count">'+p.commentCount+' 💬</span>'};});comItems.empty='No comments yet.';
+  cards.push(heroCard('💭','Active Discussions',comItems));
+
+  // 5) eLibrary picks (from the static courses list; prefer "free").
+  var libItems=[];
+  try{ if(typeof ELIBRARY_COURSES!=='undefined'&&ELIBRARY_COURSES){ELIBRARY_COURSES.filter(function(c){return c.badge==='free';}).slice(0,3).forEach(function(c){libItems.push({icon:c.icon,html:'<strong>'+esc(c.name)+'</strong> — '+esc(shortText(c.desc,48))});});} }catch(e){}
+  libItems.empty='Library coming soon.';
+  cards.push(heroCard('📚','From the eLibrary',libItems,'<button class="hd-more" onclick="switchChannel(\'library\')">Browse eLibrary →</button>'));
+
+  // 6) Group chat quick links (Discuss Scripture).
+  var grpItems=[];
+  (typeof groupsData!=='undefined'?groupsData:[]).slice(0,4).forEach(function(g){grpItems.push({icon:'💬',html:'<button class="hd-link" data-group="'+esc(g.id)+'"><strong>'+esc(g.name)+'</strong> <span class="hd-count">'+(g.messageCount||0)+'</span></button>'});});
+  grpItems.empty='No group chats yet.';
+  cards.push(heroCard('👥','Discuss Scripture Groups',grpItems,'<button class="hd-more" onclick="switchChannel(\'scripture\')">See all groups →</button>'));
+
+  dash.innerHTML=cards.join('');
+  // Wire jump links.
+  dash.querySelectorAll('.hd-link[data-note]').forEach(function(b){b.addEventListener('click',function(){switchChannel('scripture');var r=this.dataset.note;setTimeout(function(){if(typeof jumpToNote==='function')jumpToNote(r);},400);});});
+  dash.querySelectorAll('.hd-link[data-group]').forEach(function(b){b.addEventListener('click',function(){var id=this.dataset.group;switchChannel('scripture');setTimeout(function(){if(typeof openGroup==='function')openGroup(id);},400);});});
 }
 
 function formatBody(t){if(!t)return'';var f=esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');f=f.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
@@ -979,9 +1045,10 @@ function movePrayerSlider(){var slider=document.getElementById('prayer-filter-sl
 document.querySelectorAll('.prayer-filter__btn').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.prayer-filter__btn').forEach(function(b){b.classList.remove('is-active');});this.classList.add('is-active');prayerFilter=this.dataset.filter;movePrayerSlider();renderPrayerFeed();});});
 setTimeout(movePrayerSlider,100);window.addEventListener('resize',movePrayerSlider);
 
-// eLibrary
+// eLibrary — course list hoisted to module scope so the home dashboard can read it.
+var ELIBRARY_COURSES=[{id:'four-spiritual-laws',icon:'✝️',name:'Four Spiritual Laws',desc:'Interactive Gospel presentation in 4 laws.',badge:'free'},{id:'20-day-plan',icon:'📖',name:'20-Day Reading Plan',desc:'Journey through Scripture in 4 weeks.',badge:'free'},{id:'what-is-seed',icon:'🌱',name:'What is Seed the Word?',desc:'Learn about our ministry and values.',badge:'free'},{id:'recommended-listening',icon:'🎧',name:'Recommended Listening',desc:'Channels and podcasts we trust.',badge:'free'},{id:'how-to-seed',icon:'🌾',name:'How to Seed',desc:'Practical evangelism guide.',badge:'free'},{id:'how-to-grow',icon:'💧',name:'How to Grow',desc:'Four-movement discipleship process.',badge:'free'},{id:'how-to-harvest',icon:'🌻',name:'How to Harvest',desc:'Helping believers find their calling.',badge:'free'},{id:'marriage-young-adults',icon:'💒',name:'Marriage & Young Adults',desc:'Young adult discipleship topics.',badge:'coming',placeholder:true},{id:'outreach-partnerships',icon:'🤝',name:'Outreach & Partnerships',desc:'Ministry partnerships.',badge:'coming',placeholder:true},{id:'social-media',icon:'📱',name:'Social Media for Jesus',desc:'Online evangelism.',badge:'coming',placeholder:true},{id:'deeper-doctrine',icon:'📜',name:'Deeper Doctrine',desc:'Doctrinal training.',badge:'coming',placeholder:true}];
 function renderELibrary(){var grid=document.getElementById('elibrary-grid');if(!grid)return;
-var courses=[{id:'four-spiritual-laws',icon:'✝️',name:'Four Spiritual Laws',desc:'Interactive Gospel presentation in 4 laws.',badge:'free'},{id:'20-day-plan',icon:'📖',name:'20-Day Reading Plan',desc:'Journey through Scripture in 4 weeks.',badge:'free'},{id:'what-is-seed',icon:'🌱',name:'What is Seed the Word?',desc:'Learn about our ministry and values.',badge:'free'},{id:'recommended-listening',icon:'🎧',name:'Recommended Listening',desc:'Channels and podcasts we trust.',badge:'free'},{id:'how-to-seed',icon:'🌾',name:'How to Seed',desc:'Practical evangelism guide.',badge:'free'},{id:'how-to-grow',icon:'💧',name:'How to Grow',desc:'Four-movement discipleship process.',badge:'free'},{id:'how-to-harvest',icon:'🌻',name:'How to Harvest',desc:'Helping believers find their calling.',badge:'free'},{id:'marriage-young-adults',icon:'💒',name:'Marriage & Young Adults',desc:'Young adult discipleship topics.',badge:'coming',placeholder:true},{id:'outreach-partnerships',icon:'🤝',name:'Outreach & Partnerships',desc:'Ministry partnerships.',badge:'coming',placeholder:true},{id:'social-media',icon:'📱',name:'Social Media for Jesus',desc:'Online evangelism.',badge:'coming',placeholder:true},{id:'deeper-doctrine',icon:'📜',name:'Deeper Doctrine',desc:'Doctrinal training.',badge:'coming',placeholder:true}];
+var courses=ELIBRARY_COURSES;
 grid.innerHTML=courses.map(function(c){return'<div class="elibrary-card'+(c.placeholder?' elibrary-card--placeholder':'')+'" data-course="'+c.id+'"><div class="elibrary-card__icon">'+c.icon+'</div><h3 class="elibrary-card__name">'+c.name+'</h3><p class="elibrary-card__desc">'+c.desc+'</p><span class="elibrary-card__badge elibrary-card__badge--'+(c.badge==='free'?'free':'coming')+'">'+(c.badge==='free'?'Free':'Coming Soon')+'</span></div>';}).join('');
 grid.querySelectorAll('.elibrary-card:not(.elibrary-card--placeholder)').forEach(function(card){card.addEventListener('click',function(){var id=this.dataset.course;
 if(id==='how-to-seed'){window.location.href='how-to-seed.html';return;}
@@ -997,7 +1064,13 @@ else{alert('Course viewer loading... please try again in a moment.');}
 
 // Bible reading — hero "Today's Reading" band
 function updateReading(){var today=new Date().getDay();var cards=document.querySelectorAll('#bible-plan-container .bible-day-card');var text='Rest day — catch up or revisit a chapter.';if(cards.length){var idx=today>=1&&today<=5?today-1:-1;if(idx>=0&&cards[idx]){var t=cards[idx].querySelector('.bible-day-card__reading,.bible-day-card__title,h3,strong');text=t?t.textContent.trim():"See today's chapter";}}
-var rt=document.getElementById('reading-today-text'),sr=document.getElementById('sidebar-reading');if(rt)rt.textContent=text;if(sr)sr.textContent=text;}
+var rt=document.getElementById('reading-today-text'),sr=document.getElementById('sidebar-reading');if(rt)rt.textContent=text;if(sr)sr.textContent=text;
+// Fold today's reading reference into the Home hero.
+var hr=document.getElementById('hero-reading-ref');
+if(hr){var reading=(window.BiblePlan&&window.BiblePlan.getReadingForDate)?window.BiblePlan.getReadingForDate(new Date()):null;
+  if(reading&&reading.book){var ref=reading.book+' '+reading.chapter;hr.textContent=ref;var hyv=document.getElementById('hero-reading-yv');if(hyv){var yc=(typeof bookForYouVersion==='function')?bookForYouVersion(reading.book):'';hyv.href=yc?('https://www.bible.com/bible/1/'+yc+'.'+reading.chapter):('https://www.bible.com/search/bible?q='+encodeURIComponent(ref));}}
+  else hr.textContent=text;}
+}
 setTimeout(updateReading,1500);
 // Smooth expand/collapse of the reading band (animate max-height).
 var rbToggle=document.getElementById('reading-band-toggle'),rbBody=document.getElementById('reading-band-body'),rbBand=document.getElementById('reading-band');
@@ -1052,6 +1125,8 @@ async function loadChapter(book,chapter,isToday){
   readerBook=book;readerChapter=chapter;readerRef=book+' '+chapter;
   refEl.textContent=readerRef;
   if(eyebrow)eyebrow.textContent=isToday?"Today's Reading":'Bible';
+  // Keep the Home hero's Today's Reading in sync when this is the day's chapter.
+  if(isToday){var hr=document.getElementById('hero-reading-ref');if(hr)hr.textContent=readerRef;var hyv=document.getElementById('hero-reading-yv');if(hyv){var yc=bookForYouVersion(book);hyv.href=yc?('https://www.bible.com/bible/1/'+yc+'.'+chapter):('https://www.bible.com/search/bible?q='+encodeURIComponent(readerRef));}}
   if(discTitle)discTitle.textContent='💬 Discussion — '+readerRef;
   // sync picker
   var bookSel=document.getElementById('reader-book-select');if(bookSel&&bookSel.value!==book)bookSel.value=book;
@@ -1070,9 +1145,10 @@ async function loadChapter(book,chapter,isToday){
   }catch(e){versesEl.innerHTML='<p class="reader-loading">Could not load the chapter text (offline?). <a href="'+(yvEl?yvEl.href:'#')+'" target="_blank" rel="noopener">Read on YouVersion →</a></p>';}
 }
 async function loadStudyMarks(){
+  renderMyNotes(); // paint whatever we have (or the signed-out hint) immediately
   if(!session||!readerRef)return;
   try{var res=await postAction({action:'getStudyMarks',token:session.token,chapter:readerRef});
-    if(res&&res.ok&&res.marks){studyMarks={};res.marks.forEach(function(m){if(!studyMarks[m.ref])studyMarks[m.ref]={};studyMarks[m.ref][m.type]=m;});applyStudyMarks();}
+    if(res&&res.ok&&res.marks){studyMarks={};res.marks.forEach(function(m){if(!studyMarks[m.ref])studyMarks[m.ref]={};studyMarks[m.ref][m.type]=m;});applyStudyMarks();renderMyNotes();}
   }catch(e){}
 }
 function applyStudyMarks(){
@@ -1096,9 +1172,91 @@ async function saveMark(type,color,text){
     if(!studyMarks[activeVerseRef])studyMarks[activeVerseRef]={};
     if(type==='highlight'){if(color)studyMarks[activeVerseRef].highlight={color:color};else delete studyMarks[activeVerseRef].highlight;}
     if(type==='note'){if(text)studyMarks[activeVerseRef].note={text:text};else delete studyMarks[activeVerseRef].note;}
-    applyStudyMarks();
+    applyStudyMarks();renderMyNotes();allNotesCache=null; // invalidate the "all notes" cache
   }catch(e){alert('Could not save.');}
 }
+
+// ── My Notes list (private per-user notes) — chapter scope + view-all ──
+var allNotesCache=null;
+function noteMarksForChapter(){
+  // Notes from the in-memory studyMarks (current chapter), newest ref order.
+  var out=[];
+  Object.keys(studyMarks).forEach(function(ref){var m=studyMarks[ref];if(m&&m.note&&m.note.text)out.push({ref:ref,text:m.note.text});});
+  out.sort(function(a,b){return (parseInt((a.ref.split(':')[1]||'0'),10))-(parseInt((b.ref.split(':')[1]||'0'),10));});
+  return out;
+}
+function renderMyNotes(){
+  var list=document.getElementById('mynotes-list'),toggle=document.getElementById('mynotes-toggle'),hint=document.getElementById('mynotes-hint');
+  if(!list)return;
+  if(!session){list.innerHTML='<div class="mynotes__empty">Sign in to take private notes on any verse.</div>';if(toggle)toggle.style.display='none';return;}
+  if(toggle)toggle.style.display='';
+  var scope=toggle?toggle.dataset.scope:'chapter';
+  var notes = scope==='all' ? (allNotesCache||[]) : noteMarksForChapter();
+  if(hint)hint.textContent = scope==='all' ? 'All your Scripture notes, newest first. Only you can see these.' : 'Your private notes on '+(readerRef||'this chapter')+'. Only you can see these.';
+  if(!notes.length){list.innerHTML='<div class="mynotes__empty">'+(scope==='all'?'You haven\'t written any notes yet. Tap a verse in the reader to add one.':'No notes on this chapter yet. Tap a verse above to add one.')+'</div>';return;}
+  list.innerHTML=notes.map(function(n){
+    return '<div class="mynote" data-ref="'+esc(n.ref)+'">'+
+      '<div class="mynote__body"><button type="button" class="mynote__ref" data-ref="'+esc(n.ref)+'">'+esc(n.ref)+'</button>'+
+      '<p class="mynote__text">'+esc(n.text)+'</p></div>'+
+      '<div class="mynote__actions"><button type="button" class="mynote__edit" data-ref="'+esc(n.ref)+'" title="Edit">✏️</button>'+
+      '<button type="button" class="mynote__del" data-ref="'+esc(n.ref)+'" title="Delete">🗑️</button></div></div>';
+  }).join('');
+  list.querySelectorAll('.mynote__ref').forEach(function(b){b.addEventListener('click',function(){jumpToNote(this.dataset.ref);});});
+  list.querySelectorAll('.mynote__edit').forEach(function(b){b.addEventListener('click',function(){editNote(this.dataset.ref);});});
+  list.querySelectorAll('.mynote__del').forEach(function(b){b.addEventListener('click',function(){deleteNote(this.dataset.ref);});});
+}
+function refToChapter(ref){var i=ref.lastIndexOf(':');return i>0?ref.slice(0,i):ref;} // "Romans 9:5" -> "Romans 9"
+function refToVerse(ref){var i=ref.lastIndexOf(':');return i>0?parseInt(ref.slice(i+1),10):0;}
+function parseChapterRef(chRef){var i=chRef.lastIndexOf(' ');return {book:chRef.slice(0,i),chapter:parseInt(chRef.slice(i+1),10)||1};}
+async function jumpToNote(ref){
+  var chRef=refToChapter(ref);
+  if(chRef!==readerRef){var pc=parseChapterRef(chRef);await loadChapter(pc.book,pc.chapter,false);}
+  var el=document.querySelector('#reader-verses .verse[data-ref="'+ref.replace(/"/g,'')+'"]');
+  if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('verse--selected');setTimeout(function(){el.classList.remove('verse--selected');},2000);}
+}
+async function editNote(ref){
+  var chRef=refToChapter(ref);
+  var cur=(studyMarks[ref]&&studyMarks[ref].note&&studyMarks[ref].note.text)||'';
+  if(!cur&&allNotesCache){var f=allNotesCache.filter(function(n){return n.ref===ref;})[0];cur=f?f.text:'';}
+  var next=prompt('Edit your note for '+ref+':',cur);
+  if(next===null)return; // cancelled
+  next=next.trim();
+  try{
+    await postAction({action:'saveStudyMark',token:session.token,ref:ref,type:'note',text:next});
+    // keep local state in sync
+    if(chRef===readerRef){if(!studyMarks[ref])studyMarks[ref]={};if(next)studyMarks[ref].note={text:next};else delete studyMarks[ref].note;applyStudyMarks();}
+    allNotesCache=null;
+    if(document.getElementById('mynotes-toggle').dataset.scope==='all'){await loadAllNotes();}else{renderMyNotes();}
+  }catch(e){alert('Could not save.');}
+}
+async function deleteNote(ref){
+  if(!confirm('Delete your note on '+ref+'?'))return;
+  var chRef=refToChapter(ref);
+  try{
+    await postAction({action:'saveStudyMark',token:session.token,ref:ref,type:'note',text:''}); // empty text clears it
+    if(chRef===readerRef&&studyMarks[ref]){delete studyMarks[ref].note;applyStudyMarks();}
+    allNotesCache=null;
+    if(document.getElementById('mynotes-toggle').dataset.scope==='all'){await loadAllNotes();}else{renderMyNotes();}
+  }catch(e){alert('Could not delete.');}
+}
+async function loadAllNotes(){
+  if(!session)return;
+  var list=document.getElementById('mynotes-list');if(list)list.innerHTML='<div class="mynotes__empty">Loading all your notes…</div>';
+  try{
+    var res=await postAction({action:'getStudyMarks',token:session.token}); // no chapter = all
+    var notes=(res&&res.ok&&res.marks)?res.marks.filter(function(m){return m.type==='note'&&m.text;}).map(function(m){return {ref:m.ref,text:m.text,timestamp:m.timestamp||0};}):[];
+    notes.sort(function(a,b){return b.timestamp-a.timestamp;});
+    allNotesCache=notes;
+  }catch(e){allNotesCache=[];}
+  renderMyNotes();
+}
+(function(){
+  var t=document.getElementById('mynotes-toggle');
+  if(t)t.addEventListener('click',function(){
+    if(this.dataset.scope==='chapter'){this.dataset.scope='all';this.textContent='Show this chapter only';if(!allNotesCache){loadAllNotes();}else{renderMyNotes();}}
+    else{this.dataset.scope='chapter';this.textContent='View all my notes';renderMyNotes();}
+  });
+})();
 (function(){
   var bar=document.getElementById('verse-actions');if(!bar)return;
   bar.querySelectorAll('.hl-swatch').forEach(function(b){b.addEventListener('click',function(){saveMark('highlight',this.dataset.color,'');});});
@@ -1131,15 +1289,18 @@ var GROUP_MINISTRY_VOICE='Seed the Word';
 
 async function loadGroups(){
   var list=document.getElementById('groups-list');if(!list)return;
+  var notDeployed=false;
   try{
     var res=await postAction(session?{action:'listGroups',token:session.token}:{action:'listGroups',passphrase_hash:'public-read'});
     groupsData=(res&&res.ok&&res.groups)?res.groups:[];
+    if(res&&(res.error==='invalid-payload'||res.error==='unknown-action'))notDeployed=true;
   }catch(e){groupsData=[];}
+  window._groupsNotDeployed=notDeployed;
   renderGroupsList();
 }
 function renderGroupsList(){
   var list=document.getElementById('groups-list');if(!list)return;
-  if(!groupsData.length){list.innerHTML='<div class="groups-list__empty">No groups yet. '+(session?'Create the first one!':'Sign in to start one.')+'</div>';return;}
+  if(!groupsData.length){list.innerHTML='<div class="groups-list__empty">'+(window._groupsNotDeployed?'Group chats are almost ready — an admin needs to redeploy the server update.':('No groups yet. '+(session?'Create the first one!':'Sign in to start one.')))+'</div>';return;}
   list.innerHTML=groupsData.map(function(g){
     return '<button type="button" class="group-card" data-group="'+esc(g.id)+'">'+
       '<span class="group-card__icon">💬</span>'+
@@ -1149,6 +1310,7 @@ function renderGroupsList(){
       '<span class="group-card__chev">›</span></button>';
   }).join('');
   list.querySelectorAll('.group-card').forEach(function(b){b.addEventListener('click',function(){openGroup(this.dataset.group);});});
+  if(typeof renderHomeDashboard==='function')renderHomeDashboard(); // refresh home group quick-links
 }
 async function openGroup(id){
   var g=groupsData.filter(function(x){return x.id===id;})[0];if(!g)return;
@@ -1233,6 +1395,7 @@ function ensureReplyAsControl(){
     newBtn.disabled=true;
     try{var res=await postAction({action:'createGroup',token:session.token,name:name.trim(),description:desc.trim()});
       if(res&&res.ok&&res.group){groupsData.unshift(res.group);renderGroupsList();openGroup(res.group.id);}
+      else if(res&&(res.error==='invalid-payload'||res.error==='unknown-action')){alert('Group chats need the latest server update. Ask an admin to redeploy the Apps Script, then try again.');}
       else alert((res&&res.error)||'Could not create group.');
     }catch(e){alert('Could not create group.');}
     newBtn.disabled=false;
@@ -1341,7 +1504,7 @@ function renderStory(){
 // Theme — handled by theme-toggle.js site-wide
 
 // Init
-checkSession();renderELibrary();initComposeRefPicker();paintCachedFeed();loadFeed();loadStories();
+checkSession();renderELibrary();initComposeRefPicker();paintCachedFeed();loadFeed();loadStories();loadGroups();
 // No aggressive polling — Apps Script round-trips are slow, and constant
 // re-renders made the feed feel sluggish. The feed loads once on open and
 // updates optimistically after the user's own actions. A gentle refresh

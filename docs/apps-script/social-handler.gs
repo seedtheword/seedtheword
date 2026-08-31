@@ -858,12 +858,15 @@ function handleSaveStudyMark_(payload) {
   } catch (err) { Logger.log('saveStudyMark error: ' + err); return jsonResponse({ ok: false, error: 'Server error' }); }
 }
 
-// { action:'getStudyMarks', token, chapter:'Romans 9' }  — this user's marks for the chapter
+// { action:'getStudyMarks', token, chapter?:'Romans 9' }
+// With a chapter: this user's marks for that chapter only.
+// Without a chapter (omit or ''): ALL of this user's marks (for the "My Notes" list).
+// Each mark includes its `timestamp` so callers can sort by recency.
 function handleGetStudyMarks_(payload) {
   try {
     var user = validateTeamToken_(String(payload.token || ''));
     if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
-    var chapter = String(payload.chapter || '').trim(); // "Romans 9"
+    var chapter = String(payload.chapter || '').trim(); // "Romans 9" or '' for all
     var sheet = getStudySheet_();
     var last = sheet.getLastRow();
     var out = [];
@@ -874,7 +877,7 @@ function handleGetStudyMarks_(payload) {
         if (String(d[i][1]).toLowerCase() !== uname) continue;
         var ref = String(d[i][2]);
         if (chapter && ref.indexOf(chapter + ':') !== 0) continue; // marks for this chapter only
-        out.push({ ref: ref, type: String(d[i][3]), color: String(d[i][4] || ''), text: String(d[i][5] || '') });
+        out.push({ ref: ref, type: String(d[i][3]), color: String(d[i][4] || ''), text: String(d[i][5] || ''), timestamp: Number(d[i][6]) || 0 });
       }
     }
     return jsonResponse({ ok: true, marks: out });

@@ -110,6 +110,14 @@
   letter-spacing: 0.01em;
 }
 .community-body .post-card__author { font-family: var(--font-serif); font-weight: 600; }
+.community-body .post-card__avatar {
+  background: linear-gradient(135deg, var(--color-olive), #3a5f4e);
+  color: #fff; font-weight: 700;
+}
+/* Social-style action bar: bigger tap targets, accent on active like */
+.community-body .post-card__action { font-weight: 600; }
+.community-body .post-card__action.is-liked { color: var(--fk-accent); }
+.community-body .post-card__action.is-liked svg { fill: var(--fk-accent); stroke: var(--fk-accent); }
 
 /* ── Compose box → warm rounded ──────────────────────────── */
 .community-body .compose-box {
@@ -170,6 +178,22 @@
 .community-body .friends-section .listen-card__thumb--initial {
   background: linear-gradient(135deg, var(--color-olive), #3a5f4e);
 }
+/* YouTube-style play affordance on hover */
+.community-body .friends-section .listen-card__thumb::before {
+  content: '▶';
+  position: absolute; z-index: 2;
+  top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0.6);
+  width: 46px; height: 46px; border-radius: 50%;
+  background: rgba(0,0,0,0.55); color: #fff; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none;
+  padding-left: 3px;
+}
+.community-body .friends-section .listen-card:hover .listen-card__thumb::before {
+  opacity: 1; transform: translate(-50%,-50%) scale(1);
+}
+/* A subtle duration-style corner chip reinforcing the media feel */
+.community-body .friends-section .listen-card__thumb .listen-card__pill { display: none; }
 .community-body .friends-section .listen-card__info { padding: 0.85rem 0.9rem 1rem; }
 .community-body .friends-section .listen-card__name {
   font-family: var(--font-serif); font-size: 0.95rem; font-weight: 600; line-height: 1.25;

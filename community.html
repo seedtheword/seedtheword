@@ -576,15 +576,17 @@ var commentsData=commentsCache[postId]||[];
 var commentCount=commentsData.length?commentsData.reduce(function(n,c){return n+1+(c.replies?c.replies.length:0);},0):(p.commentCount||0);
 var isMine=session&&p.from&&session.name===p.from&&!p._readonly;
 var canModerate=viewerIsSuper&&p._isPost;
-// Owner/moderation menu
+var isAnnouncement=p.msg_type==='announcement';
+// Owner/moderation menu. Super-admins can also remove announcements (system posts).
 var menu='';
-if(isMine||canModerate){
-  menu='<div class="post-card__menu"><button class="post-card__menu-btn" data-action="menu" aria-label="Post options">⋯</button><div class="post-card__menu-list" hidden>'+
-    (isMine?'<button data-action="edit" data-id="'+postId+'">✏️ Edit</button>':'')+
-    ((isMine||canModerate)?'<button data-action="delete" data-id="'+postId+'">🗑️ Delete</button>':'')+
-    (canModerate?'<button data-action="pin" data-id="'+postId+'">'+(p.pinned?'📌 Unpin':'📌 Pin')+'</button>':'')+
-    (canModerate?'<button data-action="hide" data-id="'+postId+'">'+(p.hidden?'👁️ Unhide':'🚫 Hide')+'</button>':'')+
-  '</div></div>';
+if(isMine||canModerate||(viewerIsSuper&&isAnnouncement)){
+  var items='';
+  if(isMine)items+='<button data-action="edit" data-id="'+postId+'">✏️ Edit</button>';
+  if(isMine||canModerate)items+='<button data-action="delete" data-id="'+postId+'">🗑️ Delete</button>';
+  if(viewerIsSuper&&isAnnouncement)items+='<button data-action="delete" data-kind="announcement" data-id="'+postId+'">🗑️ Remove announcement</button>';
+  if(canModerate)items+='<button data-action="pin" data-id="'+postId+'">'+(p.pinned?'📌 Unpin':'📌 Pin')+'</button>';
+  if(canModerate)items+='<button data-action="hide" data-id="'+postId+'">'+(p.hidden?'👁️ Unhide':'🚫 Hide')+'</button>';
+  menu='<div class="post-card__menu"><button class="post-card__menu-btn" data-action="menu" aria-label="Post options">⋯</button><div class="post-card__menu-list" hidden>'+items+'</div></div>';
 }
 var media=p.media_url?'<div class="post-card__media"><img src="'+esc(p.media_url)+'" alt="" loading="lazy"></div>':'';
 var flags=(p.pinned?'<span class="post-flag post-flag--pin">📌 Pinned</span>':'')+(p.hidden?'<span class="post-flag post-flag--hidden">Hidden</span>':'')+(p.edited?'<span class="post-flag">edited</span>':'');
@@ -731,9 +733,15 @@ if(commentsEl){commentsEl.innerHTML=renderComments(commentsCache[postId]||[],pos
 container.querySelectorAll('.author-link,[data-author]').forEach(function(el){if(!el.dataset.author)return;el.addEventListener('click',function(e){e.stopPropagation();showAuthorProfile(this.dataset.author,this.dataset.role,this);});});
 
 // Post owner / moderation menu (edit, delete, pin, hide)
-container.querySelectorAll('.post-card__menu-btn').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();var list=this.nextElementSibling;if(list)list.hidden=!list.hidden;});});
-container.querySelectorAll('.post-card__menu-list button').forEach(function(btn){btn.addEventListener('click',async function(){
-if(!session)return;var op=this.dataset.action,id=this.dataset.id,card=this.closest('.post-card');
+container.querySelectorAll('.post-card__menu-btn').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();var list=this.nextElementSibling;var wasHidden=list&&list.hidden;
+// Close every open menu first, then toggle this one.
+document.querySelectorAll('.post-card__menu-list').forEach(function(l){l.hidden=true;});
+if(list)list.hidden=!wasHidden;});});
+container.querySelectorAll('.post-card__menu-list button').forEach(function(btn){btn.addEventListener('click',async function(e){
+e.stopPropagation();
+document.querySelectorAll('.post-card__menu-list').forEach(function(l){l.hidden=true;});
+if(!session)return;var op=this.dataset.action,id=this.dataset.id,kind=this.dataset.kind,card=this.closest('.post-card');
+if(op==='delete'&&kind==='announcement'){if(!confirm('Remove this announcement?'))return;try{await postAction({action:'deleteAnnouncement',token:session.token,id:id});}catch(e){}posts=posts.filter(function(p){return p.id!==id;});renderHomeFeed();renderScriptureFeed();renderPrayerFeed();return;}
 if(op==='delete'){if(!confirm('Delete this post?'))return;try{await postAction({action:'deletePost',token:session.token,id:id});posts=posts.filter(function(p){return p.id!==id;});renderHomeFeed();renderScriptureFeed();renderPrayerFeed();}catch(e){alert('Could not delete.');}return;}
 if(op==='pin'){var pp=posts.find(function(p){return p.id===id;});if(pp){pp.pinned=!pp.pinned;posts.sort(function(a,b){if(!!a.pinned!==!!b.pinned)return a.pinned?-1:1;return b.timestamp-a.timestamp;});renderHomeFeed();renderScriptureFeed();renderPrayerFeed();}try{await postAction({action:'moderatePost',token:session.token,id:id,op:pp&&pp.pinned?'pin':'unpin'});}catch(e){}return;}
 if(op==='hide'){var ph=posts.find(function(p){return p.id===id;});if(ph){ph.hidden=!ph.hidden;renderHomeFeed();renderScriptureFeed();renderPrayerFeed();}try{await postAction({action:'moderatePost',token:session.token,id:id,op:ph&&ph.hidden?'hide':'unhide'});}catch(e){}return;}

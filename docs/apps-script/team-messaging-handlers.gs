@@ -233,6 +233,31 @@ function handleGetAnnouncements_(payload) {
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
 
+// Super-admin: remove an announcement. id is 'ann-<timestamp-ms>' (from the
+// community feed) or a raw timestamp; matched against column A.
+function handleDeleteAnnouncement_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user || String(user.role || '').toLowerCase() !== 'super_admin') {
+      return jsonResponse({ ok: false, error: 'Super-admin only' });
+    }
+    var raw = String(payload.id || '').replace(/^ann-/, '').trim();
+    var targetMs = parseInt(raw, 10);
+    if (!targetMs) return jsonResponse({ ok: false, error: 'Missing id' });
+
+    var sheet = getAnnouncementsSheet_();
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: false, error: 'Not found' });
+    var col = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+    for (var i = col.length - 1; i >= 0; i--) {
+      if (new Date(col[i][0]).getTime() === targetMs) {
+        sheet.deleteRow(i + 2);
+        return jsonResponse({ ok: true });
+      }
+    }
+    return jsonResponse({ ok: false, error: 'Not found' });
+  } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
 // ── Direct Message Handlers ───────────────────────────────────────────
 
 function handleSendDm_(payload) {

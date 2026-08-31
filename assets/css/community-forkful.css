@@ -1,0 +1,229 @@
+/* ============================================================
+   Community — "Forkful" warm editorial theme layer
+   Loaded LAST on community.html so it refines the existing
+   structure without touching the layout classes or the JS.
+   Inspired by template-forkful-recipe.bolt.host: warm cream bg,
+   Fraunces serif with a terracotta accent, rounded image-forward
+   cards with category chips, section eyebrows, generous spacing.
+   Scoped under .community-body so nothing else is affected.
+   ============================================================ */
+
+.community-body {
+  --fk-accent: var(--color-gold);            /* terracotta/rust */
+  --fk-ink: var(--color-text);
+  --fk-muted: var(--color-text-muted);
+  --fk-card: var(--color-surface);
+  --fk-line: var(--color-border);
+  --fk-radius: 18px;
+  --fk-radius-lg: 22px;
+  background: var(--color-bg);
+}
+
+/* ── Channel bar → warm pill nav ─────────────────────────── */
+.community-body .channel-bar {
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  padding: 0.7rem 1rem;
+}
+.community-body .channel-tab {
+  border-radius: 999px;
+  border-color: transparent;
+  background: transparent;
+  font-weight: 600;
+}
+.community-body .channel-tab:hover {
+  background: var(--fk-accent-soft, rgba(217,119,54,0.08));
+  color: var(--fk-accent);
+  border-color: transparent;
+}
+.community-body .channel-tab.is-active {
+  background: var(--fk-accent);
+  border-color: var(--fk-accent);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(217,119,54,0.28);
+}
+
+/* ── Section header cards → editorial eyebrow + serif title ── */
+.community-body .section-header-card {
+  border-left: none;
+  border-radius: var(--fk-radius-lg);
+  padding: 1.4rem 1.6rem;
+  background: var(--fk-card);
+}
+.community-body .section-header-card::before {
+  content: 'The Community';
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fk-accent);
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+}
+.community-body .section-title {
+  font-size: 1.6rem !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* ── Feed post cards → rounded, warm, image-forward ───────── */
+.community-body .post-card {
+  border-radius: var(--fk-radius-lg);
+  border: 1px solid var(--fk-line);
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.2,0,0,1), box-shadow 0.25s;
+}
+.community-body .post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(26,30,36,0.10);
+}
+.community-body .post-card__media {
+  margin: 0 -1.25rem 0.85rem;     /* full-bleed image inside the card */
+  border-radius: 0;
+}
+.community-body .post-card__media img { max-height: 460px; }
+.community-body .post-card__type {
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.community-body .post-card__author { font-family: var(--font-serif); font-weight: 600; }
+
+/* ── Compose box → warm rounded ──────────────────────────── */
+.community-body .compose-box {
+  border-radius: var(--fk-radius-lg);
+  border: 1px solid var(--fk-line);
+}
+.community-body .compose-box__post-btn { border-radius: 999px; }
+
+/* ── Sidebar cards → warm, softer ────────────────────────── */
+.community-body .sidebar-card,
+.community-body .sidebar-cta {
+  border-radius: var(--fk-radius);
+  border: 1px solid var(--fk-line);
+}
+.community-body .sidebar-card__title { color: var(--fk-accent); }
+
+/* ── Friends catalog cards → image-forward Forkful cards ──── */
+.community-body .friends-topic-pill.is-active {
+  background: var(--fk-accent);
+  border-color: var(--fk-accent);
+  box-shadow: 0 4px 16px rgba(217,119,54,0.25);
+}
+/* Listen (channel/podcast) cards */
+.community-body .friends-section .listen-card {
+  border-radius: var(--fk-radius);
+  border: 1px solid var(--fk-line);
+  background: var(--fk-card);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(26,30,36,0.05);
+  transition: transform 0.25s cubic-bezier(0.2,0,0,1), box-shadow 0.25s;
+}
+.community-body .friends-section .listen-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 34px rgba(26,30,36,0.12);
+}
+.community-body .friends-section .listen-card__thumb {
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f3ede6, #e9e0d6);
+}
+.community-body .friends-section .listen-card__thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+/* Clean, intentional fallback tile (broken/absent image) */
+.community-body .friends-section .listen-card__thumb--initial {
+  background: linear-gradient(135deg, var(--color-olive), #3a5f4e);
+  display: flex; align-items: center; justify-content: center;
+}
+.community-body .friends-section .listen-card__initial {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+}
+.community-body .friends-section .listen-card__info { padding: 0.85rem 0.9rem 1rem; }
+.community-body .friends-section .listen-card__name {
+  font-family: var(--font-serif); font-size: 0.95rem; font-weight: 600; line-height: 1.25;
+}
+.community-body .friends-section .listen-card__pill {
+  border-radius: 999px; font-size: 0.6rem; font-weight: 800; padding: 0.12rem 0.5rem;
+}
+.community-body .friends-section .listen-card__pill--youtube { background: rgba(255,0,0,0.1); color: #c4302b; }
+.community-body .friends-section .listen-card__pill--spotify { background: rgba(29,185,84,0.12); color: #1a9e4b; }
+/* wider cards on desktop so images breathe */
+@media (min-width: 1024px) {
+  .community-body .friends-section .listen-card { min-width: 210px; max-width: 240px; }
+}
+/* Partner cards */
+.community-body .friends-section .store-card {
+  border-radius: var(--fk-radius-lg);
+  border: 1px solid var(--fk-line);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(26,30,36,0.05);
+  transition: transform 0.25s cubic-bezier(0.2,0,0,1), box-shadow 0.25s;
+}
+.community-body .friends-section .store-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 34px rgba(26,30,36,0.12);
+}
+.community-body .friends-section .store-card__image {
+  aspect-ratio: 16 / 10; height: auto;
+  background: linear-gradient(135deg, #f3ede6, #e9e0d6);
+  font-size: 2.4rem;
+}
+.community-body .friends-section .store-card__image img { width: 100%; height: 100%; object-fit: cover; }
+.community-body .friends-section .store-card__title { font-family: var(--font-serif); font-weight: 600; }
+.community-body .friends-section .listen-shelf__title { font-size: 1.15rem; }
+
+/* ── Discovery sections (Forkful hero + category tiles) ──── */
+.fk-hero {
+  background: linear-gradient(135deg, rgba(217,119,54,0.06), rgba(44,74,62,0.05));
+  border: 1px solid var(--fk-line);
+  border-radius: var(--fk-radius-lg);
+  padding: 1.75rem 1.6rem;
+  margin-bottom: 1.25rem;
+}
+.fk-hero__eyebrow {
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--fk-accent); font-weight: 700;
+}
+.fk-hero__title {
+  font-family: var(--font-serif); font-size: 1.9rem; font-weight: 600;
+  line-height: 1.1; letter-spacing: -0.02em; color: var(--fk-ink); margin: 0.4rem 0 0.5rem;
+}
+.fk-hero__title em { color: var(--fk-accent); font-style: italic; }
+.fk-hero__sub { font-size: 0.9rem; color: var(--fk-muted); line-height: 1.55; margin: 0 0 1rem; max-width: 46ch; }
+.fk-hero__stats { display: flex; gap: 1.75rem; flex-wrap: wrap; }
+.fk-hero__stat-num { font-family: var(--font-serif); font-size: 1.35rem; font-weight: 700; color: var(--fk-ink); }
+.fk-hero__stat-label { font-size: 0.68rem; color: var(--fk-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.fk-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+@media (min-width: 700px) { .fk-tiles { grid-template-columns: repeat(4, 1fr); } }
+.fk-tile {
+  position: relative; border: none; cursor: pointer; text-align: left;
+  border-radius: var(--fk-radius); overflow: hidden; aspect-ratio: 1 / 1;
+  background: linear-gradient(135deg, var(--color-olive), #3a5f4e);
+  color: #fff; padding: 0; font-family: inherit;
+  transition: transform 0.25s cubic-bezier(0.2,0,0,1), box-shadow 0.25s;
+}
+.fk-tile:nth-child(2){ background: linear-gradient(135deg, var(--fk-accent), #b8551f); }
+.fk-tile:nth-child(3){ background: linear-gradient(135deg, #6b7a52, #4a5638); }
+.fk-tile:nth-child(4){ background: linear-gradient(135deg, #8a6d3b, #6b5228); }
+.fk-tile:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(26,30,36,0.16); }
+.fk-tile__label {
+  position: absolute; left: 0.85rem; bottom: 0.75rem; right: 0.85rem;
+  font-family: var(--font-serif); font-size: 1.05rem; font-weight: 600; line-height: 1.15;
+}
+.fk-tile__icon { position: absolute; top: 0.7rem; left: 0.85rem; font-size: 1.5rem; }
+.fk-tile__meta { position: absolute; left: 0.85rem; bottom: 0.4rem; font-size: 0.68rem; opacity: 0.85; }
+.fk-tile__label { bottom: 1.5rem; }
+
+.fk-eyebrow-row { display: flex; align-items: baseline; justify-content: space-between; margin: 0.5rem 0 0.75rem; }
+.fk-eyebrow { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--fk-accent); font-weight: 700; }
+.fk-eyebrow-row h2 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0 0; letter-spacing: -0.01em; }
+
+/* Dark mode friendliness for discovery + fallbacks */
+[data-theme="dark"] .fk-hero { background: linear-gradient(135deg, rgba(232,152,80,0.08), rgba(74,138,114,0.06)); }
+[data-theme="dark"] .community-body .friends-section .listen-card__thumb,
+[data-theme="dark"] .community-body .friends-section .store-card__image { background: linear-gradient(135deg, #2a2f37, #22272e); }

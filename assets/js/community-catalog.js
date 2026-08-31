@@ -285,7 +285,7 @@
     }
 
     var thumbContent = item.thumbnail
-      ? '<img src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy">'
+      ? '<img src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy" onerror="this.style.display=\'none\';">'
       : '';
 
     return (
@@ -348,19 +348,17 @@
     var thumbClass = '';
     var thumbContent = '';
 
+    var initial = (item.title || '?').charAt(0).toUpperCase();
+    var fallbackSpan = '<span class="listen-card__initial">' + esc(initial) + '</span>';
     if (item.thumbnail) {
-      thumbContent = '<img src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy">';
+      // Real image, but external YouTube/Spotify CDN URLs can expire/hotlink-block.
+      // onerror swaps in the clean initial-letter tile so it never looks broken.
+      thumbContent = '<img src="' + esc(item.thumbnail) + '" alt="' + esc(item.title) + '" loading="lazy" ' +
+        'onerror="this.style.display=\'none\';this.parentNode.classList.add(\'listen-card__thumb--initial\');this.insertAdjacentHTML(\'afterend\',\'' + fallbackSpan.replace(/'/g, "\\'") + '\');">';
     } else {
       // Styled initial letter fallback
-      var initial = (item.title || '?').charAt(0).toUpperCase();
       thumbClass = ' listen-card__thumb--initial';
-      thumbContent = '<span class="listen-card__initial">' + esc(initial) + '</span>';
-      // Still add data attributes for potential dynamic fetch
-      if (item.kind === 'spotify' && item.spotifyId) {
-        thumbAttr = ' data-spotify-id="' + esc(item.spotifyId) + '" data-spotify-type="' + esc(item.type) + '"';
-      } else if (item.kind === 'youtube' && item.youtubeId) {
-        thumbAttr = ' data-youtube-id="' + esc(item.youtubeId) + '"';
-      }
+      thumbContent = fallbackSpan;
     }
 
     var kindPill = item.kind === 'spotify'
@@ -403,7 +401,7 @@
   // ── Render cards (non-listening categories) ─────────────────
   function renderPartnerCard(item) {
     var imageHTML = item.photo
-      ? '<div class="store-card__image"><img src="' + esc(item.photo) + '" alt="' + esc(item.title) + '" loading="lazy"></div>'
+      ? '<div class="store-card__image"><img src="' + esc(item.photo) + '" alt="' + esc(item.title) + '" loading="lazy" onerror="this.parentNode.innerHTML=\'🤝\';"></div>'
       : '<div class="store-card__image">🤝</div>';
 
     var actionHTML = item.url
@@ -516,7 +514,11 @@
   var thumbnailCache = {};
 
   function fetchMissingThumbnails() {
-    var cards = gridEl.querySelectorAll('.store-card__image--loading');
+    // Any element still awaiting a dynamic thumbnail (featured hero without a
+    // static thumbnail, or a card carrying data-*-id). The listen cards now
+    // render static thumbnails with an onerror fallback, so this mainly
+    // covers the hero's loading state.
+    var cards = gridEl.querySelectorAll('.store-card__image--loading, .listen-hero__thumb--loading, [data-youtube-id], [data-spotify-id]');
     cards.forEach(function (el) {
       var spotifyId = el.getAttribute('data-spotify-id');
       var spotifyType = el.getAttribute('data-spotify-type');

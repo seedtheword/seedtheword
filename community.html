@@ -283,7 +283,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=13">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=14">
 </head>
 <body class="community-body">
 
@@ -370,7 +370,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <div class="events-collapse__header" id="events-toggle" aria-expanded="false"><div class="events-collapse__label"><span>📅 Upcoming Events</span><span class="events-collapse__count" id="events-count">2 upcoming</span></div><span class="events-collapse__arrow">▼</span></div>
         <div class="events-collapse__body"><div class="events-collapse__inner" id="events-list"><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Mon</span></div><div class="event-item__info"><div class="event-item__title">Fellowship &amp; Worship</div><div class="event-item__time">6:30 PM</div></div></div><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Sat</span></div><div class="event-item__info"><div class="event-item__title">Study Saturday (Livestream)</div><div class="event-item__time">7:00 PM PT on Twitch</div></div></div></div></div>
       </div>
-      <div class="compose-box" id="compose-box" style="display:none;"><div class="compose-box__header"><div class="compose-box__avatar" id="compose-avatar"></div><div style="flex:1;min-width:0;position:relative;"><textarea class="compose-box__input" id="compose-input" placeholder="Share something with the community... use @ to mention someone" rows="2"></textarea><div class="mention-menu" id="compose-mention-menu" hidden></div></div></div><div class="compose-attach" id="compose-attach-preview" hidden><img id="compose-attach-img" alt="attachment preview"><button type="button" class="compose-attach__remove" id="compose-attach-remove" title="Remove photo">×</button></div><div class="compose-box__actions"><input type="file" id="compose-photo-input" accept="image/*" hidden><button type="button" class="compose-box__photo-btn" id="compose-photo-btn" title="Add photo">📷 Photo</button><select class="compose-box__select" id="compose-type"><option value="message">💬 Discussion</option><option value="prayer">🙏 Prayer Request</option><option value="thanksgiving">🎉 Thanksgiving</option><option value="bible">📖 Scripture Note</option></select><button class="compose-box__post-btn" id="compose-post-btn">Post</button></div></div>
+      <div class="compose-box" id="compose-box" style="display:none;"><div class="compose-box__header"><div class="compose-box__avatar" id="compose-avatar"></div><div style="flex:1;min-width:0;position:relative;"><textarea class="compose-box__input" id="compose-input" placeholder="Share something with the community... use @ to mention someone" rows="2"></textarea><div class="mention-menu" id="compose-mention-menu" hidden></div></div></div><div class="compose-attach" id="compose-attach-preview" hidden><img id="compose-attach-img" alt="attachment preview"><button type="button" class="compose-attach__remove" id="compose-attach-remove" title="Remove photo">×</button></div><div class="compose-ref" id="compose-ref-row" hidden><span class="compose-ref__label">📖 Passage</span><select class="compose-ref__book" id="compose-ref-book"></select><select class="compose-ref__ch" id="compose-ref-ch"></select><input class="compose-ref__v" id="compose-ref-v" placeholder="v. (opt)" inputmode="numeric"></div><div class="compose-box__actions"><input type="file" id="compose-photo-input" accept="image/*" hidden><button type="button" class="compose-box__photo-btn" id="compose-photo-btn" title="Add photo">📷 Photo</button><select class="compose-box__select" id="compose-type"><option value="message">💬 Discussion</option><option value="prayer">🙏 Prayer Request</option><option value="thanksgiving">🎉 Thanksgiving</option><option value="bible">📖 Scripture Note</option></select><button class="compose-box__post-btn" id="compose-post-btn">Post</button></div></div>
       <div class="login-prompt" id="login-prompt"><p class="login-prompt__text">Join the conversation — post prayers, testimonies, and Bible discussions.</p><div class="login-prompt__buttons"><a href="team.html" class="login-prompt__btn login-prompt__btn--primary">Sign up →</a><a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="login-prompt__btn login-prompt__btn--telegram">Join Telegram →</a></div></div>
       <div id="posts-feed"><div class="post-card" style="padding:2rem;text-align:center;color:var(--color-text-muted);">Loading community feed...</div></div>
     </section>
@@ -395,7 +395,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
           <button class="reader-nav__today" id="reader-today-btn" title="Jump to today's reading">📖 Today</button>
         </div>
         <div class="reader-card__verses" id="reader-verses"><p class="reader-loading">Loading today's chapter…</p></div>
-        <p class="reader-card__trans">World English Bible (public domain). Tap a verse to highlight or add a note.</p>
+        <p class="reader-card__trans">World English Bible (public domain). Tap a verse to highlight or add a <em>private</em> note (just for you). To share with the community, use the discussion below.</p>
       </div>
 
       <!-- Verse action bar (appears when a verse is tapped) -->
@@ -649,6 +649,8 @@ function updateHeroStats(){
 }
 
 function formatBody(t){if(!t)return'';var f=esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');f=f.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
+// A leading [Book Chapter:Verse] reference renders as a scripture chip.
+f=f.replace(/^\[([1-3]?\s?[A-Za-z][A-Za-z ]+\s\d+(?::\d+)?)\]\s*/,'<span class="scripture-chip">📖 $1</span> ');
 // Highlight @mentions (name may contain a space, e.g. @David Ageyev). Match @Word optionally + one more capitalized word.
 return f.replace(/@([A-Za-z][\w]*(?:\s[A-Z][\w]*)?)/g,'<span class="mention-tag">@$1</span>');}
 
@@ -906,7 +908,19 @@ var cpPhotoBtn=document.getElementById('compose-photo-btn'),cpPhotoInput=documen
 if(cpPhotoBtn&&cpPhotoInput){cpPhotoBtn.addEventListener('click',function(){cpPhotoInput.click();});
 cpPhotoInput.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;cpPhotoBtn.disabled=true;cpPhotoBtn.textContent='Uploading…';var url=await uploadPhoto(f);cpPhotoBtn.disabled=false;cpPhotoBtn.textContent='📷 Photo';this.value='';if(url){composeMedia=url;if(cpPreviewImg)cpPreviewImg.src=url;if(cpPreview)cpPreview.hidden=false;}});}
 if(cpRemove)cpRemove.addEventListener('click',function(){composeMedia=null;if(cpPreview)cpPreview.hidden=true;if(cpPreviewImg)cpPreviewImg.src='';});
-if(cpBtn)cpBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('compose-input'),text=input.value.trim();if(!text&&!composeMedia)return;var type=document.getElementById('compose-type').value,channel=type==='prayer'?'prayer':(type==='thanksgiving'?'thanksgiving':(type==='bible'?'scripture':'main'));var media=composeMedia;cpBtn.disabled=true;cpBtn.textContent='...';try{var res=await postAction({action:'createPost',token:session.token,channel:channel,text:text,media_url:media||''});if(res&&res.ok){input.value='';composeMedia=null;if(cpPreview)cpPreview.hidden=true;input.style.height='auto';addPostOptimistic(res.post,{from:session.name,role:(session.role||'member'),text:text,media_url:media,channel:channel});}else{alert((res&&res.error)||'Could not post.');}}catch(e){alert('Could not post.');}cpBtn.disabled=false;cpBtn.textContent='Post';});
+// Scripture Note passage picker: reveal a book/chapter/verse selector when type='bible'
+(function(){
+  var typeSel=document.getElementById('compose-type'),refRow=document.getElementById('compose-ref-row'),refBook=document.getElementById('compose-ref-book'),refCh=document.getElementById('compose-ref-ch'),refV=document.getElementById('compose-ref-v');
+  if(!typeSel||!refRow||!refBook)return;
+  refBook.innerHTML='<option value="">Book…</option>'+(window.BIBLE_BOOKS||BIBLE_BOOKS).map(function(b){return '<option value="'+esc(b[0])+'">'+esc(b[0])+'</option>';}).join('');
+  function fillCh(){var b=refBook.value;var n=b?chaptersOf(b):0;var o='<option value="">Ch…</option>';for(var c=1;c<=n;c++)o+='<option value="'+c+'">'+c+'</option>';refCh.innerHTML=o;}
+  refBook.addEventListener('change',fillCh);fillCh();
+  typeSel.addEventListener('change',function(){refRow.hidden=this.value!=='bible';});
+})();
+if(cpBtn)cpBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('compose-input'),text=input.value.trim();if(!text&&!composeMedia)return;var type=document.getElementById('compose-type').value,channel=type==='prayer'?'prayer':(type==='thanksgiving'?'thanksgiving':(type==='bible'?'scripture':'main'));var media=composeMedia;
+  var body=text;
+  if(type==='bible'){var rb=document.getElementById('compose-ref-book').value,rc=document.getElementById('compose-ref-ch').value,rv=(document.getElementById('compose-ref-v').value||'').trim();if(rb&&rc){body='['+rb+' '+rc+(rv?':'+rv:'')+'] '+text;}}
+  cpBtn.disabled=true;cpBtn.textContent='...';try{var res=await postAction({action:'createPost',token:session.token,channel:channel,text:body,media_url:media||''});if(res&&res.ok){input.value='';composeMedia=null;if(cpPreview)cpPreview.hidden=true;input.style.height='auto';var rr=document.getElementById('compose-ref-row');if(rr)rr.hidden=true;document.getElementById('compose-type').value='message';addPostOptimistic(res.post,{from:session.name,role:(session.role||'member'),text:body,media_url:media,channel:channel});}else{alert((res&&res.error)||'Could not post.');}}catch(e){alert('Could not post.');}cpBtn.disabled=false;cpBtn.textContent='Post';});
 
 // Prayer send
 var psBtn=document.getElementById('prayer-send-btn');

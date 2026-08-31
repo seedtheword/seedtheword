@@ -602,3 +602,11 @@
 .reader-nav__book { flex: 1; min-width: 120px; }
 .reader-nav__book:focus, .reader-nav__ch:focus { outline: none; border-color: var(--fk-accent); }
 .reader-nav__today { margin-left: auto; background: var(--fk-accent-soft, rgba(217,119,54,0.1)); color: var(--fk-accent); border: none; border-radius: 999px; padding: 0.45rem 0.8rem; font-size: 0.76rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+/* ── Compose passage picker + scripture chip ─────────────── */
+.community-body .compose-ref { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin: 0 0 0.6rem; padding: 0.5rem 0.6rem; background: var(--fk-accent-soft, rgba(217,119,54,0.08)); border-radius: 10px; }
+.community-body .compose-ref[hidden] { display: none !important; }
+.community-body .compose-ref__label { font-size: 0.72rem; font-weight: 700; color: var(--fk-accent); }
+.community-body .compose-ref__book, .community-body .compose-ref__ch, .community-body .compose-ref__v { border: 1px solid var(--fk-line); border-radius: 8px; padding: 0.35rem 0.5rem; font-size: 0.78rem; font-family: var(--font-sans); background: var(--fk-card); color: var(--fk-ink); }
+.community-body .compose-ref__v { width: 78px; }
+.community-body .scripture-chip { display: inline-block; background: var(--fk-accent-soft, rgba(217,119,54,0.1)); color: var(--fk-accent); font-weight: 700; font-size: 0.74rem; padding: 0.1rem 0.5rem; border-radius: 999px; margin-right: 0.35rem; }

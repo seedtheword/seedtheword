@@ -282,7 +282,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=5">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=6">
 </head>
 <body class="community-body">
 
@@ -452,7 +452,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 <script>
 (function(){
 'use strict';
-var CONFIG_URL='assets/data/site-config.json',handlerUrl=null,session=null,posts=[],prayerFilter='all',likesCache={},commentsCache={},viewerIsSuper=false,feedPollTimer=null;
+var CONFIG_URL='assets/data/site-config.json',handlerUrl=null,session=null,posts=[],prayerFilter='all',likesCache={},commentsCache={},viewerIsSuper=false,feedPollTimer=null,lastFeedLoad=0;
 function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 function initials(n){return(n||'?').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);}
 // Verification / role badge next to an author name.
@@ -481,8 +481,11 @@ function mentionCandidates(){
   return Object.keys(set);
 }
 // Wire an @mention dropdown to a textarea + menu element.
+function autoGrow(el){if(!el)return;el.style.height='auto';el.style.height=Math.min(el.scrollHeight,200)+'px';}
 function wireMention(input,menu){
-  if(!input||!menu)return;
+  if(!input)return;
+  input.addEventListener('input',function(){autoGrow(input);});
+  if(!menu)return;
   function close(){menu.hidden=true;menu.innerHTML='';}
   input.addEventListener('input',function(){
     var val=input.value,pos=input.selectionStart;
@@ -549,6 +552,7 @@ if(feedRes&&feedRes.ok&&feedRes.posts){
 // 2) Announcements as read-only "system" posts (not likeable/commentable entities of their own).
 try{var ann=await postAction({action:'getAnnouncements',passphrase_hash:'public-read'});if(ann.ok&&ann.announcements)ann.announcements.forEach(function(a){allPosts.push({id:'ann-'+a.timestamp,from:a.from||'Seed the Word',role:'super_admin',text:(a.subject?'**'+a.subject+'**\n\n':'')+a.body,timestamp:a.timestamp,msg_type:'announcement',_channel:'announcements',_isPost:false,_readonly:true});});}catch(e){}
 posts=allPosts.sort(function(a,b){if(!!a.pinned!==!!b.pinned)return a.pinned?-1:1;return b.timestamp-a.timestamp;});
+lastFeedLoad=Date.now();
 updateBadges(posts);renderHomeFeed();renderScriptureFeed();renderPrayerFeed();updateHeroStats();
 }catch(e){document.getElementById('posts-feed').innerHTML='<div class="empty-state"><div class="empty-state__icon">🌐</div><h3 class="empty-state__title">Connection issue</h3><p class="empty-state__text">Could not load the feed. If the backend was just deployed, refresh in a moment.</p></div>';}}
 
@@ -608,12 +612,20 @@ return'<div class="comment" data-comment-id="'+r.id+'"><div class="comment__avat
 return'<div class="comment" data-comment-id="'+c.id+'"><div class="comment__avatar">'+initials(c.userId)+'</div><div class="comment__body"><div class="comment__bubble"><div class="comment__author">'+esc(c.userId)+' '+roleBadge(c.role)+'</div><div class="comment__text">'+esc(c.text)+'</div></div><div class="comment__meta"><span>'+timeAgo(c.timestamp)+'</span>'+(session?'<button class="reply-btn" data-post-id="'+postId+'" data-comment-id="'+c.id+'">Reply</button>':'')+((isMine||viewerIsSuper)?'<button class="delete-comment-btn" data-post-id="'+postId+'" data-comment-id="'+c.id+'">Delete</button>':'')+'</div>'+repliesHtml+'</div></div>';}).join('');}
 
 function postIdsOf(list){return list.filter(function(p){return p._isPost;}).map(function(p){return p.id;});}
-function renderHomeFeed(){var feed=document.getElementById('posts-feed');var hp=posts.slice(0,30);if(!hp.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">📭</div><h3 class="empty-state__title">No posts yet</h3><p class="empty-state__text">Be the first to share.</p></div>';return;}feed.innerHTML=hp.map(renderPost).join('');bindPostActions(feed);
-loadSocialData(postIdsOf(hp)).then(function(){feed.innerHTML=hp.map(renderPost).join('');bindPostActions(feed);});}
-function renderScriptureFeed(){var feed=document.getElementById('scripture-posts-feed');var f=posts.filter(function(p){return p.msg_type==='bible'||(p._channel==='main'&&p.msg_type==='message');});if(!f.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">📖</div><h3 class="empty-state__title">No discussions yet</h3><p class="empty-state__text">Start a conversation about today\'s reading.</p></div>';return;}var shown=f.slice(0,20);feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);
-loadSocialData(postIdsOf(shown)).then(function(){feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);});}
-function renderPrayerFeed(){var feed=document.getElementById('prayer-posts-feed');var f=posts.filter(function(p){return p.msg_type==='prayer'||p.msg_type==='thanksgiving';});if(prayerFilter!=='all')f=f.filter(function(p){return p.msg_type===prayerFilter;});f.sort(function(a,b){return b.timestamp-a.timestamp;});if(!f.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">🙏</div><h3 class="empty-state__title">No posts yet</h3><p class="empty-state__text">Be the first to share.</p></div>';return;}var shown=f.slice(0,30);feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);
-loadSocialData(postIdsOf(shown)).then(function(){feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);});}
+// Instantly show a just-created post without a full feed reload.
+function addPostOptimistic(serverPost,local){
+  var sp=serverPost||{};
+  var channel=sp.channel||local.channel||'main';
+  var t=channel==='prayer'?'prayer':(channel==='thanksgiving'?'thanksgiving':(channel==='scripture'?'bible':'message'));
+  posts.unshift({id:sp.id||('tmp-'+Date.now()),from:sp.author||local.from,role:sp.author_role||local.role||'member',text:(sp.text!=null?sp.text:local.text)||'',media_url:sp.media_url||local.media_url||'',timestamp:sp.timestamp||Date.now(),msg_type:t,_channel:channel,pinned:false,hidden:false,likeCount:0,userLiked:false,commentCount:0,_isPost:true});
+  renderHomeFeed();renderScriptureFeed();renderPrayerFeed();updateHeroStats();
+}
+// Single render — getFeed already returns like/comment COUNTS baked in, so
+// the collapsed cards need no extra fetch. Actual comments load lazily only
+// when a user opens a post's comments (see the comment button handler).
+function renderHomeFeed(){var feed=document.getElementById('posts-feed');var hp=posts.slice(0,30);if(!hp.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">📭</div><h3 class="empty-state__title">No posts yet</h3><p class="empty-state__text">Be the first to share.</p></div>';return;}feed.innerHTML=hp.map(renderPost).join('');bindPostActions(feed);}
+function renderScriptureFeed(){var feed=document.getElementById('scripture-posts-feed');var f=posts.filter(function(p){return p.msg_type==='bible'||(p._channel==='main'&&p.msg_type==='message');});if(!f.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">📖</div><h3 class="empty-state__title">No discussions yet</h3><p class="empty-state__text">Start a conversation about today\'s reading.</p></div>';return;}var shown=f.slice(0,20);feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);}
+function renderPrayerFeed(){var feed=document.getElementById('prayer-posts-feed');var f=posts.filter(function(p){return p.msg_type==='prayer'||p.msg_type==='thanksgiving';});if(prayerFilter!=='all')f=f.filter(function(p){return p.msg_type===prayerFilter;});f.sort(function(a,b){return b.timestamp-a.timestamp;});if(!f.length){feed.innerHTML='<div class="empty-state"><div class="empty-state__icon">🙏</div><h3 class="empty-state__title">No posts yet</h3><p class="empty-state__text">Be the first to share.</p></div>';return;}var shown=f.slice(0,30);feed.innerHTML=shown.map(renderPost).join('');bindPostActions(feed);}
 
 // Post actions — server-side likes & comments
 function bindPostActions(container){
@@ -634,9 +646,14 @@ var idx=likes.indexOf(id);if(idx>=0){likes.splice(idx,1);this.classList.remove('
 try{localStorage.setItem(likeKey,JSON.stringify(likes));}catch(x){}}
 this.disabled=false;});});
 
-// Comment button — focus input
-container.querySelectorAll('.post-card__action[data-action="comment"]').forEach(function(btn){btn.addEventListener('click',function(){
-var card=this.closest('.post-card');var input=card.querySelector('.comment-compose__input');if(input)input.focus();});});
+// Comment button — lazily fetch this post's comments (once), then focus input
+container.querySelectorAll('.post-card__action[data-action="comment"]').forEach(function(btn){btn.addEventListener('click',async function(){
+var card=this.closest('.post-card');var id=this.dataset.id;var commentsEl=card.querySelector('.post-card__comments');
+if(commentsEl&&!commentsCache[id]){
+  // Only fetch if we haven't already loaded this post's thread.
+  try{var res=await postAction(session?{action:'getComments',token:session.token,postIds:[id]}:{action:'getComments',passphrase_hash:'public-read',postIds:[id]});if(res&&res.ok&&res.comments){commentsCache[id]=res.comments[id]||[];commentsEl.innerHTML=renderComments(commentsCache[id],id)+(session?'<div class="comment-compose"><div class="comment-compose__avatar">'+initials(session.name)+'</div><input class="comment-compose__input" placeholder="Write a comment..." data-post-id="'+id+'"></div>':'');bindPostActions(commentsEl);}}catch(e){}
+}
+var input=card.querySelector('.comment-compose__input');if(input)input.focus();});});
 
 // Share button
 container.querySelectorAll('.post-card__action[data-action="share"]').forEach(function(btn){btn.addEventListener('click',function(){
@@ -718,8 +735,8 @@ container.querySelectorAll('.post-card__menu-btn').forEach(function(btn){btn.add
 container.querySelectorAll('.post-card__menu-list button').forEach(function(btn){btn.addEventListener('click',async function(){
 if(!session)return;var op=this.dataset.action,id=this.dataset.id,card=this.closest('.post-card');
 if(op==='delete'){if(!confirm('Delete this post?'))return;try{await postAction({action:'deletePost',token:session.token,id:id});posts=posts.filter(function(p){return p.id!==id;});renderHomeFeed();renderScriptureFeed();renderPrayerFeed();}catch(e){alert('Could not delete.');}return;}
-if(op==='pin'){try{var isPinned=posts.find(function(p){return p.id===id;});await postAction({action:'moderatePost',token:session.token,id:id,op:isPinned&&isPinned.pinned?'unpin':'pin'});loadFeed();}catch(e){}return;}
-if(op==='hide'){try{var ph=posts.find(function(p){return p.id===id;});await postAction({action:'moderatePost',token:session.token,id:id,op:ph&&ph.hidden?'unhide':'hide'});loadFeed();}catch(e){}return;}
+if(op==='pin'){var pp=posts.find(function(p){return p.id===id;});if(pp){pp.pinned=!pp.pinned;posts.sort(function(a,b){if(!!a.pinned!==!!b.pinned)return a.pinned?-1:1;return b.timestamp-a.timestamp;});renderHomeFeed();renderScriptureFeed();renderPrayerFeed();}try{await postAction({action:'moderatePost',token:session.token,id:id,op:pp&&pp.pinned?'pin':'unpin'});}catch(e){}return;}
+if(op==='hide'){var ph=posts.find(function(p){return p.id===id;});if(ph){ph.hidden=!ph.hidden;renderHomeFeed();renderScriptureFeed();renderPrayerFeed();}try{await postAction({action:'moderatePost',token:session.token,id:id,op:ph&&ph.hidden?'hide':'unhide'});}catch(e){}return;}
 if(op==='edit'){startEditPost(id,card);return;}
 });});}
 
@@ -795,7 +812,7 @@ var cpPhotoBtn=document.getElementById('compose-photo-btn'),cpPhotoInput=documen
 if(cpPhotoBtn&&cpPhotoInput){cpPhotoBtn.addEventListener('click',function(){cpPhotoInput.click();});
 cpPhotoInput.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;cpPhotoBtn.disabled=true;cpPhotoBtn.textContent='Uploading…';var url=await uploadPhoto(f);cpPhotoBtn.disabled=false;cpPhotoBtn.textContent='📷 Photo';this.value='';if(url){composeMedia=url;if(cpPreviewImg)cpPreviewImg.src=url;if(cpPreview)cpPreview.hidden=false;}});}
 if(cpRemove)cpRemove.addEventListener('click',function(){composeMedia=null;if(cpPreview)cpPreview.hidden=true;if(cpPreviewImg)cpPreviewImg.src='';});
-if(cpBtn)cpBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('compose-input'),text=input.value.trim();if(!text&&!composeMedia)return;var type=document.getElementById('compose-type').value,channel=type==='prayer'?'prayer':(type==='thanksgiving'?'thanksgiving':(type==='bible'?'scripture':'main'));cpBtn.disabled=true;cpBtn.textContent='...';try{var res=await postAction({action:'createPost',token:session.token,channel:channel,text:text,media_url:composeMedia||''});if(res&&res.ok){input.value='';composeMedia=null;if(cpPreview)cpPreview.hidden=true;loadFeed();}else{alert((res&&res.error)||'Could not post.');}}catch(e){alert('Could not post.');}cpBtn.disabled=false;cpBtn.textContent='Post';});
+if(cpBtn)cpBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('compose-input'),text=input.value.trim();if(!text&&!composeMedia)return;var type=document.getElementById('compose-type').value,channel=type==='prayer'?'prayer':(type==='thanksgiving'?'thanksgiving':(type==='bible'?'scripture':'main'));var media=composeMedia;cpBtn.disabled=true;cpBtn.textContent='...';try{var res=await postAction({action:'createPost',token:session.token,channel:channel,text:text,media_url:media||''});if(res&&res.ok){input.value='';composeMedia=null;if(cpPreview)cpPreview.hidden=true;input.style.height='auto';addPostOptimistic(res.post,{from:session.name,role:(session.role||'member'),text:text,media_url:media,channel:channel});}else{alert((res&&res.error)||'Could not post.');}}catch(e){alert('Could not post.');}cpBtn.disabled=false;cpBtn.textContent='Post';});
 
 // Prayer send
 var psBtn=document.getElementById('prayer-send-btn');
@@ -804,7 +821,7 @@ wireMention(document.getElementById('prayer-compose-input'),document.getElementB
 var prPhotoBtn=document.getElementById('prayer-photo-btn'),prPhotoInput=document.getElementById('prayer-photo-input'),prPreview=document.getElementById('prayer-attach-preview'),prPreviewImg=document.getElementById('prayer-attach-img'),prRemove=document.getElementById('prayer-attach-remove');
 if(prPhotoBtn&&prPhotoInput){prPhotoBtn.addEventListener('click',function(){prPhotoInput.click();});prPhotoInput.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;prPhotoBtn.disabled=true;var url=await uploadPhoto(f);prPhotoBtn.disabled=false;this.value='';if(url){prayerMedia=url;if(prPreviewImg)prPreviewImg.src=url;if(prPreview)prPreview.hidden=false;}});}
 if(prRemove)prRemove.addEventListener('click',function(){prayerMedia=null;if(prPreview)prPreview.hidden=true;if(prPreviewImg)prPreviewImg.src='';});
-if(psBtn)psBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('prayer-compose-input'),text=input.value.trim();if(!text&&!prayerMedia)return;var type=document.getElementById('prayer-type-select').value;var anon=document.getElementById('prayer-anon').checked;var tg=document.getElementById('prayer-share-telegram');var shareTg=tg?tg.checked:false;psBtn.disabled=true;try{var res=await postAction({action:'createPost',token:session.token,channel:type,text:(anon?'[Anonymous] ':'')+text,media_url:prayerMedia||'',share_telegram:shareTg});if(res&&res.ok){input.value='';prayerMedia=null;if(prPreview)prPreview.hidden=true;if(tg)tg.checked=false;loadFeed();}}catch(e){}psBtn.disabled=false;});
+if(psBtn)psBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('prayer-compose-input'),text=input.value.trim();if(!text&&!prayerMedia)return;var type=document.getElementById('prayer-type-select').value;var anon=document.getElementById('prayer-anon').checked;var tg=document.getElementById('prayer-share-telegram');var shareTg=tg?tg.checked:false;var media=prayerMedia;var body=(anon?'[Anonymous] ':'')+text;psBtn.disabled=true;try{var res=await postAction({action:'createPost',token:session.token,channel:type,text:body,media_url:media||'',share_telegram:shareTg});if(res&&res.ok){input.value='';prayerMedia=null;if(prPreview)prPreview.hidden=true;if(tg)tg.checked=false;input.style.height='auto';addPostOptimistic(res.post,{from:anon?'Anonymous':session.name,role:(session.role||'member'),text:body,media_url:media,channel:type});}}catch(e){}psBtn.disabled=false;});
 
 // Prayer filter — animated sliding pill highlight
 function movePrayerSlider(){var slider=document.getElementById('prayer-filter-slider');var btns=document.querySelectorAll('.prayer-filter__btn');if(!slider||!btns.length)return;var active=document.querySelector('.prayer-filter__btn.is-active')||btns[0];slider.style.width=active.offsetWidth+'px';slider.style.transform='translateX('+active.offsetLeft+'px)';}
@@ -848,10 +865,11 @@ var calAttempts=0,calCheck=setInterval(function(){calAttempts++;if(window.google
 
 // Init
 checkSession();renderELibrary();loadFeed();
-// Lightweight near-real-time: refresh the feed every 45s while the tab is
-// visible (skips work in the background to avoid needless backend calls).
-feedPollTimer=setInterval(function(){if(document.visibilityState==='visible')loadFeed();},45000);
-document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')loadFeed();});
+// No aggressive polling — Apps Script round-trips are slow, and constant
+// re-renders made the feed feel sluggish. The feed loads once on open and
+// updates optimistically after the user's own actions. A gentle refresh
+// only fires when returning to the tab after being away 2+ minutes.
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&Date.now()-lastFeedLoad>120000){loadFeed();}});
 // Close any open post menus on outside click.
 document.addEventListener('click',function(){document.querySelectorAll('.post-card__menu-list').forEach(function(l){l.hidden=true;});});
 })();

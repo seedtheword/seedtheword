@@ -511,21 +511,61 @@
 
     <!-- Forum Tab — Social discussion board -->
     <div class="tab-panel" id="tab-forum" hidden>
-      <div class="glass-card" style="padding:1rem;">
-        <h4 style="font-size:0.85rem;font-weight:700;margin:0 0 0.5rem;color:var(--color-text);">Share with the team</h4>
-        <textarea id="forum-input" placeholder="Share a prayer request, testimony, Bible note, or discussion..." rows="3"></textarea>
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem;">
-          <select id="forum-type" style="border:1.5px solid var(--color-border);border-radius:var(--radius-full);padding:0.4rem 0.75rem;font-size:0.75rem;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text);cursor:pointer;">
-            <option value="discussion">💬 Discussion</option>
-            <option value="prayer">🙏 Prayer Request</option>
-            <option value="thanksgiving">🎉 Thanksgiving</option>
-            <option value="bible">📖 Bible Note</option>
-          </select>
-          <button class="btn btn--green btn--sm" id="forum-post-btn" style="margin-left:auto;">Post</button>
+      <!-- Group Chats — these are the SAME community group chats; anything posted
+           here appears on the public community page and links back. DMs live in the
+           Chat tab and stay private. -->
+      <div id="tgroups-view">
+        <div class="glass-card" style="padding:1rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
+            <div>
+              <h4 style="font-size:0.85rem;font-weight:700;margin:0;color:var(--color-text);">Community Group Chats</h4>
+              <p style="font-size:0.72rem;color:var(--color-text-muted);margin:0.2rem 0 0;">Public discussion topics. Everything posted here shows on the community page.</p>
+            </div>
+            <button class="btn btn--green btn--sm" id="tgroups-new-btn" style="white-space:nowrap;">＋ New group</button>
+          </div>
+          <div id="tgroups-list" style="margin-top:0.75rem;display:flex;flex-direction:column;gap:0.5rem;">
+            <p style="text-align:center;color:var(--color-text-muted);font-size:0.82rem;padding:0.75rem;">Loading groups…</p>
+          </div>
+        </div>
+
+        <div class="glass-card" style="padding:1rem;margin-top:0.75rem;">
+          <h4 style="font-size:0.85rem;font-weight:700;margin:0 0 0.5rem;color:var(--color-text);">Share with the community</h4>
+          <textarea id="forum-input" placeholder="Share a prayer request, testimony, Bible note, or discussion..." rows="3"></textarea>
+          <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem;flex-wrap:wrap;">
+            <select id="forum-type" style="border:1.5px solid var(--color-border);border-radius:var(--radius-full);padding:0.4rem 0.75rem;font-size:0.75rem;font-family:var(--font-sans);background:var(--color-surface);color:var(--color-text);cursor:pointer;">
+              <option value="discussion">💬 Discussion</option>
+              <option value="prayer">🙏 Prayer Request</option>
+              <option value="thanksgiving">🎉 Thanksgiving</option>
+              <option value="bible">📖 Bible Note</option>
+            </select>
+            <button class="btn btn--green btn--sm" id="forum-post-btn" style="margin-left:auto;">Post</button>
+          </div>
+        </div>
+        <div id="forum-feed" style="margin-top:0.75rem;">
+          <p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:1rem;">Loading community posts...</p>
         </div>
       </div>
-      <div id="forum-feed" style="margin-top:0.75rem;">
-        <p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:1rem;">Loading team posts...</p>
+
+      <!-- Group room (shown when a group is open) -->
+      <div id="tgroup-room" hidden>
+        <div class="glass-card" style="padding:0.85rem 1rem;">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <button class="btn btn--sm" id="tgroup-back-btn" style="white-space:nowrap;">‹ Groups</button>
+            <div style="flex:1;min-width:0;">
+              <h4 id="tgroup-room-name" style="margin:0;font-size:0.9rem;font-weight:700;color:var(--color-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></h4>
+              <span id="tgroup-room-desc" style="font-size:0.72rem;color:var(--color-text-muted);"></span>
+            </div>
+          </div>
+        </div>
+        <div id="tgroup-room-feed" style="margin-top:0.75rem;">
+          <p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:1rem;">Loading messages…</p>
+        </div>
+        <div class="glass-card" style="padding:0.85rem 1rem;margin-top:0.75rem;">
+          <textarea id="tgroup-input" placeholder="Message this group…" rows="2"></textarea>
+          <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem;flex-wrap:wrap;" id="tgroup-compose-actions">
+            <button class="btn btn--green btn--sm" id="tgroup-send-btn" style="margin-left:auto;">Send</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -730,20 +770,27 @@
     return '<div class="team-post"><div class="team-post__header"><div class="team-post__avatar">'+initials(p.from||'?')+'</div><div class="team-post__meta"><div class="team-post__author">'+esc(p.from||'Team')+'</div><div class="team-post__time">'+timeAgo(p.timestamp)+'</div></div><span class="team-post__type team-post__type--'+(p.msg_type||'discussion')+'">'+(typeLabels[p.msg_type]||'💬 Post')+'</span></div><div class="team-post__body">'+esc(p.text)+'</div><div class="team-post__actions"><button class="team-post__action" data-action="like">❤️ Like</button><button class="team-post__action" data-action="comment">💬 Comment</button><button class="team-post__action" data-action="share">🔗 Share</button></div></div>';
   }
 
+  function sess() { try { return JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) { return null; } }
+  function isSuperRole(s) { return s && String(s.role||'').toLowerCase() === 'super_admin'; }
+  var MINISTRY_VOICE = 'Seed the Word';
+
+  // Map a server post (Posts backend) to the renderPost shape used here.
+  function mapPost(p) {
+    var t = p.channel === 'prayer' ? 'prayer' : (p.channel === 'thanksgiving' ? 'thanksgiving' : (p.channel === 'scripture' ? 'bible' : 'discussion'));
+    return { from: p.author, text: p.text, timestamp: p.timestamp, msg_type: t, id: p.id };
+  }
+
+  // Forum feed now mirrors the COMMUNITY feed (Posts backend), so team posts and
+  // community posts are one and the same.
   async function loadForum() {
-    var s = null;
-    try { s = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
-    if (!s) return;
+    var s = sess(); if (!s) return;
     var feed = document.getElementById('forum-feed');
     if (!feed) return;
     try {
-      var results = await Promise.allSettled([
-        post({action:'getChatMessages',token:s.token,channel:'main'}),
-        post({action:'getChatMessages',token:s.token,channel:'prayer'}),
-        post({action:'getChatMessages',token:s.token,channel:'thanksgiving'})
-      ]);
-      var all = [];
-      results.forEach(function(r) { if(r.status==='fulfilled'&&r.value.ok&&r.value.messages) all=all.concat(r.value.messages); });
+      var res = await post({action:'getFeed', token:s.token, limit:40});
+      var all = (res && res.ok && res.posts) ? res.posts.map(mapPost) : [];
+      // Exclude group-room messages from the flat feed (they live inside groups).
+      all = all.filter(function(p){ return String(p.id||'').length >= 0; });
       all.sort(function(a,b){return b.timestamp-a.timestamp;});
       if (all.length) { feed.innerHTML = all.slice(0,30).map(renderPost).join(''); bindLikes(); }
       else { feed.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:1rem;">No posts yet. Be the first!</p>'; }
@@ -756,33 +803,130 @@
     });
   }
 
-  // Post new forum entry
+  // Post new forum entry — now posts to the COMMUNITY (Posts backend) so it
+  // shows on the community page too.
   var postBtn = document.getElementById('forum-post-btn');
   if (postBtn) {
     postBtn.addEventListener('click', async function() {
-      var s = null;
-      try { s = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
+      var s = sess();
       if (!s) { alert('Please log in.'); return; }
       var input = document.getElementById('forum-input');
       var type = document.getElementById('forum-type').value;
       var text = input.value.trim();
       if (!text) return;
       input.value = '';
-      var channel = type === 'prayer' ? 'prayer' : (type === 'thanksgiving' ? 'thanksgiving' : 'main');
+      var channel = type === 'prayer' ? 'prayer' : (type === 'thanksgiving' ? 'thanksgiving' : (type === 'bible' ? 'scripture' : 'main'));
       try {
-        await post({action:'sendChatMessage',token:s.token,channel:channel,text:text,msg_type:type,to_user:''});
+        await post({action:'createPost',token:s.token,channel:channel,text:text});
         loadForum();
       } catch(e) { alert('Could not post. Try again.'); }
     });
   }
 
+  // ── Group chats (same community groups; posts link back to the community page) ──
+  var tgroupsData = [], tcurrentGroup = null;
+
+  async function loadTGroups() {
+    var s = sess(); if (!s) return;
+    var list = document.getElementById('tgroups-list'); if (!list) return;
+    try {
+      var res = await post({action:'listGroups', token:s.token});
+      tgroupsData = (res && res.ok && res.groups) ? res.groups : [];
+    } catch(e) { tgroupsData = []; }
+    if (!tgroupsData.length) { list.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.82rem;padding:0.5rem;">No groups yet. Create the first one!</p>'; return; }
+    list.innerHTML = tgroupsData.map(function(g) {
+      return '<button type="button" class="tgroup-card" data-group="'+esc(g.id)+'" style="display:flex;align-items:center;gap:0.6rem;width:100%;text-align:left;border:1px solid var(--color-border);background:var(--color-bg-subtle);border-radius:10px;padding:0.6rem 0.75rem;cursor:pointer;">'+
+        '<span style="font-size:1.2rem;">💬</span>'+
+        '<span style="flex:1;min-width:0;"><span style="display:block;font-weight:600;font-size:0.85rem;color:var(--color-text);">'+esc(g.name)+'</span>'+
+        (g.description?'<span style="display:block;font-size:0.72rem;color:var(--color-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(g.description)+'</span>':'')+
+        '<span style="display:block;font-size:0.68rem;color:var(--color-text-muted);">'+(g.messageCount||0)+' message'+(g.messageCount===1?'':'s')+'</span></span>'+
+        '<span style="color:var(--color-text-muted);font-size:1.2rem;">›</span></button>';
+    }).join('');
+    list.querySelectorAll('.tgroup-card').forEach(function(b){ b.addEventListener('click', function(){ openTGroup(this.dataset.group); }); });
+  }
+
+  async function openTGroup(id) {
+    var s = sess(); if (!s) return;
+    var g = tgroupsData.filter(function(x){return x.id===id;})[0]; if (!g) return;
+    tcurrentGroup = g;
+    document.getElementById('tgroups-view').hidden = true;
+    document.getElementById('tgroup-room').hidden = false;
+    document.getElementById('tgroup-room-name').textContent = g.name;
+    document.getElementById('tgroup-room-desc').textContent = g.description || '';
+    ensureTReplyAs();
+    var feed = document.getElementById('tgroup-room-feed');
+    feed.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:1rem;">Loading messages…</p>';
+    try {
+      var res = await post({action:'getFeed', token:s.token, channel:'group:'+id, limit:80});
+      var msgs = (res && res.ok && res.posts) ? res.posts.map(mapPost).sort(function(a,b){return a.timestamp-b.timestamp;}) : [];
+      feed.innerHTML = msgs.length ? msgs.map(renderPost).join('') : '<p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:1rem;">No messages yet. Start the conversation.</p>';
+      bindLikes();
+    } catch(e) { feed.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;">Could not load messages.</p>'; }
+  }
+
+  function closeTGroup() {
+    tcurrentGroup = null;
+    document.getElementById('tgroup-room').hidden = true;
+    document.getElementById('tgroups-view').hidden = false;
+    loadTGroups();
+  }
+
+  // Super-admin "Reply as" selector (own name vs ministry voice).
+  function ensureTReplyAs() {
+    var actions = document.getElementById('tgroup-compose-actions'); if (!actions) return;
+    var existing = document.getElementById('tgroup-replyas');
+    var s = sess();
+    if (!isSuperRole(s)) { if (existing) existing.remove(); return; }
+    if (existing) return;
+    var sel = document.createElement('select');
+    sel.id = 'tgroup-replyas';
+    sel.style.cssText = 'border:1.5px solid var(--color-border);border-radius:var(--radius-full);padding:0.4rem 0.75rem;font-size:0.75rem;background:var(--color-surface);color:var(--color-text);cursor:pointer;margin-right:auto;';
+    sel.innerHTML = '<option value="">Reply as '+esc(s.name)+'</option><option value="'+esc(MINISTRY_VOICE)+'">Reply as '+esc(MINISTRY_VOICE)+'</option>';
+    actions.insertBefore(sel, actions.firstChild);
+  }
+
+  var tgroupSend = document.getElementById('tgroup-send-btn');
+  if (tgroupSend) tgroupSend.addEventListener('click', async function() {
+    var s = sess(); if (!s || !tcurrentGroup) return;
+    var input = document.getElementById('tgroup-input');
+    var text = input.value.trim(); if (!text) return;
+    var payload = {action:'createPost', token:s.token, channel:'group:'+tcurrentGroup.id, text:text};
+    var ra = document.getElementById('tgroup-replyas');
+    if (ra && ra.value) payload.reply_as = ra.value;
+    tgroupSend.disabled = true;
+    try {
+      var res = await post(payload);
+      if (res && res.ok) { input.value=''; openTGroup(tcurrentGroup.id); }
+      else alert((res && res.error) || 'Could not send.');
+    } catch(e) { alert('Could not send.'); }
+    tgroupSend.disabled = false;
+  });
+
+  var tgroupsNew = document.getElementById('tgroups-new-btn');
+  if (tgroupsNew) tgroupsNew.addEventListener('click', async function() {
+    var s = sess(); if (!s) { alert('Please log in.'); return; }
+    var name = prompt('Name your group chat (e.g. "Romans deep-dive", "Sunday sermon"):');
+    if (!name || !name.trim()) return;
+    var desc = prompt('Short description (optional):') || '';
+    tgroupsNew.disabled = true;
+    try {
+      var res = await post({action:'createGroup', token:s.token, name:name.trim(), description:desc.trim()});
+      if (res && res.ok && res.group) { tgroupsData.unshift(res.group); loadTGroups(); openTGroup(res.group.id); }
+      else alert((res && res.error) || 'Could not create group.');
+    } catch(e) { alert('Could not create group.'); }
+    tgroupsNew.disabled = false;
+  });
+
+  var tgroupBack = document.getElementById('tgroup-back-btn');
+  if (tgroupBack) tgroupBack.addEventListener('click', closeTGroup);
+
   // Load on tab click
   var forumTab = document.querySelector('[data-tab="forum"]');
-  if (forumTab) forumTab.addEventListener('click', loadForum);
+  if (forumTab) forumTab.addEventListener('click', function(){ closeTGroup(); loadForum(); loadTGroups(); });
   // Also load on page ready if portal is active
   setTimeout(function() {
     var portal = document.getElementById('view-portal');
-    if (portal && portal.classList.contains('active')) loadForum();
+    if (portal && portal.classList.contains('active')) { loadForum(); loadTGroups(); }
   }, 1000);
 })();
 

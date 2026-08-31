@@ -97,12 +97,22 @@ Also added since: **Scripture study** (`saveStudyMark`/`getStudyMarks`, per-user
 
 To activate all of the above: repaste **`social-handler.gs`**, **`team-messaging-handlers.gs`**, and **`order-handler.gs`** into the P1 web-app project and **redeploy**. On the first photo/story upload, Apps Script prompts once to authorize **Drive**. No setup functions needed — the `Stories` + upload folder auto-create.
 
+## Community group chats / forum topics — needs redeploy
+
+Members (and the team, from the Team Portal **Forum** tab) can create named **group chats** to discuss Scripture. Group messages are ordinary **Posts** rows whose `channel` = `group:<id>`, so they reuse the existing likes/comments/feed machinery and **show up on the community page**.
+- `social-handler.gs` gained: `handleCreateGroup_` / `handleListGroups_` / `handleRenameGroup_` / `handleDeleteGroup_`, a new **`CommunityGroups`** tab (unique const `COMMUNITY_GROUPS_TAB`, auto-creates), and a `groupTouch_` last-activity bump. `handleCreatePost_` now also honors a **`reply_as`** field — a display-name override that is **only** applied when the validated user is `super_admin` (used for the "Reply as Seed the Word" ministry voice). Non-super-admins can never override their author name.
+- `order-handler.gs` routes the new `createGroup` / `listGroups` / `renameGroup` / `deleteGroup` actions.
+
+> ⚠️ `COMMUNITY_GROUPS_TAB` is a **unique** top-level const — same rule as `COMMUNITY_STORIES_TAB`: never reuse an existing tab-name identifier or the whole web app (login included) goes down with a duplicate-declaration SyntaxError.
+
+To activate: repaste **`social-handler.gs`** + **`order-handler.gs`** into P1 and **redeploy**. The `CommunityGroups` tab auto-creates on first `createGroup`. No setup function needed.
+
 ## Current status — what still needs doing (update as you go)
 
 - [ ] **P1: paste `content-handler.gs`** + redeploy + run `stwContentSetup()` → Content Studio stories/testimonies + live News content.
 - [ ] **P1: paste `team-messaging-handlers.gs`** + redeploy → chat feed, DMs, announcements, and `validateTeamToken_` (Content Studio + community depend on it).
-- [ ] **P1: paste `social-handler.gs`** + redeploy + run `installSocialTab()` → community likes/comments/replies **and the new Posts feed**.
-- [ ] **P1: repaste `order-handler.gs`** (has the social-routing fix + Posts routes) + redeploy.
+- [ ] **P1: paste `social-handler.gs`** + redeploy + run `installSocialTab()` → community likes/comments/replies, the Posts feed, **and community group chats** (`createGroup`/`listGroups`/`renameGroup`/`deleteGroup` + `reply_as`).
+- [ ] **P1: repaste `order-handler.gs`** (has the social-routing fix + Posts routes + **group-chat routes**) + redeploy.
 - [ ] **P3: paste `finance-archive-menu.gs`** into the STW Finances archive bound script.
 - [ ] **P1: confirm `TELEGRAM_BOT_TOKEN`** script property is set.
 

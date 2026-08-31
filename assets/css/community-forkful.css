@@ -415,3 +415,47 @@
   color: var(--fk-accent); font-weight: 700; background: rgba(217,119,54,0.08);
   padding: 0 0.2rem; border-radius: 4px;
 }
+
+/* ── Messages: floating launcher + slide-in drawer ───────── */
+.msg-fab {
+  position: fixed; right: 1.25rem; bottom: 1.5rem; z-index: 300;
+  width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--fk-accent), #b8551f); color: #fff;
+  font-size: 1.5rem; box-shadow: 0 8px 24px rgba(217,119,54,0.4);
+  display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+}
+.msg-fab:hover { transform: translateY(-2px) scale(1.05); }
+.msg-fab[hidden] { display: none !important; }
+@media (max-width: 1023px) { .msg-fab { bottom: 5rem; } }  /* clear the bottom nav */
+.msg-fab__dot { position: absolute; top: 10px; right: 12px; width: 10px; height: 10px; border-radius: 50%; background: #e74c3c; border: 2px solid #fff; }
+
+.msg-drawer { position: fixed; inset: 0; z-index: 400; background: rgba(15,18,24,0.35); display: flex; justify-content: flex-end; }
+.msg-drawer[hidden] { display: none !important; }
+.msg-drawer__panel {
+  width: 100%; max-width: 400px; height: 100%; background: var(--fk-card);
+  display: flex; flex-direction: column; box-shadow: -8px 0 40px rgba(15,23,42,0.25);
+  animation: msgSlide 0.25s cubic-bezier(0.2,0,0,1);
+}
+@keyframes msgSlide { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.msg-drawer__head { display: flex; align-items: center; gap: 0.6rem; padding: 1rem 1.1rem; border-bottom: 1px solid var(--fk-line); }
+.msg-drawer__title { font-family: var(--font-serif); font-weight: 600; font-size: 1.1rem; flex: 1; }
+.msg-drawer__back, .msg-drawer__close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--fk-muted); line-height: 1; }
+.msg-drawer__back[hidden] { display: none; }
+.msg-drawer__body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+#msg-contacts { overflow-y: auto; padding: 0.5rem; }
+.msg-empty { color: var(--fk-muted); font-size: 0.85rem; text-align: center; padding: 2rem 1rem; }
+.msg-contact { display: flex; align-items: center; gap: 0.7rem; width: 100%; text-align: left; background: none; border: none; padding: 0.7rem; border-radius: 12px; cursor: pointer; font-family: var(--font-sans); }
+.msg-contact:hover { background: var(--color-bg-subtle); }
+.msg-contact__av { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--color-olive), #3a5f4e); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0; }
+.msg-contact__info { display: flex; flex-direction: column; min-width: 0; }
+.msg-contact__name { font-weight: 700; font-size: 0.88rem; color: var(--fk-ink); }
+.msg-contact__last { font-size: 0.76rem; color: var(--fk-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#msg-thread { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.msg-thread__scroll { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.msg-bubble { max-width: 78%; align-self: flex-start; background: var(--color-bg-subtle); padding: 0.55rem 0.8rem; border-radius: 14px; font-size: 0.86rem; color: var(--fk-ink); position: relative; }
+.msg-bubble--mine { align-self: flex-end; background: var(--color-olive); color: #fff; }
+.msg-bubble__time { display: block; font-size: 0.62rem; opacity: 0.65; margin-top: 0.2rem; }
+.msg-thread__compose { display: flex; gap: 0.5rem; padding: 0.75rem; border-top: 1px solid var(--fk-line); }
+.msg-thread__compose input { flex: 1; border: 1px solid var(--fk-line); border-radius: 999px; padding: 0.6rem 0.9rem; font-size: 0.88rem; font-family: var(--font-sans); background: var(--color-bg-subtle); color: var(--fk-ink); }
+.msg-thread__compose input:focus { outline: none; border-color: var(--fk-accent); }
+.msg-thread__compose button { background: var(--fk-accent); color: #fff; border: none; border-radius: 999px; padding: 0 1.1rem; font-weight: 700; font-size: 0.82rem; cursor: pointer; }

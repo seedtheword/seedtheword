@@ -283,7 +283,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=7">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=8">
 </head>
 <body class="community-body">
 
@@ -422,6 +422,25 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
     <div class="sidebar-card"><p class="sidebar-card__title">Today's Reading</p><div id="sidebar-reading" style="font-size:0.88rem;color:var(--color-text);margin-bottom:0.5rem;">Loading...</div><button onclick="switchChannel('scripture')" style="display:block;width:100%;padding:0.5rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;color:var(--color-olive);cursor:pointer;text-align:center;font-family:var(--font-sans);">Open Scripture Tab →</button></div>
     <div class="sidebar-cta"><h3 class="sidebar-cta__title">Join the Team</h3><p class="sidebar-cta__text">Volunteer with us at outreach events and help distribute God's Word.</p><a href="team.html" class="sidebar-cta__btn">Team Portal →</a></div>
   </aside>
+</div>
+
+<!-- Messages: floating launcher + slide-in drawer (team members only) -->
+<button class="msg-fab" id="msg-fab" hidden aria-label="Messages" title="Messages">💬<span class="msg-fab__dot" id="msg-fab-dot" hidden></span></button>
+<div class="msg-drawer" id="msg-drawer" hidden>
+  <div class="msg-drawer__panel">
+    <div class="msg-drawer__head">
+      <button class="msg-drawer__back" id="msg-back" hidden aria-label="Back">←</button>
+      <span class="msg-drawer__title" id="msg-title">Messages</span>
+      <button class="msg-drawer__close" id="msg-close" aria-label="Close">×</button>
+    </div>
+    <div class="msg-drawer__body">
+      <div id="msg-contacts"><p class="msg-empty">Loading…</p></div>
+      <div id="msg-thread" hidden>
+        <div class="msg-thread__scroll" id="msg-thread-scroll"></div>
+        <div class="msg-thread__compose"><input type="text" id="msg-input" placeholder="Message…" autocomplete="off"><button id="msg-send">Send</button></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <nav class="bottom-nav" aria-label="Quick links">
@@ -869,6 +888,52 @@ if(rbToggle&&rbBody&&rbBand){
 
 // Calendar
 var calAttempts=0,calCheck=setInterval(function(){calAttempts++;if(window.googleCalendar&&window.googleCalendar.events&&window.googleCalendar.events.length){clearInterval(calCheck);var cal=window.googleCalendar,now=new Date(),upcoming=cal.events.filter(function(ev){var s=cal.getEventStart(ev);return s&&s>now;}).slice(0,5);if(!upcoming.length)return;var html=upcoming.map(function(ev){var s=cal.getEventStart(ev);return'<div class="event-item"><div class="event-item__date"><span class="event-item__month">'+s.toLocaleDateString('en-US',{month:'short'})+'</span><span class="event-item__day">'+s.getDate()+'</span></div><div class="event-item__info"><div class="event-item__title">'+(ev.summary||'Event')+'</div><div class="event-item__time">'+s.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div></div></div>';}).join('');var el=document.getElementById('events-list'),se=document.getElementById('sidebar-events'),ec2=document.getElementById('events-count');if(el)el.innerHTML=html;if(se)se.innerHTML=html;if(ec2)ec2.textContent=upcoming.length+' upcoming';}else if(calAttempts>40)clearInterval(calCheck);},500);
+
+// ── Messages panel (DMs) — team members only, uses existing DM backend ──
+(function(){
+  var fab=document.getElementById('msg-fab'),drawer=document.getElementById('msg-drawer');
+  if(!fab||!drawer)return;
+  if(session)fab.hidden=false;
+  var contactsEl=document.getElementById('msg-contacts'),threadEl=document.getElementById('msg-thread'),scrollEl=document.getElementById('msg-thread-scroll'),titleEl=document.getElementById('msg-title'),backBtn=document.getElementById('msg-back'),inputEl=document.getElementById('msg-input'),sendBtn=document.getElementById('msg-send');
+  var activeContact=null;
+  function open(){if(!session){alert('Log in to use Messages.');return;}drawer.hidden=false;showContacts();loadContacts();}
+  function close(){drawer.hidden=true;}
+  function showContacts(){activeContact=null;threadEl.hidden=true;contactsEl.hidden=false;backBtn.hidden=true;titleEl.textContent='Messages';}
+  async function loadContacts(){
+    try{var res=await postAction({action:'getDmContacts',token:session.token});
+      if(res&&res.ok&&res.contacts&&res.contacts.length){
+        contactsEl.innerHTML=res.contacts.map(function(c){return '<button class="msg-contact" data-name="'+esc(c.name)+'"><span class="msg-contact__av">'+esc(initials(c.name))+'</span><span class="msg-contact__info"><span class="msg-contact__name">'+esc(c.name)+'</span><span class="msg-contact__last">'+esc((c.last_message||'').slice(0,42))+'</span></span></button>';}).join('');
+        contactsEl.querySelectorAll('.msg-contact').forEach(function(b){b.addEventListener('click',function(){openThread(this.dataset.name);});});
+      }else{contactsEl.innerHTML='<p class="msg-empty">No conversations yet. Team members you message will appear here.</p>';}
+    }catch(e){contactsEl.innerHTML='<p class="msg-empty">Could not load messages.</p>';}
+  }
+  async function openThread(name){
+    activeContact=name;contactsEl.hidden=true;threadEl.hidden=false;backBtn.hidden=false;titleEl.textContent=name;
+    scrollEl.innerHTML='<p class="msg-empty">Loading…</p>';
+    try{var res=await postAction({action:'getDmMessages',token:session.token,with_user:name});
+      if(res&&res.ok){renderThread(res.messages||[]);}else{scrollEl.innerHTML='<p class="msg-empty">Could not load.</p>';}
+    }catch(e){scrollEl.innerHTML='<p class="msg-empty">Could not load.</p>';}
+  }
+  function renderThread(msgs){
+    if(!msgs.length){scrollEl.innerHTML='<p class="msg-empty">Say hello 👋</p>';return;}
+    scrollEl.innerHTML=msgs.sort(function(a,b){return a.timestamp-b.timestamp;}).map(function(m){
+      var mine=session&&m.from===session.name;
+      return '<div class="msg-bubble'+(mine?' msg-bubble--mine':'')+'">'+esc(m.text)+'<span class="msg-bubble__time">'+timeAgo(m.timestamp)+'</span></div>';
+    }).join('');
+    scrollEl.scrollTop=scrollEl.scrollHeight;
+  }
+  async function send(){
+    var text=inputEl.value.trim();if(!text||!activeContact)return;inputEl.value='';
+    // optimistic
+    scrollEl.insertAdjacentHTML('beforeend','<div class="msg-bubble msg-bubble--mine">'+esc(text)+'<span class="msg-bubble__time">now</span></div>');scrollEl.scrollTop=scrollEl.scrollHeight;
+    try{await postAction({action:'sendDm',token:session.token,to_user:activeContact,text:text});}catch(e){}
+  }
+  fab.addEventListener('click',open);
+  document.getElementById('msg-close').addEventListener('click',close);
+  backBtn.addEventListener('click',function(){showContacts();});
+  sendBtn.addEventListener('click',send);
+  inputEl.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();send();}});
+})();
 
 // Theme — handled by theme-toggle.js site-wide
 

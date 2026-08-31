@@ -610,3 +610,33 @@
 .community-body .compose-ref__book, .community-body .compose-ref__ch, .community-body .compose-ref__v { border: 1px solid var(--fk-line); border-radius: 8px; padding: 0.35rem 0.5rem; font-size: 0.78rem; font-family: var(--font-sans); background: var(--fk-card); color: var(--fk-ink); }
 .community-body .compose-ref__v { width: 78px; }
 .community-body .scripture-chip { display: inline-block; background: var(--fk-accent-soft, rgba(217,119,54,0.1)); color: var(--fk-accent); font-weight: 700; font-size: 0.74rem; padding: 0.1rem 0.5rem; border-radius: 999px; margin-right: 0.35rem; }
+
+/* ── Channel bar: mobile polish + snappy animation + shimmer ── */
+.community-body .channel-bar { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+.community-body .channel-tab { scroll-snap-align: center; transition: color 0.2s ease; -webkit-tap-highlight-color: transparent; }
+/* animated underline already exists; add a soft shimmer sweep on the active tab */
+.community-body .channel-tab.is-active::after {
+  background: linear-gradient(90deg, var(--fk-accent), #f0b070, var(--fk-accent));
+  background-size: 200% 100%;
+  animation: chanShimmer 2.4s linear infinite;
+}
+@keyframes chanShimmer { from { background-position: 0% 0; } to { background-position: 200% 0; } }
+.community-body .channel-tab.is-active .channel-tab__icon { animation: chanPop 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes chanPop { 0% { transform: scale(0.8); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+/* Smooth channel section entrance */
+.community-body .channel-section.is-active { animation: sectionIn 0.32s cubic-bezier(0.2,0,0,1); }
+@keyframes sectionIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 1023px) {
+  .community-body .channel-bar { padding: 0.35rem 0.5rem; gap: 0.15rem; justify-content: flex-start; }
+  .community-body .channel-tab { padding: 0.8rem 0.9rem; font-size: 0.8rem; min-height: 48px; }
+  .community-body .channel-tab__badge { top: 2px; right: 2px; }
+  /* fade edges to hint horizontal scroll */
+  .community-body .channel-bar { -webkit-mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent); mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent); }
+}
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .community-body .channel-tab.is-active::after { animation: none; }
+  .community-body .channel-section.is-active { animation: none; }
+}

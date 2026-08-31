@@ -283,7 +283,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=15">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=16">
 </head>
 <body class="community-body">
 
@@ -601,7 +601,7 @@ if(session){var ini=initials(session.name);document.querySelectorAll('#compose-a
 // Channel nav
 var activeChannel='home';
 function switchChannel(ch){activeChannel=ch;
-document.querySelectorAll('.channel-tab').forEach(function(t){var a=t.dataset.channel===ch;t.classList.toggle('is-active',a);t.setAttribute('aria-selected',a?'true':'false');});
+document.querySelectorAll('.channel-tab').forEach(function(t){var a=t.dataset.channel===ch;t.classList.toggle('is-active',a);t.setAttribute('aria-selected',a?'true':'false');if(a&&t.scrollIntoView){try{t.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});}catch(e){}}});
 document.querySelectorAll('.channel-section').forEach(function(s){s.classList.remove('is-active');});
 var target=document.getElementById('channel-'+ch);if(target)target.classList.add('is-active');
 setLastSeen(ch);var badge=document.getElementById('badge-'+ch);if(badge)badge.textContent='';

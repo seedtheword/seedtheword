@@ -296,47 +296,52 @@
   var statsAnimated = false;
   var liveTotal = 276, liveLangs = 8, liveEvents = 5;
 
-  // Fetch live data
+  // Paint the three numbers. Once the section has scrolled into view we animate;
+  // if fresh data lands AFTER the first animation, we re-animate to the new value
+  // (this fixes the old race where the stats section — high on the page — animated
+  // to the stale site-config numbers before the live getMinistryStats call returned).
+  function paintStats() {
+    if (!statsAnimated) return; // will paint on first scroll-into-view
+    animateNum('store-impact-count', liveTotal, 1200);
+    animateNum('store-impact-languages', liveLangs, 900);
+    animateNum('store-impact-events', liveEvents, 900);
+  }
+  function applyStats(src) {
+    if (!src) return;
+    if (src.total != null) liveTotal = src.total;
+    else if (src.biblesGivenAway != null) liveTotal = src.biblesGivenAway;
+    if (src.events != null) liveEvents = src.events;
+    else if (src.outreachEvents != null) liveEvents = src.outreachEvents;
+    var stock = src.inStock || src.biblesInStock;
+    if (stock && stock.length) {
+      liveLangs = stock.filter(function(b) { return b.count > 0; }).length;
+      updateLangs(stock);
+    }
+  }
+
+  // 1) Static config = instant fallback so the page never sits at 0.
   fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
     .then(function(r) { return r.ok ? r.json() : {}; })
     .then(function(cfg) {
-      liveTotal = cfg.biblesGivenAway || 276;
-      liveEvents = cfg.outreachEvents || 5;
-      if (cfg.biblesInStock) {
-        var inStockCount = cfg.biblesInStock.filter(function(b) { return b.count > 0; }).length;
-        liveLangs = inStockCount;
-        updateLangs(cfg.biblesInStock);
-      }
+      applyStats(cfg);
+      paintStats();
+      // 2) Live MinistryStats = source of truth; overrides the config when it lands.
       var url = cfg.orderHandlerUrl;
-      if (url) {
-        return fetch(url + '?action=getMinistryStats', { cache: 'no-store' })
-          .then(function(r) { return r.ok ? r.json() : {}; })
-          .then(function(live) {
-            if (live.ok) {
-              liveTotal = live.total || liveTotal;
-              liveEvents = live.events || liveEvents;
-              if (live.inStock) {
-                liveLangs = live.inStock.filter(function(b) { return b.count > 0; }).length;
-                updateLangs(live.inStock);
-              }
-            }
-            if (statsAnimated) {
-              animateNum('store-impact-count', liveTotal, 1600);
-              animateNum('store-impact-languages', liveLangs, 1200);
-              animateNum('store-impact-events', liveEvents, 1200);
-            }
-          });
-      }
+      if (!url) return;
+      return fetch(url + '?action=getMinistryStats', { cache: 'no-store' })
+        .then(function(r) { return r.ok ? r.json() : {}; })
+        .then(function(live) {
+          if (live && live.ok) { applyStats(live); paintStats(); }
+        })
+        .catch(function() {});
     })
     .catch(function() {});
 
-  // Animate on scroll into view
+  // Animate on scroll into view (or immediately if already visible on load).
   var obs = new IntersectionObserver(function(entries) {
     if (entries[0].isIntersecting && !statsAnimated) {
       statsAnimated = true;
-      animateNum('store-impact-count', liveTotal, 1600);
-      animateNum('store-impact-languages', liveLangs, 1200);
-      animateNum('store-impact-events', liveEvents, 1200);
+      paintStats();
       obs.disconnect();
     }
   }, { threshold: 0.2 });

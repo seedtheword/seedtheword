@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616037,
-  "lastModified": "2026-09-01T15:55:36Z",
+  "lastUpdateId": 669616040,
+  "lastModified": "2026-09-01T17:25:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -447,6 +447,16 @@
       "kind": "telegram",
       "text": "MISSION, COMPLETE!!! (EXPLOSIONS)",
       "ts": "2026-08-30T17:02:16Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5528,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for David 9/1/2026:\n\nI got a muscle cramp in my leg and I have an endurance test today at 3:30 for a job thing\n\nRequesting prayer for full recovery",
+      "ts": "2026-09-01T17:16:52Z"
     }
   ]
 }

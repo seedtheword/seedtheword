@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669616031,
-  "lastModified": "2026-08-31T23:55:34Z",
+  "lastModified": "2026-09-01T00:25:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -258,16 +258,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5305,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Before our service starts tonight, I'm asking everyone who can, please lift up our team in prayer to Jesus so we can carry out our work today. Thank you brothers and sisters. God bless you🙏",
-      "ts": "2026-08-18T00:12:25Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5341,

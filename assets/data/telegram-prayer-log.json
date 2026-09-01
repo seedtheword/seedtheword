@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616040,
-  "lastModified": "2026-09-01T17:25:37Z",
+  "lastUpdateId": 669616045,
+  "lastModified": "2026-09-01T19:00:43Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -457,6 +457,36 @@
       "kind": "telegram",
       "text": "Prayer Request for David 9/1/2026:\n\nI got a muscle cramp in my leg and I have an endurance test today at 3:30 for a job thing\n\nRequesting prayer for full recovery",
       "ts": "2026-09-01T17:16:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5529,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "🙏PRAYER DOG🙏 please help me pray",
+      "ts": "2026-09-01T18:54:03Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5530,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "and also against abortions, witchcraft, idol worship, adultery",
+      "ts": "2026-09-01T18:54:44Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5532,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Praying for you also 🙏PRAYER DOG🙏",
+      "ts": "2026-09-01T18:57:58Z"
     }
   ]
 }

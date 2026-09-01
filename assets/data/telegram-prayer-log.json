@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616031,
-  "lastModified": "2026-09-01T00:25:35Z",
+  "lastUpdateId": 669616047,
+  "lastModified": "2026-09-01T21:55:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -447,6 +447,56 @@
       "kind": "telegram",
       "text": "MISSION, COMPLETE!!! (EXPLOSIONS)",
       "ts": "2026-08-30T17:02:16Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5528,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for David 9/1/2026:\n\nI got a muscle cramp in my leg and I have an endurance test today at 3:30 for a job thing\n\nRequesting prayer for full recovery",
+      "ts": "2026-09-01T17:16:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5529,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "🙏PRAYER DOG🙏 please help me pray",
+      "ts": "2026-09-01T18:54:03Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5530,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "and also against abortions, witchcraft, idol worship, adultery",
+      "ts": "2026-09-01T18:54:44Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5532,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Praying for you also 🙏PRAYER DOG🙏",
+      "ts": "2026-09-01T18:57:58Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5533,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "In Jesus name no weapon formed against us shall prosper",
+      "ts": "2026-09-01T19:09:09Z"
     }
   ]
 }

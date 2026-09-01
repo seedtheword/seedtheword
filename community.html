@@ -283,7 +283,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=21">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=22">
 </head>
 <body class="community-body">
 
@@ -360,7 +360,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <div class="events-collapse__header" id="events-toggle" aria-expanded="false"><div class="events-collapse__label"><span>📅 Upcoming Events</span><span class="events-collapse__count" id="events-count">2 upcoming</span></div><span class="events-collapse__arrow">▼</span></div>
         <div class="events-collapse__body"><div class="events-collapse__inner" id="events-list"><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Mon</span></div><div class="event-item__info"><div class="event-item__title">Fellowship &amp; Worship</div><div class="event-item__time">6:30 PM</div></div></div><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Sat</span></div><div class="event-item__info"><div class="event-item__title">Study Saturday (Livestream)</div><div class="event-item__time">7:00 PM PT on Twitch</div></div></div></div></div>
       </div>
-      <div class="compose-box" id="compose-box" style="display:none;"><div class="compose-box__header"><div class="compose-box__avatar" id="compose-avatar"></div><div style="flex:1;min-width:0;position:relative;"><textarea class="compose-box__input" id="compose-input" placeholder="Share something with the community... use @ to mention someone" rows="2"></textarea><div class="mention-menu" id="compose-mention-menu" hidden></div></div></div><div class="compose-attach" id="compose-attach-preview" hidden><img id="compose-attach-img" alt="attachment preview"><button type="button" class="compose-attach__remove" id="compose-attach-remove" title="Remove photo">×</button></div><div class="compose-ref" id="compose-ref-row" hidden><span class="compose-ref__label">📖 Passage</span><select class="compose-ref__book" id="compose-ref-book"></select><select class="compose-ref__ch" id="compose-ref-ch"></select><input class="compose-ref__v" id="compose-ref-v" placeholder="v. (opt)" inputmode="numeric"></div><div class="compose-box__actions"><input type="file" id="compose-photo-input" accept="image/*" hidden><button type="button" class="compose-box__photo-btn" id="compose-photo-btn" title="Add photo">📷 Photo</button><select class="compose-box__select" id="compose-type"><option value="message">💬 Discussion</option><option value="prayer">🙏 Prayer Request</option><option value="thanksgiving">🎉 Thanksgiving</option><option value="bible">📖 Scripture Note</option></select><button class="compose-box__post-btn" id="compose-post-btn">Post</button></div></div>
+      <div class="compose-box" id="compose-box" style="display:none;"><div class="compose-box__header"><div class="compose-box__avatar" id="compose-avatar"></div><div style="flex:1;min-width:0;position:relative;"><textarea class="compose-box__input" id="compose-input" placeholder="Share something with the community... use @ to mention someone" rows="2"></textarea><div class="mention-menu" id="compose-mention-menu" hidden></div></div></div><div class="compose-attach" id="compose-attach-preview" hidden><img id="compose-attach-img" alt="attachment preview"><button type="button" class="compose-attach__remove" id="compose-attach-remove" title="Remove photo">×</button></div><div class="compose-ref" id="compose-ref-row" hidden><span class="compose-ref__label">📖 Passage</span><select class="compose-ref__mine" id="compose-ref-mine"><option value="">From my highlights &amp; notes…</option></select><select class="compose-ref__book" id="compose-ref-book"></select><select class="compose-ref__ch" id="compose-ref-ch"></select><input class="compose-ref__v" id="compose-ref-v" placeholder="v. (opt)" inputmode="numeric"></div><div class="compose-box__actions"><input type="file" id="compose-photo-input" accept="image/*" hidden><button type="button" class="compose-box__photo-btn" id="compose-photo-btn" title="Add photo">📷 Photo</button><select class="compose-box__select" id="compose-type"><option value="message">💬 Discussion</option><option value="prayer">🙏 Prayer Request</option><option value="thanksgiving">🎉 Thanksgiving</option><option value="bible">📖 Scripture Note</option></select><button class="compose-box__post-btn" id="compose-post-btn">Post</button></div></div>
       <div class="login-prompt" id="login-prompt"><p class="login-prompt__text">Join the conversation — post prayers, testimonies, and Bible discussions.</p><div class="login-prompt__buttons"><a href="team.html" class="login-prompt__btn login-prompt__btn--primary">Sign up →</a><a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="login-prompt__btn login-prompt__btn--telegram">Join Telegram →</a></div></div>
       <div id="posts-feed"><div class="post-card" style="padding:2rem;text-align:center;color:var(--color-text-muted);">Loading community feed...</div></div>
     </section>
@@ -407,7 +407,8 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <div id="group-room-feed" class="group-room__feed"><div style="text-align:center;color:var(--color-text-muted);font-size:0.84rem;padding:2rem;">Loading messages…</div></div>
         <div id="group-compose" class="compose-box" style="display:none;">
           <div class="compose-box__header"><div class="compose-box__avatar" id="group-compose-avatar"></div><div style="flex:1;min-width:0;position:relative;"><textarea class="compose-box__input" id="group-input" placeholder="Message this group… use @ to mention" rows="2"></textarea><div class="mention-menu" id="group-mention-menu" hidden></div></div></div>
-          <div class="compose-box__actions" id="group-compose-actions"><button class="compose-box__post-btn" id="group-post-btn" style="margin-left:auto;">Send</button></div>
+          <div class="compose-attach" id="group-attach-preview" hidden><img id="group-attach-img" alt="attachment preview"><button type="button" class="compose-attach__remove" id="group-attach-remove" title="Remove photo">×</button></div>
+          <div class="compose-box__actions" id="group-compose-actions"><input type="file" id="group-photo-input" accept="image/*" hidden><button type="button" class="compose-box__photo-btn" id="group-photo-btn" title="Add photo">📷 Photo</button><button class="compose-box__post-btn" id="group-post-btn" style="margin-left:auto;">Send</button></div>
         </div>
       </div>
 
@@ -677,10 +678,10 @@ async function loadFeed(){
 var token=session?session.token:null;
 var feedPayload=token?{action:'getFeed',token:token,limit:60}:{action:'getFeed',passphrase_hash:'public-read',limit:60};
 var results;
-try{ results=await Promise.all([postAction(feedPayload),postAction({action:'getAnnouncements',passphrase_hash:'public-read'})]); }
-catch(e){ results=[null,null]; }
-var feedRes=results[0], ann=results[1];
-// If both failed and we already painted a cache, keep the cache (don't wipe).
+try{ results=await Promise.all([postAction(feedPayload),postAction({action:'getAnnouncements',passphrase_hash:'public-read'}),postAction({action:'getPublicPrayers',limit:20})]); }
+catch(e){ results=[null,null,null]; }
+var feedRes=results[0], ann=results[1], pub=results[2];
+// If both core sources failed and we already painted a cache, keep the cache (don't wipe).
 if((!feedRes||!feedRes.ok)&&(!ann||!ann.ok)){ if(!posts.length){document.getElementById('posts-feed').innerHTML='<div class="empty-state"><div class="empty-state__icon">🌐</div><h3 class="empty-state__title">Connection issue</h3><p class="empty-state__text">Could not reach the community server. Pull to refresh in a moment.</p></div>';} return; }
 var allPosts=[];
 if(feedRes&&feedRes.ok&&feedRes.posts){
@@ -692,6 +693,8 @@ if(feedRes&&feedRes.ok&&feedRes.posts){
   });
 }
 if(ann&&ann.ok&&ann.announcements)ann.announcements.forEach(function(a){allPosts.push({id:'ann-'+a.timestamp,from:a.from||'Seed the Word',role:'super_admin',text:(a.subject?'**'+a.subject+'**\n\n':'')+a.body,timestamp:a.timestamp,msg_type:'announcement',_channel:'announcements',_isPost:false,_readonly:true});});
+// Consented prayers/thanksgivings from the Connect page (read-only, from the prayer wall).
+if(pub&&pub.ok&&pub.prayers)pub.prayers.forEach(function(pr){allPosts.push({id:pr.id,from:pr.author||'A community member',role:'',text:pr.text,timestamp:pr.timestamp||0,msg_type:pr.channel==='thanksgiving'?'thanksgiving':'prayer',_channel:pr.channel==='thanksgiving'?'thanksgiving':'prayer',_isPost:false,_readonly:true,_fromConnect:true});});
 posts=allPosts.sort(function(a,b){if(!!a.pinned!==!!b.pinned)return a.pinned?-1:1;return b.timestamp-a.timestamp;});
 lastFeedLoad=Date.now();
 try{localStorage.setItem(FEED_CACHE_KEY,JSON.stringify(posts.slice(0,40)));}catch(e){}
@@ -748,7 +751,7 @@ function renderHomeDashboard(){
 
 function formatBody(t){if(!t)return'';var f=esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');f=f.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
 // A leading [Book Chapter:Verse] reference renders as a scripture chip.
-f=f.replace(/^\[([1-3]?\s?[A-Za-z][A-Za-z ]+\s\d+(?::\d+)?)\]\s*/,'<span class="scripture-chip">📖 $1</span> ');
+f=f.replace(/^\[([1-3]?\s?[A-Za-z][A-Za-z ]+\s\d+(?::\d+)?)\]\s*/,'<button type="button" class="scripture-chip" data-scripture-ref="$1">📖 $1</button> ');
 // Highlight @mentions (name may contain a space, e.g. @David Ageyev). Match @Word optionally + one more capitalized word.
 return f.replace(/@([A-Za-z][\w]*(?:\s[A-Z][\w]*)?)/g,'<span class="mention-tag">@$1</span>');}
 
@@ -780,11 +783,18 @@ return'<article class="post-card'+(p.hidden?' post-card--hidden':'')+'" data-pos
 '<div class="post-card__header"><div class="post-card__avatar" data-author="'+esc(p.from||'Anonymous')+'" data-role="'+esc(p.role||'')+'">'+initials(p.from||'Anonymous')+'</div><div class="post-card__meta"><div class="post-card__author"><button class="author-link" data-author="'+esc(p.from||'Anonymous')+'" data-role="'+esc(p.role||'')+'">'+esc(p.from||'Anonymous')+'</button> '+roleBadge(p.role)+'</div><div class="post-card__time">'+timeAgo(p.timestamp)+' '+flags+'</div><span class="post-card__type post-card__type--'+typeClass+'">'+(typeLabels[type]||'💬 Post')+'</span></div>'+menu+'</div>'+
 '<div class="post-card__body" data-role="body">'+formatBody(p.text)+'</div>'+media+
 '<div class="post-card__stats">'+(likeData.count?'<span>'+likeData.count+' like'+(likeData.count>1?'s':'')+'</span>':'')+(commentCount?'<span>'+commentCount+' comment'+(commentCount>1?'s':'')+'</span>':'')+'</div>'+
-'<div class="post-card__actions">'+
-'<button class="post-card__action'+(isLiked?' is-liked':'')+'" data-action="like" data-id="'+postId+'"><svg viewBox="0 0 24 24" fill="'+(isLiked?'currentColor':'none')+'" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Like</button>'+
-'<button class="post-card__action" data-action="comment" data-id="'+postId+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comment</button>'+
-'<button class="post-card__action" data-action="share" data-text="'+esc((p.text||'').slice(0,100))+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>'+
-'</div>'+
+(p._readonly
+  // Read-only cards (announcements, Connect prayer-wall posts): no like/comment
+  // on a non-post entity. Connect prayers get a gentle "pray with them" prompt.
+  ? '<div class="post-card__actions post-card__actions--readonly">'+
+      (p._fromConnect?'<span class="post-card__source">🙏 Shared from the prayer wall — lift them up</span>':'<span class="post-card__source">📢 Ministry announcement</span>')+
+      '<button class="post-card__action" data-action="share" data-text="'+esc((p.text||'').slice(0,100))+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>'+
+    '</div>'
+  : '<div class="post-card__actions">'+
+    '<button class="post-card__action'+(isLiked?' is-liked':'')+'" data-action="like" data-id="'+postId+'"><svg viewBox="0 0 24 24" fill="'+(isLiked?'currentColor':'none')+'" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Like</button>'+
+    '<button class="post-card__action" data-action="comment" data-id="'+postId+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comment</button>'+
+    '<button class="post-card__action" data-action="share" data-text="'+esc((p.text||'').slice(0,100))+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>'+
+    '</div>')+
 (p._isPost?'<div class="post-card__comments" data-post-id="'+postId+'">'+renderComments(commentsData,postId)+(session?'<div class="comment-compose"><div class="comment-compose__avatar">'+initials(session.name)+'</div><input class="comment-compose__input" placeholder="Write a comment..." data-post-id="'+postId+'"></div>':'')+'</div>':'')+
 '</article>';}
 
@@ -1016,7 +1026,34 @@ function initComposeRefPicker(){
   refBook.innerHTML='<option value="">Book…</option>'+books.map(function(b){return '<option value="'+esc(b[0])+'">'+esc(b[0])+'</option>';}).join('');
   function fillCh(){var b=refBook.value;var n=b?chaptersOf(b):0;var o='<option value="">Ch…</option>';for(var c=1;c<=n;c++)o+='<option value="'+c+'">'+c+'</option>';refCh.innerHTML=o;}
   refBook.addEventListener('change',fillCh);fillCh();
-  typeSel.addEventListener('change',function(){refRow.hidden=this.value!=='bible';});
+  typeSel.addEventListener('change',function(){refRow.hidden=this.value!=='bible';if(this.value==='bible')populateMyMarks();});
+
+  // "From my highlights & notes" — pull the verses this user has marked so a
+  // Scripture Note links back to Discuss Scripture. Notes carry their text;
+  // highlights seed a reflection prompt.
+  var refMine=document.getElementById('compose-ref-mine');
+  function populateMyMarks(){
+    if(!refMine||!session)return;
+    // Ensure we have the user's notes; loadAllNotes caches them.
+    if(typeof allNotesCache!=='undefined'&&allNotesCache===null&&typeof loadAllNotes==='function'){loadAllNotes().then(populateMyMarks);}
+    var opts=[];
+    // Notes (have text).
+    (typeof allNotesCache!=='undefined'&&allNotesCache?allNotesCache:[]).forEach(function(n){opts.push({ref:n.ref,text:n.text,kind:'note'});});
+    // Highlights from the currently-open chapter (studyMarks) that aren't already noted.
+    try{ if(typeof studyMarks!=='undefined'&&studyMarks){Object.keys(studyMarks).forEach(function(ref){var m=studyMarks[ref];if(m&&m.highlight&&m.highlight.color&&!(m.note&&m.note.text)){opts.push({ref:ref,text:'',kind:'highlight'});}});} }catch(e){}
+    var seen={};var uniq=[];opts.forEach(function(o){if(!seen[o.ref+o.kind]){seen[o.ref+o.kind]=1;uniq.push(o);}});
+    refMine.innerHTML='<option value="">From my highlights &amp; notes…</option>'+uniq.map(function(o,i){var label=(o.kind==='note'?'📝 ':'🖊️ ')+o.ref+(o.text?' — '+o.text.slice(0,40):'');return '<option value="'+i+'">'+esc(label)+'</option>';}).join('');
+    refMine._opts=uniq;
+  }
+  if(refMine)refMine.addEventListener('change',function(){
+    var o=this._opts&&this._opts[parseInt(this.value,10)];if(!o)return;
+    // Fill book/chapter/verse from the ref, e.g. "Romans 9:5".
+    var m=String(o.ref).match(/^(.*)\s(\d+):(\d+)$/)||String(o.ref).match(/^(.*)\s(\d+)$/);
+    if(m){refBook.value=m[1];fillCh();refCh.value=m[2];refV.value=m[3]||'';}
+    // Seed the composer text so the post feels organic and invites others in.
+    var input=document.getElementById('compose-input');
+    if(input&&!input.value.trim()){input.value=o.kind==='note'?o.text:('Reflecting on '+o.ref+' — ');input.focus();}
+  });
 }
 if(cpBtn)cpBtn.addEventListener('click',async function(){if(!session)return;var input=document.getElementById('compose-input'),text=input.value.trim();if(!text&&!composeMedia)return;var type=document.getElementById('compose-type').value,channel=type==='prayer'?'prayer':(type==='thanksgiving'?'thanksgiving':(type==='bible'?'scripture':'main'));var media=composeMedia;
   var body=text;
@@ -1354,21 +1391,28 @@ function ensureReplyAsControl(){
   sel.innerHTML='<option value="">Reply as '+esc(session.name)+'</option><option value="'+esc(GROUP_MINISTRY_VOICE)+'">Reply as '+esc(GROUP_MINISTRY_VOICE)+'</option>';
   actions.insertBefore(sel,actions.firstChild);
 }
-// Compose in a group room.
+// Compose in a group room (with photo attach — reuses uploadPhoto/driveImg).
+var groupMedia=null;
 (function(){
   var btn=document.getElementById('group-post-btn');if(!btn)return;
   wireMention(document.getElementById('group-input'),document.getElementById('group-mention-menu'));
+  var gPhotoBtn=document.getElementById('group-photo-btn'),gPhotoInput=document.getElementById('group-photo-input'),gPreview=document.getElementById('group-attach-preview'),gPreviewImg=document.getElementById('group-attach-img'),gRemove=document.getElementById('group-attach-remove');
+  if(gPhotoBtn&&gPhotoInput){
+    gPhotoBtn.addEventListener('click',function(){gPhotoInput.click();});
+    gPhotoInput.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;gPhotoBtn.disabled=true;gPhotoBtn.textContent='Uploading…';var url=await uploadPhoto(f);gPhotoBtn.disabled=false;gPhotoBtn.textContent='📷 Photo';this.value='';if(url){groupMedia=url;if(gPreviewImg)gPreviewImg.src=driveImg(url);if(gPreview)gPreview.hidden=false;}});
+  }
+  if(gRemove)gRemove.addEventListener('click',function(){groupMedia=null;if(gPreview)gPreview.hidden=true;if(gPreviewImg)gPreviewImg.src='';});
   btn.addEventListener('click',async function(){
     if(!session||!currentGroup)return;
-    var input=document.getElementById('group-input'),text=input.value.trim();if(!text)return;
-    var payload={action:'createPost',token:session.token,channel:'group:'+currentGroup.id,text:text};
+    var input=document.getElementById('group-input'),text=input.value.trim();if(!text&&!groupMedia)return;
+    var payload={action:'createPost',token:session.token,channel:'group:'+currentGroup.id,text:text,media_url:groupMedia||''};
     var replyAsSel=document.getElementById('group-replyas');
     var replyAs=replyAsSel?replyAsSel.value:'';
     if(replyAs)payload.reply_as=replyAs;
     btn.disabled=true;btn.textContent='…';
     try{
       var res=await postAction(payload);
-      if(res&&res.ok){input.value='';input.style.height='auto';
+      if(res&&res.ok){input.value='';input.style.height='auto';groupMedia=null;if(gPreview)gPreview.hidden=true;if(gPreviewImg)gPreviewImg.src='';
         groupPosts.push(mapServerPost(res.post));renderGroupRoom();
         var feed=document.getElementById('group-room-feed');if(feed)feed.scrollTop=feed.scrollHeight;
       }else{alert((res&&res.error)||'Could not send.');}
@@ -1504,6 +1548,20 @@ checkSession();renderELibrary();initComposeRefPicker();paintCachedFeed();loadFee
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&Date.now()-lastFeedLoad>120000){loadFeed();}});
 // Close any open post menus on outside click.
 document.addEventListener('click',function(){document.querySelectorAll('.post-card__menu-list').forEach(function(l){l.hidden=true;});});
+// Tapping a scripture chip on any post opens the reader at that passage —
+// an organic path from the feed into Discuss Scripture.
+document.addEventListener('click',function(ev){
+  var chip=ev.target.closest&&ev.target.closest('.scripture-chip[data-scripture-ref]');
+  if(!chip)return;
+  ev.preventDefault();
+  var ref=chip.getAttribute('data-scripture-ref');
+  switchChannel('scripture');
+  var m=String(ref).match(/^(.*)\s(\d+)(?::(\d+))?$/);
+  if(m&&typeof loadChapter==='function'){
+    var book=m[1].trim(),ch=parseInt(m[2],10),verse=m[3];
+    setTimeout(function(){loadChapter(book,ch,false);if(verse){setTimeout(function(){var v=document.querySelector('#reader-verses .verse[data-ref="'+(book+' '+ch+':'+verse).replace(/"/g,'')+'"]');if(v){v.scrollIntoView({behavior:'smooth',block:'center'});v.classList.add('verse--selected');setTimeout(function(){v.classList.remove('verse--selected');},2200);}},700);}},350);
+  }
+});
 })();
 </script>
 </body>

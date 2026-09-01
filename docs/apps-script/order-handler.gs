@@ -143,7 +143,7 @@ const TELEGRAM_MAX_CHARS = 4090;
 const PRAYERS_HEADERS = [
   'submission_id', 'received_at', 'kind', 'submitter_name', 'submitter_email', 'anonymous',
   'body', 'telegram_status', 'telegram_message_id', 'telegram_error',
-  'drip_status', 'unsubscribe_token', 'client_ip_hash', 'verses_json',
+  'drip_status', 'unsubscribe_token', 'client_ip_hash', 'verses_json', 'public_consent',
 ];
 
 // PrayerDrip tab column order.
@@ -179,6 +179,9 @@ function doPost(e) {
   if (type === 'weekly-digest-email') return handleWeeklyDigestEmail(payload);
   if ((payload && payload.action) === 'prayer-intake') {
     return handlePrayerIntake_(payload, e && e.parameter);
+  }
+  if ((payload && payload.action) === 'getPublicPrayers') {
+    return handleGetPublicPrayers_(payload);
   }
   if ((payload && payload.action) === 'donateBible') {
     return handleBibleDonate_(payload, e && e.parameter);
@@ -4554,6 +4557,15 @@ function doGet(e) {
     }
   }
 
+  if (action === 'getPublicPrayers') {
+    try {
+      return handleGetPublicPrayers_(e && e.parameter || {});
+    } catch (err) {
+      console.log('getPublicPrayers failed:', err);
+      return jsonResponse({ ok: false, error: 'public-prayers-failed' });
+    }
+  }
+
   if (action === 'getInventory') {
     try {
       return jsonResponse(getInventoryReport_(e && e.parameter));
@@ -7510,6 +7522,7 @@ function appendPrayersRow_(fields) {
     String(fields.unsubscribeToken || ''),
     String(fields.clientIpHash || ''),
     String(fields.versesJson || ''),
+    fields.publicConsent === true ? 'TRUE' : 'FALSE',
   ];
   sheet.appendRow(row);
 }
@@ -7941,6 +7954,55 @@ function loadPrayersById_() {
   return out;
 }
 
+// ── Public prayer wall (Connect intake → community feed) ────────
+// Returns ONLY prayers/thanksgivings whose submitter opted in to public
+// sharing (public_consent = TRUE). Anonymous submitters are shown as
+// "A community member". Private requests are NEVER returned. Read-only.
+// { action:'getPublicPrayers', limit? }
+function handleGetPublicPrayers_(payload) {
+  try {
+    var limit = Math.min(parseInt(payload && payload.limit, 10) || 15, 40);
+    var sheet = openTab(PRAYERS_TAB, PRAYERS_HEADERS);
+    var values = sheet.getDataRange().getValues();
+    if (values.length < 2) return jsonResponse({ ok: true, prayers: [] });
+    var idx = headerIndex_(values[0]);
+    // If the column doesn't exist yet (old sheet), consent is impossible → return none.
+    if (idx.public_consent == null) return jsonResponse({ ok: true, prayers: [] });
+    var out = [];
+    for (var i = 1; i < values.length; i++) {
+      var row = values[i];
+      var consent = row[idx.public_consent] === true ||
+                    String(row[idx.public_consent] || '').toUpperCase() === 'TRUE';
+      if (!consent) continue; // hard gate — never surface non-consented prayers
+      var body = String(row[idx.body] || '').trim();
+      if (!body) continue;
+      var anon = row[idx.anonymous] === true ||
+                 String(row[idx.anonymous] || '').toUpperCase() === 'TRUE';
+      var name = anon ? 'A community member' : (String(row[idx.submitter_name] || '').trim() || 'A community member');
+      var kind = String(row[idx.kind] || 'prayer').toLowerCase();
+      if (kind !== 'thanksgiving') kind = 'prayer';
+      var ts = 0;
+      var ra = row[idx.received_at];
+      if (ra instanceof Date) ts = ra.getTime();
+      else if (ra) { var d = new Date(String(ra)); ts = isNaN(d.getTime()) ? 0 : d.getTime(); }
+      out.push({
+        id: 'connect-' + String(row[idx.submission_id] || i),
+        author: name,
+        text: body,
+        timestamp: ts,
+        channel: kind, // 'prayer' | 'thanksgiving'
+        source: 'connect',
+      });
+    }
+    out.sort(function (a, b) { return b.timestamp - a.timestamp; });
+    if (out.length > limit) out = out.slice(0, limit);
+    return jsonResponse({ ok: true, prayers: out });
+  } catch (err) {
+    console.log('getPublicPrayers error: ' + err);
+    return jsonResponse({ ok: false, error: 'Server error' });
+  }
+}
+
 // ── One-shot trigger installer ──────────────────────────────────
 //
 // Run this ONCE from the Apps Script editor's function dropdown to
@@ -8184,6 +8246,8 @@ function handlePrayerIntake_(payload, _route) {
       unsubscribeToken: unsubscribeToken,
       clientIpHash: ipHash,
       versesJson: JSON.stringify(verses),
+      // Did the submitter opt in to sharing on the public community prayer wall?
+      publicConsent: (payload && (payload.share_public === true || payload.share_public === 'true' || payload.share_public === 'on' || payload.share_public === '1')) === true,
     });
   } catch (err) {
     console.log('prayer-intake: audit append failed: ' + err);

@@ -107,6 +107,17 @@ Members (and the team, from the Team Portal **Forum** tab) can create named **gr
 
 To activate: repaste **`social-handler.gs`** + **`order-handler.gs`** into P1 and **redeploy**. The `CommunityGroups` tab auto-creates on first `createGroup`. No setup function needed.
 
+## Connect prayer wall → community feed (consent-gated) — needs redeploy
+
+Prayers/thanksgivings submitted on **connect.html** can now appear on the community feed's Prayer & Thanksgiving section — but **only when the submitter opts in**.
+- `connect.html` prayer form gained a **"Share this on our community prayer wall"** checkbox (`share_public`). Unchecked = stays private (default).
+- `order-handler.gs`: `PRAYERS_HEADERS` gained a **`public_consent`** column (15th). `appendPrayersRow_` + `handlePrayerIntake_` now write `TRUE`/`FALSE` from the opt-in. A new **`handleGetPublicPrayers_`** returns ONLY consented prayers (anonymous submitters shown as "A community member"); it's routed in both `doPost` and `doGet` as `getPublicPrayers`.
+- `community.html` `loadFeed()` fetches `getPublicPrayers` in parallel and merges consented prayers as read-only cards.
+
+> ⚠️ Privacy: non-consented and private prayer requests are **never** returned by `getPublicPrayers`. The gate is a hard `public_consent === TRUE` check. Existing prayer rows (no consent column) are treated as not-consented.
+
+To activate: repaste **`order-handler.gs`** into P1 and **redeploy**. The `public_consent` column is added to the Prayers header automatically only on a fresh tab; **for the EXISTING Prayers tab, add a `public_consent` header cell in the next empty column** (or leave it — new submissions will still record consent in column 15, and admins can set older rows to `TRUE` manually to feature them).
+
 ## Current status — what still needs doing (update as you go)
 
 - [ ] **P1: paste `content-handler.gs`** + redeploy + run `stwContentSetup()` → Content Studio stories/testimonies + live News content.

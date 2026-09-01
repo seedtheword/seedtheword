@@ -622,7 +622,9 @@
 .community-body .compose-ref__label { font-size: 0.72rem; font-weight: 700; color: var(--fk-accent); }
 .community-body .compose-ref__book, .community-body .compose-ref__ch, .community-body .compose-ref__v { border: 1px solid var(--fk-line); border-radius: 8px; padding: 0.35rem 0.5rem; font-size: 0.78rem; font-family: var(--font-sans); background: var(--fk-card); color: var(--fk-ink); }
 .community-body .compose-ref__v { width: 78px; }
-.community-body .scripture-chip { display: inline-block; background: var(--fk-accent-soft, rgba(217,119,54,0.1)); color: var(--fk-accent); font-weight: 700; font-size: 0.74rem; padding: 0.1rem 0.5rem; border-radius: 999px; margin-right: 0.35rem; }
+.community-body .scripture-chip { display: inline-block; background: var(--fk-accent-soft, rgba(217,119,54,0.1)); color: var(--fk-accent); font-weight: 700; font-size: 0.74rem; padding: 0.1rem 0.5rem; border-radius: 999px; margin-right: 0.35rem; border: none; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+.community-body .scripture-chip:hover { background: var(--fk-accent, #c4622d); color: #fff; }
+.community-body .compose-ref__mine { border: 1px solid var(--fk-line); border-radius: 8px; padding: 0.35rem 0.5rem; font-size: 0.78rem; font-family: var(--font-sans); background: var(--fk-card); color: var(--fk-ink); max-width: 200px; }
 
 /* ── Channel bar: mobile polish + snappy animation + shimmer ── */
 .community-body .channel-bar { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
@@ -769,3 +771,8 @@
 .mynote__actions { display: flex; gap: 0.15rem; flex-shrink: 0; }
 .mynote__edit, .mynote__del { background: none; border: none; cursor: pointer; font-size: 0.85rem; padding: 0.2rem 0.3rem; border-radius: 6px; opacity: 0.7; }
 .mynote__edit:hover, .mynote__del:hover { opacity: 1; background: var(--fk-card, #fff); }
+
+
+/* Read-only cards (announcements + Connect prayer-wall posts). */
+.post-card__actions--readonly { justify-content: space-between; gap: 0.75rem; }
+.post-card__source { font-size: 0.72rem; color: var(--fk-muted, #8a8178); font-style: italic; align-self: center; }

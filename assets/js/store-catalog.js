@@ -245,7 +245,8 @@
     var sellerHTML = p.seller ? '<span class="store-card__seller">' + esc(p.seller) + '</span>' : '';
 
     var stockHTML = '';
-    if (p.category === 'bibles' && p.stockCount !== null && p.stockCount !== undefined) {
+    // Show live stock for any non-Amazon product that has a known count.
+    if (p.category !== 'amazon' && p.stockCount !== null && p.stockCount !== undefined) {
       if (p.stockCount === 0) {
         stockHTML = '<span class="store-card__stock store-card__stock--out">Out of Stock</span>';
       } else {
@@ -255,7 +256,7 @@
     }
 
     var unitCents = productUnitCents(p);
-    var outOfStock = (p.category === 'bibles' && p.stockCount === 0);
+    var outOfStock = (p.category !== 'amazon' && p.stockCount === 0);
 
     var actionHTML;
     if (p.category === 'amazon' && p.url) {
@@ -624,7 +625,7 @@
     var itemNumber = p.id ? '<span class="store-detail__item-num">Item #' + esc(p.id) + '</span>' : '';
 
     var unitCents = productUnitCents(p);
-    var outOfStock = (p.category === 'bibles' && p.stockCount === 0);
+    var outOfStock = (p.category !== 'amazon' && p.stockCount === 0);
     var isFav = (window.STW_Cart && window.STW_Cart.isFavorite(p.id));
 
     // Right-column call to action varies by product type.
@@ -1010,7 +1011,8 @@
       if (items.length) {
         items.forEach(function(item) {
           var match = products.find(function(p) { return p.id === item.id; });
-          if (match) {
+          // Don't clobber live Inventory availability from the Lists catalog.
+          if (match && !match._availFromInventory) {
             match.stockCount = item.count;
             match.inStock = item.count > 0;
           }
@@ -1038,7 +1040,9 @@
       var byId = {};
       data.items.forEach(function (it) { byId[it.id] = it; });
 
+      var haveId = {};
       products.forEach(function (p) {
+        haveId[p.id] = true;
         var live = byId[p.id];
         if (!live) return; // e.g. Amazon picks not in the sheet — leave as-is
         p.baseCents = live.baseCents;
@@ -1051,8 +1055,64 @@
         p.price = formatCents_(displayCents) + (p.packSize > 1 ? ' / pack of ' + p.packSize : '');
         // Prefer the sheet's fuller description when present.
         if (live.description) p.description = live.description;
+        // Live availability from the Inventory tab (in − out). Applies to ALL
+        // categories now, not just bibles.
+        if (live.available !== null && live.available !== undefined) {
+          p.stockCount = Math.max(0, live.available);
+          p.inStock = p.stockCount > 0;
+          p._availFromInventory = true;
+        }
+      });
+
+      // Render Lists-tab rows that have NO hardcoded product yet, so adding a
+      // row to the Lists sheet makes it appear on the store automatically.
+      data.items.forEach(function (live) {
+        if (haveId[live.id]) return;
+        products.push(listItemToProduct_(live));
       });
     } catch (_) { /* keep existing JSON prices */ }
+  }
+
+  // Build a store product from a Lists-tab catalog item that has no hardcoded
+  // entry. Category is guessed from the id; display name derives from the
+  // description or a title-cased id.
+  function listItemToProduct_(live) {
+    var id = String(live.id || '');
+    var cat = guessCategory_(id);
+    var name = (live.description && live.description.length <= 60)
+      ? live.description
+      : titleCaseId_(id);
+    var displayCents = (live.packSize > 1) ? live.packRetailCents : live.retailCents;
+    return {
+      id: id,
+      name: name,
+      description: live.description || name,
+      category: cat,
+      seller: 'Seed the Word',
+      language: '',
+      tags: [],
+      image: '',
+      gallery: [],
+      baseCents: live.baseCents,
+      retailCents: live.retailCents,
+      packSize: live.packSize || 1,
+      packBaseCents: live.packBaseCents,
+      packRetailCents: live.packRetailCents,
+      price: displayCents != null ? (formatCents_(displayCents) + (live.packSize > 1 ? ' / pack of ' + live.packSize : '')) : '',
+      customizable: !!live.customizable,
+      stockCount: (live.available !== null && live.available !== undefined) ? Math.max(0, live.available) : null,
+      inStock: (live.available == null) ? true : (live.available > 0),
+      _fromLists: true
+    };
+  }
+  function guessCategory_(id) {
+    var s = id.toLowerCase();
+    if (s.indexOf('tract') === 0 || s.indexOf('life-book') !== -1 || s.indexOf('flip-book') !== -1) return 'tracts';
+    if (s.indexOf('merch') === 0 || s.indexOf('sticker') !== -1 || s.indexOf('keychain') !== -1 || s.indexOf('bookmark') !== -1 || s.indexOf('notebook') !== -1) return 'merch';
+    return 'bibles';
+  }
+  function titleCaseId_(id) {
+    return String(id).replace(/[-_]+/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
   }
 
   function formatCents_(cents) {

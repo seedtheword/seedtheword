@@ -3765,9 +3765,41 @@ function getStoreCatalog_() {
     });
   }
 
+  // Live availability from the Inventory tab: sum(in) − sum(out) per item_id.
+  try {
+    var avail = computeInventoryAvailability_(ss);
+    for (var a = 0; a < items.length; a++) {
+      items[a].available = (avail[items[a].id] != null) ? avail[items[a].id] : null;
+    }
+  } catch (e) { /* availability is best-effort */ }
+
   var result = { ok: true, items: items, cachedAt: new Date().toISOString() };
   try { cache.put('stw_catalog_v1', JSON.stringify(result), 300); } catch (e) {}
   return result;
+}
+
+// Sum Inventory movements per item_id → net on-hand (in minus out). Positive
+// 'in' (restock) adds; 'out' (outreach/store-order) subtracts; 'adjustment'
+// respects its direction. Returns { item_id: netQty }.
+function computeInventoryAvailability_(ss) {
+  var out = {};
+  var sheet = ss.getSheetByName('Inventory');
+  if (!sheet || sheet.getLastRow() < 2) return out;
+  var lastCol = sheet.getLastColumn();
+  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  function col(name){ var t=String(name).toLowerCase().replace(/[\s_\-]/g,''); for(var i=0;i<headers.length;i++){ if(String(headers[i]).toLowerCase().replace(/[\s_\-]/g,'')===t) return i; } return -1; }
+  var cId = col('item_id'), cQty = col('qty'), cDir = col('direction');
+  if (cId < 0 || cQty < 0) return out;
+  var data = sheet.getRange(2, 1, sheet.getLastRow()-1, lastCol).getValues();
+  for (var i = 0; i < data.length; i++) {
+    var id = String(data[i][cId] || '').trim();
+    if (!id) continue;
+    var qty = parseInt(data[i][cQty], 10) || 0;
+    var dir = cDir >= 0 ? String(data[i][cDir] || '').toLowerCase().trim() : 'out';
+    if (out[id] == null) out[id] = 0;
+    out[id] += (dir === 'in') ? qty : -qty;
+  }
+  return out;
 }
 
 // Read the CustomOptions tab into { product_id: [ {key,label,type,maxChars,

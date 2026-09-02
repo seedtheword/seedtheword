@@ -137,3 +137,20 @@ To activate: repaste **`order-handler.gs`** into P1 and **redeploy**. The `publi
 - **Likes/comments**: like a post in one browser, reload in another → count matches.
 - **Content Studio**: `admin/dashboard.html` as super-admin → add a story marked Published → appears on `news.html` within ~3 min.
 - **Finance reports**: STW Finances archive → **STW Reports → Generate Monthly Report (PDF)**.
+
+
+## Inventory movements + store-from-Lists + finance sync — needs redeploy (P1)
+
+Team portal inventory logging is now a full movement flow, and the store reads real items + availability.
+- **Date bug fixed**: all inventory/finance dates now use the ministry-local calendar day (`localToday_()` / client `toLocaleDateString('en-CA')`) instead of UTC, so evening-Pacific entries no longer log as "tomorrow."
+- **`order-handler.gs`**:
+  - `INVENTORY_HEADERS` gained `cost_status`, `covered_by`, `receipt_url`, `detail_notes` (appended to the existing Inventory tab automatically by header name via `ensureColumn_`). The `type` column now carries the **movement type** (`restock` | `store-order` | `adjustment` | `outreach`); the `notes` column still holds the **team-member name** (login sums scans by it — do not repurpose it).
+  - `handleTeamScan_` accepts `movement_type`, `cost_status` (`none`/`partial`/`full`), `cost_amount`, `covered_by`, `detail_notes`, and a base64 `receipt_data` (uploaded to the STW Receipts Drive folder). Restock = stock **in**; store-order/outreach = **out**; adjustment respects `direction`. Only outbound movements bump `total_scans`. When cost is partial/full it **auto-creates a Finances expense** (which syncs to STW Finances) with the receipt attached.
+  - New **`handleGetInventoryMeta_`** (`getInventoryMeta`) returns reusable donor names (`covered_by`), recent event sources, and the member's last event.
+  - `handleTeamLogin_` now returns `last_event` (the member's most recent event source) so the portal prefills it (no more "not found").
+  - `getStoreCatalog_` now attaches **`available`** per item = net Inventory movement (sum in − out) via `computeInventoryAvailability_`.
+- **`finance-handler.gs`**: `handleLogFinanceEntry_` now accepts a pre-uploaded `entry.receipt_url` (so an inventory movement's receipt lands on the finance row without re-uploading).
+
+To activate: repaste **`order-handler.gs`** + **`finance-handler.gs`** into P1 and **redeploy**. The new Inventory columns auto-append on the next movement. No setup function needed.
+
+> Store frontend (`store-catalog.js`) now also renders **Lists-tab rows that have no hardcoded product** and shows **live availability for all categories** — this ships via git (no Apps Script step), but availability numbers only populate once the redeployed `getCatalog` returns the `available` field.

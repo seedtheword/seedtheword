@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616047,
-  "lastModified": "2026-09-01T21:55:34Z",
+  "lastUpdateId": 669616051,
+  "lastModified": "2026-09-02T00:25:38Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -497,6 +497,26 @@
       "kind": "telegram",
       "text": "In Jesus name no weapon formed against us shall prosper",
       "ts": "2026-09-01T19:09:09Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5535,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Praying Request 9/1/2026:\n\nIf you could pray for me to be able to sleep that would be great because our ministry team has been experiencing a great amount of spiritual attacks and I'm not immune to them so I've been unable to sleep (insomnia) as of last week and half and also pure exhaustion where I just want to sleep but can't go to sleep\n\nThere has also been reports of witchcraft, sin, and burdens surrounding my family, our ministry members, my friends, and myself as well as I hear reports from all of you so let's please pray with serious intent to invite God's protection and abstain from evil thoughts on our hearts to serve His Kingdom in purity, Truth, and Spirit",
+      "ts": "2026-09-02T00:07:05Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5538,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thank you Liam 🙏",
+      "ts": "2026-09-02T00:14:43Z"
     }
   ]
 }

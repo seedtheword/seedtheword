@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616086,
-  "lastModified": "2026-09-02T21:25:38Z",
+  "lastUpdateId": 669616089,
+  "lastModified": "2026-09-02T21:55:43Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -617,6 +617,16 @@
       "kind": "telegram",
       "text": "January 10th will be our next prayer night. I need to ping people to get confirmation we have the space.",
       "ts": "2026-09-02T17:28:18Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5569,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request 9/2/2026:\n\nPlease pray for the South American church where we sent these Bibles, this is what they said:\nhttps://t.me/seedtheword/1/5567\n\n\"Dear Beloved, can you please help me with a Bible, 9×6.or what ever you have ,because I can't buy one,please joined me in prayers, I looking for a building with a low price, or Hod can touch some heart to give a place to worship on Sunday, I had a small church  with 15 poor people's, in a school class room, but the our government closed it.,address...\"",
+      "ts": "2026-09-02T21:44:39Z"
     }
   ]
 }

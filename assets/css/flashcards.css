@@ -1,0 +1,187 @@
+/* ============================================================
+   Seed the Word — Flashcard deck (shared across the how-to pages)
+   Flip to memorize · swipe on mobile · richer desktop layout.
+   Warm glass / gold + green to match the how-to pages.
+   ============================================================ */
+:root {
+  --fc-bg: #f4f1ec;
+  --fc-ink: #1a1a1a;
+  --fc-ink-2: #3d3d3d;
+  --fc-muted: #6b6b6b;
+  --fc-gold: #c8963e;
+  --fc-gold-soft: rgba(200, 150, 62, 0.12);
+  --fc-green: #2c5f2e;
+  --fc-green-soft: rgba(44, 95, 46, 0.10);
+  --fc-glass: rgba(255, 255, 255, 0.62);
+  --fc-glass-strong: rgba(255, 255, 255, 0.8);
+  --fc-glass-border: rgba(255, 255, 255, 0.72);
+  --fc-border: rgba(0, 0, 0, 0.07);
+  --fc-radius: 24px;
+  --fc-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  --fc-shadow-lg: 0 24px 70px rgba(0, 0, 0, 0.12);
+  --fc-blur: blur(18px);
+  --fc-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Deck shell */
+.fc-deck { max-width: 980px; margin: 0 auto; padding: 0 1.25rem; }
+.fc-deck__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;
+}
+.fc-deck__progress {
+  font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; font-weight: 700;
+  letter-spacing: 0.04em; color: var(--fc-green);
+}
+.fc-deck__tools { display: flex; gap: 0.5rem; }
+.fc-tool {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.5rem 0.9rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--fc-glass-border); background: var(--fc-glass);
+  backdrop-filter: var(--fc-blur); -webkit-backdrop-filter: var(--fc-blur);
+  font-family: 'Inter', system-ui, sans-serif; font-size: 0.78rem; font-weight: 600;
+  color: var(--fc-ink-2); transition: all 0.2s var(--fc-ease);
+}
+.fc-tool:hover { border-color: var(--fc-gold); color: var(--fc-gold); transform: translateY(-1px); }
+
+/* Progress dots */
+.fc-dots { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem; }
+.fc-dot {
+  width: 9px; height: 9px; border-radius: 50%; border: none; cursor: pointer; padding: 0;
+  background: rgba(44, 95, 46, 0.22); transition: all 0.2s var(--fc-ease);
+}
+.fc-dot.is-active { background: var(--fc-green); transform: scale(1.3); }
+.fc-dot.is-flipped { background: var(--fc-gold); }
+
+/* Stage — where the current card lives (mobile-first single card) */
+.fc-stage {
+  position: relative; perspective: 1600px;
+  min-height: 380px; display: flex; align-items: stretch; justify-content: center;
+  touch-action: pan-y;
+}
+
+/* Card */
+.fc-card {
+  position: relative; width: 100%; max-width: 620px;
+  transform-style: preserve-3d; cursor: pointer;
+  transition: transform 0.55s var(--fc-ease);
+  min-height: 380px;
+}
+.fc-card.is-flipped { transform: rotateY(180deg); }
+.fc-card.is-anim-out { opacity: 0; transform: translateX(var(--fc-slide, -40px)) scale(0.96); transition: opacity 0.18s, transform 0.18s; }
+
+.fc-face {
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 2.5rem 2rem; border-radius: var(--fc-radius);
+  border: 1px solid var(--fc-glass-border); box-shadow: var(--fc-shadow);
+  background: var(--fc-glass-strong); backdrop-filter: var(--fc-blur); -webkit-backdrop-filter: var(--fc-blur);
+  overflow: auto;
+}
+.fc-face--front { }
+.fc-face--back { transform: rotateY(180deg); background: linear-gradient(140deg, var(--fc-green-soft), var(--fc-gold-soft)), var(--fc-glass-strong); }
+/* Colored top accent per face */
+.fc-face::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: var(--fc-radius) var(--fc-radius) 0 0;
+  background: linear-gradient(90deg, var(--fc-green), var(--fc-gold));
+}
+
+.fc-kicker {
+  font-family: 'Inter', system-ui, sans-serif; font-size: 0.68rem; font-weight: 800;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--fc-gold); margin: 0 0 0.85rem;
+}
+.fc-front-title {
+  font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.5rem, 4.5vw, 2.1rem);
+  font-weight: 700; color: var(--fc-ink); line-height: 1.2; margin: 0;
+}
+.fc-front-sub { font-family: 'Inter', system-ui, sans-serif; font-size: 0.9rem; color: var(--fc-muted); margin: 0.85rem 0 0; line-height: 1.6; }
+.fc-back-title {
+  font-family: 'Inter', system-ui, sans-serif; font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--fc-green); margin: 0 0 0.75rem;
+}
+.fc-back-body { font-family: 'Inter', system-ui, sans-serif; font-size: 0.98rem; line-height: 1.75; color: var(--fc-ink-2); }
+.fc-back-body p { margin: 0 0 0.85rem; }
+.fc-back-body ul { padding-left: 1.2rem; margin: 0.5rem 0 0.85rem; }
+.fc-back-body li { margin-bottom: 0.4rem; }
+.fc-back-body li::marker { color: var(--fc-gold); }
+.fc-back-body a { color: var(--fc-gold); font-weight: 600; text-decoration: none; border-bottom: 1px solid transparent; }
+.fc-back-body a:hover { border-bottom-color: var(--fc-gold); }
+.fc-back-body strong { color: var(--fc-ink); }
+
+/* Flip hint */
+.fc-flip-hint {
+  position: absolute; bottom: 1rem; left: 0; right: 0; text-align: center;
+  font-family: 'Inter', system-ui, sans-serif; font-size: 0.72rem; color: var(--fc-muted);
+  pointer-events: none;
+}
+.fc-flip-hint__key { display: none; }
+
+/* Scripture card variant (front only, elegant) */
+.fc-card--scripture .fc-face--front { background: linear-gradient(135deg, var(--fc-green-soft), var(--fc-gold-soft)), var(--fc-glass-strong); }
+.fc-scripture-quote { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.15rem, 3.5vw, 1.5rem); font-style: italic; line-height: 1.55; color: var(--fc-ink); margin: 0; }
+.fc-scripture-cite { display: block; font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; font-weight: 700; color: var(--fc-green); margin-top: 1rem; letter-spacing: 0.02em; }
+
+/* Nav arrows */
+.fc-nav {
+  display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.25rem;
+}
+.fc-arrow {
+  width: 52px; height: 52px; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--fc-glass-border); background: var(--fc-glass-strong);
+  backdrop-filter: var(--fc-blur); -webkit-backdrop-filter: var(--fc-blur);
+  font-size: 1.3rem; color: var(--fc-green); display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--fc-shadow); transition: all 0.2s var(--fc-ease);
+}
+.fc-arrow:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--fc-shadow-lg); border-color: var(--fc-gold); color: var(--fc-gold); }
+.fc-arrow:disabled { opacity: 0.35; cursor: not-allowed; }
+.fc-nav__flip {
+  padding: 0.85rem 1.6rem; border-radius: 999px; cursor: pointer;
+  border: none; background: linear-gradient(135deg, var(--fc-green), #3a7d3c); color: #fff;
+  font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 0.9rem;
+  box-shadow: 0 4px 16px rgba(44, 95, 46, 0.3); transition: all 0.2s var(--fc-ease);
+}
+.fc-nav__flip:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(44, 95, 46, 0.4); }
+
+/* Card CTA button (used on cards that end with an action) */
+.fc-card-btn {
+  display: inline-block; margin-top: 1rem; padding: 0.8rem 1.6rem; border-radius: 14px;
+  background: linear-gradient(135deg, var(--fc-green), #3a7d3c); color: #fff; text-decoration: none;
+  font-family: 'Inter', system-ui, sans-serif; font-weight: 600; font-size: 0.9rem;
+  box-shadow: 0 4px 16px rgba(44, 95, 46, 0.3); transition: all 0.2s var(--fc-ease);
+}
+.fc-card-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(44, 95, 46, 0.4); }
+.fc-card-btn--gold { background: linear-gradient(135deg, var(--fc-gold), #d4a84b); box-shadow: 0 4px 16px rgba(200, 150, 62, 0.3); }
+.fc-card-qr { width: 116px; height: 116px; border-radius: 12px; border: 1px solid var(--fc-border); margin-top: 1rem; display: block; }
+
+/* Live stat chips on a card */
+.fc-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 0.5rem; }
+.fc-stat { background: var(--fc-glass); border: 1px solid var(--fc-glass-border); border-radius: 14px; padding: 0.9rem; text-align: center; }
+.fc-stat__num { font-family: 'Playfair Display', Georgia, serif; font-size: 1.6rem; font-weight: 700; color: var(--fc-green); line-height: 1; }
+.fc-stat__label { font-family: 'Inter', system-ui, sans-serif; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fc-muted); margin-top: 0.35rem; }
+
+/* Desktop: richer layout — bigger stage + an overview strip of upcoming cards */
+@media (min-width: 900px) {
+  .fc-stage { min-height: 440px; }
+  .fc-card, .fc-face { min-height: 440px; }
+  .fc-face { padding: 3rem 3rem; }
+  .fc-overview { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+}
+.fc-overview { display: none; }
+.fc-mini {
+  padding: 0.55rem 0.95rem; border-radius: 12px; cursor: pointer; max-width: 180px;
+  border: 1px solid var(--fc-glass-border); background: var(--fc-glass);
+  font-family: 'Inter', system-ui, sans-serif; font-size: 0.76rem; font-weight: 600; color: var(--fc-ink-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: all 0.2s var(--fc-ease);
+}
+.fc-mini.is-active { border-color: var(--fc-green); color: var(--fc-green); background: var(--fc-green-soft); }
+.fc-mini:hover { transform: translateY(-1px); border-color: var(--fc-gold); }
+
+/* No-JS fallback: show all cards stacked, front + back visible */
+.fc-nojs .fc-card { position: relative; transform: none !important; margin-bottom: 1rem; min-height: auto; }
+.fc-nojs .fc-face { position: relative; inset: auto; transform: none !important; backface-visibility: visible; margin-bottom: 0.5rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fc-card { transition: none; }
+  .fc-arrow, .fc-tool, .fc-card-btn, .fc-nav__flip, .fc-mini { transition: none; }
+}

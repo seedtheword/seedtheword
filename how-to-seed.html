@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
+  <link rel="stylesheet" href="assets/css/flashcards.css?v=1">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
     /* ============================================================
@@ -447,81 +448,142 @@
 
 <!-- Content -->
 <div class="seed-content">
+  <p style="text-align:center;font-family:'Inter',sans-serif;font-size:0.9rem;color:var(--seed-muted);margin:0 0 1.5rem;">Flip each card to learn it · swipe or use the arrows to move</p>
 
-  <!-- Mission -->
-  <article class="seed-card">
-    <p class="seed-card__kicker">The Mission</p>
-    <h2 class="seed-card__title">What does it mean to Seed the Word?</h2>
-    <p>Seeding is the first step — meeting people where they are and placing the Word of God into their hands. No pressure, no agenda beyond love. We share Bibles, pray with strangers, and trust God to grow what He starts.</p>
-    <div class="seed-scripture">
-      <p>He that soweth the good seed is the Son of man; the field is the world.</p>
-      <cite>Matthew 13:37–38 KJV</cite>
-    </div>
-    <p>We're just sowers. The field is everywhere — parks, campuses, cookouts, bus stops, your workplace. Anywhere a person is willing to receive.</p>
-  </article>
+  <section class="fc-deck fc-nojs" data-fc-deck aria-label="How to Seed flashcards">
 
-  <!-- Getting started steps -->
-  <article class="seed-card">
-    <p class="seed-card__kicker">Getting Started</p>
-    <h2 class="seed-card__title">How to start giving away Bibles</h2>
-    <div class="seed-steps">
-      <div class="seed-step">
-        <div class="seed-step__number">1</div>
-        <h3 class="seed-step__title">Join the Team</h3>
-        <p class="seed-step__desc">Create your account on our team portal. Takes 30 seconds.</p>
+    <article class="fc-card fc-card--scripture" data-title="The field is the world">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">The Mission</p>
+        <p class="fc-scripture-quote">He that soweth the good seed is the Son of man; the field is the world.</p>
+        <span class="fc-scripture-cite">Matthew 13:37–38 KJV</span>
       </div>
-      <div class="seed-step">
-        <div class="seed-step__number">2</div>
-        <h3 class="seed-step__title">Get Your Bibles</h3>
-        <p class="seed-step__desc">We provide free Bibles in 10+ languages. Pick them up or request a shipment.</p>
-      </div>
-      <div class="seed-step">
-        <div class="seed-step__number">3</div>
-        <h3 class="seed-step__title">Go Out</h3>
-        <p class="seed-step__desc">Join a scheduled outreach or go on your own. Just be you — let God do the rest.</p>
-      </div>
-      <div class="seed-step">
-        <div class="seed-step__number">4</div>
-        <h3 class="seed-step__title">Scan & Log</h3>
-        <p class="seed-step__desc">Scan the QR on each Bible as you give it away. Our system tracks everything automatically.</p>
-      </div>
-    </div>
-  </article>
+    </article>
 
-  <!-- Join CTA -->
-  <div class="seed-cta">
-    <h2 class="seed-cta__title">Become a Sower</h2>
-    <p class="seed-cta__desc">Whether you can give away one Bible a week or fifty at an outreach event — you're welcome. There's no minimum, no commitment beyond showing up when you can.</p>
-    <a class="seed-cta__btn" href="team.html">Join the Team</a>
-    <p class="seed-cta__qr-hint">Or scan from your phone:</p>
-    <img class="seed-cta__qr" id="team-qr" alt="QR code to join the team" src="">
-  </div>
+    <article class="fc-card" data-title="What is seeding?">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">The Mission</p>
+        <h2 class="fc-front-title">What does it mean to Seed the Word?</h2>
+        <p class="fc-front-sub">Tap to reveal</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Seeding</p>
+        <div class="fc-back-body">
+          <p>The first step — meeting people where they are and placing the Word of God into their hands. No pressure, no agenda beyond love.</p>
+          <p>We're just sowers. The field is everywhere — parks, campuses, cookouts, bus stops, your workplace. Anywhere a person is willing to receive.</p>
+        </div>
+      </div>
+    </article>
 
-  <!-- Tools -->
-  <article class="seed-card">
-    <p class="seed-card__kicker">Evangelism Tools</p>
-    <h2 class="seed-card__title">Tools for the field</h2>
-    <p>You don't need to be a theologian. You just need to care. Here are tools that make conversations easier:</p>
-    <ul>
-      <li><strong>GodTools App</strong> — simple conversation guides in 100+ languages. <a href="https://godtoolsapp.com/tools" target="_blank" rel="noopener">Download free →</a></li>
-      <li><strong>Pocket Bibles</strong> — we provide New Testaments in English, Spanish, Hindi, Russian, Arabic, Farsi, and more.</li>
-      <li><strong>Life Books</strong> — short gospel booklets perfect for someone who isn't ready for a full Bible.</li>
-      <li><strong>Your testimony</strong> — nothing is more powerful than your own story of how Jesus met you.</li>
-    </ul>
-    <p>Training resources and video guides are available on our <a href="community.html">Community page</a>.</p>
-  </article>
+    <article class="fc-card" data-title="Step 1 · Join the team">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Getting Started · 1 of 4</p>
+        <h2 class="fc-front-title">Join the Team</h2>
+        <p class="fc-front-sub">What's the first step? Tap to check.</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Step 1 — Join</p>
+        <div class="fc-back-body">
+          <p>Create your account on the <strong>team portal</strong>. Takes about 30 seconds — name, a password, and you're in.</p>
+          <a class="fc-card-btn" href="team.html">Open the Team Portal →</a>
+        </div>
+      </div>
+    </article>
 
-  <!-- Outreach events -->
-  <article class="seed-card">
-    <p class="seed-card__kicker">Outreach</p>
-    <h2 class="seed-card__title">Upcoming events</h2>
-    <p>We partner with local ministries for community cookouts, campus outreach, park evangelism, and more. Check our <a href="news.html">News page</a> for the latest schedule or join our <a href="https://t.me/seedtheword" target="_blank" rel="noopener">Telegram group</a> for real-time updates.</p>
-    <div class="seed-cta" style="margin:1.5rem 0 0;padding:2rem 1.5rem;">
-      <h3 class="seed-cta__title" style="font-size:1.15rem;">Read the full story</h3>
-      <p class="seed-cta__desc">See every outreach we've done, photos from the field, and testimonies of what God did.</p>
-      <a class="seed-cta__btn seed-cta__btn--gold" href="testimonies.html">From the Field →</a>
-    </div>
-  </article>
+    <article class="fc-card" data-title="Step 2 · Get Bibles">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Getting Started · 2 of 4</p>
+        <h2 class="fc-front-title">Get Your Bibles</h2>
+        <p class="fc-front-sub">Tap to reveal</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Step 2 — Equip</p>
+        <div class="fc-back-body">
+          <p>We provide <strong>free Bibles in a dozen+ languages</strong> — English, Spanish, Hindi, Russian, Ukrainian, Farsi, Arabic, Urdu, Thai, Mandarin, French, and more.</p>
+          <p>Pick them up at a gathering or request a shipment through the portal.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="fc-card" data-title="Step 3 · Go out">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Getting Started · 3 of 4</p>
+        <h2 class="fc-front-title">Go Out</h2>
+        <p class="fc-front-sub">Tap to reveal</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Step 3 — Go</p>
+        <div class="fc-back-body">
+          <p>Join a scheduled outreach or go on your own. Just be you — start a conversation, offer a Bible, pray if they're open. <strong>Let God do the rest.</strong></p>
+        </div>
+      </div>
+    </article>
+
+    <article class="fc-card" data-title="Step 4 · Scan & log">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Getting Started · 4 of 4</p>
+        <h2 class="fc-front-title">Scan &amp; Log</h2>
+        <p class="fc-front-sub">Tap to reveal</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Step 4 — Log it</p>
+        <div class="fc-back-body">
+          <p>In the portal, log each Bible as you give it away — pick the item, quantity, and event. The system tracks the count, the languages, and the finances automatically.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="fc-card" data-title="Tools for the field">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Evangelism Tools</p>
+        <h2 class="fc-front-title">Tools for the field</h2>
+        <p class="fc-front-sub">You don't need to be a theologian — just care. Tap for the toolkit.</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Your toolkit</p>
+        <div class="fc-back-body">
+          <ul>
+            <li><strong>Pocket Bibles</strong> — New Testaments in a dozen+ languages.</li>
+            <li><strong>Life Books &amp; Flip Books</strong> — short gospel booklets for someone not ready for a full Bible.</li>
+            <li><strong>Your testimony</strong> — nothing is more powerful than your own story of how Jesus met you.</li>
+            <li><strong>GodTools App</strong> — simple conversation guides in 100+ languages. <a href="https://godtoolsapp.com/tools" target="_blank" rel="noopener">Free →</a></li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="fc-card" data-title="Outreach events">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Outreach</p>
+        <h2 class="fc-front-title">Where do we go?</h2>
+        <p class="fc-front-sub">Tap to reveal</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Out in the field</p>
+        <div class="fc-back-body">
+          <p>We partner with local ministries for community cookouts, campus outreach, and park evangelism across Washington State.</p>
+          <p>Latest schedule on the <a href="news.html">News page</a>, or real-time updates in our <a href="https://t.me/seedtheword" target="_blank" rel="noopener">Telegram group</a>.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="fc-card" data-title="Become a sower">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Your Move</p>
+        <h2 class="fc-front-title">Become a Sower</h2>
+        <p class="fc-front-sub">One Bible a week or fifty at an event — you're welcome. Tap to start.</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Join us</p>
+        <div class="fc-back-body">
+          <p>No minimum, no commitment beyond showing up when you can.</p>
+          <a class="fc-card-btn" href="team.html">Join the Team</a>
+          <img class="fc-card-qr" id="team-qr" alt="QR code to join the team" src="">
+        </div>
+      </div>
+    </article>
+
+  </section>
 
   <!-- Navigation -->
   <nav class="seed-nav-footer" aria-label="Continue the journey">
@@ -594,6 +656,7 @@
 <script>
 (function(){var q=qrcode(0,'M');q.addData('https://seedtheword.org/team.html');q.make();document.getElementById('team-qr').src=q.createDataURL(4,4);})();
 </script>
+<script src="assets/js/flashcards.js?v=1"></script>
 <script src="assets/js/main.js?v=10"></script>
 <script src="assets/js/profile-settings.js?v=3"></script>
 <script src="assets/js/nav-auth.js?v=3"></script>

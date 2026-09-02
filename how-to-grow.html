@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
+  <link rel="stylesheet" href="assets/css/flashcards.css?v=1">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
     /* ============================================================
@@ -419,91 +420,129 @@
 
 <!-- Content -->
 <div class="grow-content">
+  <p style="text-align:center;font-family:'Inter',sans-serif;font-size:0.9rem;color:var(--grow-muted,#6b6b6b);margin:0 0 1.5rem;">Flip each card to learn it · swipe or use the arrows to move</p>
 
-  <!-- Daily Reading -->
-  <article class="grow-card">
-    <p class="grow-card__kicker">Daily Reading</p>
-    <h2 class="grow-card__title">Encounter the Word every day</h2>
-    <p>Monday through Friday, we read one chapter of the New Testament together as a community. Saturday is Study Saturday — a deeper dive into the week's themes.</p>
-    <p>Our reading plan is simple: one chapter a day, in order, starting from Mark. No skipping, no rushing. Just showing up and letting God speak through His Word.</p>
-    <div class="grow-pill">
-      <span class="grow-pill__icon">📖</span>
-      <span class="grow-pill__text">Join the daily reading on our <a href="community.html">Community page</a></span>
-    </div>
-  </article>
+  <section class="fc-deck fc-nojs" data-fc-deck aria-label="How to Grow flashcards">
 
-  <!-- Audio Bible -->
-  <article class="grow-card">
-    <p class="grow-card__kicker">Audio Bible</p>
-    <h2 class="grow-card__title">Listen to the Word</h2>
-    <p>We have audio recordings for every chapter — recorded by Gideons International — available for you to listen on your commute, at work, or before bed. No app needed, just press play.</p>
-    <p>Audio chapters are embedded directly into our Community page alongside each day's reading. For the full library, visit our Spotify podcast.</p>
-    <div class="grow-pill">
-      <span class="grow-pill__icon">🎧</span>
-      <span class="grow-pill__text"><a href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener">Listen on Spotify →</a></span>
-    </div>
-  </article>
+    <article class="fc-card" data-title="Daily reading">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Daily Reading</p>
+        <h2 class="fc-front-title">Encounter the Word every day</h2>
+        <p class="fc-front-sub">Tap to reveal the rhythm</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">The rhythm</p>
+        <div class="fc-back-body">
+          <p><strong>Monday–Friday:</strong> one chapter of the New Testament, in order, read together as a community. No skipping, no rushing.</p>
+          <p><strong>Saturday:</strong> a deeper dive into the week's themes.</p>
+          <p>Join the daily reading on the <a href="community.html">Community page</a>.</p>
+        </div>
+      </div>
+    </article>
 
-  <!-- Study Saturday -->
-  <article class="grow-card">
-    <p class="grow-card__kicker">Study Saturday</p>
-    <h2 class="grow-card__title">Go deeper together</h2>
-    <p>Every Saturday we gather (live on Twitch or in person) to study the week's reading using five lenses:</p>
-    <div class="grow-lenses">
-      <div class="grow-lens">
-        <div class="grow-lens__num">1</div>
-        <div class="grow-lens__content">
-          <p class="grow-lens__name">Historical</p>
-          <p class="grow-lens__desc">What was happening when this was written?</p>
+    <article class="fc-card" data-title="Audio Bible">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Audio Bible</p>
+        <h2 class="fc-front-title">Listen to the Word</h2>
+        <p class="fc-front-sub">Tap to reveal</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Press play</p>
+        <div class="fc-back-body">
+          <p>Audio recordings for every chapter — on your commute, at work, or before bed. No app needed.</p>
+          <p>Chapters are embedded on the Community page beside each day's reading. Full library on our podcast.</p>
+          <a class="fc-card-btn fc-card-btn--gold" href="https://open.spotify.com/show/2rK4fCJuHWp8ji7Cj66EXK" target="_blank" rel="noopener">Listen on Spotify →</a>
         </div>
       </div>
-      <div class="grow-lens">
-        <div class="grow-lens__num">2</div>
-        <div class="grow-lens__content">
-          <p class="grow-lens__name">Linguistic</p>
-          <p class="grow-lens__desc">What do the original Greek/Hebrew words mean?</p>
-        </div>
-      </div>
-      <div class="grow-lens">
-        <div class="grow-lens__num">3</div>
-        <div class="grow-lens__content">
-          <p class="grow-lens__name">Interpretive</p>
-          <p class="grow-lens__desc">What is the author's intent?</p>
-        </div>
-      </div>
-      <div class="grow-lens">
-        <div class="grow-lens__num">4</div>
-        <div class="grow-lens__content">
-          <p class="grow-lens__name">Personal</p>
-          <p class="grow-lens__desc">What is God saying to me today?</p>
-        </div>
-      </div>
-      <div class="grow-lens">
-        <div class="grow-lens__num">5</div>
-        <div class="grow-lens__content">
-          <p class="grow-lens__name">External</p>
-          <p class="grow-lens__desc">How does this connect to the rest of Scripture?</p>
-        </div>
-      </div>
-    </div>
-    <div class="grow-cta" style="margin-top:1.5rem;padding:2rem 1.5rem;">
-      <h3 class="grow-cta__title" style="font-size:1.15rem;">Watch on Twitch</h3>
-      <p class="grow-cta__desc">Saturdays 7–10 PM Pacific</p>
-      <a class="grow-cta__btn--green grow-cta__btn" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener">twitch.tv/seedtheword →</a>
-    </div>
-  </article>
+    </article>
 
-  <!-- Discipleship -->
-  <article class="grow-card">
-    <p class="grow-card__kicker">Discipleship</p>
-    <h2 class="grow-card__title">Walking alongside</h2>
-    <p>Growth doesn't happen alone. We connect new believers with mentors, prayer partners, and a community that shows up for each other. Join our Telegram group for daily encouragement, prayer requests, and fellowship.</p>
-    <div class="grow-cta" style="margin:1.5rem 0 0;padding:2rem 1.5rem;">
-      <h3 class="grow-cta__title" style="font-size:1.15rem;">Join the community</h3>
-      <p class="grow-cta__desc">Daily reading posts, prayer, discussion, and fellowship with believers from all walks of life.</p>
-      <a class="grow-cta__btn" href="https://t.me/seedtheword" target="_blank" rel="noopener">Join Telegram →</a>
-    </div>
-  </article>
+    <article class="fc-card fc-card--scripture" data-title="Study Saturday">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Study Saturday</p>
+        <h2 class="fc-front-title">Five lenses to study any passage</h2>
+        <p class="fc-front-sub">Learn the five — the next cards quiz you on each. Saturdays 7–10 PM PT on Twitch.</p>
+      </div>
+    </article>
+
+    <article class="fc-card" data-title="Lens 1 · Historical">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Lens 1 of 5</p>
+        <h2 class="fc-front-title">Historical</h2>
+        <p class="fc-front-sub">What question does this lens ask? Tap to check.</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Historical</p>
+        <div class="fc-back-body"><p>What was happening when this was written?</p></div>
+      </div>
+    </article>
+
+    <article class="fc-card" data-title="Lens 2 · Linguistic">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Lens 2 of 5</p>
+        <h2 class="fc-front-title">Linguistic</h2>
+        <p class="fc-front-sub">Tap to check</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Linguistic</p>
+        <div class="fc-back-body"><p>What do the original Greek / Hebrew words mean?</p></div>
+      </div>
+    </article>
+
+    <article class="fc-card" data-title="Lens 3 · Interpretive">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Lens 3 of 5</p>
+        <h2 class="fc-front-title">Interpretive</h2>
+        <p class="fc-front-sub">Tap to check</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Interpretive</p>
+        <div class="fc-back-body"><p>What is the author's intent?</p></div>
+      </div>
+    </article>
+
+    <article class="fc-card" data-title="Lens 4 · Personal">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Lens 4 of 5</p>
+        <h2 class="fc-front-title">Personal</h2>
+        <p class="fc-front-sub">Tap to check</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Personal</p>
+        <div class="fc-back-body"><p>What is God saying to me today?</p></div>
+      </div>
+    </article>
+
+    <article class="fc-card" data-title="Lens 5 · External">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Lens 5 of 5</p>
+        <h2 class="fc-front-title">External</h2>
+        <p class="fc-front-sub">Tap to check</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">External</p>
+        <div class="fc-back-body">
+          <p>How does this connect to the rest of Scripture?</p>
+          <a class="fc-card-btn" href="https://twitch.tv/seedtheword" target="_blank" rel="noopener">Watch Study Saturday →</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="fc-card" data-title="Discipleship">
+      <div class="fc-face fc-face--front">
+        <p class="fc-kicker">Discipleship</p>
+        <h2 class="fc-front-title">Walking alongside</h2>
+        <p class="fc-front-sub">Tap to reveal</p>
+      </div>
+      <div class="fc-face fc-face--back">
+        <p class="fc-back-title">Together, not alone</p>
+        <div class="fc-back-body">
+          <p>Growth doesn't happen alone. We connect new believers with mentors, prayer partners, and a community that shows up for each other.</p>
+          <a class="fc-card-btn" href="https://t.me/seedtheword" target="_blank" rel="noopener">Join the Telegram community →</a>
+        </div>
+      </div>
+    </article>
+
+  </section>
 
   <!-- Navigation -->
   <nav class="grow-nav-footer" aria-label="Continue the journey">
@@ -570,6 +609,7 @@
     </div>
   </div>
 </footer>
+<script src="assets/js/flashcards.js?v=1"></script>
 <script src="assets/js/main.js?v=10"></script>
 <script src="assets/js/profile-settings.js?v=3"></script>
 <script src="assets/js/nav-auth.js?v=3"></script>

@@ -490,27 +490,31 @@ function pillGroup(groupId,onPick){
   });});
 }
 pillGroup('mv-type',function(v){mvType=v;});
-pillGroup('mv-cost',function(v){mvCost=v;document.getElementById('mv-cost-detail').hidden=(v==='none');});
+pillGroup('mv-cost',function(v){mvCost=v;document.getElementById('mv-cost-detail').hidden=(v!=='yes');});
 async function loadInventoryMeta(){
   if(mvMetaLoaded||!session)return; mvMetaLoaded=true;
   try{ var res=await postAction({action:'getInventoryMeta',token:session.token});
-    if(res&&res.ok){ var dl=document.getElementById('mv-donors'); if(dl&&res.donors){dl.innerHTML=res.donors.map(function(d){return '<option value="'+escapeHtml(d)+'">';}).join('');} }
+    if(res&&res.ok){
+      // Populate the "who covered/donated" dropdown from the Inventory notes column.
+      var sel=document.getElementById('mv-covered-select');
+      if(sel&&res.donors){ sel.innerHTML='<option value="">— Choose a previous note —</option>'+res.donors.map(function(d){return '<option value="'+escapeHtml(d)+'">'+escapeHtml(d)+'</option>';}).join(''); }
+    }
   }catch(e){}
 }
 function openMovementSheet(itemId,itemName){
-  mvItem={id:itemId,name:itemName}; mvType='outreach'; mvCost='none'; mvReceiptData=null;
+  mvItem={id:itemId,name:itemName}; mvType='outreach'; mvCost='no'; mvReceiptData=null;
   document.getElementById('mv-item-name').textContent=itemName;
   document.getElementById('mv-item-id').textContent=itemId;
   document.getElementById('mv-qty').value='1';
-  document.getElementById('mv-amount').value='';
   document.getElementById('mv-covered').value='';
+  var sel=document.getElementById('mv-covered-select'); if(sel)sel.value='';
   document.getElementById('mv-notes').value='';
   document.getElementById('mv-receipt').value='';
   document.getElementById('mv-receipt-name').textContent='';
   document.getElementById('mv-cost-detail').hidden=true;
   // reset pill actives to defaults
   document.querySelectorAll('#mv-type .mv-pill').forEach(function(b){b.classList.toggle('is-active',b.dataset.val==='outreach');});
-  document.querySelectorAll('#mv-cost .mv-pill').forEach(function(b){b.classList.toggle('is-active',b.dataset.val==='none');});
+  document.querySelectorAll('#mv-cost .mv-pill').forEach(function(b){b.classList.toggle('is-active',b.dataset.val==='no');});
   document.getElementById('mv-overlay').classList.add('active');
   loadInventoryMeta();
 }
@@ -519,6 +523,8 @@ document.getElementById('mv-close').addEventListener('click',closeMovementSheet)
 document.getElementById('mv-overlay').addEventListener('click',function(e){if(e.target===this)closeMovementSheet();});
 document.getElementById('mv-qty-minus').addEventListener('click',function(){var i=document.getElementById('mv-qty');i.value=Math.max(1,(parseInt(i.value)||1)-1);});
 document.getElementById('mv-qty-plus').addEventListener('click',function(){var i=document.getElementById('mv-qty');i.value=(parseInt(i.value)||1)+1;});
+// Choosing a previous note fills the text field (still editable).
+(function(){var sel=document.getElementById('mv-covered-select'); if(sel)sel.addEventListener('change',function(){ if(this.value)document.getElementById('mv-covered').value=this.value; });})();
 document.getElementById('mv-receipt').addEventListener('change',function(){
   var f=this.files&&this.files[0]; if(!f){mvReceiptData=null;document.getElementById('mv-receipt-name').textContent='';return;}
   document.getElementById('mv-receipt-name').textContent=f.name;
@@ -528,11 +534,11 @@ document.getElementById('mv-log-btn').addEventListener('click',function(){
   if(!mvItem)return;
   var qty=parseInt(document.getElementById('mv-qty').value)||1; if(qty<1)qty=1;
   logMovement({
-    id:mvItem.id, name:mvItem.name, qty:qty, movement_type:mvType, cost_status:mvCost,
-    cost_amount:document.getElementById('mv-amount').value,
-    covered_by:document.getElementById('mv-covered').value.trim(),
+    id:mvItem.id, name:mvItem.name, qty:qty, movement_type:mvType,
+    paid:(mvCost==='yes'),
+    donor_note:document.getElementById('mv-covered').value.trim(),
     detail_notes:document.getElementById('mv-notes').value.trim(),
-    receipt_data:(mvCost!=='none')?mvReceiptData:null
+    receipt_data:(mvCost==='yes')?mvReceiptData:null
   });
   document.getElementById('qr-status').textContent='\u2705 Logged: '+mvItem.name+(qty>1?' (x'+qty+')':'');
   closeMovementSheet();
@@ -550,10 +556,10 @@ async function logMovement(m){
     document.getElementById('stat-today').textContent=session.todayScans.length;
     document.getElementById('stat-total').textContent=session.totalScans;
   }
-  try{await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:m.id,item_name:m.name,qty:m.qty,event_label:session.event,date:localToday(),movement_type:m.movement_type,cost_status:m.cost_status,cost_amount:m.cost_amount||'',covered_by:m.covered_by||'',detail_notes:m.detail_notes||'',receipt_data:m.receipt_data||''});}catch(e){}
+  try{await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:m.id,item_name:m.name,qty:m.qty,event_label:session.event,date:localToday(),movement_type:m.movement_type,paid:!!m.paid,donor_note:m.donor_note||'',detail_notes:m.detail_notes||'',receipt_data:m.receipt_data||''});}catch(e){}
 }
 // Back-compat shim (in case other code calls logScan).
-async function logScan(itemId,itemName,qty){ return logMovement({id:itemId,name:itemName,qty:parseInt(qty)||1,movement_type:'outreach',cost_status:'none'}); }
+async function logScan(itemId,itemName,qty){ return logMovement({id:itemId,name:itemName,qty:parseInt(qty)||1,movement_type:'outreach',paid:false}); }
 
 // ── Picker ──
 document.getElementById('add-manual-btn').addEventListener('click',openPicker);

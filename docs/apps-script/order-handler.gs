@@ -1903,10 +1903,12 @@ const INVENTORY_TAB = 'Inventory';
 const INVENTORY_HEADERS = [
   'date', 'type', 'item_id', 'item_name', 'qty', 'direction',
   'event_source', 'cost_per_unit', 'total_cost', 'notes', 'order_id',
-  // Extended movement metadata (appended to existing sheets by header name):
-  // type(col B) carries the movement type (restock|adjustment|store-order);
-  // notes(col J) stays the team-member name (login sums scans by it).
-  'cost_status', 'covered_by', 'receipt_url', 'detail_notes'
+  // type(col B) carries the movement type (restock|adjustment|store-order|outreach).
+  // notes(col J) holds donor/attribution text (the portal's "who covered/donated" dropdown).
+  // cost_per_unit(col H) is ALWAYS filled from the Lists sheet. Cost, when the ministry
+  // paid, is posted to the Finances tab (where receipt_url lives) — not stored here.
+  // detail_notes = optional extra remarks.
+  'detail_notes'
 ];
 
 /**
@@ -2793,39 +2795,12 @@ function handleTeamLogin_(payload) {
         }
         
         if (matched) {
-        // Calculate actual total items given from Inventory sheet (sum of qty)
-        // and capture this member's MOST RECENT event source (col 6) so the
-        // portal can prefill "last event" per member instead of "not found".
-        var totalItems = 0;
-        var lastEvent = '', lastEventTs = -1;
-        try {
-          var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
-          var invSheet = ss.getSheetByName('Inventory');
-          if (invSheet && invSheet.getLastRow() > 1) {
-            var invData = invSheet.getRange(2, 1, invSheet.getLastRow()-1, invSheet.getLastColumn()).getValues();
-            var memberName = String(data[i][1]).toLowerCase().trim();
-            for (var j = 0; j < invData.length; j++) {
-              if (String(invData[j][9]).toLowerCase().trim() === memberName) {
-                totalItems += parseInt(invData[j][4]) || 1;
-                var ev = String(invData[j][6] || '').trim();
-                if (ev) {
-                  // Row order approximates chronology; later rows win. Also parse the
-                  // date cell (col 0) when present to be safe.
-                  var dts = j; // fallback ordinal
-                  var dRaw = invData[j][0];
-                  if (dRaw instanceof Date) dts = dRaw.getTime();
-                  else if (dRaw) { var dp = new Date(String(dRaw)); if (!isNaN(dp.getTime())) dts = dp.getTime(); }
-                  if (dts >= lastEventTs) { lastEventTs = dts; lastEvent = ev; }
-                }
-              }
-            }
-          }
-        } catch(e) { totalItems = parseInt(data[i][7]) || 0; }
-        // Update stored total_scans to match reality
-        if (totalItems !== (parseInt(data[i][7]) || 0)) {
-          sheet.getRange(i + 2, 8).setValue(totalItems);
-        }
-        return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], role: data[i][5] || 'member', total_scans: totalItems, telegram_username: data[i][8] || '', last_event: lastEvent });
+        // total_scans is the token-based counter maintained on each outbound
+        // scan (the reliable per-member count). We no longer recompute it from
+        // the Inventory notes column — that column now holds donor/attribution
+        // text, not the member name, so a recount there would be wrong.
+        var totalItems = parseInt(data[i][7]) || 0;
+        return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], role: data[i][5] || 'member', total_scans: totalItems, telegram_username: data[i][8] || '' });
         }
       }
     }
@@ -2875,41 +2850,41 @@ function handleTeamScan_(payload) {
     else if (moveType === 'adjustment') direction = (String(payload.direction || '').toLowerCase() === 'in') ? 'in' : 'out';
     else direction = 'out'; // store-order, outreach
 
-    // Cost: 'none' (donated to us), 'partial', or 'full' (we paid).
-    var costStatus = String(payload.cost_status || 'none').trim().toLowerCase();
-    if (['none', 'partial', 'full'].indexOf(costStatus) < 0) costStatus = 'none';
-    var coveredBy = String(payload.covered_by || '').trim().slice(0, 200);
+    // Did the ministry pay for this? (No = a donation to us / pass-through.)
+    // Only 'paid' items create a Finances expense; the per-unit cost always
+    // comes from the Lists sheet so column H is never blank.
+    var paid = (payload.paid === true || payload.paid === 'true' || payload.paid === 1 || payload.paid === '1');
+
+    // Donor / attribution text → the NOTES column (J). The portal dropdown both
+    // reads its options from and writes back to this column.
+    var donorNote = String(payload.donor_note != null ? payload.donor_note : (payload.covered_by || '')).trim().slice(0, 500);
+    // Optional extra remarks → detail_notes column.
     var detailNotes = String(payload.detail_notes || '').trim().slice(0, 1000);
 
     var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
     var invSheet = ss.getSheetByName('Inventory');
     if (!invSheet) return jsonResponse({ ok: false, error: 'Inventory tab not found' });
 
-    // Per-unit cost: if we paid, use the client-provided cost or the ledger default.
+    // Per-unit cost ALWAYS from the Lists sheet (fallback to ledger default).
+    // Column H (cost_per_unit) = this value; column I (total_cost) = H × qty.
     var costMap = getItemCostMapFromLedger_();
-    var defaultCost = (costMap.costs[itemId] !== undefined) ? costMap.costs[itemId] : costMap.defaultCost;
-    var perUnit = 0;
-    if (costStatus !== 'none') {
-      var provided = parseFloat(payload.cost_amount);
-      if (!isNaN(provided) && provided >= 0) perUnit = provided; // total the ministry paid
-      else perUnit = defaultCost * qty; // fall back to ledger cost × qty
-    }
-    var totalCost = (costStatus === 'none') ? 0 : perUnit;
-    var perUnitCost = qty > 0 ? (totalCost / qty) : totalCost;
+    var perUnitCost = (costMap.costs[itemId] !== undefined) ? costMap.costs[itemId] : costMap.defaultCost;
+    var totalCost = perUnitCost * qty;
 
-    // Optional receipt upload (base64 data URL → Drive). Reuses the finance receipt folder.
-    var receiptUrl = '';
-    if (payload.receipt_data && String(payload.receipt_data).indexOf('data:') === 0 &&
-        typeof uploadReceiptToDrive_ === 'function') {
-      try { receiptUrl = uploadReceiptToDrive_(payload.receipt_data, date, teamMember || 'inventory'); }
-      catch (e) { receiptUrl = 'upload_failed'; }
-    }
-
-    // Ensure extended columns exist on the (possibly pre-existing) sheet.
-    var cCostStatus = ensureColumn_(invSheet, 'cost_status');
-    var cCoveredBy  = ensureColumn_(invSheet, 'covered_by');
-    var cReceipt    = ensureColumn_(invSheet, 'receipt_url');
-    var cDetail     = ensureColumn_(invSheet, 'detail_notes');
+    // Resolve columns by HEADER NAME (the sheet's real layout may differ from
+    // the const order). notes = donor/attribution; detail_notes = extra remarks.
+    var cDate = ensureColumn_(invSheet, 'date');
+    var cType = ensureColumn_(invSheet, 'type');
+    var cItemId = ensureColumn_(invSheet, 'item_id');
+    var cItemName = ensureColumn_(invSheet, 'item_name');
+    var cQty = ensureColumn_(invSheet, 'qty');
+    var cDir = ensureColumn_(invSheet, 'direction');
+    var cEvent = ensureColumn_(invSheet, 'event_source');
+    var cCostPer = ensureColumn_(invSheet, 'cost_per_unit');
+    var cTotal = ensureColumn_(invSheet, 'total_cost');
+    var cNotes = ensureColumn_(invSheet, 'notes');
+    var cOrder = ensureColumn_(invSheet, 'order_id');
+    var cDetail = ensureColumn_(invSheet, 'detail_notes');
 
     // row_id
     var headers = invSheet.getRange(1,1,1,invSheet.getLastColumn()).getValues()[0];
@@ -2920,20 +2895,27 @@ function handleTeamScan_(payload) {
     maxNum++;
     var rowId='INV-'+String(maxNum).padStart(4,'0');
 
-    // Base row (cols A–K). notes (col J) stays the team-member name.
-    var row=[date,moveType,itemId,itemName,qty,direction,eventLabel||'team-scan',perUnitCost,totalCost,teamMember,''];
-    // Widen the row to cover all named columns, then set them positionally.
+    // Build the row by header position so it lands in the correct columns.
     var totalCols = invSheet.getLastColumn();
-    while(row.length < totalCols) row.push('');
+    var row = []; for (var c = 0; c < totalCols; c++) row.push('');
     function setCol(colIdx, val){ if(colIdx>0){ while(row.length < colIdx) row.push(''); row[colIdx-1]=val; } }
-    setCol(cCostStatus, costStatus);
-    setCol(cCoveredBy, coveredBy);
-    setCol(cReceipt, receiptUrl);
-    setCol(cDetail, detailNotes);
+    setCol(cDate, date);
+    setCol(cType, moveType);
+    setCol(cItemId, itemId);
+    setCol(cItemName, itemName);
+    setCol(cQty, qty);
+    setCol(cDir, direction);
+    setCol(cEvent, eventLabel || 'team-scan');
+    setCol(cCostPer, perUnitCost);   // column H — never blank
+    setCol(cTotal, totalCost);       // column I
+    setCol(cNotes, donorNote);       // column J — donor/attribution
+    setCol(cOrder, '');
+    setCol(cDetail, detailNotes);    // extra remarks
     if(rowIdColIdx>0){ setCol(rowIdColIdx, rowId); } else { row.push(rowId); }
     invSheet.appendRow(row);
 
-    // Update team member total_scans only for stock leaving as outreach/store-order.
+    // Per-member count is token-based (reliable, independent of the notes column).
+    // Bump total_scans for outbound stock the member handed out.
     if(token && (direction==='out')){
       var tmSheet=getTeamSheet_();
       if(tmSheet.getLastRow()>1){
@@ -2944,9 +2926,14 @@ function handleTeamScan_(payload) {
       }
     }
 
-    // When it cost the ministry (partial/full), record a Finances expense so
-    // finances stay accurate and sync to STW Finances. Non-fatal on failure.
-    if (costStatus !== 'none' && totalCost > 0 && typeof handleLogFinanceEntry_ === 'function') {
+    // Only when WE paid: record a Finances expense (the team member who logged it
+    // is the recorded_by). Receipt handling lives on the Finances side per the
+    // Finances tab structure; it syncs to STW Finances overnight.
+    if (paid && totalCost > 0 && typeof handleLogFinanceEntry_ === 'function') {
+      var receiptUrl = '';
+      if (payload.receipt_data && String(payload.receipt_data).indexOf('data:') === 0 && typeof uploadReceiptToDrive_ === 'function') {
+        try { receiptUrl = uploadReceiptToDrive_(payload.receipt_data, date, teamMember || 'inventory'); } catch (e) { receiptUrl = ''; }
+      }
       try {
         handleLogFinanceEntry_({
           token: token,
@@ -2958,7 +2945,7 @@ function handleTeamScan_(payload) {
             amount: totalCost,
             payment_method: 'Other',
             event: eventLabel || '',
-            notes: 'Inventory '+rowId+(coveredBy?(' · covered by '+coveredBy):'')+(costStatus==='partial'?' · partial cost':'')+(detailNotes?(' · '+detailNotes):''),
+            notes: 'Inventory '+rowId+(donorNote?(' · '+donorNote):'')+(detailNotes?(' · '+detailNotes):''),
             has_receipt: !!(receiptUrl && receiptUrl.indexOf('http')===0),
             receipt_url: (receiptUrl && receiptUrl.indexOf('http')===0) ? receiptUrl : '',
             logged_by: teamMember
@@ -2967,12 +2954,13 @@ function handleTeamScan_(payload) {
       } catch (e) { /* finance entry is best-effort; inventory row already saved */ }
     }
 
-    return jsonResponse({ ok: true, route: 'teamScan', row_id: rowId, receipt_url: receiptUrl });
+    return jsonResponse({ ok: true, route: 'teamScan', row_id: rowId });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
 
-// { action:'getInventoryMeta', token } — reused suggestions for the portal:
-// distinct donors (covered_by), recent event sources, and this member's last event.
+// { action:'getInventoryMeta', token } — dropdown suggestions for the portal:
+// distinct donor/attribution notes (from the NOTES column J) and recent event
+// sources. Newest rows first so the freshest entries surface at the top.
 function handleGetInventoryMeta_(payload) {
   try {
     var user = validateTeamToken_(String(payload.token || ''));
@@ -2984,24 +2972,19 @@ function handleGetInventoryMeta_(payload) {
     var lastCol = invSheet.getLastColumn();
     var headers = invSheet.getRange(1, 1, 1, lastCol).getValues()[0];
     function col(name){ var t=String(name).toLowerCase().replace(/[\s_\-]/g,''); for(var i=0;i<headers.length;i++){ if(String(headers[i]).toLowerCase().replace(/[\s_\-]/g,'')===t) return i; } return -1; }
-    var cEvent = col('event_source'), cNotesMember = col('notes'), cCovered = col('covered_by'), cDate = col('date');
+    var cEvent = col('event_source'), cNotes = col('notes');
 
     var data = invSheet.getRange(2, 1, invSheet.getLastRow()-1, lastCol).getValues();
     var donorSeen = {}, donors = [];
     var eventSeen = {}, events = [];
-    var lastEvent = '', lastTs = -1;
-    var uname = String(user.name).toLowerCase().trim();
-    for (var i = 0; i < data.length; i++) {
+    // Walk newest→oldest so recent entries lead the dropdowns.
+    for (var i = data.length - 1; i >= 0; i--) {
       var r = data[i];
-      if (cCovered >= 0) { var dv = String(r[cCovered]||'').trim(); if (dv && !donorSeen[dv.toLowerCase()]) { donorSeen[dv.toLowerCase()]=1; donors.push(dv); } }
-      if (cEvent >= 0)   { var ev = String(r[cEvent]||'').trim(); if (ev && !eventSeen[ev.toLowerCase()]) { eventSeen[ev.toLowerCase()]=1; events.push(ev); } }
-      // This member's most recent event (notes col holds the member name).
-      if (cEvent >= 0 && cNotesMember >= 0 && String(r[cNotesMember]||'').toLowerCase().trim() === uname) {
-        var evm = String(r[cEvent]||'').trim();
-        if (evm) { var ts=i; var dr=cDate>=0?r[cDate]:null; if(dr instanceof Date) ts=dr.getTime(); else if(dr){var dp=new Date(String(dr)); if(!isNaN(dp.getTime())) ts=dp.getTime();} if(ts>=lastTs){lastTs=ts; lastEvent=evm;} }
-      }
+      if (cNotes >= 0) { var dv = String(r[cNotes]||'').trim(); if (dv && !donorSeen[dv.toLowerCase()]) { donorSeen[dv.toLowerCase()]=1; donors.push(dv); } }
+      if (cEvent >= 0) { var ev = String(r[cEvent]||'').trim(); if (ev && !eventSeen[ev.toLowerCase()]) { eventSeen[ev.toLowerCase()]=1; events.push(ev); } }
     }
-    return jsonResponse({ ok: true, donors: donors.slice(0, 40), events: events.slice(0, 40), last_event: lastEvent });
+    var lastEvent = events.length ? events[0] : '';
+    return jsonResponse({ ok: true, donors: donors.slice(0, 60), events: events.slice(0, 40), last_event: lastEvent });
   } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
 

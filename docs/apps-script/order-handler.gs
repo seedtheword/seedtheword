@@ -3765,11 +3765,14 @@ function getStoreCatalog_() {
     });
   }
 
-  // Live availability from the Inventory tab: sum(in) − sum(out) per item_id.
+  // Live per-item quantity comes from the MinistryStats tab (the hand-maintained
+  // `item` rows: {"id":...,"count":N}). This is the single source of truth for
+  // "how many do we have" — NOT the Inventory movement log (which only records
+  // give-aways and would read negative). Store catalog = Lists; quantity = MinistryStats.
   try {
-    var avail = computeInventoryAvailability_(ss);
+    var stock = getMinistryStockMap_(ss);
     for (var a = 0; a < items.length; a++) {
-      items[a].available = (avail[items[a].id] != null) ? avail[items[a].id] : null;
+      items[a].available = (stock[items[a].id] != null) ? stock[items[a].id] : null;
     }
   } catch (e) { /* availability is best-effort */ }
 
@@ -3778,26 +3781,21 @@ function getStoreCatalog_() {
   return result;
 }
 
-// Sum Inventory movements per item_id → net on-hand (in minus out). Positive
-// 'in' (restock) adds; 'out' (outreach/store-order) subtracts; 'adjustment'
-// respects its direction. Returns { item_id: netQty }.
-function computeInventoryAvailability_(ss) {
+// Read the MinistryStats `item` rows into { item_id: count }. These counts are
+// the maintained on-hand quantities the store displays as availability.
+function getMinistryStockMap_(ss) {
   var out = {};
-  var sheet = ss.getSheetByName('Inventory');
+  var sheet = ss.getSheetByName(MINISTRY_STATS_TAB);
   if (!sheet || sheet.getLastRow() < 2) return out;
-  var lastCol = sheet.getLastColumn();
-  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
-  function col(name){ var t=String(name).toLowerCase().replace(/[\s_\-]/g,''); for(var i=0;i<headers.length;i++){ if(String(headers[i]).toLowerCase().replace(/[\s_\-]/g,'')===t) return i; } return -1; }
-  var cId = col('item_id'), cQty = col('qty'), cDir = col('direction');
-  if (cId < 0 || cQty < 0) return out;
-  var data = sheet.getRange(2, 1, sheet.getLastRow()-1, lastCol).getValues();
-  for (var i = 0; i < data.length; i++) {
-    var id = String(data[i][cId] || '').trim();
-    if (!id) continue;
-    var qty = parseInt(data[i][cQty], 10) || 0;
-    var dir = cDir >= 0 ? String(data[i][cDir] || '').toLowerCase().trim() : 'out';
-    if (out[id] == null) out[id] = 0;
-    out[id] += (dir === 'in') ? qty : -qty;
+  var rows = sheet.getRange(1, 1, sheet.getLastRow(), 2).getValues(); // key | value
+  for (var i = 1; i < rows.length; i++) {
+    var key = String(rows[i][0] || '').trim().toLowerCase();
+    if (key !== 'item') continue;
+    var val = rows[i][1];
+    try {
+      var it = (typeof val === 'string') ? JSON.parse(val) : val;
+      if (it && it.id) out[String(it.id).trim()] = parseInt(it.count, 10) || 0;
+    } catch (e) { /* skip malformed row */ }
   }
   return out;
 }
@@ -3874,6 +3872,9 @@ function getMinistryStats_() {
     'full-bible-large-print': 'English',
     'full-bible-pocket': 'English',
     'pocket-nt-hindi-blue': 'Hindi',
+    'pocket-nt-telugu-blue': 'Telugu',
+    'pocket-nt-punjabi-blue': 'Punjabi',
+    'pocket-nt-tamil-blue': 'Tamil',
     'large-print-nt-russian': 'Russian',
     'large-print-nt-ukrainian': 'Ukrainian',
     'pocket-nt-farsi-blue': 'Farsi',
@@ -3888,6 +3889,24 @@ function getMinistryStats_() {
     'tract-life-book-spanish': 'Spanish',
     'tract-flip-books-english': 'English',
   };
+
+  // Self-healing language inference so NEW Bible ids show up without editing
+  // the map. Bible ids look like 'pocket-nt-<lang>-<color>' or
+  // 'large-print-nt-<lang>-...'. We skip non-Bible items (merch/tracts) and
+  // color-only English ids (red/grey/brown). Returns '' when not a language.
+  function inferLanguageFromId_(id) {
+    id = String(id || '').toLowerCase();
+    if (id.indexOf('merch-') === 0 || id.indexOf('tract-') === 0) return ''; // not Bibles
+    if (id.indexOf('full-bible') === 0) return 'English';
+    var m = id.match(/^(?:pocket-nt|large-print-nt)-([a-z]+)/);
+    if (!m) return '';
+    var token = m[1];
+    // Color/format tokens that mean English, not a language.
+    var englishColors = { red: 1, grey: 1, gray: 1, brown: 1, blue: 1, black: 1, green: 1 };
+    if (englishColors[token]) return 'English';
+    // Title-case the language token (e.g. 'telugu' -> 'Telugu').
+    return token.charAt(0).toUpperCase() + token.slice(1);
+  }
 
   try {
     var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
@@ -3958,7 +3977,7 @@ function getMinistryStats_() {
       var langDonated    = {};
       for (var j = 0; j < result.items.length; j++) {
         var it = result.items[j];
-        var lang = ID_LANGUAGE_MAP[it.id] || it.language;
+        var lang = ID_LANGUAGE_MAP[it.id] || it.language || inferLanguageFromId_(it.id);
         if (!lang) continue;
         if (!langTotals[lang])  langTotals[lang]  = 0;
         if (!langStorage[lang]) langStorage[lang] = 0;

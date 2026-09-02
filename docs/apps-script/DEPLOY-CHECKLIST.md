@@ -148,7 +148,7 @@ Team portal inventory logging is now a full movement flow, and the store reads r
   - `handleTeamScan_` accepts `movement_type`, `cost_status` (`none`/`partial`/`full`), `cost_amount`, `covered_by`, `detail_notes`, and a base64 `receipt_data` (uploaded to the STW Receipts Drive folder). Restock = stock **in**; store-order/outreach = **out**; adjustment respects `direction`. Only outbound movements bump `total_scans`. When cost is partial/full it **auto-creates a Finances expense** (which syncs to STW Finances) with the receipt attached.
   - New **`handleGetInventoryMeta_`** (`getInventoryMeta`) returns reusable donor names (`covered_by`), recent event sources, and the member's last event.
   - `handleTeamLogin_` now returns `last_event` (the member's most recent event source) so the portal prefills it (no more "not found").
-  - `getStoreCatalog_` now attaches **`available`** per item = net Inventory movement (sum in − out) via `computeInventoryAvailability_`.
+  - `getStoreCatalog_` now attaches **`available`** per item = the maintained **MinistryStats** `item` count (via `getMinistryStockMap_`), joined by id. The store catalog (products + price) comes from the **Lists** tab; the quantity/availability comes from **MinistryStats** (the hand-kept `{"id":...,"count":N}` rows) — NOT the Inventory movement log.
 - **`finance-handler.gs`**: `handleLogFinanceEntry_` now accepts a pre-uploaded `entry.receipt_url` (so an inventory movement's receipt lands on the finance row without re-uploading).
 
 To activate: repaste **`order-handler.gs`** + **`finance-handler.gs`** into P1 and **redeploy**. The new Inventory columns auto-append on the next movement. No setup function needed.

@@ -1055,8 +1055,8 @@
         p.price = formatCents_(displayCents) + (p.packSize > 1 ? ' / pack of ' + p.packSize : '');
         // Prefer the sheet's fuller description when present.
         if (live.description) p.description = live.description;
-        // Live availability from the Inventory tab (in − out). Applies to ALL
-        // categories now, not just bibles.
+        // Live per-item quantity from MinistryStats (via getCatalog's `available`).
+        // Applies to ALL categories, not just bibles.
         if (live.available !== null && live.available !== undefined) {
           p.stockCount = Math.max(0, live.available);
           p.inStock = p.stockCount > 0;
@@ -1075,21 +1075,26 @@
 
   // Build a store product from a Lists-tab catalog item that has no hardcoded
   // entry. Category is guessed from the id; display name derives from the
-  // description or a title-cased id.
+  // description or a title-cased id; language is inferred so the card shows the
+  // language (e.g. "Telugu") in the gold line — matching the hardcoded Bibles —
+  // instead of falling back to a seller label.
   function listItemToProduct_(live) {
     var id = String(live.id || '');
     var cat = guessCategory_(id);
     var name = (live.description && live.description.length <= 60)
       ? live.description
       : titleCaseId_(id);
+    var lang = (cat === 'bibles') ? inferLanguageFromId_(id) : '';
+    var native = lang ? (LANG_NATIVE_[lang] || lang) : '';
     var displayCents = (live.packSize > 1) ? live.packRetailCents : live.retailCents;
     return {
       id: id,
       name: name,
       description: live.description || name,
       category: cat,
-      seller: 'Seed the Word',
-      language: '',
+      seller: null,              // STW's own items have no third-party seller
+      nativeName: native,        // shows in the gold line (like "Français")
+      language: lang,
       tags: [],
       image: '',
       gallery: [],
@@ -1113,6 +1118,27 @@
   }
   function titleCaseId_(id) {
     return String(id).replace(/[-_]+/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  // Native-script labels for the gold line. Falls back to the English name.
+  var LANG_NATIVE_ = {
+    English: '', Spanish: 'Español', French: 'Français', Hindi: 'हिन्दी',
+    Telugu: 'తెలుగు', Punjabi: 'ਪੰਜਾਬੀ', Tamil: 'தமிழ்', Russian: 'Русский',
+    Ukrainian: 'Українська', Farsi: 'فارسی', Urdu: 'اردو', Thai: 'ไทย',
+    Mandarin: '中文', Arabic: 'العربية'
+  };
+  // Infer a Bible's language from its id (mirrors the backend inference), so a
+  // new Lists row like 'pocket-nt-telugu-blue' shows "Telugu". Non-Bible ids
+  // and English color-only ids return '' (no language line).
+  function inferLanguageFromId_(id) {
+    id = String(id || '').toLowerCase();
+    if (id.indexOf('merch-') === 0 || id.indexOf('tract-') === 0) return '';
+    if (id.indexOf('full-bible') === 0) return '';   // English full Bibles: no native line
+    var m = id.match(/^(?:pocket-nt|large-print-nt)-([a-z]+)/);
+    if (!m) return '';
+    var token = m[1];
+    var englishColors = { red: 1, grey: 1, gray: 1, brown: 1, blue: 1, black: 1, green: 1 };
+    if (englishColors[token]) return '';             // color-only = English, no native line
+    return token.charAt(0).toUpperCase() + token.slice(1);
   }
 
   function formatCents_(cents) {

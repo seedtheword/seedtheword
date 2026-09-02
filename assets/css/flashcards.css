@@ -207,44 +207,30 @@
    Every card prints with BOTH sides visible (concept + explanation),
    one card per block, page-breaks between cards, no interactive chrome. */
 @media print {
-  /* Hide site chrome + deck controls. */
-  .site-header, .site-footer, #site-nav, .hamburger,
-  .fc-deck__head, .fc-nav, .fc-dots, .fc-overview, .fc-flip-hint,
-  .seed-nav-footer, .grow-nav-footer, .harv-nav-footer,
-  .theme-toggle { display: none !important; }
-
+  /* Print ONLY the dedicated print container that JS builds on demand
+     (#fc-print-root). Everything else on the page is hidden. This avoids the
+     3D-transform / absolute-position issues of the live flip cards. */
+  body > *:not(#fc-print-root) { display: none !important; }
+  #fc-print-root { display: block !important; }
   body { background: #fff !important; }
-  .seed-hero, .grow-hero, .harv-hero { padding: 0.5rem 0 1rem !important; }
-  .seed-hero::before, .grow-hero::before, .harv-hero::before { display: none !important; }
-
-  .fc-deck { max-width: none; padding: 0; }
-  .fc-stage { display: block; min-height: 0; perspective: none; }
-
-  /* Show all cards, stacked; each card = one print block. */
-  .fc-card {
-    display: block !important; position: relative !important;
-    transform: none !important; min-height: 0 !important;
-    margin: 0 0 0.5rem !important; break-inside: avoid; page-break-inside: avoid;
-    border: 1px solid #ccc; border-radius: 12px; padding: 0.75rem 1rem;
-    box-shadow: none !important;
-  }
-  .fc-face {
-    position: relative !important; inset: auto !important; transform: none !important;
-    backface-visibility: visible !important; -webkit-backface-visibility: visible !important;
-    box-shadow: none !important; border: none !important; background: none !important;
-    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
-    padding: 0.35rem 0 !important; overflow: visible !important; min-height: 0 !important;
-    display: block !important;
-  }
-  .fc-face::before { display: none !important; }
-  .fc-face--back { border-top: 1px dashed #bbb !important; margin-top: 0.4rem; padding-top: 0.5rem !important; }
-  .fc-card-btn, .fc-card-qr { display: none !important; } /* links/QR aren't useful in print */
-  .fc-front-sub { display: none !important; } /* "tap to reveal" prompts are meaningless on paper */
-  .fc-kicker, .fc-back-title { color: #6b5220 !important; }
-  .fc-front-title, .fc-scripture-quote { color: #000 !important; }
-  .fc-back-body, .fc-back-body p, .fc-back-body li { color: #222 !important; }
-  .fc-stat__num { color: #2c5f2e !important; }
-  a { color: #000 !important; text-decoration: none !important; }
-  /* Force backgrounds/colors to print. */
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
+
+/* On-demand print container (hidden on screen, shown only when printing). */
+#fc-print-root { display: none; padding: 0.25in 0.2in; color: #111; }
+#fc-print-root .fcp-title { font-family: 'Playfair Display', Georgia, serif; font-size: 1.6rem; margin: 0 0 0.15rem; color: #1a3a1e; }
+#fc-print-root .fcp-sub { font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #555; margin: 0 0 0.9rem; }
+#fc-print-root .fcp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35in; }
+#fc-print-root .fcp-card {
+  border: 1.5px solid #c8963e; border-radius: 12px; padding: 0.28in 0.28in;
+  break-inside: avoid; page-break-inside: avoid; min-height: 2.6in;
+  display: flex; flex-direction: column;
+}
+#fc-print-root .fcp-kicker { font-family: 'Inter', system-ui, sans-serif; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #9a6a15; margin: 0 0 0.4rem; }
+#fc-print-root .fcp-q { font-family: 'Playfair Display', Georgia, serif; font-size: 1.15rem; color: #111; margin: 0 0 0.35rem; line-height: 1.2; }
+#fc-print-root .fcp-divider { border: 0; border-top: 1px dashed #c8963e; margin: 0.35rem 0; }
+#fc-print-root .fcp-a { font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; line-height: 1.5; color: #222; }
+#fc-print-root .fcp-a p { margin: 0 0 0.4rem; }
+#fc-print-root .fcp-a ul { margin: 0.2rem 0 0.4rem; padding-left: 1.1rem; }
+#fc-print-root .fcp-a li { margin-bottom: 0.2rem; }
+#fc-print-root .fcp-a a { color: #111; text-decoration: none; }

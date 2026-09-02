@@ -151,7 +151,50 @@
       order = cards.map(function (_, i) { return i; }); pos = 0; render();
     });
     var printBtn = head.querySelector('[data-fc-print]');
-    if (printBtn) printBtn.addEventListener('click', function () { window.print(); });
+    if (printBtn) printBtn.addEventListener('click', function () { buildAndPrint(); });
+
+    // Build a clean 2-up print sheet from every card (front prompt + back answer),
+    // print it, then remove it. Robust vs. the live 3D flip cards.
+    function buildAndPrint() {
+      var old = document.getElementById('fc-print-root');
+      if (old) old.remove();
+      var root = document.createElement('div');
+      root.id = 'fc-print-root';
+      var docTitle = (document.title || 'Flashcards').replace(/\s*[—–-].*$/, '').trim();
+      var html = '<h1 class="fcp-title">' + docTitle + '</h1>' +
+                 '<p class="fcp-sub">Seed the Word Ministry · take-home flashcards</p>' +
+                 '<div class="fcp-grid">';
+      cards.forEach(function (card) {
+        var front = card.querySelector('.fc-face--front');
+        var back = card.querySelector('.fc-face--back');
+        var kickerEl = front && front.querySelector('.fc-kicker');
+        var titleEl = front && (front.querySelector('.fc-front-title') || front.querySelector('.fc-scripture-quote'));
+        var citeEl = front && front.querySelector('.fc-scripture-cite');
+        var kicker = kickerEl ? kickerEl.innerHTML : '';
+        var title = titleEl ? titleEl.innerHTML : '';
+        // Back body: prefer the explicit body block; drop CTA buttons/QR.
+        var answer = '';
+        if (back) {
+          var bodyEl = back.querySelector('.fc-back-body');
+          var src = bodyEl ? bodyEl.cloneNode(true) : back.cloneNode(true);
+          src.querySelectorAll('.fc-card-btn, .fc-card-qr, .fc-back-title').forEach(function (n) { n.remove(); });
+          var btEl = back.querySelector('.fc-back-title');
+          answer = (btEl ? '<p><strong>' + btEl.innerHTML + '</strong></p>' : '') + src.innerHTML;
+        } else if (citeEl) {
+          answer = '<p>' + citeEl.innerHTML + '</p>';
+        }
+        html += '<section class="fcp-card">' +
+                  (kicker ? '<div class="fcp-kicker">' + kicker + '</div>' : '') +
+                  '<div class="fcp-q">' + title + '</div>' +
+                  (answer ? '<hr class="fcp-divider"><div class="fcp-a">' + answer + '</div>' : '') +
+                '</section>';
+      });
+      html += '</div>';
+      root.innerHTML = html;
+      document.body.appendChild(root);
+      window.print();
+      setTimeout(function () { root.remove(); }, 600);
+    }
 
     // Keyboard (when the deck is focused/hovered region). Global arrows + space.
     deck.setAttribute('tabindex', '0');

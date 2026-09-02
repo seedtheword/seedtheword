@@ -143,18 +143,21 @@
 }
 .fc-nav__flip:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(44, 95, 46, 0.4); }
 
-/* Card CTA button (used on cards that end with an action) */
+/* Card CTA button (used on cards that end with an action).
+   NOTE: these are <a> tags, and the how-to pages have a page-level
+   `.seed-card a { color: gold }` rule. We force WHITE text with !important so
+   the label is always high-contrast on the colored button, no matter the page. */
 .fc-card-btn {
   display: inline-block; margin-top: 1rem; padding: 0.8rem 1.6rem; border-radius: 14px;
-  background: linear-gradient(135deg, var(--fc-green), #3a7d3c); color: #fff; text-decoration: none;
-  font-family: 'Inter', system-ui, sans-serif; font-weight: 600; font-size: 0.9rem;
+  background: linear-gradient(135deg, var(--fc-green), #3a7d3c);
+  color: #fff !important; text-decoration: none !important; border-bottom: none !important;
+  font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 0.9rem;
   box-shadow: 0 4px 16px rgba(44, 95, 46, 0.3); transition: all 0.2s var(--fc-ease);
 }
-.fc-card-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(44, 95, 46, 0.4); }
-/* Gold variant: darker, richer gold with a HIGH-CONTRAST dark-ink label so the
-   text is always legible (the old white-on-light-gold was near-invisible). */
-.fc-card-btn--gold { background: linear-gradient(135deg, #b07d22, #c8963e); color: #241a06; box-shadow: 0 4px 16px rgba(176, 125, 34, 0.35); }
-.fc-card-btn--gold:hover { box-shadow: 0 8px 24px rgba(176, 125, 34, 0.45); }
+.fc-card-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(44, 95, 46, 0.4); color: #fff !important; }
+/* Gold variant: deep, saturated gold with WHITE text for strong contrast. */
+.fc-card-btn--gold { background: linear-gradient(135deg, #9a6a15, #b8801f); color: #fff !important; box-shadow: 0 4px 16px rgba(154, 106, 21, 0.4); }
+.fc-card-btn--gold:hover { box-shadow: 0 8px 24px rgba(154, 106, 21, 0.5); color: #fff !important; }
 .fc-card-qr { width: 116px; height: 116px; border-radius: 12px; border: 1px solid var(--fc-border); margin-top: 1rem; display: block; }
 
 /* Live stat chips on a card */

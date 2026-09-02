@@ -392,10 +392,10 @@
       "stockCount": 25
     },
     {
-      "id": "merch-notebooks",
-      "name": "Notebooks",
+      "id": "merch-notebooks-pens",
+      "name": "Notebooks & Pens",
       "category": "merch",
-      "description": "Faith-inspired notebooks for journaling, prayer notes, and Bible study. Perfect companion to your reading plan.",
+      "description": "Faith-inspired notebooks and pens for journaling, prayer notes, and Bible study. Perfect companion to your reading plan.",
       "price": "$5",
       "image": "assets/images/store/PXL_20260709_053613900.PORTRAIT.ORIGINAL.jpg",
       "gallery": [

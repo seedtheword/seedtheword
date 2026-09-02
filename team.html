@@ -49,6 +49,26 @@
     .sp-status-pill { display:inline-flex; align-items:center; gap:0.3rem; font-size:0.66rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:999px; }
     .sp-status-pill--live { background:rgba(16,185,129,0.12); color:var(--sp-green-dark); }
     .sp-status-pill--draft { background:rgba(100,116,139,0.12); color:var(--sp-muted); }
+
+    /* ── Inventory movement sheet (mobile-first) ── */
+    .mv-overlay { position:fixed; inset:0; background:rgba(20,24,20,0.5); z-index:1000; display:none; align-items:flex-end; justify-content:center; }
+    .mv-overlay.active { display:flex; }
+    @media (min-width:640px){ .mv-overlay.active { align-items:center; } }
+    .mv-sheet { background:var(--color-surface,#fff); width:100%; max-width:520px; max-height:92vh; overflow-y:auto; border-radius:18px 18px 0 0; padding:1.1rem 1.15rem 1.4rem; box-shadow:0 -8px 30px rgba(0,0,0,0.2); animation:mvUp 0.22s cubic-bezier(0.2,0,0,1); }
+    @media (min-width:640px){ .mv-sheet { border-radius:18px; } }
+    @keyframes mvUp { from { transform:translateY(24px); opacity:0.6; } to { transform:translateY(0); opacity:1; } }
+    .mv-sheet__head { display:flex; align-items:flex-start; justify-content:space-between; gap:0.75rem; margin-bottom:0.5rem; }
+    .mv-sheet__name { font-family:var(--font-serif,serif); font-size:1.1rem; font-weight:700; color:var(--color-text); }
+    .mv-sheet__id { font-size:0.72rem; color:var(--color-text-muted); font-family:var(--font-mono,monospace); }
+    .mv-close { border:none; background:none; font-size:1.6rem; line-height:1; color:var(--color-text-muted); cursor:pointer; padding:0 0.25rem; }
+    .mv-label { display:block; font-size:0.7rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--color-text-muted); margin:0.85rem 0 0.35rem; }
+    .mv-qty { display:flex; align-items:center; gap:0.5rem; }
+    .mv-qty__btn { width:44px; height:44px; border:1.5px solid var(--color-border); background:var(--color-bg-subtle); border-radius:12px; font-size:1.3rem; cursor:pointer; color:var(--color-text); }
+    .mv-qty input { flex:1; text-align:center; font-size:1.1rem; font-weight:700; padding:0.55rem; border:1.5px solid var(--color-border); border-radius:12px; background:var(--color-surface); color:var(--color-text); }
+    .mv-pills { display:flex; flex-wrap:wrap; gap:0.4rem; }
+    .mv-pill { flex:1 1 auto; min-width:calc(50% - 0.2rem); padding:0.6rem 0.5rem; border:1.5px solid var(--color-border); background:var(--color-surface); border-radius:12px; font-size:0.82rem; font-weight:600; color:var(--color-text); cursor:pointer; transition:all 0.15s; min-height:46px; }
+    .mv-pill.is-active { background:var(--color-green,#2c5f4f); color:#fff; border-color:var(--color-green,#2c5f4f); }
+    .mv-sheet input[type=text], .mv-sheet input[type=number] { width:100%; padding:0.6rem 0.7rem; border:1.5px solid var(--color-border); border-radius:12px; font-size:0.9rem; background:var(--color-surface); color:var(--color-text); font-family:var(--font-sans,sans-serif); }
   </style>
   <script src="assets/js/theme-toggle.js?v=1"></script>
 </head>
@@ -293,6 +313,55 @@
       </div>
       <div class="scan-count" id="scan-count"></div>
       <button class="btn btn--outline" id="add-manual-btn">+ Add Item Manually</button>
+    </div>
+
+    <!-- Movement details sheet (mobile-fast). Shown after picking/scanning an item. -->
+    <div class="mv-overlay" id="mv-overlay">
+      <div class="mv-sheet" role="dialog" aria-label="Log inventory movement">
+        <div class="mv-sheet__head">
+          <div><div class="mv-sheet__name" id="mv-item-name">Item</div><div class="mv-sheet__id" id="mv-item-id"></div></div>
+          <button type="button" class="mv-close" id="mv-close" aria-label="Close">×</button>
+        </div>
+
+        <label class="mv-label">Quantity</label>
+        <div class="mv-qty">
+          <button type="button" class="mv-qty__btn" id="mv-qty-minus">−</button>
+          <input type="number" id="mv-qty" value="1" min="1" inputmode="numeric">
+          <button type="button" class="mv-qty__btn" id="mv-qty-plus">+</button>
+        </div>
+
+        <label class="mv-label">Movement</label>
+        <div class="mv-pills" id="mv-type">
+          <button type="button" class="mv-pill is-active" data-val="outreach">🤝 Given out</button>
+          <button type="button" class="mv-pill" data-val="restock">📦 Restock</button>
+          <button type="button" class="mv-pill" data-val="store-order">🛒 Store order</button>
+          <button type="button" class="mv-pill" data-val="adjustment">⚖️ Adjustment</button>
+        </div>
+
+        <label class="mv-label">Did this cost the ministry?</label>
+        <div class="mv-pills" id="mv-cost">
+          <button type="button" class="mv-pill is-active" data-val="none">🎁 No — donated</button>
+          <button type="button" class="mv-pill" data-val="partial">🤝 Partial</button>
+          <button type="button" class="mv-pill" data-val="full">💳 Yes — we paid</button>
+        </div>
+
+        <div id="mv-cost-detail" hidden>
+          <label class="mv-label">Amount it cost us (total $)</label>
+          <input type="number" id="mv-amount" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+          <label class="mv-label">Attach receipt (optional)</label>
+          <input type="file" id="mv-receipt" accept="image/*" capture="environment" style="font-size:0.82rem;">
+          <div id="mv-receipt-name" style="font-size:0.74rem;color:var(--color-text-muted);margin-top:0.2rem;"></div>
+        </div>
+
+        <label class="mv-label" id="mv-covered-label">Who covered / donated it? (optional)</label>
+        <input type="text" id="mv-covered" list="mv-donors" placeholder="Donor or who covered it…" maxlength="200">
+        <datalist id="mv-donors"></datalist>
+
+        <label class="mv-label">Notes (optional)</label>
+        <input type="text" id="mv-notes" placeholder="e.g. passed on from a partner, purchase for outreach…" maxlength="300">
+
+        <button type="button" class="btn btn--green btn--lg" id="mv-log-btn" style="width:100%;margin-top:0.85rem;">Log movement</button>
+      </div>
     </div>
 
     <!-- Finance Tab — Expense logging + receipt uploads -->
@@ -637,7 +706,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=11"></script>
+<script src="assets/js/team-portal.js?v=12"></script>
 <script src="assets/js/lms.js?v=1"></script>
 <script src="assets/js/profile-settings.js?v=3"></script>
 <script>

@@ -247,6 +247,9 @@ function doPost(e) {
   if ((payload && payload.action) === 'teamScan') {
     return handleTeamScan_(payload);
   }
+  if ((payload && payload.action) === 'getInventoryMeta') {
+    return handleGetInventoryMeta_(payload);
+  }
   // ── Team Messaging actions (see docs/apps-script/team-messaging-handlers.gs) ──
   if ((payload && payload.action) === 'postAnnouncement') return handlePostAnnouncement_(payload);
   if ((payload && payload.action) === 'getAnnouncements') return handleGetAnnouncements_(payload);
@@ -1899,7 +1902,11 @@ const MINISTRY_STATS_TAB = 'MinistryStats';
 const INVENTORY_TAB = 'Inventory';
 const INVENTORY_HEADERS = [
   'date', 'type', 'item_id', 'item_name', 'qty', 'direction',
-  'event_source', 'cost_per_unit', 'total_cost', 'notes', 'order_id'
+  'event_source', 'cost_per_unit', 'total_cost', 'notes', 'order_id',
+  // Extended movement metadata (appended to existing sheets by header name):
+  // type(col B) carries the movement type (restock|adjustment|store-order);
+  // notes(col J) stays the team-member name (login sums scans by it).
+  'cost_status', 'covered_by', 'receipt_url', 'detail_notes'
 ];
 
 /**
@@ -2834,6 +2841,21 @@ function computeSha256_(input) {
   }).join('');
 }
 
+// Ensure a sheet has a column with the given header; append it if missing.
+// Returns the 1-based column index. Used so new Inventory metadata columns
+// (cost_status, covered_by, receipt_url, detail_notes) work on EXISTING sheets.
+function ensureColumn_(sheet, headerName) {
+  var lastCol = sheet.getLastColumn();
+  var headers = lastCol > 0 ? sheet.getRange(1, 1, 1, lastCol).getValues()[0] : [];
+  var target = String(headerName).toLowerCase().replace(/[\s_\-]/g, '');
+  for (var i = 0; i < headers.length; i++) {
+    if (String(headers[i]).toLowerCase().replace(/[\s_\-]/g, '') === target) return i + 1;
+  }
+  var col = lastCol + 1;
+  sheet.getRange(1, col).setValue(headerName);
+  return col;
+}
+
 function handleTeamScan_(payload) {
   try {
     var token = String(payload.token || '').trim();
@@ -2845,15 +2867,51 @@ function handleTeamScan_(payload) {
     var date = payload.date || localToday_();
     if (!itemId) return jsonResponse({ ok: false, error: 'No item' });
 
-    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    // Movement type: restock (in) | store-order (out) | adjustment (either) |
+    // default outreach (out) for a normal field scan.
+    var moveType = String(payload.movement_type || 'outreach').trim().toLowerCase();
+    var direction;
+    if (moveType === 'restock') direction = 'in';
+    else if (moveType === 'adjustment') direction = (String(payload.direction || '').toLowerCase() === 'in') ? 'in' : 'out';
+    else direction = 'out'; // store-order, outreach
 
-    // Log to Inventory
+    // Cost: 'none' (donated to us), 'partial', or 'full' (we paid).
+    var costStatus = String(payload.cost_status || 'none').trim().toLowerCase();
+    if (['none', 'partial', 'full'].indexOf(costStatus) < 0) costStatus = 'none';
+    var coveredBy = String(payload.covered_by || '').trim().slice(0, 200);
+    var detailNotes = String(payload.detail_notes || '').trim().slice(0, 1000);
+
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
     var invSheet = ss.getSheetByName('Inventory');
     if (!invSheet) return jsonResponse({ ok: false, error: 'Inventory tab not found' });
-    var costMap = getItemCostMapFromLedger_();
-    var cost = (costMap.costs[itemId] !== undefined) ? costMap.costs[itemId] : costMap.defaultCost;
 
-    // Find row_id col
+    // Per-unit cost: if we paid, use the client-provided cost or the ledger default.
+    var costMap = getItemCostMapFromLedger_();
+    var defaultCost = (costMap.costs[itemId] !== undefined) ? costMap.costs[itemId] : costMap.defaultCost;
+    var perUnit = 0;
+    if (costStatus !== 'none') {
+      var provided = parseFloat(payload.cost_amount);
+      if (!isNaN(provided) && provided >= 0) perUnit = provided; // total the ministry paid
+      else perUnit = defaultCost * qty; // fall back to ledger cost × qty
+    }
+    var totalCost = (costStatus === 'none') ? 0 : perUnit;
+    var perUnitCost = qty > 0 ? (totalCost / qty) : totalCost;
+
+    // Optional receipt upload (base64 data URL → Drive). Reuses the finance receipt folder.
+    var receiptUrl = '';
+    if (payload.receipt_data && String(payload.receipt_data).indexOf('data:') === 0 &&
+        typeof uploadReceiptToDrive_ === 'function') {
+      try { receiptUrl = uploadReceiptToDrive_(payload.receipt_data, date, teamMember || 'inventory'); }
+      catch (e) { receiptUrl = 'upload_failed'; }
+    }
+
+    // Ensure extended columns exist on the (possibly pre-existing) sheet.
+    var cCostStatus = ensureColumn_(invSheet, 'cost_status');
+    var cCoveredBy  = ensureColumn_(invSheet, 'covered_by');
+    var cReceipt    = ensureColumn_(invSheet, 'receipt_url');
+    var cDetail     = ensureColumn_(invSheet, 'detail_notes');
+
+    // row_id
     var headers = invSheet.getRange(1,1,1,invSheet.getLastColumn()).getValues()[0];
     var rowIdColIdx = -1;
     for (var h=0;h<headers.length;h++){if(String(headers[h]).toLowerCase().replace(/[\s_\-]/g,'') === 'rowid'){rowIdColIdx=h+1;break;}}
@@ -2862,13 +2920,21 @@ function handleTeamScan_(payload) {
     maxNum++;
     var rowId='INV-'+String(maxNum).padStart(4,'0');
 
-    var totalCost = cost * qty;
-    var row=[date,'outreach',itemId,itemName,qty,'out',eventLabel||'team-scan',cost,totalCost,teamMember,''];
-    if(rowIdColIdx>0){while(row.length<rowIdColIdx-1)row.push('');row[rowIdColIdx-1]=rowId;}else row.push(rowId);
+    // Base row (cols A–K). notes (col J) stays the team-member name.
+    var row=[date,moveType,itemId,itemName,qty,direction,eventLabel||'team-scan',perUnitCost,totalCost,teamMember,''];
+    // Widen the row to cover all named columns, then set them positionally.
+    var totalCols = invSheet.getLastColumn();
+    while(row.length < totalCols) row.push('');
+    function setCol(colIdx, val){ if(colIdx>0){ while(row.length < colIdx) row.push(''); row[colIdx-1]=val; } }
+    setCol(cCostStatus, costStatus);
+    setCol(cCoveredBy, coveredBy);
+    setCol(cReceipt, receiptUrl);
+    setCol(cDetail, detailNotes);
+    if(rowIdColIdx>0){ setCol(rowIdColIdx, rowId); } else { row.push(rowId); }
     invSheet.appendRow(row);
 
-    // Update team member total_scans (increment by qty)
-    if(token){
+    // Update team member total_scans only for stock leaving as outreach/store-order.
+    if(token && (direction==='out')){
       var tmSheet=getTeamSheet_();
       if(tmSheet.getLastRow()>1){
         var tmData=tmSheet.getRange(2,1,tmSheet.getLastRow()-1,8).getValues();
@@ -2878,8 +2944,65 @@ function handleTeamScan_(payload) {
       }
     }
 
-    return jsonResponse({ ok: true, route: 'teamScan', row_id: rowId });
+    // When it cost the ministry (partial/full), record a Finances expense so
+    // finances stay accurate and sync to STW Finances. Non-fatal on failure.
+    if (costStatus !== 'none' && totalCost > 0 && typeof handleLogFinanceEntry_ === 'function') {
+      try {
+        handleLogFinanceEntry_({
+          token: token,
+          entry: {
+            date: date,
+            type: 'expense',
+            category: 'designated-scripture',
+            description: (moveType==='restock'?'Restock':'Purchase')+': '+qty+'× '+(itemName||itemId),
+            amount: totalCost,
+            payment_method: 'Other',
+            event: eventLabel || '',
+            notes: 'Inventory '+rowId+(coveredBy?(' · covered by '+coveredBy):'')+(costStatus==='partial'?' · partial cost':'')+(detailNotes?(' · '+detailNotes):''),
+            has_receipt: !!(receiptUrl && receiptUrl.indexOf('http')===0),
+            receipt_url: (receiptUrl && receiptUrl.indexOf('http')===0) ? receiptUrl : '',
+            logged_by: teamMember
+          }
+        });
+      } catch (e) { /* finance entry is best-effort; inventory row already saved */ }
+    }
+
+    return jsonResponse({ ok: true, route: 'teamScan', row_id: rowId, receipt_url: receiptUrl });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+// { action:'getInventoryMeta', token } — reused suggestions for the portal:
+// distinct donors (covered_by), recent event sources, and this member's last event.
+function handleGetInventoryMeta_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var invSheet = ss.getSheetByName('Inventory');
+    if (!invSheet || invSheet.getLastRow() < 2) return jsonResponse({ ok: true, donors: [], events: [], last_event: '' });
+
+    var lastCol = invSheet.getLastColumn();
+    var headers = invSheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    function col(name){ var t=String(name).toLowerCase().replace(/[\s_\-]/g,''); for(var i=0;i<headers.length;i++){ if(String(headers[i]).toLowerCase().replace(/[\s_\-]/g,'')===t) return i; } return -1; }
+    var cEvent = col('event_source'), cNotesMember = col('notes'), cCovered = col('covered_by'), cDate = col('date');
+
+    var data = invSheet.getRange(2, 1, invSheet.getLastRow()-1, lastCol).getValues();
+    var donorSeen = {}, donors = [];
+    var eventSeen = {}, events = [];
+    var lastEvent = '', lastTs = -1;
+    var uname = String(user.name).toLowerCase().trim();
+    for (var i = 0; i < data.length; i++) {
+      var r = data[i];
+      if (cCovered >= 0) { var dv = String(r[cCovered]||'').trim(); if (dv && !donorSeen[dv.toLowerCase()]) { donorSeen[dv.toLowerCase()]=1; donors.push(dv); } }
+      if (cEvent >= 0)   { var ev = String(r[cEvent]||'').trim(); if (ev && !eventSeen[ev.toLowerCase()]) { eventSeen[ev.toLowerCase()]=1; events.push(ev); } }
+      // This member's most recent event (notes col holds the member name).
+      if (cEvent >= 0 && cNotesMember >= 0 && String(r[cNotesMember]||'').toLowerCase().trim() === uname) {
+        var evm = String(r[cEvent]||'').trim();
+        if (evm) { var ts=i; var dr=cDate>=0?r[cDate]:null; if(dr instanceof Date) ts=dr.getTime(); else if(dr){var dp=new Date(String(dr)); if(!isNaN(dp.getTime())) ts=dp.getTime();} if(ts>=lastTs){lastTs=ts; lastEvent=evm;} }
+      }
+    }
+    return jsonResponse({ ok: true, donors: donors.slice(0, 40), events: events.slice(0, 40), last_event: lastEvent });
+  } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
 
 // ── Active Event system ───────────────────────────────────────────

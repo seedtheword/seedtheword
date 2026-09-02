@@ -53,9 +53,12 @@ function handleLogFinanceEntry_(payload) {
     const sheet = ss.getSheetByName(FINANCES_TAB);
     if (!sheet) return jsonResponse({ ok: false, error: 'Finances tab not found in spreadsheet' });
 
-    // Handle receipt upload to Google Drive
+    // Handle receipt: an already-uploaded Drive URL wins (e.g. from an inventory
+    // movement that uploaded it); otherwise upload from base64 receipt_data.
     var receiptUrl = '';
-    if (entry.receipt_data && entry.receipt_data.indexOf('data:') === 0) {
+    if (entry.receipt_url && String(entry.receipt_url).indexOf('http') === 0) {
+      receiptUrl = entry.receipt_url;
+    } else if (entry.receipt_data && entry.receipt_data.indexOf('data:') === 0) {
       try {
         receiptUrl = uploadReceiptToDrive_(entry.receipt_data, entry.date || 'undated', entry.logged_by || 'unknown');
       } catch(uploadErr) {

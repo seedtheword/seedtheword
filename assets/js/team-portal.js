@@ -33,6 +33,11 @@ function timeAgo(ts){var d=Date.now()-ts,m=Math.floor(d/60000);if(m<1)return 'no
 function fmtDate(ts){return new Date(ts).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
 function saveSession(){try{localStorage.setItem('stwm-team-session',JSON.stringify(session));}catch(e){}}
 
+// Local calendar date as YYYY-MM-DD (NOT UTC). Using toISOString() here caused
+// evening-Pacific entries to log as tomorrow because ISO is UTC. en-CA formats
+// as YYYY-MM-DD in the browser's local timezone.
+function localToday(){ return new Date().toLocaleDateString('en-CA'); }
+
 // ── Views ──
 window.showView=function(v){
   document.querySelectorAll('.view').forEach(function(el){el.classList.remove('active');});
@@ -50,7 +55,7 @@ function showPortal(){
   checkEmergencyAlerts();
 }
 function showEventOrPortal(){
-  if(session.event&&session.eventDate===new Date().toISOString().split('T')[0]){showPortal();}
+  if(session.event&&session.eventDate===localToday()){showPortal();}
   else{showView('event');}
 }
 
@@ -266,7 +271,7 @@ document.getElementById('login-btn').addEventListener('click',async function(){
     if(res.ok){
       var prevEvent = session ? session.event : '';
       var prevEventDate = session ? session.eventDate : '';
-      session={token:res.token,name:res.name,role:res.role||'member',totalScans:res.total_scans||0,todayScans:[],event:prevEvent||'',eventDate:prevEventDate||'',telegram_username:res.telegram_username||''};
+      session={token:res.token,name:res.name,role:res.role||'member',totalScans:res.total_scans||0,todayScans:[],event:prevEvent||'',eventDate:prevEventDate||'',telegram_username:res.telegram_username||'',lastEvent:res.last_event||prevEvent||''};
       saveSession();showEventOrPortal();
     }else throw new Error(res.error||'Login failed');
   }catch(err){status.textContent=err.message;status.className='status status--error';}
@@ -316,7 +321,7 @@ document.getElementById('forgot-btn').addEventListener('click',async function(){
 document.getElementById('event-btn').addEventListener('click',function(){
   var name=document.getElementById('event-name').value.trim();
   if(!name){document.getElementById('event-status').textContent='Enter an event name.';return;}
-  session.event=name;session.eventDate=new Date().toISOString().split('T')[0];
+  session.event=name;session.eventDate=localToday();
   session.todayScans=[];saveSession();
   // Cache event name locally for autocomplete
   try{var cached=JSON.parse(localStorage.getItem('stwm-event-names')||'[]');if(cached.indexOf(name)===-1){cached.unshift(name);if(cached.length>30)cached.length=30;localStorage.setItem('stwm-event-names',JSON.stringify(cached));}}catch(e){}
@@ -392,7 +397,7 @@ async function loadScanHistory(){
   try{
     var res=await postAction({action:'getScanHistory',token:session.token});
     if(res.ok&&res.scans&&res.scans.length){
-      var today=new Date().toISOString().split('T')[0];
+      var today=localToday();
       container.innerHTML=res.scans.map(function(s){
         var isToday=s.date===today;
         var qtyLabel=s.qty>1?' × '+s.qty:'';
@@ -491,7 +496,7 @@ async function logScan(itemId,itemName,qty){
   saveSession();updateActivityList();updateScanCount();
   document.getElementById('stat-today').textContent=session.todayScans.length;
   document.getElementById('stat-total').textContent=session.totalScans;
-  try{await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:itemId,item_name:itemName,qty:qty,event_label:session.event,date:now.toISOString().split('T')[0]});}catch(e){}
+  try{await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:itemId,item_name:itemName,qty:qty,event_label:session.event,date:localToday()});}catch(e){}
 }
 
 // ── Picker ──

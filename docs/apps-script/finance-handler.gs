@@ -67,7 +67,7 @@ function handleLogFinanceEntry_(payload) {
 
     // Map to the existing column structure: date, type, category, description, amount, payment_method, references, recorded_by, notes, receipt_url
     const row = [
-      entry.date || new Date().toISOString().split('T')[0],                    // A: date
+      entry.date || localToday_(),                                             // A: date (local, not UTC)
       entry.type || 'expense',                                                  // B: type
       entry.category || 'other',                                               // C: category
       entry.description || '',                                                  // D: description
@@ -114,7 +114,7 @@ function uploadReceiptToDrive_(dataUrl, date, loggedBy) {
   }
   
   // Organize by year-month subfolder
-  var yearMonth = (date || new Date().toISOString().split('T')[0]).slice(0, 7); // "2026-08"
+  var yearMonth = (date || localToday_()).slice(0, 7); // "2026-08" (local, not UTC)
   var subFolders = parentFolder.getFoldersByName(yearMonth);
   var monthFolder;
   if (subFolders.hasNext()) {

@@ -1031,6 +1031,16 @@
     mutations.forEach(function(m) {
       if (m.target.id === 'view-event' && m.target.classList.contains('active')) {
         fetchEvents();
+        // Prefill the event field with this member's last event (from their
+        // Inventory history via login `last_event`, or their prior local event).
+        try {
+          var s = JSON.parse(localStorage.getItem('stwm-team-session'));
+          var last = s && (s.event || s.lastEvent);
+          var inp = document.getElementById('event-name');
+          if (last && inp && !inp.value) inp.value = last;
+          var skip = document.getElementById('skip-event-link');
+          if (skip) skip.textContent = last ? ('Skip — use last event (' + last + ')') : 'Skip — use last event';
+        } catch(e) {}
       }
     });
   });
@@ -1043,10 +1053,12 @@
     skipLink.addEventListener('click', function() {
       var s = null;
       try { s = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
-      if (s && s.event) {
-        var confirmed = confirm('Continue with last event?\n\n"' + s.event + '"\n\nTap OK to proceed or Cancel to pick a different event.');
+      var last = s && (s.event || s.lastEvent);
+      if (s && last) {
+        var confirmed = confirm('Continue with last event?\n\n"' + last + '"\n\nTap OK to proceed or Cancel to pick a different event.');
         if (confirmed) {
-          s.eventDate = new Date().toISOString().split('T')[0];
+          s.event = last;
+          s.eventDate = new Date().toLocaleDateString('en-CA'); // local YYYY-MM-DD (not UTC)
           s.todayScans = s.todayScans || [];
           localStorage.setItem('stwm-team-session', JSON.stringify(s));
           showView('portal');
@@ -1238,7 +1250,7 @@
   var form = document.getElementById('finance-form');
   if (form) {
     var dateInput = document.getElementById('finance-date');
-    if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+    if (dateInput) dateInput.value = new Date().toLocaleDateString('en-CA'); // local YYYY-MM-DD (not UTC)
 
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -1330,7 +1342,7 @@
     financeTab.addEventListener('click', function() {
       loadFinanceEntries();
       var dateInput = document.getElementById('finance-date');
-      if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
+      if (dateInput && !dateInput.value) dateInput.value = new Date().toLocaleDateString('en-CA'); // local YYYY-MM-DD (not UTC)
       // Auto-fill recorded by
       var vendorInput = document.getElementById('finance-vendor');
       var session = getSession();

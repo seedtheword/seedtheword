@@ -748,6 +748,14 @@ function formatYYYYMMDD(date) {
   return Utilities.formatDate(date, tz, 'yyyyMMdd');
 }
 
+// Local calendar date (ministry timezone) as YYYY-MM-DD. Use this instead of
+// new Date().toISOString().split('T')[0] — ISO is UTC and rolled evening-Pacific
+// entries to the next day.
+function localToday_() {
+  const tz = Session.getScriptTimeZone() || 'America/Los_Angeles';
+  return Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd');
+}
+
 // ── Email composition ────────────────────────────────────────────
 function sendEmails(p, orderId, emailsSent) {
   // Gifter receipt
@@ -1903,7 +1911,7 @@ function logInventoryMovement_(entries) {
   if (!entries || !entries.length) return;
   try {
     var sheet = openTab(INVENTORY_TAB, INVENTORY_HEADERS);
-    var now = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    var now = localToday_(); // local YYYY-MM-DD (not UTC)
     var rows = entries.map(function(e) {
       var totalCost = (e.costPerUnit || 2) * (e.qty || 0);
       return [
@@ -2386,7 +2394,7 @@ function autoLogFinanceFromInventory_(params) {
   var finSheet = ss.getSheetByName('Finances');
   if (!finSheet) return; // Finances tab doesn't exist, skip silently
 
-  var date   = params.date || new Date().toISOString().split('T')[0];
+  var date   = params.date || localToday_();
   var source = params.event_source || '';
   var team   = params.team_member || '';
 
@@ -2430,7 +2438,7 @@ function handleFieldLog_(payload) {
   var items = Array.isArray(payload.items) ? payload.items : [];
   if (!items.length) return jsonResponse({ ok: false, error: 'no-items' });
 
-  var date       = String(payload.date        || new Date().toISOString().split('T')[0]);
+  var date       = String(payload.date        || localToday_());
   var source     = String(payload.event_source || '').trim();
   var teamMember = String(payload.team_member  || '').trim();
 
@@ -2568,7 +2576,7 @@ function handleFieldPlacement_(payload) {
 
   var placementName = String(pl.placementName || '').trim();
   var institution   = String(pl.institution || '').trim();
-  var datePlaced    = String(pl.date_placed || new Date().toISOString().split('T')[0]);
+  var datePlaced    = String(pl.date_placed || localToday_());
   var teamMember    = String(pl.team_member || '').trim();
   var source        = String(pl.event_source || institution || '').trim();
 
@@ -2779,7 +2787,10 @@ function handleTeamLogin_(payload) {
         
         if (matched) {
         // Calculate actual total items given from Inventory sheet (sum of qty)
+        // and capture this member's MOST RECENT event source (col 6) so the
+        // portal can prefill "last event" per member instead of "not found".
         var totalItems = 0;
+        var lastEvent = '', lastEventTs = -1;
         try {
           var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
           var invSheet = ss.getSheetByName('Inventory');
@@ -2789,6 +2800,16 @@ function handleTeamLogin_(payload) {
             for (var j = 0; j < invData.length; j++) {
               if (String(invData[j][9]).toLowerCase().trim() === memberName) {
                 totalItems += parseInt(invData[j][4]) || 1;
+                var ev = String(invData[j][6] || '').trim();
+                if (ev) {
+                  // Row order approximates chronology; later rows win. Also parse the
+                  // date cell (col 0) when present to be safe.
+                  var dts = j; // fallback ordinal
+                  var dRaw = invData[j][0];
+                  if (dRaw instanceof Date) dts = dRaw.getTime();
+                  else if (dRaw) { var dp = new Date(String(dRaw)); if (!isNaN(dp.getTime())) dts = dp.getTime(); }
+                  if (dts >= lastEventTs) { lastEventTs = dts; lastEvent = ev; }
+                }
               }
             }
           }
@@ -2797,7 +2818,7 @@ function handleTeamLogin_(payload) {
         if (totalItems !== (parseInt(data[i][7]) || 0)) {
           sheet.getRange(i + 2, 8).setValue(totalItems);
         }
-        return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], role: data[i][5] || 'member', total_scans: totalItems, telegram_username: data[i][8] || '' });
+        return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], role: data[i][5] || 'member', total_scans: totalItems, telegram_username: data[i][8] || '', last_event: lastEvent });
         }
       }
     }
@@ -2821,7 +2842,7 @@ function handleTeamScan_(payload) {
     var teamMember = String(payload.team_member || '').trim();
     var eventLabel = String(payload.event_label || '').trim();
     var qty = parseInt(payload.qty) || 1;
-    var date = payload.date || new Date().toISOString().split('T')[0];
+    var date = payload.date || localToday_();
     if (!itemId) return jsonResponse({ ok: false, error: 'No item' });
 
     var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
@@ -2903,7 +2924,7 @@ function handleGetActiveEvent_() {
     var row = sheet.getRange(2, 1, 1, 4).getValues()[0];
     // Check if the event was set today (auto-expire after midnight)
     var setAt = String(row[3] || '');
-    var today = new Date().toISOString().split('T')[0];
+    var today = localToday_();
     if (setAt && setAt.split('T')[0] !== today) {
       return jsonResponse({ ok: true, event_id: '', event_label: '', expired: true });
     }
@@ -2931,7 +2952,7 @@ function handleQuickCheckout_(payload) {
     // Get cost from Lists tab
     var costMap = getItemCostMapFromLedger_();
     var cost = (costMap.costs[itemId] !== undefined) ? costMap.costs[itemId] : costMap.defaultCost;
-    var date = new Date().toISOString().split('T')[0];
+    var date = localToday_();
 
     // Find row_id column
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];

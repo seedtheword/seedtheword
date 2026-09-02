@@ -232,6 +232,27 @@
       .plan-day { padding: 0.9rem 1rem; }
       .plan-week__header { padding: 1rem; }
     }
+
+    /* Print / Save button */
+    .plan-print-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 1.25rem;
+      padding: 0.6rem 1.2rem; border-radius: 999px; cursor: pointer;
+      border: 1.5px solid #E8E4DF; background: #fff; color: #2c5f2e;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 0.82rem; font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .plan-print-btn:hover { border-color: #2c5f2e; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(44,95,46,0.15); }
+
+    /* ── Print: clean take-home reading plan ── */
+    @media print {
+      .site-header, .site-footer, #site-nav, .hamburger, .theme-toggle,
+      .plan-print-btn, .plan-share, .plan-hero__verse { display: none !important; }
+      body { background: #fff !important; }
+      .plan-hero { padding: 0.5rem 0 1rem !important; }
+      .plan-week, .plan-day { break-inside: avoid; page-break-inside: avoid; }
+      a { color: #000 !important; text-decoration: none !important; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
   </style>
 </head>
 <body>
@@ -285,6 +306,7 @@
     <p>"Your word is a lamp to my feet and a light to my path."</p>
     <cite>— Psalm 119:105 ESV</cite>
   </blockquote>
+  <button type="button" class="plan-print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
 </section>
 
 <section class="plan-body">

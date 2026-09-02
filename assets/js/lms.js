@@ -467,7 +467,9 @@ function openCourseViewer(courseId) {
   // Build viewer DOM
   var viewer = document.createElement('div');
   viewer.className = 'lms-viewer';
-  viewer.innerHTML = '<div class="lms-viewer__header"><h2 class="lms-viewer__title">' + course.title + '</h2><button class="lms-viewer__close" aria-label="Close">×</button></div>' +
+  viewer.innerHTML = '<div class="lms-viewer__header"><h2 class="lms-viewer__title">' + course.title + '</h2>' +
+    (course.forSale ? '' : '<button class="lms-viewer__print" aria-label="Print or save as PDF" title="Print / Save PDF">🖨️</button>') +
+    '<button class="lms-viewer__close" aria-label="Close">×</button></div>' +
     '<div class="lms-viewer__progress"><div class="lms-viewer__progress-bar" style="width:' + Math.round(((currentIndex + 1) / (totalCards + 1)) * 100) + '%"></div></div>' +
     '<div class="lms-deck"></div>' +
     '<div class="lms-viewer__nav"><button class="lms-viewer__nav-btn lms-viewer__nav-btn--prev" aria-label="Previous">‹</button><div style="text-align:center;flex:1;"><div class="lms-viewer__dots"></div><div class="lms-viewer__page-num"></div></div><button class="lms-viewer__nav-btn lms-viewer__nav-btn--next" aria-label="Next">›</button></div>';
@@ -576,6 +578,28 @@ function openCourseViewer(courseId) {
     }, 250);
   }
   viewer.querySelector('.lms-viewer__close').addEventListener('click', closeViewer);
+
+  // Print / Save PDF — flatten ALL cards into a take-home sheet, then print.
+  var printBtn = viewer.querySelector('.lms-viewer__print');
+  if (printBtn) printBtn.addEventListener('click', function () {
+    var old = document.getElementById('lms-print-root');
+    if (old) old.remove();
+    var root = document.createElement('div');
+    root.id = 'lms-print-root';
+    var html = '<h1 class="lms-print__title">' + course.title + '</h1>' +
+      '<p class="lms-print__sub">Seed the Word Ministry · take-home study</p>';
+    course.cards.forEach(function (data, i) {
+      html += '<section class="lms-print__card">' +
+        (data.eyebrow ? '<div class="lms-print__eyebrow">' + data.eyebrow + '</div>' : '') +
+        '<h2 class="lms-print__heading">' + (i + 1) + '. ' + data.heading + '</h2>' +
+        '<div class="lms-print__content">' + data.content + '</div>' +
+      '</section>';
+    });
+    root.innerHTML = html;
+    document.body.appendChild(root);
+    window.print();
+    setTimeout(function () { root.remove(); }, 500);
+  });
 
   // Initial render
   renderCard(currentIndex);

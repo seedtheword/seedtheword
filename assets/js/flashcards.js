@@ -35,6 +35,7 @@
       '<div class="fc-deck__tools">' +
         '<button type="button" class="fc-tool" data-fc-shuffle>🔀 Shuffle</button>' +
         '<button type="button" class="fc-tool" data-fc-restart>↺ Restart</button>' +
+        '<button type="button" class="fc-print" data-fc-print>🖨️ Print / Save PDF</button>' +
       '</div>';
 
     var stage = document.createElement('div');
@@ -149,6 +150,8 @@
     head.querySelector('[data-fc-restart]').addEventListener('click', function () {
       order = cards.map(function (_, i) { return i; }); pos = 0; render();
     });
+    var printBtn = head.querySelector('[data-fc-print]');
+    if (printBtn) printBtn.addEventListener('click', function () { window.print(); });
 
     // Keyboard (when the deck is focused/hovered region). Global arrows + space.
     deck.setAttribute('tabindex', '0');

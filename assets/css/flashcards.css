@@ -188,3 +188,60 @@
   .fc-card { transition: none; }
   .fc-arrow, .fc-tool, .fc-card-btn, .fc-nav__flip, .fc-mini { transition: none; }
 }
+
+
+/* Print/Save button on the deck */
+.fc-print {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.5rem 0.9rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--fc-glass-border); background: var(--fc-glass);
+  font-family: 'Inter', system-ui, sans-serif; font-size: 0.78rem; font-weight: 600;
+  color: var(--fc-ink-2); transition: all 0.2s var(--fc-ease);
+}
+.fc-print:hover { border-color: var(--fc-green); color: var(--fc-green); transform: translateY(-1px); }
+
+/* ── Print layout: flatten the deck into a clean take-home sheet ──
+   Every card prints with BOTH sides visible (concept + explanation),
+   one card per block, page-breaks between cards, no interactive chrome. */
+@media print {
+  /* Hide site chrome + deck controls. */
+  .site-header, .site-footer, #site-nav, .hamburger,
+  .fc-deck__head, .fc-nav, .fc-dots, .fc-overview, .fc-flip-hint,
+  .seed-nav-footer, .grow-nav-footer, .harv-nav-footer,
+  .theme-toggle { display: none !important; }
+
+  body { background: #fff !important; }
+  .seed-hero, .grow-hero, .harv-hero { padding: 0.5rem 0 1rem !important; }
+  .seed-hero::before, .grow-hero::before, .harv-hero::before { display: none !important; }
+
+  .fc-deck { max-width: none; padding: 0; }
+  .fc-stage { display: block; min-height: 0; perspective: none; }
+
+  /* Show all cards, stacked; each card = one print block. */
+  .fc-card {
+    display: block !important; position: relative !important;
+    transform: none !important; min-height: 0 !important;
+    margin: 0 0 0.5rem !important; break-inside: avoid; page-break-inside: avoid;
+    border: 1px solid #ccc; border-radius: 12px; padding: 0.75rem 1rem;
+    box-shadow: none !important;
+  }
+  .fc-face {
+    position: relative !important; inset: auto !important; transform: none !important;
+    backface-visibility: visible !important; -webkit-backface-visibility: visible !important;
+    box-shadow: none !important; border: none !important; background: none !important;
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+    padding: 0.35rem 0 !important; overflow: visible !important; min-height: 0 !important;
+    display: block !important;
+  }
+  .fc-face::before { display: none !important; }
+  .fc-face--back { border-top: 1px dashed #bbb !important; margin-top: 0.4rem; padding-top: 0.5rem !important; }
+  .fc-card-btn, .fc-card-qr { display: none !important; } /* links/QR aren't useful in print */
+  .fc-front-sub { display: none !important; } /* "tap to reveal" prompts are meaningless on paper */
+  .fc-kicker, .fc-back-title { color: #6b5220 !important; }
+  .fc-front-title, .fc-scripture-quote { color: #000 !important; }
+  .fc-back-body, .fc-back-body p, .fc-back-body li { color: #222 !important; }
+  .fc-stat__num { color: #2c5f2e !important; }
+  a { color: #000 !important; text-decoration: none !important; }
+  /* Force backgrounds/colors to print. */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}

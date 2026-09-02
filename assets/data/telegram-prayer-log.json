@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616081,
-  "lastModified": "2026-09-02T17:10:38Z",
+  "lastUpdateId": 669616083,
+  "lastModified": "2026-09-02T17:40:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -597,6 +597,26 @@
       "kind": "telegram",
       "text": "This prayer list would be even longer if Lin and I actually wrote down but there's like 20 more people to add so continue praying for Lynnwood and the Revival to happen in Washington state in Jesus name",
       "ts": "2026-09-02T17:09:28Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5565,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Please add more here for the people you at least can remember!",
+      "ts": "2026-09-02T17:21:15Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5566,
+      "userId": 8583445613,
+      "displayName": "Edward Wei",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "January 10th will be our next prayer night. I need to ping people to get confirmation we have the space.",
+      "ts": "2026-09-02T17:28:18Z"
     }
   ]
 }

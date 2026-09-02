@@ -53,19 +53,47 @@ function handleLogFinanceEntry_(payload) {
     const sheet = ss.getSheetByName(FINANCES_TAB);
     if (!sheet) return jsonResponse({ ok: false, error: 'Finances tab not found in spreadsheet' });
 
-    // Handle receipt: an already-uploaded Drive URL wins (e.g. from an inventory
-    // movement that uploaded it); otherwise upload from base64 receipt_data.
-    var receiptUrl = '';
-    if (entry.receipt_url && String(entry.receipt_url).indexOf('http') === 0) {
-      receiptUrl = entry.receipt_url;
-    } else if (entry.receipt_data && entry.receipt_data.indexOf('data:') === 0) {
-      try {
-        receiptUrl = uploadReceiptToDrive_(entry.receipt_data, entry.date || 'undated', entry.logged_by || 'unknown');
-      } catch(uploadErr) {
-        receiptUrl = 'upload_failed';
-      }
-    } else if (entry.has_receipt) {
-      receiptUrl = 'pending_upload';
+    // Handle receipt(s). Accepts:
+    //   entry.receipt_url  — one or more already-uploaded Drive URLs (string or array)
+    //   entry.receipt_data — one or more base64 data URLs (string or array)
+    // Multiple URLs are newline-joined into column J. The Finance sync only reads
+    // columns A–G, so multiple URLs in J is safe.
+    var receiptUrls = [];
+    // Pre-uploaded URLs first.
+    var preUrls = entry.receipt_url;
+    if (preUrls) {
+      if (!Array.isArray(preUrls)) preUrls = [preUrls];
+      preUrls.forEach(function(u){ if (u && String(u).indexOf('http') === 0) receiptUrls.push(String(u)); });
+    }
+    // Then base64 uploads.
+    var datas = entry.receipt_data;
+    if (datas) {
+      if (!Array.isArray(datas)) datas = [datas];
+      datas.forEach(function(d){
+        if (d && String(d).indexOf('data:') === 0) {
+          try { receiptUrls.push(uploadReceiptToDrive_(d, entry.date || 'undated', entry.logged_by || 'unknown')); }
+          catch(uploadErr) { receiptUrls.push('upload_failed'); }
+        }
+      });
+    }
+    var receiptUrl = receiptUrls.join('\n');
+    if (!receiptUrl && entry.has_receipt) receiptUrl = 'pending_upload';
+
+    // Optional "store order" linkage: an array of item lines and/or an order
+    // reference id. Item lines are folded into the description; the reference id
+    // goes in column G (references) so the expense ties back to what went out.
+    var description = String(entry.description || '');
+    var reference = String(entry.event || entry.order_ref || '');
+    if (Array.isArray(entry.items) && entry.items.length) {
+      var lines = entry.items.map(function(it){
+        var q = parseInt(it.qty, 10) || 1;
+        return q + '× ' + String(it.item_name || it.item_id || 'item');
+      });
+      var joined = lines.join(', ');
+      description = description ? (description + ' — ' + joined) : joined;
+    }
+    if (entry.order_ref && reference.indexOf(String(entry.order_ref)) === -1) {
+      reference = reference ? (reference + ' · ' + entry.order_ref) : String(entry.order_ref);
     }
 
     // Map to the existing column structure: date, type, category, description, amount, payment_method, references, recorded_by, notes, receipt_url
@@ -73,10 +101,10 @@ function handleLogFinanceEntry_(payload) {
       entry.date || localToday_(),                                             // A: date (local, not UTC)
       entry.type || 'expense',                                                  // B: type
       entry.category || 'other',                                               // C: category
-      entry.description || '',                                                  // D: description
+      description,                                                              // D: description (+ item lines)
       parseFloat(entry.amount) || 0,                                           // E: amount
       entry.payment_method || 'Cash',                                          // F: payment_method
-      entry.event || '',                                                        // G: references
+      reference,                                                                // G: references (+ order ref)
       entry.logged_by || member.name,                                          // H: recorded_by
       entry.notes || '',                                                        // I: notes
       receiptUrl                                                                // J: receipt_url
@@ -184,6 +212,7 @@ function handleGetFinanceEntries_(payload) {
         recorded_by: String(row[7] || ''),
         notes: String(row[8] || ''),
         receipt_url: String(row[9] || ''),
+        receipt_urls: String(row[9] || '').split(/[\n\s]+/).filter(function(u){ return u && u.indexOf('http') === 0; }),
         has_receipt: !!(row[9] && String(row[9]).trim())
       });
     }

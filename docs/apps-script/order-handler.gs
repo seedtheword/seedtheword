@@ -2941,11 +2941,13 @@ function handleTeamScan_(payload) {
             date: date,
             type: 'expense',
             category: 'designated-scripture',
-            description: (moveType==='restock'?'Restock':'Purchase')+': '+qty+'× '+(itemName||itemId),
+            description: (moveType==='restock'?'Restock':'Purchase'),
+            items: [{ item_id: itemId, item_name: itemName || itemId, qty: qty }],
+            order_ref: rowId,  // ties the expense back to the Inventory movement
             amount: totalCost,
             payment_method: 'Other',
             event: eventLabel || '',
-            notes: 'Inventory '+rowId+(donorNote?(' · '+donorNote):'')+(detailNotes?(' · '+detailNotes):''),
+            notes: (donorNote?donorNote:'')+((donorNote&&detailNotes)?' · ':'')+(detailNotes||''),
             has_receipt: !!(receiptUrl && receiptUrl.indexOf('http')===0),
             receipt_url: (receiptUrl && receiptUrl.indexOf('http')===0) ? receiptUrl : '',
             logged_by: teamMember

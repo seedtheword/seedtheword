@@ -441,20 +441,25 @@
             <input type="text" id="finance-event" placeholder="Any extra notes or references">
           </div>
 
-          <!-- Receipt upload -->
+          <!-- Related items (like a store order) — optional -->
           <div class="finance-form__field">
-            <label>Receipt Photo</label>
+            <label>Related items / order <small>(optional)</small></label>
+            <div id="finance-items" style="display:flex;flex-direction:column;gap:0.4rem;"></div>
+            <button type="button" class="btn btn--outline btn--sm" id="finance-add-item" style="margin-top:0.4rem;">+ Add item</button>
+            <input type="text" id="finance-order-ref" placeholder="Order / reference # (optional)" style="margin-top:0.4rem;">
+          </div>
+
+          <!-- Receipt upload (up to a few photos) -->
+          <div class="finance-form__field">
+            <label>Receipt Photos <small>(you can add more than one)</small></label>
             <div class="receipt-upload" id="receipt-upload-area">
-              <input type="file" id="finance-receipt" accept="image/*" class="receipt-upload__input">
+              <input type="file" id="finance-receipt" accept="image/*" multiple class="receipt-upload__input">
               <div class="receipt-upload__placeholder" id="receipt-placeholder">
                 <span class="receipt-upload__icon">📸</span>
-                <span class="receipt-upload__text">Tap to take photo or choose file</span>
-              </div>
-              <div class="receipt-upload__preview" id="receipt-preview" style="display:none;">
-                <img id="receipt-preview-img" alt="Receipt preview">
-                <button type="button" class="receipt-upload__remove" id="receipt-remove" title="Remove receipt">×</button>
+                <span class="receipt-upload__text">Tap to take photos or choose files</span>
               </div>
             </div>
+            <div class="receipt-thumbs" id="receipt-thumbs" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem;"></div>
           </div>
 
           <div class="finance-form__status" id="finance-status"></div>
@@ -1140,7 +1145,8 @@
 (function() {
   var CONFIG_URL = 'assets/data/site-config.json';
   var handlerUrl = null;
-  var receiptDataUrl = null;
+  var receiptDataUrls = []; // multiple base64 receipt photos
+  var financeCatalog = null; // cached Lists catalog for the item picker
   var financeEntries = []; // server-sourced entries
 
   // Clear old localStorage ghost data from previous version
@@ -1279,37 +1285,85 @@
     if (countEl) countEl.textContent = entries.length;
   }
 
-  // ── Receipt preview ──
+  // ── Receipt previews (multiple) ──
   var fileInput = document.getElementById('finance-receipt');
-  var preview = document.getElementById('receipt-preview');
-  var previewImg = document.getElementById('receipt-preview-img');
+  var thumbsEl = document.getElementById('receipt-thumbs');
   var placeholder = document.getElementById('receipt-placeholder');
-  var removeBtn = document.getElementById('receipt-remove');
+
+  function renderReceiptThumbs() {
+    if (!thumbsEl) return;
+    thumbsEl.innerHTML = receiptDataUrls.map(function(d, i) {
+      return '<div class="receipt-thumb"><img src="' + d + '" alt="receipt ' + (i+1) + '"><button type="button" class="receipt-thumb__remove" data-idx="' + i + '" title="Remove">×</button></div>';
+    }).join('');
+    thumbsEl.querySelectorAll('.receipt-thumb__remove').forEach(function(b) {
+      b.addEventListener('click', function() {
+        receiptDataUrls.splice(parseInt(this.dataset.idx, 10), 1);
+        renderReceiptThumbs();
+        if (placeholder) placeholder.style.display = receiptDataUrls.length ? 'none' : 'flex';
+      });
+    });
+    if (placeholder) placeholder.style.display = receiptDataUrls.length ? 'none' : 'flex';
+  }
 
   if (fileInput) {
     fileInput.addEventListener('change', function() {
-      var file = this.files[0];
-      if (!file) return;
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        receiptDataUrl = e.target.result;
-        previewImg.src = receiptDataUrl;
-        preview.style.display = 'block';
-        placeholder.style.display = 'none';
-      };
-      reader.readAsDataURL(file);
+      var files = Array.prototype.slice.call(this.files || []);
+      files.forEach(function(file) {
+        if (!file || !/^image\//.test(file.type)) return;
+        if (receiptDataUrls.length >= 6) return; // sane cap
+        var reader = new FileReader();
+        reader.onload = function(e) { receiptDataUrls.push(e.target.result); renderReceiptThumbs(); };
+        reader.readAsDataURL(file);
+      });
+      this.value = ''; // allow re-adding the same file / add more in a second tap
     });
   }
 
-  if (removeBtn) {
-    removeBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      receiptDataUrl = null;
-      fileInput.value = '';
-      preview.style.display = 'none';
-      placeholder.style.display = 'flex';
+  // ── Related items (store-order style) ──
+  async function loadFinanceCatalog() {
+    if (financeCatalog) return financeCatalog;
+    try {
+      var url = await getUrl();
+      var res = await fetch(url + '?action=getCatalog', { cache: 'no-store' }).then(function(r){ return r.json(); });
+      financeCatalog = (res && res.ok && res.items) ? res.items : [];
+    } catch(e) { financeCatalog = []; }
+    return financeCatalog;
+  }
+  function addFinanceItemRow() {
+    var wrap = document.getElementById('finance-items'); if (!wrap) return;
+    var row = document.createElement('div'); row.className = 'finance-item-row';
+    var opts = (financeCatalog || []).map(function(it){ return '<option value="' + escHtml(it.id) + '">' + escHtml(it.description || it.id) + '</option>'; }).join('');
+    row.innerHTML = '<select class="fi-item"><option value="">Choose item…</option>' + opts + '</select><input class="fi-qty" type="number" min="1" value="1" inputmode="numeric"><button type="button" class="finance-item-row__del" title="Remove">×</button>';
+    row.querySelector('.finance-item-row__del').addEventListener('click', function(){ row.remove(); });
+    wrap.appendChild(row);
+  }
+  var addItemBtn = document.getElementById('finance-add-item');
+  if (addItemBtn) addItemBtn.addEventListener('click', function(){ loadFinanceCatalog().then(function(){ addFinanceItemRow(); }); });
+
+  function collectFinanceItems() {
+    var out = [];
+    document.querySelectorAll('#finance-items .finance-item-row').forEach(function(r){
+      var sel = r.querySelector('.fi-item'), qty = r.querySelector('.fi-qty');
+      var id = sel ? sel.value : '';
+      if (!id) return;
+      var name = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : id;
+      out.push({ item_id: id, item_name: name, qty: parseInt(qty && qty.value, 10) || 1 });
     });
+    return out;
+  }
+
+  function resetFinanceForm() {
+    document.getElementById('finance-amount').value = '';
+    document.getElementById('finance-category').value = '';
+    document.getElementById('finance-type').value = 'expense';
+    document.getElementById('finance-payment').value = 'Cash';
+    document.getElementById('finance-desc').value = '';
+    document.getElementById('finance-event').value = '';
+    var orderRef = document.getElementById('finance-order-ref'); if (orderRef) orderRef.value = '';
+    var itemsWrap = document.getElementById('finance-items'); if (itemsWrap) itemsWrap.innerHTML = '';
+    receiptDataUrls = [];
+    if (fileInput) fileInput.value = '';
+    renderReceiptThumbs();
   }
 
   // ── Form submission ──
@@ -1334,6 +1388,7 @@
       var session = getSession();
       if (!session) { status.textContent = 'Not logged in.'; status.style.color = '#c0392b'; return; }
 
+      var orderRef = document.getElementById('finance-order-ref');
       var entryData = {
         date: date,
         amount: parseFloat(amount),
@@ -1344,8 +1399,10 @@
         vendor: '',
         event: '',
         notes: document.getElementById('finance-event').value.trim(),
-        has_receipt: !!receiptDataUrl,
-        receipt_data: receiptDataUrl || null,
+        items: collectFinanceItems(),
+        order_ref: orderRef ? orderRef.value.trim() : '',
+        has_receipt: receiptDataUrls.length > 0,
+        receipt_data: receiptDataUrls.slice(),
         logged_by: session.name
       };
 
@@ -1359,18 +1416,7 @@
         if (res.ok) {
           status.textContent = '✓ Expense saved to spreadsheet';
           status.style.color = 'var(--color-olive)';
-          // Reset form
-          document.getElementById('finance-amount').value = '';
-          document.getElementById('finance-category').value = '';
-          document.getElementById('finance-type').value = 'expense';
-          document.getElementById('finance-payment').value = 'Cash';
-          document.getElementById('finance-desc').value = '';
-          document.getElementById('finance-event').value = '';
-          receiptDataUrl = null;
-          if (fileInput) fileInput.value = '';
-          if (preview) preview.style.display = 'none';
-          if (placeholder) placeholder.style.display = 'flex';
-          // Reload list
+          resetFinanceForm();
           setTimeout(loadFinanceEntries, 1000);
         } else {
           status.textContent = res.error || 'Save failed.';
@@ -1378,21 +1424,9 @@
         }
       } catch(err) {
         // The entry likely saved (backend processes before response issues)
-        // Show tentative success and reload
         status.textContent = '✓ Saved (verifying...)';
         status.style.color = 'var(--color-olive)';
-        // Reset form
-        document.getElementById('finance-amount').value = '';
-        document.getElementById('finance-category').value = '';
-        document.getElementById('finance-type').value = 'expense';
-        document.getElementById('finance-payment').value = 'Cash';
-        document.getElementById('finance-desc').value = '';
-        document.getElementById('finance-event').value = '';
-        receiptDataUrl = null;
-        if (fileInput) fileInput.value = '';
-        if (preview) preview.style.display = 'none';
-        if (placeholder) placeholder.style.display = 'flex';
-        // Try to reload entries to confirm
+        resetFinanceForm();
         setTimeout(loadFinanceEntries, 2000);
       }
 

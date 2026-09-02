@@ -151,7 +151,10 @@
   box-shadow: 0 4px 16px rgba(44, 95, 46, 0.3); transition: all 0.2s var(--fc-ease);
 }
 .fc-card-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(44, 95, 46, 0.4); }
-.fc-card-btn--gold { background: linear-gradient(135deg, var(--fc-gold), #d4a84b); box-shadow: 0 4px 16px rgba(200, 150, 62, 0.3); }
+/* Gold variant: darker, richer gold with a HIGH-CONTRAST dark-ink label so the
+   text is always legible (the old white-on-light-gold was near-invisible). */
+.fc-card-btn--gold { background: linear-gradient(135deg, #b07d22, #c8963e); color: #241a06; box-shadow: 0 4px 16px rgba(176, 125, 34, 0.35); }
+.fc-card-btn--gold:hover { box-shadow: 0 8px 24px rgba(176, 125, 34, 0.45); }
 .fc-card-qr { width: 116px; height: 116px; border-radius: 12px; border: 1px solid var(--fc-border); margin-top: 1rem; display: block; }
 
 /* Live stat chips on a card */

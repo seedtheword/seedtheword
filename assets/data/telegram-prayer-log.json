@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616090,
-  "lastModified": "2026-09-02T23:23:50Z",
+  "lastUpdateId": 669616100,
+  "lastModified": "2026-09-03T22:25:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -255,6 +255,12 @@
       "messageId": 5500,
       "entryCount": 5,
       "postedAt": "2026-08-31T15:17:37Z"
+    },
+    "2026-W36-thu": {
+      "since": "2026-09-03T15:17:32Z",
+      "messageId": 5571,
+      "entryCount": 15,
+      "postedAt": "2026-09-03T15:17:56Z"
     }
   },
   "entries": [
@@ -627,6 +633,56 @@
       "kind": "telegram",
       "text": "Prayer Request 9/2/2026:\n\nPlease pray for the South American church where we sent these Bibles, this is what they said:\nhttps://t.me/seedtheword/1/5567\n\n\"Dear Beloved, can you please help me with a Bible, 9×6.or what ever you have ,because I can't buy one,please joined me in prayers, I looking for a building with a low price, or Hod can touch some heart to give a place to worship on Sunday, I had a small church  with 15 poor people's, in a school class room, but the our government closed it.,address...\"",
       "ts": "2026-09-02T21:44:39Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5570,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Collected Prayer Requests from @ilya_nikitenko :\n\n1. A young woman seeking Christ. She told us she’s genuinely interested in Christianity and wants to learn more. Her questions felt sincere. Please pray that the Lord continues to reveal Himself to her and draws her in.\n 2. A farmers market volunteer’s daughter. One of our volunteers at the market shared that his daughter is in the hospital right now under close watch after a mental health crisis. She’s a believer, married with a family, but has battled depression for years. Please pray for her safety, for relief from the darkness she’s carrying, and for strength for him and the rest of the family.\n 3. My barber’s girlfriend. She has a serious kidney condition and her life is in danger. He identifies as a Christian but isn’t walking with the Lord. Pray for her healing — and that God would use this to bring him back to Himself.\n 4. A contractor I used to work with. He’s in the middle of a painful divorce with serious accusations against him, and his wife is seeking full custody of the children. He specifically asked for our prayer support. Pray for truth to come out, for his children, and for God to sustain him.\n\nThank you all for standing in the gap. Let’s keep lifting these up this week.",
+      "ts": "2026-09-03T01:20:16Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5574,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Praying Request for James 9/3/2026:\n\nI was driving from a doctor's appointment today and saw a homeless man in a wheelchair. I stopped, gave him a Bible and asked him for his story.\n\nHe explained that the state denied his insurance, he doesn't have housing, and he lost his leg from the frost bite. I asked him what we could pray for him for and he said a better future. He is also a human and he deserves better like all of us, I gave him my business card but lets pray for him to receive help wherever it is possible.",
+      "ts": "2026-09-03T19:12:20Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5576,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thank you Liam",
+      "ts": "2026-09-03T20:16:57Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5577,
+      "userId": 7341880285,
+      "displayName": "Pavlo F",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer",
+      "ts": "2026-09-03T21:40:49Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5578,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Please request it here",
+      "ts": "2026-09-03T22:17:42Z"
     }
   ]
 }

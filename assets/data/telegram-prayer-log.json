@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616114,
-  "lastModified": "2026-09-04T20:55:34Z",
+  "lastUpdateId": 669616116,
+  "lastModified": "2026-09-04T21:10:40Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -713,6 +713,16 @@
       "kind": "telegram",
       "text": "@Pavlo",
       "ts": "2026-09-04T04:06:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5589,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Of course Liam. We will pray for your grandma. I do not see why that's off the table",
+      "ts": "2026-09-04T20:59:58Z"
     }
   ]
 }

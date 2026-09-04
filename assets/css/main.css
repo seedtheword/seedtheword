@@ -1283,11 +1283,12 @@ ul { margin: 0; padding: 0; list-style: none; }
     margin-bottom: 0.35rem;
   }
   .gospel-journey-nav__label .gospel-journey-progress__title { display: none; }
+  /* Hide Back on mobile — visitors can simply scroll up to revisit a movement. */
   .gospel-journey-nav__back {
-    flex: 0 0 auto;
+    display: none;
   }
   .gospel-journey-nav__next {
-    flex: 1 1 auto;       /* Continue takes the remaining width, easy to tap */
+    flex: 1 1 auto;       /* Continue takes the full width, easy to tap */
     min-width: 0;
   }
 }

@@ -187,7 +187,20 @@
       His story unfolds in seven movements — from before the beginning to the day He returns.
       Follow it step by step, and see where you find yourself in it.
     </p>
-    <div class="jesus-content-box">
+
+    <!-- Guided-journey progress UI (shown only when JS enhances the section;
+         hidden by default so no-JS visitors just see the full narrative). -->
+    <div class="gospel-journey-progress" id="gospel-journey-progress" hidden>
+      <div class="gospel-journey-progress__label">
+        <span class="gospel-journey-progress__count" id="gospel-journey-count">Movement 1 of 7</span>
+        <span class="gospel-journey-progress__title" id="gospel-journey-title"></span>
+      </div>
+      <div class="gospel-journey-progress__track" role="progressbar" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1" id="gospel-journey-bar-wrap">
+        <div class="gospel-journey-progress__fill" id="gospel-journey-fill"></div>
+      </div>
+    </div>
+
+    <div class="jesus-content-box" id="gospel-journey-box">
 
       <!-- Stage 1: Who He Is -->
       <div class="gospel-stage gospel-stage--who-he-is">
@@ -392,6 +405,13 @@
           A real person on our team will answer &mdash; please text if calling is hard. You are not a number to us, you are family. Jesus loves you.
         </p>
         </div><!-- end encounter-reveal -->
+      </div>
+
+      <!-- Guided-journey navigation (revealed by JS). Lets visitors move
+           through the movements one at a time, building toward the CTA. -->
+      <div class="gospel-journey-nav" id="gospel-journey-nav" hidden>
+        <button type="button" class="btn btn-secondary gospel-journey-nav__back" id="gospel-journey-back">&larr; Back</button>
+        <button type="button" class="btn btn-primary btn-green-call gospel-journey-nav__next" id="gospel-journey-next">Continue &rarr;</button>
       </div>
 
       <!-- Image credits — collapsed by default. Provides attribution
@@ -1028,6 +1048,92 @@
       content.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
+})();
+
+// ── Guided "Who is Jesus?" journey ──────────────────────────────────
+// Progressive enhancement: walk the visitor through the seven movements
+// one at a time, with a progress bar and Continue/Back controls, building
+// toward the invitation (Stage 7). If JS is off, every stage stays visible
+// (nothing below runs), so the narrative is never hidden from anyone.
+(function() {
+  var box = document.getElementById('gospel-journey-box');
+  var nav = document.getElementById('gospel-journey-nav');
+  var progress = document.getElementById('gospel-journey-progress');
+  if (!box || !nav || !progress) return;
+
+  // Collect the seven movements IN ORDER as they sit in the DOM:
+  // stage 1 (bare stage), stages 2–6 (accordions), stage 7 (respond).
+  var steps = Array.prototype.filter.call(box.children, function(el) {
+    return el.classList &&
+      (el.classList.contains('gospel-stage') || el.classList.contains('gospel-accordion'));
+  });
+  if (steps.length < 2) return; // nothing to step through — bail safely
+
+  var total = steps.length;
+  var current = 0;
+
+  var countEl = document.getElementById('gospel-journey-count');
+  var titleEl = document.getElementById('gospel-journey-title');
+  var fillEl = document.getElementById('gospel-journey-fill');
+  var barWrap = document.getElementById('gospel-journey-bar-wrap');
+  var backBtn = document.getElementById('gospel-journey-back');
+  var nextBtn = document.getElementById('gospel-journey-next');
+
+  // Accordions are controlled by the stepper now — force them open and
+  // neutralize their click-to-collapse so the active movement is fully shown.
+  steps.forEach(function(el) {
+    if (el.tagName === 'DETAILS') {
+      el.open = true;
+      var summary = el.querySelector('summary');
+      if (summary) {
+        summary.style.cursor = 'default';
+        summary.addEventListener('click', function(e) { e.preventDefault(); });
+      }
+      var icon = el.querySelector('.gospel-accordion__icon');
+      if (icon) icon.style.display = 'none';
+    }
+  });
+
+  function titleFor(el) {
+    var h = el.querySelector('h3');
+    return h ? h.textContent.trim() : '';
+  }
+
+  function render(scroll) {
+    steps.forEach(function(el, i) {
+      el.hidden = (i !== current);
+    });
+    var human = current + 1;
+    if (countEl) countEl.textContent = 'Movement ' + human + ' of ' + total;
+    if (titleEl) titleEl.textContent = titleFor(steps[current]);
+    if (fillEl) fillEl.style.width = Math.round((human / total) * 100) + '%';
+    if (barWrap) barWrap.setAttribute('aria-valuenow', String(human));
+
+    backBtn.disabled = (current === 0);
+    // On the final movement (the invitation) there's nowhere further to go.
+    if (current === total - 1) {
+      nextBtn.hidden = true;
+    } else {
+      nextBtn.hidden = false;
+      nextBtn.innerHTML = (current === total - 2) ? 'Respond to Jesus &rarr;' : 'Continue &rarr;';
+    }
+
+    if (scroll) {
+      progress.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  nextBtn.addEventListener('click', function() {
+    if (current < total - 1) { current++; render(true); }
+  });
+  backBtn.addEventListener('click', function() {
+    if (current > 0) { current--; render(true); }
+  });
+
+  // Activate the guided experience.
+  progress.hidden = false;
+  nav.hidden = false;
+  render(false);
 })();
 </script>
 <script src="assets/js/profile-settings.js?v=3"></script>

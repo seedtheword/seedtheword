@@ -760,12 +760,21 @@ ul { margin: 0; padding: 0; list-style: none; }
   align-items: center;
   justify-content: center;
   padding: 5rem 0 6rem;
+  /* Deep green backdrop shows behind the letterboxed artwork so the
+     full image is visible on desktop without an awkward zoom-in. */
+  background-color: #14201a;
   background-image: url('../images/elibrary/20-day-plan.jpg');
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
   background-attachment: scroll;
   overflow: hidden;
+}
+/* Desktop: show the whole artwork rather than cropping into it. */
+@media (min-width: 768px) {
+  .who-is-jesus-hero {
+    background-size: contain;
+  }
 }
 .who-is-jesus-hero__overlay {
   position: absolute;
@@ -1100,6 +1109,64 @@ ul { margin: 0; padding: 0; list-style: none; }
   font-size: 1.05rem;
   line-height: 1.7;
   color: var(--muted, #5b5b5b);
+}
+
+/* ── Guided journey: progress bar + nav controls ── */
+.gospel-journey-progress {
+  max-width: 720px;
+  margin: 0 auto 1.75rem;
+}
+.gospel-journey-progress__label {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+.gospel-journey-progress__count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green, #2C5F2E);
+}
+.gospel-journey-progress__title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  color: var(--gold, #d4a574);
+  font-size: 1rem;
+}
+.gospel-journey-progress__track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(44, 95, 46, 0.12);
+  overflow: hidden;
+}
+.gospel-journey-progress__fill {
+  height: 100%;
+  width: 14%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--green, #2C5F2E), var(--gold, #d4a574));
+  transition: width 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.gospel-journey-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.75rem;
+  flex-wrap: wrap;
+}
+.gospel-journey-nav__next {
+  min-width: 200px;
+}
+.gospel-journey-nav__back:disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gospel-journey-progress__fill { transition: none; }
 }
 .gospel-step {
   display: inline-block;

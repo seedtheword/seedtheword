@@ -760,21 +760,14 @@ ul { margin: 0; padding: 0; list-style: none; }
   align-items: center;
   justify-content: center;
   padding: 5rem 0 6rem;
-  /* Deep green backdrop shows behind the letterboxed artwork so the
-     full image is visible on desktop without an awkward zoom-in. */
-  background-color: #14201a;
   background-image: url('../images/elibrary/20-day-plan.jpg');
   background-size: cover;
-  background-position: center center;
+  /* Anchor toward the top of the portrait artwork so the figure/face reads
+     rather than zooming into the middle. Fills edge-to-edge — no letterbox. */
+  background-position: center 20%;
   background-repeat: no-repeat;
   background-attachment: scroll;
   overflow: hidden;
-}
-/* Desktop: show the whole artwork rather than cropping into it. */
-@media (min-width: 768px) {
-  .who-is-jesus-hero {
-    background-size: contain;
-  }
 }
 .who-is-jesus-hero__overlay {
   position: absolute;
@@ -1188,9 +1181,33 @@ ul { margin: 0; padding: 0; list-style: none; }
 [data-theme="dark"] .gospel-journey-nav {
   background: rgba(24, 28, 26, 0.92);
 }
+/* Mobile: stack the bar so nothing is cramped — a thin progress line on top,
+   then Back + Continue on their own row. Leave right-side room so the bar
+   never collides with the floating action (heart) button. */
 @media (max-width: 600px) {
-  .gospel-journey-nav__next { min-width: 0; }
+  .gospel-journey-nav {
+    flex-wrap: wrap;
+    gap: 0.6rem 0.5rem;
+    padding: 0.75rem 0.85rem;
+    margin-right: 3.5rem; /* clear the floating heart button */
+    bottom: 0.75rem;
+  }
+  .gospel-journey-nav__progress {
+    order: -1;            /* progress sits above the buttons */
+    flex: 1 0 100%;
+    max-width: none;
+  }
+  .gospel-journey-nav__label {
+    margin-bottom: 0.35rem;
+  }
   .gospel-journey-nav__label .gospel-journey-progress__title { display: none; }
+  .gospel-journey-nav__back {
+    flex: 0 0 auto;
+  }
+  .gospel-journey-nav__next {
+    flex: 1 1 auto;       /* Continue takes the remaining width, easy to tap */
+    min-width: 0;
+  }
 }
 .gospel-journey-nav__back:disabled {
   opacity: 0.4;

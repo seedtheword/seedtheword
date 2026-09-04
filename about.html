@@ -188,18 +188,6 @@
       Follow it step by step, and see where you find yourself in it.
     </p>
 
-    <!-- Guided-journey progress UI (shown only when JS enhances the section;
-         hidden by default so no-JS visitors just see the full narrative). -->
-    <div class="gospel-journey-progress" id="gospel-journey-progress" hidden>
-      <div class="gospel-journey-progress__label">
-        <span class="gospel-journey-progress__count" id="gospel-journey-count">Movement 1 of 7</span>
-        <span class="gospel-journey-progress__title" id="gospel-journey-title"></span>
-      </div>
-      <div class="gospel-journey-progress__track" role="progressbar" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1" id="gospel-journey-bar-wrap">
-        <div class="gospel-journey-progress__fill" id="gospel-journey-fill"></div>
-      </div>
-    </div>
-
     <div class="jesus-content-box" id="gospel-journey-box">
 
       <!-- Stage 1: Who He Is -->
@@ -407,10 +395,20 @@
         </div><!-- end encounter-reveal -->
       </div>
 
-      <!-- Guided-journey navigation (revealed by JS). Lets visitors move
-           through the movements one at a time, building toward the CTA. -->
+      <!-- Guided-journey control bar (revealed by JS). Sticks to the bottom
+           of the viewport so Back / progress / Continue are always reachable
+           without scrolling to the end of a movement. -->
       <div class="gospel-journey-nav" id="gospel-journey-nav" hidden>
-        <button type="button" class="btn btn-secondary gospel-journey-nav__back" id="gospel-journey-back">&larr; Back</button>
+        <button type="button" class="btn btn-secondary gospel-journey-nav__back" id="gospel-journey-back" aria-label="Previous movement">&larr;</button>
+        <div class="gospel-journey-nav__progress">
+          <div class="gospel-journey-nav__label">
+            <span class="gospel-journey-progress__count" id="gospel-journey-count">Movement 1 of 7</span>
+            <span class="gospel-journey-progress__title" id="gospel-journey-title"></span>
+          </div>
+          <div class="gospel-journey-progress__track" role="progressbar" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1" id="gospel-journey-bar-wrap">
+            <div class="gospel-journey-progress__fill" id="gospel-journey-fill"></div>
+          </div>
+        </div>
         <button type="button" class="btn btn-primary btn-green-call gospel-journey-nav__next" id="gospel-journey-next">Continue &rarr;</button>
       </div>
 
@@ -1058,8 +1056,7 @@
 (function() {
   var box = document.getElementById('gospel-journey-box');
   var nav = document.getElementById('gospel-journey-nav');
-  var progress = document.getElementById('gospel-journey-progress');
-  if (!box || !nav || !progress) return;
+  if (!box || !nav) return;
 
   // Collect the seven movements IN ORDER as they sit in the DOM:
   // stage 1 (bare stage), stages 2–6 (accordions), stage 7 (respond).
@@ -1119,7 +1116,10 @@
     }
 
     if (scroll) {
-      progress.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Bring the top of the newly-shown movement into view, leaving room
+      // for the fixed site header so its heading isn't hidden underneath.
+      var y = steps[current].getBoundingClientRect().top + window.pageYOffset - 90;
+      window.scrollTo({ top: y < 0 ? 0 : y, behavior: 'smooth' });
     }
   }
 
@@ -1131,7 +1131,6 @@
   });
 
   // Activate the guided experience.
-  progress.hidden = false;
   nav.hidden = false;
   render(false);
 })();

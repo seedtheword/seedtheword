@@ -106,6 +106,20 @@
     return map[category] || '📋';
   }
 
+  // Retailer-agnostic CTA label for outbound "Recommended Picks" items.
+  // Derives a friendly label from the link's host (e.g. Amazon, Outreach)
+  // and falls back to a generic label for anything else.
+  function outboundCtaLabel(url) {
+    var host = '';
+    try { host = new URL(url).hostname.replace(/^www\./, '').toLowerCase(); } catch (e) { host = ''; }
+    if (host.indexOf('amazon.') !== -1) return 'View on Amazon';
+    if (host.indexOf('trypraying') !== -1) return 'Get it at trypraying';
+    if (host.indexOf('outreach.com') !== -1) return 'View on Outreach';
+    if (host.indexOf('christianbook') !== -1) return 'View on Christianbook';
+    if (host.indexOf('etsy.') !== -1) return 'View on Etsy';
+    return 'View product';
+  }
+
   // Resolve a product's per-unit (or per-pack) price in integer cents for the
   // cart. Prefers live sheet pricing (retailCents/packRetailCents from
   // getCatalog); falls back to parsing the display price string; returns null
@@ -147,7 +161,12 @@
   // Shows the single price by default; if there's a pack, notes the pack deal.
   function priceDisplay(p) {
     var single = productUnitCents(p);
-    if (single == null) return p.price ? esc(p.price) : 'Free';
+    if (single == null) {
+      if (p.price) return esc(p.price);
+      // Outbound recommended picks with no known price shouldn't read "Free".
+      if (p.category === 'amazon' && p.url) return 'See retailer';
+      return 'Free';
+    }
     var out = fmt(single) + ' each';
     if (hasPack(p)) out += ' · pack of ' + p.packSize + ' ' + fmt(packUnitCents(p));
     return esc(out);
@@ -261,7 +280,7 @@
     var actionHTML;
     if (p.category === 'amazon' && p.url) {
       // Third-party items link out; not part of our cart.
-      actionHTML = '<a href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" class="store-card__action store-card__action--amazon" data-stop-detail>View on Amazon &rarr;</a>';
+      actionHTML = '<a href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" class="store-card__action store-card__action--amazon" data-stop-detail>' + esc(outboundCtaLabel(p.url)) + ' &rarr;</a>';
     } else if (outOfStock) {
       actionHTML = '<span class="store-card__action store-card__action--disabled">Out of Stock</span>';
     } else if (unitCents == null) {
@@ -631,7 +650,7 @@
     // Right-column call to action varies by product type.
     var ctaHTML = '';
     if (p.category === 'amazon' && p.url) {
-      ctaHTML = '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" class="store-detail__cta store-detail__cta--amazon">View on Amazon &rarr;</a>';
+      ctaHTML = '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" class="store-detail__cta store-detail__cta--amazon">' + esc(outboundCtaLabel(p.url)) + ' &rarr;</a>';
     } else if (outOfStock) {
       ctaHTML = '<span class="store-detail__cta store-detail__cta--disabled">Out of Stock</span>';
     } else if (unitCents == null) {
@@ -1044,7 +1063,7 @@
       products.forEach(function (p) {
         haveId[p.id] = true;
         var live = byId[p.id];
-        if (!live) return; // e.g. Amazon picks not in the sheet — leave as-is
+        if (!live) return; // e.g. recommended picks not in the sheet — leave as-is
         p.baseCents = live.baseCents;
         p.retailCents = live.retailCents;
         p.packSize = live.packSize || 1;

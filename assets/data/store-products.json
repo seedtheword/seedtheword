@@ -3,7 +3,7 @@
     { "key": "bibles", "label": "Bibles", "icon": "📖", "description": "New Testaments and full Bibles in multiple languages" },
     { "key": "tracts", "label": "Tracts", "icon": "📜", "description": "Life Books and Flip Books for evangelism" },
     { "key": "merch", "label": "Merch", "icon": "🎁", "description": "Notebooks, keychains, stickers, and more" },
-    { "key": "amazon", "label": "Amazon Picks", "icon": "📦", "description": "Recommended items from faith sellers" }
+    { "key": "amazon", "label": "Recommended Picks", "icon": "📦", "description": "Hand-picked faith resources from trusted retailers" }
   ],
   "products": [
     {
@@ -560,6 +560,20 @@
       "url": "https://www.amazon.com/dp/0310461243",
       "tags": ["bible", "niv", "compact", "paperback", "burgundy", "comfort print", "zondervan", "full bible"],
       "seller": "Zondervan",
+      "inStock": true,
+      "language": "English",
+      "stockCount": null
+    },
+    {
+      "id": "rec-trypraying",
+      "name": "trypraying — 7-Day Prayer Guide",
+      "category": "amazon",
+      "description": "A 7-day prayer guide written for people who aren't religious and don't do church. It walks through Scripture themes with honest, down-to-earth prayers, real stories of answered prayer, and short articles on the harder questions — unanswered prayer, suffering, and the evidence for the resurrection. The idea is simple: read it, get something out of it, then pass it on to someone else.",
+      "price": null,
+      "image": null,
+      "url": "https://outreach.com/Products/Outreach-Books/trypraying-70057.aspx?N=41&ntt=trypraying",
+      "tags": ["prayer", "guide", "booklet", "evangelism", "outreach", "7 day", "trypraying", "seekers"],
+      "seller": "Outreach",
       "inStock": true,
       "language": "English",
       "stockCount": null

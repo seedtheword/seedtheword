@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669616107,
-  "lastModified": "2026-09-04T07:25:34Z",
+  "lastModified": "2026-09-04T17:25:44Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -264,16 +264,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5341,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer Request 8/21/2026:\n\nPraying for Jenna, she's a homeless person right next to our home and I noticed her on her way to the bus station, she was smoking but I offered her the word of God, water, and snacks and she accepted\n\nHope to bring her to a church and encounter Jesus and then I asked her to meet me on Monday so I could bring her to our young adults",
-      "ts": "2026-08-21T17:20:35Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5367,

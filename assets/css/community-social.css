@@ -1267,7 +1267,7 @@ body:has(.community-layout) {
 }
 
 .elibrary-card__icon-image {
-  background: linear-gradient(135deg, var(--color-bg-subtle, #f8f6f3) 0%, #ede8e0 100%);
+  background: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1309,7 +1309,7 @@ body:has(.community-layout) {
 }
 
 [data-theme="dark"] .elibrary-card__icon-image {
-  background: linear-gradient(135deg, #1e2328 0%, #262c33 100%);
+  background: none;
 }
 
 [data-theme="dark"] .elibrary-card__format {

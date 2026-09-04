@@ -1104,6 +1104,88 @@ ul { margin: 0; padding: 0; list-style: none; }
   color: var(--muted, #5b5b5b);
 }
 
+/* ── SEED → Grow → Harvest: three eLibrary guides as an ordered sequence ── */
+.seed-journey-steps {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  max-width: 980px;
+  margin: 0 auto;
+}
+.seed-journey-step {
+  flex: 1 1 260px;
+  max-width: 320px;
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  text-align: left;
+  text-decoration: none;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--border, #e8e4de);
+  border-radius: 14px;
+  background: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.seed-journey-step:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 26px rgba(44, 95, 46, 0.16);
+  border-color: var(--green, #2C5F2E);
+}
+.seed-journey-step__num {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--green, #2C5F2E), var(--gold, #d4a574));
+}
+.seed-journey-step__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.seed-journey-step__title {
+  font-weight: 700;
+  color: var(--green, #2C5F2E);
+  font-size: 1.05rem;
+}
+.seed-journey-step__desc {
+  font-size: 0.85rem;
+  color: var(--muted, #5b5b5b);
+  line-height: 1.5;
+}
+.seed-journey-step__next {
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold, #b7893f);
+}
+.seed-journey-arrow {
+  align-self: center;
+  color: var(--gold, #d4a574);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+/* Stack vertically on narrow screens; the arrows point downward. */
+@media (max-width: 720px) {
+  .seed-journey-steps { flex-direction: column; align-items: stretch; }
+  .seed-journey-step { max-width: none; }
+  .seed-journey-arrow { transform: rotate(90deg); }
+}
+[data-theme="dark"] .seed-journey-step {
+  background: #1e2328;
+  border-color: #2c333a;
+}
+
 /* ── Guided journey: progress bar + nav controls ── */
 .gospel-journey-progress__count {
   font-size: 0.72rem;

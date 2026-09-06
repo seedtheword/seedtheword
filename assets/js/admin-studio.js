@@ -75,6 +75,7 @@
     { group: 'Operations', items: [
       { id: 'inventory', ico: '📦', label: 'Inventory' },
       { id: 'members', ico: '👥', label: 'Members' },
+      { id: 'codes', ico: '🎟️', label: 'Codes' },
       { id: 'messages', ico: '💬', label: 'Messages' }
     ]}
   ];
@@ -84,7 +85,8 @@
       case 'overview': return { title: 'Overview', sub: 'Ministry performance at a glance', newLabel: null };
       case 'content': return { title: 'Content Studio', sub: 'Publish live across your News page', newLabel: '＋ New' };
       case 'inventory': return { title: 'Inventory', sub: 'Bibles & items logged in the field', newLabel: null };
-      case 'members': return { title: 'Members', sub: 'Team roster & roles', newLabel: null };
+      case 'members': return { title: 'Members', sub: 'Team roster, roles & permissions', newLabel: null };
+      case 'codes': return { title: 'Codes', sub: 'Comp codes for no-charge orders', newLabel: null };
       case 'messages': return { title: 'Messages', sub: 'Announcements & team requests', newLabel: null };
       default: return { title: '', sub: '', newLabel: null };
     }
@@ -147,6 +149,7 @@
     else if (id === 'content') renderContent(host);
     else if (id === 'inventory') renderInventory(host);
     else if (id === 'members') renderMembers(host);
+    else if (id === 'codes') renderCodes(host);
     else if (id === 'messages') renderMessages(host);
   }
 
@@ -209,30 +212,169 @@
     } catch (e) { host.innerHTML = '<div class="sp-card"><p class="sp-err">Error: ' + esc(e.message) + '</p></div>'; }
   }
 
-  // ══ MEMBERS (getAdminMembers / setMemberRole via ADMIN_HASH) ══
+  // ══ MEMBERS (getAdminMembers / setMemberRole / setMemberPermissions) ══
+  // Each member gets a role select (preset) + a per-section permission grid.
+  // super_admin implies every permission (grid shown read-only / all-checked).
+  var PERMISSION_DEFS = [
+    { key: 'scanner', label: 'Inventory scanner', hint: 'Scan/log Bibles in the field' },
+    { key: 'finance', label: 'Finance', hint: 'Log expenses & view finances' },
+    { key: 'orders', label: 'Store orders', hint: 'Process & fulfil store orders' },
+    { key: 'chat_admin', label: 'Announcements', hint: 'Post team announcements' },
+    { key: 'training_admin', label: 'Training admin', hint: 'Log training for members' },
+    { key: 'content_studio', label: 'Content Studio', hint: 'Publish stories/testimonies' },
+    { key: 'members_admin', label: 'Manage members', hint: 'Roles & permissions (super-admin)' }
+  ];
+
   async function renderMembers(host) {
     try {
       var res = await post({ action: 'getAdminMembers', passphrase_hash: ADMIN_HASH });
       if (!res.ok) throw new Error(res.error || 'Failed');
       if (!res.members || !res.members.length) { host.innerHTML = '<div class="sp-card"><p class="sp-empty">No members.</p></div>'; return; }
-      host.innerHTML = '<div class="sp-card"><h3 class="sp-card__title">Team members</h3><p class="sp-card__sub">Change a role to promote or demote</p>' +
-        '<div class="sp-table-wrap"><table class="sp-table"><thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Scans</th></tr></thead><tbody>' +
-        res.members.map(function (m) {
-          return '<tr><td><strong>' + esc(m.name) + '</strong></td>' +
-            '<td><select class="sp-select role-select" data-name="' + esc(m.name) + '" style="padding:0.3rem 0.5rem;font-size:0.76rem;width:auto;">' +
-            '<option value="member"' + (m.role === 'member' ? ' selected' : '') + '>Member</option>' +
-            '<option value="admin"' + (m.role === 'admin' ? ' selected' : '') + '>Admin</option>' +
-            '<option value="super_admin"' + (m.role === 'super_admin' ? ' selected' : '') + '>Super Admin</option>' +
-            '</select></td><td>' + esc(m.email || '—') + '</td><td>' + esc(m.scans) + '</td></tr>';
-        }).join('') +
-        '</tbody></table></div></div>';
+
+      host.innerHTML = '<div class="sp-card"><h3 class="sp-card__title">Team members</h3>' +
+        '<p class="sp-card__sub">Set a role, then fine-tune exactly which sections each person can open. Super-admins always have full access.</p>' +
+        '<div id="members-list">' + res.members.map(renderMemberRow).join('') + '</div></div>';
+
+      // Role change
       host.querySelectorAll('.role-select').forEach(function (sel) {
         sel.addEventListener('change', function () {
           var name = this.dataset.name, role = this.value;
-          post({ action: 'setMemberRole', passphrase_hash: ADMIN_HASH, member_name: name, new_role: role }).then(function () { alert('Role updated.'); }).catch(function (e) { alert(e.message); });
+          var card = this.closest('[data-member]');
+          post({ action: 'setMemberRole', passphrase_hash: ADMIN_HASH, member_name: name, new_role: role })
+            .then(function () {
+              // Super-admins get everything — reflect immediately by disabling the grid.
+              if (card) toggleGridForRole(card, role);
+              flash(card, 'Role updated');
+            })
+            .catch(function (e) { alert(e.message); });
+        });
+      });
+
+      // Expand/collapse permission grid
+      host.querySelectorAll('.perm-toggle').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var grid = this.closest('[data-member]').querySelector('.perm-grid');
+          if (grid) { grid.hidden = !grid.hidden; this.textContent = grid.hidden ? 'Permissions ▾' : 'Permissions ▴'; }
+        });
+      });
+
+      // Save permissions
+      host.querySelectorAll('.perm-save').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var card = this.closest('[data-member]');
+          var name = card.getAttribute('data-member');
+          var perms = [];
+          card.querySelectorAll('.perm-check:checked').forEach(function (cb) { perms.push(cb.value); });
+          btn.disabled = true; btn.textContent = 'Saving…';
+          post({ action: 'setMemberPermissions', passphrase_hash: ADMIN_HASH, member_name: name, permissions: perms })
+            .then(function (r) { btn.disabled = false; btn.textContent = 'Save permissions'; if (r && r.ok) flash(card, 'Permissions saved'); else alert((r && r.error) || 'Save failed'); })
+            .catch(function (e) { btn.disabled = false; btn.textContent = 'Save permissions'; alert(e.message); });
         });
       });
     } catch (e) { host.innerHTML = '<div class="sp-card"><p class="sp-err">Error: ' + esc(e.message) + '</p></div>'; }
+  }
+
+  function renderMemberRow(m) {
+    var isSuper = String(m.role || '').toLowerCase() === 'super_admin';
+    var granted = Array.isArray(m.permissions) ? m.permissions : [];
+    var grid = PERMISSION_DEFS.map(function (p) {
+      var checked = isSuper || granted.indexOf(p.key) !== -1;
+      return '<label class="perm-item" title="' + esc(p.hint) + '">' +
+        '<input type="checkbox" class="perm-check" value="' + p.key + '"' + (checked ? ' checked' : '') + (isSuper ? ' disabled' : '') + '>' +
+        '<span class="perm-item__label">' + esc(p.label) + '</span></label>';
+    }).join('');
+    return '<div class="member-card" data-member="' + esc(m.name) + '">' +
+      '<div class="member-card__head">' +
+        '<div class="member-card__id"><strong>' + esc(m.name) + '</strong>' +
+          '<span class="member-card__meta">' + esc(m.email || '—') + ' · ' + esc(m.scans || 0) + ' scans</span></div>' +
+        '<select class="sp-select role-select" data-name="' + esc(m.name) + '">' +
+          '<option value="member"' + (m.role === 'member' ? ' selected' : '') + '>Member</option>' +
+          '<option value="admin"' + (m.role === 'admin' ? ' selected' : '') + '>Admin</option>' +
+          '<option value="super_admin"' + (m.role === 'super_admin' ? ' selected' : '') + '>Super Admin</option>' +
+        '</select>' +
+        '<button type="button" class="sp-btn sp-btn--ghost perm-toggle">Permissions ▾</button>' +
+      '</div>' +
+      '<div class="perm-grid" hidden>' +
+        '<div class="perm-grid__items">' + grid + '</div>' +
+        (isSuper ? '<p class="perm-grid__note">Super-admins have full access to every section.</p>'
+                 : '<button type="button" class="sp-btn sp-btn--green perm-save">Save permissions</button>') +
+        '<span class="member-flash" hidden></span>' +
+      '</div></div>';
+  }
+
+  function toggleGridForRole(card, role) {
+    var isSuper = role === 'super_admin';
+    card.querySelectorAll('.perm-check').forEach(function (cb) { cb.disabled = isSuper; if (isSuper) cb.checked = true; });
+    var save = card.querySelector('.perm-save');
+    if (save) save.style.display = isSuper ? 'none' : '';
+  }
+
+  function flash(card, msg) {
+    if (!card) return;
+    var el = card.querySelector('.member-flash');
+    if (!el) return;
+    el.textContent = '✓ ' + msg; el.hidden = false;
+    setTimeout(function () { el.hidden = true; }, 2000);
+  }
+
+  // ══ CODES — generate & manage comp codes (generatePromoCode / listPromoCodes / deactivatePromoCode) ══
+  async function renderCodes(host) {
+    host.innerHTML =
+      '<div class="sp-card"><h3 class="sp-card__title">Generate a comp code</h3>' +
+        '<p class="sp-card__sub">A team-issued code lets someone place a store order at no charge. Set how many times it can be used; each order spends one use, and it dies when it runs out.</p>' +
+        '<div class="sp-row">' +
+          '<div class="sp-field"><label>Code (optional)</label><input class="sp-input" id="code-str" placeholder="e.g. THANKYOUSTW — blank = auto"></div>' +
+          '<div class="sp-field"><label>Max uses</label><input type="number" class="sp-input" id="code-max" value="1" min="1" step="1"></div>' +
+        '</div>' +
+        '<div class="sp-field"><label>Note (optional)</label><input class="sp-input" id="code-note" placeholder="What / who is this for?"></div>' +
+        '<div class="sp-status" id="code-status"></div>' +
+        '<button class="sp-btn sp-btn--green" id="code-gen">Generate code</button>' +
+      '</div>' +
+      '<div class="sp-card"><h3 class="sp-card__title">Active & past codes</h3><div id="codes-list"><p class="sp-empty">Loading…</p></div></div>';
+
+    document.getElementById('code-gen').addEventListener('click', async function () {
+      var codeStr = document.getElementById('code-str').value.trim();
+      var maxUses = parseInt(document.getElementById('code-max').value, 10) || 1;
+      var note = document.getElementById('code-note').value.trim();
+      var status = document.getElementById('code-status');
+      this.disabled = true; this.textContent = 'Generating…'; status.textContent = '';
+      try {
+        var r = await post({ action: 'generatePromoCode', passphrase_hash: ADMIN_HASH, token: (session && session.token) || '', code: codeStr, max_redemptions: maxUses, note: note, created_by: (session && session.name) || 'super-admin' });
+        if (r && r.ok) {
+          status.textContent = '✓ Created ' + r.code + ' (' + r.max_redemptions + ' use' + (r.max_redemptions === 1 ? '' : 's') + ')';
+          status.style.color = 'var(--sp-green-dark)';
+          document.getElementById('code-str').value = ''; document.getElementById('code-note').value = '';
+          loadCodes();
+        } else { status.textContent = (r && r.error) || 'Failed'; status.style.color = 'var(--sp-red)'; }
+      } catch (e) { status.textContent = e.message; status.style.color = 'var(--sp-red)'; }
+      this.disabled = false; this.textContent = 'Generate code';
+    });
+
+    loadCodes();
+  }
+
+  async function loadCodes() {
+    var list = document.getElementById('codes-list'); if (!list) return;
+    try {
+      var r = await post({ action: 'listPromoCodes', passphrase_hash: ADMIN_HASH, token: (session && session.token) || '' });
+      if (!r || !r.ok) { list.innerHTML = '<p class="sp-err">' + esc((r && r.error) || 'Could not load codes.') + '</p>'; return; }
+      if (!r.codes || !r.codes.length) { list.innerHTML = '<p class="sp-empty">No codes yet.</p>'; return; }
+      list.innerHTML = '<div class="sp-table-wrap"><table class="sp-table"><thead><tr><th>Code</th><th>Used</th><th>Left</th><th>Status</th><th>Note</th><th></th></tr></thead><tbody>' +
+        r.codes.map(function (c) {
+          var statusPill = !c.active ? '<span class="sp-pill-tag sp-pill-tag--draft">Inactive</span>'
+            : (c.remaining > 0 ? '<span class="sp-pill-tag sp-pill-tag--live">● Active</span>' : '<span class="sp-pill-tag sp-pill-tag--draft">Spent</span>');
+          return '<tr><td><code>' + esc(c.code) + '</code></td><td>' + esc(c.times_redeemed) + '/' + esc(c.max_redemptions) + '</td>' +
+            '<td>' + esc(c.remaining) + '</td><td>' + statusPill + '</td><td>' + esc(c.note || '—') + '</td>' +
+            '<td>' + (c.active ? '<button class="sp-iconbtn sp-iconbtn--danger code-off" data-code="' + esc(c.code) + '" title="Deactivate">×</button>' : '') + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+      list.querySelectorAll('.code-off').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (!confirm('Deactivate ' + this.dataset.code + '? Remaining uses will be killed.')) return;
+          post({ action: 'deactivatePromoCode', passphrase_hash: ADMIN_HASH, token: (session && session.token) || '', code: this.dataset.code })
+            .then(loadCodes).catch(function (e) { alert(e.message); });
+        });
+      });
+    } catch (e) { list.innerHTML = '<p class="sp-err">Error loading codes.</p>'; }
   }
 
   // ══ MESSAGES (adminPostAnnouncement / getAnnouncements / getMemberNotes via ADMIN_HASH) ══

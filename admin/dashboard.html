@@ -151,6 +151,22 @@
     @media (max-width:480px){
       .sp-metrics{grid-template-columns:1fr;}
     }
+
+    /* Member cards + per-section permission grid (Members section) */
+    .member-card{border:1px solid var(--sp-line);border-radius:12px;padding:0.85rem 1rem;margin-bottom:0.7rem;background:var(--sp-card);}
+    .member-card__head{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;}
+    .member-card__id{flex:1 1 auto;min-width:0;}
+    .member-card__id strong{font-size:0.9rem;}
+    .member-card__meta{display:block;font-size:0.72rem;color:var(--sp-muted);margin-top:0.1rem;}
+    .member-card .role-select{width:auto;padding:0.3rem 0.5rem;font-size:0.76rem;}
+    .perm-grid{margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--sp-line);}
+    .perm-grid__items{display:grid;grid-template-columns:1fr 1fr;gap:0.4rem 0.9rem;margin-bottom:0.75rem;}
+    .perm-item{display:flex;align-items:center;gap:0.45rem;font-size:0.82rem;color:var(--sp-ink);cursor:pointer;}
+    .perm-item input{width:auto;margin:0;flex:0 0 auto;}
+    .perm-item input:disabled + .perm-item__label{color:var(--sp-muted);}
+    .perm-grid__note{font-size:0.76rem;color:var(--sp-muted);font-style:italic;margin:0;}
+    .member-flash{display:inline-block;margin-left:0.6rem;font-size:0.76rem;font-weight:700;color:var(--sp-green-dark);}
+    @media (max-width:480px){ .perm-grid__items{grid-template-columns:1fr;} }
   </style>
 </head>
 <body>

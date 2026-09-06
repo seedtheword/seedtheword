@@ -1,6 +1,6 @@
 {
   "_help": "Dedup log for the weekly playlist digest. The workflow updates this file every Sunday run so previously-posted tracks aren't re-announced. First run back-fills every existing playlist track so only NEW additions get posted going forward.",
-  "updated": "2026-08-29T18:12:35+00:00",
+  "updated": "2026-09-05T17:12:13+00:00",
   "seen": {
     "21od4Ae35Nvx91Qel9gRiw": {
       "backfilled": "2026-05-18T06:35:21+00:00",

@@ -2,25 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>Admin Dashboard — Seed the Word</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap">
+  <title>Moved — Seed the Word</title>
+  <!-- The old passphrase-gated Admin Dashboard has been retired. Its features
+       (Stats, Inventory, Members, Messages) are now part of the super-admin
+       Content Studio, which also adds Content publishing, Orders, Codes, and
+       per-member permissions. Redirect anyone with the old bookmark. -->
+  <meta http-equiv="refresh" content="0; url=dashboard.html">
+  <link rel="canonical" href="dashboard.html">
   <style>
-    :root{--font:'Inter',system-ui,sans-serif;--serif:'Playfair Display',Georgia,serif;
-      --bg:#f4f1ec;--card:rgba(255,255,255,0.78);--glass:rgba(255,255,255,0.45);
-      --glass-border:rgba(255,255,255,0.7);--ink:#1a1a1a;--ink2:#3d3d3d;--muted:#6b6b6b;
-      --gold:#c8963e;--gold-soft:rgba(200,150,62,0.12);--green:#2c5f2e;
-      --green-soft:rgba(44,95,46,0.10);--red:#a6251f;--red-soft:rgba(166,37,31,0.08);
-      --border:rgba(0,0,0,0.06);--radius:16px;--radius-sm:10px;
-      --shadow:0 8px 40px rgba(0,0,0,0.06);--blur:blur(20px);}
-    *,*::before,*::after{box-sizing:border-box;}
-    body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;}
-</style>
+    body{margin:0;font-family:'Inter',system-ui,sans-serif;background:#f4f1ec;color:#1a1a1a;
+      min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:1.5rem;}
+    a{color:#2c5f2e;font-weight:600;}
+  </style>
 </head>
 <body>
-<div id="app"></div>
-<script src="../assets/js/admin-dashboard.js?v=1"></script>
+  <div>
+    <p>The Admin Dashboard has moved to the <a href="dashboard.html">Content Studio</a>.</p>
+    <p style="font-size:0.85rem;color:#6b6b6b;">Redirecting you now…</p>
+  </div>
+  <script>location.replace('dashboard.html');</script>
 </body>
 </html>

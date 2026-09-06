@@ -126,6 +126,7 @@ To activate: repaste **`order-handler.gs`** into P1 and **redeploy**. The `publi
 - [ ] **P1: repaste `order-handler.gs`** (has the social-routing fix + Posts routes + **group-chat routes**) + redeploy.
 - [ ] **P3: paste `finance-archive-menu.gs`** into the STW Finances archive bound script.
 - [ ] **P1: confirm `TELEGRAM_BOT_TOKEN`** script property is set.
+- [ ] **P1: repaste `order-handler.gs` + `team-messaging-handlers.gs`** + redeploy → store order management (`getStoreOrders`/`updateStoreOrderStatus`), packing→inventory+MinistryStats decrement, promo/comp codes (`generatePromoCode`/`listPromoCodes`/`deactivatePromoCode`), per-member permissions (`setMemberPermissions` + `permissions` on login/profile). See "Store order management + comp codes + per-member permissions" section below.
 
 > After the P1 pastes, do **one** redeploy (New version) — it covers all of them.
 
@@ -156,3 +157,75 @@ Team portal inventory logging is now a full movement flow, and the store reads r
 To activate: repaste **`order-handler.gs`** + **`finance-handler.gs`** into P1 and **redeploy**. The new Inventory columns auto-append on the next movement. No setup function needed.
 
 > Store frontend (`store-catalog.js`) now also renders **Lists-tab rows that have no hardcoded product** and shows **live availability for all categories** — this ships via git (no Apps Script step), but availability numbers only populate once the redeployed `getCatalog` returns the `available` field.
+
+## Store order management + comp codes + per-member permissions — needs redeploy (P1)
+
+This is **Stage 1** of the store-orders / team-portal overhaul. It's all backend
+(the UI that drives it ships separately via git in later stages). It adds three
+things to the P1 web app, all in files you already have:
+
+### What changed (files to repaste into P1)
+- **`order-handler.gs`** (router + most handlers):
+  - **Store order management (admin):** `getStoreOrders` (lists every StoreOrders
+    row, newest first) and `updateStoreOrderStatus` (advances a store order's
+    status). Both are **admin-gated with `passphrase_hash`** (same gate the
+    Content Studio already uses). Statuses: `new · confirming · packing ·
+    shipped · delivered · cancelled`.
+  - **Inventory + MinistryStats on packing:** the FIRST time a store order moves
+    to **`packing`**, each line item is logged to the **Inventory** tab as an
+    `out` movement (`type: store-order`) AND the matching **MinistryStats**
+    `item` count is **decremented** (`decrementMinistryStock_`), so the store's
+    live availability drops. The storefront catalog cache is flushed so it shows
+    immediately. Each status change also emails the shopper a branded letter
+    (`buildStoreStatusEmail_`, reuses the existing `emailShell`).
+  - **Promo / comp codes:** new **`PromoCodes`** tab (auto-creates) with
+    `generatePromoCode` / `listPromoCodes` / `deactivatePromoCode` (super-admin
+    or passphrase). `handlePlaceOrder_` now reads an optional **`promoCode`** on
+    the order: a valid code **comps the order** (subtotal → $0, flagged, free-claim
+    limit bypassed) and **decrements the code's remaining uses** (auto-deactivates
+    when spent, `LockService`-guarded against double-spend). An invalid/exhausted
+    code is a **hard error** (`code: 'promo-invalid'`) so the shopper knows it
+    didn't apply. StoreOrders rows gain `comped` + `promo_code` columns (auto-appended).
+  - **Per-member permissions:** `handleTeamLogin_` and `handleGetProfile_` now
+    return a **`permissions`** array. `super_admin` always gets ALL permissions;
+    others get their stored list, or a role-based default until a super-admin
+    tunes them. Keys: `scanner, finance, orders, chat_admin, training_admin,
+    content_studio, members_admin`.
+- **`team-messaging-handlers.gs`**:
+  - **`setMemberPermissions`** (super-admin/passphrase) writes a member's
+    permission list (JSON) to the TeamMembers **`permissions`** column
+    (auto-appended by header name — position-independent).
+  - `getAdminMembers` now returns each member's resolved `permissions` (so the
+    Content Studio grid can pre-check boxes).
+
+### New doPost actions (all routed in `order-handler.gs`)
+`getStoreOrders`, `updateStoreOrderStatus`, `generatePromoCode`,
+`listPromoCodes`, `deactivatePromoCode`, `setMemberPermissions`.
+
+### To activate
+1. Repaste **`order-handler.gs`** and **`team-messaging-handlers.gs`** into the
+   **P1** web-app project.
+2. **Redeploy** P1 (Deploy → Manage deployments → edit → New version → Deploy).
+3. No setup function needed — the `PromoCodes` tab, the StoreOrders
+   `comped`/`promo_code`/`tracking_number` columns, and the TeamMembers
+   `permissions` column all **auto-create on first use** via `ensureColumn_`.
+
+### Quick "did it work?" checks
+- **Generate a code:** from the Apps Script editor Run a test, OR (after Stage 3
+  ships) use Content Studio → Members. Manual test payload (POST to the web-app
+  URL, `Content-Type: text/plain`):
+  `{"action":"generatePromoCode","passphrase_hash":"2e3df09a3a06ebdacb4cf637764073674243ed9497da164c94a955f7ae931440","code":"THANKYOUSTW","max_redemptions":5}`
+  → expect `{ok:true,code:"THANKYOUSTW",max_redemptions:5}`.
+- **List orders:** POST `{"action":"getStoreOrders","passphrase_hash":"2e3df09a…931440"}`
+  → expect `{ok:true, orders:[…], statuses:[…]}`.
+- **Advance a status:** POST `{"action":"updateStoreOrderStatus","passphrase_hash":"…","order_id":"STW-2026-XXXXXXXX","status":"packing"}`
+  → the shopper gets the "being packed" email, the Inventory tab gets an `out`
+  row, and the item's MinistryStats count drops.
+- **Permissions:** log a non-super-admin member in on `team.html` and check the
+  browser console `JSON.parse(localStorage['stwm-team-session']).permissions` —
+  it should be an array (empty for a plain member, role-default for an admin).
+
+> ⚠️ These handlers call `validateAdminPassphrase_` (in `team-messaging-handlers.gs`)
+> and `ALL_PERMISSIONS`/`resolveMemberPermissions_` (in `order-handler.gs`). All
+> `.gs` files in P1 share one global scope, so both files must be present and
+> current in the SAME project — repaste both together, then one redeploy.

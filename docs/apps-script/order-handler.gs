@@ -274,6 +274,14 @@ function doPost(e) {
   if ((payload && payload.action) === 'adminPostAnnouncement') return handleAdminPostAnnouncement_(payload);
   if ((payload && payload.action) === 'adminDeleteInventoryRow') return handleAdminDeleteInventoryRow_(payload);
   if ((payload && payload.action) === 'setMemberRole') return handleSetMemberRole_(payload);
+  if ((payload && payload.action) === 'setMemberPermissions') return handleSetMemberPermissions_(payload);
+  // ── Store order management (admin) ──
+  if ((payload && payload.action) === 'getStoreOrders') return handleGetStoreOrders_(payload);
+  if ((payload && payload.action) === 'updateStoreOrderStatus') return handleUpdateStoreOrderStatus_(payload);
+  // ── Promo / comp codes ──
+  if ((payload && payload.action) === 'generatePromoCode') return handleGeneratePromoCode_(payload);
+  if ((payload && payload.action) === 'listPromoCodes') return handleListPromoCodes_(payload);
+  if ((payload && payload.action) === 'deactivatePromoCode') return handleDeactivatePromoCode_(payload);
   // ── Training tracker actions ──
   if ((payload && payload.action) === 'getTrainingProgress') return handleGetTrainingProgress_(payload);
   if ((payload && payload.action) === 'getTrainingRecord') return handleGetTrainingRecord_(payload);
@@ -2764,6 +2772,48 @@ function handleTeamSignup_(payload) {
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
 
+// ── Per-member section permissions ─────────────────────────────────────
+// A member's access to portal sections is a list of granted keys stored as a
+// JSON array in the TeamMembers 'permissions' column (added on demand). The
+// ROLE remains a convenient preset: super_admin implies ALL permissions
+// (always), and if a member has no explicit permissions we fall back to a
+// role-derived default so existing admins keep working until a super-admin
+// tunes them. The client mirrors this list into the session and gates the UI.
+var ALL_PERMISSIONS = ['scanner', 'finance', 'orders', 'chat_admin', 'training_admin', 'content_studio', 'members_admin'];
+// Fallback grants when a member has no explicit permissions set yet.
+var ROLE_DEFAULT_PERMISSIONS = {
+  super_admin: ALL_PERMISSIONS.slice(),
+  admin: ['scanner', 'finance', 'orders', 'chat_admin', 'training_admin'],
+  member: []
+};
+
+// Resolve the effective permission list for a member row. super_admin always
+// gets everything. Otherwise: explicit stored list if present, else the
+// role default. Returns an array of permission keys.
+function resolveMemberPermissions_(rawPermsCell, role) {
+  role = String(role || 'member').toLowerCase();
+  if (role === 'super_admin') return ALL_PERMISSIONS.slice();
+  var raw = String(rawPermsCell || '').trim();
+  if (raw) {
+    try {
+      var arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        return arr.map(function (p) { return String(p).trim(); })
+                  .filter(function (p) { return ALL_PERMISSIONS.indexOf(p) !== -1; });
+      }
+    } catch (e) { /* fall through to role default */ }
+  }
+  return (ROLE_DEFAULT_PERMISSIONS[role] || []).slice();
+}
+
+// Find the 'permissions' column index (0-based) in a header row, or -1.
+function permissionsColIdx_(headers) {
+  for (var i = 0; i < headers.length; i++) {
+    if (String(headers[i]).trim().toLowerCase() === 'permissions') return i;
+  }
+  return -1;
+}
+
 function handleTeamLogin_(payload) {
   try {
     var name = String(payload.name || '').trim();
@@ -2772,7 +2822,12 @@ function handleTeamLogin_(payload) {
 
     var sheet = getTeamSheet_();
     if (sheet.getLastRow() < 2) return jsonResponse({ ok: false, error: 'No accounts exist yet' });
-    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 8).getValues();
+    // Read the FULL row width so a 'permissions' column (added later, past
+    // the first 9 fixed columns) is visible.
+    var loginLastCol = Math.max(9, sheet.getLastColumn());
+    var loginHeaders = sheet.getRange(1, 1, 1, loginLastCol).getValues()[0];
+    var permIdx = permissionsColIdx_(loginHeaders);
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, loginLastCol).getValues();
 
     for (var i = 0; i < data.length; i++) {
       var storedName = String(data[i][1]).toLowerCase().trim();
@@ -2800,7 +2855,9 @@ function handleTeamLogin_(payload) {
         // the Inventory notes column — that column now holds donor/attribution
         // text, not the member name, so a recount there would be wrong.
         var totalItems = parseInt(data[i][7]) || 0;
-        return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], role: data[i][5] || 'member', total_scans: totalItems, telegram_username: data[i][8] || '' });
+        var loginRole = data[i][5] || 'member';
+        var loginPerms = resolveMemberPermissions_(permIdx >= 0 ? data[i][permIdx] : '', loginRole);
+        return jsonResponse({ ok: true, route: 'teamLogin', token: data[i][0], name: data[i][1], role: loginRole, total_scans: totalItems, telegram_username: data[i][8] || '', permissions: loginPerms });
         }
       }
     }
@@ -3235,6 +3292,7 @@ function handleGetProfile_(payload) {
     var carrierIdx = col('carrier');
     var newsletterIdx = col('newsletter_opt_in');
     var picIdx = col('profile_pic_url');
+    var permsIdx = col('permissions');
 
     for (var i = 1; i < data.length; i++) {
       if (String(data[i][tokenIdx]).trim() === token) {
@@ -3250,7 +3308,8 @@ function handleGetProfile_(payload) {
           carrier: carrierIdx >= 0 ? (row[carrierIdx] || '') : '',
           newsletter_opt_in: newsletterIdx >= 0 ? (row[newsletterIdx] || 'no') : 'no',
           profile_pic_url: picIdx >= 0 ? (row[picIdx] || '') : '',
-          total_scans: parseInt(row[totalIdx], 10) || 0
+          total_scans: parseInt(row[totalIdx], 10) || 0,
+          permissions: resolveMemberPermissions_(permsIdx >= 0 ? row[permsIdx] : '', row[roleIdx] || 'member')
         });
       }
     }
@@ -3331,9 +3390,37 @@ function handlePlaceOrder_(payload) {
     var notes = String((payload && payload.notes) || '').trim();
     var phone = String((payload && payload.phone) || '').trim();
 
+    // ── Promo / comp code ──
+    // If the shopper entered a team-issued code, try to redeem it. A valid
+    // redemption COMPS the order (subtotal forced to 0, flagged team-covered)
+    // and decrements the code's remaining uses. An invalid/exhausted code is a
+    // hard error so the shopper knows it didn't apply (rather than silently
+    // charging or silently comping).
+    var comped = false;
+    var promoCode = '';
+    var rawPromo = String((payload && payload.promoCode) || '').trim();
+    if (rawPromo) {
+      var redeem = redeemPromoCode_(rawPromo);
+      if (!redeem.ok) {
+        var reasons = {
+          'not-found': 'That code isn\'t valid.',
+          'exhausted': 'That code has already been fully used.',
+          'inactive': 'That code is no longer active.',
+          'busy': 'Please try again in a moment.',
+          'empty': 'Please enter a valid code.'
+        };
+        return jsonResponse({ ok: false, error: reasons[redeem.reason] || 'That code could not be applied.', code: 'promo-invalid' });
+      }
+      comped = true;
+      promoCode = redeem.code;
+      subtotalCents = 0; // comped — no charge to the visitor
+    }
+
     // Anti-abuse: for FREE orders (give-aways, subtotal 0), enforce the
     // per-identity claim limit server-side. Paid orders are unrestricted.
-    if (subtotalCents === 0) {
+    // A comped order (redeemed a valid team code) BYPASSES this — the code is
+    // the team's explicit authorization for a no-charge order.
+    if (subtotalCents === 0 && !comped) {
       var claim = checkFreeClaimAllowed_(email, phone);
       if (!claim.allowed) {
         return jsonResponse({ ok: false, error: claim.reason, code: 'claim-limit' });
@@ -3350,12 +3437,22 @@ function handlePlaceOrder_(payload) {
       sheet = ss.insertSheet(STORE_ORDERS_TAB);
       sheet.appendRow(STORE_ORDER_HEADERS);
     }
+    // Guarantee the optional columns exist (works on pre-existing sheets too).
+    var compedCol = ensureColumn_(sheet, 'comped');
+    var promoCol = ensureColumn_(sheet, 'promo_code');
+    ensureColumn_(sheet, 'tracking_number');
+
     sheet.appendRow([
       orderId, receivedAt, name, email, phone,
       wantsShipping ? 'YES' : 'no', shippingAddress, notes,
       subtotalCents, String((payload && payload.currency) || 'USD'),
       itemCount, JSON.stringify(clean), 'new'
     ]);
+    // Stamp comped/promo on the row just appended (by column, so it works
+    // regardless of where ensureColumn_ placed the new headers).
+    var newRow = sheet.getLastRow();
+    sheet.getRange(newRow, compedCol).setValue(comped ? 'YES' : 'no');
+    sheet.getRange(newRow, promoCol).setValue(promoCode);
 
     // Emails — never let an email failure fail the order.
     var emailsSent = [];
@@ -3374,7 +3471,7 @@ function handlePlaceOrder_(payload) {
       emailsSent.push('team');
     } catch (e) { console.log('placeOrder team email failed:', e); }
 
-    return jsonResponse({ ok: true, orderId: orderId, subtotalCents: subtotalCents, emailsSent: emailsSent });
+    return jsonResponse({ ok: true, orderId: orderId, subtotalCents: subtotalCents, comped: comped, promoCode: promoCode, emailsSent: emailsSent });
   } catch (err) {
     console.log('handlePlaceOrder_ error:', err);
     return jsonResponse({ ok: false, error: 'order-write-failed' });
@@ -3418,6 +3515,431 @@ function getMyOrders_(email, token) {
   // Most recent first.
   orders.reverse();
   return { ok: true, orders: orders };
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// STORE ORDER MANAGEMENT (admin) — list all orders + advance status.
+//
+// These are admin-gated with passphrase_hash (same model the Content Studio
+// uses for getAdminInventory/getAdminMembers). They power the in-portal Order
+// Management UI so the team can process store orders without opening the sheet.
+//
+// ADD to doPost():
+//   if ((payload && payload.action) === 'getStoreOrders') return handleGetStoreOrders_(payload);
+//   if ((payload && payload.action) === 'updateStoreOrderStatus') return handleUpdateStoreOrderStatus_(payload);
+//
+// Store-order statuses (mirror the bundle STATUS_CHOICES vocabulary):
+//   new · confirming · packing · shipped · delivered · cancelled
+// ══════════════════════════════════════════════════════════════════════
+var STORE_ORDER_STATUSES = ['new', 'confirming', 'packing', 'shipped', 'delivered', 'cancelled'];
+
+// Admin: return ALL store orders (newest first) for the management UI.
+function handleGetStoreOrders_(payload) {
+  if (!validateAdminPassphrase_(payload)) return jsonResponse({ ok: false, error: 'Unauthorized' });
+  try {
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName(STORE_ORDERS_TAB);
+    if (!sheet || sheet.getLastRow() < 2) return jsonResponse({ ok: true, orders: [] });
+
+    var lastRow = sheet.getLastRow();
+    var lastCol = Math.max(STORE_ORDER_HEADERS.length, sheet.getLastColumn());
+    var values = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+    var headers = values[0].map(function (h) { return String(h).trim(); });
+    var idx = {};
+    headers.forEach(function (h, i) { idx[h] = i; });
+
+    function cell(row, key) { return idx[key] != null ? row[idx[key]] : ''; }
+
+    var orders = [];
+    for (var r = 1; r < values.length; r++) {
+      var row = values[r];
+      if (!String(cell(row, 'order_id') || '').trim()) continue;
+      orders.push({
+        row: r + 1, // 1-based sheet row for status writes
+        order_id: String(cell(row, 'order_id') || ''),
+        received_at: String(cell(row, 'received_at') || ''),
+        name: String(cell(row, 'name') || ''),
+        email: String(cell(row, 'email') || ''),
+        phone: String(cell(row, 'phone') || ''),
+        wants_shipping: String(cell(row, 'wants_shipping') || ''),
+        shipping_address: String(cell(row, 'shipping_address') || ''),
+        notes: String(cell(row, 'notes') || ''),
+        subtotal_cents: Number(cell(row, 'subtotal_cents') || 0),
+        item_count: Number(cell(row, 'item_count') || 0),
+        items_json: String(cell(row, 'items_json') || '[]'),
+        status: String(cell(row, 'status') || 'new'),
+        comped: String(cell(row, 'comped') || ''),
+        promo_code: String(cell(row, 'promo_code') || ''),
+        tracking_number: String(cell(row, 'tracking_number') || '')
+      });
+    }
+    orders.reverse();
+    return jsonResponse({ ok: true, orders: orders, statuses: STORE_ORDER_STATUSES });
+  } catch (err) {
+    console.log('handleGetStoreOrders_ error:', err);
+    return jsonResponse({ ok: false, error: 'store-orders-read-failed' });
+  }
+}
+
+// Admin: advance a store order's status. On transition INTO 'packing' we log
+// each line item as an Inventory 'out' movement AND decrement the matching
+// MinistryStats item count (so store availability drops). Sends the shopper the
+// branded per-status email. Optional tracking_number is stored for 'shipped'.
+function handleUpdateStoreOrderStatus_(payload) {
+  if (!validateAdminPassphrase_(payload)) return jsonResponse({ ok: false, error: 'Unauthorized' });
+  try {
+    var orderId = String((payload && payload.order_id) || '').trim();
+    var newStatus = String((payload && payload.status) || '').trim().toLowerCase();
+    var tracking = String((payload && payload.tracking_number) || '').trim();
+    if (!orderId) return jsonResponse({ ok: false, error: 'order_id required' });
+    if (STORE_ORDER_STATUSES.indexOf(newStatus) === -1) return jsonResponse({ ok: false, error: 'Invalid status' });
+
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName(STORE_ORDERS_TAB);
+    if (!sheet || sheet.getLastRow() < 2) return jsonResponse({ ok: false, error: 'No orders' });
+
+    // Ensure optional columns exist (status/tracking/comped/promo), then map.
+    var statusCol = ensureColumn_(sheet, 'status');
+    var trackingCol = ensureColumn_(sheet, 'tracking_number');
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
+    var idx = {}; headers.forEach(function (h, i) { idx[h] = i; });
+
+    var lastRow = sheet.getLastRow();
+    var values = sheet.getRange(1, 1, lastRow, sheet.getLastColumn()).getValues();
+    var targetRow = -1, rowData = null;
+    for (var r = 1; r < values.length; r++) {
+      if (String(values[r][idx.order_id] || '').trim() === orderId) { targetRow = r + 1; rowData = values[r]; break; }
+    }
+    if (targetRow === -1) return jsonResponse({ ok: false, error: 'Order not found' });
+
+    var oldStatus = String(rowData[idx.status] || 'new').trim().toLowerCase();
+
+    // Write status (+ tracking when provided).
+    sheet.getRange(targetRow, statusCol).setValue(newStatus);
+    if (tracking) sheet.getRange(targetRow, trackingCol).setValue(tracking);
+
+    // Parse items for side-effects + email.
+    var items = [];
+    try { items = JSON.parse(String(rowData[idx.items_json] || '[]')); } catch (e) { items = []; }
+
+    // ── Inventory + MinistryStats side-effects on FIRST move into 'packing' ──
+    var inventoryLogged = 0, stockAdjusted = 0;
+    if (newStatus === 'packing' && oldStatus !== 'packing') {
+      try {
+        var entries = items
+          .filter(function (it) { return it && it.productId; })
+          .map(function (it) {
+            return {
+              type: 'store-order',
+              itemId: String(it.productId),
+              itemName: String(it.name || it.productId),
+              qty: Math.max(1, parseInt(it.qty, 10) || 1),
+              direction: 'out',
+              eventSource: 'Web Store Order',
+              costPerUnit: 2,
+              notes: String(rowData[idx.name] || ''),
+              orderId: orderId
+            };
+          });
+        if (entries.length) { logInventoryMovement_(entries); inventoryLogged = entries.length; }
+        stockAdjusted = decrementMinistryStock_(ss, entries);
+      } catch (invErr) {
+        console.log('[updateStoreOrderStatus] inventory/stock side-effect failed (non-fatal):', invErr);
+      }
+    }
+
+    // ── Branded per-status email to the shopper ──
+    var emailed = false;
+    try {
+      var order = {
+        order_id: orderId,
+        name: String(rowData[idx.name] || 'friend'),
+        email: String(rowData[idx.email] || ''),
+        shipping_address: String(rowData[idx.shipping_address] || ''),
+        tracking_number: tracking || String(rowData[idx.tracking_number] || ''),
+        items: items
+      };
+      if (order.email && order.email.indexOf('@') !== -1) {
+        var mail = buildStoreStatusEmail_(order, newStatus);
+        if (mail) {
+          MailApp.sendEmail({ to: order.email, subject: mail.subject, body: mail.plain, htmlBody: mail.html, replyTo: TEAM_INBOX, name: 'Seed the Word Ministry' });
+          emailed = true;
+        }
+      }
+    } catch (mailErr) {
+      console.log('[updateStoreOrderStatus] email failed (non-fatal):', mailErr);
+    }
+
+    return jsonResponse({ ok: true, order_id: orderId, status: newStatus, inventory_logged: inventoryLogged, stock_adjusted: stockAdjusted, emailed: emailed });
+  } catch (err) {
+    console.log('handleUpdateStoreOrderStatus_ error:', err);
+    return jsonResponse({ ok: false, error: 'status-update-failed' });
+  }
+}
+
+// Decrement MinistryStats `item` row counts for the given out-movements.
+// MinistryStats rows: col A key === 'item', col B a JSON blob {id,count,...}.
+// This is the single source of truth for store availability, so lowering it
+// makes the storefront reflect the sale. Never lets count go below 0.
+// Returns the number of item rows adjusted.
+function decrementMinistryStock_(ss, entries) {
+  if (!entries || !entries.length) return 0;
+  var sheet = ss.getSheetByName(MINISTRY_STATS_TAB);
+  if (!sheet || sheet.getLastRow() < 2) return 0;
+
+  // Build id -> qty-out map.
+  var wanted = {};
+  entries.forEach(function (e) {
+    var id = String(e.itemId || '').trim();
+    if (!id) return;
+    wanted[id] = (wanted[id] || 0) + (parseInt(e.qty, 10) || 0);
+  });
+
+  var lastRow = sheet.getLastRow();
+  var rows = sheet.getRange(1, 1, lastRow, 2).getValues(); // key | value
+  var adjusted = 0;
+  for (var i = 0; i < rows.length; i++) {
+    var key = String(rows[i][0] || '').trim().toLowerCase();
+    if (key !== 'item') continue;
+    var val = rows[i][1];
+    var obj;
+    try { obj = (typeof val === 'string') ? JSON.parse(val) : val; } catch (e) { continue; }
+    if (!obj || !obj.id) continue;
+    var id = String(obj.id).trim();
+    if (wanted[id] == null) continue;
+    var current = parseInt(obj.count, 10) || 0;
+    obj.count = Math.max(0, current - wanted[id]);
+    // Keep on_hand consistent if the sheet tracks it separately.
+    if (obj.on_hand != null) obj.on_hand = Math.max(0, (parseInt(obj.on_hand, 10) || 0) - wanted[id]);
+    sheet.getRange(i + 1, 2).setValue(JSON.stringify(obj));
+    adjusted++;
+  }
+  // Flush the storefront catalog cache so availability reflects immediately.
+  try { flushStoreCatalogCache_(); } catch (e) {}
+  return adjusted;
+}
+
+// Build a branded per-status email for a STORE order (distinct from the bundle
+// STATUS_COPY letters, which assume gifter/bundle fields). Reuses emailShell.
+function buildStoreStatusEmail_(order, status) {
+  var name = String(order.name || 'friend');
+  var orderId = String(order.order_id || '');
+  var itemsList = (order.items || []).map(function (it) {
+    return '<tr><td style="padding:4px 0;">' + escapeHtml(String(it.name || it.productId || 'Item')) +
+      ' &times; ' + (parseInt(it.qty, 10) || 1) + '</td></tr>';
+  }).join('');
+  var itemsBlock = itemsList ? '<table style="width:100%;border-collapse:collapse;font-size:14px;color:' + STW_TEXT + ';margin:6px 0 14px;">' + itemsList + '</table>' : '';
+
+  var titles = {
+    confirming: 'We\'re confirming your order',
+    packing: 'Your order is being packed',
+    shipped: 'Your order is on the way',
+    delivered: 'Your order has arrived',
+    cancelled: 'Your order has been cancelled'
+  };
+  var leads = {
+    confirming: 'A member of our team is looking at your order now and will reach out if we need anything. Nothing ships until we\'ve got it right.',
+    packing: 'Your order is on the packing table. We pray over what goes in the box before it leaves our hands.',
+    shipped: 'Your order left our hands today. If anything looks off when it arrives, just reply to this email and we\'ll make it right.',
+    delivered: 'Your order has arrived. Thank you for supporting the work — every order helps put the Word in someone\'s hands.',
+    cancelled: 'We\'ve cancelled this order and released any pending charge. You will not be billed. The door stays open — reply anytime.'
+  };
+  if (!titles[status]) return null; // no email for 'new'
+
+  var body = '';
+  body += '<p style="margin:0 0 18px;">Dear <strong>' + escapeHtml(name) + '</strong>,</p>';
+  body += '<p style="margin:0 0 16px;line-height:1.7;">' + leads[status] + '</p>';
+  if (status === 'packing' || status === 'shipped') body += itemsBlock;
+  if (status === 'shipped' && order.tracking_number) {
+    body += emailSection('Tracking', '<code style="background:#f4ece0;padding:4px 10px;border-radius:4px;font-size:14px;color:' + STW_TEXT + ';">' + escapeHtml(order.tracking_number) + '</code>', { accent: STW_GREEN });
+  }
+  if (status === 'shipped' && order.shipping_address) {
+    body += emailSection('Sent to', '<div style="white-space:pre-wrap;">' + escapeHtml(order.shipping_address) + '</div>', { accent: STW_GREEN });
+  }
+  body += emailSection('Order', '<code style="background:#f4ece0;padding:2px 6px;border-radius:4px;">' + escapeHtml(orderId) + '</code>', { accent: STW_MUTED, dense: true });
+  body += '<p style="margin:18px 0 4px;">Sincerely,</p>';
+  body += '<p style="margin:0;color:' + STW_GREEN + ';font-weight:600;">The Seed the Word team</p>';
+
+  var plain = [
+    'Dear ' + name + ',', '', leads[status], '',
+    'Order: ' + orderId, '',
+    'Sincerely,', 'The Seed the Word team', TEAM_INBOX
+  ].join('\n');
+
+  var html = emailShell({
+    headerTitle: titles[status],
+    headerSubtitle: 'Seed the Word Store · ' + name,
+    bodyHtml: body,
+    footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>',
+    accentColor: status === 'cancelled' ? STW_GOLD : STW_GREEN,
+    includeMinistryFooter: true
+  });
+
+  return { subject: titles[status] + ' — ' + name, html: html, plain: plain };
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PROMO / COMP CODES — team-issued codes that let a visitor place an order
+// at no charge (a comped / "thank you" order). The team then processes it
+// like any other order; inventory still moves when it's packed.
+//
+// A code has a max-redemption count set by the super-admin who generates it;
+// each successful checkout decrements the remaining uses until it's exhausted.
+//
+// Sheet tab 'PromoCodes' columns:
+//   code | created_at | created_by | max_redemptions | times_redeemed | active | note
+//
+// ADD to doPost():
+//   if ((payload && payload.action) === 'generatePromoCode') return handleGeneratePromoCode_(payload);
+//   if ((payload && payload.action) === 'listPromoCodes') return handleListPromoCodes_(payload);
+//   if ((payload && payload.action) === 'deactivatePromoCode') return handleDeactivatePromoCode_(payload);
+// ══════════════════════════════════════════════════════════════════════
+var PROMO_CODES_TAB = 'PromoCodes';
+var PROMO_CODE_HEADERS = ['code', 'created_at', 'created_by', 'max_redemptions', 'times_redeemed', 'active', 'note'];
+
+function getPromoCodesSheet_(ss) {
+  ss = ss || SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName(PROMO_CODES_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(PROMO_CODES_TAB);
+    sheet.appendRow(PROMO_CODE_HEADERS);
+    sheet.getRange(1, 1, 1, PROMO_CODE_HEADERS.length).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+// True if the caller is a super_admin (by token) OR presents the admin passphrase.
+function isSuperAdminOrPassphrase_(payload) {
+  if (validateAdminPassphrase_(payload)) return true;
+  try {
+    var user = validateTeamToken_(String((payload && payload.token) || ''));
+    return !!(user && String(user.role || '').toLowerCase() === 'super_admin');
+  } catch (e) { return false; }
+}
+
+// Super-admin: create a promo/comp code with a max redemption count.
+// If no code string is supplied, one is generated. Codes are stored/compared
+// upper-cased and trimmed. Returns the created code.
+function handleGeneratePromoCode_(payload) {
+  if (!isSuperAdminOrPassphrase_(payload)) return jsonResponse({ ok: false, error: 'Super-admin only' });
+  try {
+    var code = String((payload && payload.code) || '').trim().toUpperCase().replace(/[^A-Z0-9\-]/g, '');
+    var maxRedemptions = Math.max(1, parseInt((payload && payload.max_redemptions), 10) || 1);
+    var createdBy = String((payload && payload.created_by) || 'super-admin').trim();
+    var note = String((payload && payload.note) || '').trim();
+
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = getPromoCodesSheet_(ss);
+
+    // Auto-generate a code if none provided (e.g. STW-XXXX-XXXX).
+    if (!code) {
+      var raw = Utilities.getUuid().replace(/-/g, '').toUpperCase();
+      code = 'STW-' + raw.slice(0, 4) + '-' + raw.slice(4, 8);
+    }
+
+    // Reject duplicate active codes.
+    var last = sheet.getLastRow();
+    if (last >= 2) {
+      var existing = sheet.getRange(2, 1, last - 1, PROMO_CODE_HEADERS.length).getValues();
+      for (var i = 0; i < existing.length; i++) {
+        if (String(existing[i][0]).trim().toUpperCase() === code && String(existing[i][5]).toLowerCase() === 'yes') {
+          return jsonResponse({ ok: false, error: 'That code already exists and is active.' });
+        }
+      }
+    }
+
+    sheet.appendRow([code, new Date().toISOString(), createdBy, maxRedemptions, 0, 'yes', note]);
+    return jsonResponse({ ok: true, code: code, max_redemptions: maxRedemptions });
+  } catch (err) {
+    console.log('handleGeneratePromoCode_ error:', err);
+    return jsonResponse({ ok: false, error: 'promo-generate-failed' });
+  }
+}
+
+// Admin: list promo codes (for the Content Studio UI).
+function handleListPromoCodes_(payload) {
+  if (!isSuperAdminOrPassphrase_(payload)) return jsonResponse({ ok: false, error: 'Super-admin only' });
+  try {
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = getPromoCodesSheet_(ss);
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, codes: [] });
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, PROMO_CODE_HEADERS.length).getValues();
+    var codes = data.map(function (row) {
+      var max = parseInt(row[3], 10) || 0;
+      var used = parseInt(row[4], 10) || 0;
+      return {
+        code: String(row[0] || ''),
+        created_at: String(row[1] || ''),
+        created_by: String(row[2] || ''),
+        max_redemptions: max,
+        times_redeemed: used,
+        remaining: Math.max(0, max - used),
+        active: String(row[5] || '').toLowerCase() === 'yes',
+        note: String(row[6] || '')
+      };
+    }).reverse();
+    return jsonResponse({ ok: true, codes: codes });
+  } catch (err) {
+    console.log('handleListPromoCodes_ error:', err);
+    return jsonResponse({ ok: false, error: 'promo-list-failed' });
+  }
+}
+
+// Super-admin: deactivate a code immediately (kills remaining uses).
+function handleDeactivatePromoCode_(payload) {
+  if (!isSuperAdminOrPassphrase_(payload)) return jsonResponse({ ok: false, error: 'Super-admin only' });
+  try {
+    var code = String((payload && payload.code) || '').trim().toUpperCase();
+    if (!code) return jsonResponse({ ok: false, error: 'code required' });
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = getPromoCodesSheet_(ss);
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: false, error: 'Not found' });
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, PROMO_CODE_HEADERS.length).getValues();
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][0]).trim().toUpperCase() === code) {
+        sheet.getRange(i + 2, 6).setValue('no'); // active -> no
+        return jsonResponse({ ok: true, code: code });
+      }
+    }
+    return jsonResponse({ ok: false, error: 'Not found' });
+  } catch (err) {
+    console.log('handleDeactivatePromoCode_ error:', err);
+    return jsonResponse({ ok: false, error: 'promo-deactivate-failed' });
+  }
+}
+
+// Validate + REDEEM a promo code atomically at checkout. If valid and has uses
+// left, increments times_redeemed and returns { ok:true, code }. Otherwise
+// returns { ok:false, reason }. Uses a script lock so two simultaneous
+// checkouts can't over-redeem the last use.
+function redeemPromoCode_(codeRaw) {
+  var code = String(codeRaw || '').trim().toUpperCase();
+  if (!code) return { ok: false, reason: 'empty' };
+
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(5000); } catch (e) { return { ok: false, reason: 'busy' }; }
+  try {
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = getPromoCodesSheet_(ss);
+    if (sheet.getLastRow() < 2) return { ok: false, reason: 'not-found' };
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, PROMO_CODE_HEADERS.length).getValues();
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][0]).trim().toUpperCase() !== code) continue;
+      var max = parseInt(data[i][3], 10) || 0;
+      var used = parseInt(data[i][4], 10) || 0;
+      var active = String(data[i][5] || '').toLowerCase() === 'yes';
+      if (!active) return { ok: false, reason: 'inactive' };
+      if (used >= max) return { ok: false, reason: 'exhausted' };
+      // Redeem: bump the count; auto-deactivate when the last use is spent.
+      sheet.getRange(i + 2, 5).setValue(used + 1);
+      if (used + 1 >= max) sheet.getRange(i + 2, 6).setValue('no');
+      return { ok: true, code: code, remaining: Math.max(0, max - (used + 1)) };
+    }
+    return { ok: false, reason: 'not-found' };
+  } finally {
+    try { lock.releaseLock(); } catch (e) {}
+  }
 }
 
 // ── Anti-abuse: free-item claim limits ──────────────────────────

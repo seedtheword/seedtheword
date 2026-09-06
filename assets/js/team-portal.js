@@ -271,7 +271,7 @@ document.getElementById('login-btn').addEventListener('click',async function(){
     if(res.ok){
       var prevEvent = session ? session.event : '';
       var prevEventDate = session ? session.eventDate : '';
-      session={token:res.token,name:res.name,role:res.role||'member',totalScans:res.total_scans||0,todayScans:[],event:prevEvent||'',eventDate:prevEventDate||'',telegram_username:res.telegram_username||'',lastEvent:res.last_event||prevEvent||''};
+      session={token:res.token,name:res.name,role:res.role||'member',permissions:Array.isArray(res.permissions)?res.permissions:[],totalScans:res.total_scans||0,todayScans:[],event:prevEvent||'',eventDate:prevEventDate||'',telegram_username:res.telegram_username||'',lastEvent:res.last_event||prevEvent||''};
       saveSession();showEventOrPortal();
     }else throw new Error(res.error||'Login failed');
   }catch(err){status.textContent=err.message;status.className='status status--error';}

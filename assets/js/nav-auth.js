@@ -62,6 +62,7 @@
         s.email = res.email || '';
         s.phone = res.phone || '';
         s.role = res.role || s.role || 'member';
+        if (Array.isArray(res.permissions)) s.permissions = res.permissions;
         s.telegram_username = res.telegram_username || '';
         s.notify_pref = res.notify_pref || 'email';
         s.carrier = res.carrier || '';

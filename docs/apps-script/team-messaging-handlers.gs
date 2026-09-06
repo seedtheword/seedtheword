@@ -773,9 +773,20 @@ function handleGetAdminMembers_(payload) {
   try {
     var sheet = getTeamSheet_();
     if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, members: [] });
-    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 9).getValues();
+    // Read full width so the 'permissions' column (if present) is included.
+    var lastCol = Math.max(9, sheet.getLastColumn());
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var permIdx = -1;
+    for (var h = 0; h < headers.length; h++) {
+      if (String(headers[h]).trim().toLowerCase() === 'permissions') { permIdx = h; break; }
+    }
+    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, lastCol).getValues();
     var members = data.map(function(row) {
-      return { name: row[1], email: row[3], phone: row[4], role: row[5] || 'member', scans: parseInt(row[7]) || 0, telegram: row[8] || '' };
+      var role = row[5] || 'member';
+      var perms = (typeof resolveMemberPermissions_ === 'function')
+        ? resolveMemberPermissions_(permIdx >= 0 ? row[permIdx] : '', role)
+        : [];
+      return { name: row[1], email: row[3], phone: row[4], role: role, scans: parseInt(row[7]) || 0, telegram: row[8] || '', permissions: perms };
     });
     return jsonResponse({ ok: true, members: members });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
@@ -855,6 +866,39 @@ function handleSetMemberRole_(payload) {
     }
     return jsonResponse({ ok: false, error: 'Member not found' });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+// Super-admin: set a member's per-section permissions (JSON array). Writes to
+// the TeamMembers 'permissions' column (created on demand). super_admin members
+// always have all permissions regardless of what's stored, so this is really
+// the member-vs-admin dial. Validates keys against ALL_PERMISSIONS (defined in
+// order-handler.gs; same Apps Script project shares globals).
+function handleSetMemberPermissions_(payload) {
+  if (!validateAdminPassphrase_(payload)) return jsonResponse({ ok: false, error: 'Unauthorized' });
+  try {
+    var memberName = String(payload.member_name || '').trim();
+    var perms = payload.permissions;
+    if (!memberName) return jsonResponse({ ok: false, error: 'Name required' });
+    if (!Array.isArray(perms)) return jsonResponse({ ok: false, error: 'permissions must be an array' });
+
+    // Whitelist against the known permission keys.
+    var allowed = (typeof ALL_PERMISSIONS !== 'undefined') ? ALL_PERMISSIONS
+      : ['scanner', 'finance', 'orders', 'chat_admin', 'training_admin', 'content_studio', 'members_admin'];
+    var clean = perms.map(function (p) { return String(p).trim(); })
+                     .filter(function (p) { return allowed.indexOf(p) !== -1; });
+
+    var sheet = getTeamSheet_();
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: false, error: 'No members' });
+    var permCol = ensureColumn_(sheet, 'permissions');
+    var names = sheet.getRange(2, 2, sheet.getLastRow() - 1, 1).getValues(); // col B = name
+    for (var i = 0; i < names.length; i++) {
+      if (String(names[i][0]).toLowerCase().trim() === memberName.toLowerCase()) {
+        sheet.getRange(i + 2, permCol).setValue(JSON.stringify(clean));
+        return jsonResponse({ ok: true, route: 'setMemberPermissions', permissions: clean });
+      }
+    }
+    return jsonResponse({ ok: false, error: 'Member not found' });
+  } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
 
 

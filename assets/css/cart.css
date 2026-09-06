@@ -87,6 +87,7 @@
   font-size: 0.95rem; font-family: inherit; box-sizing: border-box; background: #fff; color: var(--text, #1a1a1a);
 }
 .checkout-field input:focus, .checkout-field textarea:focus { outline: none; border-color: var(--green, #2C5F2E); box-shadow: 0 0 0 3px rgba(44,95,46,0.12); }
+.checkout-field__hint { display: block; font-size: 0.75rem; color: var(--muted, #6b6b6b); margin-top: 0.3rem; line-height: 1.4; }
 .checkout-field-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.75rem; }
 .checkout-ship-toggle { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.9rem; margin: 0.5rem 0 0.9rem; cursor: pointer; line-height: 1.4; }
 .checkout-ship-toggle input { margin-top: 0.15rem; width: 18px; height: 18px; accent-color: var(--green, #2C5F2E); }

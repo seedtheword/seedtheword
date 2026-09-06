@@ -180,6 +180,7 @@
     }
     var sess = null;
     try { sess = JSON.parse(localStorage.getItem('stwm-team-session')); } catch (e) {}
+    var promoEl = document.getElementById('co-promo');
     return {
       action: 'placeOrder',
       token: (sess && sess.token) || '',
@@ -189,6 +190,7 @@
       wantsShipping: wantsShipping,
       shippingAddress: address,
       notes: (document.getElementById('co-notes').value || '').trim(),
+      promoCode: promoEl ? (promoEl.value || '').trim().toUpperCase() : '',
       items: lines,
       subtotalCents: Cart.getSubtotalCents(),
       currency: 'USD'
@@ -245,8 +247,11 @@
           layoutEl.hidden = true;
           emptyEl.hidden = true;
           if (res.orderId) {
+            var compedNote = res.comped
+              ? ' Your team code was applied — there\'s no charge. '
+              : ' ';
             successMsgEl.textContent = 'Thank you, ' + name + '. Your order (' + res.orderId +
-              ') is confirmed — check your email, and a team member will follow up' +
+              ') is confirmed —' + compedNote + 'check your email, and a team member will follow up' +
               (payload.wantsShipping ? ' to arrange shipping.' : '.');
           }
           successEl.hidden = false;
@@ -254,7 +259,14 @@
         } else {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Place order →';
-          setStatus('Order error: ' + ((res && res.error) || 'Please try again.'), 'error');
+          // A bad promo code is a friendly, targeted message (cart is kept).
+          if (res && res.code === 'promo-invalid') {
+            setStatus((res.error || 'That code could not be applied.') + ' Remove it or fix it to continue.', 'error');
+            var promoEl = document.getElementById('co-promo');
+            if (promoEl) promoEl.focus();
+          } else {
+            setStatus('Order error: ' + ((res && res.error) || 'Please try again.'), 'error');
+          }
         }
       })
       .catch(function (err) {

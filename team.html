@@ -69,6 +69,31 @@
     .mv-pill { flex:1 1 auto; min-width:calc(50% - 0.2rem); padding:0.6rem 0.5rem; border:1.5px solid var(--color-border); background:var(--color-surface); border-radius:12px; font-size:0.82rem; font-weight:600; color:var(--color-text); cursor:pointer; transition:all 0.15s; min-height:46px; }
     .mv-pill.is-active { background:var(--color-green,#2c5f4f); color:#fff; border-color:var(--color-green,#2c5f4f); }
     .mv-sheet input[type=text], .mv-sheet input[type=number], .mv-sheet select { width:100%; padding:0.6rem 0.7rem; border:1.5px solid var(--color-border); border-radius:12px; font-size:0.9rem; background:var(--color-surface); color:var(--color-text); font-family:var(--font-sans,sans-serif); }
+
+    /* ── Store order management (Orders tab) ── */
+    .orders-mgmt__head { display:flex; align-items:flex-start; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.9rem; }
+    .orders-mgmt__tools { display:flex; gap:0.5rem; align-items:center; flex-shrink:0; }
+    .orders-filter { padding:0.45rem 0.6rem; border:1.5px solid var(--color-border); border-radius:10px; font-size:0.8rem; background:var(--color-surface); color:var(--color-text); font-family:var(--font-sans,sans-serif); }
+    .ord-card { border:1px solid var(--color-border); border-radius:14px; padding:0.9rem 1rem; margin-bottom:0.8rem; background:var(--color-surface); }
+    .ord-card__top { display:flex; align-items:flex-start; justify-content:space-between; gap:0.6rem; flex-wrap:wrap; }
+    .ord-card__id { font-family:var(--font-mono,monospace); font-size:0.82rem; }
+    .ord-card__meta { display:block; font-size:0.74rem; color:var(--color-text-muted); margin-top:0.15rem; }
+    .ord-card__total { font-weight:800; font-size:0.95rem; white-space:nowrap; }
+    .ord-tag { display:inline-block; font-size:0.6rem; font-weight:800; letter-spacing:0.05em; padding:0.1rem 0.4rem; border-radius:6px; background:var(--color-bg-subtle); color:var(--color-text-muted); vertical-align:middle; }
+    .ord-tag--comped { background:rgba(217,119,54,0.14); color:var(--color-gold,#D97736); }
+    .ord-stepper { display:flex; align-items:center; justify-content:space-between; gap:0.2rem; margin:0.85rem 0; }
+    .ord-stepper--cancelled { color:var(--color-danger,#a6251f); font-weight:700; font-size:0.85rem; margin:0.7rem 0; }
+    .ord-step { flex:1; display:flex; flex-direction:column; align-items:center; gap:0.25rem; position:relative; font-size:0.62rem; color:var(--color-text-muted); text-align:center; }
+    .ord-step:not(:last-child)::after { content:""; position:absolute; top:6px; left:50%; width:100%; height:2px; background:var(--color-border); z-index:0; }
+    .ord-step.is-done:not(:last-child)::after { background:var(--color-olive,#2C4A3E); }
+    .ord-step__dot { width:14px; height:14px; border-radius:50%; background:var(--color-border); z-index:1; }
+    .ord-step.is-done .ord-step__dot { background:var(--color-olive,#2C4A3E); }
+    .ord-step.is-current .ord-step__dot { background:var(--color-gold,#D97736); box-shadow:0 0 0 3px rgba(217,119,54,0.25); }
+    .ord-step.is-current .ord-step__label, .ord-step.is-done .ord-step__label { color:var(--color-text); font-weight:700; }
+    .ord-items { display:flex; flex-wrap:wrap; gap:0.3rem 0.9rem; font-size:0.82rem; color:var(--color-text); margin-bottom:0.35rem; }
+    .ord-ship, .ord-notes { font-size:0.78rem; color:var(--color-text-muted); margin-top:0.25rem; }
+    .ord-actions { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.7rem; }
+    .btn--sm { padding:0.4rem 0.8rem; font-size:0.78rem; }
   </style>
   <script src="assets/js/theme-toggle.js?v=1"></script>
 </head>
@@ -229,6 +254,7 @@
       <button class="main-tab main-tab--active" data-tab="dashboard"><span class="main-tab__icon">📊</span> Dash</button>
       <button class="main-tab" data-tab="scanner"><span class="main-tab__icon">📷</span> Scan</button>
       <button class="main-tab" data-tab="finance"><span class="main-tab__icon">💰</span> Finance</button>
+      <button class="main-tab" data-tab="orders" id="tab-btn-orders" style="display:none;"><span class="main-tab__icon">🛒</span> Orders</button>
       <button class="main-tab" data-tab="messages"><span class="main-tab__icon">💬</span> Chat</button>
       <button class="main-tab" data-tab="forum"><span class="main-tab__icon">📝</span> Forum</button>
       <button class="main-tab" data-tab="training"><span class="main-tab__icon">📚</span> Train</button>
@@ -271,10 +297,14 @@
           <span class="dash-tile__icon">💬</span>
           <span class="dash-tile__label">Team Chat</span>
         </button>
-        <a href="https://t.me/seedtheword" target="_blank" rel="noopener" class="dash-tile">
-          <span class="dash-tile__icon">✈️</span>
-          <span class="dash-tile__label">Telegram</span>
+        <a href="connect.html" class="dash-tile">
+          <span class="dash-tile__icon">🤝</span>
+          <span class="dash-tile__label">Connect</span>
         </a>
+        <button class="dash-tile" id="dash-orders-tile" onclick="document.querySelector('[data-tab=orders]').click()" style="display:none;">
+          <span class="dash-tile__icon">🛒</span>
+          <span class="dash-tile__label">Orders</span>
+        </button>
         <button class="dash-tile" onclick="showView('event')">
           <span class="dash-tile__icon">📍</span>
           <span class="dash-tile__label">Change Event</span>
@@ -294,6 +324,32 @@
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
         <button class="btn btn--outline" id="toggle-history-btn" style="flex:1;">📋 View Full History</button>
         <button class="btn btn--outline" id="logout-btn" style="flex:1;">Log Out</button>
+      </div>
+    </div>
+
+    <!-- Orders Tab — store order management (permission: orders) -->
+    <div class="tab-panel" id="tab-orders" hidden>
+      <div class="orders-mgmt">
+        <div class="orders-mgmt__head">
+          <div>
+            <h3 class="glass-card__title" style="margin:0;">🛒 Store Orders</h3>
+            <p style="font-size:0.8rem;color:var(--color-text-muted);margin:0.2rem 0 0;">Process orders and advance their status. Marking an order <strong>Packing</strong> logs the items out of inventory.</p>
+          </div>
+          <div class="orders-mgmt__tools">
+            <select id="orders-filter" class="orders-filter">
+              <option value="open">Open orders</option>
+              <option value="all">All orders</option>
+              <option value="new">New</option>
+              <option value="confirming">Confirming</option>
+              <option value="packing">Packing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <button class="btn btn--outline btn--sm" id="orders-refresh">↻ Refresh</button>
+          </div>
+        </div>
+        <div id="orders-list"><p style="color:var(--color-text-muted);font-size:0.84rem;padding:1rem 0;">Loading orders…</p></div>
       </div>
     </div>
 
@@ -708,10 +764,128 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=13"></script>
+<script src="assets/js/team-portal.js?v=14"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=3"></script>
 <script>
+// ── Store Orders management (permission: orders) ──
+// Uses the admin passphrase hash (same as Content Studio) since getStoreOrders/
+// updateStoreOrderStatus are passphrase-gated. Only shown to members with the
+// 'orders' permission (applyRoleUI gates the tab; this just powers it).
+(function () {
+  var ADMIN_HASH = '2e3df09a3a06ebdacb4cf637764073674243ed9497da164c94a955f7ae931440';
+  var CONFIG_URL = 'assets/data/site-config.json';
+  var handlerUrl = null;
+  var STEPS = ['new', 'confirming', 'packing', 'shipped', 'delivered'];
+  var STEP_LABELS = { new: 'Received', confirming: 'Confirming', packing: 'Packing', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled' };
+  var loaded = false;
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
+  function money(c) { return '$' + ((Number(c) || 0) / 100).toFixed(2); }
+  function sess() { try { return JSON.parse(localStorage.getItem('stwm-team-session')); } catch (e) { return null; } }
+  async function getUrl() { if (handlerUrl) return handlerUrl; var cfg = await fetch(CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }); handlerUrl = cfg.orderHandlerUrl; return handlerUrl; }
+  async function post(data) { var url = await getUrl(); var res = await fetch(url, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) }); var t = await res.text(); try { return JSON.parse(t); } catch (e) { throw new Error('Server unavailable'); } }
+
+  function stepper(status) {
+    if (status === 'cancelled') return '<div class="ord-stepper ord-stepper--cancelled">Cancelled</div>';
+    var idx = STEPS.indexOf(status); if (idx < 0) idx = 0;
+    return '<div class="ord-stepper">' + STEPS.map(function (s, i) {
+      var cls = i < idx ? ' is-done' : (i === idx ? ' is-current' : '');
+      return '<span class="ord-step' + cls + '"><span class="ord-step__dot"></span><span class="ord-step__label">' + STEP_LABELS[s] + '</span></span>';
+    }).join('') + '</div>';
+  }
+
+  function orderCard(o) {
+    var items = [];
+    try { items = JSON.parse(o.items_json || '[]'); } catch (e) {}
+    var itemRows = items.map(function (it) {
+      return '<div class="ord-item"><span>' + esc(it.name || it.productId) + ' &times;' + esc(it.qty || 1) + '</span></div>';
+    }).join('');
+    var when = o.received_at ? new Date(o.received_at).toLocaleDateString() : '';
+    var comped = String(o.comped || '').toUpperCase() === 'YES';
+    var ship = String(o.wants_shipping || '').toUpperCase() === 'YES';
+
+    // Next-status actions (skip current). Cancel always available unless done.
+    var actions = '';
+    var order = ['confirming', 'packing', 'shipped', 'delivered'];
+    var curIdx = STEPS.indexOf(o.status);
+    order.forEach(function (s) {
+      var sIdx = STEPS.indexOf(s);
+      if (sIdx === curIdx + 1) actions += '<button class="btn btn--green btn--sm ord-advance" data-order="' + esc(o.order_id) + '" data-status="' + s + '">Mark ' + STEP_LABELS[s] + ' →</button>';
+    });
+    if (o.status !== 'delivered' && o.status !== 'cancelled') {
+      actions += '<button class="btn btn--outline btn--sm ord-cancel" data-order="' + esc(o.order_id) + '">Cancel</button>';
+    }
+
+    return '<div class="ord-card" data-order-card="' + esc(o.order_id) + '">' +
+      '<div class="ord-card__top">' +
+        '<div><strong class="ord-card__id">' + esc(o.order_id) + '</strong>' +
+          (comped ? ' <span class="ord-tag ord-tag--comped">COMPED' + (o.promo_code ? ' · ' + esc(o.promo_code) : '') + '</span>' : '') +
+          (ship ? ' <span class="ord-tag">SHIP</span>' : '') +
+          '<span class="ord-card__meta">' + esc(o.name) + ' · ' + esc(o.email) + ' · ' + when + '</span></div>' +
+        '<span class="ord-card__total">' + (comped ? 'No charge' : money(o.subtotal_cents)) + '</span>' +
+      '</div>' +
+      stepper(o.status) +
+      '<div class="ord-items">' + itemRows + '</div>' +
+      (ship && o.shipping_address ? '<div class="ord-ship">📦 ' + esc(o.shipping_address) + '</div>' : '') +
+      (o.notes ? '<div class="ord-notes">📝 ' + esc(o.notes) + '</div>' : '') +
+      '<div class="ord-actions">' + actions + '</div>' +
+      '</div>';
+  }
+
+  async function load() {
+    var listEl = document.getElementById('orders-list');
+    if (!listEl) return;
+    listEl.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;padding:1rem 0;">Loading orders…</p>';
+    try {
+      var res = await post({ action: 'getStoreOrders', passphrase_hash: ADMIN_HASH, token: (sess() && sess().token) || '' });
+      if (!res || !res.ok) { listEl.innerHTML = '<p class="status status--error">' + esc((res && res.error) || 'Could not load orders.') + '</p>'; return; }
+      var orders = res.orders || [];
+      var filter = (document.getElementById('orders-filter') || {}).value || 'open';
+      if (filter === 'open') orders = orders.filter(function (o) { return o.status !== 'delivered' && o.status !== 'cancelled'; });
+      else if (filter !== 'all') orders = orders.filter(function (o) { return o.status === filter; });
+      if (!orders.length) { listEl.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;padding:1rem 0;">No orders in this view.</p>'; return; }
+      listEl.innerHTML = orders.map(orderCard).join('');
+      bindCardActions(listEl);
+    } catch (e) {
+      listEl.innerHTML = '<p class="status status--error">Orders service unavailable. Deploy the backend and try again.</p>';
+    }
+  }
+
+  function bindCardActions(root) {
+    root.querySelectorAll('.ord-advance').forEach(function (b) {
+      b.addEventListener('click', function () { advance(this.dataset.order, this.dataset.status, this); });
+    });
+    root.querySelectorAll('.ord-cancel').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!confirm('Cancel this order? The shopper will be emailed.')) return;
+        advance(this.dataset.order, 'cancelled', this);
+      });
+    });
+  }
+
+  async function advance(orderId, status, btn) {
+    var tracking = '';
+    if (status === 'shipped') { tracking = prompt('Tracking number (optional — leave blank to skip):', '') || ''; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Working…'; }
+    try {
+      var payload = { action: 'updateStoreOrderStatus', passphrase_hash: ADMIN_HASH, token: (sess() && sess().token) || '', order_id: orderId, status: status };
+      if (tracking) payload.tracking_number = tracking;
+      var res = await post(payload);
+      if (res && res.ok) { load(); }
+      else { alert((res && res.error) || 'Update failed'); if (btn) { btn.disabled = false; } }
+    } catch (e) { alert(e.message); if (btn) { btn.disabled = false; } }
+  }
+
+  // Wire tab + refresh + filter. Lazy-load on first open.
+  var ordersTab = document.querySelector('[data-tab="orders"]');
+  if (ordersTab) ordersTab.addEventListener('click', function () { if (!loaded) { loaded = true; } load(); });
+  var refreshBtn = document.getElementById('orders-refresh');
+  if (refreshBtn) refreshBtn.addEventListener('click', load);
+  var filterEl = document.getElementById('orders-filter');
+  if (filterEl) filterEl.addEventListener('change', load);
+})();
+
 // ── Profile card initialization ──
 (function() {
   function updateProfile() {
@@ -812,6 +986,12 @@
     // Change-event shortcut is a scanner-adjacent action.
     var changeEventBtn = document.querySelector('[onclick="showView(\'event\')"]');
     if (changeEventBtn) changeEventBtn.style.display = can('scanner') ? '' : 'none';
+
+    // Dashboard quick tiles that mirror gated tabs.
+    var ordersTile = document.getElementById('dash-orders-tile');
+    if (ordersTile) ordersTile.style.display = can('orders') ? '' : 'none';
+    var scanTile = document.getElementById('dash-add-manual');
+    if (scanTile) scanTile.style.display = can('scanner') ? '' : 'none';
   }
 
   // Run on load and observe portal activation

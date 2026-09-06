@@ -8,6 +8,23 @@
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=34">
   <link rel="stylesheet" href="assets/css/cart.css?v=1">
+  <style>
+    /* My Orders — status pill + progress tracker */
+    .ord-pill { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 999px; background: var(--color-bg-subtle, #f0ebe4); color: var(--color-text-muted, #6b6b6b); }
+    .ord-pill--packing, .ord-pill--confirming { background: rgba(217,119,54,0.14); color: var(--color-gold, #D97736); }
+    .ord-pill--shipped { background: rgba(0,136,204,0.14); color: #0088cc; }
+    .ord-pill--delivered { background: rgba(44,95,46,0.14); color: var(--green, #2C5F2E); }
+    .ord-pill--cancelled { background: rgba(166,37,31,0.12); color: #a6251f; }
+    .ord-track { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.2rem; margin: 0.4rem 0 0.2rem; }
+    .ord-track__step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; position: relative; font-size: 0.66rem; color: var(--muted, #9a938a); text-align: center; }
+    .ord-track__step:not(:last-child)::after { content: ""; position: absolute; top: 7px; left: 50%; width: 100%; height: 2px; background: #e5ded4; z-index: 0; }
+    .ord-track__step.is-done:not(:last-child)::after { background: var(--green, #2C5F2E); }
+    .ord-track__dot { width: 16px; height: 16px; border-radius: 50%; background: #e5ded4; z-index: 1; }
+    .ord-track__step.is-done .ord-track__dot { background: var(--green, #2C5F2E); }
+    .ord-track__step.is-current .ord-track__dot { background: var(--color-gold, #D97736); box-shadow: 0 0 0 3px rgba(217,119,54,0.25); }
+    .ord-track__step.is-current .ord-track__label, .ord-track__step.is-done .ord-track__label { color: var(--text, #1a1a1a); font-weight: 700; }
+    .ord-track--cancelled { font-size: 0.82rem; color: #a6251f; padding: 0.5rem 0; }
+  </style>
   <script src="assets/js/theme-toggle.js?v=1"></script>
 </head>
 <body>
@@ -118,26 +135,48 @@
       emptyEl.hidden = false;
     });
 
+  var STEPS = ['new', 'confirming', 'packing', 'shipped', 'delivered'];
+  var STEP_LABELS = { new: 'Received', confirming: 'Confirming', packing: 'Packing', shipped: 'Shipped', delivered: 'Delivered' };
+
+  function stepperHTML(status) {
+    status = String(status || 'new').toLowerCase();
+    if (status === 'cancelled') {
+      return '<div class="ord-track ord-track--cancelled">This order was cancelled. If that\'s unexpected, reply to your confirmation email.</div>';
+    }
+    var idx = STEPS.indexOf(status); if (idx < 0) idx = 0;
+    return '<div class="ord-track">' + STEPS.map(function (s, i) {
+      var cls = i < idx ? ' is-done' : (i === idx ? ' is-current' : '');
+      return '<span class="ord-track__step' + cls + '">' +
+        '<span class="ord-track__dot"></span>' +
+        '<span class="ord-track__label">' + STEP_LABELS[s] + '</span></span>';
+    }).join('') + '</div>';
+  }
+
   function renderOrder(o) {
     var items = [];
     try { items = JSON.parse(o.items_json || '[]'); } catch (e) {}
+    var comped = String(o.comped || '').toUpperCase() === 'YES';
     var itemRows = items.map(function (it) {
       return '<div style="display:flex;justify-content:space-between;font-size:0.88rem;padding:0.35rem 0;border-bottom:1px solid #f0ebe4;">' +
         '<span>' + esc(it.name) + ' &times;' + esc(it.qty) + '</span>' +
-        '<span>' + money(it.lineTotalCents || 0) + '</span></div>';
+        '<span>' + (comped ? '—' : money(it.lineTotalCents || 0)) + '</span></div>';
     }).join('');
-    var status = esc(o.status || 'new');
+    var status = String(o.status || 'new').toLowerCase();
+    var pillLabel = STEP_LABELS[status] || (status.charAt(0).toUpperCase() + status.slice(1));
     var when = o.received_at ? new Date(o.received_at).toLocaleDateString() : '';
     return '' +
       '<div class="cart-items" style="margin-bottom:1.25rem;padding:1.25rem;">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">' +
           '<strong>' + esc(o.order_id || '') + '</strong>' +
-          '<span class="store-card__stock">' + status + '</span>' +
+          '<span class="ord-pill ord-pill--' + esc(status) + '">' + esc(pillLabel) + '</span>' +
         '</div>' +
-        '<div style="font-size:0.8rem;color:var(--muted,#6b6b6b);margin-bottom:0.5rem;">' + when +
-          (o.wants_shipping === 'YES' ? ' · Shipping requested' : '') + '</div>' +
+        stepperHTML(status) +
+        '<div style="font-size:0.8rem;color:var(--muted,#6b6b6b);margin:0.75rem 0 0.5rem;">' + when +
+          (o.wants_shipping === 'YES' ? ' · Shipping requested' : '') +
+          (comped ? ' · <strong style="color:var(--green,#2C5F2E);">Covered by Seed the Word</strong>' : '') + '</div>' +
         itemRows +
-        '<div style="text-align:right;font-weight:800;margin-top:0.6rem;">Subtotal: ' + money(o.subtotal_cents || 0) + '</div>' +
+        '<div style="text-align:right;font-weight:800;margin-top:0.6rem;">' +
+          (comped ? 'No charge' : 'Subtotal: ' + money(o.subtotal_cents || 0)) + '</div>' +
       '</div>';
   }
 })();

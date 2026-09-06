@@ -757,47 +757,61 @@
 
 // ── Role-based UI: hide Dash + Scan for regular members ──
 (function() {
+  // Permission-driven tab visibility. Each portal tab maps to a section
+  // permission; a member sees a tab only if they've been granted it. Dash,
+  // Chat, Forum, and Train are open to every team member. super_admin gets
+  // everything (STW_Auth.hasPermission handles that). Falls back to a local
+  // resolver if STW_Auth (nav-auth.js) hasn't loaded yet.
+  var ALL_PERMS = ['scanner','finance','orders','chat_admin','training_admin','content_studio','members_admin'];
+  var ROLE_DEFAULTS = {
+    super_admin: ALL_PERMS.slice(),
+    admin: ['scanner','finance','orders','chat_admin','training_admin'],
+    member: []
+  };
+  function permsFor(s) {
+    if (window.STW_Auth && STW_Auth.getPermissions) return STW_Auth.getPermissions();
+    if (!s) return [];
+    var role = String(s.role || 'member').toLowerCase();
+    if (role === 'super_admin') return ALL_PERMS.slice();
+    if (Array.isArray(s.permissions)) return s.permissions;
+    return (ROLE_DEFAULTS[role] || []).slice();
+  }
+  // tab data-tab -> required permission (dashboard/messages/forum/training = open)
+  var TAB_PERMISSION = {
+    scanner: 'scanner',
+    finance: 'finance',
+    orders: 'orders',
+    content: 'content_studio'
+  };
+
   function applyRoleUI() {
     var s = null;
     try { s = JSON.parse(localStorage.getItem('stwm-team-session')); } catch(e) {}
     if (!s) return;
 
-    var role = (s.role || 'member').toLowerCase();
-    var isTeam = (role === 'admin' || role === 'super_admin');
-    var isSuper = (role === 'super_admin');
+    var perms = permsFor(s);
+    function can(section) { return perms.indexOf(section) !== -1; }
 
-    // Tab buttons
-    var dashTab = document.querySelector('[data-tab="dashboard"]');
-    var scanTab = document.querySelector('[data-tab="scanner"]');
-    var financeTab = document.querySelector('[data-tab="finance"]');
-    var contentTab = document.getElementById('tab-btn-content');
+    var activeHidden = false;
+    Object.keys(TAB_PERMISSION).forEach(function(tabKey) {
+      var need = TAB_PERMISSION[tabKey];
+      var btn = document.getElementById('tab-btn-' + tabKey) ||
+                document.querySelector('[data-tab="' + tabKey + '"]');
+      if (!btn) return;
+      var allowed = can(need);
+      btn.style.display = allowed ? '' : 'none';
+      if (!allowed && btn.classList.contains('main-tab--active')) activeHidden = true;
+    });
 
-    // Content Studio is super-admin only
-    if (contentTab) contentTab.style.display = isSuper ? '' : 'none';
-
-    if (!isTeam) {
-      // Hide Dash, Scan, and Finance tabs for regular members
-      if (dashTab) dashTab.style.display = 'none';
-      if (scanTab) scanTab.style.display = 'none';
-      if (financeTab) financeTab.style.display = 'none';
-
-      // If dashboard is currently active, switch to messages
-      var activeTab = document.querySelector('.main-tab--active');
-      if (activeTab && (activeTab.dataset.tab === 'dashboard' || activeTab.dataset.tab === 'scanner' || activeTab.dataset.tab === 'finance')) {
-        // Click the messages tab
-        var msgTab = document.querySelector('[data-tab="messages"]');
-        if (msgTab) msgTab.click();
-      }
-
-      // Hide event setup view shortcuts
-      var changeEventBtn = document.querySelector('[onclick="showView(\'event\')"]');
-      if (changeEventBtn) changeEventBtn.style.display = 'none';
-    } else {
-      // Show all tabs for team members
-      if (dashTab) dashTab.style.display = '';
-      if (scanTab) scanTab.style.display = '';
-      if (financeTab) financeTab.style.display = '';
+    // If the currently-active tab just got hidden, fall back to Chat.
+    if (activeHidden) {
+      var msgTab = document.querySelector('[data-tab="messages"]');
+      if (msgTab) msgTab.click();
     }
+
+    // Change-event shortcut is a scanner-adjacent action.
+    var changeEventBtn = document.querySelector('[onclick="showView(\'event\')"]');
+    if (changeEventBtn) changeEventBtn.style.display = can('scanner') ? '' : 'none';
   }
 
   // Run on load and observe portal activation

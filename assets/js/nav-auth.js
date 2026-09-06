@@ -86,11 +86,13 @@
     loginLink.innerHTML = pic
       ? '<img class="nav-auth-avatar" src="' + pic + '" alt=""> ' + firstName
       : firstName;
-    // Role-gate the Team Portal item.
+    // Gate the Team Portal item: show for admins/super-admins, or any member
+    // who's been granted at least one portal section permission.
     var dropdown = document.getElementById('nav-auth-dropdown');
     if (dropdown) {
       var role = (session.role || 'member').toLowerCase();
-      var isStaff = role === 'admin' || role === 'super_admin';
+      var grantedPerms = (window.STW_Auth && STW_Auth.getPermissions) ? STW_Auth.getPermissions() : [];
+      var isStaff = role === 'admin' || role === 'super_admin' || (grantedPerms && grantedPerms.length > 0);
       var existing = dropdown.querySelector('[data-team-portal]');
       if (isStaff && !existing) {
         var a = document.createElement('a');
@@ -145,11 +147,12 @@
     loginLink.id = 'nav-auth-btn';
     loginLink.classList.add('nav-login--authed');
 
-    // Create dropdown. Staff-only entries (Team Portal) are role-gated so a
-    // pure shopper account doesn't see internal tools. Everyone gets My Orders
-    // + Profile Settings.
+    // Create dropdown. Team Portal is shown to admins/super-admins or any
+    // member granted at least one portal section. Pure shoppers just get My
+    // Orders + Profile Settings.
     var role = (session.role || 'member').toLowerCase();
-    var isStaff = role === 'admin' || role === 'super_admin';
+    var grantedPerms = (window.STW_Auth && STW_Auth.getPermissions) ? STW_Auth.getPermissions() : [];
+    var isStaff = role === 'admin' || role === 'super_admin' || (grantedPerms && grantedPerms.length > 0);
     var teamPortalItem = isStaff
       ? '<a class="nav-auth-dropdown__item" href="team.html" data-team-portal style="text-decoration:none;color:inherit;">Team Portal</a>'
       : '';
@@ -190,10 +193,35 @@
     rehydrateSession();
   }
 
-  // ── Public auth API (role-based gating helpers) ──────────────
+  // ── Public auth API (role + per-section permission helpers) ──────────
   // Usage: STW_Auth.isLoggedIn(), STW_Auth.getRole(), STW_Auth.hasRole('admin'),
-  // STW_Auth.isAdmin(), STW_Auth.getSession(). Roles: member < admin < super_admin.
+  // STW_Auth.isAdmin(), STW_Auth.isSuperAdmin(), STW_Auth.getSession(),
+  // STW_Auth.hasPermission('orders'). Roles: member < admin < super_admin.
   var ROLE_RANK = { member: 1, admin: 2, super_admin: 3 };
+
+  // Known section permission keys (mirror of the backend ALL_PERMISSIONS).
+  var ALL_PERMISSIONS = ['scanner', 'finance', 'orders', 'chat_admin', 'training_admin', 'content_studio', 'members_admin'];
+  // Fallback grants when a session has no explicit permissions array yet
+  // (e.g. a device that logged in before the backend started returning them).
+  // Mirrors the backend ROLE_DEFAULT_PERMISSIONS so the UI degrades sensibly.
+  var ROLE_DEFAULT_PERMISSIONS = {
+    super_admin: ALL_PERMISSIONS.slice(),
+    admin: ['scanner', 'finance', 'orders', 'chat_admin', 'training_admin'],
+    member: []
+  };
+
+  // Resolve the effective permission list for a session. super_admin always
+  // gets everything; else the explicit list; else the role default.
+  function resolvePermissions(s) {
+    if (!s) return [];
+    var role = String(s.role || 'member').toLowerCase();
+    if (role === 'super_admin') return ALL_PERMISSIONS.slice();
+    if (Array.isArray(s.permissions)) {
+      return s.permissions.filter(function (p) { return ALL_PERMISSIONS.indexOf(p) !== -1; });
+    }
+    return (ROLE_DEFAULT_PERMISSIONS[role] || []).slice();
+  }
+
   window.STW_Auth = {
     getSession: getSession,
     isLoggedIn: function () { var s = getSession(); return !!(s && s.name); },
@@ -206,6 +234,13 @@
     },
     isAdmin: function () { var s = getSession(); if (!s) return false; var r = String(s.role || '').toLowerCase(); return r === 'admin' || r === 'super_admin'; },
     isSuperAdmin: function () { var s = getSession(); return !!(s && String(s.role || '').toLowerCase() === 'super_admin'); },
+    // NEW: per-section permission check. super_admin always true. Members get
+    // their granted sections (with role-based fallback for older sessions).
+    getPermissions: function () { return resolvePermissions(getSession()); },
+    hasPermission: function (section) {
+      if (!section) return false;
+      return resolvePermissions(getSession()).indexOf(String(section)) !== -1;
+    },
     logout: clearSession
   };
 

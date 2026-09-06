@@ -38,6 +38,21 @@ function saveSession(){try{localStorage.setItem('stwm-team-session',JSON.stringi
 // as YYYY-MM-DD in the browser's local timezone.
 function localToday(){ return new Date().toLocaleDateString('en-CA'); }
 
+// Per-section permission check for the portal. Prefers STW_Auth (nav-auth.js);
+// falls back to a local resolver from the session if it isn't loaded yet.
+// super_admin => all. Keys: scanner, finance, orders, chat_admin,
+// training_admin, content_studio, members_admin.
+var PORTAL_ALL_PERMS=['scanner','finance','orders','chat_admin','training_admin','content_studio','members_admin'];
+var PORTAL_ROLE_DEFAULTS={super_admin:PORTAL_ALL_PERMS.slice(),admin:['scanner','finance','orders','chat_admin','training_admin'],member:[]};
+function canPortal(section){
+  if(window.STW_Auth&&STW_Auth.hasPermission)return STW_Auth.hasPermission(section);
+  if(!session)return false;
+  var role=String(session.role||'member').toLowerCase();
+  if(role==='super_admin')return true;
+  var perms=Array.isArray(session.permissions)?session.permissions:(PORTAL_ROLE_DEFAULTS[role]||[]);
+  return perms.indexOf(section)!==-1;
+}
+
 // ── Views ──
 window.showView=function(v){
   document.querySelectorAll('.view').forEach(function(el){el.classList.remove('active');});
@@ -49,8 +64,8 @@ function showPortal(){
   document.getElementById('stat-today').textContent=session.todayScans.length;
   document.getElementById('stat-total').textContent=session.totalScans||0;
   updateActivityList();updateScanCount();
-  // Show compose if admin
-  if(session.role==='admin'||session.role==='super_admin'){document.getElementById('chat-admin-compose').style.display='';}
+  // Show announcement compose only if the member has the chat_admin permission.
+  if(canPortal('chat_admin')){document.getElementById('chat-admin-compose').style.display='';}
   else{document.getElementById('chat-admin-compose').style.display='none';}
   checkEmergencyAlerts();
 }
@@ -95,13 +110,13 @@ document.querySelectorAll('.chat-topic').forEach(function(el){
     document.getElementById('chat-channel-sub').textContent=CHANNELS[activeChannel].sub;
     // Toggle DM picker / admin compose visibility
     document.getElementById('chat-dm-picker').style.display=activeChannel==='dms'?'':'none';
-    document.getElementById('chat-admin-compose').style.display=(activeChannel==='announcements'&&session&&(session.role==='admin'||session.role==='super_admin'))?'':'none';
+    document.getElementById('chat-admin-compose').style.display=(activeChannel==='announcements'&&canPortal('chat_admin'))?'':'none';
     // Update compose placeholder
     var placeholders={main:'Write a message...',announcements:'Read-only for members',prayer:'Share a prayer request...',thanksgiving:'Share what God has done...',dms:'Type a message...'};
     document.getElementById('chat-input').placeholder=placeholders[activeChannel]||'Write a message...';
     // Disable compose for announcements (non-admin)
     var compose=document.getElementById('chat-compose');
-    if(activeChannel==='announcements'&&session&&session.role!=='admin'&&session.role!=='super_admin'){
+    if(activeChannel==='announcements'&&!canPortal('chat_admin')){
       compose.style.opacity='0.5';compose.style.pointerEvents='none';
     }else{compose.style.opacity='1';compose.style.pointerEvents='auto';}
     loadChannelMessages();
@@ -642,8 +657,8 @@ function initTrainingTab(){
   renderMilestones();
   renderTrainingModules();
   renderTrainingRecord();
-  // Admin panel
-  if(session&&(session.role==='admin'||session.role==='super_admin')){
+  // Training admin panel — gated by the training_admin permission.
+  if(canPortal('training_admin')){
     var adminPanel=document.getElementById('training-admin-panel')||document.getElementById('training-add-section');
     if(adminPanel)adminPanel.style.display='';
     loadTrainingMemberSelect();

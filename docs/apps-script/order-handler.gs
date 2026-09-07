@@ -3648,7 +3648,12 @@ function handleUpdateStoreOrderStatus_(payload) {
       }
     }
 
-    // ── Branded per-status email to the shopper ──
+    // ── Status email to the customer/requester ──
+    // Free-Bible orders (order_id starts with "BIB-") use the Bible-specific
+    // letters: advancing to 'confirming' is the APPROVAL step, which emails
+    // the requester to collect their address; 'cancelled' is a gentle decline.
+    // Everything else reuses the store per-status letters (packing/shipped/etc).
+    var isBibleOrder = orderId.indexOf('BIB-') === 0;
     var emailed = false;
     try {
       var order = {
@@ -3660,7 +3665,9 @@ function handleUpdateStoreOrderStatus_(payload) {
         items: items
       };
       if (order.email && order.email.indexOf('@') !== -1) {
-        var mail = buildStoreStatusEmail_(order, newStatus);
+        var mail = isBibleOrder
+          ? buildBibleStatusEmail_(order, newStatus, oldStatus)
+          : buildStoreStatusEmail_(order, newStatus);
         if (mail) {
           MailApp.sendEmail({ to: order.email, subject: mail.subject, body: mail.plain, htmlBody: mail.html, replyTo: TEAM_INBOX, name: 'Seed the Word Ministry' });
           emailed = true;
@@ -3668,6 +3675,13 @@ function handleUpdateStoreOrderStatus_(payload) {
       }
     } catch (mailErr) {
       console.log('[updateStoreOrderStatus] email failed (non-fatal):', mailErr);
+    }
+
+    // Mirror the status onto the linked Bibles row so the source-of-truth
+    // record stays in sync with the queue (best-effort).
+    if (isBibleOrder) {
+      try { mirrorBibleStatusFromOrder_(ss, orderId, newStatus); }
+      catch (mErr) { console.log('[updateStoreOrderStatus] bible mirror failed (non-fatal):', mErr); }
     }
 
     return jsonResponse({ ok: true, order_id: orderId, status: newStatus, inventory_logged: inventoryLogged, stock_adjusted: stockAdjusted, emailed: emailed });
@@ -3776,6 +3790,212 @@ function buildStoreStatusEmail_(order, status) {
   });
 
   return { subject: titles[status] + ' — ' + name, html: html, plain: plain };
+}
+
+// Build the per-status email for a FREE-BIBLE order (order_id "BIB-…").
+// 'confirming' = approved → ask the requester for their address via the
+// handoff form. 'cancelled' = gentle decline. packing/shipped/delivered reuse
+// warm Bible-appropriate copy. Returns null for statuses with no letter.
+function buildBibleStatusEmail_(order, status, oldStatus) {
+  var name = String(order.name || 'friend');
+  var orderId = String(order.order_id || '');
+
+  if (status === 'confirming') {
+    // Approval: send the address-collection handoff link. We re-sign a handoff
+    // token from the linked Bibles submission id so the existing handoff form
+    // works. Look it up from the order notes / Bibles row.
+    var handoffUrl = _bibleHandoffUrlForOrder_(orderId);
+    var body = '' +
+      '<p>Hi ' + escapeHtml(name) + ',</p>' +
+      '<p>Good news — your request for a free Bible has been <strong>approved</strong>. We\'d love to get it to you.</p>' +
+      '<p>Just one quick step: tell us how you\'d like to receive it — by mail, or picked up at one of our gatherings. Tap below:</p>' +
+      (handoffUrl
+        ? ('<p style="text-align:center;margin:1.5rem 0;"><a href="' + handoffUrl + '" style="display:inline-block;padding:14px 28px;background:#2C5F2E;color:#fff;font-weight:700;text-decoration:none;border-radius:6px;">Tell us where to send it →</a></p>')
+        : '<p>Please reply to this email with your mailing address (or let us know if you\'d rather pick it up), and we\'ll take it from there.</p>') +
+      '<p>No rush on your end — the link stays open. If you have any questions, just reply to this email.</p>' +
+      '<p>Sincerely,<br>The Seed the Word team</p>';
+    var html = emailShell({ headerTitle: 'Your free Bible is approved', headerSubtitle: '📖 ' + name, bodyHtml: body, footerHtml: 'Seed the Word Ministry &nbsp;·&nbsp; <a href="mailto:' + TEAM_INBOX + '" style="color:' + STW_GREEN + ';">' + TEAM_INBOX + '</a>', includeMinistryFooter: true });
+    var plain = 'Hi ' + name + ', your free Bible request is approved. Tell us where to send it: ' + (handoffUrl || '(reply with your address)') + '  — The Seed the Word team';
+    return { subject: 'Your free Bible is approved 📖 — ' + name, html: html, plain: plain };
+  }
+
+  if (status === 'cancelled') {
+    var body2 = '' +
+      '<p>Hi ' + escapeHtml(name) + ',</p>' +
+      '<p>Thank you for reaching out to us. After looking at your request, we\'re not able to move forward with a free Bible right now.</p>' +
+      '<p>Please don\'t take it as a closed door — you\'re welcome to reply to this email anytime, and you can always read along with our free <a href="' + SITE_URL + 'start-here.html">20-day reading plan</a> or join our <a href="https://t.me/seedtheword">Telegram community</a>.</p>' +
+      '<p>Grace and peace,<br>The Seed the Word team</p>';
+    var html2 = emailShell({ headerTitle: 'About your Bible request', headerSubtitle: '📖', bodyHtml: body2, accentColor: STW_GOLD, includeMinistryFooter: true });
+    return { subject: 'About your Bible request — ' + name, html: html2, plain: 'Hi ' + name + ', thank you for reaching out. We\'re not able to move forward with a free Bible right now, but the door stays open — reply anytime. — The Seed the Word team' };
+  }
+
+  // packing / shipped / delivered → reuse the warm store letters (they read
+  // fine for a Bible too), so we don't duplicate copy.
+  if (status === 'packing' || status === 'shipped' || status === 'delivered') {
+    return buildStoreStatusEmail_(order, status);
+  }
+  return null; // 'new' has no letter
+}
+
+// Resolve a handoff-form URL for a BIB- order by finding its linked Bibles
+// submission id, then signing a handoff token. Returns '' if unavailable.
+function _bibleHandoffUrlForOrder_(orderId) {
+  try {
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var oSheet = ss.getSheetByName(STORE_ORDERS_TAB);
+    if (!oSheet || oSheet.getLastRow() < 2) return '';
+    var oHeaders = oSheet.getRange(1, 1, 1, oSheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
+    var oIdx = {}; oHeaders.forEach(function (h, i) { oIdx[h] = i; });
+    if (oIdx.bible_submission_id == null) return '';
+    var oVals = oSheet.getRange(2, 1, oSheet.getLastRow() - 1, oSheet.getLastColumn()).getValues();
+    var submissionId = '';
+    for (var i = 0; i < oVals.length; i++) {
+      if (String(oVals[i][oIdx.order_id]) === orderId) { submissionId = String(oVals[i][oIdx.bible_submission_id] || ''); break; }
+    }
+    if (!submissionId) return '';
+    var handoffToken = computeBibleReviewToken_(submissionId, 'handoff');
+    return _bibleWebAppUrl_() + '?action=bible-request-handoff&token=' + encodeURIComponent(handoffToken);
+  } catch (e) { console.log('_bibleHandoffUrlForOrder_ error:', e); return ''; }
+}
+
+// Mirror a queue status onto the linked Bibles row (source of truth).
+// Maps store statuses to Bible statuses: confirming->approved,
+// packing->awaiting_handoff, shipped/delivered->fulfilled, cancelled->declined.
+function mirrorBibleStatusFromOrder_(ss, orderId, newStatus) {
+  var oSheet = ss.getSheetByName(STORE_ORDERS_TAB);
+  if (!oSheet || oSheet.getLastRow() < 2) return;
+  var oHeaders = oSheet.getRange(1, 1, 1, oSheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
+  var oIdx = {}; oHeaders.forEach(function (h, i) { oIdx[h] = i; });
+  if (oIdx.bible_submission_id == null) return;
+  var oVals = oSheet.getRange(2, 1, oSheet.getLastRow() - 1, oSheet.getLastColumn()).getValues();
+  var submissionId = '';
+  for (var i = 0; i < oVals.length; i++) {
+    if (String(oVals[i][oIdx.order_id]) === orderId) { submissionId = String(oVals[i][oIdx.bible_submission_id] || ''); break; }
+  }
+  if (!submissionId) return;
+
+  var map = { confirming: 'approved', packing: 'awaiting_handoff', shipped: 'fulfilled', delivered: 'fulfilled', cancelled: 'declined' };
+  var bibleStatus = map[newStatus];
+  if (!bibleStatus) return;
+
+  var bSheet = openTab(BIBLES_TAB, BIBLES_HEADERS);
+  var bVals = bSheet.getDataRange().getValues();
+  var bIdx = headerIndex_(bVals[0]);
+  for (var r = 1; r < bVals.length; r++) {
+    if (String(bVals[r][bIdx.submission_id]) === submissionId) {
+      bSheet.getRange(r + 1, bIdx.status + 1).setValue(bibleStatus);
+      return;
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// SHARED: email every admin + super-admin (used by Bible-request flow).
+// Reads the TeamMembers sheet, collects the email of every member whose
+// role is admin or super_admin, and sends them all one email. Falls back
+// to TEAM_INBOX if no admin emails are found so a notice is never lost.
+// ══════════════════════════════════════════════════════════════════════
+function getAdminEmails_() {
+  var out = [];
+  try {
+    var sheet = getTeamSheet_();
+    if (!sheet || sheet.getLastRow() < 2) return out;
+    // cols: A token, B name, D email(idx3), F role(idx5)
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 6).getValues();
+    for (var i = 0; i < data.length; i++) {
+      var role = String(data[i][5] || 'member').toLowerCase();
+      var email = String(data[i][3] || '').trim();
+      if ((role === 'admin' || role === 'super_admin') && email && email.indexOf('@') !== -1) {
+        if (out.indexOf(email) === -1) out.push(email);
+      }
+    }
+  } catch (e) { console.log('getAdminEmails_ error:', e); }
+  return out;
+}
+
+function emailAllAdmins_(subject, htmlBody, plainBody) {
+  var recipients = getAdminEmails_();
+  // Always include the shared inbox; de-dupe.
+  if (recipients.indexOf(TEAM_INBOX) === -1) recipients.push(TEAM_INBOX);
+  var to = recipients.join(',');
+  try {
+    MailApp.sendEmail({
+      to: to,
+      subject: subject,
+      htmlBody: htmlBody,
+      body: plainBody || subject,
+      name: 'Seed the Word Ministry',
+      noReply: true
+    });
+    return { ok: true, count: recipients.length };
+  } catch (e) {
+    console.log('emailAllAdmins_ failed, falling back to TEAM_INBOX:', e);
+    try { MailApp.sendEmail({ to: TEAM_INBOX, subject: subject, htmlBody: htmlBody, body: plainBody || subject, name: 'Seed the Word Ministry', noReply: true }); } catch (e2) {}
+    return { ok: false, count: 0 };
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// SHARED: create a comped ($0) StoreOrders row for a free-Bible request so
+// it flows through the same admin Orders queue as store orders. The Bibles
+// tab remains the detailed source of truth; this order is the processing/
+// tracking surface, linked back by submission_id (stored in notes + a
+// bible_submission_id column). Returns the generated order_id.
+// ══════════════════════════════════════════════════════════════════════
+function createBibleQueueOrder_(fields) {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName(STORE_ORDERS_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(STORE_ORDERS_TAB);
+    sheet.appendRow(STORE_ORDER_HEADERS);
+  }
+  var compedCol = ensureColumn_(sheet, 'comped');
+  var promoCol = ensureColumn_(sheet, 'promo_code');
+  ensureColumn_(sheet, 'tracking_number');
+  var bibleIdCol = ensureColumn_(sheet, 'bible_submission_id');
+
+  var orderId = 'BIB-' + new Date().getFullYear() + '-' +
+    Utilities.getUuid().replace(/-/g, '').slice(0, 8).toUpperCase();
+
+  var langNote = fields.language ? (' · ' + fields.language) : '';
+  var items = [{
+    productId: 'free-bible',
+    name: 'Free Bible request' + langNote,
+    qty: 1,
+    packSize: 1,
+    unitPriceCents: 0,
+    lineTotalCents: 0,
+    isBundle: false,
+    isCustom: false
+  }];
+  // Notes carry a short story excerpt + the link back to the Bibles row.
+  var story = String(fields.story || '').replace(/\s+/g, ' ').trim();
+  var excerpt = story.length > 240 ? story.slice(0, 237) + '…' : story;
+  var notes = 'FREE BIBLE REQUEST — ' + (fields.city || '') + (fields.state ? ', ' + fields.state : '') +
+    (fields.language ? ' · ' + fields.language : '') +
+    '\nStory: ' + excerpt +
+    '\nBibles submission: ' + String(fields.submissionId || '');
+
+  sheet.appendRow([
+    orderId,
+    (fields.receivedAt instanceof Date ? fields.receivedAt.toISOString() : new Date().toISOString()),
+    String(fields.name || ''),
+    String(fields.email || ''),
+    String(fields.phone || ''),
+    'no',                 // wants_shipping — decided at approval (address step)
+    '',                   // shipping_address — collected after approval
+    notes,
+    0,                    // subtotal_cents — comped
+    'USD',
+    1,                    // item_count
+    JSON.stringify(items),
+    'new'
+  ]);
+  var newRow = sheet.getLastRow();
+  sheet.getRange(newRow, compedCol).setValue('YES');
+  sheet.getRange(newRow, promoCol).setValue('');
+  sheet.getRange(newRow, bibleIdCol).setValue(String(fields.submissionId || ''));
+  return orderId;
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -9136,6 +9356,8 @@ function validateBibleRequest_(p) {
   var state = String(p.state || '').trim().toUpperCase().slice(0, 2);
   var story = _stripHtmlAndNormalizeBible_(String(p.story || ''));
   var signId = String(p.signId || '').trim().slice(0, BIBLE_SIGN_ID_MAX_CHARS);
+  var language = String(p.language || '').trim().slice(0, 40);
+  var interests = String(p.interests || '').trim().slice(0, 200);
 
   if (!name) return { ok: false, reason: 'name-required' };
   if (!email) return { ok: false, reason: 'email-required' };
@@ -9147,7 +9369,7 @@ function validateBibleRequest_(p) {
   return {
     ok: true,
     name: name, email: email, phone: phone, city: city, state: state,
-    story: story, signId: signId,
+    story: story, signId: signId, language: language, interests: interests,
   };
 }
 
@@ -9573,7 +9795,8 @@ function handleBibleRequest_(payload, _route) {
     return jsonResponse({ ok: false, error: 'rate-limit' });
   }
 
-  // 5. Idempotency — within the receive window (default 7 days).
+  // 5. Idempotency — within the receive window (default 7 days). This catches
+  // accidental resubmits (double-tap, refresh) of the SAME request quickly.
   var dup = findRecentSubmission_(v.email, 'receive', bibleCfg.receiveIdempotencyDays);
   if (dup) {
     console.log('Bible receive idempotent duplicate: ' + dup.submissionId);
@@ -9586,20 +9809,40 @@ function handleBibleRequest_(payload, _route) {
     });
   }
 
-  // 6. Build row + tokens.
+  // 5b. One-free-Bible-per-person gate. A free Bible is a give-away, so we
+  // apply the same claim limit used for $0 store orders: max claims per
+  // identity (email OR phone match) within a rolling window. This is the
+  // real abuse gate; the client token + IP are soft signals layered on top.
+  var claim = checkFreeClaimAllowed_(v.email, v.phone);
+  if (!claim.allowed) {
+    return jsonResponse({ ok: false, error: 'already-claimed', code: 'claim-limit',
+      message: 'It looks like a free Bible was already requested with this email or phone. If you think this is a mistake, just reply to our email or reach out — we\'re happy to help.' });
+  }
+  // IP-based soft dedup: if the SAME device/network already has a receive
+  // request in the window, treat it as a duplicate (fail-open on any error).
+  try {
+    if (ipHash && bibleIpAlreadyClaimed_(ipHash, bibleCfg.receiveIdempotencyDays)) {
+      return jsonResponse({ ok: false, error: 'already-claimed', code: 'claim-limit',
+        message: 'A free Bible request already came from this device recently. If that wasn\'t you, please reach out and we\'ll sort it out.' });
+    }
+  } catch (ipErr) { console.log('bibleIpAlreadyClaimed_ check failed (fail-open):', ipErr); }
+
+  // 6. Build row + tokens (tokens retained for backward compat / audit; the
+  // email GET approve/decline links are being retired in favor of the portal
+  // Orders queue, but signing is cheap and keeps the row schema intact).
   var submissionId = Utilities.getUuid();
   var receivedAt = new Date();
-  var approveToken, declineToken, handoffToken;
+  var approveToken = '', declineToken = '', handoffToken = '';
   try {
     approveToken = computeBibleReviewToken_(submissionId, 'approve');
     declineToken = computeBibleReviewToken_(submissionId, 'decline');
     handoffToken = computeBibleReviewToken_(submissionId, 'handoff');
   } catch (err) {
-    console.log('handleBibleRequest_: token signing failed: ' + err);
-    return jsonResponse({ ok: false, error: 'sheet-write-failed' });
+    // Token signing is non-fatal now (portal approval doesn't use them).
+    console.log('handleBibleRequest_: token signing failed (non-fatal): ' + err);
   }
 
-  // 7. Audit-first append.
+  // 7. Audit-first append to the Bibles tab (source of truth).
   try {
     appendBiblesRow_({
       submissionId: submissionId,
@@ -9616,7 +9859,7 @@ function handleBibleRequest_(payload, _route) {
       status: 'pending_review',
       signId: v.signId,
       clientIpHash: ipHash,
-      telegramStatus: '',          // receive-side never relays at intake
+      telegramStatus: '',
       telegramMessageId: '',
       telegramError: '',
       approveToken: approveToken,
@@ -9628,9 +9871,11 @@ function handleBibleRequest_(payload, _route) {
     return jsonResponse({ ok: false, error: 'sheet-write-failed' });
   }
 
-  // 8. Review email to TEAM_INBOX with HMAC links.
+  // 8. Create the linked comped order in the StoreOrders queue so the team
+  // processes/tracks it alongside store orders (option a).
+  var orderId = '';
   try {
-    sendBibleRequestReviewEmail_({
+    orderId = createBibleQueueOrder_({
       submissionId: submissionId,
       receivedAt: receivedAt,
       name: v.name,
@@ -9638,23 +9883,103 @@ function handleBibleRequest_(payload, _route) {
       phone: v.phone,
       city: v.city,
       state: v.state,
-      story: v.story,
-      signId: v.signId,
-      approveToken: approveToken,
-      declineToken: declineToken,
+      language: v.language,
+      story: v.story
     });
+    // Record the order id back on the Bibles row for the two-way link.
+    try {
+      var bsheet = openTab(BIBLES_TAB, BIBLES_HEADERS);
+      var bidCol = ensureColumn_(bsheet, 'queue_order_id');
+      var bvals = bsheet.getRange(2, 1, bsheet.getLastRow() - 1, 1).getValues();
+      for (var bi = 0; bi < bvals.length; bi++) {
+        if (String(bvals[bi][0]) === submissionId) { bsheet.getRange(bi + 2, bidCol).setValue(orderId); break; }
+      }
+    } catch (linkErr) { console.log('handleBibleRequest_: back-link failed (non-fatal):', linkErr); }
   } catch (err) {
-    console.log('handleBibleRequest_: review email failed (non-fatal): ' + err);
+    console.log('handleBibleRequest_: queue order create failed (non-fatal): ' + err);
   }
 
-  // 9. NO requester email. NO Telegram. Cron handles 48h reminder.
+  // 9. Notify ALL admins + super-admins (not just the shared inbox).
+  try {
+    var adminHtml = emailShell({
+      headerTitle: 'New free-Bible request — in the queue',
+      headerSubtitle: '📖 ' + v.name + (v.city ? ' · ' + v.city + (v.state ? ', ' + v.state : '') : ''),
+      bodyHtml:
+        '<p>A new free-Bible request just came in and is now in the <strong>Orders queue</strong> for review.</p>' +
+        '<table cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-size:14px;">' +
+          '<tr><td><strong>Name</strong></td><td>' + escapeHtml(v.name) + '</td></tr>' +
+          '<tr><td><strong>Email</strong></td><td>' + escapeHtml(v.email) + '</td></tr>' +
+          (v.phone ? '<tr><td><strong>Phone</strong></td><td>' + escapeHtml(v.phone) + '</td></tr>' : '') +
+          '<tr><td><strong>Location</strong></td><td>' + escapeHtml(v.city) + (v.state ? ', ' + escapeHtml(v.state) : '') + '</td></tr>' +
+          (v.language ? '<tr><td><strong>Language</strong></td><td>' + escapeHtml(v.language) + '</td></tr>' : '') +
+          (orderId ? '<tr><td><strong>Queue order</strong></td><td><code>' + escapeHtml(orderId) + '</code></td></tr>' : '') +
+        '</table>' +
+        '<p style="margin-top:1rem;"><strong>Their story:</strong></p>' +
+        '<blockquote style="margin:0.5rem 1rem;padding:0.75rem 1rem;border-left:4px solid #2C5F2E;background:#f7f3ec;font-style:italic;line-height:1.6;">' +
+          escapeHtml(v.story).replace(/\n/g, '<br>') + '</blockquote>' +
+        '<p style="margin-top:1.25rem;">Open the <strong>Team Portal → Orders</strong> tab to approve (advance status) or cancel (decline). Approving emails the requester for their address.</p>',
+      footerHtml: '<p>— The Seed the Word team</p>'
+    });
+    emailAllAdmins_('📖 New free-Bible request from ' + v.name, adminHtml,
+      'New free-Bible request from ' + v.name + '. Review it in the Team Portal → Orders queue.');
+  } catch (err) {
+    console.log('handleBibleRequest_: admin notify failed (non-fatal): ' + err);
+  }
+
+  // 10. Requester confirmation — "we're taking a look" (the missing follow-up).
+  try {
+    if (v.email) {
+      var reqHtml = emailShell({
+        headerTitle: 'We got your request',
+        headerSubtitle: '📖',
+        bodyHtml:
+          '<p>Hi ' + escapeHtml(v.name) + ',</p>' +
+          '<p>Thank you for reaching out — we\'ve received your request for a free Bible, and our team is taking a look now.</p>' +
+          '<p>Here\'s what happens next: once a team member reviews and approves your request, we\'ll email you again to ask where you\'d like it sent (a mailing address, or picking it up at one of our gatherings). There\'s no rush on your end.</p>' +
+          '<p>We read every request personally, so it may take a day or two. If anything changes, just reply to this email — it reaches our team directly.</p>' +
+          '<p>In the meantime, you might enjoy our <a href="' + SITE_URL + 'start-here.html">20-day reading plan</a> to get started.</p>' +
+          '<p>Sincerely,<br>The Seed the Word team</p>'
+      });
+      MailApp.sendEmail({
+        to: v.email,
+        subject: 'We got your Bible request — the team is taking a look 📖',
+        htmlBody: reqHtml,
+        body: 'Hi ' + v.name + ', we received your free Bible request and the team is reviewing it. Once approved we\'ll email you to ask where to send it. — The Seed the Word team',
+        name: 'Seed the Word Ministry',
+        replyTo: TEAM_INBOX,
+        noReply: true
+      });
+    }
+  } catch (err) {
+    console.log('handleBibleRequest_: requester confirmation failed (non-fatal): ' + err);
+  }
 
   return jsonResponse({
     ok: true,
     submissionId: submissionId,
+    orderId: orderId,
     kind: 'receive',
     status: 'pending_review',
   });
+}
+
+// Soft IP dedup for free-Bible requests: has this client_ip_hash already
+// submitted a 'receive' request within the window? Fail-open on any error.
+function bibleIpAlreadyClaimed_(ipHash, daysWindow) {
+  if (!ipHash) return false;
+  var days = Number(daysWindow) || BIBLE_RECEIVE_IDEMPOTENCY_DAYS;
+  var sheet = openTab(BIBLES_TAB, BIBLES_HEADERS);
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) return false;
+  var idx = headerIndex_(values[0]);
+  var cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  for (var i = 1; i < values.length; i++) {
+    if (String(values[i][idx.kind]) !== 'receive') continue;
+    if (String(values[i][idx.client_ip_hash] || '') !== String(ipHash)) continue;
+    var when = Date.parse(String(values[i][idx.received_at] || '')) || 0;
+    if (when >= cutoff) return true;
+  }
+  return false;
 }
 
 // ── Receive-side review email ───────────────────────────────────
@@ -9910,24 +10235,41 @@ function handleBibleRequestHandoff_(token, params) {
   }
 
   var sheet = openTab(BIBLES_TAB, BIBLES_HEADERS);
+  // Idempotency guard: a handoff_notified_at stamp means the notify email
+  // already went out for this row. Email clients / link scanners frequently
+  // fetch GET URLs multiple times — without this guard that re-sent the
+  // "handoff" email 2-3x. We record the choice but only email ONCE.
+  var notifyCol = ensureColumn_(sheet, 'handoff_notified_at');
   var values = sheet.getDataRange().getValues();
   var idx = headerIndex_(values[0]);
+  var alreadyNotified = String(values[resolved.rowIndex - 1][idx.handoff_notified_at] || '').trim() !== '';
+
   sheet.getRange(resolved.rowIndex, idx.handoff_method + 1).setValue(method);
   if (method === 'mail') {
     sheet.getRange(resolved.rowIndex, idx.mailing_address + 1).setValue(address);
   }
   sheet.getRange(resolved.rowIndex, idx.status + 1).setValue('awaiting_handoff');
 
-  // Email TEAM_INBOX with coordination details.
-  try {
-    sendBibleHandoffNotifyEmail_({
-      submissionId: resolved.submissionId,
-      method: method,
-      address: address,
-      rowIndex: resolved.rowIndex,
-    });
-  } catch (err) {
-    console.log('handleBibleRequestHandoff_: notify email failed (non-fatal): ' + err);
+  if (!alreadyNotified) {
+    // Stamp FIRST so a concurrent/prefetched re-hit sees it and skips the send.
+    sheet.getRange(resolved.rowIndex, notifyCol).setValue(new Date().toISOString());
+
+    // Sync the requester's chosen address onto the linked queue order + move
+    // it to 'packing' so the team can fulfil it from the Orders queue.
+    try { applyBibleHandoffToOrder_(resolved.submissionId, method, address); }
+    catch (e) { console.log('handleBibleRequestHandoff_: order sync failed (non-fatal): ' + e); }
+
+    // Notify ALL admins with coordination details (once).
+    try {
+      sendBibleHandoffNotifyEmail_({
+        submissionId: resolved.submissionId,
+        method: method,
+        address: address,
+        rowIndex: resolved.rowIndex,
+      });
+    } catch (err) {
+      console.log('handleBibleRequestHandoff_: notify email failed (non-fatal): ' + err);
+    }
   }
 
   return htmlPage_(
@@ -9937,6 +10279,28 @@ function handleBibleRequestHandoff_(token, params) {
     'expect the package within 7-14 days.</p>' +
     '<p><a href="' + SITE_URL + 'how-to-seed.html">Learn how we seed the Word →</a></p>'
   );
+}
+
+// When the requester submits the handoff form, copy their address + shipping
+// choice onto the linked StoreOrders row and advance it to 'packing' so the
+// team fulfils from the queue. Matched by the Bibles submission id.
+function applyBibleHandoffToOrder_(submissionId, method, address) {
+  if (!submissionId) return;
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var oSheet = ss.getSheetByName(STORE_ORDERS_TAB);
+  if (!oSheet || oSheet.getLastRow() < 2) return;
+  var headers = oSheet.getRange(1, 1, 1, oSheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
+  var idx = {}; headers.forEach(function (h, i) { idx[h] = i; });
+  if (idx.bible_submission_id == null) return;
+  var vals = oSheet.getRange(2, 1, oSheet.getLastRow() - 1, oSheet.getLastColumn()).getValues();
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][idx.bible_submission_id]) !== String(submissionId)) continue;
+    var rowNum = i + 2;
+    if (idx.wants_shipping != null) oSheet.getRange(rowNum, idx.wants_shipping + 1).setValue(method === 'mail' ? 'YES' : 'no');
+    if (method === 'mail' && idx.shipping_address != null) oSheet.getRange(rowNum, idx.shipping_address + 1).setValue(address);
+    if (idx.status != null) oSheet.getRange(rowNum, idx.status + 1).setValue('packing');
+    return;
+  }
 }
 
 function _buildHandoffFormHtml_(token, opts) {
@@ -9996,7 +10360,7 @@ function sendBibleHandoffNotifyEmail_(args) {
         : '<tr><td><strong>Drop-off</strong></td><td>Email the requester upcoming meeting / cookout times.</td></tr>') +
       '<tr><td><strong>Bibles row</strong></td><td>row index ' + escapeHtml(String(args.rowIndex)) + '</td></tr>' +
     '</table>' +
-    '<p>Once handed off (or mailed), update the row\'s status to <code>fulfilled</code> in the Bibles Sheet tab.</p>';
+    '<p>The linked order has moved to <strong>Packing</strong> in the Orders queue — fulfil it there, then advance to Shipped/Delivered.</p>';
 
   var html = emailShell({
     headerTitle: 'Bible request handoff',
@@ -10005,14 +10369,8 @@ function sendBibleHandoffNotifyEmail_(args) {
     footerHtml: '<p>— The Seed the Word team</p>',
   });
 
-  MailApp.sendEmail({
-    to: TEAM_INBOX,
-    subject: subject,
-    htmlBody: html,
-    body: 'Bible request handoff — see HTML version. Method: ' + args.method,
-    name: 'Seed the Word Ministry',
-    noReply: true,
-  });
+  // Notify ALL admins + super-admins (once — the caller guards idempotency).
+  emailAllAdmins_(subject, html, 'Bible request handoff — Method: ' + args.method + '. Fulfil from the Orders queue.');
 }
 
 
@@ -10066,43 +10424,29 @@ function processBibleReviewReminders_() {
 }
 
 function sendBibleRequestReviewReminderEmail_(args) {
-  var webApp = _bibleWebAppUrl_();
-  var approveUrl = webApp + '?action=bible-request-approve&token=' + encodeURIComponent(args.approveToken);
-  var declineUrl = webApp + '?action=bible-request-decline&token=' + encodeURIComponent(args.declineToken);
-
   var hours = Math.round((Date.now() - args.receivedAt.getTime()) / 3600000);
-  var subject = '⏰ Bible request from ' + args.name + ' has been waiting ' + hours + 'h';
+  var subject = '⏰ Free-Bible request from ' + args.name + ' is still waiting (' + hours + 'h)';
 
   var bodyHtml = '' +
-    '<p>This request has been sitting in <code>pending_review</code> for over ' +
-      Math.floor(hours / 24) + ' day' + (hours >= 48 ? 's' : '') + '. Please review:</p>' +
+    '<p>A free-Bible request has been waiting in the <strong>Orders queue</strong> for over ' +
+      Math.floor(hours / 24) + ' day' + (hours >= 48 ? 's' : '') + ' without action. Please review it:</p>' +
     '<p style="margin:1rem 0;"><strong>' + escapeHtml(args.name) + '</strong> ' +
       '&lt;' + escapeHtml(args.email) + '&gt;</p>' +
     '<p><strong>Their story:</strong></p>' +
     '<blockquote style="margin:0.5rem 1rem;padding:0.75rem 1rem;border-left:4px solid #2C5F2E;background:#f7f3ec;font-style:italic;line-height:1.6;">' +
       escapeHtml(args.story).replace(/\n/g, '<br>') +
     '</blockquote>' +
-    '<p style="margin-top:1.5rem;text-align:center;">' +
-      '<a href="' + approveUrl + '" style="display:inline-block;padding:14px 28px;margin:0 8px;background:#2C5F2E;color:#fff;font-weight:700;text-decoration:none;border-radius:6px;">Approve and email handoff form</a>' +
-      '&nbsp;' +
-      '<a href="' + declineUrl + '" style="display:inline-block;padding:14px 28px;margin:0 8px;background:#fff;color:#666;border:1.5px solid #ccc;font-weight:700;text-decoration:none;border-radius:6px;">Decline silently</a>' +
-    '</p>';
+    '<p style="margin-top:1.5rem;">Open the <strong>Team Portal → Orders</strong> tab to <strong>approve</strong> (advance the order — this emails the requester for their address) or <strong>cancel</strong> (a gentle decline).</p>';
 
   var html = emailShell({
-    headerTitle: 'Bible request — still waiting for review',
+    headerTitle: 'Free-Bible request — still waiting',
     headerSubtitle: '⏰',
     bodyHtml: bodyHtml,
     footerHtml: '<p>— The Seed the Word team</p>',
   });
 
-  MailApp.sendEmail({
-    to: TEAM_INBOX,
-    subject: subject,
-    htmlBody: html,
-    body: 'Bible request from ' + args.name + ' has been waiting ' + hours + 'h.',
-    name: 'Seed the Word Ministry',
-    noReply: true,
-  });
+  // Nudge ALL admins + super-admins, not just the shared inbox.
+  emailAllAdmins_(subject, html, 'Free-Bible request from ' + args.name + ' has been waiting ' + hours + 'h. Review it in the Team Portal → Orders queue.');
 }
 
 

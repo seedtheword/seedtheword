@@ -127,6 +127,7 @@ To activate: repaste **`order-handler.gs`** into P1 and **redeploy**. The `publi
 - [ ] **P3: paste `finance-archive-menu.gs`** into the STW Finances archive bound script.
 - [ ] **P1: confirm `TELEGRAM_BOT_TOKEN`** script property is set.
 - [ ] **P1: repaste `order-handler.gs` + `team-messaging-handlers.gs`** + redeploy → store order management (`getStoreOrders`/`updateStoreOrderStatus`), packing→inventory+MinistryStats decrement, promo/comp codes (`generatePromoCode`/`listPromoCodes`/`deactivatePromoCode`), per-member permissions (`setMemberPermissions` + `permissions` on login/profile). See "Store order management + comp codes + per-member permissions" section below.
+- [ ] **P1: repaste `order-handler.gs`** + redeploy → free-Bible requests now log to `Bibles` AND create a linked comped order in the Orders queue, 1-per-person gate, all-admin notify, triple-handoff-email fixed. See "Free-Bible requests → unified Orders queue" section below.
 
 > After the P1 pastes, do **one** redeploy (New version) — it covers all of them.
 
@@ -229,3 +230,70 @@ things to the P1 web app, all in files you already have:
 > and `ALL_PERMISSIONS`/`resolveMemberPermissions_` (in `order-handler.gs`). All
 > `.gs` files in P1 share one global scope, so both files must be present and
 > current in the SAME project — repaste both together, then one redeploy.
+
+## Free-Bible requests → unified Orders queue + all-admin notify — needs redeploy (P1)
+
+Reworks the free-Bible **request** flow so it's tracked and processed like a
+store order, fixes the duplicate ("triple") handoff email, and notifies every
+admin + super-admin instead of only the shared inbox. All in **`order-handler.gs`**.
+
+### What changed
+- **Logged to the `Bibles` tab (unchanged) AND mirrored into the Orders queue.**
+  On submit, `handleBibleRequest_` still writes the detailed `Bibles` row
+  (source of truth: story, contact, IP hash, privacy fields) AND now calls
+  `createBibleQueueOrder_` to write a **comped $0 order** to the **StoreOrders**
+  tab (order_id `BIB-YYYY-XXXXXXXX`, `comped=YES`, a `free-bible` line item, and
+  a new `bible_submission_id` column linking the two). The `Bibles` row gets a
+  `queue_order_id` back-link. So the team processes every request in the
+  **Team Portal → Orders** tab alongside store orders.
+- **1 free Bible per person.** `handleBibleRequest_` now enforces
+  `checkFreeClaimAllowed_(email, phone)` (max 1 free claim per identity in the
+  rolling window) plus `bibleIpAlreadyClaimed_` (soft IP-hash dedup, fail-open).
+  A blocked request returns `code:'claim-limit'` with a friendly message. (Note:
+  email+phone is the real gate; IP + the client token are soft signals.)
+- **Approval moved to the queue.** Advancing a `BIB-` order in the Orders tab
+  drives `buildBibleStatusEmail_`: **confirming = approve** → emails the
+  requester "Your free Bible is approved — tell us where to send it" with the
+  handoff link; **cancelled = gentle decline**; packing/shipped/delivered reuse
+  the warm store letters. `mirrorBibleStatusFromOrder_` keeps the `Bibles` row
+  status in sync (confirming→approved, packing→awaiting_handoff,
+  shipped/delivered→fulfilled, cancelled→declined). The old email
+  approve/decline GET links still exist as a harmless fallback.
+- **Triple "Bible request handoff" email FIXED.** The handoff form is a GET
+  form, and email link-scanners were re-hitting the submit URL, re-sending the
+  notify each time. `handleBibleRequestHandoff_` now stamps a
+  `handoff_notified_at` column FIRST and only emails/syncs once; a re-hit sees
+  the stamp and no-ops. On the single real submit it also copies the address
+  onto the linked order and advances it to **packing** (`applyBibleHandoffToOrder_`).
+- **All admins + super-admins notified.** New `getAdminEmails_` /
+  `emailAllAdmins_` (reads the TeamMembers sheet, role admin/super_admin, always
+  includes `TEAM_INBOX`, falls back to it). Used for the new-request notice, the
+  handoff notice, and the 48h review reminder (`sendBibleRequestReviewReminderEmail_`,
+  now pointing admins to the Orders queue rather than GET links). The reminder
+  cron `processBibleReviewReminders_` stays idempotent via `reminder_sent_at`.
+- The consolidated intake form + retirement of the duplicate donate.js /
+  donate-page.js request paths ships via git (frontend, no Apps Script step).
+
+### New / changed columns (all auto-created via `ensureColumn_`, no manual step)
+- StoreOrders: `bible_submission_id` (links the queue order back to the Bibles row).
+- Bibles: `queue_order_id` (link forward to the queue order), `handoff_notified_at`
+  (idempotency stamp for the handoff email).
+
+### To activate
+1. Repaste **`order-handler.gs`** into the **P1** web-app project.
+2. **Redeploy** P1 (New version). No setup function needed — all new columns
+   auto-create on first use.
+3. Confirm the Script Property **`BIBLE_REQUEST_REVIEW_SECRET`** is still set
+   (the handoff link is HMAC-signed with it).
+
+### Quick "did it work?" checks
+- Submit a free-Bible request (connect page). Expect: a `Bibles` row
+  (`pending_review`), a `BIB-…` row in StoreOrders (`status=new`, `comped=YES`),
+  a "we got it, reviewing" email to the requester, and one notice to every admin.
+- In Team Portal → **Orders**, advance the `BIB-` order to **Confirming** →
+  requester gets the "approved, tell us where to send it" email with the handoff
+  link. Fill the handoff form once → exactly ONE handoff email to admins, the
+  order flips to **Packing** with the address attached. Re-open/reload the
+  handoff URL → NO duplicate email (the `handoff_notified_at` guard).
+- Submit a SECOND request with the same email/phone → blocked with
+  `code:'claim-limit'`.

@@ -31,7 +31,22 @@ function escapeHtml(s){var d=document.createElement('div');d.textContent=s;retur
 function initials(n){return n.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);}
 function timeAgo(ts){var d=Date.now()-ts,m=Math.floor(d/60000);if(m<1)return 'now';if(m<60)return m+'m';var h=Math.floor(m/60);if(h<24)return h+'h';return Math.floor(h/24)+'d';}
 function fmtDate(ts){return new Date(ts).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
-function saveSession(){try{localStorage.setItem('stwm-team-session',JSON.stringify(session));}catch(e){}}
+function saveSession(){
+  try{
+    var json=JSON.stringify(session);
+    // rememberChecked() is defined near the auth block; guard for early calls.
+    var remember=(typeof rememberChecked==='function')?rememberChecked():true;
+    if(remember){
+      localStorage.setItem('stwm-team-session',json);
+      try{sessionStorage.removeItem('stwm-team-session');}catch(e){}
+    }else{
+      sessionStorage.setItem('stwm-team-session',json);
+      try{localStorage.removeItem('stwm-team-session');}catch(e){}
+    }
+    if(session&&session.name)localStorage.setItem('stwm-team-lastname',session.name);
+    localStorage.setItem('stwm-team-remember',remember?'1':'0');
+  }catch(e){}
+}
 
 // Local calendar date as YYYY-MM-DD (NOT UTC). Using toISOString() here caused
 // evening-Pacific entries to log as tomorrow because ISO is UTC. en-CA formats
@@ -290,9 +305,24 @@ document.querySelector('[data-tab="messages"]').addEventListener('click',functio
 });
 
 // ── Auth ──
+// "Remember me" now controls WHERE the session lives:
+//   checked  -> localStorage (survives closing the browser)
+//   unchecked-> sessionStorage (cleared when the tab/window closes)
+// On load we restore from whichever store has it (localStorage first).
+function rememberChecked(){
+  var el=document.getElementById('login-remember');
+  return el?!!el.checked:true;
+}
 try{
-  var saved=JSON.parse(localStorage.getItem('stwm-team-session')||'null');
+  var rawSaved=localStorage.getItem('stwm-team-session')||sessionStorage.getItem('stwm-team-session')||'null';
+  var saved=JSON.parse(rawSaved);
   if(saved&&saved.token){session=saved;session.todayScans=session.todayScans||[];showEventOrPortal();}
+  // Prefill the name + remember state so returning users see it.
+  var lastName=localStorage.getItem('stwm-team-lastname')||'';
+  var nameEl=document.getElementById('login-name');
+  if(nameEl&&!nameEl.value&&lastName)nameEl.value=lastName;
+  var remEl=document.getElementById('login-remember');
+  if(remEl){var pref=localStorage.getItem('stwm-team-remember');if(pref!==null)remEl.checked=(pref==='1');}
 }catch(e){}
 
 document.getElementById('login-btn').addEventListener('click',async function(){
@@ -367,7 +397,7 @@ document.getElementById('event-btn').addEventListener('click',function(){
 
 // Logout
 document.getElementById('logout-btn').addEventListener('click',function(){
-  session=null;try{localStorage.removeItem('stwm-team-session');}catch(e){}showView('login');
+  session=null;try{localStorage.removeItem('stwm-team-session');sessionStorage.removeItem('stwm-team-session');}catch(e){}showView('login');
 });
 
 // ── Activity List ──

@@ -1252,3 +1252,221 @@
 .finance-item-row select { flex: 1; min-width: 0; padding: 0.5rem; border: 1.5px solid var(--color-border); border-radius: 10px; font-size: 0.82rem; background: var(--color-surface); color: var(--color-text); }
 .finance-item-row input { width: 58px; padding: 0.5rem; border: 1.5px solid var(--color-border); border-radius: 10px; font-size: 0.82rem; text-align: center; background: var(--color-surface); color: var(--color-text); }
 .finance-item-row__del { border: none; background: none; color: var(--color-text-muted); font-size: 1.2rem; cursor: pointer; padding: 0 0.3rem; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PHASE A — Shared-component visual polish (CSS-ONLY)
+   Appended last so it layers over the base rules above without
+   editing any existing selector. No HTML/JS classes or IDs change,
+   so portal behaviour is untouched. Everything keys to theme.css
+   tokens for light/dark parity. Mobile-first; desktop refinements
+   are mirrored inside the existing min-width breakpoints.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Shell: gentle warmth + depth ──────────────────────────── */
+.team-shell {
+  background:
+    radial-gradient(1200px 480px at 50% -10%, var(--color-gold-soft) 0%, transparent 60%),
+    var(--color-bg);
+}
+.team-page { padding-top: 1.5rem; }
+
+/* ── Header: crisper divider + brand weight ────────────────── */
+.team-header {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1rem;
+}
+.team-header__logo {
+  box-shadow: var(--shadow-sm);
+}
+.team-header__back:hover {
+  background: var(--color-gold-soft);
+}
+
+/* ── Profile card: soft top accent + refined avatar ────────── */
+.profile-card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.profile-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-olive), var(--color-gold));
+  opacity: 0.9;
+}
+.profile-card__avatar {
+  background: linear-gradient(135deg, var(--color-olive), var(--color-olive-hover));
+  box-shadow: 0 4px 14px rgba(44, 74, 62, 0.28);
+  color: var(--color-text-inverse);
+}
+
+/* ── Glass cards: consistent radius + hover lift ───────────── */
+.glass-card {
+  border-radius: var(--radius-xl);
+  transition: transform var(--duration-normal) var(--ease),
+              box-shadow var(--duration-normal) var(--ease);
+}
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.glass-card__title {
+  letter-spacing: -0.01em;
+}
+.glass-card__title::before {
+  content: "";
+  width: 4px;
+  height: 1em;
+  border-radius: var(--radius-full);
+  background: linear-gradient(180deg, var(--color-gold), var(--color-olive));
+  flex-shrink: 0;
+}
+
+/* ── Main tabs: pill polish + clearer active state ─────────── */
+.main-tab {
+  border-radius: var(--radius-full);
+  transition: transform var(--duration-fast) var(--ease),
+              background var(--duration-fast) var(--ease),
+              color var(--duration-fast) var(--ease),
+              border-color var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease);
+}
+.main-tab:active { transform: scale(0.96); }
+.main-tab--active {
+  background: var(--color-olive);
+  color: var(--color-text-inverse);
+  border-color: var(--color-olive);
+  box-shadow: 0 4px 14px rgba(44, 74, 62, 0.28);
+}
+.main-tab--active .main-tab__icon { opacity: 1; }
+
+/* ── Stat / dashboard cards: depth + hover ─────────────────── */
+.stat-card,
+.dash-stat,
+.dash-tile {
+  border-radius: var(--radius-lg);
+  transition: transform var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease);
+}
+.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.dash-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.dash-stat::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent 40%);
+  pointer-events: none;
+}
+/* Finance stat: use token instead of hardcoded #2ecc71 */
+.dash-stat--finance { border-top-color: var(--color-olive); }
+.dash-stat--finance .dash-stat__number { color: var(--color-olive); }
+
+/* ── Buttons: token-keyed gradients + softer, richer depth ─── */
+.team-page .btn {
+  border-radius: var(--radius-md);
+  letter-spacing: 0.01em;
+  transition: transform var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease),
+              filter var(--duration-fast) var(--ease);
+}
+.team-page .btn--gold {
+  background: linear-gradient(135deg, var(--color-gold), var(--color-gold-hover));
+  box-shadow: 0 6px 18px rgba(217, 119, 54, 0.28);
+}
+.team-page .btn--gold:hover { filter: brightness(1.04); box-shadow: 0 8px 22px rgba(217, 119, 54, 0.34); }
+.team-page .btn--green {
+  background: linear-gradient(135deg, var(--color-olive), var(--color-olive-hover));
+  box-shadow: 0 6px 18px rgba(44, 74, 62, 0.28);
+}
+.team-page .btn--green:hover { filter: brightness(1.06); box-shadow: 0 8px 22px rgba(44, 74, 62, 0.34); }
+.team-page .btn--danger {
+  background: linear-gradient(135deg, var(--color-danger), #c0392b);
+  box-shadow: 0 6px 18px rgba(166, 37, 31, 0.22);
+}
+.team-page .btn--outline:hover {
+  background: var(--color-gold-soft);
+  border-color: var(--color-gold);
+}
+
+/* ── Form fields: unified focus ring (gold) ────────────────── */
+.team-page input:not([type="checkbox"]):not([type="radio"]):hover,
+.team-page select:hover,
+.team-page textarea:hover {
+  border-color: var(--color-text-muted);
+}
+
+/* ── Status pills ──────────────────────────────────────────── */
+.status--error { font-weight: 600; }
+.status--success { font-weight: 600; }
+
+/* ── Milestone badges (were emitted with ZERO css) ─────────── */
+#training-milestones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.milestone-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-text-muted);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  opacity: 0.7;
+  transition: transform var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease);
+}
+.milestone-badge--earned {
+  color: var(--color-olive);
+  background: var(--color-olive-soft);
+  border-color: rgba(44, 74, 62, 0.25);
+  opacity: 1;
+  box-shadow: 0 2px 8px rgba(44, 74, 62, 0.12);
+}
+.milestone-badge--earned:hover { transform: translateY(-1px); }
+
+/* ── List rows: smoother separators ────────────────────────── */
+.activity-item,
+.finance-entry {
+  transition: background var(--duration-fast) var(--ease);
+  border-radius: var(--radius-xs);
+}
+.activity-item:hover,
+.finance-entry:hover {
+  background: var(--color-surface-hover);
+}
+
+/* ── Login hero: warmer, more premium ──────────────────────── */
+.login-hero__title { letter-spacing: -0.02em; }
+.login-hero__icon { filter: drop-shadow(0 4px 10px rgba(44, 74, 62, 0.18)); }
+
+/* ── Desktop mirror: keep polish coherent on wider screens ─── */
+@media (min-width: 768px) {
+  .glass-card:hover { transform: translateY(-3px); }
+  .dash-tile:hover { transform: translateY(-2px); }
+}
+
+/* ── Respect reduced motion ────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card,
+  .glass-card:hover,
+  .dash-stat,
+  .dash-stat:hover,
+  .dash-tile,
+  .dash-tile:hover,
+  .stat-card:hover,
+  .main-tab,
+  .main-tab:active,
+  .milestone-badge,
+  .milestone-badge--earned:hover {
+    transform: none;
+  }
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669616168,
-  "lastModified": "2026-09-07T00:10:34Z",
+  "lastModified": "2026-09-07T00:40:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -270,16 +270,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5374,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "i need prayer for patience",
-      "ts": "2026-08-24T00:26:06Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5388,

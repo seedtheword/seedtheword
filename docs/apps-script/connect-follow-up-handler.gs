@@ -81,7 +81,9 @@ function handleConnectIntake_(payload) {
     try { handlePrayerIntake_({ action:'prayer-intake', kind:kind, name:anonymous?'':name, email:email, body:body, anonymous:anonymous, extra_field_2:'' }); }
     catch (e) { Logger.log('Prayer forward failed: ' + e.message); }
   } else if (kind === 'bible') {
-    try { handleRequestBible_({ action:'requestBible', name:name, email:email, phone:phone, city:String(payload.city||'').trim(), state:String(payload.state||'WA').trim(), story:body, extra_field_2:'' }); }
+    // Fixed: the real handler is handleBibleRequest_ (the old name
+    // handleRequestBible_ never existed, so this forward silently failed).
+    try { handleBibleRequest_({ action:'requestBible', name:name, email:email, phone:phone, city:String(payload.city||'').trim(), state:String(payload.state||'WA').trim(), story:body, extra_field_2:'' }); }
     catch (e) { Logger.log('Bible forward failed: ' + e.message); }
   }
 

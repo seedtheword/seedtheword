@@ -372,11 +372,48 @@
   <!-- Bible Form -->
   <form class="connect-form" id="form-bible" novalidate>
     <div class="connect-card">
+      <!-- Soft "already requested" notice (shown when a request was made on this device) -->
+      <div class="bible-already" id="bible-already" hidden style="background:rgba(44,95,46,0.08);border:1px solid rgba(44,95,46,0.2);border-radius:12px;padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.88rem;line-height:1.5;color:var(--c-green,#2C5F2E);">
+        📖 It looks like you already requested a free Bible from this device. Free Bibles are one per person — if you need to update your request or have a question, just reply to our email or reach out to us. Thank you!
+      </div>
+
       <div class="field"><label>First name *</label><input type="text" name="name" required autocomplete="given-name" maxlength="60"></div>
       <div class="field"><label>Email *</label><input type="email" name="email" required autocomplete="email" maxlength="200"></div>
       <div class="field"><label>Phone <small>(optional)</small></label><input type="tel" name="phone" autocomplete="tel" maxlength="50"></div>
-      <div class="field"><label>City *</label><input type="text" name="city" required placeholder="Everett" autocomplete="address-level2" maxlength="60"></div>
-      <div class="field"><label>State</label><input type="text" name="state" value="WA" autocomplete="address-level1" maxlength="2"></div>
+      <div class="field"><label>Bible language preference *</label>
+        <select name="language" required>
+          <option value="" disabled selected>Select a language</option>
+          <option value="English">English</option>
+          <option value="Spanish">Spanish</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Mandarin">Mandarin</option>
+          <option value="Urdu">Urdu</option>
+          <option value="Arabic">Arabic</option>
+          <option value="Russian">Russian</option>
+          <option value="Ukrainian">Ukrainian</option>
+          <option value="Other">Other (tell us in your note)</option>
+        </select>
+      </div>
+      <div class="field-row" style="display:grid;grid-template-columns:2fr 1fr;gap:0.75rem;">
+        <div class="field"><label>City *</label><input type="text" name="city" required placeholder="Everett" autocomplete="address-level2" maxlength="60"></div>
+        <div class="field"><label>State</label>
+          <select name="state" autocomplete="address-level1">
+            <option value="AL">AL</option><option value="AK">AK</option><option value="AZ">AZ</option><option value="AR">AR</option>
+            <option value="CA">CA</option><option value="CO">CO</option><option value="CT">CT</option><option value="DE">DE</option>
+            <option value="FL">FL</option><option value="GA">GA</option><option value="HI">HI</option><option value="ID">ID</option>
+            <option value="IL">IL</option><option value="IN">IN</option><option value="IA">IA</option><option value="KS">KS</option>
+            <option value="KY">KY</option><option value="LA">LA</option><option value="ME">ME</option><option value="MD">MD</option>
+            <option value="MA">MA</option><option value="MI">MI</option><option value="MN">MN</option><option value="MS">MS</option>
+            <option value="MO">MO</option><option value="MT">MT</option><option value="NE">NE</option><option value="NV">NV</option>
+            <option value="NH">NH</option><option value="NJ">NJ</option><option value="NM">NM</option><option value="NY">NY</option>
+            <option value="NC">NC</option><option value="ND">ND</option><option value="OH">OH</option><option value="OK">OK</option>
+            <option value="OR">OR</option><option value="PA">PA</option><option value="RI">RI</option><option value="SC">SC</option>
+            <option value="SD">SD</option><option value="TN">TN</option><option value="TX">TX</option><option value="UT">UT</option>
+            <option value="VT">VT</option><option value="VA">VA</option><option value="WA" selected>WA</option><option value="WV">WV</option>
+            <option value="WI">WI</option><option value="WY">WY</option><option value="DC">DC</option>
+          </select>
+        </div>
+      </div>
       <div class="field"><label>Why would you like a Bible? *</label><textarea name="story" required minlength="80" maxlength="1500" rows="5" placeholder="A couple of honest sentences — we read every one."></textarea></div>
 
       <fieldset class="notify-fieldset">
@@ -386,6 +423,14 @@
         <label><input type="radio" name="notify_pref" value="telegram"> Telegram</label>
         <label><input type="radio" name="notify_pref" value="none"> No follow-up</label>
         <div class="carrier-wrap"><div class="field"><label>Phone carrier</label><select name="carrier"><option value="">Select...</option><option value="tmobile">T-Mobile</option><option value="att">AT&T</option><option value="verizon">Verizon</option><option value="sprint">Sprint</option><option value="metro">Metro</option><option value="boost">Boost</option><option value="cricket">Cricket</option><option value="mint">Mint</option><option value="visible">Visible</option><option value="fi">Google Fi</option><option value="other">Other</option></select></div></div>
+      </fieldset>
+
+      <fieldset class="notify-fieldset">
+        <legend>How would you like to stay connected? <small>(optional)</small></legend>
+        <label><input type="checkbox" name="wantPrayer" value="yes"> Add me to the prayer community</label>
+        <label><input type="checkbox" name="wantStudy" value="yes"> I'm interested in Bible study</label>
+        <label><input type="checkbox" name="wantVolunteer" value="yes"> I'd like to volunteer for outreach</label>
+        <label><input type="checkbox" name="wantSupport" value="yes"> I'd like to support the ministry financially</label>
       </fieldset>
 
       <input type="text" name="extra_field_2" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -513,14 +558,24 @@
   var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzrHVlOqNu5skSDkf_rsy8moKvwRlM_mZNQpKSXH7HPBCSNjj1Dffz-IuFSJcWjjQUF/exec';
 
   // Tab switching
+  function selectConnectTab(which) {
+    var btn = document.querySelector('.tab-btn[data-form="' + which + '"]');
+    var formEl = document.getElementById('form-' + which);
+    if (!btn || !formEl) return;
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    document.querySelectorAll('.connect-form').forEach(function(f){f.classList.remove('active');});
+    formEl.classList.add('active');
+  }
   document.querySelectorAll('.tab-btn').forEach(function(t) {
-    t.addEventListener('click', function() {
-      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
-      this.classList.add('active');
-      document.querySelectorAll('.connect-form').forEach(function(f){f.classList.remove('active');});
-      document.getElementById('form-' + this.dataset.form).classList.add('active');
-    });
+    t.addEventListener('click', function() { selectConnectTab(this.dataset.form); });
   });
+  // Deep-link: connect.html#bible opens the Free Bible tab directly (used by
+  // the donate page's "Get Your Free Bible" CTA — one canonical form).
+  (function(){
+    var h = (location.hash || '').replace('#','').toLowerCase();
+    if (h === 'bible') selectConnectTab('bible');
+  })();
 
   // Pill slider (prayer/thanksgiving)
   document.querySelectorAll('.pill-btn').forEach(function(btn) {
@@ -577,6 +632,15 @@
     btn.disabled=false; btn.textContent=kind==='prayer'?'Submit Prayer Request':'Share Thanksgiving';
   }
 
+  // Soft one-per-person guard: after a successful request we set this key so a
+  // returning visitor on the same device sees a gentle notice. This is a
+  // convenience nudge only — the real 1-per-person gate is server-side
+  // (email/phone). Show the notice on load if the key is present.
+  var BIBLE_TOKEN_KEY = 'stwm-bible-requested';
+  (function checkBibleToken(){
+    try { if (localStorage.getItem(BIBLE_TOKEN_KEY)) { var n=document.getElementById('bible-already'); if(n) n.hidden=false; } } catch(e){}
+  })();
+
   async function submitBible(form) {
     var btn = form.querySelector('.btn-submit');
     var st = document.getElementById('status-bible');
@@ -586,16 +650,59 @@
     if (payload.extra_field_2) return;
     if (!payload.name||!payload.name.trim()){st.textContent='Please share your name.';st.className='form-status form-status--error';return;}
     if (!payload.email||!payload.email.trim()){st.textContent='We need your email.';st.className='form-status form-status--error';return;}
+    if (!payload.language){st.textContent='Please choose a Bible language.';st.className='form-status form-status--error';return;}
     if (!payload.city||!payload.city.trim()){st.textContent='Please share your city.';st.className='form-status form-status--error';return;}
     if (!payload.story||payload.story.trim().length<80){st.textContent='Please share a bit more (a couple sentences).';st.className='form-status form-status--error';return;}
+
+    // Fold the "stay connected" checkboxes into a compact interests string the
+    // backend records (prayer/study/volunteer/support). FormData only includes
+    // checked boxes, so presence = interested.
+    var interests = [];
+    if (payload.wantPrayer) interests.push('prayer');
+    if (payload.wantStudy) interests.push('study');
+    if (payload.wantVolunteer) interests.push('volunteer');
+    if (payload.wantSupport) interests.push('support');
+    payload.interests = interests.join(',');
+    // Remember the choices so we can act on them after success.
+    var chose = { prayer: !!payload.wantPrayer, study: !!payload.wantStudy, volunteer: !!payload.wantVolunteer, support: !!payload.wantSupport };
+
     btn.disabled=true;btn.textContent='Sending...';
     try {
       var r = await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
       var res = await r.json();
-      if (res.ok||res.status==='ok'){showSuccess('📖','Bible Request Sent','Our team will review and reach out via email.');form.reset();}
-      else{st.textContent=res.error||'Something went wrong.';st.className='form-status form-status--error';}
+      if (res.ok||res.status==='ok'){
+        try { localStorage.setItem(BIBLE_TOKEN_KEY, new Date().toISOString()); } catch(e){}
+        showBibleSuccess(chose);
+        form.reset();
+      } else if (res.code==='claim-limit') {
+        st.textContent = res.message || 'It looks like a free Bible was already requested with this email or phone.';
+        st.className='form-status form-status--error';
+      } else {
+        st.textContent=res.error||'Something went wrong.';st.className='form-status form-status--error';
+      }
     } catch(e){st.textContent='Could not connect. Try again.';st.className='form-status form-status--error';}
     btn.disabled=false;btn.textContent='Request a Free Bible';
+  }
+
+  // Bible-specific success screen that also honors the "stay connected"
+  // choices with real next-step links/actions.
+  function showBibleSuccess(chose) {
+    document.querySelectorAll('.connect-form').forEach(function(f){f.classList.remove('active');});
+    var tabs=document.getElementById('connect-tabs'); if(tabs) tabs.style.display='none';
+    var el = document.getElementById('connect-success');
+    document.getElementById('success-icon').textContent='📖';
+    document.getElementById('success-title').textContent='Bible Request Sent';
+    var links = [];
+    if (chose && chose.prayer) links.push('<a href="community.html#signup" style="color:var(--c-green,#2C5F2E);font-weight:600;">Create a free account to get prayer-community notifications →</a>');
+    if (chose && chose.study) links.push('<a href="https://t.me/seedtheword" target="_blank" rel="noopener" style="color:var(--c-green,#2C5F2E);font-weight:600;">Join our Bible study on Telegram →</a>');
+    if (chose && chose.volunteer) links.push('<a href="about.html#careers" style="color:var(--c-green,#2C5F2E);font-weight:600;">See how to volunteer for outreach →</a>');
+    if (chose && chose.support) links.push('<a href="donate.html#give" style="color:var(--c-gold,#D97736);font-weight:600;">Ways to support the ministry →</a>');
+    var extra = links.length
+      ? '<div style="margin-top:1rem;text-align:left;font-size:0.9rem;line-height:1.9;">' + links.join('<br>') + '</div>'
+      : '';
+    document.getElementById('success-text').innerHTML =
+      'We got your request and the team is taking a look. Once it\'s approved, we\'ll email you to ask where to send your Bible.' + extra;
+    el.classList.add('active');
   }
 
   function showSuccess(icon,title,text) {

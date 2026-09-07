@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616222,
-  "lastModified": "2026-09-07T08:40:33Z",
+  "lastUpdateId": 669616267,
+  "lastModified": "2026-09-07T20:25:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -267,6 +267,12 @@
       "messageId": 5615,
       "entryCount": 10,
       "postedAt": "2026-09-05T15:17:39Z"
+    },
+    "2026-W37-mon": {
+      "since": "2026-09-07T15:17:28Z",
+      "messageId": 5691,
+      "entryCount": 1,
+      "postedAt": "2026-09-07T15:17:30Z"
     }
   },
   "entries": [
@@ -719,6 +725,16 @@
       "kind": "telegram",
       "text": "Guys also be praying for my possible starting of a flu leave me in Jesus name!!",
       "ts": "2026-09-04T23:10:05Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5687,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Everyone please pray for Scott!\n\nI found this man on a random Facebook video while I was doom scrolling and He is looking for Jesus.\n\nHe's not too far from where I live and I'm going to meet up with Him to bring Him back to the house of prayer so He can rekindle His relationship with Jesus.\n\nPray earnestly everyone!\n\nThis is a testament to the power of the Holy Spirit and I am all here to support everything in God's kingdom. Do not doubt, do not scroll. Do not take a moment not to comment on a random post. You see where you can feel someone needs to hear about Jesus because this desperation is real. This generation needs Jesus badly",
+      "ts": "2026-09-07T12:27:13Z"
     }
   ]
 }

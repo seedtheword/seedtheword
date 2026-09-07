@@ -2061,6 +2061,40 @@
 [data-theme="dark"] .store-card__variant-btn { background: #14181f; border-color: #2e353e; color: #a8adb5; }
 [data-theme="dark"] .store-card__variant-btn.is-selected { background: rgba(74,138,114,0.15); border-color: #4a8a72; color: #cfe8dd; }
 
+/* ── Shimmering "give $20" gift line (store + bundle builder) ── */
+.shimmer-gift {
+  display: inline-block;
+  font-weight: 700;
+  background: linear-gradient(
+    100deg,
+    #b8860b 0%,
+    #b8860b 35%,
+    #f6e27a 48%,
+    #fff6cf 52%,
+    #f6e27a 56%,
+    #b8860b 70%,
+    #b8860b 100%
+  );
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shimmerGift 3.2s linear infinite;
+}
+@keyframes shimmerGift {
+  0%   { background-position: 180% center; }
+  100% { background-position: -80% center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-gift {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: var(--gold, #B8860B);
+  }
+}
+
 /* ── Custom-painted Bible inspiration slideshow (store Bibles category) ── */
 .store-inspo {
   text-align: center;

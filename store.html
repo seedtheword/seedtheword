@@ -177,6 +177,7 @@
       </a>
       <style>
         .free-bible-cta {
+          position: relative; overflow: hidden;
           display: flex; align-items: center; gap: 0.9rem;
           margin: 0 0 1rem; padding: 0.95rem 1.2rem;
           text-decoration: none; border-radius: 14px;
@@ -188,11 +189,31 @@
           border: 1px solid rgba(212, 165, 116, 0.35);
           box-shadow: 0 4px 16px rgba(122, 88, 30, 0.1);
           transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+          /* Slow "breathing" glow — like a calm pulse. */
+          animation: fbcBreathe 4.5s ease-in-out infinite;
         }
+        /* Shimmer sweep — a soft light band drifts across like light on water. */
+        .free-bible-cta::before {
+          content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+          background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%);
+          transform: translateX(-120%);
+          animation: fbcShimmer 6s ease-in-out infinite;
+        }
+        .free-bible-cta > * { position: relative; z-index: 1; }
         .free-bible-cta:hover {
           transform: translateY(-1px);
           box-shadow: 0 10px 30px rgba(122, 88, 30, 0.26);
           border-color: rgba(44, 95, 46, 0.45);
+          animation-play-state: paused;
+        }
+        @keyframes fbcBreathe {
+          0%, 100% { box-shadow: 0 4px 16px rgba(122, 88, 30, 0.1); }
+          50%      { box-shadow: 0 8px 26px rgba(212, 165, 116, 0.4); }
+        }
+        @keyframes fbcShimmer {
+          0%   { transform: translateX(-120%); }
+          55%  { transform: translateX(120%); }
+          100% { transform: translateX(120%); }
         }
         .free-bible-cta__icon {
           flex: 0 0 auto; width: 42px; height: 42px; border-radius: 10px;
@@ -212,10 +233,21 @@
           background: linear-gradient(135deg, #2C5F2E, #1e3a2f);
           border: 1px solid rgba(255, 255, 255, 0.25);
           box-shadow: 0 4px 14px rgba(44, 95, 46, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+          /* Gentle attention pulse (offset from the card's breathe rhythm). */
+          animation: fbcBtnPulse 2.6s ease-in-out infinite;
+        }
+        @keyframes fbcBtnPulse {
+          0%, 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(44, 95, 46, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
+          50%      { transform: scale(1.04); box-shadow: 0 6px 20px rgba(44, 95, 46, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
         }
         @media (max-width: 640px) {
           .free-bible-cta { flex-wrap: wrap; text-align: left; }
           .free-bible-cta__btn { flex: 1 1 100%; text-align: center; margin-top: 0.2rem; padding: 0.7rem 1rem; }
+        }
+        /* Respect users who prefer no motion — show it calm and static. */
+        @media (prefers-reduced-motion: reduce) {
+          .free-bible-cta, .free-bible-cta__btn { animation: none; }
+          .free-bible-cta::before { display: none; }
         }
       </style>
 

@@ -142,94 +142,6 @@
   </div>
 </section>
 
-<!-- Free-Bible ticker banner — sits between the giving hero and the catalog.
-     Scrolling "ticker tape" invite to request a free Bible via the connect page. -->
-<section class="free-bible-ticker" aria-label="Request a free Bible">
-  <!-- Scrolling lane: its own overflow-hidden box so text can never bleed
-       under the button, which lives in a separate, solid-backed column. -->
-  <div class="free-bible-ticker__lane">
-    <div class="free-bible-ticker__track" aria-hidden="true">
-      <span class="free-bible-ticker__item">📖 Would you like to request a FREE Bible? Visit our Connect page and share your story with our team.</span>
-      <span class="free-bible-ticker__item">📖 Would you like to request a FREE Bible? Visit our Connect page and share your story with our team.</span>
-      <span class="free-bible-ticker__item">📖 Would you like to request a FREE Bible? Visit our Connect page and share your story with our team.</span>
-    </div>
-  </div>
-  <div class="free-bible-ticker__cta-wrap">
-    <a class="free-bible-ticker__cta" href="connect.html#bible">Request a Free Bible →</a>
-  </div>
-</section>
-<style>
-  /* Frosted-glass invite strip — matches the site's glassmorphism language
-     (translucent + backdrop blur + saturate + soft border), warm-gold tint.
-     The scroll runs full-width; the button floats CENTERED on top so it's the
-     focal point on every screen. */
-  .free-bible-ticker {
-    position: relative;
-    display: flex; align-items: center;
-    padding: 0.75rem 1.5rem; min-height: 60px;
-    background: rgba(233, 199, 133, 0.28);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    backdrop-filter: blur(16px) saturate(180%);
-    border-top: 1px solid rgba(255, 255, 255, 0.55);
-    border-bottom: 1px solid rgba(122, 88, 30, 0.18);
-    box-shadow: 0 4px 20px rgba(44, 74, 62, 0.06);
-  }
-  .free-bible-ticker__lane { flex: 1 1 auto; min-width: 0; overflow: hidden; }
-  .free-bible-ticker__track {
-    display: flex; gap: 3.5rem; white-space: nowrap;
-    animation: fbTicker 26s linear infinite; will-change: transform;
-  }
-  .free-bible-ticker__item {
-    font-family: var(--font-serif, 'Fraunces', Georgia, serif);
-    font-size: 0.95rem; font-weight: 600; letter-spacing: 0.01em; color: #3d2f14;
-  }
-  .free-bible-ticker:hover .free-bible-ticker__track { animation-play-state: paused; }
-  /* Center the button over the strip so it's the attention anchor. */
-  .free-bible-ticker__cta-wrap {
-    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-    z-index: 2; pointer-events: none;
-  }
-  /* Frosted GREEN glass pill — on-brand olive hue, glassmorphism treatment. */
-  .free-bible-ticker__cta {
-    pointer-events: auto;
-    display: inline-flex; align-items: center; white-space: nowrap; text-decoration: none;
-    font-weight: 800; font-size: 0.86rem; letter-spacing: 0.01em;
-    padding: 0.62rem 1.6rem; border-radius: 999px;
-    color: #ffffff;
-    background: linear-gradient(135deg, rgba(44, 95, 46, 0.82), rgba(30, 58, 47, 0.82));
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    -webkit-backdrop-filter: blur(10px) saturate(160%);
-    backdrop-filter: blur(10px) saturate(160%);
-    box-shadow: 0 6px 20px rgba(44, 95, 46, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-  }
-  .free-bible-ticker__cta:hover {
-    transform: translateY(-1px);
-    background: linear-gradient(135deg, rgba(44, 95, 46, 0.95), rgba(30, 58, 47, 0.95));
-    box-shadow: 0 8px 26px rgba(44, 95, 46, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  }
-  /* Fade the scrolling text near the centered button so it never sits
-     directly behind it — a soft gradient mask keeps focus on the CTA. */
-  .free-bible-ticker__lane {
-    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 32%, transparent 44%, transparent 56%, #000 68%, #000 100%);
-    mask-image: linear-gradient(90deg, #000 0%, #000 32%, transparent 44%, transparent 56%, #000 68%, #000 100%);
-  }
-  @keyframes fbTicker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  @media (prefers-reduced-motion: reduce) {
-    .free-bible-ticker__track { animation: none; white-space: normal; gap: 0; }
-    .free-bible-ticker__item:not(:first-child) { display: none; }
-  }
-  /* Mobile-first stack: scrolling invite on top, centered button below. */
-  @media (max-width: 640px) {
-    .free-bible-ticker { flex-direction: column; align-items: stretch; min-height: 0; padding: 0.7rem 0.9rem; gap: 0.7rem; }
-    .free-bible-ticker__lane { -webkit-mask-image: none; mask-image: none; }
-    .free-bible-ticker__item { font-size: 0.85rem; }
-    /* Un-float the button and center it in the stacked column. */
-    .free-bible-ticker__cta-wrap { position: static; transform: none; display: flex; justify-content: center; pointer-events: auto; }
-    .free-bible-ticker__cta { font-size: 0.84rem; padding: 0.72rem 1.6rem; }
-  }
-</style>
-
 <!-- Product Catalog — Lockheed Martin style -->
 <section class="store-catalog-section" style="padding:3rem 0; background: var(--light, #f9f6f1);">
   <div class="container">
@@ -253,6 +165,56 @@
 
     <!-- Right: search + product grid -->
     <div class="store-main">
+      <!-- Free-Bible invite — clean glass CTA row directly above the search bar,
+           in the same content column so it reads as part of the store UI. -->
+      <a class="free-bible-cta" href="connect.html#bible">
+        <span class="free-bible-cta__icon" aria-hidden="true">📖</span>
+        <span class="free-bible-cta__text">
+          <span class="free-bible-cta__title">Looking for a free Bible?</span>
+          <span class="free-bible-cta__sub">We give them away — just share your story with our team.</span>
+        </span>
+        <span class="free-bible-cta__btn">Request one free →</span>
+      </a>
+      <style>
+        .free-bible-cta {
+          display: flex; align-items: center; gap: 0.9rem;
+          margin: 0 0 1rem; padding: 0.85rem 1.1rem;
+          text-decoration: none; border-radius: 14px;
+          background: rgba(255, 255, 255, 0.65);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          backdrop-filter: blur(16px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.6);
+          box-shadow: 0 4px 18px rgba(44, 74, 62, 0.08);
+          transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+        .free-bible-cta:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 8px 26px rgba(44, 74, 62, 0.14);
+          border-color: rgba(44, 95, 46, 0.35);
+        }
+        .free-bible-cta__icon {
+          flex: 0 0 auto; width: 40px; height: 40px; border-radius: 10px;
+          display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+          background: rgba(44, 95, 46, 0.1);
+        }
+        .free-bible-cta__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
+        .free-bible-cta__title {
+          font-family: var(--font-serif, 'Fraunces', Georgia, serif);
+          font-weight: 700; font-size: 1rem; color: #2C4A3E; line-height: 1.2;
+        }
+        .free-bible-cta__sub { font-size: 0.82rem; color: var(--muted, #6b6b6b); line-height: 1.35; }
+        .free-bible-cta__btn {
+          flex: 0 0 auto; white-space: nowrap; font-weight: 800; font-size: 0.84rem;
+          color: #fff; padding: 0.58rem 1.25rem; border-radius: 999px;
+          background: linear-gradient(135deg, #2C5F2E, #1e3a2f);
+          box-shadow: 0 3px 12px rgba(44, 95, 46, 0.3);
+        }
+        @media (max-width: 640px) {
+          .free-bible-cta { flex-wrap: wrap; text-align: left; }
+          .free-bible-cta__btn { flex: 1 1 100%; text-align: center; margin-top: 0.2rem; padding: 0.7rem 1rem; }
+        }
+      </style>
+
       <!-- Search bar -->
       <div class="store-search">
         <span class="store-search__icon">🔍</span>

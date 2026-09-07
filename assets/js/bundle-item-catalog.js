@@ -37,7 +37,7 @@
 
     { key: 'cover-painting', label: 'Custom painting on cover (watercolor / acrylic / ink)',
       tier: 'recommended', madeToOrder: true,
-      description: 'Hand-painted cover art, made-to-order — takes 2-3 weeks.',
+      description: 'Hand-painted cover art, made-to-order and created with prayer and care (typically 2-3 weeks). No set price — give as the Holy Spirit leads (most gifts ~$20).',
       bundleScope: ['essentials','lifegroup'], groupingSection: 'bible' },
 
     { key: 'edge-spray-painting', label: 'Page-edge spray painting (with optional verse)',

@@ -194,7 +194,7 @@
     return '<div class="store-inspo" style="grid-column:1/-1;">' +
         '<p class="store-inspo__eyebrow">Made by hand</p>' +
         '<h3 class="store-inspo__title">Custom-Painted Bibles</h3>' +
-        '<p class="store-inspo__sub">Every cover is a canvas — florals, scenes, lettering, even your own design. Start a bundle and choose <strong>“Cover painting”</strong> to request one.</p>' +
+        '<p class="store-inspo__sub">Every cover is a canvas — florals, scenes, lettering, even your own design. Each one is hand-painted with prayer, time, and care, so there\'s no set price. We invite you to give as the Holy Spirit leads (most give around $20) — your gift supports the ministry, and you receive something beautiful in return. Start a bundle and choose <strong>“Cover painting”</strong> to request one.</p>' +
         '<div class="store-inspo__stage" data-inspo-stage>' +
           '<button type="button" class="store-inspo__arrow store-inspo__arrow--prev" data-dir="-1" aria-label="Previous">&lsaquo;</button>' +
           slides +

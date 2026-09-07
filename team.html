@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
-  <link rel="stylesheet" href="assets/css/team-social.css?v=7">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=8">
   <link rel="stylesheet" href="assets/css/lms.css?v=2">
   <style>
     /* ── Content Studio — SocialPulse-inspired look (emerald, white cards) ── */
@@ -265,50 +265,70 @@
     <div class="tab-panel tab-panel--active" id="tab-dashboard">
       <div class="event-banner" id="dash-event-banner"></div>
 
-      <!-- Hero stat cards (like the reference image middle phone) -->
-      <div class="dash-stats">
+      <!-- Greeting band -->
+      <div class="dash-greeting">
+        <h2 class="dash-greeting__hi" id="dash-greeting">Welcome back</h2>
+        <p class="dash-greeting__event" id="dash-event-line"></p>
+      </div>
+
+      <!-- Hero stat cards -->
+      <div class="dash-stats dash-stats--trio">
         <div class="dash-stat dash-stat--primary">
           <div class="dash-stat__icon">📖</div>
           <div class="dash-stat__number" id="stat-today-dash">0</div>
           <div class="dash-stat__label">Given Today</div>
         </div>
         <div class="dash-stat dash-stat--secondary">
+          <div class="dash-stat__icon">📍</div>
+          <div class="dash-stat__number" id="stat-event-dash">0</div>
+          <div class="dash-stat__label">This Event</div>
+        </div>
+        <div class="dash-stat dash-stat--finance">
           <div class="dash-stat__icon">🌍</div>
           <div class="dash-stat__number" id="stat-total-dash">0</div>
           <div class="dash-stat__label">All Time</div>
         </div>
       </div>
 
-      <!-- Quick action tiles (2-col grid like reference image left phone) -->
-      <div class="dash-tiles">
-        <button class="dash-tile" onclick="document.querySelector('[data-tab=scanner]').click()">
-          <span class="dash-tile__icon">📷</span>
-          <span class="dash-tile__label">Scan QR</span>
-        </button>
-        <button class="dash-tile" id="dash-add-manual">
-          <span class="dash-tile__icon">✋</span>
-          <span class="dash-tile__label">Add Manual</span>
-        </button>
-        <button class="dash-tile" onclick="document.querySelector('[data-tab=finance]').click()">
-          <span class="dash-tile__icon">💰</span>
-          <span class="dash-tile__label">Log Expense</span>
-        </button>
-        <button class="dash-tile" onclick="document.querySelector('[data-tab=messages]').click()">
-          <span class="dash-tile__icon">💬</span>
-          <span class="dash-tile__label">Team Chat</span>
-        </button>
-        <a href="connect.html" class="dash-tile">
-          <span class="dash-tile__icon">🤝</span>
-          <span class="dash-tile__label">Connect</span>
-        </a>
-        <button class="dash-tile" id="dash-orders-tile" onclick="document.querySelector('[data-tab=orders]').click()" style="display:none;">
-          <span class="dash-tile__icon">🛒</span>
-          <span class="dash-tile__label">Orders</span>
-        </button>
-        <button class="dash-tile" onclick="showView('event')">
-          <span class="dash-tile__icon">📍</span>
-          <span class="dash-tile__label">Change Event</span>
-        </button>
+      <!-- Action hub — grouped, Gideons-style -->
+      <div class="dash-group">
+        <h3 class="dash-group__title">Outreach</h3>
+        <div class="dash-tiles">
+          <button class="dash-tile" onclick="document.querySelector('[data-tab=scanner]').click()">
+            <span class="dash-tile__icon">📷</span>
+            <span class="dash-tile__label">Scan QR</span>
+          </button>
+          <button class="dash-tile" id="dash-add-manual">
+            <span class="dash-tile__icon">✋</span>
+            <span class="dash-tile__label">Add Manual</span>
+          </button>
+          <button class="dash-tile" onclick="showView('event')">
+            <span class="dash-tile__icon">📍</span>
+            <span class="dash-tile__label">Change Event</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="dash-group">
+        <h3 class="dash-group__title">Team &amp; Ops</h3>
+        <div class="dash-tiles">
+          <button class="dash-tile" onclick="document.querySelector('[data-tab=messages]').click()">
+            <span class="dash-tile__icon">💬</span>
+            <span class="dash-tile__label">Team Chat</span>
+          </button>
+          <a href="connect.html" class="dash-tile">
+            <span class="dash-tile__icon">🤝</span>
+            <span class="dash-tile__label">Connect</span>
+          </a>
+          <button class="dash-tile" onclick="document.querySelector('[data-tab=finance]').click()">
+            <span class="dash-tile__icon">💰</span>
+            <span class="dash-tile__label">Log Expense</span>
+          </button>
+          <button class="dash-tile" id="dash-orders-tile" onclick="document.querySelector('[data-tab=orders]').click()" style="display:none;">
+            <span class="dash-tile__icon">🛒</span>
+            <span class="dash-tile__label">Orders</span>
+          </button>
+        </div>
       </div>
 
       <!-- Today's activity list (clean list view like reference image right phone) -->
@@ -764,7 +784,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=14"></script>
+<script src="assets/js/team-portal.js?v=15"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=3"></script>
 <script>

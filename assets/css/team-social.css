@@ -1568,3 +1568,78 @@
     animation: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PHASE B — Dashboard tab: greeting band, trio stats, grouped hub
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Greeting band ─────────────────────────────────────────── */
+.dash-greeting {
+  margin: 0 0 1rem;
+}
+.dash-greeting__hi {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.15;
+}
+.dash-greeting__event {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin: 0.2rem 0 0;
+}
+
+/* ── Trio stat row (mobile: 3 across, compact) ─────────────── */
+.dash-stats--trio {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.dash-stats--trio .dash-stat {
+  padding: 1rem 0.5rem;
+}
+.dash-stats--trio .dash-stat__icon {
+  font-size: 1.25rem;
+  margin-bottom: 0.3rem;
+}
+.dash-stats--trio .dash-stat__number {
+  font-size: 1.55rem;
+}
+.dash-stats--trio .dash-stat__label {
+  font-size: 0.58rem;
+}
+
+/* ── Grouped action hub ────────────────────────────────────── */
+.dash-group {
+  margin-bottom: 1.25rem;
+}
+.dash-group__title {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin: 0 0 0.6rem 0.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.dash-group__title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+/* ── Desktop: give stats a touch more air ──────────────────── */
+@media (min-width: 768px) {
+  .dash-stats--trio {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+  .dash-stats--trio .dash-stat__number { font-size: 1.9rem; }
+  .dash-stats--trio .dash-stat__label { font-size: 0.62rem; }
+}

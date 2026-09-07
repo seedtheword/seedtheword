@@ -58,11 +58,32 @@ window.showView=function(v){
   document.querySelectorAll('.view').forEach(function(el){el.classList.remove('active');});
   document.getElementById('view-'+v).classList.add('active');
 };
+function dashGreeting(){
+  var h=new Date().getHours();
+  return h<12?'Good morning':(h<18?'Good afternoon':'Good evening');
+}
+function syncDashStats(){
+  if(!session)return;
+  var t=String(session.todayScans?session.todayScans.length:0);
+  var all=String(session.totalScans||0);
+  var setTxt=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
+  // Profile-card stats (existing)
+  setTxt('stat-today',t);
+  setTxt('stat-total',all);
+  // Dashboard hero stats (were never populated — now kept in sync)
+  setTxt('stat-today-dash',t);
+  setTxt('stat-event-dash',t);
+  setTxt('stat-total-dash',all);
+}
 function showPortal(){
   showView('portal');
   document.getElementById('dash-event-banner').innerHTML='⚡ <strong>'+escapeHtml(session.event)+'</strong> — '+escapeHtml(session.name);
-  document.getElementById('stat-today').textContent=session.todayScans.length;
-  document.getElementById('stat-total').textContent=session.totalScans||0;
+  var firstName=String(session.name||'').trim().split(/\s+/)[0]||'friend';
+  var greetEl=document.getElementById('dash-greeting');
+  if(greetEl)greetEl.textContent=dashGreeting()+', '+firstName;
+  var evLine=document.getElementById('dash-event-line');
+  if(evLine)evLine.textContent=session.event?('Serving at '+session.event):'No active event — tap Change Event to start.';
+  syncDashStats();
   updateActivityList();updateScanCount();
   // Show announcement compose only if the member has the chat_admin permission.
   if(canPortal('chat_admin')){document.getElementById('chat-admin-compose').style.display='';}
@@ -379,8 +400,7 @@ function removeScan(idx){
       session.todayScans.splice(idx,1);
       session.totalScans=Math.max(0,(session.totalScans||1)-1);
       saveSession();updateActivityList();updateScanCount();
-      document.getElementById('stat-today').textContent=session.todayScans.length;
-      document.getElementById('stat-total').textContent=session.totalScans;
+      syncDashStats();
     }else{alert('Could not delete from spreadsheet: '+(res&&res.error||'unknown error'));}
   }).catch(function(e){alert('Delete failed: '+e.message);});
 }
@@ -397,7 +417,7 @@ function editScan(idx){
   session.todayScans[idx].qty=newQty;
   session.totalScans=(session.totalScans||0)+diff;
   saveSession();updateActivityList();updateScanCount();
-  document.getElementById('stat-total').textContent=session.totalScans;
+  syncDashStats();
   // Update server
   postAction({action:'editScan',token:session.token,item_id:scan.id,item_name:scan.name,event_label:session.event,date:session.eventDate,new_qty:newQty}).then(function(res){
     if(res&&res.ok){/* success */}else{alert('Server update failed: '+(res&&res.error||'unknown'));}
@@ -568,8 +588,7 @@ async function logMovement(m){
     session.todayScans.push({id:m.id,name:m.name,qty:m.qty,time:now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
     session.totalScans=(session.totalScans||0)+m.qty;
     saveSession();updateActivityList();updateScanCount();
-    document.getElementById('stat-today').textContent=session.todayScans.length;
-    document.getElementById('stat-total').textContent=session.totalScans;
+    syncDashStats();
   }
   try{await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:m.id,item_name:m.name,qty:m.qty,event_label:session.event,date:localToday(),movement_type:m.movement_type,paid:!!m.paid,donor_note:m.donor_note||'',detail_notes:m.detail_notes||'',receipt_data:m.receipt_data||''});}catch(e){}
 }

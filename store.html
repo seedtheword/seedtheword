@@ -202,10 +202,15 @@
     .free-bible-ticker__track { animation: none; white-space: normal; gap: 0; }
     .free-bible-ticker__item:not(:first-child) { display: none; }
   }
-  @media (max-width: 600px) {
+  /* Mobile-first stack: on phones the scrolling invite becomes a full-width
+     strip on top and the button becomes a full-width tap target below it, so
+     the message has room to scroll and the CTA is easy to hit. */
+  @media (max-width: 640px) {
+    .free-bible-ticker { flex-direction: column; align-items: stretch; min-height: 0; padding: 0.55rem 0; gap: 0.55rem; }
+    .free-bible-ticker__lane { padding: 0 0.9rem; }
     .free-bible-ticker__item { font-size: 0.82rem; }
-    .free-bible-ticker__cta { font-size: 0.76rem; padding: 0.5rem 0.9rem; }
-    .free-bible-ticker__cta-wrap { padding: 0 0.75rem 0 1rem; }
+    .free-bible-ticker__cta-wrap { padding: 0 0.9rem; background: none; }
+    .free-bible-ticker__cta { display: block; width: 100%; text-align: center; font-size: 0.82rem; padding: 0.7rem 1rem; }
   }
 </style>
 

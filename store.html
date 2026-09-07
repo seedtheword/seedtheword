@@ -261,15 +261,16 @@
         .free-bible-cta__btn {
           flex: 0 0 auto; white-space: nowrap; font-weight: 800; font-size: 0.85rem;
           color: #fff; padding: 0.62rem 1.4rem; border-radius: 999px;
-          background: linear-gradient(135deg, #2C5F2E, #1e3a2f);
-          border: 1px solid rgba(255, 255, 255, 0.25);
-          box-shadow: 0 4px 14px rgba(44, 95, 46, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+          /* Lighter, fresher mid-green (not the deep olive). */
+          background: linear-gradient(135deg, #4a9d4e, #3a7d3c);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          box-shadow: 0 4px 14px rgba(58, 125, 60, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
           /* Gentle attention pulse (offset from the card's breathe rhythm). */
           animation: fbcBtnPulse 2.6s ease-in-out infinite;
         }
         @keyframes fbcBtnPulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(44, 95, 46, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
-          50%      { transform: scale(1.04); box-shadow: 0 6px 20px rgba(44, 95, 46, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+          0%, 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(58, 125, 60, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+          50%      { transform: scale(1.04); box-shadow: 0 6px 20px rgba(58, 125, 60, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
         }
         @media (max-width: 640px) {
           .free-bible-cta { flex-wrap: wrap; text-align: left; }

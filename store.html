@@ -180,12 +180,13 @@
           display: flex; align-items: center; gap: 0.9rem;
           margin: 0 0 1rem; padding: 0.95rem 1.2rem;
           text-decoration: none; border-radius: 14px;
-          /* Warm-gold frosted glass so it stands out against the cream page. */
-          background: linear-gradient(135deg, rgba(233, 199, 133, 0.55), rgba(217, 119, 54, 0.28));
-          -webkit-backdrop-filter: blur(16px) saturate(180%);
-          backdrop-filter: blur(16px) saturate(180%);
-          border: 1px solid rgba(217, 165, 90, 0.6);
-          box-shadow: 0 6px 22px rgba(122, 88, 30, 0.18);
+          /* Soft, light cream-gold frosted glass — a gentle warm tint, not a
+             heavy orange band, so it lifts off the cream page without clashing. */
+          background: rgba(245, 232, 208, 0.5);
+          -webkit-backdrop-filter: blur(16px) saturate(150%);
+          backdrop-filter: blur(16px) saturate(150%);
+          border: 1px solid rgba(212, 165, 116, 0.35);
+          box-shadow: 0 4px 16px rgba(122, 88, 30, 0.1);
           transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
         }
         .free-bible-cta:hover {

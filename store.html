@@ -82,7 +82,7 @@
     </blockquote>
     
     <!-- Donate-page-style impact stats (exact copy) -->
-    <div class="donate-impact__wrapper" style="margin: 2rem auto; max-width: 900px;">
+    <div class="donate-impact__wrapper store-impact-shimmer" style="margin: 2rem auto; max-width: 900px;">
       <div class="donate-impact__inner">
         <div class="donate-impact__stat">
           <span class="donate-impact__num" id="store-impact-count">0<span class="donate-impact__plus">+</span></span>
@@ -97,6 +97,37 @@
           <span class="donate-impact__label">Outreach Events</span>
         </div>
       </div>
+      <style>
+        /* Shimmer / wave-light sweep across the store impact stat cards so the
+           numbers stand out — NO pulsing, just a slow drifting light band.
+           Scoped to .store-impact-shimmer so the donate page is untouched. */
+        .store-impact-shimmer .donate-impact__stat { position: relative; overflow: hidden; }
+        .store-impact-shimmer .donate-impact__stat::after {
+          content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+          background: linear-gradient(115deg,
+            transparent 35%,
+            rgba(255, 240, 205, 0.28) 48%,
+            rgba(255, 255, 255, 0.45) 52%,
+            rgba(255, 240, 205, 0.28) 56%,
+            transparent 69%);
+          transform: translateX(-130%);
+          animation: storeStatShimmer 5.5s ease-in-out infinite;
+        }
+        /* Stagger each card so the light rolls across like a wave, not all at once. */
+        .store-impact-shimmer .donate-impact__stat:nth-child(2)::after { animation-delay: 0.9s; }
+        .store-impact-shimmer .donate-impact__stat:nth-child(3)::after { animation-delay: 1.8s; }
+        /* Keep the numbers/labels above the sheen. */
+        .store-impact-shimmer .donate-impact__num,
+        .store-impact-shimmer .donate-impact__label { position: relative; z-index: 2; }
+        @keyframes storeStatShimmer {
+          0%   { transform: translateX(-130%); }
+          60%  { transform: translateX(130%); }
+          100% { transform: translateX(130%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .store-impact-shimmer .donate-impact__stat::after { display: none; }
+        }
+      </style>
       <div class="donate-impact__socials">
         <a class="donate-impact__social-link" href="https://t.me/seedtheword" target="_blank" rel="noopener">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0088cc" width="20" height="20"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>

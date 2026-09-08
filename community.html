@@ -297,7 +297,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=24">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=25">
 </head>
 <body class="community-body">
 
@@ -517,7 +517,8 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 
   <aside class="social-sidebar">
     <div class="sidebar-card"><p class="sidebar-card__title">Upcoming Events</p><div id="sidebar-events"><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Mon</span></div><div class="event-item__info"><div class="event-item__title">Fellowship &amp; Worship</div><div class="event-item__time">6:30 PM</div></div></div><div class="event-item"><div class="event-item__date"><span class="event-item__month">Every</span><span class="event-item__day">Sat</span></div><div class="event-item__info"><div class="event-item__title">Study Saturday</div><div class="event-item__time">7:00 PM PT on Twitch</div></div></div></div><a href="news.html" style="display:block;margin-top:0.75rem;font-size:0.78rem;color:var(--color-gold);font-weight:600;text-decoration:none;">See all events →</a></div>
-    <div class="sidebar-card"><p class="sidebar-card__title">Today's Reading</p><div id="sidebar-reading" style="font-size:0.88rem;color:var(--color-text);margin-bottom:0.5rem;">Loading...</div><button onclick="switchChannel('scripture')" style="display:block;width:100%;padding:0.5rem;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;color:var(--color-olive);cursor:pointer;text-align:center;font-family:var(--font-sans);">Open Scripture Tab →</button></div>
+    <!-- (Removed the redundant "Today's Reading" sidebar card — today's chapter
+         is already shown prominently in the Home hero + Discuss Scripture.) -->
     <div class="sidebar-cta"><h3 class="sidebar-cta__title">Join the Team</h3><p class="sidebar-cta__text">Volunteer with us at outreach events and help distribute God's Word.</p><a href="team.html" class="sidebar-cta__btn">Team Portal →</a></div>
   </aside>
 </div>
@@ -1512,9 +1513,14 @@ async function loadStories(){
     storiesData=(res&&res.ok&&res.stories)?res.stories:[];
     storyGroups=buildStoryGroups(storiesData);
     items=storyGroups.map(function(g,i){
-      var av=g.pic?'<img class="story-bubble__img" src="'+esc(driveImg(g.pic))+'" alt="" onerror="this.parentNode.textContent=\''+esc(initials(g.author))+'\'">':'<span class="story-bubble__av">'+esc(initials(g.author))+'</span>';
+      // Bubble thumbnail = a PREVIEW of the latest story's photo (what's inside),
+      // not the profile picture — so people can see the content at a glance.
+      var latest=g.stories[g.stories.length-1];
+      var thumb=latest&&latest.image?driveImg(latest.image):(g.pic?driveImg(g.pic):'');
+      var av=thumb?'<img class="story-bubble__img" src="'+esc(thumb)+'" alt="" onerror="this.parentNode.textContent=\''+esc(initials(g.author))+'\'">':'<span class="story-bubble__av">'+esc(initials(g.author))+'</span>';
       var ringCls=g.allSeen?'story-bubble__ring story-bubble__ring--seen':'story-bubble__ring story-bubble__ring--live';
-      return '<button class="story-bubble" data-group="'+i+'"><span class="'+ringCls+'">'+av+'</span><span class="story-bubble__label">'+esc((g.author||'').split(' ')[0])+'</span></button>';
+      var countBadge=g.stories.length>1?'<span class="story-bubble__count">'+g.stories.length+'</span>':'';
+      return '<button class="story-bubble" data-group="'+i+'"><span class="'+ringCls+'">'+av+countBadge+'</span><span class="story-bubble__label">'+esc((g.author||'').split(' ')[0])+'</span></button>';
     }).join('');
   }catch(e){storiesData=[];storyGroups=[];}
   if(!mine&&!items){rail.style.display='none';return;}

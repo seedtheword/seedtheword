@@ -72,9 +72,13 @@
 
     /* ── Store order management (Orders tab) ── */
     .orders-mgmt__head { display:flex; align-items:flex-start; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.9rem; }
-    .orders-mgmt__tools { display:flex; gap:0.5rem; align-items:center; flex-shrink:0; }
-    .orders-filter { padding:0.45rem 0.6rem; border:1.5px solid var(--color-border); border-radius:10px; font-size:0.8rem; background:var(--color-surface); color:var(--color-text); font-family:var(--font-sans,sans-serif); }
-    .ord-card { border:1px solid var(--color-border); border-radius:14px; padding:0.9rem 1rem; margin-bottom:0.8rem; background:var(--color-surface); }
+    .orders-intro { margin-bottom:1rem; }
+    .orders-mgmt__tools { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-top:0.85rem; }
+    .orders-filter { flex:1; min-width:140px; padding:0.55rem 0.7rem; border:1.5px solid var(--color-border); border-radius:var(--radius-md,12px); font-size:0.82rem; background:var(--color-bg-subtle); color:var(--color-text); font-family:var(--font-sans,sans-serif); }
+    .orders-mgmt__tools .btn--sm { flex:0 0 auto; }
+    .orders-count { display:inline-flex; align-items:center; font-family:var(--font-sans,sans-serif); font-size:0.62rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:var(--color-gold,#D97736); background:rgba(217,119,54,0.12); border:1px solid rgba(217,119,54,0.2); border-radius:999px; padding:0.15rem 0.5rem; margin-left:0.1rem; }
+    .ord-card { position:relative; border:1px solid var(--color-border); border-radius:var(--radius-lg,16px); padding:1rem 1.1rem; margin-bottom:0.85rem; background:var(--color-surface); box-shadow:var(--shadow-sm); transition:box-shadow 0.15s ease, transform 0.15s ease; }
+    .ord-card:hover { box-shadow:var(--shadow-md); transform:translateY(-1px); }
     .ord-card__top { display:flex; align-items:flex-start; justify-content:space-between; gap:0.6rem; flex-wrap:wrap; }
     .ord-card__id { font-family:var(--font-mono,monospace); font-size:0.82rem; }
     .ord-card__meta { display:block; font-size:0.74rem; color:var(--color-text-muted); margin-top:0.15rem; }
@@ -349,12 +353,11 @@
 
     <!-- Orders Tab — store order management (permission: orders) -->
     <div class="tab-panel" id="tab-orders" hidden>
+      <h3 class="dash-group__title">Store Orders <span class="orders-count" id="orders-count" hidden></span></h3>
       <div class="orders-mgmt">
-        <div class="orders-mgmt__head">
-          <div>
-            <h3 class="glass-card__title" style="margin:0;">🛒 Store Orders</h3>
-            <p style="font-size:0.8rem;color:var(--color-text-muted);margin:0.2rem 0 0;">Process orders and advance their status. Marking an order <strong>Packing</strong> logs the items out of inventory.</p>
-          </div>
+        <div class="glass-card orders-intro">
+          <h3 class="glass-card__title" style="margin:0 0 0.35rem;">🛒 Order Queue</h3>
+          <p style="font-size:0.82rem;color:var(--color-text-muted);margin:0;line-height:1.5;">Process orders and advance their status. Marking an order <strong>Packing</strong> logs the items out of inventory.</p>
           <div class="orders-mgmt__tools">
             <select id="orders-filter" class="orders-filter">
               <option value="open">Open orders</option>
@@ -866,21 +869,35 @@
       '</div>';
   }
 
+  function setOrdersCount(n, filter) {
+    var el = document.getElementById('orders-count');
+    if (!el) return;
+    if (n > 0) {
+      var noun = (filter === 'all') ? 'total' : (filter === 'open' ? 'open' : filter);
+      el.textContent = n + ' ' + noun;
+      el.hidden = false;
+    } else {
+      el.hidden = true;
+    }
+  }
+
   async function load() {
     var listEl = document.getElementById('orders-list');
     if (!listEl) return;
     listEl.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;padding:1rem 0;">Loading orders…</p>';
     try {
       var res = await post({ action: 'getStoreOrders', passphrase_hash: ADMIN_HASH, token: (sess() && sess().token) || '' });
-      if (!res || !res.ok) { listEl.innerHTML = '<p class="status status--error">' + esc((res && res.error) || 'Could not load orders.') + '</p>'; return; }
+      if (!res || !res.ok) { setOrdersCount(0); listEl.innerHTML = '<p class="status status--error">' + esc((res && res.error) || 'Could not load orders.') + '</p>'; return; }
       var orders = res.orders || [];
       var filter = (document.getElementById('orders-filter') || {}).value || 'open';
       if (filter === 'open') orders = orders.filter(function (o) { return o.status !== 'delivered' && o.status !== 'cancelled'; });
       else if (filter !== 'all') orders = orders.filter(function (o) { return o.status === filter; });
-      if (!orders.length) { listEl.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;padding:1rem 0;">No orders in this view.</p>'; return; }
+      setOrdersCount(orders.length, filter);
+      if (!orders.length) { listEl.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.84rem;padding:1rem 0;text-align:center;">📭 No orders in this view.</p>'; return; }
       listEl.innerHTML = orders.map(orderCard).join('');
       bindCardActions(listEl);
     } catch (e) {
+      setOrdersCount(0);
       listEl.innerHTML = '<p class="status status--error">Orders service unavailable. Deploy the backend and try again.</p>';
     }
   }

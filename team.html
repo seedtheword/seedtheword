@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
-  <link rel="stylesheet" href="assets/css/team-social.css?v=8">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=9">
   <link rel="stylesheet" href="assets/css/lms.css?v=2">
   <style>
     /* ── Content Studio — SocialPulse-inspired look (emerald, white cards) ── */
@@ -375,20 +375,25 @@
 
     <!-- Scanner Tab -->
     <div class="tab-panel" id="tab-scanner" hidden>
-      <button type="button" class="qr-toggle" id="qr-toggle-btn">📷 Scan Item QR</button>
-      <div id="qr-reader"></div>
-      <div class="qr-status" id="qr-status">Ready to scan.</div>
-      <div class="qr-confirm" id="qr-confirm">
-        <p class="qr-confirm__name" id="qr-confirm-name"></p>
-        <p class="qr-confirm__id" id="qr-confirm-id"></p>
-        <div class="qr-confirm__actions">
-          <button type="button" class="btn btn--green btn--sm" id="qr-confirm-add">Add</button>
-          <button type="button" class="btn btn--outline btn--sm" id="qr-confirm-cancel">Discard</button>
-          <button type="button" class="btn btn--gold btn--sm" id="qr-confirm-rescan" style="width:100%;margin-top:0.4rem;">📷 Scan Another</button>
+      <h3 class="dash-group__title">Log an item</h3>
+      <div class="glass-card scanner-card">
+        <p class="scanner-card__hint">Scan an item's QR code, or add one by hand from the list. Every item logs to today's outreach.</p>
+        <button type="button" class="qr-toggle" id="qr-toggle-btn">📷 Scan Item QR</button>
+        <div id="qr-reader"></div>
+        <div class="qr-status" id="qr-status">Ready to scan.</div>
+        <div class="qr-confirm" id="qr-confirm">
+          <p class="qr-confirm__name" id="qr-confirm-name"></p>
+          <p class="qr-confirm__id" id="qr-confirm-id"></p>
+          <div class="qr-confirm__actions">
+            <button type="button" class="btn btn--green btn--sm" id="qr-confirm-add">Add</button>
+            <button type="button" class="btn btn--outline btn--sm" id="qr-confirm-cancel">Discard</button>
+            <button type="button" class="btn btn--gold btn--sm" id="qr-confirm-rescan" style="width:100%;margin-top:0.4rem;">📷 Scan Another</button>
+          </div>
         </div>
+        <div class="scanner-card__divider"><span>or</span></div>
+        <button class="btn btn--outline" id="add-manual-btn" style="margin-bottom:0;">✋ Add Item Manually</button>
+        <div class="scan-count" id="scan-count"></div>
       </div>
-      <div class="scan-count" id="scan-count"></div>
-      <button class="btn btn--outline" id="add-manual-btn">+ Add Item Manually</button>
     </div>
 
     <!-- Movement details sheet (mobile-fast). Shown after picking/scanning an item. -->
@@ -792,7 +797,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=16"></script>
+<script src="assets/js/team-portal.js?v=17"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=3"></script>
 <script>

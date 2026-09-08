@@ -1643,3 +1643,40 @@
   .dash-stats--trio .dash-stat__number { font-size: 1.9rem; }
   .dash-stats--trio .dash-stat__label { font-size: 0.62rem; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PHASE B — Scanner tab: unified "log an item" card
+   ═══════════════════════════════════════════════════════════════ */
+.scanner-card__hint {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+  margin: 0 0 0.9rem;
+}
+.scanner-card .qr-toggle,
+.scanner-card #add-manual-btn {
+  margin-bottom: 0;
+}
+/* "or" divider between scan and manual paths */
+.scanner-card__divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.scanner-card__divider::before,
+.scanner-card__divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+.scanner-card .scan-count {
+  margin-top: 0.85rem;
+  margin-bottom: 0;
+}

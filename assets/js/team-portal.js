@@ -4,7 +4,38 @@
 // ── Config ──
 var CONFIG_URL='assets/data/site-config.json';
 var TYPES=[['Pocket Personal Testimony Gideon Red','pocket-nt-red'],['Pocket Friend of Gideon Grey','pocket-nt-grey'],['Pocket Spanish Gideon','pocket-nt-spanish'],['Large Print Gideon Brown','large-print-nt-brown'],['Pocket Hindi Gideon','pocket-nt-hindi-blue'],['Large Print Russian','large-print-nt-russian'],['Large Print Ukranian','large-print-nt-ukrainian'],['Pocket Farsi Persian','pocket-nt-farsi-blue'],['Full Bible Large Print','full-bible-large-print'],['Full Bible Pocket','full-bible-pocket'],['Large Print Thai + English Gideon','pocket-nt-thai-english-blue'],['Pocket Mandarin Gideon','pocket-nt-mandarin'],['Large Print Urdu Gideon','large-print-nt-urdu-blue'],['Large Print Spanish + English Gideon','large-print-nt-spanish-english'],['Large Print Arabic + English','large-print-nt-arabic-english'],['Pocket Arabic','pocket-nt-arabic'],['Pocket French Gideon','pocket-nt-french'],['Life Book English','tract-life-book-english'],['Life Book Spanish','tract-life-book-spanish'],['Flip Books','tract-flip-books-english'],['Notebooks & Pens','merch-notebooks-pens'],['Keychains & Bracelets','merch-keychains-bracelets'],['Stickers','merch-stickers'],['Mini Jesus figurines','merch-mini-fig'],['Bookmarks','merch-bookmarks']];
-function findType(id){for(var i=0;i<TYPES.length;i++){if(TYPES[i][1]===id)return TYPES[i];}return null;}
+// Live item list pulled from the sheet's "Lists" tab (via the getCatalog
+// action). Falls back to the hardcoded TYPES above if the fetch fails, so the
+// picker/scanner keep working offline or if the backend is unreachable.
+// Each entry is a [label, id] pair, same shape as TYPES.
+var ITEMS = TYPES.slice();
+var itemsLoaded = false;
+function activeItems(){ return (ITEMS && ITEMS.length) ? ITEMS : TYPES; }
+function findType(id){
+  var list=activeItems();
+  for(var i=0;i<list.length;i++){if(list[i][1]===id)return list[i];}
+  // Fall back to hardcoded TYPES if the live list missed it.
+  for(var j=0;j<TYPES.length;j++){if(TYPES[j][1]===id)return TYPES[j];}
+  return null;
+}
+async function loadItemsFromLists(){
+  if(itemsLoaded)return;
+  try{
+    var url=await getHandlerUrl();
+    var res=await fetch(url+'?action=getCatalog',{method:'GET',redirect:'follow',cache:'no-store'});
+    var data=await res.json();
+    if(data&&data.ok&&Array.isArray(data.items)&&data.items.length){
+      // Map Lists rows -> [label, id]. Prefer the description (col D) as the
+      // human label; fall back to the id if a row has no description.
+      var mapped=data.items.map(function(it){
+        var id=String(it.id||'').trim();
+        var label=String(it.description||'').trim()||id;
+        return [label,id];
+      }).filter(function(pair){return pair[1];});
+      if(mapped.length){ITEMS=mapped;itemsLoaded=true;}
+    }
+  }catch(e){/* keep TYPES fallback */}
+}
 
 // ── State ──
 var session=null; // {token,name,role,event,eventDate,todayScans:[],totalScans}
@@ -99,6 +130,7 @@ function showPortal(){
   var evLine=document.getElementById('dash-event-line');
   if(evLine)evLine.textContent=session.event?('Serving at '+session.event):'No active event — tap Change Event to start.';
   syncDashStats();
+  loadItemsFromLists(); // warm the live Lists item list for picker + scanner
   updateActivityList();updateScanCount();
   // Show announcement compose only if the member has the chat_admin permission.
   if(canPortal('chat_admin')){document.getElementById('chat-admin-compose').style.display='';}
@@ -627,18 +659,27 @@ async function logScan(itemId,itemName,qty){ return logMovement({id:itemId,name:
 
 // ── Picker ──
 document.getElementById('add-manual-btn').addEventListener('click',openPicker);
-function openPicker(){document.getElementById('picker-overlay').classList.add('active');document.getElementById('picker-search').value='';renderPickerList('');setTimeout(function(){document.getElementById('picker-search').focus();},100);}
+function openPicker(){
+  document.getElementById('picker-overlay').classList.add('active');
+  document.getElementById('picker-search').value='';
+  renderPickerList('');
+  setTimeout(function(){document.getElementById('picker-search').focus();},100);
+  // Ensure the live Lists items are loaded; re-render when they arrive so the
+  // dropdown reflects the latest catalog (falls back to TYPES on failure).
+  if(!itemsLoaded){loadItemsFromLists().then(function(){renderPickerList(document.getElementById('picker-search').value||'');});}
+}
 function closePicker(){document.getElementById('picker-overlay').classList.remove('active');}
 function renderPickerList(filter){
   var list=document.getElementById('picker-list'),q=filter.toLowerCase(),html='';
-  TYPES.forEach(function(t,i){
+  var items=activeItems();
+  items.forEach(function(t,i){
     if(q&&t[0].toLowerCase().indexOf(q)===-1&&t[1].toLowerCase().indexOf(q)===-1)return;
-    html+='<div class="picker-item" data-idx="'+i+'"><div><div class="picker-item__name">'+t[0]+'</div><div class="picker-item__id">'+t[1]+'</div></div></div>';
+    html+='<div class="picker-item" data-idx="'+i+'"><div><div class="picker-item__name">'+escapeHtml(t[0])+'</div><div class="picker-item__id">'+escapeHtml(t[1])+'</div></div></div>';
   });
   if(!html)html='<p style="text-align:center;color:var(--muted);padding:2rem 0;font-size:0.84rem;">No items match.</p>';
   list.innerHTML=html;
   list.querySelectorAll('.picker-item').forEach(function(el){el.addEventListener('click',function(){
-    var item=TYPES[+this.dataset.idx];
+    var item=activeItems()[+this.dataset.idx];
     closePicker();
     openMovementSheet(item[1],item[0]);
   });});

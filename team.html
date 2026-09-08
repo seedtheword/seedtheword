@@ -440,11 +440,16 @@
     <!-- Finance Tab — Expense logging + receipt uploads -->
     <div class="tab-panel" id="tab-finance" hidden>
       <!-- Finance summary stats -->
-      <div class="dash-stats">
+      <div class="dash-stats dash-stats--trio">
         <div class="dash-stat dash-stat--finance">
-          <div class="dash-stat__icon">💰</div>
+          <div class="dash-stat__icon">💸</div>
           <div class="dash-stat__number" id="finance-total-month">$0</div>
-          <div class="dash-stat__label">This Month</div>
+          <div class="dash-stat__label">Spent / Mo</div>
+        </div>
+        <div class="dash-stat dash-stat--primary">
+          <div class="dash-stat__icon">⚖️</div>
+          <div class="dash-stat__number" id="finance-net-month">$0</div>
+          <div class="dash-stat__label">Net / Mo</div>
         </div>
         <div class="dash-stat dash-stat--secondary">
           <div class="dash-stat__icon">🧾</div>
@@ -454,6 +459,7 @@
       </div>
 
       <!-- Log new expense form -->
+      <h3 class="dash-group__title">Record</h3>
       <div class="glass-card">
         <h3 class="glass-card__title">➕ Log Expense</h3>
         <form id="finance-form" class="finance-form" novalidate>
@@ -544,6 +550,7 @@
       </div>
 
       <!-- Recent expenses list -->
+      <h3 class="dash-group__title">History</h3>
       <div class="glass-card">
         <h3 class="glass-card__title">🧾 Recent Expenses</h3>
         <div id="finance-list">
@@ -554,6 +561,7 @@
       <!-- Reports & Archive: official reports live in the STW Finances
            spreadsheet (per-month tabs + Annual P&L + the STW Admin PDF
            generator). This panel links there + shows a quick live preview. -->
+      <h3 class="dash-group__title">Reports</h3>
       <div class="glass-card" id="finance-report-card">
         <h3 class="glass-card__title">📊 Reports &amp; Archive</h3>
 
@@ -1489,13 +1497,24 @@
   function updateFinanceStats(entries) {
     var now = new Date();
     var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    var monthTotal = 0;
+    var monthSpent = 0, monthIncome = 0;
     entries.forEach(function(e) {
-      if (new Date(e.date) >= monthStart) monthTotal += parseFloat(e.amount) || 0;
+      if (new Date(e.date) >= monthStart) {
+        var amt = parseFloat(e.amount) || 0;
+        var type = String(e.type || 'expense').toLowerCase();
+        var isIncome = type.indexOf('income') !== -1 || type.indexOf('donation') !== -1;
+        if (isIncome) monthIncome += amt; else monthSpent += amt;
+      }
     });
+    var monthNet = monthIncome - monthSpent;
     var totalEl = document.getElementById('finance-total-month');
+    var netEl = document.getElementById('finance-net-month');
     var countEl = document.getElementById('finance-entry-count');
-    if (totalEl) totalEl.textContent = '$' + monthTotal.toFixed(2);
+    if (totalEl) totalEl.textContent = '$' + monthSpent.toFixed(2);
+    if (netEl) {
+      netEl.textContent = (monthNet < 0 ? '-$' : '$') + Math.abs(monthNet).toFixed(2);
+      netEl.style.color = monthNet >= 0 ? 'var(--color-olive)' : '#a6251f';
+    }
     if (countEl) countEl.textContent = entries.length;
   }
 

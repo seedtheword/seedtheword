@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
-  <link rel="stylesheet" href="assets/css/team-social.css?v=14">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=15">
   <link rel="stylesheet" href="assets/css/lms.css?v=2">
   <style>
     /* ── Content Studio — SocialPulse-inspired look (emerald, white cards) ── */
@@ -756,24 +756,27 @@
         <p>Beyond a normal admin, you get a full-page studio to publish content <strong>live on the public site</strong> and manage operations — no code or file edits. Publish <strong>outreach stories</strong> &amp; <strong>testimonies</strong>, review ministry <strong>stats</strong>, manage <strong>inventory</strong>, set member <strong>roles</strong>, and post <strong>announcements</strong>.</p>
       </div>
 
-      <!-- Launch card: opens the full SocialPulse-styled dashboard -->
-      <div class="glass-card" style="text-align:center;">
-        <div style="width:56px;height:56px;border-radius:16px;margin:0.25rem auto 0.75rem;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.6rem;">✨</div>
-        <h3 class="glass-card__title" style="margin-bottom:0.35rem;">Open the Content Studio</h3>
-        <p style="color:var(--color-text-muted);font-size:0.82rem;line-height:1.55;margin:0 0 1rem;">
-          A dedicated dashboard for outreach stories, testimonies, inventory, members, and announcements — best on a larger screen, and fully usable on mobile.
-        </p>
-        <a class="btn btn--green" href="admin/dashboard.html" style="width:100%;display:block;text-align:center;box-sizing:border-box;">Open Content Studio &rarr;</a>
-      </div>
-
-      <!-- Calendar shortcut -->
-      <div class="glass-card">
-        <h3 class="glass-card__title">📅 Ministry Calendar</h3>
-        <p style="color:var(--color-text-muted);font-size:0.82rem;line-height:1.55;margin:0 0 0.75rem;">
-          Events are managed in Google Calendar. Add or edit ministry events there; the homepage feed reads from it.
-        </p>
-        <a class="btn btn--green" href="https://calendar.google.com/calendar/r/eventedit" target="_blank" rel="noopener" style="width:100%;display:block;text-align:center;box-sizing:border-box;">➕ Add Event in Google Calendar &rarr;</a>
-        <a class="btn" href="https://calendar.google.com/calendar/r" target="_blank" rel="noopener" style="width:100%;display:block;text-align:center;box-sizing:border-box;margin-top:0.5rem;background:var(--color-surface);border:1px solid var(--color-border);">Open Full Calendar</a>
+      <!-- Launch hub: card grid of super-admin destinations -->
+      <h3 class="dash-group__title">Workspace</h3>
+      <div class="launch-grid">
+        <a class="launch-card launch-card--feature" href="admin/dashboard.html">
+          <span class="launch-card__icon launch-card__icon--studio">✨</span>
+          <span class="launch-card__title">Content Studio</span>
+          <span class="launch-card__desc">Publish outreach stories &amp; testimonies, manage inventory, members &amp; announcements.</span>
+          <span class="launch-card__cta">Open &rarr;</span>
+        </a>
+        <a class="launch-card" href="https://calendar.google.com/calendar/r/eventedit" target="_blank" rel="noopener">
+          <span class="launch-card__icon">➕</span>
+          <span class="launch-card__title">Add Calendar Event</span>
+          <span class="launch-card__desc">Create a ministry event in Google Calendar — the homepage feed reads from it.</span>
+          <span class="launch-card__cta">Add event &rarr;</span>
+        </a>
+        <a class="launch-card" href="https://calendar.google.com/calendar/r" target="_blank" rel="noopener">
+          <span class="launch-card__icon">📅</span>
+          <span class="launch-card__title">Ministry Calendar</span>
+          <span class="launch-card__desc">Open the full calendar to view and edit all scheduled outreach events.</span>
+          <span class="launch-card__cta">Open calendar &rarr;</span>
+        </a>
       </div>
 
     </div>

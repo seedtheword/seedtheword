@@ -309,7 +309,36 @@ function handleGetComments_(payload) {
 // ══════════════════════════════════════════════════════════════════════
 
 var POSTS_TAB = 'Posts';
-var POSTS_HEADERS = ['id', 'timestamp', 'author', 'author_role', 'text', 'media_url', 'channel', 'pinned', 'hidden', 'edited_at'];
+var POSTS_HEADERS = ['id', 'timestamp', 'author', 'author_role', 'text', 'media_url', 'channel', 'pinned', 'hidden', 'edited_at', 'author_pic'];
+
+// Look up a member's stored profile picture URL by display name. Cached per
+// execution. Returns '' if none. Used to snapshot an author avatar onto a post
+// (mirrors how author_role is snapshotted) so the community feed can show it.
+var _socialPicCache = null;
+function socialPicOf_(name) {
+  if (!name) return '';
+  if (!_socialPicCache) {
+    _socialPicCache = {};
+    try {
+      var sh = getTeamSheet_();
+      if (sh.getLastRow() >= 2) {
+        var lastCol = sh.getLastColumn();
+        var headers = sh.getRange(1, 1, 1, lastCol).getValues()[0];
+        var picIdx = -1;
+        for (var h = 0; h < headers.length; h++) {
+          if (String(headers[h]).trim().toLowerCase() === 'profile_pic_url') { picIdx = h; break; }
+        }
+        if (picIdx >= 0) {
+          var d = sh.getRange(2, 1, sh.getLastRow() - 1, lastCol).getValues();
+          for (var i = 0; i < d.length; i++) {
+            _socialPicCache[String(d[i][1]).toLowerCase().trim()] = String(d[i][picIdx] || '');
+          }
+        }
+      }
+    } catch (e) {}
+  }
+  return _socialPicCache[String(name).toLowerCase().trim()] || '';
+}
 
 function getPostsSheet_() {
   var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
@@ -391,7 +420,8 @@ function handleCreatePost_(payload) {
       author = String(payload.reply_as).trim().slice(0, 80);
     }
 
-    getPostsSheet_().appendRow([id, ts, author, role, text, media, channel, '', '', '']);
+    var authorPic = socialPicOf_(user.name);
+    getPostsSheet_().appendRow([id, ts, author, role, text, media, channel, '', '', '', authorPic]);
 
     // Optional relay to the Telegram Prayer & Thanksgiving topic (thread 21),
     // mirroring the old sendChatMessage behavior. Only for prayer/thanksgiving
@@ -417,6 +447,7 @@ function handleCreatePost_(payload) {
       post: {
         id: id, timestamp: ts, author: author, author_role: role,
         text: text, media_url: media, channel: channel, pinned: false, hidden: false,
+        author_pic: authorPic,
         likeCount: 0, userLiked: false, commentCount: 0
       }
     });
@@ -453,12 +484,16 @@ function handleGetFeed_(payload) {
         var hidden = String(r[8]).toUpperCase() === 'YES';
         if (hidden && !viewerIsSuper) continue;
         if (channel && String(r[6]) !== channel) continue;
+        var authorName = String(r[2] || '');
+        // author_pic (col 11, index 10) is snapshotted at post time; for rows
+        // created before this column existed, fall back to a live name lookup.
+        var authorPic = String(r[10] || '') || socialPicOf_(authorName);
         posts.push({
-          id: id, timestamp: Number(r[1]) || 0, author: String(r[2] || ''),
+          id: id, timestamp: Number(r[1]) || 0, author: authorName,
           author_role: String(r[3] || 'member').toLowerCase(), text: String(r[4] || ''),
           media_url: String(r[5] || ''), channel: String(r[6] || 'main'),
           pinned: String(r[7]).toUpperCase() === 'YES', hidden: hidden,
-          edited: !!r[9]
+          edited: !!r[9], author_pic: authorPic
         });
       }
     }

@@ -84,7 +84,7 @@
     var firstName = (session.name || '').split(' ')[0];
     var pic = session.profilePicUrl || session.profilePic || '';
     loginLink.innerHTML = pic
-      ? '<img class="nav-auth-avatar" src="' + pic + '" alt=""> ' + firstName
+      ? '<img class="nav-auth-avatar" src="' + pic + '" alt="" onerror="this.remove()"> ' + firstName
       : firstName;
     // Gate the Team Portal item: show for admins/super-admins, or any member
     // who's been granted at least one portal section permission.
@@ -137,9 +137,9 @@
     parentLi.id = 'nav-auth-wrap';
 
     // Replace the login link with badge (profile pic + name)
-    var profilePic = session.profilePic || session.profilePicUrl || '';
+    var profilePic = session.profilePicUrl || session.profilePic || '';
     if (profilePic) {
-      loginLink.innerHTML = '<img class="nav-auth-avatar" src="' + profilePic + '" alt=""> ' + firstName;
+      loginLink.innerHTML = '<img class="nav-auth-avatar" src="' + profilePic + '" alt="" onerror="this.remove()"> ' + firstName;
     } else {
       loginLink.textContent = firstName;
     }

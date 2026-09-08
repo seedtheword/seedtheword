@@ -297,3 +297,25 @@ admin + super-admin instead of only the shared inbox. All in **`order-handler.gs
   handoff URL → NO duplicate email (the `handoff_notified_at` guard).
 - Submit a SECOND request with the same email/phone → blocked with
   `code:'claim-limit'`.
+
+
+## Profile-picture fix + community feed avatars — needs redeploy (P1)
+
+Two related avatar fixes. Both are in P1 web-app files.
+
+**What changed**
+- `connect-follow-up-handler.gs` — `uploadProfilePicToDrive_` now returns a **stable** embeddable URL (`https://drive.google.com/uc?export=view&id=<fileId>`) instead of `file.getDownloadUrl()`. The old download URL was short-lived and broke in `<img>` tags, so the nav/profile avatar looked corrupted and vanished on scroll.
+- `social-handler.gs` — the **Posts** sheet gets a new `author_pic` column (11th). `handleCreatePost_` snapshots the author's `profile_pic_url` onto the post (same pattern as `author_role`), and `handleGetFeed_` returns it (falling back to a live name→pic lookup for rows created before the column existed, via new `socialPicOf_`). This lets the community feed render real author profile pictures instead of initials-only.
+
+**Frontend (ships via git, no Apps Script step)**
+- `community.html` renders `author_pic` in post/compose avatars (via `avatarInner()` + the existing `driveImg()` normalizer, with initials fallback on image error).
+- `nav-auth.js` avatar `<img>` now has an `onerror` fallback to the name (bumped to `?v=4` site-wide).
+
+**Activate**
+1. Repaste **`connect-follow-up-handler.gs`** and **`social-handler.gs`** into the P1 web-app project and **redeploy**.
+2. The Posts `author_pic` column auto-appends on the next `createPost`. Existing posts fall back to a live name→pic lookup, so they show avatars too (for members who have a saved picture).
+3. **Re-upload your profile picture once** in Team Portal → Profile Settings after deploy, so the new stable `uc?export=view` URL replaces any old broken `getDownloadUrl` value in the TeamMembers `profile_pic_url` cell.
+
+**Did it work?**
+- Team Portal profile card + nav badge show your picture and it stays put on scroll/refresh.
+- On community.html, your posts show your avatar (not just initials).

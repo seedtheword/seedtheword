@@ -506,5 +506,9 @@ function uploadProfilePicToDrive_(dataUrl, memberName) {
   var file = folder.createFile(blob);
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
-  return file.getDownloadUrl();
+  // Return a STABLE, embeddable image URL. getDownloadUrl() returns a
+  // short-lived, auth-scoped link that breaks in <img> tags (avatar looked
+  // corrupted / vanished on scroll). The uc?export=view form (same one the
+  // social image upload uses) is a durable public view URL for the file id.
+  return 'https://drive.google.com/uc?export=view&id=' + file.getId();
 }

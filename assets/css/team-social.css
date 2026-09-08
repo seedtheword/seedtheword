@@ -1757,56 +1757,60 @@
   font-size: 0.9rem;
 }
 
-/* List (the ONLY scroll area). Left padding matches header; right
-   padding is small so the scrollbar sits just inside the edge, next
-   to the rows, instead of floating in a wide gutter. */
+/* List (the ONLY scroll area). Generous, even padding on all sides so
+   rows never jam against the search above or the sheet edge. Rows are
+   spaced apart with a flex gap for real breathing room. */
 .picker-list {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 0.15rem 0.5rem 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.85rem 0.9rem 1.15rem 1.15rem;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: var(--color-border) transparent;
 }
-.picker-list::-webkit-scrollbar { width: 8px; }
-.picker-list::-webkit-scrollbar-track { background: transparent; }
+.picker-list::-webkit-scrollbar { width: 6px; }
+.picker-list::-webkit-scrollbar-track { background: transparent; margin: 0.5rem 0; }
 .picker-list::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: var(--radius-full);
 }
 
-/* Rows — flat, uniform list. Hairline separators instead of chunky
-   bordered chips. Full-width tap targets. */
+/* Rows — soft cards with real internal padding + space between them. */
 .picker-item {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.85rem 0.65rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  padding: 0.85rem 1rem;
   margin: 0;
-  border: none;
-  border-radius: var(--radius-sm);
-  border-bottom: 1px solid var(--color-border);
-  background: transparent;
-  min-height: 52px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  min-height: 56px;
+  transition: border-color var(--duration-fast) var(--ease),
+              background var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease);
 }
-.picker-item:last-child { border-bottom: none; }
 .picker-item:hover {
+  border-color: var(--color-olive);
   background: var(--color-olive-soft);
-  border-bottom-color: transparent;
+  box-shadow: var(--shadow-sm);
 }
-.picker-item:active { background: var(--color-olive-soft); transform: none; }
+.picker-item:active { background: var(--color-olive-soft); transform: scale(0.995); }
 .picker-item__name {
   font-size: 0.92rem;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1.3;
 }
 .picker-item__id {
   font-size: 0.68rem;
   font-family: var(--font-mono);
   color: var(--color-text-muted);
-  margin-top: 0.1rem;
 }
 
 /* Desktop (>=640px): centered, fully-rounded dialog with a sane width */

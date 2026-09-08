@@ -674,7 +674,7 @@ function renderPickerList(filter){
   var items=activeItems();
   items.forEach(function(t,i){
     if(q&&t[0].toLowerCase().indexOf(q)===-1&&t[1].toLowerCase().indexOf(q)===-1)return;
-    html+='<div class="picker-item" data-idx="'+i+'"><div><div class="picker-item__name">'+escapeHtml(t[0])+'</div><div class="picker-item__id">'+escapeHtml(t[1])+'</div></div></div>';
+    html+='<button type="button" class="picker-item" data-idx="'+i+'"><span class="picker-item__name">'+escapeHtml(t[0])+'</span><span class="picker-item__id">'+escapeHtml(t[1])+'</span></button>';
   });
   if(!html)html='<p style="text-align:center;color:var(--muted);padding:2rem 0;font-size:0.84rem;">No items match.</p>';
   list.innerHTML=html;

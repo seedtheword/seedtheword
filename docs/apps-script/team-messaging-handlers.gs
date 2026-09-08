@@ -55,11 +55,186 @@ function getDmSheet_() {
   var sheet = ss.getSheetByName('DirectMessages');
   if (!sheet) {
     sheet = ss.insertSheet('DirectMessages');
-    sheet.getRange(1,1,1,5).setValues([['timestamp','from_user','to_user','text','telegram_notified']]);
+    sheet.getRange(1,1,1,6).setValues([['timestamp','from_user','to_user','text','telegram_notified','read_at']]);
+    sheet.getRange(1,1,1,6).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+  }
+  // Ensure the read_at column exists on pre-existing sheets (unread tracking).
+  try { ensureColumn_(sheet, 'read_at'); } catch (e) {}
+  return sheet;
+}
+
+// ── Phase 2 DM: per-member settings (blocking + reachability) ──────────
+// DmSettings: member | blocked_json (array of names they've blocked) |
+//             restricted ('YES'|'') | allowed_json (array of names allowed
+//             to reach them when restricted)
+function getDmSettingsSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName('DmSettings');
+  if (!sheet) {
+    sheet = ss.insertSheet('DmSettings');
+    sheet.getRange(1,1,1,4).setValues([['member','blocked_json','restricted','allowed_json']]);
+    sheet.getRange(1,1,1,4).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+// DmReports: timestamp | reporter | reported | reason | status
+function getDmReportsSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName('DmReports');
+  if (!sheet) {
+    sheet = ss.insertSheet('DmReports');
+    sheet.getRange(1,1,1,5).setValues([['timestamp','reporter','reported','reason','status']]);
     sheet.getRange(1,1,1,5).setFontWeight('bold').setBackground('#E8E4DF');
     sheet.setFrozenRows(1);
   }
   return sheet;
+}
+
+// NotifyLog: throttle stamps so we email at most once per (recipient,
+// counterparty, kind) per day. kind = 'dm' | 'prayer' | 'thanksgiving'.
+// key columns: recipient | counterparty | kind | date(YYYY-MM-DD)
+function getNotifyLogSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName('NotifyLog');
+  if (!sheet) {
+    sheet = ss.insertSheet('NotifyLog');
+    sheet.getRange(1,1,1,4).setValues([['recipient','counterparty','kind','date']]);
+    sheet.getRange(1,1,1,4).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+// Look up a team member's email + notify preference by display name.
+// Returns { email, notify_pref } (email '' if none). Cached per execution.
+var _teamEmailCache = null;
+function getTeamMemberEmail_(name) {
+  if (!name) return { email: '', notify_pref: 'email' };
+  if (!_teamEmailCache) {
+    _teamEmailCache = {};
+    try {
+      var sh = getTeamSheet_();
+      if (sh.getLastRow() >= 2) {
+        var lastCol = sh.getLastColumn();
+        var headers = sh.getRange(1, 1, 1, lastCol).getValues()[0];
+        var notifyIdx = -1;
+        for (var h = 0; h < headers.length; h++) {
+          if (String(headers[h]).trim().toLowerCase() === 'notify_pref') { notifyIdx = h; break; }
+        }
+        var d = sh.getRange(2, 1, sh.getLastRow() - 1, lastCol).getValues();
+        for (var i = 0; i < d.length; i++) {
+          _teamEmailCache[String(d[i][1]).toLowerCase().trim()] = {
+            email: String(d[i][3] || '').trim(),                 // col D
+            notify_pref: notifyIdx >= 0 ? String(d[i][notifyIdx] || 'email') : 'email'
+          };
+        }
+      }
+    } catch (e) {}
+  }
+  return _teamEmailCache[String(name).toLowerCase().trim()] || { email: '', notify_pref: 'email' };
+}
+
+// Read a member's DM settings row → { blocked:[], restricted:bool, allowed:[] }.
+function getDmSettingsFor_(name) {
+  var out = { blocked: [], restricted: false, allowed: [] };
+  if (!name) return out;
+  try {
+    var sheet = getDmSettingsSheet_();
+    if (sheet.getLastRow() < 2) return out;
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues();
+    var lc = String(name).toLowerCase().trim();
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][0]).toLowerCase().trim() === lc) {
+        try { out.blocked = JSON.parse(data[i][1] || '[]') || []; } catch (e) {}
+        out.restricted = String(data[i][2]).toUpperCase() === 'YES';
+        try { out.allowed = JSON.parse(data[i][3] || '[]') || []; } catch (e) {}
+        break;
+      }
+    }
+  } catch (e) {}
+  return out;
+}
+
+// Upsert a member's DmSettings row (partial: only provided fields change).
+function setDmSettingsFor_(name, patch) {
+  var sheet = getDmSettingsSheet_();
+  var lc = String(name).toLowerCase().trim();
+  var last = sheet.getLastRow();
+  var rowIdx = -1, cur = { blocked: [], restricted: false, allowed: [] };
+  if (last >= 2) {
+    var data = sheet.getRange(2, 1, last - 1, 4).getValues();
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][0]).toLowerCase().trim() === lc) {
+        rowIdx = i + 2;
+        try { cur.blocked = JSON.parse(data[i][1] || '[]') || []; } catch (e) {}
+        cur.restricted = String(data[i][2]).toUpperCase() === 'YES';
+        try { cur.allowed = JSON.parse(data[i][3] || '[]') || []; } catch (e) {}
+        break;
+      }
+    }
+  }
+  if (patch.blocked !== undefined) cur.blocked = patch.blocked;
+  if (patch.restricted !== undefined) cur.restricted = !!patch.restricted;
+  if (patch.allowed !== undefined) cur.allowed = patch.allowed;
+  var row = [name, JSON.stringify(cur.blocked), cur.restricted ? 'YES' : '', JSON.stringify(cur.allowed)];
+  if (rowIdx > 0) sheet.getRange(rowIdx, 1, 1, 4).setValues([row]);
+  else sheet.appendRow(row);
+  return cur;
+}
+
+// Can sender A reach recipient B? Enforces block + reachability rules.
+// super_admin sender always allowed. Returns { ok:bool, reason }.
+function dmCanReach_(fromUser, fromRole, toUser) {
+  if (String(fromRole || '').toLowerCase() === 'super_admin') return { ok: true };
+  var st = getDmSettingsFor_(toUser);
+  var fromLc = String(fromUser).toLowerCase().trim();
+  // Blocked?
+  for (var i = 0; i < st.blocked.length; i++) {
+    if (String(st.blocked[i]).toLowerCase().trim() === fromLc) return { ok: false, reason: 'blocked' };
+  }
+  // Restricted → sender must be in allow-list.
+  if (st.restricted) {
+    var allowed = false;
+    for (var j = 0; j < st.allowed.length; j++) {
+      if (String(st.allowed[j]).toLowerCase().trim() === fromLc) { allowed = true; break; }
+    }
+    if (!allowed) return { ok: false, reason: 'restricted' };
+  }
+  return { ok: true };
+}
+
+// Throttled notify: emails `recipientName` at most once per (counterparty,kind)
+// per day, and only when there's real new activity. Never sends "no messages".
+// kind = 'dm' | 'prayer' | 'thanksgiving'. Returns true if an email went out.
+function notifyThrottled_(recipientName, counterparty, kind, subject, htmlBody, plainBody) {
+  try {
+    var info = getTeamMemberEmail_(recipientName);
+    if (!info.email || info.email.indexOf('@') === -1) return false;
+    var pref = String(info.notify_pref || 'email').toLowerCase();
+    if (pref === 'none') return false; // opted out
+    var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    var log = getNotifyLogSheet_();
+    var last = log.getLastRow();
+    var rl = String(recipientName).toLowerCase().trim();
+    var cl = String(counterparty || '').toLowerCase().trim();
+    if (last >= 2) {
+      var d = log.getRange(2, 1, last - 1, 4).getValues();
+      for (var i = 0; i < d.length; i++) {
+        if (String(d[i][0]).toLowerCase().trim() === rl &&
+            String(d[i][1]).toLowerCase().trim() === cl &&
+            String(d[i][2]).toLowerCase().trim() === String(kind).toLowerCase() &&
+            String(d[i][3]) === today) {
+          return false; // already emailed for this counterparty+kind today
+        }
+      }
+    }
+    MailApp.sendEmail({ to: info.email, subject: subject, htmlBody: htmlBody, body: plainBody || subject, name: 'Seed the Word Ministry', noReply: true });
+    log.appendRow([recipientName, counterparty || '', kind, today]);
+    return true;
+  } catch (e) { Logger.log('notifyThrottled_ error: ' + e); return false; }
 }
 
 function getMemberNotesSheet_() {
@@ -258,7 +433,12 @@ function handleDeleteAnnouncement_(payload) {
   } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
 
-// ── Direct Message Handlers ───────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+// Direct Message Handlers (Phase 2 — Instagram-style inbox)
+// DirectMessages: timestamp | from_user | to_user | text | telegram_notified | read_at
+// Enforces block + reachability. Unread = rows to me with empty read_at.
+// Email notify is throttled once-per-conversation-per-day (no empty emails).
+// ══════════════════════════════════════════════════════════════════════
 
 function handleSendDm_(payload) {
   try {
@@ -268,21 +448,62 @@ function handleSendDm_(payload) {
     var toUser = String(payload.to_user || '').trim();
     var text = String(payload.text || '').trim();
     if (!toUser || !text) return jsonResponse({ ok: false, error: 'Recipient and text required' });
+    if (text.length > 4000) return jsonResponse({ ok: false, error: 'Message too long' });
+
+    // Recipient must be a real team member.
+    if (!teamMemberExists_(toUser)) return jsonResponse({ ok: false, error: 'Recipient not found' });
+
+    // Enforce block + reachability (super-admin bypasses).
+    var reach = dmCanReach_(user.name, user.role, toUser);
+    if (!reach.ok) {
+      var msg = reach.reason === 'blocked'
+        ? 'You can\'t message this person.'
+        : 'This person only accepts messages from selected contacts.';
+      return jsonResponse({ ok: false, error: msg, code: reach.reason });
+    }
 
     var sheet = getDmSheet_();
     var now = new Date();
-    var telegramNotified = false;
 
-    // Send Telegram notification to recipient
+    // Telegram nudge (best-effort).
+    var telegramNotified = false;
     var recipientTg = getTeamMemberTelegram_(toUser);
     if (recipientTg) {
       var nudge = '💬 New message from ' + user.name + ': "' + text.slice(0, 80) + (text.length > 80 ? '…' : '') + '"\n\nCheck the Team Portal to reply.';
       telegramNotified = sendTelegramPrivateNudge_(recipientTg, nudge);
     }
 
-    sheet.appendRow([now.toISOString(), user.name, toUser, text, telegramNotified ? 'yes' : 'no']);
+    sheet.appendRow([now.toISOString(), user.name, toUser, text, telegramNotified ? 'yes' : 'no', '']);
+
+    // Throttled email: at most once per (recipient, sender) per day, only on
+    // real new activity — never a "no messages" email.
+    try {
+      var subj = '💬 New message from ' + user.name + ' — Seed the Word';
+      var html = emailShell ? emailShell({
+        headerTitle: 'You have a new message',
+        headerSubtitle: 'from ' + user.name,
+        bodyHtml: '<p><strong>' + escapeHtml(user.name) + '</strong> sent you a message in the Team Portal:</p>' +
+          '<blockquote style="margin:0.5rem 1rem;padding:0.75rem 1rem;border-left:4px solid #2C5F2E;background:#f7f3ec;font-style:italic;">' +
+          escapeHtml(text.slice(0, 240)) + (text.length > 240 ? '…' : '') + '</blockquote>' +
+          '<p>Open the Team Portal → Chat to reply.</p>',
+        footerHtml: '<p>— Seed the Word</p>'
+      }) : ('<p>' + escapeHtml(user.name) + ' sent you a message. Open the Team Portal to reply.</p>');
+      notifyThrottled_(toUser, user.name, 'dm', subj, html, user.name + ' sent you a message. Open the Team Portal → Chat to reply.');
+    } catch (e) { Logger.log('DM notify failed (non-fatal): ' + e); }
+
     return jsonResponse({ ok: true, route: 'sendDm', telegram_notified: telegramNotified });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+function teamMemberExists_(name) {
+  var sheet = getTeamSheet_();
+  if (sheet.getLastRow() < 2) return false;
+  var members = sheet.getRange(2, 2, sheet.getLastRow() - 1, 1).getValues();
+  var lc = String(name).toLowerCase().trim();
+  for (var i = 0; i < members.length; i++) {
+    if (String(members[i][0]).toLowerCase().trim() === lc) return true;
+  }
+  return false;
 }
 
 function handleGetDmContacts_(payload) {
@@ -291,39 +512,36 @@ function handleGetDmContacts_(payload) {
     if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
 
     var sheet = getDmSheet_();
-    if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, contacts: [] });
-    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 4).getValues();
+    var contacts = [];
+    var meLc = user.name.toLowerCase();
+    if (sheet.getLastRow() >= 2) {
+      var lastCol = sheet.getLastColumn();
+      var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, lastCol).getValues();
+      // read_at column index (5 by default; discover in case of shift).
+      var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+      var readIdx = 5;
+      for (var h = 0; h < headers.length; h++) { if (String(headers[h]).toLowerCase().trim() === 'read_at') { readIdx = h; break; } }
 
-    // Find all unique contacts this user has messaged or received from
-    var contactMap = {};
-    for (var i = 0; i < data.length; i++) {
-      var from = String(data[i][1]).trim();
-      var to = String(data[i][2]).trim();
-      var txt = String(data[i][3]).trim();
-      if (from.toLowerCase() === user.name.toLowerCase()) {
-        contactMap[to] = txt;
-      } else if (to.toLowerCase() === user.name.toLowerCase()) {
-        contactMap[from] = txt;
+      // Build per-contact: last message text, last timestamp, unread count.
+      var byContact = {};
+      for (var i = 0; i < data.length; i++) {
+        var from = String(data[i][1]).trim(), to = String(data[i][2]).trim(), txt = String(data[i][3]).trim();
+        var ts = new Date(data[i][0]).getTime();
+        var other = null, incoming = false;
+        if (from.toLowerCase() === meLc) { other = to; }
+        else if (to.toLowerCase() === meLc) { other = from; incoming = true; }
+        if (!other) continue;
+        if (!byContact[other]) byContact[other] = { name: other, last_message: '', last_ts: 0, unread: 0 };
+        if (ts >= byContact[other].last_ts) { byContact[other].last_ts = ts; byContact[other].last_message = txt; }
+        if (incoming && !String(data[i][readIdx] || '').trim()) byContact[other].unread++;
       }
+      // Attach each contact's profile picture (via social pic lookup if available).
+      contacts = Object.keys(byContact).map(function (k) {
+        var c = byContact[k];
+        c.pic = (typeof socialPicOf_ === 'function') ? socialPicOf_(c.name) : '';
+        return c;
+      }).sort(function (a, b) { return b.last_ts - a.last_ts; });
     }
-    // Also include all team members for admins
-    if (user.role === 'admin') {
-      var tmSheet = getTeamSheet_();
-      if (tmSheet.getLastRow() > 1) {
-        var members = tmSheet.getRange(2, 2, tmSheet.getLastRow()-1, 1).getValues();
-        for (var j = 0; j < members.length; j++) {
-          var mName = String(members[j][0]).trim();
-          if (mName && mName.toLowerCase() !== user.name.toLowerCase() && !contactMap[mName]) {
-            contactMap[mName] = '';
-          }
-        }
-      }
-    }
-
-    var contacts = Object.keys(contactMap).map(function(name) {
-      return { name: name, last_message: contactMap[name] };
-    }).sort(function(a, b) { return a.name.localeCompare(b.name); });
-
     return jsonResponse({ ok: true, contacts: contacts });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
@@ -338,24 +556,168 @@ function handleGetDmMessages_(payload) {
 
     var sheet = getDmSheet_();
     if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, messages: [] });
-    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 4).getValues();
+    var lastCol = sheet.getLastColumn();
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var readIdx = 5;
+    for (var h = 0; h < headers.length; h++) { if (String(headers[h]).toLowerCase().trim() === 'read_at' ) { readIdx = h; break; } }
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, lastCol).getValues();
 
+    var meLc = user.name.toLowerCase(), withLc = withUser.toLowerCase();
     var messages = [];
+    var nowIso = new Date().toISOString();
+    var markRows = [];
     for (var i = 0; i < data.length; i++) {
-      var from = String(data[i][1]).trim();
-      var to = String(data[i][2]).trim();
-      var isRelevant = (from.toLowerCase() === user.name.toLowerCase() && to.toLowerCase() === withUser.toLowerCase()) ||
-                       (to.toLowerCase() === user.name.toLowerCase() && from.toLowerCase() === withUser.toLowerCase());
-      if (isRelevant) {
-        messages.push({
-          timestamp: new Date(data[i][0]).getTime(),
-          from: from,
-          text: String(data[i][3]).trim()
-        });
-      }
+      var from = String(data[i][1]).trim(), to = String(data[i][2]).trim();
+      var relevant = (from.toLowerCase() === meLc && to.toLowerCase() === withLc) ||
+                     (to.toLowerCase() === meLc && from.toLowerCase() === withLc);
+      if (!relevant) continue;
+      messages.push({ timestamp: new Date(data[i][0]).getTime(), from: from, text: String(data[i][3]).trim() });
+      // Mark incoming (to me) unread rows as read now.
+      if (to.toLowerCase() === meLc && !String(data[i][readIdx] || '').trim()) markRows.push(i + 2);
     }
+    // Persist read stamps (batch).
+    for (var m = 0; m < markRows.length; m++) { try { sheet.getRange(markRows[m], readIdx + 1).setValue(nowIso); } catch (e) {} }
     return jsonResponse({ ok: true, messages: messages });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+// ── Block / reachability / report actions ─────────────────────────────
+
+// { action:'getDmSettings', token } → my block list + restricted/allowed +
+// whether I'm restricted. Used by the inbox to gray-out unreachable contacts.
+function handleGetDmSettings_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var mine = getDmSettingsFor_(user.name);
+    return jsonResponse({ ok: true, blocked: mine.blocked, restricted: mine.restricted, allowed: mine.allowed });
+  } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+// { action:'blockUser'|'unblockUser', token, target }
+function handleBlockUser_(payload, block) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var target = String(payload.target || '').trim();
+    if (!target) return jsonResponse({ ok: false, error: 'Missing target' });
+    var mine = getDmSettingsFor_(user.name);
+    var lc = target.toLowerCase();
+    var next = mine.blocked.filter(function (n) { return String(n).toLowerCase() !== lc; });
+    if (block) next.push(target);
+    setDmSettingsFor_(user.name, { blocked: next });
+    return jsonResponse({ ok: true, blocked: next });
+  } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+// Super-admin: set a member's DM restriction + allow-list.
+// { action:'setDmRestriction', token, member, restricted:bool, allowed:[names] }
+function handleSetDmRestriction_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user || String(user.role || '').toLowerCase() !== 'super_admin') {
+      return jsonResponse({ ok: false, error: 'Super-admin only' });
+    }
+    var member = String(payload.member || '').trim();
+    if (!member) return jsonResponse({ ok: false, error: 'Missing member' });
+    var allowed = Array.isArray(payload.allowed) ? payload.allowed.map(function (n) { return String(n).trim(); }).filter(Boolean) : [];
+    var restricted = (payload.restricted === true || payload.restricted === 'true' || payload.restricted === 'YES');
+    setDmSettingsFor_(member, { restricted: restricted, allowed: allowed });
+    return jsonResponse({ ok: true });
+  } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+// { action:'reportUser', token, reported, reason } → logs + notifies
+// super-admins and moderation-permission admins.
+function handleReportUser_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var reported = String(payload.reported || '').trim();
+    var reason = String(payload.reason || '').trim().slice(0, 1000);
+    if (!reported) return jsonResponse({ ok: false, error: 'Missing reported user' });
+    getDmReportsSheet_().appendRow([new Date().toISOString(), user.name, reported, reason, 'open']);
+    // Notify moderators (super-admins + admins with the 'moderation' permission).
+    try {
+      var recipients = getModerationEmails_();
+      if (recipients.length) {
+        var html = (typeof emailShell === 'function') ? emailShell({
+          headerTitle: 'New user report', headerSubtitle: reported,
+          bodyHtml: '<p><strong>' + escapeHtml(user.name) + '</strong> reported <strong>' + escapeHtml(reported) + '</strong>.</p>' +
+            (reason ? '<blockquote style="margin:0.5rem 1rem;padding:0.75rem 1rem;border-left:4px solid #a6251f;background:#faf0ef;">' + escapeHtml(reason) + '</blockquote>' : '') +
+            '<p>Review in Content Studio → Moderation.</p>',
+          footerHtml: '<p>— Seed the Word</p>'
+        }) : ('<p>' + escapeHtml(user.name) + ' reported ' + escapeHtml(reported) + '. Reason: ' + escapeHtml(reason) + '</p>');
+        MailApp.sendEmail({ to: recipients.join(','), subject: '🚩 User report: ' + reported, htmlBody: html, body: user.name + ' reported ' + reported + '. ' + reason, name: 'Seed the Word Ministry', noReply: true });
+      }
+    } catch (e) { Logger.log('report notify failed: ' + e); }
+    return jsonResponse({ ok: true });
+  } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+// Emails of super-admins + admins granted the 'moderation' permission.
+function getModerationEmails_() {
+  var out = [];
+  try {
+    var sheet = getTeamSheet_();
+    if (sheet.getLastRow() < 2) return out;
+    var lastCol = sheet.getLastColumn();
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var permIdx = -1;
+    for (var h = 0; h < headers.length; h++) { if (String(headers[h]).toLowerCase().trim() === 'permissions') { permIdx = h; break; } }
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, lastCol).getValues();
+    for (var i = 0; i < data.length; i++) {
+      var role = String(data[i][5] || 'member').toLowerCase();
+      var email = String(data[i][3] || '').trim();
+      if (!email || email.indexOf('@') === -1) continue;
+      var isMod = (role === 'super_admin');
+      if (!isMod && permIdx >= 0) {
+        try { var perms = JSON.parse(data[i][permIdx] || '[]'); if (Array.isArray(perms) && perms.indexOf('moderation') !== -1) isMod = true; } catch (e) {}
+      }
+      if (isMod && out.indexOf(email) === -1) out.push(email);
+    }
+  } catch (e) {}
+  return out;
+}
+
+// { action:'listDmReports', token } → reports list for moderators (super-admin
+// or admin with 'moderation' permission). Powers Content Studio → Moderation.
+function handleListDmReports_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var role = String(user.role || 'member').toLowerCase();
+    var isMod = (role === 'super_admin');
+    if (!isMod) {
+      // Check moderation permission on the caller's row.
+      try {
+        var sh = getTeamSheet_();
+        var lastCol = sh.getLastColumn();
+        var headers = sh.getRange(1, 1, 1, lastCol).getValues()[0];
+        var permIdx = -1;
+        for (var h = 0; h < headers.length; h++) { if (String(headers[h]).toLowerCase().trim() === 'permissions') { permIdx = h; break; } }
+        if (permIdx >= 0 && sh.getLastRow() >= 2) {
+          var d = sh.getRange(2, 1, sh.getLastRow() - 1, lastCol).getValues();
+          for (var i = 0; i < d.length; i++) {
+            if (String(d[i][1]).toLowerCase().trim() === user.name.toLowerCase()) {
+              try { var perms = JSON.parse(d[i][permIdx] || '[]'); if (Array.isArray(perms) && perms.indexOf('moderation') !== -1) isMod = true; } catch (e) {}
+              break;
+            }
+          }
+        }
+      } catch (e) {}
+    }
+    if (!isMod) return jsonResponse({ ok: false, error: 'Moderators only' });
+    var sheet = getDmReportsSheet_();
+    var reports = [];
+    if (sheet.getLastRow() >= 2) {
+      var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 5).getValues();
+      for (var r = rows.length - 1; r >= 0 && reports.length < 100; r--) {
+        reports.push({ timestamp: new Date(rows[r][0]).getTime(), reporter: rows[r][1], reported: rows[r][2], reason: rows[r][3], status: rows[r][4] || 'open' });
+      }
+    }
+    return jsonResponse({ ok: true, reports: reports });
+  } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
 
 // ── Member Notes Handlers ─────────────────────────────────────────────

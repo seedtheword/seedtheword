@@ -257,6 +257,12 @@ function doPost(e) {
   if ((payload && payload.action) === 'sendDm') return handleSendDm_(payload);
   if ((payload && payload.action) === 'getDmContacts') return handleGetDmContacts_(payload);
   if ((payload && payload.action) === 'getDmMessages') return handleGetDmMessages_(payload);
+  if ((payload && payload.action) === 'getDmSettings') return handleGetDmSettings_(payload);
+  if ((payload && payload.action) === 'blockUser') return handleBlockUser_(payload, true);
+  if ((payload && payload.action) === 'unblockUser') return handleBlockUser_(payload, false);
+  if ((payload && payload.action) === 'setDmRestriction') return handleSetDmRestriction_(payload);
+  if ((payload && payload.action) === 'reportUser') return handleReportUser_(payload);
+  if ((payload && payload.action) === 'listDmReports') return handleListDmReports_(payload);
   if ((payload && payload.action) === 'addMemberNote') return handleAddMemberNote_(payload);
   if ((payload && payload.action) === 'getMemberNotes') return handleGetMemberNotes_(payload);
   if ((payload && payload.action) === 'getNoteMembers') return handleGetNoteMembers_(payload);

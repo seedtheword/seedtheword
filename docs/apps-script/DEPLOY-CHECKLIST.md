@@ -337,3 +337,29 @@ Two related avatar fixes. Both are in P1 web-app files.
 **Did it work?** View a story on one device → its ring turns gray there and on another device after refresh.
 
 > The story viewer engine is reused by the upcoming Phase 2 team-portal DM inbox (Instagram-style), so a stories rail can appear at the top of the inbox with no rebuild.
+
+
+## Phase 2 — DM inbox (block + reachability + reports + throttled notify) — needs redeploy (P1)
+
+Consolidates team DMs onto the **DirectMessages** tab with unread tracking, block + super-admin reachability rules, reports, and a quiet email notifier.
+
+**What changed (all in `team-messaging-handlers.gs`, routes in `order-handler.gs`)**
+- `handleSendDm_` reworked: validates recipient, enforces block + reachability (super-admin bypass), appends to DirectMessages (now with a `read_at` column, auto-added), Telegram nudge, and a **throttled email** (`notifyThrottled_`) — at most once per (recipient, sender) per day, only on real new activity, never an empty "no messages" email.
+- `handleGetDmContacts_`: returns conversations newest-first with `last_message`, `last_ts`, `unread` count, and each contact's `pic` (via `socialPicOf_`).
+- `handleGetDmMessages_`: returns the thread and **marks incoming unread rows read** (stamps `read_at`).
+- New actions: `getDmSettings`, `blockUser`, `unblockUser`, `setDmRestriction` (super-admin), `reportUser`, `listDmReports` (moderators).
+- New helpers: `getTeamMemberEmail_`, `getDmSettingsFor_`/`setDmSettingsFor_`, `dmCanReach_`, `notifyThrottled_` (reused by Phase 4 for prayers/thanksgiving), `getModerationEmails_`, `teamMemberExists_`.
+
+**New sheet tabs (auto-create)**
+- `DmSettings`: member | blocked_json | restricted | allowed_json
+- `DmReports`: timestamp | reporter | reported | reason | status
+- `NotifyLog`: recipient | counterparty | kind | date (throttle stamps)
+- `DirectMessages` gains a `read_at` column (auto-added via ensureColumn_).
+
+**Reachability rule (on send A→B):** allowed unless B blocked A, or B is restricted and A isn't in B's allow-list. Super-admin senders always allowed.
+
+**Moderation permission:** grant an admin the `moderation` permission (in the TeamMembers `permissions` JSON) to receive reports + see the Content Studio moderation screen. Super-admins always have it.
+
+**Activate:** repaste `team-messaging-handlers.gs` + `order-handler.gs` into P1 and redeploy. Tabs auto-create.
+
+**Did it work?** Member A DMs B → B sees it in the portal Chat inbox with an unread dot + gets ONE email (not per message). B blocks A → A's next send is rejected. Super-admin sets B restricted with allow-list [C] → only C (and super-admins) can DM B. Report → appears in Content Studio → Moderation + emails moderators.

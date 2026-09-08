@@ -374,3 +374,22 @@ Consolidates team DMs onto the **DirectMessages** tab with unread tracking, bloc
 **Activate:** already covered by repasting `team-messaging-handlers.gs` + `order-handler.gs` for the DM inbox — one redeploy does both.
 
 **Did it work?** Content Studio → Moderation: toggle a member Restricted, pick allowed contacts, Save → only those (and super-admins) can DM them. Reports from the DM inbox appear here. Grant an admin the Moderation permission (Members section) → they get report emails + can see this screen.
+
+
+## Announcements: audience + priority + emergency email — needs redeploy (P1)
+
+**What changed (`team-messaging-handlers.gs`)**
+- `handlePostAnnouncement_` now takes `audience {admins, members, public}` + `priority (normal|urgent|emergency)`. Fixed a bug where super-admins couldn't post (was `role !== 'admin'`); now allows admin/super_admin or the `chat_admin` permission (`announcerAllowed_`).
+  - **Public** → Telegram (thread 553) + a mirrored **Community post** (channel `announcements`) so it shows on community.html.
+  - **Emergency** → emails targeted recipients (`emailEmergencyAnnouncement_`): all admins/super-admins, plus members if Members is selected. **Respects `notify_pref: 'none'`** (does not bypass opt-out).
+  - Adds an `audience_json` column to the Announcements sheet (auto).
+- `handleGetAnnouncements_` returns `audience` + filters by caller: public-read sees only public; members see public + members-targeted; staff see all.
+
+**Frontend (ships via git)**
+- Announcement composer moved into the Chat/DM section (chat_admin-gated "📣 New announcement" button) with Audience checkboxes + Priority selector (green/yellow/red).
+- Team portal renders active announcements as banners: emergency = existing red blaring banner; normal = green, urgent = yellow (`#announcement-banner`).
+- Community feed renders public announcements with a priority-colored left accent (green/yellow/red).
+
+**Activate:** repaste `team-messaging-handlers.gs` (+ `order-handler.gs` already pending) and redeploy.
+
+**Did it work?** Post a Normal internal→members announcement → members see a green banner in the portal, admins see it too, community page does NOT. Post Public Urgent → yellow banner + community post + Telegram. Post Emergency w/ Members selected → red blaring banner + emails all admins + members who allow notifications.

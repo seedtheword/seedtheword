@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
-  <link rel="stylesheet" href="assets/css/team-social.css?v=18">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=19">
   <link rel="stylesheet" href="assets/css/lms.css?v=2">
   <style>
     /* ── Content Studio — SocialPulse-inspired look (emerald, white cards) ── */
@@ -236,6 +236,16 @@
         <p class="emergency-banner__body" id="emergency-body"></p>
       </div>
       <button class="emergency-banner__dismiss" id="emergency-dismiss" title="Dismiss">×</button>
+    </div>
+
+    <!-- Announcement banner (normal=green / urgent=yellow) -->
+    <div class="ann-banner" id="announcement-banner" style="display:none;">
+      <span class="ann-banner__icon" id="announcement-icon">📣</span>
+      <div class="ann-banner__content">
+        <strong class="ann-banner__title" id="announcement-title"></strong>
+        <p class="ann-banner__body" id="announcement-body"></p>
+      </div>
+      <button class="ann-banner__dismiss" id="announcement-dismiss" title="Dismiss">×</button>
     </div>
 
     <!-- Profile Card with stats and badges -->
@@ -670,19 +680,36 @@
         </div>
       </div>
 
-      <!-- Admin announcement compose -->
-      <div id="chat-admin-compose" style="display:none;margin-top:0.75rem;">
-        <div class="glass-card" style="padding:1.1rem;">
-          <h4 style="font-family:var(--font-serif);font-size:0.9rem;font-weight:700;margin:0 0 0.6rem;color:var(--color-text);">Post Announcement</h4>
-          <select id="ann-priority" style="margin-bottom:0.5rem;padding:0.55rem 0.75rem;border:1.5px solid var(--color-border);border-radius:var(--radius-sm);width:100%;font-family:var(--font-sans);font-size:0.82rem;background:var(--color-surface);color:var(--color-text);">
-            <option value="normal">Normal</option><option value="urgent">Urgent</option><option value="emergency">Emergency</option>
-          </select>
-          <input id="ann-subject" placeholder="Subject..." style="margin-bottom:0.4rem;">
-          <textarea id="ann-body" placeholder="Message..." rows="3" style="margin-bottom:0.5rem;"></textarea>
-          <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;cursor:pointer;color:var(--color-text-muted);"><input type="checkbox" id="ann-telegram" checked style="width:auto;margin:0;"> Send to Telegram</label>
-            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;cursor:pointer;color:var(--color-text-muted);"><input type="checkbox" id="ann-community" checked style="width:auto;margin:0;"> Post to Community</label>
-            <button class="btn btn--green btn--sm" id="ann-send-btn" style="margin-left:auto;">Post</button>
+      <!-- Announcement composer — integrated into the Chat section, gated to
+           chat_admin. Opened by the "＋ Announcement" button (shown by JS). -->
+      <button class="btn btn--outline btn--sm" id="ann-open-btn" style="display:none;margin-top:0.9rem;width:100%;">📣 New announcement</button>
+      <div id="chat-admin-compose" class="ann-composer" style="display:none;">
+        <div class="glass-card">
+          <div class="ann-composer__head">
+            <h4 class="ann-composer__title">📣 New announcement</h4>
+            <button class="ann-composer__close" id="ann-close-btn" aria-label="Close">×</button>
+          </div>
+
+          <label class="ann-field-label">Who should see this?</label>
+          <div class="ann-audience" id="ann-audience">
+            <label class="ann-aud"><input type="checkbox" id="ann-aud-admins" checked> <span>👔 Admins &amp; super-admins</span></label>
+            <label class="ann-aud"><input type="checkbox" id="ann-aud-members" checked> <span>👥 Members</span></label>
+            <label class="ann-aud"><input type="checkbox" id="ann-aud-public"> <span>🌍 Public — Community page &amp; Telegram</span></label>
+          </div>
+
+          <label class="ann-field-label">Priority</label>
+          <div class="ann-priority" id="ann-priority-group" role="radiogroup">
+            <button type="button" class="ann-pri ann-pri--normal is-active" data-priority="normal">🟢 Normal</button>
+            <button type="button" class="ann-pri ann-pri--urgent" data-priority="urgent">🟡 Urgent</button>
+            <button type="button" class="ann-pri ann-pri--emergency" data-priority="emergency">🔴 Emergency</button>
+          </div>
+          <p class="ann-pri-hint" id="ann-pri-hint">A calm heads-up — “take a look here.”</p>
+
+          <input id="ann-subject" placeholder="Subject…" style="margin-bottom:0.4rem;">
+          <textarea id="ann-body" placeholder="Message…" rows="3" style="margin-bottom:0.6rem;"></textarea>
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <span class="ann-emergency-note" id="ann-emergency-note" style="display:none;">🔴 Emergency emails everyone selected (who allow notifications).</span>
+            <button class="btn btn--green btn--sm" id="ann-send-btn" style="margin-left:auto;">Post announcement</button>
           </div>
         </div>
       </div>
@@ -820,7 +847,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=22"></script>
+<script src="assets/js/team-portal.js?v=23"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
 <script>

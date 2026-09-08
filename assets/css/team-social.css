@@ -2007,3 +2007,40 @@
 .dm-co__stat { text-align: center; background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.7rem 0.4rem; }
 .dm-co__num { display: block; font-family: var(--font-serif); font-size: 1.4rem; font-weight: 700; color: var(--color-olive); line-height: 1; }
 .dm-co__label { display: block; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); margin-top: 0.3rem; }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   Announcements — banner (normal green / urgent yellow) + composer
+   (Emergency uses the existing red .emergency-banner.)
+   ═══════════════════════════════════════════════════════════════ */
+.ann-banner {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.9rem 1.1rem; border-radius: var(--radius-md); margin-bottom: 1rem;
+  border: 1px solid; 
+}
+.ann-banner--normal { background: var(--color-olive-soft); border-color: rgba(44,74,62,0.25); }
+.ann-banner--urgent { background: var(--color-gold-soft); border-color: rgba(217,119,54,0.3); }
+.ann-banner__icon { font-size: 1.3rem; flex-shrink: 0; }
+.ann-banner__content { flex: 1; min-width: 0; }
+.ann-banner__title { display: block; font-size: 0.9rem; font-weight: 700; color: var(--color-text); margin-bottom: 0.15rem; }
+.ann-banner--normal .ann-banner__title { color: var(--color-olive); }
+.ann-banner--urgent .ann-banner__title { color: var(--color-gold); }
+.ann-banner__body { font-size: 0.83rem; color: var(--color-text-secondary); line-height: 1.5; margin: 0; white-space: pre-wrap; }
+.ann-banner__dismiss { background: none; border: none; color: var(--color-text-muted); font-size: 1.2rem; cursor: pointer; padding: 0.2rem; flex-shrink: 0; }
+
+/* Composer */
+.ann-composer { margin-top: 0.9rem; }
+.ann-composer__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.ann-composer__title { font-family: var(--font-serif); font-size: 0.95rem; font-weight: 700; margin: 0; color: var(--color-text); }
+.ann-composer__close { background: none; border: none; font-size: 1.3rem; line-height: 1; cursor: pointer; color: var(--color-text-muted); }
+.ann-field-label { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-muted); margin: 0.6rem 0 0.35rem; }
+.ann-audience { display: flex; flex-direction: column; gap: 0.4rem; }
+.ann-aud { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--color-text); cursor: pointer; }
+.ann-aud input { width: auto; margin: 0; }
+.ann-priority { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.ann-pri { flex: 1; min-width: 90px; padding: 0.55rem 0.5rem; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); font-size: 0.8rem; font-weight: 700; cursor: pointer; font-family: var(--font-sans); color: var(--color-text-muted); transition: all var(--duration-fast) var(--ease); }
+.ann-pri--normal.is-active { border-color: var(--color-olive); background: var(--color-olive-soft); color: var(--color-olive); }
+.ann-pri--urgent.is-active { border-color: var(--color-gold); background: var(--color-gold-soft); color: var(--color-gold); }
+.ann-pri--emergency.is-active { border-color: var(--color-danger); background: var(--color-danger-soft); color: var(--color-danger); }
+.ann-pri-hint { font-size: 0.74rem; color: var(--color-text-muted); font-style: italic; margin: 0.4rem 0 0.6rem; }
+.ann-emergency-note { font-size: 0.72rem; color: var(--color-danger); font-weight: 600; }

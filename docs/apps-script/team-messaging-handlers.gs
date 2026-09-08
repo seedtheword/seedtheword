@@ -353,31 +353,123 @@ function handlePostAnnouncement_(payload) {
   try {
     var user = validateTeamToken_(String(payload.token || ''));
     if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
-    if (user.role !== 'admin') return jsonResponse({ ok: false, error: 'Admin only' });
+    // Allow admins, super-admins, or anyone with the chat_admin permission.
+    if (!announcerAllowed_(user)) return jsonResponse({ ok: false, error: 'Not allowed to post announcements' });
 
     var subject = String(payload.subject || '').trim();
     var body = String(payload.body || '').trim();
-    var priority = String(payload.priority || 'normal').trim();
-    var sendTelegram = payload.send_telegram !== false;
+    var priority = String(payload.priority || 'normal').trim().toLowerCase();
+    if (['normal','urgent','emergency'].indexOf(priority) === -1) priority = 'normal';
     if (!subject || !body) return jsonResponse({ ok: false, error: 'Subject and body required' });
 
+    // ── Audience ──
+    // audience = { admins:bool, members:bool, public:bool }. Back-compat: if the
+    // legacy send_telegram/post_community flags come in, treat as public.
+    var aud = payload.audience || {};
+    var toAdmins = (aud.admins === true || aud.admins === 'true');
+    var toMembers = (aud.members === true || aud.members === 'true');
+    var toPublic = (aud.public === true || aud.public === 'true' ||
+                    payload.send_telegram === true || payload.post_community === true);
+    // Default: if nothing selected, treat as internal-to-everyone (admins+members).
+    if (!toAdmins && !toMembers && !toPublic) { toAdmins = true; toMembers = true; }
+    var audienceJson = JSON.stringify({ admins: toAdmins, members: toMembers, public: toPublic });
+
     var sheet = getAnnouncementsSheet_();
+    var audCol = ensureColumn_(sheet, 'audience_json'); // add if missing
     var now = new Date();
     var today = now.toISOString().split('T')[0];
     var dedupKey = getAnnouncementDedupKey_(subject, today);
-    var telegramSent = false;
 
-    // Anti-spam: only send to Telegram if this exact subject hasn't been sent today
-    if (sendTelegram && !hasAnnouncementBeenSentToday_(sheet, dedupKey)) {
-      var priorityEmoji = priority === 'emergency' ? '🚨' : priority === 'urgent' ? '⚠️' : '📢';
-      var telegramText = priorityEmoji + ' <b>' + subject + '</b>\n\n' + body + '\n\n— ' + user.name;
-      telegramSent = sendTelegramFromAppsScript_('@seedtheword', telegramText, 553);
+    // ── Public → Telegram + a Community post (so it shows on community.html) ──
+    var telegramSent = false;
+    if (toPublic) {
+      if (!hasAnnouncementBeenSentToday_(sheet, dedupKey)) {
+        var priorityEmoji = priority === 'emergency' ? '🚨' : priority === 'urgent' ? '⚠️' : '📢';
+        var telegramText = priorityEmoji + ' <b>' + subject + '</b>\n\n' + body + '\n\n— ' + user.name;
+        telegramSent = sendTelegramFromAppsScript_('@seedtheword', telegramText, 553);
+      }
+      // Mirror to the community feed as an announcement post (best-effort).
+      try {
+        if (typeof getPostsSheet_ === 'function' && typeof socialNewId_ === 'function') {
+          getPostsSheet_().appendRow([socialNewId_('post'), Date.now(), user.name, String(user.role || 'member').toLowerCase(),
+            '**' + subject + '**\n\n' + body, '', 'announcements', 'YES', '', '', (typeof socialPicOf_ === 'function' ? socialPicOf_(user.name) : '')]);
+        }
+      } catch (e) { Logger.log('announcement community mirror failed: ' + e); }
     }
 
-    // Always save to sheet
+    // Persist the announcement row (with audience).
     sheet.appendRow([now.toISOString(), user.name, subject, body, priority, telegramSent ? 'yes' : 'no', dedupKey]);
-    return jsonResponse({ ok: true, route: 'postAnnouncement', telegram_sent: telegramSent });
+    // Stamp audience on the row we just added (by discovered column).
+    try { sheet.getRange(sheet.getLastRow(), audCol).setValue(audienceJson); } catch (e) {}
+
+    // ── Emergency → email. Admins/super-admins always; members if selected.
+    // Respect notify_pref === 'none' (does NOT bypass an opt-out).
+    var emailed = 0;
+    if (priority === 'emergency') {
+      try { emailed = emailEmergencyAnnouncement_(subject, body, user.name, { admins: true, members: toMembers }); }
+      catch (e) { Logger.log('emergency email failed: ' + e); }
+    }
+
+    return jsonResponse({ ok: true, route: 'postAnnouncement', telegram_sent: telegramSent, emailed: emailed, audience: audienceJson });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+// May this user broadcast announcements? admin/super_admin, or chat_admin perm.
+function announcerAllowed_(user) {
+  var role = String(user.role || 'member').toLowerCase();
+  if (role === 'admin' || role === 'super_admin') return true;
+  // Check chat_admin permission on the member's row.
+  try {
+    var sh = getTeamSheet_();
+    var lastCol = sh.getLastColumn();
+    var headers = sh.getRange(1, 1, 1, lastCol).getValues()[0];
+    var permIdx = -1;
+    for (var h = 0; h < headers.length; h++) { if (String(headers[h]).toLowerCase().trim() === 'permissions') { permIdx = h; break; } }
+    if (permIdx >= 0 && sh.getLastRow() >= 2) {
+      var d = sh.getRange(2, 1, sh.getLastRow() - 1, lastCol).getValues();
+      for (var i = 0; i < d.length; i++) {
+        if (String(d[i][1]).toLowerCase().trim() === String(user.name).toLowerCase().trim()) {
+          try { var perms = JSON.parse(d[i][permIdx] || '[]'); return Array.isArray(perms) && perms.indexOf('chat_admin') !== -1; } catch (e) { return false; }
+        }
+      }
+    }
+  } catch (e) {}
+  return false;
+}
+
+// Email an emergency announcement to targeted recipients. targets =
+// { admins:bool, members:bool }. Respects notify_pref === 'none'.
+function emailEmergencyAnnouncement_(subject, body, author, targets) {
+  var sheet = getTeamSheet_();
+  if (sheet.getLastRow() < 2) return 0;
+  var lastCol = sheet.getLastColumn();
+  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  var notifyIdx = -1;
+  for (var h = 0; h < headers.length; h++) { if (String(headers[h]).toLowerCase().trim() === 'notify_pref') { notifyIdx = h; break; } }
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, lastCol).getValues();
+  var recipients = [];
+  for (var i = 0; i < data.length; i++) {
+    var role = String(data[i][5] || 'member').toLowerCase();
+    var email = String(data[i][3] || '').trim();
+    if (!email || email.indexOf('@') === -1) continue;
+    var pref = notifyIdx >= 0 ? String(data[i][notifyIdx] || 'email').toLowerCase() : 'email';
+    if (pref === 'none') continue; // respect opt-out
+    var isAdmin = (role === 'admin' || role === 'super_admin');
+    if ((isAdmin && targets.admins) || (!isAdmin && targets.members)) {
+      if (recipients.indexOf(email) === -1) recipients.push(email);
+    }
+  }
+  if (!recipients.length) return 0;
+  var html = (typeof emailShell === 'function') ? emailShell({
+    headerTitle: '🚨 EMERGENCY: ' + subject,
+    headerSubtitle: 'from ' + author,
+    bodyHtml: '<p style="font-size:15px;line-height:1.6;">' + escapeHtml(body).replace(/\n/g, '<br>') + '</p>' +
+      '<p style="margin-top:1rem;color:#a6251f;font-weight:700;">This is an emergency announcement — please respond as soon as possible.</p>',
+    footerHtml: '<p>— ' + escapeHtml(author) + ', Seed the Word</p>',
+    accentColor: '#a6251f'
+  }) : ('<h2>EMERGENCY: ' + escapeHtml(subject) + '</h2><p>' + escapeHtml(body) + '</p>');
+  MailApp.sendEmail({ to: recipients.join(','), subject: '🚨 EMERGENCY — ' + subject, htmlBody: html, body: 'EMERGENCY: ' + subject + '\n\n' + body + '\n\n— ' + author, name: 'Seed the Word Ministry', noReply: true });
+  return recipients.length;
 }
 
 function handleGetAnnouncements_(payload) {
@@ -390,18 +482,37 @@ function handleGetAnnouncements_(payload) {
 
     var sheet = getAnnouncementsSheet_();
     if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, announcements: [] });
-    var data = sheet.getRange(2, 1, sheet.getLastRow()-1, 5).getValues();
+    var lastCol = sheet.getLastColumn();
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var audIdx = -1;
+    for (var h = 0; h < headers.length; h++) { if (String(headers[h]).toLowerCase().trim() === 'audience_json') { audIdx = h; break; } }
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, lastCol).getValues();
 
-    // Public read gets last 5; authenticated gets last 30
+    // Who's asking? Determine visibility.
+    var callerRole = user ? String(user.role || 'member').toLowerCase() : '';
+    var callerIsStaff = (callerRole === 'admin' || callerRole === 'super_admin' || isAdmin);
+
     var limit = (user || isAdmin) ? 30 : 5;
     var announcements = [];
     for (var i = data.length - 1; i >= 0 && announcements.length < limit; i--) {
+      var aud = { admins: true, members: true, public: false };
+      if (audIdx >= 0 && data[i][audIdx]) { try { aud = JSON.parse(data[i][audIdx]); } catch (e) {} }
+      // Visibility:
+      //  - public-read (community page): only public announcements.
+      //  - a member: public OR members-targeted.
+      //  - staff (admin/super/admin-hash): public OR admins-targeted OR members-targeted (they see all).
+      var visible;
+      if (isPublicRead && !user) visible = !!aud.public;
+      else if (callerIsStaff) visible = true;
+      else visible = !!(aud.public || aud.members);
+      if (!visible) continue;
       announcements.push({
         timestamp: new Date(data[i][0]).getTime(),
         author: data[i][1],
         subject: data[i][2],
         body: data[i][3],
-        priority: data[i][4] || 'normal'
+        priority: data[i][4] || 'normal',
+        audience: aud
       });
     }
     return jsonResponse({ ok: true, announcements: announcements });

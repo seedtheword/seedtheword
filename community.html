@@ -189,6 +189,11 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 @media (prefers-reduced-motion:reduce){.img-lightbox,.img-lightbox__img{transition:none;animation:none;}}
 .post-flag{font-size:0.6rem;font-weight:700;color:var(--color-text-muted);margin-left:0.3rem;}
 .post-flag--pin{color:var(--color-gold);}
+/* Announcement priority hues (public announcements on the community feed) */
+.post-card--ann{border-left-width:4px;border-left-style:solid;}
+.post-card--ann-normal{border-left-color:var(--color-olive,#2C4A3E);background:linear-gradient(90deg,rgba(44,74,62,0.05),transparent 60%);}
+.post-card--ann-urgent{border-left-color:var(--color-gold,#D97736);background:linear-gradient(90deg,rgba(217,119,54,0.06),transparent 60%);}
+.post-card--ann-emergency{border-left-color:#a6251f;background:linear-gradient(90deg,rgba(166,37,31,0.07),transparent 60%);}
 .post-flag--hidden{color:#dc2626;}
 .post-card--hidden{opacity:0.6;border-style:dashed;}
 .post-edit{margin:0.5rem 0;}
@@ -714,7 +719,7 @@ if(feedRes&&feedRes.ok&&feedRes.posts){
     likesCache[p.id]={count:p.likeCount||0,userLiked:!!p.userLiked};
   });
 }
-if(ann&&ann.ok&&ann.announcements)ann.announcements.forEach(function(a){allPosts.push({id:'ann-'+a.timestamp,from:a.from||'Seed the Word',role:'super_admin',text:(a.subject?'**'+a.subject+'**\n\n':'')+a.body,timestamp:a.timestamp,msg_type:'announcement',_channel:'announcements',_isPost:false,_readonly:true});});
+if(ann&&ann.ok&&ann.announcements)ann.announcements.forEach(function(a){allPosts.push({id:'ann-'+a.timestamp,from:a.from||'Seed the Word',role:'super_admin',text:(a.subject?'**'+a.subject+'**\n\n':'')+a.body,timestamp:a.timestamp,msg_type:'announcement',_channel:'announcements',_isPost:false,_readonly:true,_priority:a.priority||'normal'});});
 // Consented prayers/thanksgivings from the Connect page (read-only, from the prayer wall).
 if(pub&&pub.ok&&pub.prayers)pub.prayers.forEach(function(pr){allPosts.push({id:pr.id,from:pr.author||'A community member',role:'',text:pr.text,timestamp:pr.timestamp||0,msg_type:pr.channel==='thanksgiving'?'thanksgiving':'prayer',_channel:pr.channel==='thanksgiving'?'thanksgiving':'prayer',_isPost:false,_readonly:true,_fromConnect:true});});
 posts=allPosts.sort(function(a,b){if(!!a.pinned!==!!b.pinned)return a.pinned?-1:1;return b.timestamp-a.timestamp;});
@@ -801,7 +806,7 @@ if(isMine||canModerate||(viewerIsSuper&&isAnnouncement)){
 }
 var media=p.media_url?'<div class="post-card__media"><img src="'+esc(driveImg(p.media_url))+'" alt="" loading="lazy"></div>':'';
 var flags=(p.pinned?'<span class="post-flag post-flag--pin">📌 Pinned</span>':'')+(p.hidden?'<span class="post-flag post-flag--hidden">Hidden</span>':'')+(p.edited?'<span class="post-flag">edited</span>':'');
-return'<article class="post-card'+(p.hidden?' post-card--hidden':'')+'" data-post-id="'+postId+'" data-channel="'+esc(p._channel||'main')+'">'+
+return'<article class="post-card'+(p.hidden?' post-card--hidden':'')+(p.msg_type==='announcement'?(' post-card--ann post-card--ann-'+(p._priority||'normal')):'')+'" data-post-id="'+postId+'" data-channel="'+esc(p._channel||'main')+'">'+
 '<div class="post-card__header"><div class="post-card__avatar" data-author="'+esc(p.from||'Anonymous')+'" data-role="'+esc(p.role||'')+'">'+avatarInner(p.from||'Anonymous',p.pic)+'</div><div class="post-card__meta"><div class="post-card__author"><button class="author-link" data-author="'+esc(p.from||'Anonymous')+'" data-role="'+esc(p.role||'')+'">'+esc(p.from||'Anonymous')+'</button> '+roleBadge(p.role)+'</div><div class="post-card__time">'+timeAgo(p.timestamp)+' '+flags+'</div><span class="post-card__type post-card__type--'+typeClass+'">'+(typeLabels[type]||'💬 Post')+'</span></div>'+menu+'</div>'+
 '<div class="post-card__body" data-role="body">'+formatBody(p.text)+'</div>'+media+
 '<div class="post-card__stats">'+(likeData.count?'<span>'+likeData.count+' like'+(likeData.count>1?'s':'')+'</span>':'')+(commentCount?'<span>'+commentCount+' comment'+(commentCount>1?'s':'')+'</span>':'')+'</div>'+

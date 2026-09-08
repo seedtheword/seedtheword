@@ -464,24 +464,48 @@ async function sendDmMessage(){
   if(search)search.addEventListener('input',function(){renderPickerList(this.value);});
 })();
 
-// Announcement send (admin)
+// ── Announcement composer (audience + priority) ──
+var annPriority='normal';
+var ANN_PRI_HINTS={normal:'A calm heads-up — “take a look here.”',urgent:'Caution — needs attention ASAP whenever the team can.',emergency:'Blaring — needs attention right now. Emails everyone selected.'};
+(function(){
+  var openBtn=document.getElementById('ann-open-btn'),composer=document.getElementById('chat-admin-compose'),closeBtn=document.getElementById('ann-close-btn');
+  if(openBtn)openBtn.addEventListener('click',function(){composer.style.display='';openBtn.style.display='none';});
+  if(closeBtn)closeBtn.addEventListener('click',function(){composer.style.display='none';openBtn.style.display='';});
+  // Priority selector.
+  var group=document.getElementById('ann-priority-group');
+  if(group)group.querySelectorAll('.ann-pri').forEach(function(b){b.addEventListener('click',function(){
+    group.querySelectorAll('.ann-pri').forEach(function(x){x.classList.remove('is-active');});
+    this.classList.add('is-active');annPriority=this.dataset.priority;
+    var hint=document.getElementById('ann-pri-hint');if(hint)hint.textContent=ANN_PRI_HINTS[annPriority]||'';
+    var note=document.getElementById('ann-emergency-note');if(note)note.style.display=annPriority==='emergency'?'':'none';
+  });});
+})();
 document.getElementById('ann-send-btn').addEventListener('click',async function(){
   var btn=this;
   var subject=document.getElementById('ann-subject').value.trim();
   var body=document.getElementById('ann-body').value.trim();
-  var priority=document.getElementById('ann-priority').value;
-  var sendTelegram=document.getElementById('ann-telegram').checked;
+  var audience={
+    admins:document.getElementById('ann-aud-admins').checked,
+    members:document.getElementById('ann-aud-members').checked,
+    public:document.getElementById('ann-aud-public').checked
+  };
   if(!subject||!body){alert('Fill in subject and message.');return;}
-  btn.disabled=true;btn.textContent='Posting...';
+  if(!audience.admins&&!audience.members&&!audience.public){alert('Pick at least one audience.');return;}
+  if(annPriority==='emergency'&&!confirm('Send an EMERGENCY announcement? This emails everyone selected who allows notifications.'))return;
+  btn.disabled=true;btn.textContent='Posting…';
   try{
-    var res=await postAction({action:'postAnnouncement',token:session.token,subject:subject,body:body,priority:priority,send_telegram:sendTelegram});
+    var res=await postAction({action:'postAnnouncement',token:session.token,subject:subject,body:body,priority:annPriority,audience:audience});
     if(res.ok){
       document.getElementById('ann-subject').value='';document.getElementById('ann-body').value='';
-      if(activeChannel==='announcements')loadChannelMessages();
-      if(priority==='emergency')checkEmergencyAlerts();
+      document.getElementById('chat-admin-compose').style.display='none';
+      var ob=document.getElementById('ann-open-btn');if(ob)ob.style.display='';
+      checkEmergencyAlerts();
+      var msg='Announcement posted';
+      if(typeof res.emailed==='number'&&res.emailed>0)msg+=' · emailed '+res.emailed;
+      alert(msg+'.');
     }else{alert(res.error||'Failed.');}
   }catch(e){alert(e.message);}
-  btn.disabled=false;btn.textContent='Post';
+  btn.disabled=false;btn.textContent='Post announcement';
 });
 
 // ── Emergency Alert System ──
@@ -489,23 +513,39 @@ async function checkEmergencyAlerts(){
   var banner=document.getElementById('emergency-banner');
   if(!banner)return;
   var dismissed=sessionStorage.getItem('stwm-emergency-dismissed');
+  var annBanner=document.getElementById('announcement-banner');
+  var annDismissed=sessionStorage.getItem('stwm-ann-dismissed');
   try{
     var res=await postAction({action:'getAnnouncements',token:session.token});
     if(res.ok&&res.announcements){
       var now=Date.now();
-      var emergency=null;
+      var emergency=null, topNonEmergency=null;
       for(var i=0;i<res.announcements.length;i++){
         var a=res.announcements[i];
-        if(a.priority==='emergency'&&(now-a.timestamp)<86400000){emergency=a;break;}
+        if((now-a.timestamp)>=86400000)continue; // last 24h only
+        if(a.priority==='emergency'){ if(!emergency)emergency=a; }
+        else if(!topNonEmergency){ topNonEmergency=a; }
       }
+      // Emergency (red, blaring).
       if(emergency&&dismissed!==emergency.subject){
         document.getElementById('emergency-title').textContent=emergency.subject;
         document.getElementById('emergency-body').textContent=emergency.body;
         banner.style.display='flex';
       }else{banner.style.display='none';}
+      // Normal (green) / Urgent (yellow) — the most recent non-emergency.
+      if(annBanner){
+        if(topNonEmergency&&annDismissed!==topNonEmergency.subject){
+          annBanner.className='ann-banner ann-banner--'+(topNonEmergency.priority==='urgent'?'urgent':'normal');
+          document.getElementById('announcement-icon').textContent=topNonEmergency.priority==='urgent'?'⚠️':'📣';
+          document.getElementById('announcement-title').textContent=topNonEmergency.subject;
+          document.getElementById('announcement-body').textContent=topNonEmergency.body;
+          annBanner.style.display='flex';
+        }else{annBanner.style.display='none';}
+      }
     }
   }catch(e){}
 }
+(function(){var d=document.getElementById('announcement-dismiss');if(d)d.addEventListener('click',function(){sessionStorage.setItem('stwm-ann-dismissed',document.getElementById('announcement-title').textContent);document.getElementById('announcement-banner').style.display='none';});})();
 document.getElementById('emergency-dismiss').addEventListener('click',function(){
   sessionStorage.setItem('stwm-emergency-dismissed',document.getElementById('emergency-title').textContent);
   document.getElementById('emergency-banner').style.display='none';
@@ -520,6 +560,9 @@ document.querySelector('[data-tab="messages"]').addEventListener('click',functio
   openDmInbox();
   loadTeamStoriesRail();
   loadCommunityOverview();
+  // Show the announcement composer entry to chat_admins.
+  var annBtn=document.getElementById('ann-open-btn');
+  if(annBtn)annBtn.style.display=canPortal('chat_admin')?'':'none';
 });
 
 // ── Stories rail in the Chat tab (reuses the community stories backend) ──

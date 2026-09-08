@@ -1680,3 +1680,66 @@
   margin-top: 0.85rem;
   margin-bottom: 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PHASE B — Picker modal fix (was: bottom-stuck + calc width hack)
+   Mobile: clean bottom sheet. Desktop (>=640px): centered rounded
+   dialog, matching the .mv-sheet behaviour. Search field is now
+   full-width via padding on the sheet rather than a calc() hack.
+   ═══════════════════════════════════════════════════════════════ */
+.picker-overlay {
+  background: rgba(20, 24, 20, 0.5);
+  z-index: 1000;
+  padding: 0;
+}
+.picker-sheet {
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  max-height: 88vh;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25);
+  animation: mvUpPicker 0.22s cubic-bezier(0.2, 0, 0, 1);
+  overflow: hidden;
+}
+@keyframes mvUpPicker {
+  from { transform: translateY(24px); opacity: 0.6; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.picker-header {
+  padding: 1.1rem 1.25rem 0.85rem;
+}
+.picker-header__title {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+}
+/* Full-width search — padding lives on the sheet sides, not a calc() hack */
+.picker-search {
+  margin: 0 1.25rem 0.5rem;
+  width: auto;
+  display: block;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.9rem;
+}
+.picker-list {
+  padding: 0.25rem 1.25rem 1.25rem;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.picker-item {
+  padding: 0.8rem 0.95rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 0.5rem;
+}
+.picker-item:active { transform: scale(0.99); }
+.picker-item__name { font-size: 0.9rem; }
+
+/* Desktop: centered, fully-rounded dialog (not stuck to the bottom) */
+@media (min-width: 640px) {
+  .picker-overlay { align-items: center; padding: 1.5rem; }
+  .picker-sheet {
+    border-radius: var(--radius-xl);
+    max-height: 80vh;
+    box-shadow: var(--shadow-lg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .picker-sheet { animation: none; }
+}

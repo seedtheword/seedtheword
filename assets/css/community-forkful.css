@@ -502,8 +502,13 @@
 .story-viewer { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.92); display: flex; align-items: center; justify-content: center; }
 .story-viewer[hidden] { display: none !important; }
 .story-viewer__inner { position: relative; width: 100%; max-width: 420px; height: 100%; max-height: 90vh; display: flex; flex-direction: column; }
-.story-viewer__bar { height: 3px; background: rgba(255,255,255,0.3); border-radius: 3px; margin: 0.75rem 1rem 0; overflow: hidden; }
-.story-viewer__progress { height: 100%; background: #fff; width: 0; animation: storyFill 6s linear forwards; }
+/* Instagram-style segmented progress bar (one segment per story). */
+.story-viewer__bar { margin: 0.75rem 1rem 0; }
+.story-viewer__progress { display: flex; gap: 4px; }
+.story-seg { flex: 1; height: 3px; background: rgba(255,255,255,0.3); border-radius: 3px; overflow: hidden; }
+.story-seg__fill { display: block; height: 100%; background: #fff; width: 0; }
+.story-seg.is-done .story-seg__fill { width: 100%; }
+.story-seg.is-active .story-seg__fill { width: 0; }
 @keyframes storyFill { from { width: 0; } to { width: 100%; } }
 .story-viewer__head { display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 1rem; color: #fff; }
 .story-viewer__av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--color-olive), #3a5f4e); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.72rem; }

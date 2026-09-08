@@ -177,7 +177,16 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .post-card__menu-list button:hover{background:var(--color-surface-hover);}
 /* Post media + flags */
 .post-card__media{margin:0.5rem 0;border-radius:var(--radius-sm);overflow:hidden;}
-.post-card__media img{width:100%;display:block;max-height:420px;object-fit:cover;}
+.post-card__media img{width:100%;display:block;max-height:420px;object-fit:cover;cursor:zoom-in;transition:transform 0.2s ease;}
+.post-card__media img:hover{transform:scale(1.015);}
+/* Full-size image lightbox */
+.img-lightbox{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;transition:opacity 0.18s ease;cursor:zoom-out;}
+.img-lightbox.is-open{opacity:1;}
+.img-lightbox__img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;box-shadow:0 12px 48px rgba(0,0,0,0.5);animation:lightboxIn 0.22s cubic-bezier(0.2,0,0,1);}
+@keyframes lightboxIn{from{transform:scale(0.94);opacity:0.5;}to{transform:scale(1);opacity:1;}}
+.img-lightbox__close{position:absolute;top:1rem;right:1.25rem;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:#fff;font-size:1.5rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.img-lightbox__close:hover{background:rgba(255,255,255,0.28);}
+@media (prefers-reduced-motion:reduce){.img-lightbox,.img-lightbox__img{transition:none;animation:none;}}
 .post-flag{font-size:0.6rem;font-weight:700;color:var(--color-text-muted);margin-left:0.3rem;}
 .post-flag--pin{color:var(--color-gold);}
 .post-flag--hidden{color:#dc2626;}
@@ -288,7 +297,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=22">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=23">
 </head>
 <body class="community-body">
 
@@ -1483,18 +1492,56 @@ async function loadStories(){
   rail.querySelectorAll('.story-bubble[data-idx]').forEach(function(b){b.addEventListener('click',function(){openStory(parseInt(this.dataset.idx));});});
 }
 (function(){var fi=document.getElementById('story-file-input');if(fi)fi.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;this.value='';var url=await uploadPhoto(f);if(!url)return;var cap=prompt('Add a caption (optional):','')||'';try{var res=await postAction({action:'createStory',token:session.token,image:url,caption:cap});if(res&&res.ok)loadStories();else alert((res&&res.error)||'Could not post story.');}catch(e){alert('Could not post story.');}});})();
+// ── Image lightbox — tap any feed/group photo to view it full-size ──
+function openImageLightbox(src){
+  if(!src)return;
+  var existing=document.getElementById('img-lightbox');if(existing)existing.remove();
+  var box=document.createElement('div');
+  box.id='img-lightbox';box.className='img-lightbox';
+  box.innerHTML='<button class="img-lightbox__close" aria-label="Close">×</button><img class="img-lightbox__img" src="'+esc(src)+'" alt="">';
+  document.body.appendChild(box);
+  document.body.style.overflow='hidden';
+  function close(){box.remove();document.body.style.overflow='';document.removeEventListener('keydown',onKey);}
+  function onKey(e){if(e.key==='Escape')close();}
+  box.addEventListener('click',function(e){if(e.target===box||e.target.classList.contains('img-lightbox__close'))close();});
+  document.addEventListener('keydown',onKey);
+  requestAnimationFrame(function(){box.classList.add('is-open');});
+}
+// Delegated: any post/group media image opens the lightbox (works for
+// dynamically-rendered feed + group-room images without re-binding).
+document.addEventListener('click',function(e){
+  var img=e.target.closest&&e.target.closest('.post-card__media img');
+  if(img){e.preventDefault();openImageLightbox(img.getAttribute('src'));}
+});
+
 // Story viewer
 var storyIdx=0,storyTimer=null;
 function openStory(i){storyIdx=i;var v=document.getElementById('story-viewer');if(!v)return;v.hidden=false;renderStory();}
 function closeStory(){var v=document.getElementById('story-viewer');if(v)v.hidden=true;if(storyTimer)clearTimeout(storyTimer);}
+var STORY_DURATION=6000;
 function renderStory(){
   var s=storiesData[storyIdx];if(!s){closeStory();return;}
   document.getElementById('story-viewer-img').src=driveImg(s.image);
   document.getElementById('story-viewer-av').textContent=initials(s.author);
   document.getElementById('story-viewer-author').textContent=s.author+' · '+timeAgo(s.created_at);
   document.getElementById('story-viewer-caption').textContent=s.caption||'';
+  // Instagram-style segmented progress bar: one segment per story. Past
+  // segments are full, future segments empty, the current one animates from
+  // 0→100% over STORY_DURATION. Rebuilt each render so it restarts cleanly.
+  var bar=document.getElementById('story-progress');
+  if(bar){
+    var segs='';
+    for(var i=0;i<storiesData.length;i++){
+      var state=i<storyIdx?'is-done':(i===storyIdx?'is-active':'');
+      segs+='<span class="story-seg '+state+'"><span class="story-seg__fill"></span></span>';
+    }
+    bar.innerHTML=segs;
+    // Force reflow so the fill animation restarts on the active segment.
+    var activeFill=bar.querySelector('.story-seg.is-active .story-seg__fill');
+    if(activeFill){void activeFill.offsetWidth;activeFill.style.animation='storyFill '+(STORY_DURATION/1000)+'s linear forwards';}
+  }
   if(storyTimer)clearTimeout(storyTimer);
-  storyTimer=setTimeout(function(){if(storyIdx<storiesData.length-1){storyIdx++;renderStory();}else{closeStory();}},6000);
+  storyTimer=setTimeout(function(){if(storyIdx<storiesData.length-1){storyIdx++;renderStory();}else{closeStory();}},STORY_DURATION);
 }
 (function(){
   var c=document.getElementById('story-viewer-close'),p=document.getElementById('story-prev'),n=document.getElementById('story-next'),v=document.getElementById('story-viewer');

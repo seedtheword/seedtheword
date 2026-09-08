@@ -16,6 +16,16 @@
     try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch (e) { return null; }
   }
 
+  // Normalize any Google Drive URL (share link, uc?export=view, /d/<id>) to the
+  // reliable lh3 image host that embeds in <img> without expiring. Non-Drive
+  // URLs (and data: URLs) pass through unchanged.
+  function avatarUrl(u) {
+    if (!u) return '';
+    if (u.indexOf('data:') === 0) return u;
+    var m = String(u).match(/[?&]id=([\w-]+)/) || String(u).match(/\/d\/([\w-]+)/);
+    return m ? ('https://lh3.googleusercontent.com/d/' + m[1] + '=w120') : u;
+  }
+
   function clearSession() {
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(ACTIVITY_KEY);
@@ -82,7 +92,7 @@
     var loginLink = document.getElementById('nav-auth-btn');
     if (!loginLink) return;
     var firstName = (session.name || '').split(' ')[0];
-    var pic = session.profilePicUrl || session.profilePic || '';
+    var pic = avatarUrl(session.profilePicUrl || session.profilePic || '');
     loginLink.innerHTML = pic
       ? '<img class="nav-auth-avatar" src="' + pic + '" alt="" onerror="this.remove()"> ' + firstName
       : firstName;
@@ -137,7 +147,7 @@
     parentLi.id = 'nav-auth-wrap';
 
     // Replace the login link with badge (profile pic + name)
-    var profilePic = session.profilePicUrl || session.profilePic || '';
+    var profilePic = avatarUrl(session.profilePicUrl || session.profilePic || '');
     if (profilePic) {
       loginLink.innerHTML = '<img class="nav-auth-avatar" src="' + profilePic + '" alt="" onerror="this.remove()"> ' + firstName;
     } else {

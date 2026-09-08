@@ -99,7 +99,9 @@ async function hydrateProfile(){
       // Prefer the persisted Drive URL; keep any local base64 preview only if
       // the server has none yet (e.g. avatar picked but not yet synced).
       if(res.profile_pic_url)session.profilePicUrl=res.profile_pic_url;
-      if(typeof res.total_scans==='number')session.totalScans=res.total_scans;
+      // Don't let a stale server total_scans LOWER the count; loadServerScanCounts()
+      // (inventory-row sum) is the real authority and runs on portal show.
+      if(typeof res.total_scans==='number')session.totalScans=Math.max(res.total_scans,session.totalScans||0);
       saveSession();
     }
   }catch(e){/* offline / backend not deployed — keep local session */}
@@ -134,18 +136,66 @@ function dashGreeting(){
   var h=new Date().getHours();
   return h<12?'Good morning':(h<18?'Good afternoon':'Good evening');
 }
+// Sum of quantities in today's local scan log (fallback until the server
+// counts arrive). Uses qty, not entry count, so it matches "items given".
+function localTodayQty(){
+  if(!session||!session.todayScans)return 0;
+  return session.todayScans.reduce(function(n,s){return n+(parseInt(s.qty,10)||1);},0);
+}
 function syncDashStats(){
   if(!session)return;
-  var t=String(session.todayScans?session.todayScans.length:0);
+  // Prefer server-computed counts (authoritative + cross-device). Fall back to
+  // the local scan log so the number moves instantly after a scan, before the
+  // server round-trip returns.
+  var todayVal=(typeof session.serverTodayQty==='number')?session.serverTodayQty:localTodayQty();
+  var eventVal=(typeof session.serverEventQty==='number')?session.serverEventQty:localTodayQty();
   var all=String(session.totalScans||0);
-  var setTxt=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
-  // Profile-card stats (existing)
-  setTxt('stat-today',t);
+  var setTxt=function(id,val){var el=document.getElementById(id);if(el)el.textContent=String(val);};
+  // Profile-card stats
+  setTxt('stat-today',todayVal);
   setTxt('stat-total',all);
-  // Dashboard hero stats (were never populated — now kept in sync)
-  setTxt('stat-today-dash',t);
-  setTxt('stat-event-dash',t);
+  // Dashboard hero trio
+  setTxt('stat-today-dash',todayVal);
+  setTxt('stat-event-dash',eventVal);
   setTxt('stat-total-dash',all);
+}
+
+// Authoritative counts from the server. Fetches this member's scan history and
+// computes: today's given qty, this-event given qty, and all-time. Also seeds
+// session.todayScans from today's server rows so the activity list + optimistic
+// increments stay consistent across devices and page reloads.
+async function loadServerScanCounts(){
+  if(!session||!session.token)return;
+  try{
+    var res=await postAction({action:'getScanHistory',token:session.token});
+    if(!res||!res.ok||!Array.isArray(res.scans))return;
+    var today=localToday();
+    var evt=String(session.event||'').toLowerCase().trim();
+    var todayQty=0, eventQty=0, allQty=0, todayRows=[];
+    res.scans.forEach(function(s){
+      var qty=parseInt(s.qty,10)||1;
+      allQty+=qty;
+      var d=String(s.date||'').trim().split('T')[0];
+      if(d===today){
+        todayQty+=qty;
+        todayRows.push({id:s.item_id,name:s.item_name,qty:qty,time:''});
+      }
+      if(evt && String(s.event||'').toLowerCase().trim()===evt){ eventQty+=qty; }
+    });
+    session.serverTodayQty=todayQty;
+    session.serverEventQty=evt?eventQty:todayQty;
+    // Server all-time (sum of this member's inventory rows) is the truth.
+    if(allQty>0||!session.totalScans)session.totalScans=Math.max(allQty,session.totalScans||0);
+    // Rebuild today's local scan log from the server so it survives reloads
+    // and reflects scans made on another device.
+    session.todayScans=todayRows;
+    saveSession();
+    syncDashStats();
+    updateActivityList();updateScanCount();
+    // Refresh the profile card so scan-milestone badges reflect the synced
+    // all-time total (keeps badges consistent across devices).
+    if(typeof renderProfileCard==='function')renderProfileCard();
+  }catch(e){/* offline — keep local optimistic counts */}
 }
 function showPortal(){
   showView('portal');
@@ -156,6 +206,7 @@ function showPortal(){
   var evLine=document.getElementById('dash-event-line');
   if(evLine)evLine.textContent=session.event?('Serving at '+session.event):'No active event — tap Change Event to start.';
   syncDashStats();
+  loadServerScanCounts(); // authoritative today/event/all-time from the server
   loadItemsFromLists(); // warm the live Lists item list for picker + scanner
   updateActivityList();updateScanCount();
   // Show announcement compose only if the member has the chat_admin permission.
@@ -478,7 +529,7 @@ function updateActivityList(){
   if(!session||!session.todayScans.length){list.innerHTML='<p style="color:var(--muted);font-size:0.84rem;">No items scanned yet today.</p>';return;}
   list.innerHTML=session.todayScans.slice().reverse().map(function(s,i){
     var realIdx=session.todayScans.length-1-i;
-    return '<div class="activity-item"><span class="activity-item__name">'+escapeHtml(s.name)+'</span><span class="activity-item__time">'+s.time+'</span>'+
+    return '<div class="activity-item"><span class="activity-item__name">'+escapeHtml(s.name)+(s.qty>1?' ×'+s.qty:'')+'</span><span class="activity-item__time">'+(s.time||'')+'</span>'+
       '<button class="activity-item__edit" data-idx="'+realIdx+'" title="Edit">✏️</button>'+
       '<button class="activity-item__rm" data-idx="'+realIdx+'" title="Remove">×</button></div>';
   }).join('');
@@ -689,10 +740,18 @@ async function logMovement(m){
   if(leaving){
     session.todayScans.push({id:m.id,name:m.name,qty:m.qty,time:now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
     session.totalScans=(session.totalScans||0)+m.qty;
+    // Bump the authoritative counters optimistically so the numbers move at
+    // once; loadServerScanCounts() reconciles them from the server below.
+    if(typeof session.serverTodayQty==='number')session.serverTodayQty+=m.qty;
+    if(typeof session.serverEventQty==='number')session.serverEventQty+=m.qty;
     saveSession();updateActivityList();updateScanCount();
     syncDashStats();
   }
-  try{await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:m.id,item_name:m.name,qty:m.qty,event_label:session.event,date:localToday(),movement_type:m.movement_type,paid:!!m.paid,donor_note:m.donor_note||'',detail_notes:m.detail_notes||'',receipt_data:m.receipt_data||''});}catch(e){}
+  try{
+    await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:m.id,item_name:m.name,qty:m.qty,event_label:session.event,date:localToday(),movement_type:m.movement_type,paid:!!m.paid,donor_note:m.donor_note||'',detail_notes:m.detail_notes||'',receipt_data:m.receipt_data||''});
+    // Re-sync authoritative counts from the server after the write lands.
+    if(leaving)loadServerScanCounts();
+  }catch(e){}
 }
 // Back-compat shim (in case other code calls logScan).
 async function logScan(itemId,itemName,qty){ return logMovement({id:itemId,name:itemName,qty:parseInt(qty)||1,movement_type:'outreach',paid:false}); }

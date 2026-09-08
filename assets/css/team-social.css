@@ -1862,3 +1862,24 @@
   .launch-grid { grid-template-columns: 1fr 1fr; }
   .launch-card--feature { grid-column: 1 / -1; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   Profile-card avatar: support a real <img> (profile picture) that
+   fills the circular container; larger on desktop. The base rule
+   sets a gradient bg for the initials state — clip the image to the
+   circle and hide overflow so a photo reads cleanly.
+   ═══════════════════════════════════════════════════════════════ */
+.profile-card__avatar {
+  overflow: hidden;
+}
+.profile-card__avatar .avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
+@media (min-width: 768px) {
+  .profile-card__avatar { width: 64px; height: 64px; font-size: 1.25rem; }
+}

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
-  <link rel="stylesheet" href="assets/css/team-social.css?v=15">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=16">
   <link rel="stylesheet" href="assets/css/lms.css?v=2">
   <style>
     /* ── Content Studio — SocialPulse-inspired look (emerald, white cards) ── */
@@ -803,7 +803,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=19"></script>
+<script src="assets/js/team-portal.js?v=20"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
 <script>
@@ -950,15 +950,17 @@
     var role = document.getElementById('profile-role');
     if (avatar) {
       var pic = s.profilePicUrl || s.profilePic || '';
+      var ini = s.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+      // Normalize a Drive share/uc URL to the reliable lh3 image host so it
+      // embeds without expiring (same fix as the community feed).
+      var imgUrl = pic;
+      var m = String(pic).match(/[?&]id=([\w-]+)/) || String(pic).match(/\/d\/([\w-]+)/);
+      if (m) imgUrl = 'https://lh3.googleusercontent.com/d/' + m[1] + '=w240';
       if (pic) {
-        // Render the saved profile picture; keep it circular via the card CSS.
-        avatar.textContent = '';
-        avatar.style.backgroundImage = 'url("' + pic + '")';
-        avatar.style.backgroundSize = 'cover';
-        avatar.style.backgroundPosition = 'center';
+        // Real <img> (not a CSS background) with graceful fallback to initials.
+        avatar.innerHTML = '<img class="avatar-img" src="' + imgUrl + '" alt="" onerror="this.parentNode.textContent=\'' + ini + '\'">';
       } else {
-        avatar.style.backgroundImage = '';
-        avatar.textContent = s.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+        avatar.textContent = ini;
       }
     }
     if (name) name.textContent = s.name;
@@ -2099,6 +2101,6 @@
 
 <script src="assets/js/main.js?v=9"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
-<script src="assets/js/nav-auth.js?v=4"></script>
+<script src="assets/js/nav-auth.js?v=5"></script>
 </body>
 </html>

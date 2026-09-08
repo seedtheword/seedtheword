@@ -1,10 +1,10 @@
 /* ============================================================
-   Team Portal — Social Platform + Operations Dashboard
+   Team Portal â€” Social Platform + Operations Dashboard
    Uses theme.css variables for light/dark support
    Mobile-first responsive design
    ============================================================ */
 
-/* ── Page Shell ────────────────────────────────────────────── */
+/* â”€â”€ Page Shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .team-shell {
   min-height: 100vh;
   background: var(--color-bg);
@@ -19,7 +19,7 @@
   z-index: 1;
 }
 
-/* ── Team Header ───────────────────────────────────────────── */
+/* â”€â”€ Team Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .team-header {
   display: flex;
   align-items: center;
@@ -66,7 +66,7 @@
   color: var(--color-gold);
 }
 
-/* ── Profile Card ──────────────────────────────────────────── */
+/* â”€â”€ Profile Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .profile-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -133,7 +133,7 @@
   margin-top: 0.15rem;
 }
 
-/* ── Badges ────────────────────────────────────────────────── */
+/* â”€â”€ Badges â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .profile-card__badges {
   display: flex;
   flex-wrap: wrap;
@@ -158,7 +158,7 @@
   color: var(--color-olive);
 }
 
-/* ── Glass Card (shared) ───────────────────────────────────── */
+/* â”€â”€ Glass Card (shared) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .glass-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -182,7 +182,7 @@
   gap: 0.4rem;
 }
 
-/* ── Main Tabs ─────────────────────────────────────────────── */
+/* â”€â”€ Main Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .main-tabs {
   display: flex;
   gap: 0.35rem;
@@ -223,13 +223,13 @@
 }
 .main-tab__icon { font-size: 1rem; }
 
-/* ── Tab Panels ────────────────────────────────────────────── */
+/* â”€â”€ Tab Panels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tab-panel { animation: fadeIn 0.2s ease both; }
 .tab-panel[hidden] { display: none; }
 .tab-panel--active { display: block; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ── Stats Grid ────────────────────────────────────────────── */
+/* â”€â”€ Stats Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .stat-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -258,7 +258,7 @@
   margin-top: 0.2rem;
 }
 
-/* ── Event Banner ──────────────────────────────────────────── */
+/* â”€â”€ Event Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .event-banner {
   padding: 0.7rem 1rem;
   background: var(--color-gold-soft);
@@ -271,7 +271,7 @@
 }
 .event-banner strong { color: var(--color-gold); }
 
-/* ── Chat Container ────────────────────────────────────────── */
+/* â”€â”€ Chat Container â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .chat-container {
   display: flex;
   height: 440px;
@@ -347,7 +347,7 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── Chat Messages ─────────────────────────────────────────── */
+/* â”€â”€ Chat Messages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .chat-msg {
   max-width: 85%;
   padding: 0.6rem 0.85rem;
@@ -409,7 +409,7 @@
   margin-bottom: 0.15rem;
 }
 
-/* ── Chat Compose ──────────────────────────────────────────── */
+/* â”€â”€ Chat Compose â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .chat-compose {
   display: flex;
   gap: 0.4rem;
@@ -464,7 +464,7 @@
   .chat-container { height: 380px; }
 }
 
-/* ── Forum / Social Posts (Team) ───────────────────────────── */
+/* â”€â”€ Forum / Social Posts (Team) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .team-post {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -541,7 +541,7 @@
 .team-post__action:hover { background: var(--color-bg-subtle); color: var(--color-text); }
 .team-post__action.is-liked { color: var(--color-gold); }
 
-/* ── Form Elements ─────────────────────────────────────────── */
+/* â”€â”€ Form Elements â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .team-page label {
   display: block;
   font-size: 0.8rem;
@@ -580,7 +580,7 @@
 }
 .team-page textarea { resize: vertical; min-height: 60px; }
 
-/* ── Buttons ───────────────────────────────────────────────── */
+/* â”€â”€ Buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .team-page .btn {
   width: 100%;
   padding: 0.85rem;
@@ -603,7 +603,7 @@
 .team-page .btn--danger { background: linear-gradient(135deg, var(--color-danger), #c0392b); color: #fff; }
 .team-page .btn--sm { padding: 0.6rem 1rem; font-size: 0.82rem; width: auto; }
 
-/* ── Views / Status ────────────────────────────────────────── */
+/* â”€â”€ Views / Status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .view { display: none; animation: fadeIn 0.2s ease both; }
 .view.active { display: block; }
 .status { text-align: center; font-size: 0.82rem; min-height: 1.2rem; margin-bottom: 0.5rem; }
@@ -612,7 +612,7 @@
 .toggle-link { font-size: 0.82rem; text-align: center; color: var(--color-text-muted); margin-top: 0.5rem; }
 .toggle-link a { color: var(--color-gold); font-weight: 600; cursor: pointer; text-decoration: none; }
 
-/* ── QR Scanner ────────────────────────────────────────────── */
+/* â”€â”€ QR Scanner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .qr-toggle {
   width: 100%;
   padding: 0.85rem;
@@ -645,14 +645,126 @@
 .qr-confirm__actions { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
 .scan-count { text-align: center; font-size: 0.72rem; color: var(--color-text-muted); margin-bottom: 0.75rem; }
 
-/* ── Picker Modal — base overlay only (full styling in the PHASE B
+/* â”€â”€ Picker Modal â€” base overlay only (full styling in the PHASE B
    picker rebuild near the end of this file; kept here just so the
-   overlay show/hide works if the later block ever moves). ───────── */
-.picker-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); z-index: 200; align-items: flex-end; justify-content: center; }
-.picker-overlay.active { display: flex; }
+   overlay show/hide works if the later block ever moves). â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.picker-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(20, 24, 20, 0.5);
+  /* center the sheet both axes on every screen */
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1rem !important;
+  box-sizing: border-box;
+}
+.picker-overlay.active { display: flex !important; }
+
+/* Sheet: fixed, sensible width, fully rounded, vertically capped */
+.picker-sheet {
+  width: 100% !important;
+  max-width: 460px !important;
+  max-height: 80vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden !important;
+  box-sizing: border-box;
+}
+
+/* Header row */
+.picker-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.15rem 1.25rem 0.75rem !important;
+  border-bottom: none;
+}
+.picker-header__title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text);
+}
+.picker-header__close {
+  flex: 0 0 auto;
+  width: 34px; height: 34px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  font-size: 1.1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--color-text-muted);
+}
+
+/* Search: full width inside the sheet's padding */
+.picker-search {
+  flex: 0 0 auto;
+  display: block;
+  width: auto !important;
+  margin: 0 1.25rem 0.85rem !important;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
+  box-sizing: border-box;
+}
 .picker-search:focus { outline: none; border-color: var(--color-gold); box-shadow: var(--shadow-glow); }
 
-/* ── Emergency Banner ──────────────────────────────────────── */
+/* List: the only scroll area. Symmetric side padding; the scrollbar
+   lives inside this padding so rows never reach the sheet edge. */
+.picker-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.25rem 1.25rem 1.25rem !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+  box-sizing: border-box;
+}
+.picker-list::-webkit-scrollbar { width: 6px; }
+.picker-list::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--radius-full); }
+
+/* Rows: reset button, left-aligned, full width of the list content box */
+.picker-list .picker-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0.15rem;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  text-align: left !important;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  transition: border-color var(--duration-fast) var(--ease), background var(--duration-fast) var(--ease);
+}
+.picker-list .picker-item:hover { border-color: var(--color-olive); background: var(--color-olive-soft); }
+.picker-item__name { display: block; font-size: 0.9rem; font-weight: 600; color: var(--color-text); text-align: left; }
+.picker-item__id { display: block; font-size: 0.68rem; font-family: var(--font-mono); color: var(--color-text-muted); text-align: left; }
+
+/* â”€â”€ Emergency Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .emergency-banner { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem 1.25rem; background: var(--color-danger-soft); border: 1.5px solid var(--color-danger); border-radius: var(--radius-sm); margin-bottom: 1rem; animation: emergencyPulse 3s ease-in-out infinite; }
 @keyframes emergencyPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(166, 37, 31, 0.15); } 50% { box-shadow: 0 0 0 6px rgba(166, 37, 31, 0); } }
 .emergency-banner__icon { font-size: 1.4rem; flex-shrink: 0; }
@@ -662,14 +774,14 @@
 .emergency-banner__dismiss { background: none; border: none; color: var(--color-text-muted); font-size: 1.2rem; cursor: pointer; padding: 0.2rem; flex-shrink: 0; }
 .emergency-banner__dismiss:hover { color: var(--color-danger); }
 
-/* ── Training ──────────────────────────────────────────────── */
+/* â”€â”€ Training â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .training-module { padding: 0.75rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem; }
 .training-module__check { width: 24px; height: 24px; border-radius: var(--radius-full); border: 2px solid var(--color-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.7rem; }
 .training-module__check--done { background: var(--color-olive); border-color: var(--color-olive); color: #fff; }
 .training-module__name { font-size: 0.85rem; font-weight: 600; color: var(--color-text); }
 .training-module__desc { font-size: 0.72rem; color: var(--color-text-muted); margin-top: 0.15rem; }
 
-/* ── Activity List ─────────────────────────────────────────── */
+/* â”€â”€ Activity List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .activity-item { display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0; border-bottom: 1px solid var(--color-border); font-size: 0.84rem; }
 .activity-item:last-child { border-bottom: none; }
 .activity-item__name { font-weight: 600; flex: 1; color: var(--color-text); }
@@ -677,13 +789,13 @@
 .activity-item__rm { background: none; border: none; color: var(--color-text-muted); font-size: 0.85rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; }
 .activity-item__rm:hover { color: var(--color-danger); }
 
-/* ── DM Contacts ───────────────────────────────────────────── */
+/* â”€â”€ DM Contacts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .dm-contact { display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem 0.75rem; border-radius: var(--radius-sm); cursor: pointer; margin-bottom: 0.35rem; transition: background var(--duration-fast); }
 .dm-contact:hover { background: var(--color-gold-soft); }
 .dm-contact__avatar { width: 30px; height: 30px; border-radius: var(--radius-full); background: var(--color-gold-soft); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: var(--color-gold); flex-shrink: 0; }
 .dm-contact__name { font-size: 0.84rem; font-weight: 600; color: var(--color-text); }
 
-/* ── Announcements ─────────────────────────────────────────── */
+/* â”€â”€ Announcements â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .ann-item { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 0.6rem; }
 .ann-item--urgent { border-left: 3px solid var(--color-warning); }
 .ann-item--emergency { border-left: 3px solid var(--color-danger); }
@@ -695,7 +807,7 @@
 .ann-item__body { font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6; margin: 0; }
 .ann-item__meta { font-size: 0.7rem; color: var(--color-text-muted); margin-top: 0.5rem; }
 
-/* ── Responsive ────────────────────────────────────────────── */
+/* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 400px) {
   .main-tabs { gap: 0.25rem; }
   .main-tab { padding: 0.6rem 0.4rem; font-size: 0.72rem; }
@@ -703,7 +815,7 @@
   .profile-card__stats { justify-content: center; }
 }
 
-/* ── Option A: on desktop, tabs WRAP so none are unreachable ──
+/* â”€â”€ Option A: on desktop, tabs WRAP so none are unreachable â”€â”€
    Mobile keeps the horizontal touch-scroll (unchanged). On non-touch
    / wider viewports there is no scroll affordance, so we wrap every
    tab onto as many rows as needed and size each to its content. */
@@ -720,7 +832,7 @@
   }
 }
 
-/* ── Option B: roomier DESKTOP layout (CSS-only, no DOM changes) ──
+/* â”€â”€ Option B: roomier DESKTOP layout (CSS-only, no DOM changes) â”€â”€
    Below 768px the portal is untouched (mobile-first phone column).
    At >=768px we widen the column and let the stat/tile grids spread
    using auto-fit so cards keep a sensible size instead of stretching.
@@ -749,7 +861,7 @@
 }
 
 
-/* ── Redesigned Chat Topic Sidebar ─────────────────────────── */
+/* â”€â”€ Redesigned Chat Topic Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .chat-topic--active {
   background: var(--color-olive-soft) !important;
   border-left-color: var(--color-olive) !important;
@@ -761,7 +873,7 @@
   transform: scale(0.95);
 }
 
-/* ── Improved Chat Messages ────────────────────────────────── */
+/* â”€â”€ Improved Chat Messages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .chat-msg {
   animation: slideIn 0.2s var(--ease) both;
 }
@@ -803,11 +915,11 @@
   transform: scale(0.95);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   Dashboard Redesign — Mobile-first tile grid & stat cards
-   ═══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   Dashboard Redesign â€” Mobile-first tile grid & stat cards
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Hero Stat Cards ───────────────────────────────────────── */
+/* â”€â”€ Hero Stat Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .dash-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -868,7 +980,7 @@
   color: #2ecc71;
 }
 
-/* ── Action Tile Grid (2-col) ──────────────────────────────── */
+/* â”€â”€ Action Tile Grid (2-col) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .dash-tiles {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -918,11 +1030,11 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   Finance Tab — Expense logging & receipt upload
-   ═══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   Finance Tab â€” Expense logging & receipt upload
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Finance Form ──────────────────────────────────────────── */
+/* â”€â”€ Finance Form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .finance-form {
   display: flex;
   flex-direction: column;
@@ -968,7 +1080,7 @@
   min-height: 1.2rem;
 }
 
-/* ── Receipt Upload ────────────────────────────────────────── */
+/* â”€â”€ Receipt Upload â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .receipt-upload {
   position: relative;
   border: 2px dashed var(--color-border);
@@ -1040,7 +1152,7 @@
   background: #c0392b;
 }
 
-/* ── Finance List ──────────────────────────────────────────── */
+/* â”€â”€ Finance List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .finance-entry {
   display: flex;
   align-items: center;
@@ -1127,11 +1239,11 @@
   background: rgba(192, 57, 43, 0.1);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   Login & Event Views — Premium mobile-first design
-   ═══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   Login & Event Views â€” Premium mobile-first design
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Login Hero ────────────────────────────────────────────── */
+/* â”€â”€ Login Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .login-hero {
   text-align: center;
   padding: 2rem 1rem 1.5rem;
@@ -1155,14 +1267,14 @@
   font-weight: 500;
 }
 
-/* ── Large button variant ──────────────────────────────────── */
+/* â”€â”€ Large button variant â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn--lg {
   padding: 0.95rem 1.5rem;
   font-size: 1rem;
   border-radius: var(--radius-lg);
 }
 
-/* ── Remember me checkbox ──────────────────────────────────── */
+/* â”€â”€ Remember me checkbox â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .login-remember {
   display: flex;
   align-items: center;
@@ -1178,7 +1290,7 @@
   margin: 0;
 }
 
-/* ── Event Autocomplete ────────────────────────────────────── */
+/* â”€â”€ Event Autocomplete â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .event-autocomplete {
   position: relative;
 }
@@ -1235,7 +1347,7 @@
 }
 
 
-/* ── Multi-receipt thumbnails + related-item rows ─────────────── */
+/* â”€â”€ Multi-receipt thumbnails + related-item rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .receipt-thumb { position: relative; width: 76px; height: 76px; border-radius: 10px; overflow: hidden; border: 1px solid var(--color-border); flex-shrink: 0; }
 .receipt-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .receipt-thumb__remove { position: absolute; top: 2px; right: 2px; width: 22px; height: 22px; border: none; border-radius: 50%; background: rgba(0,0,0,0.6); color: #fff; font-size: 15px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -1245,16 +1357,16 @@
 .finance-item-row input { width: 58px; padding: 0.5rem; border: 1.5px solid var(--color-border); border-radius: 10px; font-size: 0.82rem; text-align: center; background: var(--color-surface); color: var(--color-text); }
 .finance-item-row__del { border: none; background: none; color: var(--color-text-muted); font-size: 1.2rem; cursor: pointer; padding: 0 0.3rem; }
 
-/* ═══════════════════════════════════════════════════════════════
-   PHASE A — Shared-component visual polish (CSS-ONLY)
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   PHASE A â€” Shared-component visual polish (CSS-ONLY)
    Appended last so it layers over the base rules above without
    editing any existing selector. No HTML/JS classes or IDs change,
    so portal behaviour is untouched. Everything keys to theme.css
    tokens for light/dark parity. Mobile-first; desktop refinements
    are mirrored inside the existing min-width breakpoints.
-   ═══════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Shell: gentle warmth + depth ──────────────────────────── */
+/* â”€â”€ Shell: gentle warmth + depth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .team-shell {
   background:
     radial-gradient(1200px 480px at 50% -10%, var(--color-gold-soft) 0%, transparent 60%),
@@ -1262,7 +1374,7 @@
 }
 .team-page { padding-top: 1.5rem; }
 
-/* ── Header: crisper divider + brand weight ────────────────── */
+/* â”€â”€ Header: crisper divider + brand weight â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .team-header {
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 1rem;
@@ -1274,7 +1386,7 @@
   background: var(--color-gold-soft);
 }
 
-/* ── Profile card: soft top accent + refined avatar ────────── */
+/* â”€â”€ Profile card: soft top accent + refined avatar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .profile-card {
   position: relative;
   border-radius: var(--radius-xl);
@@ -1295,7 +1407,7 @@
   color: var(--color-text-inverse);
 }
 
-/* ── Glass cards: consistent radius + hover lift ───────────── */
+/* â”€â”€ Glass cards: consistent radius + hover lift â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .glass-card {
   border-radius: var(--radius-xl);
   transition: transform var(--duration-normal) var(--ease),
@@ -1317,7 +1429,7 @@
   flex-shrink: 0;
 }
 
-/* ── Main tabs: pill polish + clearer active state ─────────── */
+/* â”€â”€ Main tabs: pill polish + clearer active state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .main-tab {
   border-radius: var(--radius-full);
   transition: transform var(--duration-fast) var(--ease),
@@ -1335,7 +1447,7 @@
 }
 .main-tab--active .main-tab__icon { opacity: 1; }
 
-/* ── Stat / dashboard cards: depth + hover ─────────────────── */
+/* â”€â”€ Stat / dashboard cards: depth + hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .stat-card,
 .dash-stat,
 .dash-tile {
@@ -1356,7 +1468,7 @@
 .dash-stat--finance { border-top-color: var(--color-olive); }
 .dash-stat--finance .dash-stat__number { color: var(--color-olive); }
 
-/* ── Buttons: token-keyed gradients + softer, richer depth ─── */
+/* â”€â”€ Buttons: token-keyed gradients + softer, richer depth â”€â”€â”€ */
 .team-page .btn {
   border-radius: var(--radius-md);
   letter-spacing: 0.01em;
@@ -1383,18 +1495,18 @@
   border-color: var(--color-gold);
 }
 
-/* ── Form fields: unified focus ring (gold) ────────────────── */
+/* â”€â”€ Form fields: unified focus ring (gold) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .team-page input:not([type="checkbox"]):not([type="radio"]):hover,
 .team-page select:hover,
 .team-page textarea:hover {
   border-color: var(--color-text-muted);
 }
 
-/* ── Status pills ──────────────────────────────────────────── */
+/* â”€â”€ Status pills â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .status--error { font-weight: 600; }
 .status--success { font-weight: 600; }
 
-/* ── Milestone badges (were emitted with ZERO css) ─────────── */
+/* â”€â”€ Milestone badges (were emitted with ZERO css) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #training-milestones {
   display: flex;
   flex-wrap: wrap;
@@ -1425,7 +1537,7 @@
 }
 .milestone-badge--earned:hover { transform: translateY(-1px); }
 
-/* ── List rows: smoother separators ────────────────────────── */
+/* â”€â”€ List rows: smoother separators â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .activity-item,
 .finance-entry {
   transition: background var(--duration-fast) var(--ease);
@@ -1436,17 +1548,17 @@
   background: var(--color-surface-hover);
 }
 
-/* ── Login hero: warmer, more premium ──────────────────────── */
+/* â”€â”€ Login hero: warmer, more premium â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .login-hero__title { letter-spacing: -0.02em; }
 .login-hero__icon { filter: drop-shadow(0 4px 10px rgba(44, 74, 62, 0.18)); }
 
-/* ── Desktop mirror: keep polish coherent on wider screens ─── */
+/* â”€â”€ Desktop mirror: keep polish coherent on wider screens â”€â”€â”€ */
 @media (min-width: 768px) {
   .glass-card:hover { transform: translateY(-3px); }
   .dash-tile:hover { transform: translateY(-2px); }
 }
 
-/* ── Respect reduced motion ────────────────────────────────── */
+/* â”€â”€ Respect reduced motion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (prefers-reduced-motion: reduce) {
   .glass-card,
   .glass-card:hover,
@@ -1463,14 +1575,14 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   PHASE A — Login / pre-auth branded background (CSS-ONLY)
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   PHASE A â€” Login / pre-auth branded background (CSS-ONLY)
    Blurred ministry photo behind the login, forgot, signup and
    event-setup screens only. Scoped via :has() to the active
    pre-auth view, so the logged-in portal (#view-portal) keeps its
    clean light background. Degrades gracefully to the current look
    where :has() is unsupported. No HTML/JS changes.
-   ═══════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .team-page:has(#view-login.active),
 .team-page:has(#view-forgot.active),
@@ -1511,7 +1623,7 @@
   pointer-events: none;
 }
 
-/* Pre-auth hero text now sits on a dark photo → light it up */
+/* Pre-auth hero text now sits on a dark photo â†’ light it up */
 .team-page:has(#view-login.active) .login-hero__title,
 .team-page:has(#view-forgot.active) .login-hero__title,
 .team-page:has(#view-signup.active) .login-hero__title,
@@ -1561,11 +1673,11 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   PHASE B — Dashboard tab: greeting band, trio stats, grouped hub
-   ═══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   PHASE B â€” Dashboard tab: greeting band, trio stats, grouped hub
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Greeting band ─────────────────────────────────────────── */
+/* â”€â”€ Greeting band â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .dash-greeting {
   margin: 0 0 1rem;
 }
@@ -1584,7 +1696,7 @@
   margin: 0.2rem 0 0;
 }
 
-/* ── Trio stat row (mobile: 3 across, compact) ─────────────── */
+/* â”€â”€ Trio stat row (mobile: 3 across, compact) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .dash-stats--trio {
   grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
@@ -1603,7 +1715,7 @@
   font-size: 0.58rem;
 }
 
-/* ── Grouped action hub ────────────────────────────────────── */
+/* â”€â”€ Grouped action hub â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .dash-group {
   margin-bottom: 1.25rem;
 }
@@ -1626,7 +1738,7 @@
   background: var(--color-border);
 }
 
-/* ── Desktop: give stats a touch more air ──────────────────── */
+/* â”€â”€ Desktop: give stats a touch more air â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (min-width: 768px) {
   .dash-stats--trio {
     grid-template-columns: repeat(3, 1fr);
@@ -1636,9 +1748,9 @@
   .dash-stats--trio .dash-stat__label { font-size: 0.62rem; }
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   PHASE B — Scanner tab: unified "log an item" card
-   ═══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   PHASE B â€” Scanner tab: unified "log an item" card
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .scanner-card__hint {
   font-size: 0.82rem;
   color: var(--color-text-muted);
@@ -1673,175 +1785,3 @@
   margin-bottom: 0;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   PHASE B — Item picker modal, rebuilt (mobile-first)
-   Clean 3-zone sheet: fixed header + fixed search + scrolling list.
-   The list is the ONLY scroll area and its scrollbar hugs the rows
-   (no floating track in the sheet padding). Rows are a uniform,
-   flat list — hairline separators, no chunky chip borders.
-   Base styles = phone bottom-sheet. >=640px = centered dialog.
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Overlay — full-screen dim, sheet pinned to bottom on phones */
-.picker-overlay {
-  background: rgba(20, 24, 20, 0.5);
-  z-index: 1000;
-  align-items: flex-end;
-  padding: 0;
-}
-
-/* Sheet — flex column so the list gets the leftover height */
-.picker-sheet {
-  width: 100%;
-  max-width: 100%;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-surface);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25);
-  animation: pickerUp 0.22s cubic-bezier(0.2, 0, 0, 1);
-  overflow: hidden;
-}
-@keyframes pickerUp {
-  from { transform: translateY(26px); opacity: 0.5; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-/* Grab handle on mobile for the bottom-sheet feel */
-.picker-sheet::before {
-  content: "";
-  width: 40px;
-  height: 4px;
-  border-radius: var(--radius-full);
-  background: var(--color-border);
-  margin: 0.6rem auto 0.2rem;
-  flex-shrink: 0;
-}
-
-/* Header (fixed) — comfortable, consistent horizontal inset (1.35rem)
-   shared by search + list so everything lines up and nothing touches
-   the sheet edge. */
-.picker-header {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.35rem 1.35rem 0.85rem;
-  border-bottom: none;
-}
-.picker-header__title {
-  font-family: var(--font-serif);
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  margin: 0;
-}
-.picker-header__close {
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-}
-
-/* Search (fixed) — full width via matching side margins */
-.picker-search {
-  flex-shrink: 0;
-  display: block;
-  width: auto;
-  margin: 0 1.35rem 0.75rem;
-  padding: 0.8rem 1rem;
-  border-radius: var(--radius-md);
-  background: var(--color-bg-subtle);
-  border: 1.5px solid var(--color-border);
-  font-size: 0.9rem;
-  box-sizing: border-box;
-}
-
-/* List (the ONLY scroll area). Generous, even padding on all sides so
-   rows never jam against the search above or the sheet edge. Rows are
-   spaced apart with a flex gap for real breathing room. */
-.picker-list {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  padding: 0.35rem 1rem 1.35rem 1.35rem;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border) transparent;
-}
-.picker-list::-webkit-scrollbar { width: 6px; }
-.picker-list::-webkit-scrollbar-track { background: transparent; margin: 0.5rem 0; }
-.picker-list::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: var(--radius-full);
-}
-
-/* Rows — soft cards. Rendered as <button>, so reset button defaults
-   and force LEFT alignment + real internal padding. */
-.picker-list .picker-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 0.2rem;
-  width: 100%;
-  padding: 0.9rem 1rem;
-  margin: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  min-height: 58px;
-  text-align: left;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-  transition: border-color var(--duration-fast) var(--ease),
-              background var(--duration-fast) var(--ease),
-              box-shadow var(--duration-fast) var(--ease);
-}
-.picker-list .picker-item:hover {
-  border-color: var(--color-olive);
-  background: var(--color-olive-soft);
-  box-shadow: var(--shadow-sm);
-}
-.picker-list .picker-item:active { background: var(--color-olive-soft); transform: scale(0.995); }
-.picker-item__name {
-  display: block;
-  font-size: 0.92rem;
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--color-text);
-  text-align: left;
-}
-.picker-item__id {
-  display: block;
-  font-size: 0.68rem;
-  font-family: var(--font-mono);
-  color: var(--color-text-muted);
-  text-align: left;
-}
-
-/* Desktop (>=640px): centered, fully-rounded dialog with a sane width */
-@media (min-width: 640px) {
-  .picker-overlay { align-items: center; padding: 1.5rem; }
-  .picker-sheet {
-    width: 480px;
-    max-width: 100%;
-    max-height: 78vh;
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
-  }
-  .picker-sheet::before { display: none; } /* no grab handle on desktop */
-  .picker-header { padding: 1.1rem 1.25rem 0.75rem; }
-  .picker-item:hover { border-radius: var(--radius-md); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .picker-sheet { animation: none; }
-}

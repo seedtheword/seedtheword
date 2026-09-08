@@ -319,3 +319,21 @@ Two related avatar fixes. Both are in P1 web-app files.
 **Did it work?**
 - Team Portal profile card + nav badge show your picture and it stays put on scroll/refresh.
 - On community.html, your posts show your avatar (not just initials).
+
+
+## Instagram-style stories: per-member "seen" state — needs redeploy (P1)
+
+**What changed**
+- `social-handler.gs` — new `markStoryViewed` action + `StoryViews` tab (`story_id | viewer | viewed_at`). `handleGetStories_` now returns a per-viewer `seen` flag on each story (joined from StoryViews for the token's member). New helpers `getStoryViewsSheet_`, `storyViewsForViewer_`, `handleMarkStoryViewed_`.
+- `order-handler.gs` — routes `markStoryViewed` → `handleMarkStoryViewed_` (next to `getStories`).
+
+**Frontend (ships via git, no Apps Script step)**
+- `community.html` — stories rail now groups by author with unseen (gradient) vs seen (gray) rings, unseen-first ordering; the viewer plays an author's stories in sequence with an animated segmented progress bar, hold-to-pause, tap zones (left=prev/right=next), swipe (left/right = author, down = close), and keyboard arrows/Esc. Viewing a story calls `markStoryViewed` so "seen" syncs across the member's devices.
+
+**Activate**
+1. Repaste **`social-handler.gs`** + **`order-handler.gs`** into the P1 web-app project and **redeploy**.
+2. The `StoryViews` tab auto-creates on the first `markStoryViewed`. Until redeploy, stories still work; every story just shows as unseen (gradient ring) since the backend won't return `seen`.
+
+**Did it work?** View a story on one device → its ring turns gray there and on another device after refresh.
+
+> The story viewer engine is reused by the upcoming Phase 2 team-portal DM inbox (Instagram-style), so a stories rail can appear at the top of the inbox with no rebuild.

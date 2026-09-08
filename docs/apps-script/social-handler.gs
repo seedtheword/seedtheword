@@ -809,6 +809,9 @@ function handleGetStories_(payload) {
   try {
     var auth = validateAdminOrPublicOrToken_(payload);
     if (!auth) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var viewer = auth.user ? String(auth.user.name).toLowerCase().trim() : '';
+    // Set of story ids this viewer has already seen (empty for public reads).
+    var seenSet = viewer ? storyViewsForViewer_(viewer) : {};
     var sheet = getStoriesSheet_();
     var last = sheet.getLastRow();
     var out = [];
@@ -820,9 +823,11 @@ function handleGetStories_(payload) {
         var exp = Number(data[i][6]) || 0;
         if (exp && exp < now) { staleRows.push(i + 2); continue; }  // expired
         if (!data[i][0]) continue;
+        var sid = String(data[i][0]);
         out.push({
-          id: String(data[i][0]), author: String(data[i][1]), author_role: String(data[i][2] || 'member'),
-          image: String(data[i][3]), caption: String(data[i][4] || ''), created_at: Number(data[i][5]) || 0
+          id: sid, author: String(data[i][1]), author_role: String(data[i][2] || 'member'),
+          image: String(data[i][3]), caption: String(data[i][4] || ''), created_at: Number(data[i][5]) || 0,
+          seen: !!seenSet[sid]
         });
       }
       // Opportunistic cleanup of a few expired rows (bottom-up).
@@ -832,6 +837,63 @@ function handleGetStories_(payload) {
     out.sort(function (a, b) { return b.created_at - a.created_at; });
     return jsonResponse({ ok: true, stories: out });
   } catch (err) { Logger.log('getStories error: ' + err); return jsonResponse({ ok: false, error: 'Server error' }); }
+}
+
+// ── Story "seen" tracking (per team member, cross-device) ──────────────
+// StoryViews tab: story_id | viewer | viewed_at
+var STORY_VIEWS_TAB = 'StoryViews';
+var STORY_VIEWS_HEADERS = ['story_id', 'viewer', 'viewed_at'];
+
+function getStoryViewsSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName(STORY_VIEWS_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(STORY_VIEWS_TAB);
+    sheet.getRange(1, 1, 1, STORY_VIEWS_HEADERS.length).setValues([STORY_VIEWS_HEADERS]);
+    sheet.getRange(1, 1, 1, STORY_VIEWS_HEADERS.length).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+// Map of { story_id: true } this viewer (lowercased name) has already seen.
+function storyViewsForViewer_(viewerLower) {
+  var out = {};
+  try {
+    var sheet = getStoryViewsSheet_();
+    var last = sheet.getLastRow();
+    if (last < 2) return out;
+    var data = sheet.getRange(2, 1, last - 1, 2).getValues(); // story_id, viewer
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][1]).toLowerCase().trim() === viewerLower) out[String(data[i][0])] = true;
+    }
+  } catch (e) {}
+  return out;
+}
+
+// { action:'markStoryViewed', token, story_id }  — records the viewer has seen
+// a story (idempotent: one row per viewer+story). Team members only.
+function handleMarkStoryViewed_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var storyId = String(payload.story_id || '').trim();
+    if (!storyId) return jsonResponse({ ok: false, error: 'Missing story_id' });
+    var viewer = String(user.name);
+    var viewerLower = viewer.toLowerCase().trim();
+    var sheet = getStoryViewsSheet_();
+    var last = sheet.getLastRow();
+    if (last >= 2) {
+      var data = sheet.getRange(2, 1, last - 1, 2).getValues();
+      for (var i = 0; i < data.length; i++) {
+        if (String(data[i][0]) === storyId && String(data[i][1]).toLowerCase().trim() === viewerLower) {
+          return jsonResponse({ ok: true, already: true }); // already recorded
+        }
+      }
+    }
+    sheet.appendRow([storyId, viewer, Date.now()]);
+    return jsonResponse({ ok: true });
+  } catch (err) { Logger.log('markStoryViewed error: ' + err); return jsonResponse({ ok: false, error: 'Server error' }); }
 }
 
 // ══════════════════════════════════════════════════════════════════════

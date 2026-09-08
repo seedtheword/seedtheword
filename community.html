@@ -297,7 +297,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 .empty-state__text{font-size:0.85rem;line-height:1.6;max-width:320px;margin:0 auto;}
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
-  <link rel="stylesheet" href="assets/css/community-forkful.css?v=23">
+  <link rel="stylesheet" href="assets/css/community-forkful.css?v=24">
 </head>
 <body class="community-body">
 
@@ -1475,21 +1475,52 @@ var groupMedia=null;
   });
 })();
 
-// ── Stories rail (24h ephemeral photos) ──
-var storiesData=[];
+// ── Stories rail (24h ephemeral photos) — Instagram-style, grouped by
+// author, with per-viewer "seen" rings (synced via markStoryViewed). ──
+var storiesData=[];      // flat list from the server (each has .seen)
+var storyGroups=[];      // [{author, pic, stories:[...], allSeen}]
+function buildStoryGroups(list){
+  var byAuthor={},order=[];
+  list.forEach(function(s){
+    var key=(s.author||'?');
+    if(!byAuthor[key]){byAuthor[key]={author:key,pic:s.author_pic||'',stories:[],allSeen:true};order.push(key);}
+    byAuthor[key].stories.push(s);
+    if(!s.seen)byAuthor[key].allSeen=false;
+  });
+  var groups=order.map(function(k){
+    // Oldest→newest within an author so playback runs chronologically.
+    byAuthor[k].stories.sort(function(a,b){return a.created_at-b.created_at;});
+    return byAuthor[k];
+  });
+  // Unseen authors first, then by most-recent story.
+  groups.sort(function(a,b){
+    if(a.allSeen!==b.allSeen)return a.allSeen?1:-1;
+    var am=Math.max.apply(null,a.stories.map(function(s){return s.created_at;}));
+    var bm=Math.max.apply(null,b.stories.map(function(s){return s.created_at;}));
+    return bm-am;
+  });
+  return groups;
+}
 async function loadStories(){
   var rail=document.getElementById('stories-rail');if(!rail)return;
-  var mine=session?'<button class="story-bubble story-bubble--add" id="story-add"><span class="story-bubble__ring"><span class="story-bubble__av">'+esc(initials(session.name))+'</span></span><span class="story-bubble__plus">＋</span><span class="story-bubble__label">Your story</span></button>':'';
+  var myPicUrl=session?(session.profilePicUrl||session.profilePic||''):'';
+  var myAv=myPicUrl?'<img class="story-bubble__img" src="'+esc(driveImg(myPicUrl))+'" alt="" onerror="this.parentNode.textContent=\''+esc(initials(session.name))+'\'">':esc(initials(session.name));
+  var mine=session?'<button class="story-bubble story-bubble--add" id="story-add"><span class="story-bubble__ring"><span class="story-bubble__av">'+myAv+'</span></span><span class="story-bubble__plus">＋</span><span class="story-bubble__label">Your story</span></button>':'';
   var items='';
   try{
     var res=await postAction(session?{action:'getStories',token:session.token}:{action:'getStories',passphrase_hash:'public-read'});
     storiesData=(res&&res.ok&&res.stories)?res.stories:[];
-    items=storiesData.map(function(s,i){return '<button class="story-bubble" data-idx="'+i+'"><span class="story-bubble__ring story-bubble__ring--live"><img class="story-bubble__img" src="'+esc(driveImg(s.image))+'" alt="" onerror="this.style.opacity=0.3"></span><span class="story-bubble__label">'+esc((s.author||'').split(' ')[0])+'</span></button>';}).join('');
-  }catch(e){storiesData=[];}
+    storyGroups=buildStoryGroups(storiesData);
+    items=storyGroups.map(function(g,i){
+      var av=g.pic?'<img class="story-bubble__img" src="'+esc(driveImg(g.pic))+'" alt="" onerror="this.parentNode.textContent=\''+esc(initials(g.author))+'\'">':'<span class="story-bubble__av">'+esc(initials(g.author))+'</span>';
+      var ringCls=g.allSeen?'story-bubble__ring story-bubble__ring--seen':'story-bubble__ring story-bubble__ring--live';
+      return '<button class="story-bubble" data-group="'+i+'"><span class="'+ringCls+'">'+av+'</span><span class="story-bubble__label">'+esc((g.author||'').split(' ')[0])+'</span></button>';
+    }).join('');
+  }catch(e){storiesData=[];storyGroups=[];}
   if(!mine&&!items){rail.style.display='none';return;}
   rail.style.display='';rail.innerHTML=mine+items;
   var addBtn=document.getElementById('story-add');if(addBtn)addBtn.addEventListener('click',function(){document.getElementById('story-file-input').click();});
-  rail.querySelectorAll('.story-bubble[data-idx]').forEach(function(b){b.addEventListener('click',function(){openStory(parseInt(this.dataset.idx));});});
+  rail.querySelectorAll('.story-bubble[data-group]').forEach(function(b){b.addEventListener('click',function(){openStory(parseInt(this.dataset.group),0);});});
 }
 (function(){var fi=document.getElementById('story-file-input');if(fi)fi.addEventListener('change',async function(){var f=this.files&&this.files[0];if(!f)return;this.value='';var url=await uploadPhoto(f);if(!url)return;var cap=prompt('Add a caption (optional):','')||'';try{var res=await postAction({action:'createStory',token:session.token,image:url,caption:cap});if(res&&res.ok)loadStories();else alert((res&&res.error)||'Could not post story.');}catch(e){alert('Could not post story.');}});})();
 // ── Image lightbox — tap any feed/group photo to view it full-size ──
@@ -1514,41 +1545,123 @@ document.addEventListener('click',function(e){
   if(img){e.preventDefault();openImageLightbox(img.getAttribute('src'));}
 });
 
-// Story viewer
-var storyIdx=0,storyTimer=null;
-function openStory(i){storyIdx=i;var v=document.getElementById('story-viewer');if(!v)return;v.hidden=false;renderStory();}
-function closeStory(){var v=document.getElementById('story-viewer');if(v)v.hidden=true;if(storyTimer)clearTimeout(storyTimer);}
+// ── Story viewer — Instagram-style: per-author playback, animated
+// segmented progress, hold-to-pause, tap zones, swipe, keyboard. ──
 var STORY_DURATION=6000;
+var storyGroupIdx=0, storyItemIdx=0, storyTimer=null, storyElapsed=0, storyStart=0, storyPaused=false;
+function curGroup(){return storyGroups[storyGroupIdx];}
+function curStory(){var g=curGroup();return g?g.stories[storyItemIdx]:null;}
+function openStory(groupIdx,itemIdx){
+  storyGroupIdx=groupIdx||0;storyItemIdx=itemIdx||0;
+  var v=document.getElementById('story-viewer');if(!v||!curGroup())return;
+  v.hidden=false;document.body.style.overflow='hidden';
+  renderStory();
+}
+function closeStory(){
+  var v=document.getElementById('story-viewer');if(v)v.hidden=true;
+  document.body.style.overflow='';
+  if(storyTimer){clearTimeout(storyTimer);storyTimer=null;}
+}
+// Advance within the current author, then to the next author group, else close.
+function storyNext(){
+  var g=curGroup();if(!g){closeStory();return;}
+  if(storyItemIdx<g.stories.length-1){storyItemIdx++;renderStory();}
+  else if(storyGroupIdx<storyGroups.length-1){storyGroupIdx++;storyItemIdx=0;renderStory();}
+  else{closeStory();}
+}
+function storyPrev(){
+  if(storyItemIdx>0){storyItemIdx--;renderStory();}
+  else if(storyGroupIdx>0){storyGroupIdx--;storyItemIdx=curGroup().stories.length-1;renderStory();}
+  // else: at very first story — stay put.
+}
+function markCurrentStorySeen(){
+  var s=curStory();if(!s||s.seen||!session)return;
+  s.seen=true; // optimistic
+  var g=curGroup();if(g)g.allSeen=g.stories.every(function(x){return x.seen;});
+  postAction({action:'markStoryViewed',token:session.token,story_id:s.id}).catch(function(){});
+}
+function scheduleStoryAdvance(ms){
+  if(storyTimer)clearTimeout(storyTimer);
+  storyStart=Date.now();
+  storyTimer=setTimeout(function(){storyNext();},ms);
+}
 function renderStory(){
-  var s=storiesData[storyIdx];if(!s){closeStory();return;}
+  var s=curStory();if(!s){closeStory();return;}
+  var g=curGroup();
   document.getElementById('story-viewer-img').src=driveImg(s.image);
   document.getElementById('story-viewer-av').textContent=initials(s.author);
   document.getElementById('story-viewer-author').textContent=s.author+' · '+timeAgo(s.created_at);
   document.getElementById('story-viewer-caption').textContent=s.caption||'';
-  // Instagram-style segmented progress bar: one segment per story. Past
-  // segments are full, future segments empty, the current one animates from
-  // 0→100% over STORY_DURATION. Rebuilt each render so it restarts cleanly.
+  // Segmented progress bar: one segment per story IN THIS AUTHOR'S set.
   var bar=document.getElementById('story-progress');
   if(bar){
     var segs='';
-    for(var i=0;i<storiesData.length;i++){
-      var state=i<storyIdx?'is-done':(i===storyIdx?'is-active':'');
+    for(var i=0;i<g.stories.length;i++){
+      var state=i<storyItemIdx?'is-done':(i===storyItemIdx?'is-active':'');
       segs+='<span class="story-seg '+state+'"><span class="story-seg__fill"></span></span>';
     }
     bar.innerHTML=segs;
-    // Force reflow so the fill animation restarts on the active segment.
     var activeFill=bar.querySelector('.story-seg.is-active .story-seg__fill');
     if(activeFill){void activeFill.offsetWidth;activeFill.style.animation='storyFill '+(STORY_DURATION/1000)+'s linear forwards';}
   }
-  if(storyTimer)clearTimeout(storyTimer);
-  storyTimer=setTimeout(function(){if(storyIdx<storiesData.length-1){storyIdx++;renderStory();}else{closeStory();}},STORY_DURATION);
+  storyPaused=false;storyElapsed=0;
+  scheduleStoryAdvance(STORY_DURATION);
+  markCurrentStorySeen();
+}
+// Hold-to-pause: freeze the timer + the progress fill; resume on release.
+function pauseStory(){
+  if(storyPaused)return;storyPaused=true;
+  if(storyTimer){clearTimeout(storyTimer);storyTimer=null;}
+  storyElapsed+=Date.now()-storyStart;
+  var f=document.querySelector('#story-progress .story-seg.is-active .story-seg__fill');
+  if(f)f.style.animationPlayState='paused';
+}
+function resumeStory(){
+  if(!storyPaused)return;storyPaused=false;
+  var f=document.querySelector('#story-progress .story-seg.is-active .story-seg__fill');
+  if(f)f.style.animationPlayState='running';
+  scheduleStoryAdvance(Math.max(400,STORY_DURATION-storyElapsed));
 }
 (function(){
   var c=document.getElementById('story-viewer-close'),p=document.getElementById('story-prev'),n=document.getElementById('story-next'),v=document.getElementById('story-viewer');
-  if(c)c.addEventListener('click',closeStory);
-  if(p)p.addEventListener('click',function(){if(storyIdx>0){storyIdx--;renderStory();}});
-  if(n)n.addEventListener('click',function(){if(storyIdx<storiesData.length-1){storyIdx++;renderStory();}else{closeStory();}});
+  var img=document.getElementById('story-viewer-img');
+  if(c)c.addEventListener('click',function(e){e.stopPropagation();closeStory();});
+  if(p)p.addEventListener('click',function(e){e.stopPropagation();storyPrev();});
+  if(n)n.addEventListener('click',function(e){e.stopPropagation();storyNext();});
   if(v)v.addEventListener('click',function(e){if(e.target===v)closeStory();});
+  // Tap zones on the image: left third = prev, right two-thirds = next.
+  if(img){img.addEventListener('click',function(e){
+    var r=this.getBoundingClientRect();
+    if((e.clientX-r.left)<r.width*0.33)storyPrev();else storyNext();
+  });}
+  // Hold-to-pause (mouse + touch) on the viewer inner area.
+  var inner=v?v.querySelector('.story-viewer__inner'):null;
+  if(inner){
+    inner.addEventListener('pointerdown',function(){pauseStory();});
+    inner.addEventListener('pointerup',function(){resumeStory();});
+    inner.addEventListener('pointercancel',function(){resumeStory();});
+    inner.addEventListener('pointerleave',function(){resumeStory();});
+  }
+  // Swipe: horizontal = prev/next author-group; swipe down = close.
+  var tsx=0,tsy=0;
+  if(v){
+    v.addEventListener('touchstart',function(e){var t=e.changedTouches[0];tsx=t.clientX;tsy=t.clientY;},{passive:true});
+    v.addEventListener('touchend',function(e){
+      var t=e.changedTouches[0],dx=t.clientX-tsx,dy=t.clientY-tsy;
+      if(Math.abs(dy)>80&&Math.abs(dy)>Math.abs(dx)){closeStory();return;}
+      if(Math.abs(dx)>50){
+        if(dx<0){/* swipe left → next author */ if(storyGroupIdx<storyGroups.length-1){storyGroupIdx++;storyItemIdx=0;renderStory();}else closeStory();}
+        else{/* swipe right → prev author */ if(storyGroupIdx>0){storyGroupIdx--;storyItemIdx=0;renderStory();}}
+      }
+    },{passive:true});
+  }
+  // Keyboard.
+  document.addEventListener('keydown',function(e){
+    var vv=document.getElementById('story-viewer');if(!vv||vv.hidden)return;
+    if(e.key==='ArrowRight')storyNext();
+    else if(e.key==='ArrowLeft')storyPrev();
+    else if(e.key==='Escape')closeStory();
+  });
 })();
 
 // ── Messages panel (DMs) — team members only, uses existing DM backend ──

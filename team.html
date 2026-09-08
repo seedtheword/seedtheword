@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
-  <link rel="stylesheet" href="assets/css/team-social.css?v=16">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=17">
   <link rel="stylesheet" href="assets/css/lms.css?v=2">
   <style>
     /* ── Content Studio — SocialPulse-inspired look (emerald, white cards) ── */
@@ -644,12 +644,50 @@
           </div>
       </div>
 
-      <!-- DM picker -->
-      <div id="chat-dm-picker" style="display:none;margin-top:0.75rem;">
-        <div class="glass-card" style="padding:0.85rem;">
-          <strong style="font-size:0.85rem;color:var(--color-text);font-family:var(--font-serif);">Direct Messages</strong>
-          <div id="chat-dm-contacts" style="margin-top:0.5rem;"></div>
-          <button class="btn btn--outline btn--sm" id="chat-dm-new" style="margin-top:0.5rem;">+ New Conversation</button>
+      <!-- DM inbox (Instagram-style) — shown when the DMs channel is active.
+           Two-pane on desktop (list + thread); on mobile the list shows first,
+           tapping a conversation slides to the thread with a back button. -->
+      <div id="dm-inbox" class="dm-inbox" style="display:none;">
+        <!-- Conversation list pane -->
+        <div class="dm-list-pane" id="dm-list-pane">
+          <div class="dm-list-head">
+            <h3 class="dm-list-head__title">Messages</h3>
+            <button class="dm-new-btn" id="dm-new-btn" title="New message" aria-label="New message">✎</button>
+          </div>
+          <div class="dm-list" id="dm-list"><p class="dm-empty">Loading…</p></div>
+        </div>
+        <!-- Thread pane -->
+        <div class="dm-thread-pane" id="dm-thread-pane">
+          <div class="dm-thread-head">
+            <button class="dm-thread-back" id="dm-thread-back" aria-label="Back">‹</button>
+            <div class="dm-thread-avatar" id="dm-thread-avatar"></div>
+            <div class="dm-thread-titles"><h4 class="dm-thread-name" id="dm-thread-name"></h4></div>
+            <div class="dm-thread-menu">
+              <button class="dm-thread-menu__btn" id="dm-thread-menu-btn" aria-label="Conversation options">⋯</button>
+              <div class="dm-thread-menu__list" id="dm-thread-menu-list" hidden>
+                <button data-dm-action="block" id="dm-block-btn">🚫 Block</button>
+                <button data-dm-action="report">🚩 Report</button>
+              </div>
+            </div>
+          </div>
+          <div class="dm-thread-scroll" id="dm-thread-scroll"></div>
+          <div class="dm-thread-compose" id="dm-thread-compose">
+            <input class="dm-thread-input" id="dm-thread-input" placeholder="Message…" autocomplete="off">
+            <button class="dm-thread-send" id="dm-thread-send" aria-label="Send">➤</button>
+          </div>
+          <div class="dm-thread-empty" id="dm-thread-empty">Select a conversation, or start a new one.</div>
+        </div>
+      </div>
+
+      <!-- New-message member picker (reachability-aware) -->
+      <div class="dm-picker-overlay" id="dm-picker-overlay" style="display:none;">
+        <div class="dm-picker-sheet">
+          <div class="dm-picker-head">
+            <h3 class="dm-picker-head__title">New message</h3>
+            <button class="dm-picker-close" id="dm-picker-close" aria-label="Close">×</button>
+          </div>
+          <input class="dm-picker-search" id="dm-picker-search" placeholder="Search team members…" autocomplete="off">
+          <div class="dm-picker-list" id="dm-picker-list"></div>
         </div>
       </div>
 
@@ -803,7 +841,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=20"></script>
+<script src="assets/js/team-portal.js?v=21"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
 <script>

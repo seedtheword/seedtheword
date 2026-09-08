@@ -253,9 +253,14 @@ document.querySelectorAll('.chat-topic').forEach(function(el){
     activeChannel=this.dataset.channel;
     document.getElementById('chat-channel-title').textContent=CHANNELS[activeChannel].title;
     document.getElementById('chat-channel-sub').textContent=CHANNELS[activeChannel].sub;
-    // Toggle DM picker / admin compose visibility
-    document.getElementById('chat-dm-picker').style.display=activeChannel==='dms'?'':'none';
+    var isDm=activeChannel==='dms';
+    // DMs → show the Instagram-style inbox and hide the channel chat area.
+    var inbox=document.getElementById('dm-inbox');
+    var chatContainer=document.querySelector('#tab-messages .chat-container');
+    if(inbox)inbox.style.display=isDm?'':'none';
+    if(chatContainer)chatContainer.querySelector('.chat-main').style.display=isDm?'none':'';
     document.getElementById('chat-admin-compose').style.display=(activeChannel==='announcements'&&canPortal('chat_admin'))?'':'none';
+    if(isDm){ openDmInbox(); return; }
     // Update compose placeholder
     var placeholders={main:'Write a message...',announcements:'Read-only for members',prayer:'Share a prayer request...',thanksgiving:'Share what God has done...',dms:'Type a message...'};
     document.getElementById('chat-input').placeholder=placeholders[activeChannel]||'Write a message...';
@@ -325,40 +330,139 @@ async function loadChannelMessages(){
   }catch(e){container.innerHTML='<div class="chat-msg chat-msg--system">Could not load messages</div>';}
 }
 
-// DM contact picker — fetches actual registered members
-document.getElementById('chat-dm-new').addEventListener('click',async function(){
-  // Show a member picker instead of free-text prompt
-  try{
-    var res=await postAction({action:'getNoteMembers',token:session.token});
-    if(res.ok&&res.members&&res.members.length){
-      var filtered=res.members.filter(function(m){return m.toLowerCase()!==session.name.toLowerCase();});
-      if(!filtered.length){alert('No other team members registered yet.');return;}
-      // Build a simple selection dialog
-      var pick=filtered.map(function(m,i){return(i+1)+'. '+m;}).join('\n');
-      var sel=prompt('Select a team member to message:\n\n'+pick+'\n\nEnter their number:');
-      if(!sel)return;
-      var idx=parseInt(sel)-1;
-      if(idx>=0&&idx<filtered.length){activeDmContact=filtered[idx];loadChannelMessages();loadDmContactList();}
-      else{alert('Invalid selection.');}
-    }else{alert('No team members found.');}
-  }catch(e){alert('Could not load members.');}
-});
+// ══════════════════════════════════════════════════════════════════════
+// DM Inbox (Instagram-style) — list ↔ thread, unread dots, avatars,
+// new-message picker, block/report. Backed by the consolidated DM actions
+// (getDmContacts / getDmMessages / sendDm / blockUser / reportUser).
+// ══════════════════════════════════════════════════════════════════════
+var dmContacts=[], dmMyBlocked=[];
+function dmDriveImg(u){ if(!u)return ''; var m=String(u).match(/[?&]id=([\w-]+)/)||String(u).match(/\/d\/([\w-]+)/); return m?('https://lh3.googleusercontent.com/d/'+m[1]+'=w120'):u; }
+function dmAvatarInner(name,pic){ if(pic)return '<img class="avatar-img" src="'+dmDriveImg(pic)+'" alt="" onerror="this.parentNode.textContent=\''+initials(name)+'\'">'; return initials(name); }
 
+// Open the inbox: load my block list + conversations, show the list pane.
+async function openDmInbox(){
+  var pane=document.getElementById('dm-list-pane'),tpane=document.getElementById('dm-thread-pane');
+  if(pane)pane.classList.remove('is-hidden-mobile');
+  if(tpane)tpane.classList.remove('is-active-mobile');
+  document.getElementById('dm-thread-empty').style.display='';
+  document.getElementById('dm-thread-compose').style.display='none';
+  activeDmContact=null;
+  try{ var s=await postAction({action:'getDmSettings',token:session.token}); dmMyBlocked=(s&&s.ok&&s.blocked)||[]; }catch(e){dmMyBlocked=[];}
+  loadDmContactList();
+}
 async function loadDmContactList(){
-  var container=document.getElementById('chat-dm-contacts');
+  var list=document.getElementById('dm-list');if(!list)return;
   try{
     var res=await postAction({action:'getDmContacts',token:session.token});
-    if(res.ok&&res.contacts&&res.contacts.length){
-      container.innerHTML=res.contacts.map(function(c){
-        var active=activeDmContact===c.name?' style="background:var(--green-soft);border-radius:8px;"':'';
-        return '<div class="dm-contact"'+active+' data-name="'+escapeHtml(c.name)+'"><div class="dm-contact__avatar">'+initials(c.name)+'</div><div><div class="dm-contact__name">'+escapeHtml(c.name)+'</div></div></div>';
-      }).join('');
-      container.querySelectorAll('.dm-contact').forEach(function(el){
-        el.addEventListener('click',function(){activeDmContact=this.dataset.name;loadChannelMessages();loadDmContactList();});
-      });
-    }else{container.innerHTML='<p style="font-size:0.78rem;color:var(--muted);">No conversations yet.</p>';}
-  }catch(e){}
+    dmContacts=(res&&res.ok&&res.contacts)||[];
+    if(!dmContacts.length){list.innerHTML='<p class="dm-empty">No conversations yet. Tap ✎ to start one.</p>';return;}
+    list.innerHTML=dmContacts.map(function(c){
+      var unread=c.unread>0?'<span class="dm-row__unread">'+c.unread+'</span>':'';
+      var active=activeDmContact===c.name?' is-active':'';
+      return '<button class="dm-row'+active+(c.unread>0?' is-unread':'')+'" data-name="'+escapeHtml(c.name)+'">'+
+        '<span class="dm-row__avatar">'+dmAvatarInner(c.name,c.pic)+'</span>'+
+        '<span class="dm-row__body"><span class="dm-row__name">'+escapeHtml(c.name)+'</span>'+
+        '<span class="dm-row__preview">'+escapeHtml((c.last_message||'').slice(0,44))+'</span></span>'+
+        '<span class="dm-row__meta">'+(c.last_ts?timeAgo(c.last_ts):'')+unread+'</span></button>';
+    }).join('');
+    list.querySelectorAll('.dm-row').forEach(function(el){el.addEventListener('click',function(){openDmThread(this.dataset.name);});});
+  }catch(e){list.innerHTML='<p class="dm-empty">Could not load conversations.</p>';}
 }
+async function openDmThread(name){
+  activeDmContact=name;
+  var pane=document.getElementById('dm-list-pane'),tpane=document.getElementById('dm-thread-pane');
+  if(pane)pane.classList.add('is-hidden-mobile');
+  if(tpane)tpane.classList.add('is-active-mobile');
+  document.getElementById('dm-thread-empty').style.display='none';
+  document.getElementById('dm-thread-compose').style.display='';
+  document.getElementById('dm-thread-name').textContent=name;
+  var av=document.getElementById('dm-thread-avatar');
+  var c=dmContacts.filter(function(x){return x.name===name;})[0];
+  av.innerHTML=dmAvatarInner(name,c&&c.pic);
+  // Block button label reflects current state.
+  var isBlocked=dmMyBlocked.some(function(n){return String(n).toLowerCase()===name.toLowerCase();});
+  var bb=document.getElementById('dm-block-btn'); if(bb)bb.textContent=isBlocked?'✅ Unblock':'🚫 Block';
+  var scroll=document.getElementById('dm-thread-scroll');
+  scroll.innerHTML='<p class="dm-empty">Loading…</p>';
+  try{
+    var res=await postAction({action:'getDmMessages',token:session.token,with_user:name});
+    renderDmThread((res&&res.ok&&res.messages)||[]);
+    loadDmContactList(); // refresh unread badges (now read)
+  }catch(e){scroll.innerHTML='<p class="dm-empty">Could not load messages.</p>';}
+}
+function renderDmThread(msgs){
+  var scroll=document.getElementById('dm-thread-scroll');
+  if(!msgs.length){scroll.innerHTML='<p class="dm-empty">No messages yet. Say hello 👋</p>';return;}
+  msgs.sort(function(a,b){return a.timestamp-b.timestamp;});
+  scroll.innerHTML=msgs.map(function(m){
+    var mine=session&&m.from&&m.from.toLowerCase()===session.name.toLowerCase();
+    return '<div class="dm-bubble'+(mine?' dm-bubble--mine':'')+'">'+escapeHtml(m.text)+'<span class="dm-bubble__time">'+timeAgo(m.timestamp)+'</span></div>';
+  }).join('');
+  scroll.scrollTop=scroll.scrollHeight;
+}
+async function sendDmMessage(){
+  var input=document.getElementById('dm-thread-input');var text=input.value.trim();
+  if(!text||!activeDmContact)return;input.value='';
+  var scroll=document.getElementById('dm-thread-scroll');
+  // Optimistic bubble.
+  var opt=document.createElement('div');opt.className='dm-bubble dm-bubble--mine';opt.innerHTML=escapeHtml(text)+'<span class="dm-bubble__time">now</span>';
+  if(scroll.querySelector('.dm-empty'))scroll.innerHTML='';
+  scroll.appendChild(opt);scroll.scrollTop=scroll.scrollHeight;
+  try{
+    var res=await postAction({action:'sendDm',token:session.token,to_user:activeDmContact,text:text});
+    if(res&&!res.ok){opt.classList.add('dm-bubble--failed');opt.title=res.error||'Could not send';alert(res.error||'Could not send.');}
+    else{loadDmContactList();}
+  }catch(e){opt.classList.add('dm-bubble--failed');}
+}
+// Wire thread compose + back + menu.
+(function(){
+  var send=document.getElementById('dm-thread-send'),input=document.getElementById('dm-thread-input'),back=document.getElementById('dm-thread-back');
+  if(send)send.addEventListener('click',sendDmMessage);
+  if(input)input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();sendDmMessage();}});
+  if(back)back.addEventListener('click',function(){var pane=document.getElementById('dm-list-pane'),tpane=document.getElementById('dm-thread-pane');if(pane)pane.classList.remove('is-hidden-mobile');if(tpane)tpane.classList.remove('is-active-mobile');activeDmContact=null;loadDmContactList();});
+  var menuBtn=document.getElementById('dm-thread-menu-btn'),menuList=document.getElementById('dm-thread-menu-list');
+  if(menuBtn)menuBtn.addEventListener('click',function(e){e.stopPropagation();menuList.hidden=!menuList.hidden;});
+  document.addEventListener('click',function(){if(menuList)menuList.hidden=true;});
+  if(menuList)menuList.querySelectorAll('button[data-dm-action]').forEach(function(b){b.addEventListener('click',async function(){
+    var act=this.dataset.dmAction;menuList.hidden=true;if(!activeDmContact)return;
+    if(act==='block'){
+      var isBlocked=dmMyBlocked.some(function(n){return String(n).toLowerCase()===activeDmContact.toLowerCase();});
+      try{ await postAction({action:isBlocked?'unblockUser':'blockUser',token:session.token,target:activeDmContact});
+        if(isBlocked)dmMyBlocked=dmMyBlocked.filter(function(n){return String(n).toLowerCase()!==activeDmContact.toLowerCase();});
+        else dmMyBlocked.push(activeDmContact);
+        document.getElementById('dm-block-btn').textContent=isBlocked?'🚫 Block':'✅ Unblock';
+        alert(isBlocked?'Unblocked.':'Blocked. They can no longer message you.');
+      }catch(e){alert('Could not update.');}
+    }else if(act==='report'){
+      var reason=prompt('Report '+activeDmContact+' — briefly, what happened?','');
+      if(reason===null)return;
+      try{ await postAction({action:'reportUser',token:session.token,reported:activeDmContact,reason:reason||''}); alert('Report sent to the moderation team. Thank you.'); }catch(e){alert('Could not send report.');}
+    }
+  });});
+})();
+// New-message picker.
+(function(){
+  var newBtn=document.getElementById('dm-new-btn'),overlay=document.getElementById('dm-picker-overlay'),closeBtn=document.getElementById('dm-picker-close'),search=document.getElementById('dm-picker-search'),plist=document.getElementById('dm-picker-list');
+  var allMembers=[];
+  function renderPickerList(filter){
+    var q=(filter||'').toLowerCase();
+    var rows=allMembers.filter(function(m){return m.toLowerCase().indexOf(q)!==-1;});
+    if(!rows.length){plist.innerHTML='<p class="dm-empty">No members match.</p>';return;}
+    plist.innerHTML=rows.map(function(m){return '<button class="dm-picker-item" data-name="'+escapeHtml(m)+'"><span class="dm-picker-item__av">'+initials(m)+'</span><span>'+escapeHtml(m)+'</span></button>';}).join('');
+    plist.querySelectorAll('.dm-picker-item').forEach(function(el){el.addEventListener('click',function(){overlay.style.display='none';openDmThread(this.dataset.name);});});
+  }
+  if(newBtn)newBtn.addEventListener('click',async function(){
+    overlay.style.display='';search.value='';plist.innerHTML='<p class="dm-empty">Loading…</p>';
+    setTimeout(function(){search.focus();},80);
+    try{var res=await postAction({action:'getNoteMembers',token:session.token});
+      allMembers=((res&&res.ok&&res.members)||[]).filter(function(m){return m.toLowerCase()!==session.name.toLowerCase();});
+      renderPickerList('');
+    }catch(e){plist.innerHTML='<p class="dm-empty">Could not load members.</p>';}
+  });
+  if(closeBtn)closeBtn.addEventListener('click',function(){overlay.style.display='none';});
+  if(overlay)overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
+  if(search)search.addEventListener('input',function(){renderPickerList(this.value);});
+})();
 
 // Announcement send (admin)
 document.getElementById('ann-send-btn').addEventListener('click',async function(){
@@ -409,8 +513,8 @@ document.getElementById('emergency-dismiss').addEventListener('click',function()
 
 // Init messages tab on click
 document.querySelector('[data-tab="messages"]').addEventListener('click',function(){
-  loadChannelMessages();
-  if(activeChannel==='dms')loadDmContactList();
+  if(activeChannel==='dms')openDmInbox();
+  else loadChannelMessages();
 });
 
 // ── Auth ──

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616317,
-  "lastModified": "2026-09-08T20:14:25Z",
+  "lastUpdateId": 669616319,
+  "lastModified": "2026-09-08T20:40:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -725,6 +725,26 @@
       "kind": "telegram",
       "text": "Literally turns out we just walked to base. I have been keeping her company and being her bodyguard, its awesome.\n\n\nAlso she all of a sudden started calling me handsome, prayed for a beautiful woman to be my wife and so we have beautiful kids... I am so flustered, but you know what... I genuinely believe I will find a woman of valor and have 2-3 beautiful children...",
       "ts": "2026-09-08T20:07:49Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5773,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "And then she had to go, but like my granny she hugged me, and kissed my head... I genuinely want to cry...",
+      "ts": "2026-09-08T20:33:11Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5774,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "She was sooooo sweet",
+      "ts": "2026-09-08T20:33:31Z"
     }
   ]
 }

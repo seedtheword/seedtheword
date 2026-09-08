@@ -79,6 +79,32 @@ function saveSession(){
   }catch(e){}
 }
 
+// Pull the persisted profile (email, phone, notification prefs, telegram,
+// avatar URL) from the backend into the local session so these survive every
+// login and role switch. Non-fatal: on any failure the local values stand.
+async function hydrateProfile(){
+  if(!session||!session.token)return;
+  try{
+    var res=await postAction({action:'getProfile',token:session.token});
+    if(res&&res.ok){
+      session.name=res.name||session.name;
+      session.email=res.email||session.email||'';
+      session.phone=res.phone||session.phone||'';
+      session.role=res.role||session.role||'member';
+      if(Array.isArray(res.permissions))session.permissions=res.permissions;
+      session.telegram_username=res.telegram_username||session.telegram_username||'';
+      session.notify_pref=res.notify_pref||session.notify_pref||'email';
+      session.carrier=res.carrier||session.carrier||'';
+      session.newsletter_opt_in=(res.newsletter_opt_in==='YES'||res.newsletter_opt_in===true);
+      // Prefer the persisted Drive URL; keep any local base64 preview only if
+      // the server has none yet (e.g. avatar picked but not yet synced).
+      if(res.profile_pic_url)session.profilePicUrl=res.profile_pic_url;
+      if(typeof res.total_scans==='number')session.totalScans=res.total_scans;
+      saveSession();
+    }
+  }catch(e){/* offline / backend not deployed — keep local session */}
+}
+
 // Local calendar date as YYYY-MM-DD (NOT UTC). Using toISOString() here caused
 // evening-Pacific entries to log as tomorrow because ISO is UTC. en-CA formats
 // as YYYY-MM-DD in the browser's local timezone.
@@ -348,7 +374,10 @@ function rememberChecked(){
 try{
   var rawSaved=localStorage.getItem('stwm-team-session')||sessionStorage.getItem('stwm-team-session')||'null';
   var saved=JSON.parse(rawSaved);
-  if(saved&&saved.token){session=saved;session.todayScans=session.todayScans||[];showEventOrPortal();}
+  if(saved&&saved.token){session=saved;session.todayScans=session.todayScans||[];showEventOrPortal();
+    // Refresh persisted profile fields in the background (non-blocking).
+    hydrateProfile().then(function(){ if(typeof renderProfileCard==='function')renderProfileCard(); });
+  }
   // Prefill the name + remember state so returning users see it.
   var lastName=localStorage.getItem('stwm-team-lastname')||'';
   var nameEl=document.getElementById('login-name');
@@ -369,8 +398,18 @@ document.getElementById('login-btn').addEventListener('click',async function(){
     if(res.ok){
       var prevEvent = session ? session.event : '';
       var prevEventDate = session ? session.eventDate : '';
-      session={token:res.token,name:res.name,role:res.role||'member',permissions:Array.isArray(res.permissions)?res.permissions:[],totalScans:res.total_scans||0,todayScans:[],event:prevEvent||'',eventDate:prevEventDate||'',telegram_username:res.telegram_username||'',lastEvent:res.last_event||prevEvent||''};
-      saveSession();showEventOrPortal();
+      // Preserve any profile fields already on the previous local session so a
+      // role switch / re-login does not wipe the avatar or preferences before
+      // the backend hydration below fills them in.
+      var prev = session || {};
+      session={token:res.token,name:res.name,role:res.role||'member',permissions:Array.isArray(res.permissions)?res.permissions:[],totalScans:res.total_scans||0,todayScans:[],event:prevEvent||'',eventDate:prevEventDate||'',telegram_username:res.telegram_username||prev.telegram_username||'',lastEvent:res.last_event||prevEvent||'',
+        email:prev.email||'',phone:prev.phone||'',notify_pref:prev.notify_pref||'email',carrier:prev.carrier||'',newsletter_opt_in:prev.newsletter_opt_in||false,profilePic:prev.profilePic||'',profilePicUrl:prev.profilePicUrl||''};
+      saveSession();
+      // Hydrate the full profile (email, phone, prefs, avatar URL) from the
+      // backend so these survive every login / role change. Non-fatal.
+      await hydrateProfile();
+      showEventOrPortal();
+      if(typeof renderProfileCard==='function')renderProfileCard();
     }else throw new Error(res.error||'Login failed');
   }catch(err){status.textContent=err.message;status.className='status status--error';}
   btn.disabled=false;btn.textContent='Log in';
@@ -392,7 +431,8 @@ document.getElementById('signup-btn').addEventListener('click',async function(){
     var hash=await sha256('stwm-team-'+name.toLowerCase()+'-'+pass);
     var res=await postAction({action:'teamSignup',name:name,email:email,phone:phone,telegram_username:telegram,password_hash:hash});
     if(res.ok){
-      session={token:res.token,name:name,role:'member',totalScans:0,todayScans:[],event:'',eventDate:'',telegram_username:telegram};
+      session={token:res.token,name:name,role:'member',permissions:[],totalScans:0,todayScans:[],event:'',eventDate:'',telegram_username:telegram,
+        email:email||'',phone:phone||'',notify_pref:'email',carrier:'',newsletter_opt_in:false,profilePic:'',profilePicUrl:''};
       saveSession();showEventOrPortal();
     }else throw new Error(res.error||'Signup failed');
   }catch(err){status.textContent=err.message;status.className='status status--error';}

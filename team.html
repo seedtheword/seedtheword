@@ -803,9 +803,9 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=18"></script>
+<script src="assets/js/team-portal.js?v=19"></script>
 <script src="assets/js/lms.js?v=2"></script>
-<script src="assets/js/profile-settings.js?v=3"></script>
+<script src="assets/js/profile-settings.js?v=4"></script>
 <script>
 // ── Store Orders management (permission: orders) ──
 // Uses the admin passphrase hash (same as Content Studio) since getStoreOrders/
@@ -948,7 +948,19 @@
     var avatar = document.getElementById('profile-avatar');
     var name = document.getElementById('profile-name');
     var role = document.getElementById('profile-role');
-    if (avatar) avatar.textContent = s.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+    if (avatar) {
+      var pic = s.profilePicUrl || s.profilePic || '';
+      if (pic) {
+        // Render the saved profile picture; keep it circular via the card CSS.
+        avatar.textContent = '';
+        avatar.style.backgroundImage = 'url("' + pic + '")';
+        avatar.style.backgroundSize = 'cover';
+        avatar.style.backgroundPosition = 'center';
+      } else {
+        avatar.style.backgroundImage = '';
+        avatar.textContent = s.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+      }
+    }
     if (name) name.textContent = s.name;
     if (role) role.textContent = s.role || 'Member';
     // Sync stats
@@ -969,6 +981,8 @@
       badges.innerHTML = b.map(function(x){ return '<span class="badge badge--earned">'+x+'</span>'; }).join('');
     }
   }
+  // Expose so team-portal.js can refresh the card after backend profile hydration.
+  window.renderProfileCard = updateProfile;
   // Run on DOM load and after login
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', updateProfile);
   else updateProfile();
@@ -2084,7 +2098,7 @@
 </footer>
 
 <script src="assets/js/main.js?v=9"></script>
-<script src="assets/js/profile-settings.js?v=3"></script>
+<script src="assets/js/profile-settings.js?v=4"></script>
 <script src="assets/js/nav-auth.js?v=3"></script>
 </body>
 </html>

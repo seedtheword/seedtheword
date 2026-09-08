@@ -266,6 +266,8 @@
       if (res.ok) {
         statusEl.textContent = passwordHash ? '✓ Settings & password saved' : '✓ Settings saved';
         statusEl.style.color = '#2C4A3E';
+        // Refresh the portal profile card so the new avatar/name shows at once.
+        try { if (typeof window.renderProfileCard === 'function') window.renderProfileCard(); } catch (e) {}
         setTimeout(closeModal, 1200);
       } else {
         statusEl.textContent = res.error || 'Could not save. Changes saved locally.';

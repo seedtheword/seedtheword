@@ -513,9 +513,53 @@ document.getElementById('emergency-dismiss').addEventListener('click',function()
 
 // Init messages tab on click
 document.querySelector('[data-tab="messages"]').addEventListener('click',function(){
-  if(activeChannel==='dms')openDmInbox();
-  else loadChannelMessages();
+  // Chat tab is the DM inbox now. Show it, load the stories rail + community
+  // activity overview.
+  activeChannel='dms';
+  var inbox=document.getElementById('dm-inbox');if(inbox)inbox.style.display='';
+  openDmInbox();
+  loadTeamStoriesRail();
+  loadCommunityOverview();
 });
+
+// ── Stories rail in the Chat tab (reuses the community stories backend) ──
+function tsDriveImg(u){ if(!u)return ''; var m=String(u).match(/[?&]id=([\w-]+)/)||String(u).match(/\/d\/([\w-]+)/); return m?('https://lh3.googleusercontent.com/d/'+m[1]+'=w120'):u; }
+async function loadTeamStoriesRail(){
+  var rail=document.getElementById('team-stories-rail');if(!rail||!session)return;
+  try{
+    var res=await postAction({action:'getStories',token:session.token});
+    var stories=(res&&res.ok&&res.stories)||[];
+    // Group by author (newest per author), unseen first.
+    var byAuthor={},order=[];
+    stories.forEach(function(s){var k=s.author||'?';if(!byAuthor[k]){byAuthor[k]={author:k,pic:s.author_pic||'',latest:s,allSeen:true};order.push(k);}if(s.created_at>byAuthor[k].latest.created_at)byAuthor[k].latest=s;if(!s.seen)byAuthor[k].allSeen=false;});
+    var groups=order.map(function(k){return byAuthor[k];}).sort(function(a,b){return (a.allSeen===b.allSeen)?0:(a.allSeen?1:-1);});
+    if(!groups.length){rail.style.display='none';return;}
+    rail.style.display='';
+    rail.innerHTML=groups.map(function(g){
+      var thumb=g.latest&&g.latest.image?tsDriveImg(g.latest.image):(g.pic?tsDriveImg(g.pic):'');
+      var av=thumb?'<img class="story-bubble__img" src="'+thumb+'" alt="" onerror="this.parentNode.textContent=\''+initials(g.author)+'\'">':'<span class="story-bubble__av">'+initials(g.author)+'</span>';
+      var ring=g.allSeen?'story-bubble__ring story-bubble__ring--seen':'story-bubble__ring story-bubble__ring--live';
+      return '<a class="story-bubble" href="community.html" target="_blank" rel="noopener"><span class="'+ring+'">'+av+'</span><span class="story-bubble__label">'+escapeHtml((g.author||'').split(' ')[0])+'</span></a>';
+    }).join('');
+  }catch(e){rail.style.display='none';}
+}
+
+// ── Community activity overview (counts recent posts/prayers/thanksgiving) ──
+async function loadCommunityOverview(){
+  var el=document.getElementById('dm-co-stats');if(!el||!session)return;
+  try{
+    var res=await postAction({action:'getFeed',token:session.token,limit:60});
+    var posts=(res&&res.ok&&res.posts)||[];
+    var since=Date.now()-7*24*60*60*1000;
+    var recent=posts.filter(function(p){return (p.timestamp||0)>=since;});
+    var prayers=recent.filter(function(p){return p.channel==='prayer';}).length;
+    var thanks=recent.filter(function(p){return p.channel==='thanksgiving';}).length;
+    var setN=function(id,n){var e=document.getElementById(id);if(e)e.textContent=n;};
+    setN('dm-co-posts',recent.length);
+    setN('dm-co-prayers',prayers);
+    setN('dm-co-thanks',thanks);
+  }catch(e){}
+}
 
 // ── Auth ──
 // "Remember me" now controls WHERE the session lives:

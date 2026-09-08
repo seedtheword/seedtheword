@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
-  <link rel="stylesheet" href="assets/css/team-social.css?v=17">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=18">
   <link rel="stylesheet" href="assets/css/lms.css?v=2">
   <style>
     /* ── Content Studio — SocialPulse-inspired look (emerald, white cards) ── */
@@ -592,56 +592,35 @@
     <div class="tab-panel" id="tab-messages" hidden>
       <h3 class="dash-group__title">Team Chat</h3>
       <!-- Chat container with sidebar (styled by .chat-* classes in team-social.css) -->
-      <div class="chat-container">
-          <!-- Channel sidebar -->
-          <div class="chat-sidebar" id="chat-sidebar">
-            <div class="chat-topic chat-topic--active" data-channel="main">
-              <span class="chat-topic__icon">💬</span>
-              <span class="chat-topic__name">Main</span>
-            </div>
-            <div class="chat-topic" data-channel="announcements">
-              <span class="chat-topic__icon">📢</span>
-              <span class="chat-topic__name">Announce</span>
-            </div>
-            <div class="chat-topic" data-channel="prayer">
-              <span class="chat-topic__icon">🙏</span>
-              <span class="chat-topic__name">Prayer</span>
-            </div>
-            <div class="chat-topic" data-channel="thanksgiving">
-              <span class="chat-topic__icon">🎉</span>
-              <span class="chat-topic__name">Thanks</span>
-            </div>
-            <div class="chat-topic" data-channel="dms">
-              <span class="chat-topic__icon">✉️</span>
-              <span class="chat-topic__name">DMs</span>
-            </div>
+      <!-- Stories rail (reuses the community story engine) -->
+      <div class="stories-rail" id="team-stories-rail" style="display:none;"></div>
+
+      <!-- Community activity overview — the one non-DM thing that belongs here:
+           a quick breakdown of what's happening on the public community page. -->
+      <div class="glass-card dm-community-overview" id="dm-community-overview">
+        <div class="dm-co__head">
+          <h3 class="glass-card__title" style="margin:0;">🌱 Community activity</h3>
+          <a class="dm-co__link" href="community.html" target="_blank" rel="noopener">Open community →</a>
+        </div>
+        <div class="dm-co__stats" id="dm-co-stats">
+          <div class="dm-co__stat"><span class="dm-co__num" id="dm-co-posts">–</span><span class="dm-co__label">Recent posts</span></div>
+          <div class="dm-co__stat"><span class="dm-co__num" id="dm-co-prayers">–</span><span class="dm-co__label">Prayers</span></div>
+          <div class="dm-co__stat"><span class="dm-co__num" id="dm-co-thanks">–</span><span class="dm-co__label">Thanksgiving</span></div>
+        </div>
+      </div>
+
+      <!-- Hidden stub: the legacy channel-chat elements are kept (display:none)
+           so existing handlers (announcements, emergency banner) don't error.
+           Chat is now the DM inbox only; announcements live in Content. -->
+      <div class="chat-container" id="chat-container-legacy" style="display:none;" aria-hidden="true">
+        <div class="chat-sidebar" id="chat-sidebar"><div class="chat-topic chat-topic--active" data-channel="dms"><span class="chat-topic__icon">✉️</span><span class="chat-topic__name">DMs</span></div></div>
+        <div class="chat-main">
+          <div class="chat-header"><div><h3 class="chat-header__title" id="chat-channel-title">Direct Messages</h3><span class="chat-header__sub" id="chat-channel-sub"></span></div>
+            <label id="chat-post-community-label" style="display:none;"><input type="checkbox" id="chat-post-to-community"></label>
           </div>
-
-          <!-- Main chat area -->
-          <div class="chat-main">
-            <!-- Header -->
-            <div class="chat-header">
-              <div>
-                <h3 class="chat-header__title" id="chat-channel-title">Main Chat</h3>
-                <span class="chat-header__sub" id="chat-channel-sub">Team fellowship &amp; updates</span>
-              </div>
-              <div style="display:flex;align-items:center;gap:0.4rem;">
-                <label id="chat-post-community-label" style="display:none;font-size:0.65rem;color:var(--color-text-muted);cursor:pointer;align-items:center;gap:0.25rem;"><input type="checkbox" id="chat-post-to-community" style="width:auto;margin:0;"> Post to community</label>
-              </div>
-            </div>
-
-            <!-- Messages -->
-            <div class="chat-messages" id="chat-messages">
-              <div class="chat-msg chat-msg--system">Welcome to the team chat</div>
-            </div>
-
-            <!-- Compose -->
-            <div class="chat-compose" id="chat-compose">
-              <button class="chat-compose__type" id="chat-type-btn" title="Message type">💬</button>
-              <input class="chat-compose__input" id="chat-input" placeholder="Write a message..." autocomplete="off">
-              <button class="chat-compose__btn" id="chat-send-btn" title="Send">➤</button>
-            </div>
-          </div>
+          <div class="chat-messages" id="chat-messages"></div>
+          <div class="chat-compose" id="chat-compose"><button class="chat-compose__type" id="chat-type-btn">💬</button><input class="chat-compose__input" id="chat-input" autocomplete="off"><button class="chat-compose__btn" id="chat-send-btn">➤</button></div>
+        </div>
       </div>
 
       <!-- DM inbox (Instagram-style) — shown when the DMs channel is active.
@@ -841,7 +820,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=21"></script>
+<script src="assets/js/team-portal.js?v=22"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
 <script>

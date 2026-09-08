@@ -1148,7 +1148,10 @@ function handleGetAdminMembers_(payload) {
       var perms = (typeof resolveMemberPermissions_ === 'function')
         ? resolveMemberPermissions_(permIdx >= 0 ? row[permIdx] : '', role)
         : [];
-      return { name: row[1], email: row[3], phone: row[4], role: role, scans: parseInt(row[7]) || 0, telegram: row[8] || '', permissions: perms };
+      // DM reachability settings (for the Content Studio → Moderation screen).
+      var dm = (typeof getDmSettingsFor_ === 'function') ? getDmSettingsFor_(row[1]) : { restricted: false, allowed: [] };
+      return { name: row[1], email: row[3], phone: row[4], role: role, scans: parseInt(row[7]) || 0, telegram: row[8] || '', permissions: perms,
+        dm_restricted: dm.restricted ? 'YES' : 'no', dm_allowed: dm.allowed || [] };
     });
     return jsonResponse({ ok: true, members: members });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }

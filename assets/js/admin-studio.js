@@ -76,7 +76,8 @@
       { id: 'inventory', ico: '📦', label: 'Inventory' },
       { id: 'members', ico: '👥', label: 'Members' },
       { id: 'codes', ico: '🎟️', label: 'Codes' },
-      { id: 'messages', ico: '💬', label: 'Messages' }
+      { id: 'messages', ico: '💬', label: 'Messages' },
+      { id: 'moderation', ico: '🛡️', label: 'Moderation' }
     ]}
   ];
 
@@ -88,6 +89,7 @@
       case 'members': return { title: 'Members', sub: 'Team roster, roles & permissions', newLabel: null };
       case 'codes': return { title: 'Codes', sub: 'Comp codes for no-charge orders', newLabel: null };
       case 'messages': return { title: 'Messages', sub: 'Announcements & team requests', newLabel: null };
+      case 'moderation': return { title: 'Moderation', sub: 'DM restrictions & user reports', newLabel: null };
       default: return { title: '', sub: '', newLabel: null };
     }
   }
@@ -151,6 +153,7 @@
     else if (id === 'members') renderMembers(host);
     else if (id === 'codes') renderCodes(host);
     else if (id === 'messages') renderMessages(host);
+    else if (id === 'moderation') renderModeration(host);
   }
 
   function onNew() {
@@ -222,7 +225,8 @@
     { key: 'chat_admin', label: 'Announcements', hint: 'Post team announcements' },
     { key: 'training_admin', label: 'Training admin', hint: 'Log training for members' },
     { key: 'content_studio', label: 'Content Studio', hint: 'Publish stories/testimonies' },
-    { key: 'members_admin', label: 'Manage members', hint: 'Roles & permissions (super-admin)' }
+    { key: 'members_admin', label: 'Manage members', hint: 'Roles & permissions (super-admin)' },
+    { key: 'moderation', label: 'Moderation', hint: 'DM restrictions & user reports' }
   ];
 
   async function renderMembers(host) {
@@ -315,6 +319,88 @@
     if (!el) return;
     el.textContent = '✓ ' + msg; el.hidden = false;
     setTimeout(function () { el.hidden = true; }, 2000);
+  }
+
+  // ══ MODERATION — DM restrictions + reports inbox ══
+  // setDmRestriction / listDmReports are super-admin token actions.
+  async function renderModeration(host) {
+    var tok = (session && session.token) || '';
+    try {
+      var mres = await post({ action: 'getAdminMembers', passphrase_hash: ADMIN_HASH });
+      if (!mres.ok) throw new Error(mres.error || 'Failed to load members');
+      var members = mres.members || [];
+      var names = members.map(function (m) { return m.name; });
+
+      // Reports inbox (best-effort; needs the deployed backend).
+      var reportsHtml = '<p class="sp-empty">Loading reports…</p>';
+      try {
+        var rr = await post({ action: 'listDmReports', token: tok });
+        if (rr && rr.ok && rr.reports && rr.reports.length) {
+          reportsHtml = '<div class="sp-table-wrap"><table class="sp-table"><thead><tr><th>When</th><th>Reporter</th><th>Reported</th><th>Reason</th><th>Status</th></tr></thead><tbody>' +
+            rr.reports.map(function (r) {
+              var pill = String(r.status) === 'open' ? '<span class="sp-pill-tag sp-pill-tag--live">● Open</span>' : '<span class="sp-pill-tag sp-pill-tag--draft">' + esc(r.status || 'closed') + '</span>';
+              return '<tr><td>' + esc(fmtDate(r.timestamp)) + '</td><td>' + esc(r.reporter) + '</td><td><strong>' + esc(r.reported) + '</strong></td><td>' + esc(r.reason || '—') + '</td><td>' + pill + '</td></tr>';
+            }).join('') + '</tbody></table></div>';
+        } else if (rr && rr.ok) {
+          reportsHtml = '<p class="sp-empty">No reports. 🕊️</p>';
+        } else {
+          reportsHtml = '<p class="sp-empty">Reports load once the DM backend is deployed.</p>';
+        }
+      } catch (e) { reportsHtml = '<p class="sp-empty">Reports load once the DM backend is deployed.</p>'; }
+
+      // Per-member restriction cards.
+      var memberCards = members.map(function (m) {
+        return renderModerationRow(m, names);
+      }).join('');
+
+      host.innerHTML =
+        '<div class="sp-card"><h3 class="sp-card__title">🚩 Reports</h3>' +
+          '<p class="sp-card__sub">Reports from the DM inbox. You (and admins with the Moderation permission) are emailed when a new one comes in.</p>' +
+          '<div id="mod-reports">' + reportsHtml + '</div></div>' +
+        '<div class="sp-card"><h3 class="sp-card__title">🛡️ DM reachability</h3>' +
+          '<p class="sp-card__sub">By default anyone can message anyone. Mark a member <strong>Restricted</strong> so only the contacts you pick (plus super-admins) can DM them.</p>' +
+          '<div id="mod-members">' + memberCards + '</div></div>';
+
+      // Wire each restriction card.
+      host.querySelectorAll('.mod-card').forEach(function (card) {
+        var toggle = card.querySelector('.mod-restrict-toggle');
+        var allowWrap = card.querySelector('.mod-allow-wrap');
+        if (toggle && allowWrap) {
+          toggle.addEventListener('change', function () { allowWrap.style.display = this.checked ? '' : 'none'; });
+        }
+        var saveBtn = card.querySelector('.mod-save');
+        if (saveBtn) saveBtn.addEventListener('click', function () {
+          var member = card.getAttribute('data-mod-member');
+          var restricted = card.querySelector('.mod-restrict-toggle').checked;
+          var allowed = [];
+          card.querySelectorAll('.mod-allow:checked').forEach(function (cb) { allowed.push(cb.value); });
+          saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
+          post({ action: 'setDmRestriction', token: tok, member: member, restricted: restricted, allowed: allowed })
+            .then(function (r) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; if (r && r.ok) { var f = card.querySelector('.member-flash'); if (f) { f.textContent = '✓ Saved'; f.hidden = false; setTimeout(function () { f.hidden = true; }, 2000); } } else alert((r && r.error) || 'Save failed'); })
+            .catch(function (e) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; alert(e.message); });
+        });
+      });
+    } catch (e) { host.innerHTML = '<div class="sp-card"><p class="sp-err">Error: ' + esc(e.message) + '</p></div>'; }
+  }
+
+  function renderModerationRow(m, allNames) {
+    var restricted = boolYes(m.dm_restricted);
+    var allowed = Array.isArray(m.dm_allowed) ? m.dm_allowed : [];
+    var allowChecks = allNames.filter(function (n) { return n !== m.name; }).map(function (n) {
+      var checked = allowed.indexOf(n) !== -1;
+      return '<label class="perm-item"><input type="checkbox" class="mod-allow" value="' + esc(n) + '"' + (checked ? ' checked' : '') + '><span class="perm-item__label">' + esc(n) + '</span></label>';
+    }).join('');
+    return '<div class="member-card mod-card" data-mod-member="' + esc(m.name) + '">' +
+      '<div class="member-card__head">' +
+        '<div class="member-card__id"><strong>' + esc(m.name) + '</strong><span class="member-card__meta">' + esc(m.email || '—') + '</span></div>' +
+        '<label class="sp-check"><input type="checkbox" class="mod-restrict-toggle"' + (restricted ? ' checked' : '') + '> Restricted</label>' +
+        '<button type="button" class="sp-btn sp-btn--green sp-btn--sm mod-save">Save</button>' +
+        '<span class="member-flash" hidden></span>' +
+      '</div>' +
+      '<div class="mod-allow-wrap" style="margin-top:0.7rem;' + (restricted ? '' : 'display:none;') + '">' +
+        '<p class="sp-card__sub" style="margin:0 0 0.5rem;">Who can message ' + esc((m.name || '').split(' ')[0]) + '?</p>' +
+        '<div class="perm-grid__items">' + (allowChecks || '<span class="sp-empty">No other members.</span>') + '</div>' +
+      '</div></div>';
   }
 
   // ══ CODES — generate & manage comp codes (generatePromoCode / listPromoCodes / deactivatePromoCode) ══

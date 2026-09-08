@@ -363,3 +363,14 @@ Consolidates team DMs onto the **DirectMessages** tab with unread tracking, bloc
 **Activate:** repaste `team-messaging-handlers.gs` + `order-handler.gs` into P1 and redeploy. Tabs auto-create.
 
 **Did it work?** Member A DMs B → B sees it in the portal Chat inbox with an unread dot + gets ONE email (not per message). B blocks A → A's next send is rejected. Super-admin sets B restricted with allow-list [C] → only C (and super-admins) can DM B. Report → appears in Content Studio → Moderation + emails moderators.
+
+
+## Phase 2 — Content Studio Moderation screen — needs redeploy (P1) [pairs with the DM inbox above]
+
+**What changed**
+- `team-messaging-handlers.gs` — `handleGetAdminMembers_` now also returns `dm_restricted` ('YES'/'no') and `dm_allowed` (array) per member (via `getDmSettingsFor_`), so the Content Studio moderation screen can show current reachability.
+- Frontend `admin/dashboard.html` + `admin-studio.js` (ship via git): new **Moderation** section — a reports inbox (`listDmReports`) and per-member **Restricted** toggle + allow-list (`setDmRestriction`). Added a `moderation` permission to the Members permission grid (grant via existing `setMemberPermissions`) so an admin can be appointed a moderator; super-admins always are.
+
+**Activate:** already covered by repasting `team-messaging-handlers.gs` + `order-handler.gs` for the DM inbox — one redeploy does both.
+
+**Did it work?** Content Studio → Moderation: toggle a member Restricted, pick allowed contacts, Save → only those (and super-admins) can DM them. Reports from the DM inbox appear here. Grant an admin the Moderation permission (Members section) → they get report emails + can see this screen.

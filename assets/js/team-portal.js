@@ -528,7 +528,20 @@ async function loadAnnouncementHistory(){
     }).join('');
   }catch(e){list.innerHTML='<p class="dm-empty" style="padding:0.6rem;">Could not load.</p>';}
 }
-(function(){var r=document.getElementById('ann-history-refresh');if(r)r.addEventListener('click',loadAnnouncementHistory);var openBtn=document.getElementById('ann-open-btn');if(openBtn)openBtn.addEventListener('click',loadAnnouncementHistory);})();
+(function(){var r=document.getElementById('ann-history-refresh');if(r)r.addEventListener('click',loadAnnouncementHistory);var openBtn=document.getElementById('ann-open-btn');if(openBtn)openBtn.addEventListener('click',loadAnnouncementHistory);
+  var t=document.getElementById('ann-telegram-test');
+  if(t)t.addEventListener('click',async function(){
+    this.disabled=true;var orig=this.textContent;this.textContent='Testing…';
+    try{
+      var res=await postAction({action:'telegramSelfTest',token:session.token});
+      if(res&&res.ok){alert('✅ Telegram works — a test message was posted to the channel.');}
+      else if(res&&res.reason==='no-token'){alert('❌ Telegram bot token is NOT set.\n\nFix: Apps Script project → Project Settings (gear) → Script Properties → add TELEGRAM_BOT_TOKEN with your BotFather token, then redeploy.');}
+      else if(res&&res.reason==='api-error'){alert('❌ Telegram rejected the message (code '+res.code+'):\n\n'+(res.detail||'')+'\n\nUsual causes: the bot isn\'t an admin of @seedtheword, or thread 553 doesn\'t exist.');}
+      else{alert('❌ Telegram test failed: '+((res&&res.detail)||(res&&res.reason)||'unknown'));}
+    }catch(e){alert('Could not run the test: '+e.message);}
+    this.disabled=false;this.textContent=orig;
+  });
+})();
 
 // ── Recent announcements viewer (this week) — always available ──
 async function openRecentAnnouncements(){

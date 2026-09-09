@@ -543,6 +543,31 @@ function emailAnnouncementNewsletter_(subject, body, author, priority) {
   return all.length;
 }
 
+// { action:'telegramSelfTest', token } → diagnose why Telegram sends fail.
+// chat_admin/admin/super only. Returns the exact reason: no-token, or the
+// Telegram API response code + body. Sends a real test message to thread 553.
+function handleTelegramSelfTest_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user || !announcerAllowed_(user)) return jsonResponse({ ok: false, error: 'Not allowed' });
+    var token = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
+    if (!token) return jsonResponse({ ok: false, reason: 'no-token', detail: 'TELEGRAM_BOT_TOKEN is not set in this Apps Script project (Project Settings → Script Properties).' });
+    var url = 'https://api.telegram.org/bot' + token + '/sendMessage';
+    var resp = UrlFetchApp.fetch(url, {
+      method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      payload: JSON.stringify({ chat_id: '@seedtheword', message_thread_id: 553, text: '✅ Telegram self-test from the Team Portal — if you see this, announcements will post here.', disable_web_page_preview: true })
+    });
+    var code = resp.getResponseCode();
+    var bodyTxt = resp.getContentText();
+    if (code === 200) return jsonResponse({ ok: true, reason: 'sent', detail: 'Test message posted to @seedtheword thread 553.' });
+    // Non-200: surface Telegram's own error description (e.g. bot not admin,
+    // chat not found, thread not found).
+    var desc = '';
+    try { desc = JSON.parse(bodyTxt).description || ''; } catch (e) { desc = bodyTxt.slice(0, 300); }
+    return jsonResponse({ ok: false, reason: 'api-error', code: code, detail: desc });
+  } catch (err) { return jsonResponse({ ok: false, reason: 'exception', detail: String(err) }); }
+}
+
 // { action:'getAnnouncementHistory', token } → recent announcements (all
 // priorities/audiences) for the composer's history panel so the team can see
 // what was posted and avoid reposting. chat_admin / admin / super_admin only.

@@ -535,9 +535,14 @@ async function loadAnnouncementHistory(){
     try{
       var res=await postAction({action:'telegramSelfTest',token:session.token});
       if(res&&res.ok){alert('✅ Telegram works — a test message was posted to the channel.');}
-      else if(res&&res.reason==='no-token'){alert('❌ Telegram bot token is NOT set.\n\nFix: Apps Script project → Project Settings (gear) → Script Properties → add TELEGRAM_BOT_TOKEN with your BotFather token, then redeploy.');}
+      else if(res&&res.reason==='no-token'){alert('❌ Telegram bot token is NOT set in the web-app project.\n\nFix: open the P1 Apps Script project (the one orderHandlerUrl points to) → Project Settings (gear) → Script Properties → add TELEGRAM_BOT_TOKEN = your BotFather token → Save → redeploy.');}
       else if(res&&res.reason==='api-error'){alert('❌ Telegram rejected the message (code '+res.code+'):\n\n'+(res.detail||'')+'\n\nUsual causes: the bot isn\'t an admin of @seedtheword, or thread 553 doesn\'t exist.');}
-      else{alert('❌ Telegram test failed: '+((res&&res.detail)||(res&&res.reason)||'unknown'));}
+      else if(res&&res.reason){alert('❌ Telegram test failed ('+res.reason+'): '+(res.detail||''));}
+      else{
+        // No `reason` field → the backend doesn't recognize telegramSelfTest,
+        // which means the updated Apps Script hasn't been redeployed yet.
+        alert('⚠️ The backend hasn\'t been redeployed with the new code yet.\n\nThe "telegramSelfTest" action isn\'t recognized by the currently-deployed web app. Repaste team-messaging-handlers.gs + order-handler.gs into the P1 Apps Script project and redeploy, then run this test again.\n\nRaw response: '+JSON.stringify(res).slice(0,200));
+      }
     }catch(e){alert('Could not run the test: '+e.message);}
     this.disabled=false;this.textContent=orig;
   });

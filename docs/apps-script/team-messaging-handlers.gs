@@ -331,18 +331,34 @@ function sendTelegramPrivateNudge_(username, text) {
   return sendTelegramFromAppsScript_('@seedtheword', groupMsg, null);
 }
 
-// ── Anti-spam: 1 announcement per event per day ───────────────────────
+// ── Anti-spam: block only accidental rapid double-submits ─────────────
+// The dedup guard exists to stop an accidental double-tap / double-fire of
+// the SAME announcement within a short window (default 3 minutes). It must
+// NOT block a deliberate re-post of the same subject later in the day.
+
+var ANNOUNCEMENT_DEDUP_WINDOW_MS = 3 * 60 * 1000; // 3 minutes
 
 function getAnnouncementDedupKey_(subject, date) {
-  // Normalize: lowercase, trim, remove non-alpha
+  // Normalize: lowercase, trim, remove non-alpha. (date kept for back-compat
+  // with existing rows; the real recency check is time-window based below.)
   return (subject || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 40) + '_' + date;
 }
 
-function hasAnnouncementBeenSentToday_(sheet, dedupKey) {
+// Returns true only if an announcement with the SAME normalized subject was
+// posted within the last ANNOUNCEMENT_DEDUP_WINDOW_MS. Uses the timestamp in
+// column A + the subject in column C, so deliberate re-posts later are allowed.
+function hasAnnouncementBeenSentRecently_(sheet, subject) {
   if (sheet.getLastRow() < 2) return false;
-  var keys = sheet.getRange(2, 7, sheet.getLastRow()-1, 1).getValues();
-  for (var i = 0; i < keys.length; i++) {
-    if (String(keys[i][0]).trim() === dedupKey) return true;
+  var normSubject = (subject || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 40);
+  var n = sheet.getLastRow() - 1;
+  // Read timestamp (col 1) + subject (col 3) for all rows.
+  var rows = sheet.getRange(2, 1, n, 3).getValues();
+  var cutoff = Date.now() - ANNOUNCEMENT_DEDUP_WINDOW_MS;
+  for (var i = 0; i < rows.length; i++) {
+    var rowSubject = String(rows[i][2] || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 40);
+    if (rowSubject !== normSubject) continue;
+    var ts = new Date(rows[i][0]).getTime();
+    if (!isNaN(ts) && ts >= cutoff) return true;
   }
   return false;
 }
@@ -384,9 +400,9 @@ function handlePostAnnouncement_(payload) {
     // ── Public → Telegram + a Community post (so it shows on community.html) ──
     var telegramSent = false, telegramSkipped = false;
     if (toPublic) {
-      // Dedup only blocks the SAME subject on the SAME day (prevents accidental
-      // double-taps), and reports it back so the caller isn't left guessing.
-      if (!hasAnnouncementBeenSentToday_(sheet, dedupKey)) {
+      // Dedup only blocks an accidental rapid double-submit of the SAME subject
+      // within a few minutes. A deliberate re-post later in the day is allowed.
+      if (!hasAnnouncementBeenSentRecently_(sheet, subject)) {
         var priorityEmoji = priority === 'emergency' ? '🚨' : priority === 'urgent' ? '⚠️' : '📢';
         var telegramText = priorityEmoji + ' <b>' + subject + '</b>\n\n' + body + '\n\n— ' + user.name;
         telegramSent = sendTelegramFromAppsScript_('@seedtheword', telegramText, 553);

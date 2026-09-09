@@ -399,7 +399,7 @@ Consolidates team DMs onto the **DirectMessages** tab with unread tracking, bloc
 
 **What changed (`team-messaging-handlers.gs`)**
 - New **Email / newsletter** audience: `audience.email` → `emailAnnouncementNewsletter_` emails opted-in team members (notify_pref ≠ none) + the newsletter `Subscribers` list (BCC, de-duped, respects opt-out). Independent of priority.
-- Telegram: response now returns `telegram_sent` / `telegram_skipped` so the UI can tell you if the same subject was already sent today (the dedup only blocks same-subject-same-day). **If Telegram isn't firing at all, set `TELEGRAM_BOT_TOKEN` in Script Properties.**
+- Telegram: response returns `telegram_sent` / `telegram_skipped`. Dedup now only blocks an **accidental rapid double-submit** of the same subject within `ANNOUNCEMENT_DEDUP_WINDOW_MS` (3 min) via `hasAnnouncementBeenSentRecently_` — a deliberate re-post later in the day is allowed (previously it blocked same-subject for the whole day). **`TELEGRAM_BOT_TOKEN` must hold the `news_seedtheword_bot` token (NOT the Bible bot).** Use `showTelegramTokenStatus` to verify; it warns if it matches `BIBLE_BOT_TOKEN`.
 - New `getAnnouncementHistory` action (`handleGetAnnouncementHistory_`) → recent announcements w/ priority + audience + telegram_sent, for the composer's history panel. Routed in `order-handler.gs`.
 
 **Frontend (git):** composer gains a 📧 Email/newsletter audience checkbox + a "Recently posted" history panel (so the team doesn't repost). Portal has a persistent **"📣 See recent announcements"** link that opens this week's list even after the banner is dismissed.

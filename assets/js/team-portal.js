@@ -504,7 +504,7 @@ document.getElementById('ann-send-btn').addEventListener('click',async function(
       checkEmergencyAlerts();
       loadAnnouncementHistory();
       var parts=[];
-      if(audience.public){parts.push(res.telegram_sent?'Telegram sent':(res.telegram_skipped?'Telegram skipped (already sent today)':'Telegram not sent — check bot token'));parts.push('community posted');}
+      if(audience.public){parts.push(res.telegram_sent?'Telegram sent':(res.telegram_skipped?'Telegram skipped (same announcement just sent — wait a moment to re-post)':'Telegram not sent — check bot token'));parts.push('community posted');}
       if(typeof res.emailed==='number'&&res.emailed>0)parts.push('emailed '+res.emailed);
       alert('Announcement posted'+(parts.length?' · '+parts.join(' · '):'')+'.');
     }else{alert(res.error||'Failed.');}

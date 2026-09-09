@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616442,
-  "lastModified": "2026-09-09T20:40:37Z",
+  "lastUpdateId": 669616446,
+  "lastModified": "2026-09-09T20:55:41Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -276,16 +276,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5418,
-      "userId": 8045440327,
-      "displayName": "✝️🙏PRAYER DOG🐺🥀 I am L.A.W.",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I decided to be brave, I had a phyciatrist appointment, and we decided to cut my med dose from 20mg to 10mg for anxiety and depression, and so I am going to probably really struggle when I make that change to my med dose, next month. So please pray I have the courage to fight the lows the meds used to manage. That God may transform my mind in those weeks to come next month, and people will be there to support me in those moments when the hurt gets too much. I want to be made whole... transform my mind and soul. And so In faith I do this.  This process will probably start late September after YA camp at SOLYA, so if suddenly I go rogue, I literally might not be in my right mind.",
-      "ts": "2026-08-26T20:47:37Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5420,
@@ -1115,6 +1105,26 @@
       "kind": "telegram",
       "text": "Plz also pray for me, I feel a wave of feeling overwhelmed and anxious after multiple little events happening around me and also being overwhelmed by decisions I have to make or tasks I need to get done, and I am afraid to take it out on someone or make a mistake because of any emotions I might be unaware of, naturally it makes me want to withdraw from community and even being around family, I feel this may be an attack from the enemy and I just need prayer for strength, self awareness, courage, confidence and peace. And pray also for a longing in my heart to keep opening up scripture even when things get tough.",
       "ts": "2026-09-09T20:40:20Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5882,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thank you Liam 🙏🏻",
+      "ts": "2026-09-09T20:43:54Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5883,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Just know that any prayer, even if it feels small, isn’t too small for God. Even feeling overwhelmed can lead to bigger problems if the enemy is not snuffed out from the root early",
+      "ts": "2026-09-09T20:52:08Z"
     }
   ]
 }

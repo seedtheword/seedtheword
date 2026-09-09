@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669616370,
-  "lastModified": "2026-09-08T22:55:36Z",
+  "lastModified": "2026-09-09T00:25:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -276,16 +276,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5410,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer Request 8/25/2026:\n\nI have a prayer request for the salvation of Miliena so she comes unto Christ. I went out on a date with her and spent about an hour covering various topics including faith and tried to get her to understand what is the point of salvation and how she can experience joy in her life from Jesus.\n\nShe had a good time but she ultimately didn't decide however she did take a Bible with her as a reminder of the date and I was able to plant a seed that I prayed for.",
-      "ts": "2026-08-26T00:15:22Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5413,

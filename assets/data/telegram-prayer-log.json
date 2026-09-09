@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616391,
-  "lastModified": "2026-09-09T12:40:34Z",
+  "lastUpdateId": 669616415,
+  "lastModified": "2026-09-09T12:55:38Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -825,6 +825,236 @@
       "kind": "telegram",
       "text": "A day?!",
       "ts": "2026-09-09T12:40:27Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5834,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Yes",
+      "ts": "2026-09-09T12:40:34Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5835,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "How are you not dead!!!",
+      "ts": "2026-09-09T12:40:44Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5836,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I am simply an anomaly",
+      "ts": "2026-09-09T12:40:59Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5837,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "OK, pick probably 1... like only one",
+      "ts": "2026-09-09T12:41:10Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5838,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "One what?",
+      "ts": "2026-09-09T12:41:20Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5839,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Start there, one redbull to start with, instead of 5",
+      "ts": "2026-09-09T12:41:38Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5840,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Replace the others with water",
+      "ts": "2026-09-09T12:42:15Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5841,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Mmm, well once I taste a redbull my tongue tends to crave the flavor even more",
+      "ts": "2026-09-09T12:42:26Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5842,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Then sparkling water, or some water vitamin bags,",
+      "ts": "2026-09-09T12:43:02Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5843,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "You could also drink regular coffee too, instead of an energy drink... it tastes... well less good",
+      "ts": "2026-09-09T12:45:02Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5844,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I’m lactose intolerant 😭",
+      "ts": "2026-09-09T12:45:26Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5845,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I drink almond milk",
+      "ts": "2026-09-09T12:45:35Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5846,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "So no pumpkin spice latte for me",
+      "ts": "2026-09-09T12:45:39Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5847,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Also I mean brew your own",
+      "ts": "2026-09-09T12:45:49Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5848,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Like a pot",
+      "ts": "2026-09-09T12:46:00Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5849,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I’m allergic to nut milks too",
+      "ts": "2026-09-09T12:46:29Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5850,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Then drink it black?",
+      "ts": "2026-09-09T12:46:44Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5851,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Oh wait there's oat milk",
+      "ts": "2026-09-09T12:46:56Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5852,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Black coffee has caffeine in it",
+      "ts": "2026-09-09T12:47:00Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5853,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I know, you can't immediately hop off fully you will be in so much pain, I have done it",
+      "ts": "2026-09-09T12:47:31Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5854,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Change is gradual",
+      "ts": "2026-09-09T12:47:45Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5855,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I can’t just gradually do it, since my body is gonna crave more and more",
+      "ts": "2026-09-09T12:48:16Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5856,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I know thats why the black coffee and you having to make it will discorage you drinking it, also drinking coffee without food makes you feel sick which will naturally discourage you... however I understand your point.",
+      "ts": "2026-09-09T12:49:34Z"
     }
   ]
 }

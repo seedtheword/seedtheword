@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616416,
-  "lastModified": "2026-09-09T14:10:33Z",
+  "lastUpdateId": 669616417,
+  "lastModified": "2026-09-09T14:25:49Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1065,6 +1065,16 @@
       "kind": "telegram",
       "text": "Black coffee and maple bar?",
       "ts": "2026-09-09T14:10:28Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5859,
+      "userId": 6041224258,
+      "displayName": "Arthur Didenko",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Come on somebody",
+      "ts": "2026-09-09T14:10:40Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616383,
-  "lastModified": "2026-09-09T10:40:35Z",
+  "lastUpdateId": 669616388,
+  "lastModified": "2026-09-09T12:25:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -755,6 +755,46 @@
       "kind": "telegram",
       "text": "theres no prayer request too big or too small.",
       "ts": "2026-09-09T05:07:13Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5827,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I have a really bad caffeine addiction",
+      "ts": "2026-09-09T12:18:28Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5828,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Like really bad",
+      "ts": "2026-09-09T12:18:39Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5829,
+      "userId": 8045440327,
+      "displayName": "Liam Webster",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I feel you, do you want to get off it",
+      "ts": "2026-09-09T12:19:01Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5830,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Like it’s almost as bad as my nicotine addiction which I want to also get rid of, cause I’ve been dealing with that since I was 19 years old, so yes I want to get off it",
+      "ts": "2026-09-09T12:21:09Z"
     }
   ]
 }

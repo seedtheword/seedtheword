@@ -402,7 +402,13 @@ function handlePostAnnouncement_(payload) {
     if (toPublic) {
       // Dedup only blocks an accidental rapid double-submit of the SAME subject
       // within a few minutes. A deliberate re-post later in the day is allowed.
-      if (!hasAnnouncementBeenSentRecently_(sheet, subject)) {
+      // OVERRIDES that skip the dedup entirely:
+      //   - a super-admin explicitly forcing the send (force_telegram)
+      //   - urgent / emergency priority (time-sensitive, must always go out)
+      var isSuper = String(user.role || '').toLowerCase() === 'super_admin';
+      var forceTelegram = (payload.force_telegram === true || payload.force_telegram === 'true');
+      var bypassDedup = (isSuper && forceTelegram) || priority === 'urgent' || priority === 'emergency';
+      if (bypassDedup || !hasAnnouncementBeenSentRecently_(sheet, subject)) {
         var priorityEmoji = priority === 'emergency' ? '🚨' : priority === 'urgent' ? '⚠️' : '📢';
         var telegramText = priorityEmoji + ' <b>' + subject + '</b>\n\n' + body + '\n\n— ' + user.name;
         telegramSent = sendTelegramFromAppsScript_('@seedtheword', telegramText, 553);

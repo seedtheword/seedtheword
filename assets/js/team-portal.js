@@ -494,23 +494,37 @@ document.getElementById('ann-send-btn').addEventListener('click',async function(
   if(!subject||!body){alert('Fill in subject and message.');return;}
   if(!audience.admins&&!audience.members&&!audience.public&&!audience.email){alert('Pick at least one audience.');return;}
   if(annPriority==='emergency'&&!confirm('Send an EMERGENCY announcement? This emails everyone selected who allows notifications.'))return;
-  btn.disabled=true;btn.textContent='Posting…';
+  await sendAnnouncement(btn,{subject:subject,body:body,audience:audience,force:false});
+});
+
+// Post an announcement. On a Telegram dedup-skip, a super-admin is offered a
+// one-tap override that re-posts with force_telegram=true (bypasses the guard).
+async function sendAnnouncement(btn,opts){
+  var subject=opts.subject,body=opts.body,audience=opts.audience,force=!!opts.force;
+  btn.disabled=true;btn.textContent=force?'Force sending…':'Posting…';
   try{
-    var res=await postAction({action:'postAnnouncement',token:session.token,subject:subject,body:body,priority:annPriority,audience:audience});
+    var res=await postAction({action:'postAnnouncement',token:session.token,subject:subject,body:body,priority:annPriority,audience:audience,force_telegram:force});
     if(res.ok){
+      // Offer super-admin override when Telegram was skipped by the dedup guard.
+      var isSuper=String((session&&session.role)||'').toLowerCase()==='super_admin';
+      if(audience.public&&res.telegram_skipped&&isSuper&&!force){
+        if(confirm('Telegram skipped this because the same announcement was just sent. As super-admin you can force it through. Send to Telegram now?')){
+          return sendAnnouncement(btn,{subject:subject,body:body,audience:audience,force:true});
+        }
+      }
       document.getElementById('ann-subject').value='';document.getElementById('ann-body').value='';
       document.getElementById('chat-admin-compose').style.display='none';
       var ob=document.getElementById('ann-open-btn');if(ob)ob.style.display='';
       checkEmergencyAlerts();
       loadAnnouncementHistory();
       var parts=[];
-      if(audience.public){parts.push(res.telegram_sent?'Telegram sent':(res.telegram_skipped?'Telegram skipped (same announcement just sent — wait a moment to re-post)':'Telegram not sent — check bot token'));parts.push('community posted');}
+      if(audience.public){parts.push(res.telegram_sent?(force?'Telegram force-sent':'Telegram sent'):(res.telegram_skipped?'Telegram skipped (same announcement just sent — wait a moment to re-post)':'Telegram not sent — check bot token'));parts.push('community posted');}
       if(typeof res.emailed==='number'&&res.emailed>0)parts.push('emailed '+res.emailed);
       alert('Announcement posted'+(parts.length?' · '+parts.join(' · '):'')+'.');
     }else{alert(res.error||'Failed.');}
   }catch(e){alert(e.message);}
   btn.disabled=false;btn.textContent='Post announcement';
-});
+}
 
 // ── Announcement history (composer panel, so we don't repost) ──
 function annPriPill(p){var c=p==='emergency'?'#a6251f':(p==='urgent'?'var(--color-gold)':'var(--color-olive)');return '<span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:'+c+';">'+(p==='emergency'?'🔴 Emergency':(p==='urgent'?'🟡 Urgent':'🟢 Normal'))+'</span>';}

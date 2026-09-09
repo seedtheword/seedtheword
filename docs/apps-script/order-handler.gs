@@ -253,6 +253,7 @@ function doPost(e) {
   // ── Team Messaging actions (see docs/apps-script/team-messaging-handlers.gs) ──
   if ((payload && payload.action) === 'postAnnouncement') return handlePostAnnouncement_(payload);
   if ((payload && payload.action) === 'getAnnouncements') return handleGetAnnouncements_(payload);
+  if ((payload && payload.action) === 'getAnnouncementHistory') return handleGetAnnouncementHistory_(payload);
   if ((payload && payload.action) === 'deleteAnnouncement') return handleDeleteAnnouncement_(payload);
   if ((payload && payload.action) === 'sendDm') return handleSendDm_(payload);
   if ((payload && payload.action) === 'getDmContacts') return handleGetDmContacts_(payload);

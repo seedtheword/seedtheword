@@ -393,3 +393,17 @@ Consolidates team DMs onto the **DirectMessages** tab with unread tracking, bloc
 **Activate:** repaste `team-messaging-handlers.gs` (+ `order-handler.gs` already pending) and redeploy.
 
 **Did it work?** Post a Normal internal→members announcement → members see a green banner in the portal, admins see it too, community page does NOT. Post Public Urgent → yellow banner + community post + Telegram. Post Emergency w/ Members selected → red blaring banner + emails all admins + members who allow notifications.
+
+
+## Announcements: email/newsletter audience + history + recent viewer — needs redeploy (P1)
+
+**What changed (`team-messaging-handlers.gs`)**
+- New **Email / newsletter** audience: `audience.email` → `emailAnnouncementNewsletter_` emails opted-in team members (notify_pref ≠ none) + the newsletter `Subscribers` list (BCC, de-duped, respects opt-out). Independent of priority.
+- Telegram: response now returns `telegram_sent` / `telegram_skipped` so the UI can tell you if the same subject was already sent today (the dedup only blocks same-subject-same-day). **If Telegram isn't firing at all, set `TELEGRAM_BOT_TOKEN` in Script Properties.**
+- New `getAnnouncementHistory` action (`handleGetAnnouncementHistory_`) → recent announcements w/ priority + audience + telegram_sent, for the composer's history panel. Routed in `order-handler.gs`.
+
+**Frontend (git):** composer gains a 📧 Email/newsletter audience checkbox + a "Recently posted" history panel (so the team doesn't repost). Portal has a persistent **"📣 See recent announcements"** link that opens this week's list even after the banner is dismissed.
+
+**Activate:** repaste `team-messaging-handlers.gs` + `order-handler.gs`, redeploy. Newsletter uses the existing `Subscribers` tab (run `installSubscribersTab()` once if not present).
+
+**Note on "Telegram didn't post":** that was almost certainly because the new audience-based handler wasn't deployed yet (the old deployed code only sent Telegram on the legacy `send_telegram` flag, not `audience.public`). After this redeploy, Public → Telegram works provided `TELEGRAM_BOT_TOKEN` is set.

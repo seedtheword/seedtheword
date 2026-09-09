@@ -370,9 +370,10 @@ function handlePostAnnouncement_(payload) {
     var toMembers = (aud.members === true || aud.members === 'true');
     var toPublic = (aud.public === true || aud.public === 'true' ||
                     payload.send_telegram === true || payload.post_community === true);
+    var toEmail = (aud.email === true || aud.email === 'true');
     // Default: if nothing selected, treat as internal-to-everyone (admins+members).
-    if (!toAdmins && !toMembers && !toPublic) { toAdmins = true; toMembers = true; }
-    var audienceJson = JSON.stringify({ admins: toAdmins, members: toMembers, public: toPublic });
+    if (!toAdmins && !toMembers && !toPublic && !toEmail) { toAdmins = true; toMembers = true; }
+    var audienceJson = JSON.stringify({ admins: toAdmins, members: toMembers, public: toPublic, email: toEmail });
 
     var sheet = getAnnouncementsSheet_();
     var audCol = ensureColumn_(sheet, 'audience_json'); // add if missing
@@ -381,13 +382,15 @@ function handlePostAnnouncement_(payload) {
     var dedupKey = getAnnouncementDedupKey_(subject, today);
 
     // ── Public → Telegram + a Community post (so it shows on community.html) ──
-    var telegramSent = false;
+    var telegramSent = false, telegramSkipped = false;
     if (toPublic) {
+      // Dedup only blocks the SAME subject on the SAME day (prevents accidental
+      // double-taps), and reports it back so the caller isn't left guessing.
       if (!hasAnnouncementBeenSentToday_(sheet, dedupKey)) {
         var priorityEmoji = priority === 'emergency' ? '🚨' : priority === 'urgent' ? '⚠️' : '📢';
         var telegramText = priorityEmoji + ' <b>' + subject + '</b>\n\n' + body + '\n\n— ' + user.name;
         telegramSent = sendTelegramFromAppsScript_('@seedtheword', telegramText, 553);
-      }
+      } else { telegramSkipped = true; }
       // Mirror to the community feed as an announcement post (best-effort).
       try {
         if (typeof getPostsSheet_ === 'function' && typeof socialNewId_ === 'function') {
@@ -406,11 +409,19 @@ function handlePostAnnouncement_(payload) {
     // Respect notify_pref === 'none' (does NOT bypass an opt-out).
     var emailed = 0;
     if (priority === 'emergency') {
-      try { emailed = emailEmergencyAnnouncement_(subject, body, user.name, { admins: true, members: toMembers }); }
+      try { emailed += emailEmergencyAnnouncement_(subject, body, user.name, { admins: true, members: toMembers }); }
       catch (e) { Logger.log('emergency email failed: ' + e); }
     }
 
-    return jsonResponse({ ok: true, route: 'postAnnouncement', telegram_sent: telegramSent, emailed: emailed, audience: audienceJson });
+    // ── Email / newsletter audience → send to opted-in team members + the
+    // newsletter subscriber list. (Independent of priority — this is the "send
+    // it out as news" option.) De-duped by address; respects notify_pref none.
+    if (toEmail) {
+      try { emailed += emailAnnouncementNewsletter_(subject, body, user.name, priority); }
+      catch (e) { Logger.log('newsletter announcement email failed: ' + e); }
+    }
+
+    return jsonResponse({ ok: true, route: 'postAnnouncement', telegram_sent: telegramSent, telegram_skipped: telegramSkipped, emailed: emailed, audience: audienceJson });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
 
@@ -470,6 +481,96 @@ function emailEmergencyAnnouncement_(subject, body, author, targets) {
   }) : ('<h2>EMERGENCY: ' + escapeHtml(subject) + '</h2><p>' + escapeHtml(body) + '</p>');
   MailApp.sendEmail({ to: recipients.join(','), subject: '🚨 EMERGENCY — ' + subject, htmlBody: html, body: 'EMERGENCY: ' + subject + '\n\n' + body + '\n\n— ' + author, name: 'Seed the Word Ministry', noReply: true });
   return recipients.length;
+}
+
+// Email an announcement as a "news update" to opted-in team members
+// (notify_pref !== 'none') + the newsletter Subscribers list. De-dupes by
+// address. Sends individually to Subscribers (with unsubscribe context) but a
+// single combined send to team members. Returns count of recipients emailed.
+function emailAnnouncementNewsletter_(subject, body, author, priority) {
+  var seen = {};
+  var teamRecipients = [];
+  // Opted-in team members.
+  try {
+    var sheet = getTeamSheet_();
+    if (sheet.getLastRow() >= 2) {
+      var lastCol = sheet.getLastColumn();
+      var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+      var notifyIdx = -1;
+      for (var h = 0; h < headers.length; h++) { if (String(headers[h]).toLowerCase().trim() === 'notify_pref') { notifyIdx = h; break; } }
+      var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, lastCol).getValues();
+      for (var i = 0; i < data.length; i++) {
+        var email = String(data[i][3] || '').trim().toLowerCase();
+        if (!email || email.indexOf('@') === -1) continue;
+        var pref = notifyIdx >= 0 ? String(data[i][notifyIdx] || 'email').toLowerCase() : 'email';
+        if (pref === 'none') continue;
+        if (!seen[email]) { seen[email] = 1; teamRecipients.push(String(data[i][3]).trim()); }
+      }
+    }
+  } catch (e) { Logger.log('newsletter team gather failed: ' + e); }
+
+  // Newsletter subscribers (opt-in list).
+  var subRecipients = [];
+  try {
+    if (typeof listActiveSubscribers === 'function') {
+      var subs = listActiveSubscribers();
+      for (var s = 0; s < subs.length; s++) {
+        var se = String(subs[s].email || '').trim();
+        var sl = se.toLowerCase();
+        if (se && sl.indexOf('@') !== -1 && !seen[sl]) { seen[sl] = 1; subRecipients.push(se); }
+      }
+    }
+  } catch (e) { Logger.log('newsletter subscriber gather failed: ' + e); }
+
+  var all = teamRecipients.concat(subRecipients);
+  if (!all.length) return 0;
+
+  var accent = priority === 'emergency' ? '#a6251f' : (priority === 'urgent' ? '#D97736' : '#2C4A3E');
+  var html = (typeof emailShell === 'function') ? emailShell({
+    headerTitle: subject,
+    headerSubtitle: 'News from Seed the Word',
+    bodyHtml: '<p style="font-size:15px;line-height:1.7;">' + escapeHtml(body).replace(/\n/g, '<br>') + '</p>' +
+      '<p style="margin-top:1rem;color:#666;font-size:13px;">— ' + escapeHtml(author) + ', Seed the Word Ministry</p>',
+    footerHtml: '<p>You\'re receiving this because you subscribe to Seed the Word updates.</p>',
+    accentColor: accent,
+    includeMinistryFooter: true
+  }) : ('<h2>' + escapeHtml(subject) + '</h2><p>' + escapeHtml(body) + '</p>');
+  var plain = subject + '\n\n' + body + '\n\n— ' + author + ', Seed the Word Ministry';
+  // BCC everyone in one send (keeps addresses private, one quota hit).
+  try {
+    MailApp.sendEmail({ to: TEAM_INBOX, bcc: all.join(','), subject: '📣 ' + subject + ' — Seed the Word', htmlBody: html, body: plain, name: 'Seed the Word Ministry', noReply: true });
+  } catch (e) { Logger.log('newsletter send failed: ' + e); return 0; }
+  return all.length;
+}
+
+// { action:'getAnnouncementHistory', token } → recent announcements (all
+// priorities/audiences) for the composer's history panel so the team can see
+// what was posted and avoid reposting. chat_admin / admin / super_admin only.
+function handleGetAnnouncementHistory_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user || !announcerAllowed_(user)) return jsonResponse({ ok: false, error: 'Not allowed' });
+    var sheet = getAnnouncementsSheet_();
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, history: [] });
+    var lastCol = sheet.getLastColumn();
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var audIdx = -1, tgIdx = 5;
+    for (var h = 0; h < headers.length; h++) { var hn = String(headers[h]).toLowerCase().trim(); if (hn === 'audience_json') audIdx = h; if (hn === 'telegram_sent') tgIdx = h; }
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, lastCol).getValues();
+    var history = [];
+    for (var i = data.length - 1; i >= 0 && history.length < 50; i--) {
+      var aud = { admins: true, members: true, public: false, email: false };
+      if (audIdx >= 0 && data[i][audIdx]) { try { aud = JSON.parse(data[i][audIdx]); } catch (e) {} }
+      history.push({
+        timestamp: new Date(data[i][0]).getTime(),
+        author: data[i][1], subject: data[i][2], body: data[i][3],
+        priority: data[i][4] || 'normal',
+        telegram_sent: String(data[i][tgIdx]).toLowerCase() === 'yes',
+        audience: aud
+      });
+    }
+    return jsonResponse({ ok: true, history: history });
+  } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
 
 function handleGetAnnouncements_(payload) {

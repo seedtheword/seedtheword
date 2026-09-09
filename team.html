@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
-  <link rel="stylesheet" href="assets/css/team-social.css?v=19">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=20">
   <link rel="stylesheet" href="assets/css/lms.css?v=2">
   <style>
     /* ── Content Studio — SocialPulse-inspired look (emerald, white cards) ── */
@@ -246,6 +246,21 @@
         <p class="ann-banner__body" id="announcement-body"></p>
       </div>
       <button class="ann-banner__dismiss" id="announcement-dismiss" title="Dismiss">×</button>
+    </div>
+
+    <!-- Persistent "recent announcements" link (always available, even after
+         dismissing the banner). Opens a sheet listing this week's posts. -->
+    <button class="ann-recent-link" id="ann-recent-link" style="display:none;">📣 See recent announcements</button>
+
+    <!-- Recent announcements viewer (this week) -->
+    <div class="ann-recent-overlay" id="ann-recent-overlay" style="display:none;">
+      <div class="ann-recent-sheet">
+        <div class="ann-recent-sheet__head">
+          <h3 class="ann-recent-sheet__title">📣 This week's announcements</h3>
+          <button class="ann-recent-sheet__close" id="ann-recent-close" aria-label="Close">×</button>
+        </div>
+        <div class="ann-recent-sheet__list" id="ann-recent-list"><p class="dm-empty">Loading…</p></div>
+      </div>
     </div>
 
     <!-- Profile Card with stats and badges -->
@@ -695,6 +710,7 @@
             <label class="ann-aud"><input type="checkbox" id="ann-aud-admins" checked> <span>👔 Admins &amp; super-admins</span></label>
             <label class="ann-aud"><input type="checkbox" id="ann-aud-members" checked> <span>👥 Members</span></label>
             <label class="ann-aud"><input type="checkbox" id="ann-aud-public"> <span>🌍 Public — Community page &amp; Telegram</span></label>
+            <label class="ann-aud"><input type="checkbox" id="ann-aud-email"> <span>📧 Email / newsletter — team &amp; subscribers</span></label>
           </div>
 
           <label class="ann-field-label">Priority</label>
@@ -710,6 +726,15 @@
           <div style="display:flex;align-items:center;gap:0.75rem;">
             <span class="ann-emergency-note" id="ann-emergency-note" style="display:none;">🔴 Emergency emails everyone selected (who allow notifications).</span>
             <button class="btn btn--green btn--sm" id="ann-send-btn" style="margin-left:auto;">Post announcement</button>
+          </div>
+
+          <!-- Recent announcements (so the team doesn't repost the same thing) -->
+          <div class="ann-history">
+            <div class="ann-history__head">
+              <span class="ann-field-label" style="margin:0;">Recently posted</span>
+              <button type="button" class="ann-history__refresh" id="ann-history-refresh" title="Refresh">↻</button>
+            </div>
+            <div class="ann-history__list" id="ann-history-list"><p class="dm-empty" style="padding:0.6rem;">Loading…</p></div>
           </div>
         </div>
       </div>
@@ -847,7 +872,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=23"></script>
+<script src="assets/js/team-portal.js?v=24"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
 <script>

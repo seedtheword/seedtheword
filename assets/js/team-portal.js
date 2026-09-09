@@ -213,6 +213,7 @@ function showPortal(){
   if(canPortal('chat_admin')){document.getElementById('chat-admin-compose').style.display='';}
   else{document.getElementById('chat-admin-compose').style.display='none';}
   checkEmergencyAlerts();
+  var recentLink=document.getElementById('ann-recent-link');if(recentLink)recentLink.style.display='';
 }
 function showEventOrPortal(){
   if(session.event&&session.eventDate===localToday()){showPortal();}
@@ -487,10 +488,11 @@ document.getElementById('ann-send-btn').addEventListener('click',async function(
   var audience={
     admins:document.getElementById('ann-aud-admins').checked,
     members:document.getElementById('ann-aud-members').checked,
-    public:document.getElementById('ann-aud-public').checked
+    public:document.getElementById('ann-aud-public').checked,
+    email:document.getElementById('ann-aud-email').checked
   };
   if(!subject||!body){alert('Fill in subject and message.');return;}
-  if(!audience.admins&&!audience.members&&!audience.public){alert('Pick at least one audience.');return;}
+  if(!audience.admins&&!audience.members&&!audience.public&&!audience.email){alert('Pick at least one audience.');return;}
   if(annPriority==='emergency'&&!confirm('Send an EMERGENCY announcement? This emails everyone selected who allows notifications.'))return;
   btn.disabled=true;btn.textContent='Posting…';
   try{
@@ -500,13 +502,56 @@ document.getElementById('ann-send-btn').addEventListener('click',async function(
       document.getElementById('chat-admin-compose').style.display='none';
       var ob=document.getElementById('ann-open-btn');if(ob)ob.style.display='';
       checkEmergencyAlerts();
-      var msg='Announcement posted';
-      if(typeof res.emailed==='number'&&res.emailed>0)msg+=' · emailed '+res.emailed;
-      alert(msg+'.');
+      loadAnnouncementHistory();
+      var parts=[];
+      if(audience.public){parts.push(res.telegram_sent?'Telegram sent':(res.telegram_skipped?'Telegram skipped (already sent today)':'Telegram not sent — check bot token'));parts.push('community posted');}
+      if(typeof res.emailed==='number'&&res.emailed>0)parts.push('emailed '+res.emailed);
+      alert('Announcement posted'+(parts.length?' · '+parts.join(' · '):'')+'.');
     }else{alert(res.error||'Failed.');}
   }catch(e){alert(e.message);}
   btn.disabled=false;btn.textContent='Post announcement';
 });
+
+// ── Announcement history (composer panel, so we don't repost) ──
+function annPriPill(p){var c=p==='emergency'?'#a6251f':(p==='urgent'?'var(--color-gold)':'var(--color-olive)');return '<span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:'+c+';">'+(p==='emergency'?'🔴 Emergency':(p==='urgent'?'🟡 Urgent':'🟢 Normal'))+'</span>';}
+function annAudienceLabel(a){if(!a)return '';var t=[];if(a.admins)t.push('Admins');if(a.members)t.push('Members');if(a.public)t.push('Public');if(a.email)t.push('Email');return t.join(' · ');}
+async function loadAnnouncementHistory(){
+  var list=document.getElementById('ann-history-list');if(!list||!session)return;
+  try{
+    var res=await postAction({action:'getAnnouncementHistory',token:session.token});
+    var h=(res&&res.ok&&res.history)||[];
+    if(!h.length){list.innerHTML='<p class="dm-empty" style="padding:0.6rem;">Nothing posted yet.</p>';return;}
+    list.innerHTML=h.slice(0,12).map(function(a){
+      return '<div class="ann-hist-row"><div class="ann-hist-row__top">'+annPriPill(a.priority)+'<span class="ann-hist-row__time">'+timeAgo(a.timestamp)+'</span></div>'+
+        '<div class="ann-hist-row__subj">'+escapeHtml(a.subject)+'</div>'+
+        '<div class="ann-hist-row__meta">'+escapeHtml(annAudienceLabel(a.audience))+(a.telegram_sent?' · 📣 Telegram':'')+'</div></div>';
+    }).join('');
+  }catch(e){list.innerHTML='<p class="dm-empty" style="padding:0.6rem;">Could not load.</p>';}
+}
+(function(){var r=document.getElementById('ann-history-refresh');if(r)r.addEventListener('click',loadAnnouncementHistory);var openBtn=document.getElementById('ann-open-btn');if(openBtn)openBtn.addEventListener('click',loadAnnouncementHistory);})();
+
+// ── Recent announcements viewer (this week) — always available ──
+async function openRecentAnnouncements(){
+  var overlay=document.getElementById('ann-recent-overlay'),list=document.getElementById('ann-recent-list');
+  if(!overlay)return;overlay.style.display='';list.innerHTML='<p class="dm-empty">Loading…</p>';
+  try{
+    var res=await postAction({action:'getAnnouncements',token:session.token});
+    var since=Date.now()-7*24*60*60*1000;
+    var items=((res&&res.ok&&res.announcements)||[]).filter(function(a){return (a.timestamp||0)>=since;});
+    if(!items.length){list.innerHTML='<p class="dm-empty">No announcements this week.</p>';return;}
+    list.innerHTML=items.map(function(a){
+      return '<div class="ann-hist-row"><div class="ann-hist-row__top">'+annPriPill(a.priority)+'<span class="ann-hist-row__time">'+timeAgo(a.timestamp)+'</span></div>'+
+        '<div class="ann-hist-row__subj">'+escapeHtml(a.subject)+'</div>'+
+        '<div class="ann-hist-row__body">'+escapeHtml(a.body)+'</div></div>';
+    }).join('');
+  }catch(e){list.innerHTML='<p class="dm-empty">Could not load.</p>';}
+}
+(function(){
+  var link=document.getElementById('ann-recent-link'),overlay=document.getElementById('ann-recent-overlay'),close=document.getElementById('ann-recent-close');
+  if(link)link.addEventListener('click',openRecentAnnouncements);
+  if(close)close.addEventListener('click',function(){overlay.style.display='none';});
+  if(overlay)overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
+})();
 
 // ── Emergency Alert System ──
 async function checkEmergencyAlerts(){

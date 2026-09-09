@@ -1801,3 +1801,55 @@ function handleGetLmsProgress_(payload) {
     return jsonResponse({ ok: true, progress: {} });
   } catch(err) { return jsonResponse({ ok: false, error: String(err) }); }
 }
+
+
+// ══════════════════════════════════════════════════════════════════════
+// ONE-TIME SETUP — Telegram token + Script Properties cleanup
+// ══════════════════════════════════════════════════════════════════════
+// Run these from the Apps Script editor's ▶ Run menu (no redeploy needed —
+// Script Properties are read at runtime). The project has 50+ properties
+// (stale biblebot:*:weekday dedup stamps), which turns the Settings UI
+// read-only and hides "Add script property" — so we set the token in code.
+//
+// DO THIS, in order:
+//   1. cleanupStaleBibleBotStamps  → deletes old biblebot:* stamps (safe:
+//      they only prevented duplicate Bible-bot posts on PAST dates).
+//   2. setTelegramBotToken         → sets TELEGRAM_BOT_TOKEN. Paste your
+//      BotFather token into TELEGRAM_TOKEN_TO_SET below, OR leave it '' to
+//      reuse the existing BIBLE_BOT_TOKEN (only if it's the SAME bot).
+//   3. showTelegramTokenStatus     → confirms (masked preview in the log).
+// Then click "Test Telegram" in the portal.
+
+// Paste your bot token here (from BotFather), or leave '' to reuse BIBLE_BOT_TOKEN.
+var TELEGRAM_TOKEN_TO_SET = '';
+
+function setTelegramBotToken() {
+  var props = PropertiesService.getScriptProperties();
+  var token = String(TELEGRAM_TOKEN_TO_SET || '').trim();
+  if (!token) {
+    token = props.getProperty('BIBLE_BOT_TOKEN') || '';
+    if (token) Logger.log('TELEGRAM_TOKEN_TO_SET was blank — reusing BIBLE_BOT_TOKEN.');
+  }
+  if (!token) {
+    Logger.log('ERROR: No token. Paste your BotFather token into TELEGRAM_TOKEN_TO_SET at the top of this section, then run again.');
+    return;
+  }
+  props.setProperty('TELEGRAM_BOT_TOKEN', token);
+  Logger.log('TELEGRAM_BOT_TOKEN set. Preview: ' + token.slice(0, 8) + '…(' + token.length + ' chars)');
+}
+
+function cleanupStaleBibleBotStamps() {
+  var props = PropertiesService.getScriptProperties();
+  var all = props.getProperties();
+  var removed = 0;
+  Object.keys(all).forEach(function (k) {
+    if (k.indexOf('biblebot:') === 0) { props.deleteProperty(k); removed++; }
+  });
+  Logger.log('Removed ' + removed + ' stale biblebot:* stamps. Remaining properties: ' + Object.keys(props.getProperties()).length);
+}
+
+function showTelegramTokenStatus() {
+  var t = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
+  if (!t) { Logger.log('TELEGRAM_BOT_TOKEN is NOT set.'); return; }
+  Logger.log('TELEGRAM_BOT_TOKEN IS set. Preview: ' + t.slice(0, 8) + '…(' + t.length + ' chars)');
+}

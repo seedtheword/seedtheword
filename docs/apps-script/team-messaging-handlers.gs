@@ -1814,24 +1814,37 @@ function handleGetLmsProgress_(payload) {
 // DO THIS, in order:
 //   1. cleanupStaleBibleBotStamps  → deletes old biblebot:* stamps (safe:
 //      they only prevented duplicate Bible-bot posts on PAST dates).
-//   2. setTelegramBotToken         → sets TELEGRAM_BOT_TOKEN. Paste your
-//      BotFather token into TELEGRAM_TOKEN_TO_SET below, OR leave it '' to
-//      reuse the existing BIBLE_BOT_TOKEN (only if it's the SAME bot).
+//   2. setTelegramBotToken         → sets TELEGRAM_BOT_TOKEN. You MUST paste
+//      your dedicated ANNOUNCEMENTS bot token (from BotFather) into
+//      TELEGRAM_TOKEN_TO_SET below. This is a DIFFERENT bot from the Bible
+//      bot — do not reuse BIBLE_BOT_TOKEN or announcements will appear to
+//      come from the Bible bot.
 //   3. showTelegramTokenStatus     → confirms (masked preview in the log).
 // Then click "Test Telegram" in the portal.
 
-// Paste your bot token here (from BotFather), or leave '' to reuse BIBLE_BOT_TOKEN.
+// Paste your ANNOUNCEMENTS bot token here (from BotFather). This must be the
+// announcements bot, NOT the Bible bot.
 var TELEGRAM_TOKEN_TO_SET = '';
+
+// Safety switch: only set this to true if you INTENTIONALLY want announcements
+// to go through the SAME bot as the daily Bible verses (BIBLE_BOT_TOKEN).
+// Normally leave it false and paste the announcements bot token above instead.
+var ALLOW_REUSE_BIBLE_BOT = false;
 
 function setTelegramBotToken() {
   var props = PropertiesService.getScriptProperties();
   var token = String(TELEGRAM_TOKEN_TO_SET || '').trim();
-  if (!token) {
+  if (!token && ALLOW_REUSE_BIBLE_BOT) {
     token = props.getProperty('BIBLE_BOT_TOKEN') || '';
-    if (token) Logger.log('TELEGRAM_TOKEN_TO_SET was blank — reusing BIBLE_BOT_TOKEN.');
+    if (token) Logger.log('TELEGRAM_TOKEN_TO_SET was blank and ALLOW_REUSE_BIBLE_BOT=true — reusing BIBLE_BOT_TOKEN.');
   }
   if (!token) {
-    Logger.log('ERROR: No token. Paste your BotFather token into TELEGRAM_TOKEN_TO_SET at the top of this section, then run again.');
+    Logger.log('ERROR: No announcements token. Paste your ANNOUNCEMENTS bot token (from BotFather) into TELEGRAM_TOKEN_TO_SET at the top of this section, then run again. (It must NOT be the Bible bot. If you truly want to reuse the Bible bot, set ALLOW_REUSE_BIBLE_BOT = true.)');
+    return;
+  }
+  var bibleToken = props.getProperty('BIBLE_BOT_TOKEN') || '';
+  if (bibleToken && token === bibleToken && !ALLOW_REUSE_BIBLE_BOT) {
+    Logger.log('ERROR: The token you pasted is the SAME as BIBLE_BOT_TOKEN. Announcements would come from the Bible bot. Paste the dedicated announcements bot token instead (or set ALLOW_REUSE_BIBLE_BOT = true to override).');
     return;
   }
   props.setProperty('TELEGRAM_BOT_TOKEN', token);
@@ -1849,7 +1862,14 @@ function cleanupStaleBibleBotStamps() {
 }
 
 function showTelegramTokenStatus() {
-  var t = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
+  var props = PropertiesService.getScriptProperties();
+  var t = props.getProperty('TELEGRAM_BOT_TOKEN');
   if (!t) { Logger.log('TELEGRAM_BOT_TOKEN is NOT set.'); return; }
   Logger.log('TELEGRAM_BOT_TOKEN IS set. Preview: ' + t.slice(0, 8) + '…(' + t.length + ' chars)');
+  var bibleToken = props.getProperty('BIBLE_BOT_TOKEN') || '';
+  if (bibleToken && t === bibleToken) {
+    Logger.log('⚠️  WARNING: TELEGRAM_BOT_TOKEN is IDENTICAL to BIBLE_BOT_TOKEN — announcements will appear to come from the Bible bot. Re-run setTelegramBotToken with your dedicated announcements bot token in TELEGRAM_TOKEN_TO_SET to fix this.');
+  } else {
+    Logger.log('OK: announcements token is different from the Bible bot token.');
+  }
 }

@@ -712,8 +712,13 @@ function activityStatusPill(s){
   if(s==='seen')return '<span class="activity-pill activity-pill--seen">Seen</span>';
   return '<span class="activity-pill activity-pill--new">● New</span>';
 }
+var ACTIVITY_JS_BUILD='v37';
 async function loadTeamActivity(){
   var list=document.getElementById('activity-list');if(!list||!session)return;
+  // Visible build stamp so we can confirm the browser is running current JS
+  // (not a stale cached copy). If this doesn't show v37, it's a caching issue.
+  var sub=document.querySelector('.activity-sub');
+  if(sub&&sub.getAttribute('data-build')!==ACTIVITY_JS_BUILD){sub.setAttribute('data-build',ACTIVITY_JS_BUILD);sub.textContent=sub.textContent.replace(/\s*\(build [^)]*\)\s*$/,'')+' (build '+ACTIVITY_JS_BUILD+')';}
   // Paint any already-loaded items immediately so we're never stuck on "Loading".
   if(activityItems&&activityItems.length){renderActivity();}
   else{list.innerHTML='<p class="dm-empty" style="padding:1rem;">Loading activity…</p>';}
@@ -721,8 +726,8 @@ async function loadTeamActivity(){
     // Race the request against a timeout so a slow/hanging backend never leaves
     // the panel stuck on "Loading…" forever.
     var res=await Promise.race([
-      postAction({action:'getTeamActivity',token:session.token,limit:80}),
-      new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('timeout')); }, 25000); })
+      postAction({action:'getTeamActivity',token:session.token,limit:80,_cb:Date.now()}),
+      new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('timeout')); }, 12000); })
     ]);
     if(res&&res.ok&&(Array.isArray(res.items)||typeof res.new_count==='number')){
       activityItems=res.items||[];

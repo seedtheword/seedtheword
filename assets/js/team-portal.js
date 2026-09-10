@@ -712,31 +712,25 @@ function activityStatusPill(s){
   if(s==='seen')return '<span class="activity-pill activity-pill--seen">Seen</span>';
   return '<span class="activity-pill activity-pill--new">● New</span>';
 }
-var ACTIVITY_JS_BUILD='v40';
+var ACTIVITY_JS_BUILD='v41';
 async function loadTeamActivity(){
-  var list=document.getElementById('activity-list');if(!list||!session)return;
+  var list=document.getElementById('team-activity-list');if(!list||!session)return;
   // Visible build stamp so we can confirm the browser is running current JS
   // (not a stale cached copy). If this doesn't show v37, it's a caching issue.
   var sub=document.querySelector('.activity-sub');
   if(sub&&sub.getAttribute('data-build')!==ACTIVITY_JS_BUILD){sub.setAttribute('data-build',ACTIVITY_JS_BUILD);sub.textContent=sub.textContent.replace(/\s*\(build [^)]*\)\s*$/,'')+' (build '+ACTIVITY_JS_BUILD+')';}
   if(!(activityItems&&activityItems.length))list.innerHTML='<p class="dm-empty" style="padding:1rem;">Loading activity…</p>';
-  console.log('[ACT] loadTeamActivity start '+ACTIVITY_JS_BUILD);
   try{
-    console.log('[ACT] calling postAction…');
     var res=await postAction({action:'getTeamActivity',token:session.token,limit:80});
-    console.log('[ACT] got response',res);
     if(res&&res.ok&&Array.isArray(res.items)){
       activityItems=res.items;
       updateActivityBadge(typeof res.new_count==='number'?res.new_count:0);
-      console.log('[ACT] rendering '+activityItems.length+' items');
-      try{ renderActivity(); console.log('[ACT] render done'); }
-      catch(re){ console.error('[ACT] render threw',re); list.innerHTML='<p class="dm-empty" style="padding:1rem;">Got '+activityItems.length+' items but render failed: '+escapeHtml((re&&re.message)||String(re))+'</p>'; }
+      try{ renderActivity(); }
+      catch(re){ list.innerHTML='<p class="dm-empty" style="padding:1rem;">Got '+activityItems.length+' items but render failed: '+escapeHtml((re&&re.message)||String(re))+'</p>'; }
       return;
     }
-    console.warn('[ACT] unexpected response shape',res);
-    list.innerHTML='<p class="dm-empty" style="padding:1rem;">'+(res&&res.error?('Server said: '+escapeHtml(res.error)):'Unexpected response — see console.')+'</p>';
+    list.innerHTML='<p class="dm-empty" style="padding:1rem;">'+(res&&res.error?('Server said: '+escapeHtml(res.error)):'Unexpected response.')+'</p>';
   }catch(e){
-    console.error('[ACT] loadTeamActivity threw',e);
     if(!(activityItems&&activityItems.length))list.innerHTML='<p class="dm-empty" style="padding:1rem;">Could not load activity: '+escapeHtml((e&&e.message)||String(e))+'</p>';
   }
 }
@@ -754,7 +748,7 @@ async function preloadActivityBadge(){
   }catch(e){}
 }
 function renderActivity(){
-  var list=document.getElementById('activity-list');if(!list)return;
+  var list=document.getElementById('team-activity-list');if(!list)return;
   var arr=Array.isArray(activityItems)?activityItems:[];
   var items=arr.filter(function(it){
     if(!it)return false;
@@ -850,7 +844,7 @@ async function markActivity(it,status){
 // exact error + timing) into the panel, so we can see what the server returns
 // without opening DevTools or the Apps Script editor.
 async function diagnoseActivity(){
-  var list=document.getElementById('activity-list');if(!list)return;
+  var list=document.getElementById('team-activity-list');if(!list)return;
   if(!session||!session.token){list.innerHTML='<p class="dm-empty" style="padding:1rem;">Not signed in.</p>';return;}
   var steps=[];
   function show(extra){list.innerHTML='<div style="padding:0.75rem;font-size:0.78rem;"><pre style="white-space:pre-wrap;word-break:break-word;background:#f7f3ec;padding:0.6rem;border-radius:8px;">'+escapeHtml(steps.join('\n')+(extra?('\n'+extra):''))+'</pre></div>';}

@@ -209,6 +209,9 @@ function showPortal(){
   loadServerScanCounts(); // authoritative today/event/all-time from the server
   loadItemsFromLists(); // warm the live Lists item list for picker + scanner
   updateActivityList();updateScanCount();
+  // Preload the Community-tab activity badge for oversight admins (chat_admin/
+  // moderation) so the new-count shows without opening the tab. Non-fatal.
+  if((canPortal('chat_admin')||canPortal('moderation'))&&typeof preloadActivityBadge==='function')preloadActivityBadge();
   // Show announcement compose only if the member has the chat_admin permission.
   if(canPortal('chat_admin')){document.getElementById('chat-admin-compose').style.display='';}
   else{document.getElementById('chat-admin-compose').style.display='none';}
@@ -228,8 +231,11 @@ document.querySelectorAll('.main-tab').forEach(function(tab){
     document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('tab-panel--active');p.hidden=true;});
     var panel=document.getElementById('tab-'+this.dataset.tab);
     panel.classList.add('tab-panel--active');panel.hidden=false;
-    // Lazy-load the Activity feed the first time (and refresh) when opened.
-    if(this.dataset.tab==='activity'&&typeof loadTeamActivity==='function')loadTeamActivity();
+    // Community tab: if the oversight Activity panel is visible, (re)load it.
+    if(this.dataset.tab==='forum'){
+      var ac=document.getElementById('activity-card');
+      if(ac&&ac.style.display!=='none'&&typeof loadTeamActivity==='function')loadTeamActivity();
+    }
   });
 });
 
@@ -720,6 +726,15 @@ async function loadTeamActivity(){
 function updateActivityBadge(n){
   var b=document.getElementById('activity-badge');if(!b)return;
   if(n>0){b.textContent=n>99?'99+':String(n);b.hidden=false;}else{b.hidden=true;}
+}
+// Light fetch just to populate the Community-tab badge on portal load (doesn't
+// render the list). Best-effort / non-fatal.
+async function preloadActivityBadge(){
+  if(!session||!session.token)return;
+  try{
+    var res=await postAction({action:'getTeamActivity',token:session.token,limit:80});
+    if(res&&res.ok){activityItems=res.items||[];updateActivityBadge(res.new_count||0);}
+  }catch(e){}
 }
 function renderActivity(){
   var list=document.getElementById('activity-list');if(!list)return;

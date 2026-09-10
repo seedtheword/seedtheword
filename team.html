@@ -285,8 +285,7 @@
       <button class="main-tab" data-tab="finance"><span class="main-tab__icon">💰</span> Finance</button>
       <button class="main-tab" data-tab="orders" id="tab-btn-orders" style="display:none;"><span class="main-tab__icon">🛒</span> Orders</button>
       <button class="main-tab" data-tab="messages"><span class="main-tab__icon">💬</span> Chat</button>
-      <button class="main-tab" data-tab="activity" id="tab-btn-activity" style="display:none;"><span class="main-tab__icon">🔔</span> Activity <span class="activity-badge" id="activity-badge" hidden>0</span></button>
-      <button class="main-tab" data-tab="forum"><span class="main-tab__icon">📝</span> Forum</button>
+      <button class="main-tab" data-tab="forum"><span class="main-tab__icon">📝</span> Community <span class="activity-badge" id="activity-badge" hidden>0</span></button>
       <button class="main-tab" data-tab="training"><span class="main-tab__icon">📚</span> Train</button>
       <button class="main-tab" data-tab="content" id="tab-btn-content" style="display:none;"><span class="main-tab__icon">✨</span> Content</button>
     </nav>
@@ -751,12 +750,15 @@
       </div>
     </div>
 
-    <!-- Activity Tab — Phase 4 team oversight: incoming prayers/thanksgiving/
-         orders/bible/contact funnel here. Admins review + respond (prayer/
-         thanksgiving replies post publicly on the community post). -->
-    <div class="tab-panel" id="tab-activity" hidden>
-      <h3 class="dash-group__title">Activity</h3>
-      <div class="glass-card">
+    <!-- Community Tab — social discussion board + (for oversight admins) the
+         Phase 4 Activity panel at the top: incoming prayers/thanksgiving/orders/
+         bible/contact funnel here to review + respond publicly. -->
+    <div class="tab-panel" id="tab-forum" hidden>
+      <h3 class="dash-group__title">Community</h3>
+
+      <!-- Activity oversight (chat_admin/moderation only) — shown at the top of
+           the Community section so admins see incoming activity alongside the feed. -->
+      <div class="glass-card" id="activity-card" style="display:none;">
         <div class="activity-head">
           <div>
             <h3 class="glass-card__title" style="margin:0;">🔔 Incoming activity</h3>
@@ -777,11 +779,7 @@
           <p class="dm-empty" style="padding:1rem;">Loading activity…</p>
         </div>
       </div>
-    </div>
 
-    <!-- Forum Tab — Social discussion board -->
-    <div class="tab-panel" id="tab-forum" hidden>
-      <h3 class="dash-group__title">Community</h3>
       <!-- Group Chats — these are the SAME community group chats; anything posted
            here appears on the public community page and links back. DMs live in the
            Chat tab and stay private. -->
@@ -911,7 +909,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=30"></script>
+<script src="assets/js/team-portal.js?v=31"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
 <script>
@@ -1164,16 +1162,12 @@
     var changeEventBtn = document.querySelector('[onclick="showView(\'event\')"]');
     if (changeEventBtn) changeEventBtn.style.display = can('scanner') ? '' : 'none';
 
-    // Activity tab (Phase 4 oversight): chat_admin OR moderation permission
-    // (super-admins have everything via permsFor). Matches backend activityAllowed_.
-    var activityBtn = document.getElementById('tab-btn-activity');
-    if (activityBtn) {
-      var activityAllowed = can('chat_admin') || can('moderation');
-      activityBtn.style.display = activityAllowed ? '' : 'none';
-      if (!activityAllowed && activityBtn.classList.contains('main-tab--active')) {
-        var msgTab2 = document.querySelector('[data-tab="messages"]');
-        if (msgTab2) msgTab2.click();
-      }
+    // Activity oversight panel (Phase 4) lives at the top of the Community tab.
+    // Visible to chat_admin OR moderation (super-admins have everything).
+    // Matches backend activityAllowed_.
+    var activityCard = document.getElementById('activity-card');
+    if (activityCard) {
+      activityCard.style.display = (can('chat_admin') || can('moderation')) ? '' : 'none';
     }
 
     // Dashboard quick tiles that mirror gated tabs.

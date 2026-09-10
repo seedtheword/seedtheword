@@ -712,7 +712,7 @@ function activityStatusPill(s){
   if(s==='seen')return '<span class="activity-pill activity-pill--seen">Seen</span>';
   return '<span class="activity-pill activity-pill--new">● New</span>';
 }
-var ACTIVITY_JS_BUILD='v39';
+var ACTIVITY_JS_BUILD='v40';
 async function loadTeamActivity(){
   var list=document.getElementById('activity-list');if(!list||!session)return;
   // Visible build stamp so we can confirm the browser is running current JS
@@ -720,22 +720,23 @@ async function loadTeamActivity(){
   var sub=document.querySelector('.activity-sub');
   if(sub&&sub.getAttribute('data-build')!==ACTIVITY_JS_BUILD){sub.setAttribute('data-build',ACTIVITY_JS_BUILD);sub.textContent=sub.textContent.replace(/\s*\(build [^)]*\)\s*$/,'')+' (build '+ACTIVITY_JS_BUILD+')';}
   if(!(activityItems&&activityItems.length))list.innerHTML='<p class="dm-empty" style="padding:1rem;">Loading activity…</p>';
-  // Direct fetch (mirrors the proven-working call) — no shared postAction, no
-  // race wrapper, so nothing can leave it silently pending.
+  console.log('[ACT] loadTeamActivity start '+ACTIVITY_JS_BUILD);
   try{
-    var url=await getHandlerUrl();
-    var r=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getTeamActivity',token:session.token,limit:80,_cb:Date.now()})});
-    var txt=await r.text();
-    var res=null; try{res=JSON.parse(txt);}catch(pe){ list.innerHTML='<p class="dm-empty" style="padding:1rem;">Unexpected response (HTTP '+r.status+'). '+escapeHtml(txt.slice(0,120))+'</p>'; return; }
+    console.log('[ACT] calling postAction…');
+    var res=await postAction({action:'getTeamActivity',token:session.token,limit:80});
+    console.log('[ACT] got response',res);
     if(res&&res.ok&&Array.isArray(res.items)){
       activityItems=res.items;
       updateActivityBadge(typeof res.new_count==='number'?res.new_count:0);
-      try{ renderActivity(); }
-      catch(re){ list.innerHTML='<p class="dm-empty" style="padding:1rem;">Got '+activityItems.length+' items but render failed: '+escapeHtml((re&&re.message)||String(re))+'</p>'; }
+      console.log('[ACT] rendering '+activityItems.length+' items');
+      try{ renderActivity(); console.log('[ACT] render done'); }
+      catch(re){ console.error('[ACT] render threw',re); list.innerHTML='<p class="dm-empty" style="padding:1rem;">Got '+activityItems.length+' items but render failed: '+escapeHtml((re&&re.message)||String(re))+'</p>'; }
       return;
     }
-    list.innerHTML='<p class="dm-empty" style="padding:1rem;">'+(res&&res.error?('Server said: '+escapeHtml(res.error)):'Unexpected response.')+'</p>';
+    console.warn('[ACT] unexpected response shape',res);
+    list.innerHTML='<p class="dm-empty" style="padding:1rem;">'+(res&&res.error?('Server said: '+escapeHtml(res.error)):'Unexpected response — see console.')+'</p>';
   }catch(e){
+    console.error('[ACT] loadTeamActivity threw',e);
     if(!(activityItems&&activityItems.length))list.innerHTML='<p class="dm-empty" style="padding:1rem;">Could not load activity: '+escapeHtml((e&&e.message)||String(e))+'</p>';
   }
 }

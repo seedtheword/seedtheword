@@ -409,3 +409,23 @@ Consolidates team DMs onto the **DirectMessages** tab with unread tracking, bloc
 **Activate:** repaste `team-messaging-handlers.gs` + `order-handler.gs` + `social-handler.gs` (for `handleUploadImage_` if not already deployed), redeploy. Newsletter uses the existing `Subscribers` tab (run `installSubscribersTab()` once if not present). Announcement photos require `handleUploadImage_` + the `TELEGRAM_BOT_TOKEN` = `news_seedtheword_bot` token.
 
 **Note on "Telegram didn't post":** that was almost certainly because the new audience-based handler wasn't deployed yet (the old deployed code only sent Telegram on the legacy `send_telegram` flag, not `audience.public`). After this redeploy, Public → Telegram works provided `TELEGRAM_BOT_TOKEN` is set.
+
+---
+
+## Phase 4 — Team activity oversight + prayer/thanksgiving → community bridge
+
+**What changed (backend — user-deploys all three .gs files)**
+
+- **`order-handler.gs` · `handlePrayerIntake_`** — when the submitter opted in to public sharing (`share_public`), the intake now **also publishes a real community post** (Posts tab, channel = `prayer`|`thanksgiving`, author = name or `Anonymous`) at intake time (Day 0 only — never in the drip loop). This makes it show on `community.html` AND become a first-class post the team/community can comment on (so admin replies appear publicly). Links back via a new `intake_submission_id` column on the Posts tab. Also fires the team-activity nudge. Private (non-consented) intakes are unchanged (Telegram + drip only).
+- **`social-handler.gs` · `handleCreatePost_`** — community `prayer`/`thanksgiving` posts now fire the team-activity nudge.
+- **`order-handler.gs`** — `handlePlaceOrder_` and `handleContact` now fire the team-activity nudge (`order` / `contact`). Existing shopper/team/sender emails are unchanged (no double-send; the nudge is throttled and separate).
+- **`team-messaging-handlers.gs` (new)** — `handleGetTeamActivity_` (aggregates last-30-days Prayers + StoreOrders [`BIB-` → bible] + Contact with per-item status), `handleMarkActivitySeen_` (`seen`|`responded`; responded outranks seen), `notifyTeamActivity_(kind, refId)` (throttled **once per day per kind** per recipient via `notifyThrottled_`, respects `notify_pref='none'`), `activityAllowed_` (admin/super_admin or `chat_admin`/`moderation` perm), `getActivitySeenMap_`, `getOversightMemberNames_`.
+- **Responses reuse the existing `postComment` action** — no new "respond" endpoint. The portal posts an admin comment on the mirrored community post, then marks the activity `responded`.
+
+**New sheets (auto-created):** `ActivitySeen` (`item_id | status | by | timestamp`). Posts tab gains an `intake_submission_id` column.
+
+**New actions to route in `doPost` (already added):** `getTeamActivity`, `markActivitySeen`.
+
+**Frontend (git):** new **🔔 Activity** tab in the Team Portal (gated by `chat_admin` OR `moderation`; super-admins always). Lists incoming prayers/thanksgiving/orders/bible/contact with New/Seen/Responded pills + filters. Prayer/thanksgiving → **Reply on community** (posts a public comment + marks responded); orders/bible → **Open in Orders**; contact → **Reply by email** (mailto). A red badge shows the new-item count. `community.html` no longer merges `getPublicPrayers` into the feed (consented intakes are now real posts via `getFeed`, so merging would double them); the `getPublicPrayers` endpoint remains for legacy/other use.
+
+**Activate:** repaste `order-handler.gs` + `social-handler.gs` + `team-messaging-handlers.gs`, redeploy. First matching intake auto-creates the `ActivitySeen` sheet + the Posts `intake_submission_id` column.

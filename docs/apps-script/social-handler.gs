@@ -439,6 +439,12 @@ function handleCreatePost_(payload) {
     // @mention notifications.
     try { socialNotifyMentions_(socialParseMentions_(text), author, 'a community post', text); } catch (e) {}
 
+    // Phase 4: throttled team-activity nudge for community prayer/thanksgiving
+    // posts → portal Activity (non-fatal, once/day/kind).
+    if (channel === 'prayer' || channel === 'thanksgiving') {
+      try { if (typeof notifyTeamActivity_ === 'function') notifyTeamActivity_(channel, id); } catch (e) {}
+    }
+
     // Bump the group's last-activity timestamp so group lists sort by recency.
     if (channel.indexOf('group:') === 0) { try { groupTouch_(channel.slice(6), ts); } catch (e) {} }
 

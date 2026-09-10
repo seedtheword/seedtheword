@@ -237,6 +237,273 @@ function notifyThrottled_(recipientName, counterparty, kind, subject, htmlBody, 
   } catch (e) { Logger.log('notifyThrottled_ error: ' + e); return false; }
 }
 
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 4 — TEAM ACTIVITY OVERSIGHT
+//
+// Everything that comes in (prayers, thanksgiving, store orders, free-Bible
+// requests, contact messages) funnels into a single portal "Activity" view so
+// admins have oversight and can respond. Prayer/thanksgiving responses are a
+// comment on the real community post (public); orders/bible deep-link to the
+// Orders queue; contact is reply-by-email.
+//
+// SHEETS:
+//   ActivitySeen: item_id | status(seen|responded) | by | timestamp
+//     — team-wide (shared oversight), keyed by a stable per-item id.
+//
+// ACTIONS (route in order-handler doPost):
+//   getTeamActivity   → aggregated recent items + status (chat_admin/mod/super)
+//   markActivitySeen  → mark an item seen or responded
+// ══════════════════════════════════════════════════════════════════════
+
+function getActivitySeenSheet_() {
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName('ActivitySeen');
+  if (!sheet) {
+    sheet = ss.insertSheet('ActivitySeen');
+    sheet.getRange(1,1,1,4).setValues([['item_id','status','by','timestamp']]);
+    sheet.getRange(1,1,1,4).setFontWeight('bold').setBackground('#E8E4DF');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+// May this user see/act on the team activity feed? admin/super_admin, or the
+// chat_admin or moderation permission. (Reuses announcerAllowed_ for the perm
+// check plus moderation.)
+function activityAllowed_(user) {
+  if (!user) return false;
+  var role = String(user.role || 'member').toLowerCase();
+  if (role === 'admin' || role === 'super_admin') return true;
+  try {
+    var sh = getTeamSheet_();
+    var lastCol = sh.getLastColumn();
+    var headers = sh.getRange(1, 1, 1, lastCol).getValues()[0];
+    var permIdx = -1;
+    for (var h = 0; h < headers.length; h++) { if (String(headers[h]).toLowerCase().trim() === 'permissions') { permIdx = h; break; } }
+    if (permIdx >= 0 && sh.getLastRow() >= 2) {
+      var d = sh.getRange(2, 1, sh.getLastRow() - 1, lastCol).getValues();
+      for (var i = 0; i < d.length; i++) {
+        if (String(d[i][1]).toLowerCase().trim() === String(user.name).toLowerCase().trim()) {
+          try { var perms = JSON.parse(d[i][permIdx] || '[]'); return Array.isArray(perms) && (perms.indexOf('chat_admin') !== -1 || perms.indexOf('moderation') !== -1); } catch (e) { return false; }
+        }
+      }
+    }
+  } catch (e) {}
+  return false;
+}
+
+// Read the current ActivitySeen status map: { item_id: {status, by, ts} }.
+function getActivitySeenMap_() {
+  var map = {};
+  try {
+    var sheet = getActivitySeenSheet_();
+    if (sheet.getLastRow() < 2) return map;
+    var d = sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues();
+    for (var i = 0; i < d.length; i++) {
+      var id = String(d[i][0] || '');
+      if (!id) continue;
+      // 'responded' outranks 'seen'.
+      var status = String(d[i][1] || 'seen');
+      if (map[id] && map[id].status === 'responded') continue;
+      map[id] = { status: status, by: String(d[i][2] || ''), ts: new Date(d[i][3]).getTime() || 0 };
+    }
+  } catch (e) {}
+  return map;
+}
+
+// { action:'getTeamActivity', token, limit? } → aggregated incoming activity.
+function handleGetTeamActivity_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    if (!activityAllowed_(user)) return jsonResponse({ ok: false, error: 'Not allowed' });
+
+    var limit = Math.min(parseInt(payload.limit, 10) || 60, 150);
+    var sinceMs = Date.now() - 30 * 24 * 60 * 60 * 1000; // last 30 days
+    var seen = getActivitySeenMap_();
+    var items = [];
+
+    function pushItem(it) {
+      var s = seen[it.id];
+      it.status = s ? s.status : 'new';
+      it.status_by = s ? s.by : '';
+      items.push(it);
+    }
+
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+
+    // ── Prayers / thanksgiving (from the Prayers tab intake) ──
+    try {
+      var psheet = ss.getSheetByName('Prayers');
+      if (psheet && psheet.getLastRow() >= 2) {
+        var pvals = psheet.getDataRange().getValues();
+        var ph = pvals[0], pidx = {};
+        ph.forEach(function (h, i) { pidx[String(h).trim().toLowerCase()] = i; });
+        for (var i = pvals.length - 1; i >= 1 && items.length < 400; i--) {
+          var r = pvals[i];
+          var ts = Date.parse(String(r[pidx['received_at']] || '')) || 0;
+          if (ts && ts < sinceMs) continue;
+          var kind = String(r[pidx['kind']] || 'prayer').toLowerCase();
+          var anon = r[pidx['anonymous']] === true || String(r[pidx['anonymous']] || '').toUpperCase() === 'TRUE';
+          var pubc = r[pidx['public_consent']] === true || String(r[pidx['public_consent']] || '').toUpperCase() === 'TRUE';
+          var sid = String(r[pidx['submission_id']] || ('pr-' + i));
+          pushItem({
+            id: 'prayer:' + sid,
+            type: (kind === 'thanksgiving') ? 'thanksgiving' : 'prayer',
+            timestamp: ts,
+            who: anon ? 'Anonymous' : (String(r[pidx['submitter_name']] || '').trim() || 'A friend'),
+            text: String(r[pidx['body']] || ''),
+            public: pubc,
+            submission_id: sid,
+            can_reply_community: pubc // only public ones have a community post to comment on
+          });
+        }
+      }
+    } catch (e) { Logger.log('activity prayers failed: ' + e); }
+
+    // ── Store orders + free-Bible queue orders (StoreOrders tab) ──
+    try {
+      var osheet = ss.getSheetByName('StoreOrders');
+      if (osheet && osheet.getLastRow() >= 2) {
+        var ovals = osheet.getDataRange().getValues();
+        var oh = ovals[0], oidx = {};
+        oh.forEach(function (h, i) { oidx[String(h).trim().toLowerCase()] = i; });
+        for (var j = ovals.length - 1; j >= 1 && items.length < 700; j--) {
+          var or = ovals[j];
+          var ots = Date.parse(String(or[oidx['received_at']] || '')) || 0;
+          if (ots && ots < sinceMs) continue;
+          var oid = String(or[oidx['order_id']] || ('order-' + j));
+          var isBible = oid.indexOf('BIB-') === 0;
+          pushItem({
+            id: 'order:' + oid,
+            type: isBible ? 'bible' : 'order',
+            timestamp: ots,
+            who: String(or[oidx['name']] || '').trim() || '—',
+            text: (isBible ? 'Free-Bible request' : 'Store order') + ' · ' + oid,
+            order_id: oid,
+            order_status: String(or[oidx['status']] || 'new')
+          });
+        }
+      }
+    } catch (e) { Logger.log('activity orders failed: ' + e); }
+
+    // ── Contact messages (Contact tab) ──
+    try {
+      var csheet = ss.getSheetByName('Contact');
+      if (csheet && csheet.getLastRow() >= 2) {
+        var cvals = csheet.getDataRange().getValues();
+        // Contact headers: received_at, name, email, subject, message, route
+        for (var k = cvals.length - 1; k >= 1 && items.length < 900; k--) {
+          var cr = cvals[k];
+          var cts = (cr[0] instanceof Date) ? cr[0].getTime() : (Date.parse(String(cr[0] || '')) || 0);
+          if (cts && cts < sinceMs) continue;
+          pushItem({
+            id: 'contact:' + cts + ':' + String(cr[2] || '').toLowerCase(),
+            type: 'contact',
+            timestamp: cts,
+            who: String(cr[1] || '').trim() || '—',
+            text: (String(cr[3] || '').trim() ? '[' + String(cr[3]).trim() + '] ' : '') + String(cr[4] || ''),
+            contact_email: String(cr[2] || '').trim()
+          });
+        }
+      }
+    } catch (e) { Logger.log('activity contact failed: ' + e); }
+
+    // Newest first, cap to limit.
+    items.sort(function (a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
+    if (items.length > limit) items = items.slice(0, limit);
+
+    // Counts for the badge (new items only).
+    var newCount = 0;
+    for (var m = 0; m < items.length; m++) { if (items[m].status === 'new') newCount++; }
+
+    return jsonResponse({ ok: true, items: items, new_count: newCount });
+  } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+// { action:'markActivitySeen', token, item_id, status? } → seen|responded.
+function handleMarkActivitySeen_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    if (!activityAllowed_(user)) return jsonResponse({ ok: false, error: 'Not allowed' });
+    var itemId = String(payload.item_id || '').trim();
+    if (!itemId) return jsonResponse({ ok: false, error: 'item_id required' });
+    var status = String(payload.status || 'seen').trim().toLowerCase();
+    if (status !== 'seen' && status !== 'responded') status = 'seen';
+
+    var sheet = getActivitySeenSheet_();
+    // Upsert by item_id. 'responded' always wins over 'seen'.
+    var last = sheet.getLastRow();
+    var rowIdx = -1, curStatus = '';
+    if (last >= 2) {
+      var d = sheet.getRange(2, 1, last - 1, 4).getValues();
+      for (var i = 0; i < d.length; i++) {
+        if (String(d[i][0]) === itemId) { rowIdx = i + 2; curStatus = String(d[i][1] || ''); break; }
+      }
+    }
+    if (curStatus === 'responded' && status === 'seen') {
+      return jsonResponse({ ok: true, status: 'responded' }); // don't downgrade
+    }
+    var row = [itemId, status, user.name, new Date().toISOString()];
+    if (rowIdx > 0) sheet.getRange(rowIdx, 1, 1, 4).setValues([row]);
+    else sheet.appendRow(row);
+    return jsonResponse({ ok: true, status: status });
+  } catch (err) { return jsonResponse({ ok: false, error: String(err) }); }
+}
+
+// ── Phase 4 C: throttled team-notification nudge ──────────────────────
+// Emails oversight admins AT MOST ONCE PER DAY PER KIND — a "new <kind>
+// activity is waiting in the Team Portal" nudge, never per-item spam and never
+// an empty digest. Respects notify_pref='none' (via notifyThrottled_). The
+// portal Activity view is the source of truth; email is just the nudge.
+// counterpartyKey should be stable per day (we use kind + today) so repeated
+// activity the same day doesn't re-email.
+function notifyTeamActivity_(kind, refId) {
+  try {
+    var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    var bucket = kind + ':' + today; // one nudge per kind per day per recipient
+    var label = ({
+      prayer: 'prayer request', thanksgiving: 'thanksgiving',
+      order: 'store order', bible: 'free-Bible request', contact: 'contact message'
+    })[kind] || 'activity';
+    var subject = '🔔 New ' + label + ' — Seed the Word Team Portal';
+    var html = (typeof emailShell === 'function') ? emailShell({
+      headerTitle: 'New activity in the Team Portal',
+      headerSubtitle: 'A new ' + label + ' just came in',
+      bodyHtml: '<p>There\'s new <strong>' + escapeHtml(label) + '</strong> activity waiting in the Team Portal.</p>' +
+        '<p>Open the <strong>Team Portal → Activity</strong> tab to review and respond. (You\'ll get at most one of these per day per type, so it never spams.)</p>',
+      footerHtml: '<p>— Seed the Word</p>'
+    }) : ('<p>New ' + label + ' activity is waiting in the Team Portal → Activity.</p>');
+    var plain = 'New ' + label + ' activity is waiting in the Team Portal → Activity tab.';
+
+    // Recipients: admins + super-admins (the oversight group). notifyThrottled_
+    // resolves each name→email, respects notify_pref none, and throttles.
+    var names = getOversightMemberNames_();
+    var sent = 0;
+    for (var i = 0; i < names.length; i++) {
+      if (notifyThrottled_(names[i], bucket, 'activity-' + kind, subject, html, plain)) sent++;
+    }
+    return sent;
+  } catch (e) { Logger.log('notifyTeamActivity_ error: ' + e); return 0; }
+}
+
+// Names of the oversight group (admin + super_admin) for team-activity nudges.
+function getOversightMemberNames_() {
+  var out = [];
+  try {
+    var sh = getTeamSheet_();
+    if (sh.getLastRow() < 2) return out;
+    var d = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();
+    for (var i = 0; i < d.length; i++) {
+      var role = String(d[i][5] || 'member').toLowerCase();
+      var name = String(d[i][1] || '').trim();
+      if (name && (role === 'admin' || role === 'super_admin') && out.indexOf(name) === -1) out.push(name);
+    }
+  } catch (e) {}
+  return out;
+}
+
 function getMemberNotesSheet_() {
   var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
   var sheet = ss.getSheetByName('MemberNotes');

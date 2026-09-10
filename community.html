@@ -705,9 +705,12 @@ async function loadFeed(){
 var token=session?session.token:null;
 var feedPayload=token?{action:'getFeed',token:token,limit:60}:{action:'getFeed',passphrase_hash:'public-read',limit:60};
 var results;
-try{ results=await Promise.all([postAction(feedPayload),postAction({action:'getAnnouncements',passphrase_hash:'public-read'}),postAction({action:'getPublicPrayers',limit:20})]); }
-catch(e){ results=[null,null,null]; }
-var feedRes=results[0], ann=results[1], pub=results[2];
+// Note: consented prayer/thanksgiving intakes are now published as REAL posts
+// in the feed (getFeed) at intake time, so we no longer merge getPublicPrayers
+// here (doing so would double them). The endpoint remains for legacy/other use.
+try{ results=await Promise.all([postAction(feedPayload),postAction({action:'getAnnouncements',passphrase_hash:'public-read'})]); }
+catch(e){ results=[null,null]; }
+var feedRes=results[0], ann=results[1], pub=null;
 // If both core sources failed and we already painted a cache, keep the cache (don't wipe).
 if((!feedRes||!feedRes.ok)&&(!ann||!ann.ok)){ if(!posts.length){document.getElementById('posts-feed').innerHTML='<div class="empty-state"><div class="empty-state__icon">🌐</div><h3 class="empty-state__title">Connection issue</h3><p class="empty-state__text">Could not reach the community server. Pull to refresh in a moment.</p></div>';} return; }
 var allPosts=[];

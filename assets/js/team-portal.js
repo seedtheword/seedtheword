@@ -228,6 +228,8 @@ document.querySelectorAll('.main-tab').forEach(function(tab){
     document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('tab-panel--active');p.hidden=true;});
     var panel=document.getElementById('tab-'+this.dataset.tab);
     panel.classList.add('tab-panel--active');panel.hidden=false;
+    // Lazy-load the Activity feed the first time (and refresh) when opened.
+    if(this.dataset.tab==='activity'&&typeof loadTeamActivity==='function')loadTeamActivity();
   });
 });
 
@@ -683,6 +685,134 @@ document.querySelector('[data-tab="messages"]').addEventListener('click',functio
   var annBtn=document.getElementById('ann-open-btn');
   if(annBtn)annBtn.style.display=canPortal('chat_admin')?'':'none';
 });
+
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 4 — TEAM ACTIVITY OVERSIGHT (portal Activity tab)
+// Aggregates incoming prayers/thanksgiving/orders/bible/contact. Admins review
+// and respond: prayer/thanksgiving → a public comment on the community post
+// (via the existing postComment action) + mark responded; orders/bible →
+// deep-link to the Orders tab; contact → reply by email (mailto).
+// ══════════════════════════════════════════════════════════════════════
+var activityItems=[], activityFilter='all';
+var ACTIVITY_META={
+  prayer:{icon:'🙏',label:'Prayer'},
+  thanksgiving:{icon:'🎉',label:'Thanksgiving'},
+  order:{icon:'🛒',label:'Order'},
+  bible:{icon:'📖',label:'Bible request'},
+  contact:{icon:'✉️',label:'Contact'}
+};
+function activityStatusPill(s){
+  if(s==='responded')return '<span class="activity-pill activity-pill--done">✓ Responded</span>';
+  if(s==='seen')return '<span class="activity-pill activity-pill--seen">Seen</span>';
+  return '<span class="activity-pill activity-pill--new">● New</span>';
+}
+async function loadTeamActivity(){
+  var list=document.getElementById('activity-list');if(!list||!session)return;
+  list.innerHTML='<p class="dm-empty" style="padding:1rem;">Loading activity…</p>';
+  try{
+    var res=await postAction({action:'getTeamActivity',token:session.token,limit:80});
+    if(!res||!res.ok){list.innerHTML='<p class="dm-empty" style="padding:1rem;">'+escapeHtml((res&&res.error)||'Could not load activity. (Backend may need deploying.)')+'</p>';return;}
+    activityItems=res.items||[];
+    updateActivityBadge(res.new_count||0);
+    renderActivity();
+  }catch(e){list.innerHTML='<p class="dm-empty" style="padding:1rem;">Could not load activity.</p>';}
+}
+function updateActivityBadge(n){
+  var b=document.getElementById('activity-badge');if(!b)return;
+  if(n>0){b.textContent=n>99?'99+':String(n);b.hidden=false;}else{b.hidden=true;}
+}
+function renderActivity(){
+  var list=document.getElementById('activity-list');if(!list)return;
+  var items=activityItems.filter(function(it){
+    if(activityFilter==='all')return true;
+    if(activityFilter==='new')return it.status==='new';
+    return it.type===activityFilter;
+  });
+  if(!items.length){list.innerHTML='<p class="dm-empty" style="padding:1rem;">Nothing here'+(activityFilter!=='all'?' for this filter':' yet')+'. 🕊️</p>';return;}
+  list.innerHTML=items.map(function(it){
+    var meta=ACTIVITY_META[it.type]||{icon:'🔔',label:it.type};
+    var body=escapeHtml(String(it.text||'').replace(/^\*\*[^*]*\*\*\s*/,'').slice(0,220));
+    var actions=activityActionsHtml(it);
+    return '<div class="activity-item activity-item--'+it.status+'" data-id="'+escapeHtml(it.id)+'">'+
+      '<div class="activity-item__icon">'+meta.icon+'</div>'+
+      '<div class="activity-item__body">'+
+        '<div class="activity-item__top"><span class="activity-item__who">'+escapeHtml(it.who||'—')+'</span>'+
+          '<span class="activity-item__kind">'+escapeHtml(meta.label)+'</span>'+activityStatusPill(it.status)+
+          '<span class="activity-item__time">'+(it.timestamp?timeAgo(it.timestamp):'')+'</span></div>'+
+        '<div class="activity-item__text">'+body+'</div>'+
+        '<div class="activity-item__actions">'+actions+'</div>'+
+      '</div></div>';
+  }).join('');
+  // Wire per-item action buttons.
+  list.querySelectorAll('[data-act]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var id=this.closest('.activity-item').dataset.id;
+      var it=activityItems.filter(function(x){return x.id===id;})[0];
+      if(!it)return;
+      var act=this.dataset.act;
+      if(act==='reply')replyOnCommunity(it,this);
+      else if(act==='seen')markActivity(it,'seen');
+      else if(act==='orders'){var ob=document.querySelector('[data-tab="orders"]');if(ob&&ob.style.display!=='none')ob.click();else alert('Open the Orders tab to process this (you may need the Orders permission).');markActivity(it,'seen');}
+    });
+  });
+}
+function activityActionsHtml(it){
+  var out='';
+  if((it.type==='prayer'||it.type==='thanksgiving')){
+    if(it.can_reply_community)out+='<button type="button" class="btn btn--green btn--sm" data-act="reply">🙏 Reply on community</button>';
+    else out+='<span class="activity-note">Private — not shared publicly</span>';
+  } else if(it.type==='order'||it.type==='bible'){
+    out+='<button type="button" class="btn btn--outline btn--sm" data-act="orders">Open in Orders</button>';
+  } else if(it.type==='contact'){
+    if(it.contact_email)out+='<a class="btn btn--outline btn--sm" href="mailto:'+encodeURIComponent(it.contact_email)+'">✉️ Reply by email</a>';
+  }
+  if(it.status==='new')out+='<button type="button" class="btn btn--ghost btn--sm" data-act="seen">Mark seen</button>';
+  return out;
+}
+// Reply on the community post: find the matching prayer/thanksgiving post by
+// submission link, then post a comment (public) and mark the item responded.
+async function replyOnCommunity(it,btn){
+  var text=prompt('Reply publicly on the community post (e.g. "The team is praying with you 🙏"):','');
+  if(text==null)return;text=String(text).trim();if(!text)return;
+  btn.disabled=true;var orig=btn.textContent;btn.textContent='Posting…';
+  try{
+    // Resolve the community post id for this intake submission.
+    var postId=await resolveCommunityPostId(it);
+    if(!postId){alert('Could not find the community post for this item (it may not have been shared publicly, or the backend needs deploying).');btn.disabled=false;btn.textContent=orig;return;}
+    var res=await postAction({action:'postComment',token:session.token,postId:postId,text:text});
+    if(res&&res.ok){
+      await markActivity(it,'responded');
+      alert('Reply posted on the community page.');
+    }else{alert((res&&res.error)||'Could not post the reply.');}
+  }catch(e){alert('Could not post the reply.');}
+  btn.disabled=false;btn.textContent=orig;
+}
+// Find the community post id that mirrors an intake prayer/thanksgiving by
+// matching the submission on the public feed (best-effort).
+async function resolveCommunityPostId(it){
+  try{
+    var res=await postAction({action:'getFeed',token:session.token,channel:it.type,limit:100});
+    if(!res||!res.ok||!res.posts)return null;
+    // The mirrored post has the same body text; match on a trimmed prefix.
+    var needle=String(it.text||'').replace(/\s+/g,' ').trim().slice(0,80).toLowerCase();
+    var hit=res.posts.filter(function(p){return String(p.text||'').replace(/\s+/g,' ').trim().slice(0,80).toLowerCase()===needle;})[0];
+    return hit?hit.id:null;
+  }catch(e){return null;}
+}
+async function markActivity(it,status){
+  try{
+    var res=await postAction({action:'markActivitySeen',token:session.token,item_id:it.id,status:status});
+    if(res&&res.ok){it.status=res.status||status;renderActivity();
+      var n=activityItems.filter(function(x){return x.status==='new';}).length;updateActivityBadge(n);}
+  }catch(e){}
+}
+(function(){
+  var r=document.getElementById('activity-refresh');if(r)r.addEventListener('click',loadTeamActivity);
+  document.querySelectorAll('.activity-filter').forEach(function(b){b.addEventListener('click',function(){
+    document.querySelectorAll('.activity-filter').forEach(function(x){x.classList.remove('is-active');});
+    this.classList.add('is-active');activityFilter=this.dataset.filter;renderActivity();
+  });});
+})();
 
 // ── Stories rail in the Chat tab (reuses the community stories backend) ──
 function tsDriveImg(u){ if(!u)return ''; var m=String(u).match(/[?&]id=([\w-]+)/)||String(u).match(/\/d\/([\w-]+)/); return m?('https://lh3.googleusercontent.com/d/'+m[1]+'=w120'):u; }

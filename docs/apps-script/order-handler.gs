@@ -265,6 +265,8 @@ function doPost(e) {
   if ((payload && payload.action) === 'setDmRestriction') return handleSetDmRestriction_(payload);
   if ((payload && payload.action) === 'reportUser') return handleReportUser_(payload);
   if ((payload && payload.action) === 'listDmReports') return handleListDmReports_(payload);
+  if ((payload && payload.action) === 'getTeamActivity') return handleGetTeamActivity_(payload);
+  if ((payload && payload.action) === 'markActivitySeen') return handleMarkActivitySeen_(payload);
   if ((payload && payload.action) === 'addMemberNote') return handleAddMemberNote_(payload);
   if ((payload && payload.action) === 'getMemberNotes') return handleGetMemberNotes_(payload);
   if ((payload && payload.action) === 'getNoteMembers') return handleGetNoteMembers_(payload);
@@ -1428,6 +1430,9 @@ function handleContact(payload) {
   } catch (err) {
     console.log('Contact sender mail failed:', err);
   }
+
+  // Phase 4: throttled team-activity nudge → portal Activity (non-fatal).
+  try { if (typeof notifyTeamActivity_ === 'function') notifyTeamActivity_('contact', email); } catch (err) { console.log('contact activity notify failed:', err); }
 
   // Surface a partial-failure if exactly one of the two pipes broke
   // — at least one always logs to the sheet, so the team can recover.
@@ -3479,6 +3484,8 @@ function handlePlaceOrder_(payload) {
       sendStoreOrderTeamEmail_(orderId, name, email, phone, clean, subtotalCents, wantsShipping, shippingAddress, notes);
       emailsSent.push('team');
     } catch (e) { console.log('placeOrder team email failed:', e); }
+    // Phase 4: throttled team-activity nudge → portal Activity (non-fatal).
+    try { if (typeof notifyTeamActivity_ === 'function') notifyTeamActivity_('order', orderId); } catch (e) { console.log('placeOrder activity notify failed:', e); }
 
     return jsonResponse({ ok: true, orderId: orderId, subtotalCents: subtotalCents, comped: comped, promoCode: promoCode, emailsSent: emailsSent });
   } catch (err) {
@@ -9218,6 +9225,47 @@ function handlePrayerIntake_(payload, _route) {
     }
   }
 
+  // 10b. Publish to the community feed as a REAL post — consent-gated.
+  // When the submitter opted in to public sharing, mirror this intake into the
+  // Posts tab (channel = prayer|thanksgiving) so it shows on community.html AND
+  // becomes a first-class post the team/community can comment on (admin replies
+  // then appear publicly). Runs ONCE here at intake (Day 0) — never in the drip
+  // loop — so a request is published a single time. Anonymous → "Anonymous".
+  // Best-effort: a failure here must never fail the intake.
+  var communityPostId = '';
+  try {
+    var sharePublic = (payload && (payload.share_public === true || payload.share_public === 'true' ||
+      payload.share_public === 'on' || payload.share_public === '1')) === true;
+    if (sharePublic && typeof getPostsSheet_ === 'function' && typeof socialNewId_ === 'function') {
+      var communityChannel = (v.kind === 'thanksgiving') ? 'thanksgiving' : 'prayer';
+      var communityAuthor = v.anonymous ? 'Anonymous' : (String(v.name || '').trim() || 'A community member');
+      communityPostId = socialNewId_('post');
+      // Columns: id, timestamp, author, author_role, text, media_url, channel,
+      // pinned, hidden, edited_at, author_pic, (+ intake_submission_id link).
+      var pSheet = getPostsSheet_();
+      pSheet.appendRow([communityPostId, Date.now(), communityAuthor, 'member',
+        String(v.body || ''), '', communityChannel, '', '', '',
+        (v.anonymous ? '' : (typeof socialPicOf_ === 'function' ? socialPicOf_(v.name) : ''))]);
+      // Link the post back to the intake submission for de-dup / audit.
+      try {
+        if (typeof ensureColumn_ === 'function') {
+          var linkCol = ensureColumn_(pSheet, 'intake_submission_id');
+          pSheet.getRange(pSheet.getLastRow(), linkCol).setValue(submissionId);
+        }
+      } catch (linkErr) { console.log('community post link failed (non-fatal): ' + linkErr); }
+    }
+  } catch (err) {
+    console.log('prayer-intake community publish failed (non-fatal): ' + err);
+  }
+
+  // 10c. Team notification nudge — throttled, respects notify_pref (Phase 4 C).
+  try {
+    if (typeof notifyTeamActivity_ === 'function') {
+      var kindLabel = (v.kind === 'thanksgiving') ? 'thanksgiving' : 'prayer';
+      notifyTeamActivity_(kindLabel, submissionId);
+    }
+  } catch (err) { console.log('prayer-intake team notify failed (non-fatal): ' + err); }
+
   // 11. Response.
   return jsonResponse({
     ok: true,
@@ -9225,6 +9273,7 @@ function handlePrayerIntake_(payload, _route) {
     telegram: sendResult.ok ? 'sent' : 'failed',
     truncated: !!assembled.truncated,
     dripStatus: dripStatus,
+    communityPostId: communityPostId,
   });
 }
 

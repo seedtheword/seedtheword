@@ -730,7 +730,8 @@ async function loadTeamActivity(){
     if(res&&res.ok&&(Array.isArray(res.items)||typeof res.new_count==='number')){
       activityItems=res.items||[];
       updateActivityBadge(res.new_count||0);
-      renderActivity();
+      try{ renderActivity(); }
+      catch(re){ list.innerHTML='<p class="dm-empty" style="padding:1rem;">Loaded '+activityItems.length+' items but couldn\u2019t render them: '+escapeHtml(re.message||String(re))+'</p>'; }
       return;
     }
     var why=(res&&res.error)?escapeHtml(res.error)
@@ -756,22 +757,30 @@ async function preloadActivityBadge(){
 }
 function renderActivity(){
   var list=document.getElementById('activity-list');if(!list)return;
-  var items=activityItems.filter(function(it){
+  var arr=Array.isArray(activityItems)?activityItems:[];
+  var items=arr.filter(function(it){
+    if(!it)return false;
     if(activityFilter==='all')return true;
     if(activityFilter==='new')return it.status==='new';
     return it.type===activityFilter;
   });
   if(!items.length){list.innerHTML='<p class="dm-empty" style="padding:1rem;">Nothing here'+(activityFilter!=='all'?' for this filter':' yet')+'. 🕊️</p>';return;}
   list.innerHTML=items.map(function(it){
-    var meta=ACTIVITY_META[it.type]||{icon:'🔔',label:it.type};
+    var type=String(it.type||'');
+    var meta=ACTIVITY_META[type]||{icon:'🔔',label:type||'activity'};
+    var status=String(it.status||'new');
+    var id=String(it.id||'');
+    var who=String(it.who||'—');
     var body=escapeHtml(String(it.text||'').replace(/^\*\*[^*]*\*\*\s*/,'').slice(0,220));
-    var actions=activityActionsHtml(it);
-    return '<div class="activity-item activity-item--'+it.status+'" data-id="'+escapeHtml(it.id)+'">'+
-      '<div class="activity-item__icon">'+meta.icon+'</div>'+
+    var ts=Number(it.timestamp)||0;
+    var actions='';
+    try{ actions=activityActionsHtml(it); }catch(ae){ actions=''; }
+    return '<div class="activity-item activity-item--'+escapeHtml(status)+'" data-id="'+escapeHtml(id)+'">'+
+      '<div class="activity-item__icon">'+(meta.icon||'🔔')+'</div>'+
       '<div class="activity-item__body">'+
-        '<div class="activity-item__top"><span class="activity-item__who">'+escapeHtml(it.who||'—')+'</span>'+
-          '<span class="activity-item__kind">'+escapeHtml(meta.label)+'</span>'+activityStatusPill(it.status)+
-          '<span class="activity-item__time">'+(it.timestamp?timeAgo(it.timestamp):'')+'</span></div>'+
+        '<div class="activity-item__top"><span class="activity-item__who">'+escapeHtml(who)+'</span>'+
+          '<span class="activity-item__kind">'+escapeHtml(String(meta.label||''))+'</span>'+activityStatusPill(status)+
+          '<span class="activity-item__time">'+(ts?timeAgo(ts):'')+'</span></div>'+
         '<div class="activity-item__text">'+body+'</div>'+
         '<div class="activity-item__actions">'+actions+'</div>'+
       '</div></div>';

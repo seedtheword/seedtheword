@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616532,
-  "lastModified": "2026-09-09T23:56:09Z",
+  "lastUpdateId": 669616543,
+  "lastModified": "2026-09-10T00:55:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1235,6 +1235,56 @@
       "kind": "telegram",
       "text": "Thank you!",
       "ts": "2026-09-09T21:46:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5965,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer request from Dad",
+      "ts": "2026-09-10T00:29:42Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5966,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Also I got a request from my Gran who is suffering from a head cold but miraculously started getting better after we prayed for her",
+      "ts": "2026-09-10T00:30:26Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5967,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "So keep praying guys!!!",
+      "ts": "2026-09-10T00:30:37Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5968,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "this makes me so happyy",
+      "ts": "2026-09-10T00:39:25Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5969,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for Rene, she just got spinal surgery, I was talking to her sister Liz on the bus, so prayer requests for her too, so she recovers quickly, and heals nicely",
+      "ts": "2026-09-10T00:47:14Z"
     }
   ]
 }

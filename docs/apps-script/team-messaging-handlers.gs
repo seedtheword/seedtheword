@@ -339,11 +339,19 @@ function handleGetTeamActivity_(payload) {
 
     var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
 
+    // Only read the most-recent N rows of each source (newest are at the bottom)
+    // so the aggregation stays fast regardless of total sheet size.
+    var SCAN_ROWS = 200;
+
     // ── Prayers / thanksgiving (from the Prayers tab intake) ──
     try {
       var psheet = ss.getSheetByName('Prayers');
       if (psheet && psheet.getLastRow() >= 2) {
-        var pvals = psheet.getDataRange().getValues();
+        var pLast = psheet.getLastRow(), pCols = psheet.getLastColumn();
+        var pHead = psheet.getRange(1, 1, 1, pCols).getValues()[0];
+        var pStart = Math.max(2, pLast - SCAN_ROWS + 1);
+        var pBody = psheet.getRange(pStart, 1, pLast - pStart + 1, pCols).getValues();
+        var pvals = [pHead].concat(pBody); // keep header at index 0 for pidx mapping
         var ph = pvals[0], pidx = {};
         ph.forEach(function (h, i) { pidx[String(h).trim().toLowerCase()] = i; });
         for (var i = pvals.length - 1; i >= 1 && items.length < 400; i--) {
@@ -372,7 +380,11 @@ function handleGetTeamActivity_(payload) {
     try {
       var osheet = ss.getSheetByName('StoreOrders');
       if (osheet && osheet.getLastRow() >= 2) {
-        var ovals = osheet.getDataRange().getValues();
+        var oLast = osheet.getLastRow(), oCols = osheet.getLastColumn();
+        var oHead = osheet.getRange(1, 1, 1, oCols).getValues()[0];
+        var oStart = Math.max(2, oLast - SCAN_ROWS + 1);
+        var oBody = osheet.getRange(oStart, 1, oLast - oStart + 1, oCols).getValues();
+        var ovals = [oHead].concat(oBody);
         var oh = ovals[0], oidx = {};
         oh.forEach(function (h, i) { oidx[String(h).trim().toLowerCase()] = i; });
         for (var j = ovals.length - 1; j >= 1 && items.length < 700; j--) {
@@ -398,9 +410,11 @@ function handleGetTeamActivity_(payload) {
     try {
       var csheet = ss.getSheetByName('Contact');
       if (csheet && csheet.getLastRow() >= 2) {
-        var cvals = csheet.getDataRange().getValues();
-        // Contact headers: received_at, name, email, subject, message, route
-        for (var k = cvals.length - 1; k >= 1 && items.length < 900; k--) {
+        var cLast = csheet.getLastRow(), cCols = csheet.getLastColumn();
+        var cStart = Math.max(2, cLast - SCAN_ROWS + 1);
+        var cvals = csheet.getRange(cStart, 1, cLast - cStart + 1, cCols).getValues();
+        // Contact headers: received_at, name, email, subject, message, route (no header row in this slice)
+        for (var k = cvals.length - 1; k >= 0 && items.length < 900; k--) {
           var cr = cvals[k];
           var cts = (cr[0] instanceof Date) ? cr[0].getTime() : (Date.parse(String(cr[0] || '')) || 0);
           if (cts && cts < sinceMs) continue;

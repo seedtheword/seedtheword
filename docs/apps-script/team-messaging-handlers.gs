@@ -259,10 +259,17 @@ function getActivitySeenSheet_() {
   var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
   var sheet = ss.getSheetByName('ActivitySeen');
   if (!sheet) {
-    sheet = ss.insertSheet('ActivitySeen');
-    sheet.getRange(1,1,1,4).setValues([['item_id','status','by','timestamp']]);
-    sheet.getRange(1,1,1,4).setFontWeight('bold').setBackground('#E8E4DF');
-    sheet.setFrozenRows(1);
+    // Guard against a race on first-ever use (two requests both trying to
+    // create the tab): if insert fails because it now exists, re-fetch it.
+    try {
+      sheet = ss.insertSheet('ActivitySeen');
+      sheet.getRange(1,1,1,4).setValues([['item_id','status','by','timestamp']]);
+      sheet.getRange(1,1,1,4).setFontWeight('bold').setBackground('#E8E4DF');
+      sheet.setFrozenRows(1);
+    } catch (e) {
+      sheet = ss.getSheetByName('ActivitySeen');
+      if (!sheet) throw e;
+    }
   }
   return sheet;
 }

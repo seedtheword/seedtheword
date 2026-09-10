@@ -699,7 +699,7 @@ document.querySelector('[data-tab="messages"]').addEventListener('click',functio
 // (via the existing postComment action) + mark responded; orders/bible →
 // deep-link to the Orders tab; contact → reply by email (mailto).
 // ══════════════════════════════════════════════════════════════════════
-var activityItems=[], activityFilter='all';
+var activityItems=[], activityFilter='all', activityLoading=false;
 var ACTIVITY_META={
   prayer:{icon:'🙏',label:'Prayer'},
   thanksgiving:{icon:'🎉',label:'Thanksgiving'},
@@ -714,7 +714,14 @@ function activityStatusPill(s){
 }
 async function loadTeamActivity(){
   var list=document.getElementById('activity-list');if(!list||!session)return;
-  list.innerHTML='<p class="dm-empty" style="padding:1rem;">Loading activity…</p>';
+  // If a prior fetch (e.g. the badge preload) already has items, paint them now
+  // so the panel is never stuck on "Loading…" while we refresh in the background.
+  if(activityItems&&activityItems.length){renderActivity();}
+  else{list.innerHTML='<p class="dm-empty" style="padding:1rem;">Loading activity…</p>';}
+  // Avoid overlapping fetches (badge preload + tab-open can race on first run,
+  // where the ActivitySeen sheet is being created).
+  if(activityLoading)return;
+  activityLoading=true;
   try{
     var res=await postAction({action:'getTeamActivity',token:session.token,limit:80});
     // The activity feed needs the Phase 4 backend deployed. If the deployed web
@@ -729,7 +736,10 @@ async function loadTeamActivity(){
     var why=(res&&res.error)?escapeHtml(res.error)
       :'The Activity backend isn\u2019t deployed yet. Repaste order-handler.gs + social-handler.gs + team-messaging-handlers.gs into the STW Order Handler project and redeploy (Deploy \u2192 New version), then refresh.';
     list.innerHTML='<p class="dm-empty" style="padding:1rem;">'+why+'</p>';
-  }catch(e){list.innerHTML='<p class="dm-empty" style="padding:1rem;">Could not load activity: '+escapeHtml(e.message||String(e))+'</p>';}
+  }catch(e){
+    // Don't blank out already-rendered items on a background-refresh failure.
+    if(!(activityItems&&activityItems.length))list.innerHTML='<p class="dm-empty" style="padding:1rem;">Could not load activity: '+escapeHtml(e.message||String(e))+'</p>';
+  }finally{ activityLoading=false; }
 }
 function updateActivityBadge(n){
   var b=document.getElementById('activity-badge');if(!b)return;

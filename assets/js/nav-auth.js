@@ -210,7 +210,7 @@
   var ROLE_RANK = { member: 1, admin: 2, super_admin: 3 };
 
   // Known section permission keys (mirror of the backend ALL_PERMISSIONS).
-  var ALL_PERMISSIONS = ['scanner', 'finance', 'orders', 'chat_admin', 'training_admin', 'content_studio', 'members_admin'];
+  var ALL_PERMISSIONS = ['scanner', 'finance', 'orders', 'chat_admin', 'training_admin', 'content_studio', 'members_admin', 'moderation'];
   // Fallback grants when a session has no explicit permissions array yet
   // (e.g. a device that logged in before the backend started returning them).
   // Mirrors the backend ROLE_DEFAULT_PERMISSIONS so the UI degrades sensibly.

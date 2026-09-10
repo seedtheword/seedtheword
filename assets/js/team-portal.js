@@ -116,7 +116,7 @@ function localToday(){ return new Date().toLocaleDateString('en-CA'); }
 // falls back to a local resolver from the session if it isn't loaded yet.
 // super_admin => all. Keys: scanner, finance, orders, chat_admin,
 // training_admin, content_studio, members_admin.
-var PORTAL_ALL_PERMS=['scanner','finance','orders','chat_admin','training_admin','content_studio','members_admin'];
+var PORTAL_ALL_PERMS=['scanner','finance','orders','chat_admin','training_admin','content_studio','members_admin','moderation'];
 var PORTAL_ROLE_DEFAULTS={super_admin:PORTAL_ALL_PERMS.slice(),admin:['scanner','finance','orders','chat_admin','training_admin'],member:[]};
 function canPortal(section){
   if(window.STW_Auth&&STW_Auth.hasPermission)return STW_Auth.hasPermission(section);
@@ -465,9 +465,33 @@ async function sendDmMessage(){
   if(search)search.addEventListener('input',function(){renderPickerList(this.value);});
 })();
 
-// ── Announcement composer (audience + priority) ──
+// ── Announcement composer (audience + priority + photos) ──
 var annPriority='normal';
+var annPhotoUrls=[]; // uploaded Drive URLs for the current announcement
 var ANN_PRI_HINTS={normal:'A calm heads-up — “take a look here.”',urgent:'Caution — needs attention ASAP whenever the team can.',emergency:'Blaring — needs attention right now. Emails everyone selected.'};
+
+// Shared photo upload (base64 -> Drive via the uploadImage action). Mirrors the
+// community.html helper. Returns a public Drive URL or null.
+function annFileToDataUrl(file){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=rej;r.readAsDataURL(file);});}
+function annDriveThumb(u){if(!u)return u;var m=String(u).match(/[?&]id=([\w-]+)/)||String(u).match(/\/d\/([\w-]+)/);return m?('https://lh3.googleusercontent.com/d/'+m[1]+'=w200'):u;}
+async function annUploadPhoto(file){
+  if(!session){alert('Sign in to add a photo.');return null;}
+  if(!/^image\//.test(file.type)){alert('Please choose an image.');return null;}
+  if(file.size>4.5*1024*1024){alert('Image too large (max ~4MB).');return null;}
+  var dataUrl=await annFileToDataUrl(file);
+  var res=await postAction({action:'uploadImage',token:session.token,dataUrl:dataUrl,filename:file.name});
+  if(res&&res.ok&&res.url)return res.url;
+  alert((res&&res.error)||'Upload failed. (Backend may need deploying.)');return null;
+}
+function annRenderPhotos(){
+  var wrap=document.getElementById('ann-photos');if(!wrap)return;
+  if(!annPhotoUrls.length){wrap.hidden=true;wrap.innerHTML='';return;}
+  wrap.hidden=false;
+  wrap.innerHTML=annPhotoUrls.map(function(u,i){
+    return '<div class="ann-photo"><img src="'+annDriveThumb(u)+'" alt=""><button type="button" class="ann-photo__rm" data-i="'+i+'" aria-label="Remove photo">×</button></div>';
+  }).join('');
+  wrap.querySelectorAll('.ann-photo__rm').forEach(function(b){b.addEventListener('click',function(){annPhotoUrls.splice(parseInt(this.dataset.i,10),1);annRenderPhotos();});});
+}
 (function(){
   var openBtn=document.getElementById('ann-open-btn'),composer=document.getElementById('chat-admin-compose'),closeBtn=document.getElementById('ann-close-btn');
   if(openBtn)openBtn.addEventListener('click',function(){composer.style.display='';openBtn.style.display='none';});
@@ -480,6 +504,22 @@ var ANN_PRI_HINTS={normal:'A calm heads-up — “take a look here.”',urgent:'
     var hint=document.getElementById('ann-pri-hint');if(hint)hint.textContent=ANN_PRI_HINTS[annPriority]||'';
     var note=document.getElementById('ann-emergency-note');if(note)note.style.display=annPriority==='emergency'?'':'none';
   });});
+  // Photo picker (multiple; usually one). Uploads each, up to 10 total.
+  var photoBtn=document.getElementById('ann-photo-btn'),photoInput=document.getElementById('ann-photo-input');
+  if(photoBtn&&photoInput){
+    photoBtn.addEventListener('click',function(){photoInput.click();});
+    photoInput.addEventListener('change',async function(){
+      var files=Array.prototype.slice.call(this.files||[]);this.value='';
+      if(!files.length)return;
+      photoBtn.disabled=true;var orig=photoBtn.textContent;photoBtn.textContent='Uploading…';
+      for(var i=0;i<files.length;i++){
+        if(annPhotoUrls.length>=10){alert('Up to 10 photos.');break;}
+        var url=await annUploadPhoto(files[i]);
+        if(url){annPhotoUrls.push(url);annRenderPhotos();}
+      }
+      photoBtn.disabled=false;photoBtn.textContent=orig;
+    });
+  }
 })();
 document.getElementById('ann-send-btn').addEventListener('click',async function(){
   var btn=this;
@@ -494,6 +534,7 @@ document.getElementById('ann-send-btn').addEventListener('click',async function(
   if(!subject||!body){alert('Fill in subject and message.');return;}
   if(!audience.admins&&!audience.members&&!audience.public&&!audience.email){alert('Pick at least one audience.');return;}
   if(annPriority==='emergency'&&!confirm('Send an EMERGENCY announcement? This emails everyone selected who allows notifications.'))return;
+  if(annPhotoUrls.length&&!audience.public){alert('Photos are only sent with the Public (Community & Telegram) audience. Select Public, or remove the photos.');return;}
   await sendAnnouncement(btn,{subject:subject,body:body,audience:audience,force:false});
 });
 
@@ -503,7 +544,7 @@ async function sendAnnouncement(btn,opts){
   var subject=opts.subject,body=opts.body,audience=opts.audience,force=!!opts.force;
   btn.disabled=true;btn.textContent=force?'Force sending…':'Posting…';
   try{
-    var res=await postAction({action:'postAnnouncement',token:session.token,subject:subject,body:body,priority:annPriority,audience:audience,force_telegram:force});
+    var res=await postAction({action:'postAnnouncement',token:session.token,subject:subject,body:body,priority:annPriority,audience:audience,force_telegram:force,photo_urls:annPhotoUrls.slice()});
     if(res.ok){
       // Offer super-admin override when Telegram was skipped by the dedup guard.
       var isSuper=String((session&&session.role)||'').toLowerCase()==='super_admin';
@@ -513,6 +554,7 @@ async function sendAnnouncement(btn,opts){
         }
       }
       document.getElementById('ann-subject').value='';document.getElementById('ann-body').value='';
+      annPhotoUrls=[];annRenderPhotos();
       document.getElementById('chat-admin-compose').style.display='none';
       var ob=document.getElementById('ann-open-btn');if(ob)ob.style.display='';
       checkEmergencyAlerts();

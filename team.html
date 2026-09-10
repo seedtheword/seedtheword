@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
-  <link rel="stylesheet" href="assets/css/team-social.css?v=20">
+  <link rel="stylesheet" href="assets/css/team-social.css?v=21">
   <link rel="stylesheet" href="assets/css/lms.css?v=2">
   <style>
     /* ── Content Studio — SocialPulse-inspired look (emerald, white cards) ── */
@@ -723,7 +723,14 @@
 
           <input id="ann-subject" placeholder="Subject…" style="margin-bottom:0.4rem;">
           <textarea id="ann-body" placeholder="Message…" rows="3" style="margin-bottom:0.6rem;"></textarea>
+
+          <!-- Optional photo attachments (usually one, up to 10). Sent to
+               Telegram as photo(s); the first also shows on the community post. -->
+          <input type="file" id="ann-photo-input" accept="image/*" multiple hidden>
+          <div class="ann-photos" id="ann-photos" hidden></div>
+
           <div style="display:flex;align-items:center;gap:0.75rem;">
+            <button type="button" class="btn btn--outline btn--sm" id="ann-photo-btn">🖼️ Add photo</button>
             <span class="ann-emergency-note" id="ann-emergency-note" style="display:none;">🔴 Emergency emails everyone selected (who allow notifications).</span>
             <button class="btn btn--green btn--sm" id="ann-send-btn" style="margin-left:auto;">Post announcement</button>
           </div>
@@ -875,7 +882,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=28"></script>
+<script src="assets/js/team-portal.js?v=29"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
 <script>
@@ -1077,7 +1084,7 @@
   // Chat, Forum, and Train are open to every team member. super_admin gets
   // everything (STW_Auth.hasPermission handles that). Falls back to a local
   // resolver if STW_Auth (nav-auth.js) hasn't loaded yet.
-  var ALL_PERMS = ['scanner','finance','orders','chat_admin','training_admin','content_studio','members_admin'];
+  var ALL_PERMS = ['scanner','finance','orders','chat_admin','training_admin','content_studio','members_admin','moderation'];
   var ROLE_DEFAULTS = {
     super_admin: ALL_PERMS.slice(),
     admin: ['scanner','finance','orders','chat_admin','training_admin'],
@@ -2173,6 +2180,6 @@
 
 <script src="assets/js/main.js?v=9"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
-<script src="assets/js/nav-auth.js?v=5"></script>
+<script src="assets/js/nav-auth.js?v=6"></script>
 </body>
 </html>

@@ -2788,7 +2788,7 @@ function handleTeamSignup_(payload) {
 // (always), and if a member has no explicit permissions we fall back to a
 // role-derived default so existing admins keep working until a super-admin
 // tunes them. The client mirrors this list into the session and gates the UI.
-var ALL_PERMISSIONS = ['scanner', 'finance', 'orders', 'chat_admin', 'training_admin', 'content_studio', 'members_admin'];
+var ALL_PERMISSIONS = ['scanner', 'finance', 'orders', 'chat_admin', 'training_admin', 'content_studio', 'members_admin', 'moderation'];
 // Fallback grants when a member has no explicit permissions set yet.
 var ROLE_DEFAULT_PERMISSIONS = {
   super_admin: ALL_PERMISSIONS.slice(),

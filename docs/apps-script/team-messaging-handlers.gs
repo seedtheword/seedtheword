@@ -315,6 +315,58 @@ function sendTelegramFromAppsScript_(chatId, text, threadId) {
   }
 }
 
+// Send one or more photos to a Telegram chat/thread with an optional HTML
+// caption. photoUrls must be an array of PUBLICLY-fetchable image URLs
+// (Telegram fetches them itself). A single photo uses /sendPhoto; multiple use
+// /sendMediaGroup (2–10, Telegram's limit). The caption (max ~1024 chars) is
+// attached to the first photo. Returns true on success. Falls back to a text
+// sendMessage if there are no usable photo URLs.
+function sendTelegramPhotosFromAppsScript_(chatId, caption, threadId, photoUrls) {
+  var token = PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
+  if (!token) {
+    token = typeof TELEGRAM_BOT_TOKEN_FALLBACK !== 'undefined' ? TELEGRAM_BOT_TOKEN_FALLBACK : '';
+    if (!token) { Logger.log('ERROR: TELEGRAM_BOT_TOKEN not set — cannot send photos.'); return false; }
+  }
+  var urls = (photoUrls || []).map(function (u) { return String(u || '').trim(); }).filter(function (u) { return !!u; });
+  if (!urls.length) {
+    // Nothing to send as a photo — fall back to a plain text message.
+    return sendTelegramFromAppsScript_(chatId, caption, threadId);
+  }
+  // Telegram caption limit is 1024 chars; trim conservatively.
+  var cap = String(caption || '').slice(0, 1000);
+  urls = urls.slice(0, 10); // Telegram media group max is 10.
+
+  try {
+    if (urls.length === 1) {
+      var pPayload = { chat_id: String(chatId), photo: urls[0], caption: cap, parse_mode: 'HTML' };
+      if (threadId) pPayload.message_thread_id = threadId;
+      var pResp = UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendPhoto', {
+        method: 'post', contentType: 'application/json', payload: JSON.stringify(pPayload), muteHttpExceptions: true
+      });
+      if (pResp.getResponseCode() === 200) return true;
+      Logger.log('Telegram sendPhoto returned ' + pResp.getResponseCode() + ': ' + pResp.getContentText().slice(0, 500));
+      return false;
+    }
+    // Multiple photos → media group. Caption goes on the first item.
+    var media = urls.map(function (u, i) {
+      var item = { type: 'photo', media: u };
+      if (i === 0) { item.caption = cap; item.parse_mode = 'HTML'; }
+      return item;
+    });
+    var gPayload = { chat_id: String(chatId), media: media };
+    if (threadId) gPayload.message_thread_id = threadId;
+    var gResp = UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMediaGroup', {
+      method: 'post', contentType: 'application/json', payload: JSON.stringify(gPayload), muteHttpExceptions: true
+    });
+    if (gResp.getResponseCode() === 200) return true;
+    Logger.log('Telegram sendMediaGroup returned ' + gResp.getResponseCode() + ': ' + gResp.getContentText().slice(0, 500));
+    return false;
+  } catch (e) {
+    Logger.log('Telegram photo send exception: ' + e.toString());
+    return false;
+  }
+}
+
 /**
  * Send a private Telegram message to a user by their @username.
  * Uses Telegram's limitation: bots can only message users who have
@@ -397,6 +449,17 @@ function handlePostAnnouncement_(payload) {
     var today = now.toISOString().split('T')[0];
     var dedupKey = getAnnouncementDedupKey_(subject, today);
 
+    // ── Optional photo attachments ──
+    // photo_urls = array of publicly-viewable image URLs (already uploaded to
+    // Drive via the uploadImage action). Usually one, but multiple supported.
+    var photoUrls = [];
+    if (Array.isArray(payload.photo_urls)) {
+      photoUrls = payload.photo_urls.map(function (u) { return String(u || '').trim(); }).filter(function (u) { return !!u; }).slice(0, 10);
+    } else if (payload.photo_url) {
+      var single = String(payload.photo_url).trim(); if (single) photoUrls = [single];
+    }
+    var firstPhoto = photoUrls.length ? photoUrls[0] : '';
+
     // ── Public → Telegram + a Community post (so it shows on community.html) ──
     var telegramSent = false, telegramSkipped = false;
     if (toPublic) {
@@ -411,13 +474,20 @@ function handlePostAnnouncement_(payload) {
       if (bypassDedup || !hasAnnouncementBeenSentRecently_(sheet, subject)) {
         var priorityEmoji = priority === 'emergency' ? '🚨' : priority === 'urgent' ? '⚠️' : '📢';
         var telegramText = priorityEmoji + ' <b>' + subject + '</b>\n\n' + body + '\n\n— ' + user.name;
-        telegramSent = sendTelegramFromAppsScript_('@seedtheword', telegramText, 553);
+        // With photos → send as photo(s) with the text as caption; else plain text.
+        if (photoUrls.length && typeof sendTelegramPhotosFromAppsScript_ === 'function') {
+          telegramSent = sendTelegramPhotosFromAppsScript_('@seedtheword', telegramText, 553, photoUrls);
+        } else {
+          telegramSent = sendTelegramFromAppsScript_('@seedtheword', telegramText, 553);
+        }
       } else { telegramSkipped = true; }
-      // Mirror to the community feed as an announcement post (best-effort).
+      // Mirror to the community feed as an announcement post (best-effort). The
+      // feed's media_url column renders one image, so the first photo goes there;
+      // all photos still go out on Telegram above.
       try {
         if (typeof getPostsSheet_ === 'function' && typeof socialNewId_ === 'function') {
           getPostsSheet_().appendRow([socialNewId_('post'), Date.now(), user.name, String(user.role || 'member').toLowerCase(),
-            '**' + subject + '**\n\n' + body, '', 'announcements', 'YES', '', '', (typeof socialPicOf_ === 'function' ? socialPicOf_(user.name) : '')]);
+            '**' + subject + '**\n\n' + body, firstPhoto, 'announcements', 'YES', '', '', (typeof socialPicOf_ === 'function' ? socialPicOf_(user.name) : '')]);
         }
       } catch (e) { Logger.log('announcement community mirror failed: ' + e); }
     }
@@ -1507,7 +1577,7 @@ function handleSetMemberPermissions_(payload) {
 
     // Whitelist against the known permission keys.
     var allowed = (typeof ALL_PERMISSIONS !== 'undefined') ? ALL_PERMISSIONS
-      : ['scanner', 'finance', 'orders', 'chat_admin', 'training_admin', 'content_studio', 'members_admin'];
+      : ['scanner', 'finance', 'orders', 'chat_admin', 'training_admin', 'content_studio', 'members_admin', 'moderation'];
     var clean = perms.map(function (p) { return String(p).trim(); })
                      .filter(function (p) { return allowed.indexOf(p) !== -1; });
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616548,
-  "lastModified": "2026-09-10T15:40:34Z",
+  "lastUpdateId": 669616549,
+  "lastModified": "2026-09-10T17:25:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1271,6 +1271,16 @@
       "kind": "telegram",
       "text": "Prayer for Rene, she just got spinal surgery, I was talking to her sister Liz on the bus, so prayer requests for her too, so she recovers quickly, and heals nicely",
       "ts": "2026-09-10T00:47:14Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5978,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Defensive prayers for me, David, and Ken... as we march and proclaim the Gospel at U-dub... from previous evangelism experiences, The devil hits individual members with anxiety, and fear, and issues during or before the event to nurtralize our effectiveness. And so... here's a prayer for our Defenses",
+      "ts": "2026-09-10T17:22:55Z"
     }
   ]
 }

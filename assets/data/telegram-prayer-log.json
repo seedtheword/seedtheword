@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616547,
-  "lastModified": "2026-09-10T09:08:53Z",
+  "lastUpdateId": 669616550,
+  "lastModified": "2026-09-10T17:40:41Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -273,19 +273,15 @@
       "messageId": 5691,
       "entryCount": 1,
       "postedAt": "2026-09-07T15:17:30Z"
+    },
+    "2026-W37-thu": {
+      "since": "2026-09-10T15:17:29Z",
+      "messageId": 5975,
+      "entryCount": 15,
+      "postedAt": "2026-09-10T15:17:45Z"
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5425,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "what a week for reflection and how God moves, deeply hurting for our young adults and praying in Jesus' name",
-      "ts": "2026-08-27T15:26:04Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5439,
@@ -1275,6 +1271,16 @@
       "kind": "telegram",
       "text": "Prayer for Rene, she just got spinal surgery, I was talking to her sister Liz on the bus, so prayer requests for her too, so she recovers quickly, and heals nicely",
       "ts": "2026-09-10T00:47:14Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 5978,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Defensive prayers for me, David, and Ken... as we march and proclaim the Gospel at U-dub... from previous evangelism experiences, The devil hits individual members with anxiety, and fear, and issues during or before the event to nurtralize our effectiveness. And so... here's a prayer for our Defenses",
+      "ts": "2026-09-10T17:22:55Z"
     }
   ]
 }

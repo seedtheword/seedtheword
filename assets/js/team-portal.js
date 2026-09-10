@@ -712,7 +712,7 @@ function activityStatusPill(s){
   if(s==='seen')return '<span class="activity-pill activity-pill--seen">Seen</span>';
   return '<span class="activity-pill activity-pill--new">● New</span>';
 }
-var ACTIVITY_JS_BUILD='v37';
+var ACTIVITY_JS_BUILD='v38';
 async function loadTeamActivity(){
   var list=document.getElementById('activity-list');if(!list||!session)return;
   // Visible build stamp so we can confirm the browser is running current JS
@@ -858,26 +858,36 @@ async function markActivity(it,status){
 async function diagnoseActivity(){
   var list=document.getElementById('activity-list');if(!list)return;
   if(!session||!session.token){list.innerHTML='<p class="dm-empty" style="padding:1rem;">Not signed in.</p>';return;}
-  list.innerHTML='<p class="dm-empty" style="padding:1rem;">Running diagnostic…</p>';
+  var steps=[];
+  function show(extra){list.innerHTML='<div style="padding:0.75rem;font-size:0.78rem;"><pre style="white-space:pre-wrap;word-break:break-word;background:#f7f3ec;padding:0.6rem;border-radius:8px;">'+escapeHtml(steps.join('\n')+(extra?('\n'+extra):''))+'</pre></div>';}
+  steps.push('1. start build='+ACTIVITY_JS_BUILD);show();
   var t0=Date.now();
   try{
-    var res=await postAction({action:'getTeamActivity',token:session.token,limit:80});
+    // Independent, self-timed fetch straight to the handler URL (bypasses the
+    // shared postAction so we can see each step).
+    steps.push('2. fetching handler URL…');show();
+    var url=await getHandlerUrl();
+    steps.push('3. url='+String(url).slice(0,60)+'…');show();
+    steps.push('4. POSTing getTeamActivity…');show();
+    var fres=await Promise.race([
+      fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getTeamActivity',token:session.token,limit:80,_cb:Date.now()})}),
+      new Promise(function(_,rej){setTimeout(function(){rej(new Error('fetch timed out at 15s'));},15000);})
+    ]);
+    steps.push('5. HTTP '+fres.status+' — reading body…');show();
+    var bodyText=await fres.text();
+    steps.push('6. body length='+bodyText.length);show();
+    var res; try{res=JSON.parse(bodyText);}catch(pe){steps.push('7. NOT JSON. First 300 chars:\n'+bodyText.slice(0,300));show();return;}
     var ms=Date.now()-t0;
-    var summary='took '+ms+'ms · ok='+(res&&res.ok)+
-      ' · items='+(res&&Array.isArray(res.items)?res.items.length:'n/a')+
-      ' · new_count='+(res&&typeof res.new_count!=='undefined'?res.new_count:'n/a')+
-      (res&&res.error?' · error='+res.error:'');
-    var raw=JSON.stringify(res,null,2);
-    if(raw.length>1500)raw=raw.slice(0,1500)+'…';
-    list.innerHTML='<div style="padding:0.75rem;font-size:0.8rem;">'+
-      '<p style="margin:0 0 0.5rem;"><strong>Diagnostic:</strong> '+escapeHtml(summary)+'</p>'+
-      '<pre style="white-space:pre-wrap;word-break:break-word;background:#f7f3ec;padding:0.6rem;border-radius:8px;font-size:0.72rem;max-height:280px;overflow:auto;">'+escapeHtml(raw)+'</pre>'+
-      '<button class="btn btn--green btn--sm" id="activity-diag-back" style="margin-top:0.5rem;">← Back to activity</button></div>';
-    var back=document.getElementById('activity-diag-back');if(back)back.addEventListener('click',loadTeamActivity);
+    var raw=JSON.stringify(res);if(raw.length>800)raw=raw.slice(0,800)+'…';
+    steps.push('7. OK in '+ms+'ms · ok='+res.ok+
+      ' · items='+(Array.isArray(res.items)?res.items.length:'n/a')+
+      ' · new_count='+(typeof res.new_count!=='undefined'?res.new_count:'n/a')+
+      (res.error?' · error='+res.error:''));
+    steps.push('8. raw: '+raw);
+    show();
   }catch(e){
-    var ms2=Date.now()-t0;
-    list.innerHTML='<div style="padding:0.75rem;font-size:0.82rem;"><p style="margin:0;"><strong>Diagnostic failed after '+ms2+'ms:</strong><br>'+escapeHtml(e.message||String(e))+'</p>'+
-      '<p style="margin:0.5rem 0 0;color:var(--color-text-muted);">This means the server call itself did not return valid JSON (a hang or an error page), not a display bug.</p></div>';
+    steps.push('ERROR after '+(Date.now()-t0)+'ms: '+((e&&e.message)||String(e)));
+    show();
   }
 }
 (function(){

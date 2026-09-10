@@ -717,11 +717,19 @@ async function loadTeamActivity(){
   list.innerHTML='<p class="dm-empty" style="padding:1rem;">Loading activity…</p>';
   try{
     var res=await postAction({action:'getTeamActivity',token:session.token,limit:80});
-    if(!res||!res.ok){list.innerHTML='<p class="dm-empty" style="padding:1rem;">'+escapeHtml((res&&res.error)||'Could not load activity. (Backend may need deploying.)')+'</p>';return;}
-    activityItems=res.items||[];
-    updateActivityBadge(res.new_count||0);
-    renderActivity();
-  }catch(e){list.innerHTML='<p class="dm-empty" style="padding:1rem;">Could not load activity.</p>';}
+    // The activity feed needs the Phase 4 backend deployed. If the deployed web
+    // app doesn't recognize the action, it falls through to the order handler
+    // and returns a shape without items/new_count — treat that as "not deployed".
+    if(res&&res.ok&&(Array.isArray(res.items)||typeof res.new_count==='number')){
+      activityItems=res.items||[];
+      updateActivityBadge(res.new_count||0);
+      renderActivity();
+      return;
+    }
+    var why=(res&&res.error)?escapeHtml(res.error)
+      :'The Activity backend isn\u2019t deployed yet. Repaste order-handler.gs + social-handler.gs + team-messaging-handlers.gs into the STW Order Handler project and redeploy (Deploy \u2192 New version), then refresh.';
+    list.innerHTML='<p class="dm-empty" style="padding:1rem;">'+why+'</p>';
+  }catch(e){list.innerHTML='<p class="dm-empty" style="padding:1rem;">Could not load activity: '+escapeHtml(e.message||String(e))+'</p>';}
 }
 function updateActivityBadge(n){
   var b=document.getElementById('activity-badge');if(!b)return;
@@ -733,7 +741,7 @@ async function preloadActivityBadge(){
   if(!session||!session.token)return;
   try{
     var res=await postAction({action:'getTeamActivity',token:session.token,limit:80});
-    if(res&&res.ok){activityItems=res.items||[];updateActivityBadge(res.new_count||0);}
+    if(res&&res.ok&&(Array.isArray(res.items)||typeof res.new_count==='number')){activityItems=res.items||[];updateActivityBadge(res.new_count||0);}
   }catch(e){}
 }
 function renderActivity(){

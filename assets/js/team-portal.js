@@ -712,38 +712,31 @@ function activityStatusPill(s){
   if(s==='seen')return '<span class="activity-pill activity-pill--seen">Seen</span>';
   return '<span class="activity-pill activity-pill--new">● New</span>';
 }
-var ACTIVITY_JS_BUILD='v38';
+var ACTIVITY_JS_BUILD='v39';
 async function loadTeamActivity(){
   var list=document.getElementById('activity-list');if(!list||!session)return;
   // Visible build stamp so we can confirm the browser is running current JS
   // (not a stale cached copy). If this doesn't show v37, it's a caching issue.
   var sub=document.querySelector('.activity-sub');
   if(sub&&sub.getAttribute('data-build')!==ACTIVITY_JS_BUILD){sub.setAttribute('data-build',ACTIVITY_JS_BUILD);sub.textContent=sub.textContent.replace(/\s*\(build [^)]*\)\s*$/,'')+' (build '+ACTIVITY_JS_BUILD+')';}
-  // Paint any already-loaded items immediately so we're never stuck on "Loading".
-  if(activityItems&&activityItems.length){renderActivity();}
-  else{list.innerHTML='<p class="dm-empty" style="padding:1rem;">Loading activity…</p>';}
+  if(!(activityItems&&activityItems.length))list.innerHTML='<p class="dm-empty" style="padding:1rem;">Loading activity…</p>';
+  // Direct fetch (mirrors the proven-working call) — no shared postAction, no
+  // race wrapper, so nothing can leave it silently pending.
   try{
-    // Race the request against a timeout so a slow/hanging backend never leaves
-    // the panel stuck on "Loading…" forever.
-    var res=await Promise.race([
-      postAction({action:'getTeamActivity',token:session.token,limit:80,_cb:Date.now()}),
-      new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('timeout')); }, 12000); })
-    ]);
-    if(res&&res.ok&&(Array.isArray(res.items)||typeof res.new_count==='number')){
-      activityItems=res.items||[];
-      updateActivityBadge(res.new_count||0);
+    var url=await getHandlerUrl();
+    var r=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getTeamActivity',token:session.token,limit:80,_cb:Date.now()})});
+    var txt=await r.text();
+    var res=null; try{res=JSON.parse(txt);}catch(pe){ list.innerHTML='<p class="dm-empty" style="padding:1rem;">Unexpected response (HTTP '+r.status+'). '+escapeHtml(txt.slice(0,120))+'</p>'; return; }
+    if(res&&res.ok&&Array.isArray(res.items)){
+      activityItems=res.items;
+      updateActivityBadge(typeof res.new_count==='number'?res.new_count:0);
       try{ renderActivity(); }
-      catch(re){ list.innerHTML='<p class="dm-empty" style="padding:1rem;">Loaded '+activityItems.length+' items but couldn\u2019t render them: '+escapeHtml(re.message||String(re))+'</p>'; }
+      catch(re){ list.innerHTML='<p class="dm-empty" style="padding:1rem;">Got '+activityItems.length+' items but render failed: '+escapeHtml((re&&re.message)||String(re))+'</p>'; }
       return;
     }
-    var why=(res&&res.error)?('Server said: '+escapeHtml(res.error))
-      :'The Activity backend returned an unexpected response. Try the 🩺 Diagnose button.';
-    list.innerHTML='<p class="dm-empty" style="padding:1rem;">'+why+'</p>';
+    list.innerHTML='<p class="dm-empty" style="padding:1rem;">'+(res&&res.error?('Server said: '+escapeHtml(res.error)):'Unexpected response.')+'</p>';
   }catch(e){
-    var msg=(e&&e.message==='timeout')
-      ?'The server took too long to respond (over 25s). The backend read is slow — redeploy the latest backend (it caps the read to the most-recent rows), then refresh.'
-      :('Could not load activity: '+escapeHtml((e&&e.message)||String(e)));
-    if(!(activityItems&&activityItems.length))list.innerHTML='<p class="dm-empty" style="padding:1rem;">'+msg+'</p>';
+    if(!(activityItems&&activityItems.length))list.innerHTML='<p class="dm-empty" style="padding:1rem;">Could not load activity: '+escapeHtml((e&&e.message)||String(e))+'</p>';
   }
 }
 function updateActivityBadge(n){

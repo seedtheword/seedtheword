@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669616548,
-  "lastModified": "2026-09-10T15:17:45Z",
+  "lastModified": "2026-09-10T15:40:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -282,16 +282,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5425,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "what a week for reflection and how God moves, deeply hurting for our young adults and praying in Jesus' name",
-      "ts": "2026-08-27T15:26:04Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5439,

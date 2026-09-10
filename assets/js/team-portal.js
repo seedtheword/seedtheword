@@ -848,8 +848,37 @@ async function markActivity(it,status){
       var n=activityItems.filter(function(x){return x.status==='new';}).length;updateActivityBadge(n);}
   }catch(e){}
 }
+// One-click diagnostic: calls getTeamActivity and prints the raw result (or the
+// exact error + timing) into the panel, so we can see what the server returns
+// without opening DevTools or the Apps Script editor.
+async function diagnoseActivity(){
+  var list=document.getElementById('activity-list');if(!list)return;
+  if(!session||!session.token){list.innerHTML='<p class="dm-empty" style="padding:1rem;">Not signed in.</p>';return;}
+  list.innerHTML='<p class="dm-empty" style="padding:1rem;">Running diagnostic…</p>';
+  var t0=Date.now();
+  try{
+    var res=await postAction({action:'getTeamActivity',token:session.token,limit:80});
+    var ms=Date.now()-t0;
+    var summary='took '+ms+'ms · ok='+(res&&res.ok)+
+      ' · items='+(res&&Array.isArray(res.items)?res.items.length:'n/a')+
+      ' · new_count='+(res&&typeof res.new_count!=='undefined'?res.new_count:'n/a')+
+      (res&&res.error?' · error='+res.error:'');
+    var raw=JSON.stringify(res,null,2);
+    if(raw.length>1500)raw=raw.slice(0,1500)+'…';
+    list.innerHTML='<div style="padding:0.75rem;font-size:0.8rem;">'+
+      '<p style="margin:0 0 0.5rem;"><strong>Diagnostic:</strong> '+escapeHtml(summary)+'</p>'+
+      '<pre style="white-space:pre-wrap;word-break:break-word;background:#f7f3ec;padding:0.6rem;border-radius:8px;font-size:0.72rem;max-height:280px;overflow:auto;">'+escapeHtml(raw)+'</pre>'+
+      '<button class="btn btn--green btn--sm" id="activity-diag-back" style="margin-top:0.5rem;">← Back to activity</button></div>';
+    var back=document.getElementById('activity-diag-back');if(back)back.addEventListener('click',loadTeamActivity);
+  }catch(e){
+    var ms2=Date.now()-t0;
+    list.innerHTML='<div style="padding:0.75rem;font-size:0.82rem;"><p style="margin:0;"><strong>Diagnostic failed after '+ms2+'ms:</strong><br>'+escapeHtml(e.message||String(e))+'</p>'+
+      '<p style="margin:0.5rem 0 0;color:var(--color-text-muted);">This means the server call itself did not return valid JSON (a hang or an error page), not a display bug.</p></div>';
+  }
+}
 (function(){
   var r=document.getElementById('activity-refresh');if(r)r.addEventListener('click',loadTeamActivity);
+  var dg=document.getElementById('activity-diagnose');if(dg)dg.addEventListener('click',diagnoseActivity);
   document.querySelectorAll('.activity-filter').forEach(function(b){b.addEventListener('click',function(){
     document.querySelectorAll('.activity-filter').forEach(function(x){x.classList.remove('is-active');});
     this.classList.add('is-active');activityFilter=this.dataset.filter;renderActivity();

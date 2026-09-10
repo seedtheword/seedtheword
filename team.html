@@ -764,7 +764,10 @@
             <h3 class="glass-card__title" style="margin:0;">🔔 Incoming activity</h3>
             <p class="activity-sub">Everything that comes in — prayers, thanksgiving, orders, Bible requests, and messages — funnels here for the team to review and respond.</p>
           </div>
-          <button class="btn btn--outline btn--sm" id="activity-refresh">↻ Refresh</button>
+          <span style="display:flex;gap:0.4rem;">
+            <button class="btn btn--outline btn--sm" id="activity-refresh">↻ Refresh</button>
+            <button class="btn btn--ghost btn--sm" id="activity-diagnose" title="Show the raw server response">🩺 Diagnose</button>
+          </span>
         </div>
         <div class="activity-filters" id="activity-filters">
           <button class="activity-filter is-active" data-filter="all">All</button>
@@ -909,7 +912,7 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=34"></script>
+<script src="assets/js/team-portal.js?v=35"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
 <script>

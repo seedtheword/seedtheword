@@ -216,3 +216,130 @@ function getPublishedContent_() {
 function flushContentCache_() {
   try { CacheService.getScriptCache().remove('stw_pub_content_v1'); } catch (e) {}
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// OUTREACH LOCATIONS — where Seed the Word has sent/distributed Bibles.
+// Powers the "reach" map + the "countries reached" counter on news/store/home.
+// Presence-only (no per-location counts). Super-admin edits via Content Studio.
+//
+// ADD to order-handler.gs doPost():
+//   if ((payload && payload.action) === 'listOutreachLocations') return handleListOutreachLocations_(payload);
+//   if ((payload && payload.action) === 'saveOutreachLocation')  return handleSaveOutreachLocation_(payload);
+//   if ((payload && payload.action) === 'deleteOutreachLocation')return handleDeleteOutreachLocation_(payload);
+// ADD to order-handler.gs doGet() (public, read-only, cached):
+//   if (action === 'getOutreachLocations') return jsonResponse(getOutreachLocations_());
+//
+// Run stwLocationsSetup() ONCE to create the tab (and seed initial reach).
+//
+// Tab (on the STW Order Ledger spreadsheet):
+//   OutreachLocations: id | published | type | name | region | iso2 | sort_order | updated_by | updated_at
+//     type   = 'country' | 'state' | 'city'
+//     region = parent context (e.g. state for a city, country for a state) — free text
+//     iso2   = 2-letter country code (for map tinting), only meaningful for type='country'
+// ══════════════════════════════════════════════════════════════════════
+
+var LOCATIONS_TAB = 'OutreachLocations';
+var LOCATIONS_HEADERS = ['id','published','type','name','region','iso2','sort_order','updated_by','updated_at'];
+
+// One-time setup + seed with the current reach.
+function stwLocationsSetup() {
+  var sh = contentSheet_(LOCATIONS_TAB, LOCATIONS_HEADERS);
+  if (sh.getLastRow() < 2) {
+    var now = new Date().toISOString();
+    var seed = [
+      // type,      name,          region,        iso2, sort
+      ['country', 'United States', '',            'US', 1],
+      ['country', 'Suriname',      'South America','SR', 2],
+      ['country', 'Pakistan',      'Asia',        'PK', 3],
+      ['state',   'Washington',    'United States','',   10],
+      ['state',   'Texas',         'United States','',   11],
+      ['city',    'Seattle',       'Washington',  '',    20],
+      ['city',    'Bellevue',      'Washington',  '',    21],
+      ['city',    'Lynnwood',      'Washington',  '',    22],
+      ['city',    'Everett',       'Washington',  '',    23],
+      ['city',    'Mukilteo',      'Washington',  '',    24],
+      ['city',    'Federal Way',   'Washington',  '',    25]
+    ];
+    seed.forEach(function (s) {
+      sh.appendRow([contentNewId_('loc'), 'YES', s[0], s[1], s[2], s[3], s[4], 'system', now]);
+    });
+  }
+  try { SpreadsheetApp.getUi().alert('OutreachLocations ready (' + (sh.getLastRow() - 1) + ' rows).'); } catch (e) {}
+  return 'ok';
+}
+
+function handleListOutreachLocations_(payload) {
+  var gate = contentRequireSuperAdmin_(payload);
+  if (gate.err) return jsonResponse({ ok: false, error: gate.err });
+  var sh = contentSheet_(LOCATIONS_TAB, LOCATIONS_HEADERS);
+  return jsonResponse({ ok: true, locations: contentRowsToObjects_(sh, LOCATIONS_HEADERS) });
+}
+
+function handleSaveOutreachLocation_(payload) {
+  var gate = contentRequireSuperAdmin_(payload);
+  if (gate.err) return jsonResponse({ ok: false, error: gate.err });
+  var l = payload.location || {};
+  var type = String(l.type || 'country').trim().toLowerCase();
+  if (['country','state','city'].indexOf(type) === -1) type = 'country';
+  var name = String(l.name || '').trim();
+  if (!name) return jsonResponse({ ok: false, error: 'Name is required' });
+  var sh = contentSheet_(LOCATIONS_TAB, LOCATIONS_HEADERS);
+  var now = new Date().toISOString();
+  var id = String(l.id || '').trim() || contentNewId_('loc');
+  var rowValues = [
+    id,
+    (l.published === true || l.published === 'YES') ? 'YES' : 'no',
+    type,
+    name,
+    String(l.region || ''),
+    String(l.iso2 || '').trim().toUpperCase().slice(0, 2),
+    (parseInt(l.sort_order, 10) || 0),
+    gate.member.name,
+    now
+  ];
+  var existing = contentRowsToObjects_(sh, LOCATIONS_HEADERS).filter(function (o) { return String(o.id) === id; })[0];
+  if (existing) sh.getRange(existing._row, 1, 1, LOCATIONS_HEADERS.length).setValues([rowValues]);
+  else sh.appendRow(rowValues);
+  flushLocationsCache_();
+  return jsonResponse({ ok: true, id: id });
+}
+
+function handleDeleteOutreachLocation_(payload) {
+  var gate = contentRequireSuperAdmin_(payload);
+  if (gate.err) return jsonResponse({ ok: false, error: gate.err });
+  var id = String(payload.id || '').trim();
+  var sh = contentSheet_(LOCATIONS_TAB, LOCATIONS_HEADERS);
+  var found = contentRowsToObjects_(sh, LOCATIONS_HEADERS).filter(function (o) { return String(o.id) === id; })[0];
+  if (found) { sh.deleteRow(found._row); flushLocationsCache_(); return jsonResponse({ ok: true }); }
+  return jsonResponse({ ok: false, error: 'Not found' });
+}
+
+// Public read — only PUBLISHED locations, grouped, with a country tally. Cached 3 min.
+function getOutreachLocations_() {
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get('stw_locations_v1');
+  if (hit) { try { return JSON.parse(hit); } catch (e) {} }
+
+  var out = { ok: true, countries: [], states: [], cities: [], countriesCount: 0 };
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sh = ss.getSheetByName(LOCATIONS_TAB);
+  if (sh) {
+    contentRowsToObjects_(sh, LOCATIONS_HEADERS)
+      .filter(function (o) { return String(o.published).toUpperCase() === 'YES'; })
+      .sort(function (a, b) { return (parseInt(a.sort_order, 10) || 0) - (parseInt(b.sort_order, 10) || 0); })
+      .forEach(function (o) {
+        var item = { name: String(o.name || ''), region: String(o.region || ''), iso2: String(o.iso2 || '').toUpperCase() };
+        var type = String(o.type || 'country').toLowerCase();
+        if (type === 'state') out.states.push(item);
+        else if (type === 'city') out.cities.push(item);
+        else out.countries.push(item);
+      });
+  }
+  out.countriesCount = out.countries.length;
+  try { cache.put('stw_locations_v1', JSON.stringify(out), 180); } catch (e) {}
+  return out;
+}
+
+function flushLocationsCache_() {
+  try { CacheService.getScriptCache().remove('stw_locations_v1'); } catch (e) {}
+}

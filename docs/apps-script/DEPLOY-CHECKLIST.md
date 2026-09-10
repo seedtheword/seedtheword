@@ -429,3 +429,21 @@ Consolidates team DMs onto the **DirectMessages** tab with unread tracking, bloc
 **Frontend (git):** the Phase 4 Activity oversight panel lives at the **top of the Community tab** (the old Forum tab, renamed **Community**) — shown only to `chat_admin` OR `moderation` (super-admins always). It lists incoming prayers/thanksgiving/orders/bible/contact with New/Seen/Responded pills + filters, above the community feed/group chats. Prayer/thanksgiving → **Reply on community** (posts a public comment + marks responded); orders/bible → **Open in Orders**; contact → **Reply by email** (mailto). A red new-count badge sits on the Community tab button and preloads on portal open. `community.html` no longer merges `getPublicPrayers` into the feed (consented intakes are now real posts via `getFeed`, so merging would double them); the `getPublicPrayers` endpoint remains for legacy/other use.
 
 **Activate:** repaste `order-handler.gs` + `social-handler.gs` + `team-messaging-handlers.gs`, redeploy. First matching intake auto-creates the `ActivitySeen` sheet + the Posts `intake_submission_id` column.
+
+---
+
+## Outreach Reach map + "countries reached" counter
+
+**What changed (backend — user deploys `content-handler.gs` + `order-handler.gs`)**
+- New **`OutreachLocations`** Sheet tab (`id | published | type(country|state|city) | name | region | iso2 | sort_order | updated_by | updated_at`). Presence-only (no per-location counts).
+- `content-handler.gs`: `handleListOutreachLocations_` / `handleSaveOutreachLocation_` / `handleDeleteOutreachLocation_` (super-admin token) + public `getOutreachLocations_()` (returns `{countries[],states[],cities[],countriesCount}`, cached 180s) + `flushLocationsCache_()`. **Run `stwLocationsSetup()` ONCE** — creates the tab and seeds the current reach (USA/Suriname/Pakistan + Washington/Texas + Seattle/Bellevue/Lynnwood/Everett/Mukilteo/Federal Way).
+- `order-handler.gs`: routed `listOutreachLocations`/`saveOutreachLocation`/`deleteOutreachLocation` in `doPost`, and `getOutreachLocations` in `doGet`.
+
+**Frontend (git — live now, no deploy needed for these to render with the fallback):**
+- New `assets/js/outreach-map.js` + `assets/css/outreach-map.css` (self-contained; no map library). Fetches `getOutreachLocations`; renders a lightweight schematic world map with pins on reached countries + grouped country/state/city chip lists into `#outreach-reach`; updates any `.js-countries-count` / `.js-countries-word` elements. Falls back to site-config `outreachCountries` then the seeded 3.
+- **News page:** new "Where We've Sent Bibles" reach section (`#outreach-reach`) after `#ministry-outreach`, with the countries counter.
+- **Homepage:** reach section under the search bar + a **mission promo** ("Lynnwood for Jesus & Beyond") in `.showcase-topbar` linking News/Give/Connect, with an inline countries counter.
+- **Store page:** added a "Countries Reached" impact stat (uses `.js-countries-count`).
+- `site-config.json`: added `outreachCountries` (fallback count) + note.
+
+**Activate:** repaste `content-handler.gs` + `order-handler.gs`, redeploy, then run **`stwLocationsSetup()`** once. Super-admins then manage locations in **Content Studio → Outreach Map** (add/edit/remove countries, states, cities; the ISO2 field tints/pins the world map for countries). Until deployed, the site shows the seeded fallback (3 countries).

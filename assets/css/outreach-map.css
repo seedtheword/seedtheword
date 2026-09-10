@@ -1,0 +1,124 @@
+/* Seed the Word — Outreach Reach map + counter. Warm editorial tokens.
+   Falls back to sane values if page tokens aren't defined. */
+.reach {
+  --reach-serif: var(--serif, 'Playfair Display', Georgia, serif);
+  --reach-sans: var(--sans, 'Source Sans 3', system-ui, sans-serif);
+  --reach-mono: var(--mono, 'IBM Plex Mono', monospace);
+  --reach-gold: var(--accent-gold, #B8860B);
+  --reach-green: #2C5F2E;
+  --reach-fg: var(--fg, #1A1A1A);
+  --reach-muted: var(--fg-muted, #6B6B6B);
+  --reach-border: var(--border-warm, #E8E4DF);
+  --reach-card: var(--card-bg, #fff);
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+.reach__eyebrow {
+  font-family: var(--reach-mono); font-size: 0.62rem; font-weight: 500;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--reach-gold);
+  margin-bottom: 0.5rem;
+}
+.reach__title {
+  font-family: var(--reach-serif); font-weight: 400; font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--reach-fg); margin: 0 0 0.5rem;
+}
+.reach__sub {
+  font-family: var(--reach-sans); font-size: 0.95rem; color: var(--reach-muted);
+  line-height: 1.65; max-width: 640px; margin: 0 auto 1.5rem;
+}
+.reach__stat { display: flex; flex-direction: column; align-items: center; margin: 0 0 1.25rem; }
+.reach__stat-num {
+  font-family: var(--reach-serif); font-weight: 700; font-size: clamp(2.75rem, 7vw, 4.5rem);
+  color: var(--reach-gold); line-height: 1;
+}
+.reach__stat-label {
+  font-family: var(--reach-mono); font-size: 0.66rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--reach-muted); margin-top: 0.35rem;
+}
+
+/* Map */
+.reach-map {
+  position: relative; width: 100%; max-width: 860px; margin: 0 auto 1.75rem;
+  border: 1px solid var(--reach-border); border-radius: 14px; overflow: hidden;
+  background: #f3efe6; box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+}
+.reach-map__svg { display: block; width: 100%; height: auto; }
+.reach-map__pin {
+  position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column;
+  align-items: center; z-index: 2;
+}
+.reach-map__pin-dot {
+  width: 13px; height: 13px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e0b84e, var(--reach-gold));
+  border: 2px solid #fff; box-shadow: 0 0 0 3px rgba(184,134,11,0.28), 0 2px 6px rgba(0,0,0,0.25);
+  animation: reachPulse 2.6s ease-in-out infinite;
+}
+@keyframes reachPulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(184,134,11,0.28), 0 2px 6px rgba(0,0,0,0.25); }
+  50% { box-shadow: 0 0 0 7px rgba(184,134,11,0.10), 0 2px 6px rgba(0,0,0,0.25); }
+}
+@media (prefers-reduced-motion: reduce) { .reach-map__pin-dot { animation: none; } }
+.reach-map__pin-label {
+  margin-top: 3px; font-family: var(--reach-sans); font-size: 0.62rem; font-weight: 700;
+  color: var(--reach-fg); background: rgba(255,255,255,0.85); padding: 1px 5px;
+  border-radius: 4px; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+/* Grouped chip lists */
+.reach-lists {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem; text-align: left; margin-top: 0.5rem;
+}
+.reach-list {
+  background: var(--reach-card); border: 1px solid var(--reach-border);
+  border-radius: 12px; padding: 1rem 1.1rem;
+}
+.reach-list__label {
+  font-family: var(--reach-mono); font-size: 0.66rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--reach-green);
+  margin: 0 0 0.6rem;
+}
+.reach-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.reach-chip {
+  font-family: var(--reach-sans); font-size: 0.8rem; font-weight: 600; color: var(--reach-fg);
+  background: #f7f3ec; border: 1px solid var(--reach-border); border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+}
+.reach-empty { color: var(--reach-muted); font-style: italic; font-size: 0.85rem; }
+
+/* Homepage mission promo (under the search bar). Dark-hero friendly. */
+.mission-promo {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem 1.5rem;
+  flex-wrap: wrap; margin: 1rem 0 0.25rem; padding: 0.9rem 1.15rem;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 14px; backdrop-filter: blur(6px);
+}
+.mission-promo__eyebrow {
+  display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
+  font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #e0b84e; margin-bottom: 0.3rem;
+}
+.mission-promo__line {
+  margin: 0; font-family: 'Source Sans 3', system-ui, sans-serif; font-size: 0.95rem;
+  line-height: 1.5; color: rgba(255,255,255,0.9);
+}
+.mission-promo__line strong { color: #fff; }
+.mission-promo__links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.mission-promo__btn {
+  font-family: 'Source Sans 3', system-ui, sans-serif; font-size: 0.82rem; font-weight: 700;
+  color: rgba(255,255,255,0.9); text-decoration: none; padding: 0.5rem 1rem;
+  border: 1px solid rgba(255,255,255,0.22); border-radius: 999px; white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mission-promo__btn:hover { background: rgba(255,255,255,0.12); }
+.mission-promo__btn--primary {
+  background: linear-gradient(135deg, #B8860B, #d4a84b); border-color: transparent; color: #fff;
+}
+.mission-promo__btn--primary:hover { background: linear-gradient(135deg, #a67a0a, #c99a3f); }
+
+/* On the homepage dark hero, the reach section text needs to be legible.
+   The #outreach-reach on index sits on a dark section, so invert the muted text. */
+#showcase #outreach-reach .reach__title { color: #fff; }
+#showcase #outreach-reach .reach__sub { color: rgba(255,255,255,0.75); }
+#showcase #outreach-reach .reach__stat-label { color: rgba(255,255,255,0.7); }

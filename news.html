@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=34">
+  <link rel="stylesheet" href="assets/css/outreach-map.css?v=1">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
     :root{--serif:'Playfair Display',Georgia,serif;--sans:'Source Sans 3',system-ui,sans-serif;--mono:'IBM Plex Mono',monospace;--cursive:'Caveat',cursive;--bg-ivory:#FAFAF8;--fg:#1A1A1A;--fg-muted:#6B6B6B;--accent-gold:#B8860B;--accent-gold-light:#D4A84B;--border-warm:#E8E4DF;--card-bg:#FFFFFF;--surface-muted:#F5F3F0}
@@ -231,6 +232,14 @@
   </div>
 </section>
 
+<!-- Outreach Reach — where we've sent Bibles (map + countries counter).
+     Populated by assets/js/outreach-map.js from getOutreachLocations. -->
+<section class="section section--white" id="outreach-reach-section" style="padding:1rem 0 2.5rem">
+  <div class="container">
+    <div id="outreach-reach"></div>
+  </div>
+</section>
+
 <section class="photo-essay" id="photo-essay">
   <div class="container">
     <div class="photo-essay__grid" id="photo-essay-grid"><div class="wcu-empty">Loading photos...</div></div>
@@ -424,5 +433,6 @@
 </script>
 <script src="assets/js/profile-settings.js?v=3"></script>
 <script src="assets/js/nav-auth.js?v=5"></script>
+<script src="assets/js/outreach-map.js?v=1" defer></script>
 </body>
 </html>

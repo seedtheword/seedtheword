@@ -70,7 +70,8 @@
       { id: 'overview', ico: '📊', label: 'Overview' }
     ]},
     { group: 'Content', items: [
-      { id: 'content', ico: '✨', label: 'Content Studio' }
+      { id: 'content', ico: '✨', label: 'Content Studio' },
+      { id: 'map', ico: '🗺️', label: 'Outreach Map' }
     ]},
     { group: 'Operations', items: [
       { id: 'inventory', ico: '📦', label: 'Inventory' },
@@ -85,6 +86,7 @@
     switch (id) {
       case 'overview': return { title: 'Overview', sub: 'Ministry performance at a glance', newLabel: null };
       case 'content': return { title: 'Content Studio', sub: 'Publish live across your News page', newLabel: '＋ New' };
+      case 'map': return { title: 'Outreach Map', sub: 'Countries, states & cities where we\'ve sent Bibles', newLabel: '＋ New' };
       case 'inventory': return { title: 'Inventory', sub: 'Bibles & items logged in the field', newLabel: null };
       case 'members': return { title: 'Members', sub: 'Team roster, roles & permissions', newLabel: null };
       case 'codes': return { title: 'Codes', sub: 'Comp codes for no-charge orders', newLabel: null };
@@ -149,6 +151,7 @@
     host.innerHTML = '<div class="sp-card"><p class="sp-empty">Loading…</p></div>';
     if (id === 'overview') renderOverview(host);
     else if (id === 'content') renderContent(host);
+    else if (id === 'map') renderMap(host);
     else if (id === 'inventory') renderInventory(host);
     else if (id === 'members') renderMembers(host);
     else if (id === 'codes') renderCodes(host);
@@ -157,6 +160,7 @@
   }
 
   function onNew() {
+    if (activeSection === 'map') { resetLocationForm(); var ln = document.getElementById('loc-name'); if (ln) { ln.scrollIntoView({ behavior: 'smooth', block: 'center' }); ln.focus(); } return; }
     if (activeSection !== 'content') return;
     if (currentSub === 'stories') { resetStoryForm(); var t = document.getElementById('story-title'); if (t) { t.scrollIntoView({ behavior: 'smooth', block: 'center' }); t.focus(); } }
     else { resetTestimonyForm(); var n = document.getElementById('testimony-name'); if (n) { n.scrollIntoView({ behavior: 'smooth', block: 'center' }); n.focus(); } }
@@ -747,6 +751,123 @@
       else { status.textContent = res.error || 'Save failed.'; status.style.color = 'var(--sp-red)'; }
     } catch (err) { status.textContent = 'Could not save: ' + err.message; status.style.color = 'var(--sp-red)'; }
     finally { btn.disabled = false; btn.textContent = '💾 Save testimony'; }
+  }
+
+  // ══ OUTREACH MAP (listOutreachLocations / saveOutreachLocation / deleteOutreachLocation) ══
+  var locationsCache = [];
+  var LOC_TYPE_ICON = { country: '🌍', state: '🏳️', city: '📍' };
+
+  function renderMap(host) {
+    host.innerHTML =
+      '<div class="sp-card"><h3 class="sp-card__title">➕ <span id="loc-mode">New</span> location</h3>' +
+        '<p class="sp-card__sub">Add a country, state, or city where Bibles have been sent. Published locations show on the outreach map + count toward "countries reached."</p>' +
+        '<form id="loc-form">' +
+          '<input type="hidden" id="loc-id">' +
+          '<div class="sp-row"><div class="sp-field"><label>Type</label>' +
+            '<select class="sp-input" id="loc-type"><option value="country">🌍 Country</option><option value="state">🏳️ State / region</option><option value="city">📍 City</option></select></div>' +
+            '<div class="sp-field"><label>Sort order</label><input type="number" class="sp-input" id="loc-sort" placeholder="0" step="1"></div></div>' +
+          '<div class="sp-field"><label>Name</label><input class="sp-input" id="loc-name" placeholder="e.g. Pakistan / Texas / Lynnwood"></div>' +
+          '<div class="sp-field"><label>Region / parent <small>(optional — e.g. state for a city, continent for a country)</small></label><input class="sp-input" id="loc-region" placeholder="e.g. Washington, or South America"></div>' +
+          '<div class="sp-field"><label>Country code <small>(2-letter ISO, only for countries — tints the world map, e.g. US, SR, PK)</small></label><input class="sp-input" id="loc-iso2" maxlength="2" placeholder="US" style="text-transform:uppercase;max-width:120px;"></div>' +
+          '<label class="sp-check" style="margin-bottom:0.7rem;"><input type="checkbox" id="loc-pub" checked> Published (visible on the site)</label>' +
+          '<div class="sp-status" id="loc-status"></div>' +
+          '<div style="display:flex;gap:0.5rem;"><button type="submit" class="sp-btn sp-btn--green" style="flex:1;">💾 Save location</button><button type="button" class="sp-btn sp-btn--ghost" id="loc-reset">Clear</button></div>' +
+        '</form></div>' +
+      '<div class="sp-card"><h3 class="sp-card__title">All outreach locations</h3><div id="locations-list"><p class="sp-empty">Loading…</p></div></div>';
+
+    document.getElementById('loc-form').addEventListener('submit', onSaveLocation);
+    document.getElementById('loc-reset').addEventListener('click', resetLocationForm);
+    // Only-for-country hint: dim the ISO field for non-country types.
+    var typeSel = document.getElementById('loc-type');
+    function syncIso() { var iso = document.getElementById('loc-iso2'); if (iso) iso.disabled = (typeSel.value !== 'country'); }
+    typeSel.addEventListener('change', syncIso); syncIso();
+    loadLocations();
+  }
+
+  async function loadLocations() {
+    var list = document.getElementById('locations-list'); if (!list) return;
+    try {
+      var res = await post({ action: 'listOutreachLocations', token: session.token });
+      if (res.ok && res.locations) { locationsCache = res.locations; renderLocationsList(); }
+      else { list.innerHTML = '<p class="sp-err">' + esc(res.error || 'Could not load locations.') + '</p>'; }
+    } catch (e) { list.innerHTML = '<p class="sp-empty">Backend not reachable. Deploy the content handler + run stwLocationsSetup(), then try again.</p>'; }
+  }
+
+  function renderLocationsList() {
+    var list = document.getElementById('locations-list'); if (!list) return;
+    if (!locationsCache.length) { list.innerHTML = '<p class="sp-empty">No locations yet. Add your first above.</p>'; return; }
+    var order = { country: 0, state: 1, city: 2 };
+    var sorted = locationsCache.slice().sort(function (a, b) {
+      var ta = order[String(a.type).toLowerCase()] || 0, tb = order[String(b.type).toLowerCase()] || 0;
+      if (ta !== tb) return ta - tb;
+      return (parseInt(a.sort_order, 10) || 0) - (parseInt(b.sort_order, 10) || 0);
+    });
+    list.innerHTML = sorted.map(function (l) {
+      var idx = locationsCache.indexOf(l);
+      var ico = LOC_TYPE_ICON[String(l.type).toLowerCase()] || '📍';
+      var meta = String(l.type || '') + (l.region ? ' · ' + esc(l.region) : '') + (l.iso2 ? ' · ' + esc(l.iso2) : '');
+      return '<div class="sp-listrow"><div class="sp-listrow__ico">' + ico + '</div><div class="sp-listrow__info">' +
+        '<div class="sp-listrow__title">' + esc(l.name || 'Unnamed') + '</div>' +
+        '<div class="sp-listrow__meta">' + meta + ' ' + statusPill(boolYes(l.published)) + '</div></div>' +
+        '<button class="sp-iconbtn loc-edit" data-idx="' + idx + '" title="Edit">✏️</button>' +
+        '<button class="sp-iconbtn sp-iconbtn--danger loc-del" data-idx="' + idx + '" title="Delete">×</button></div>';
+    }).join('');
+    list.querySelectorAll('.loc-edit').forEach(function (b) { b.addEventListener('click', function () { editLocation(parseInt(this.dataset.idx)); }); });
+    list.querySelectorAll('.loc-del').forEach(function (b) { b.addEventListener('click', function () { deleteLocation(parseInt(this.dataset.idx)); }); });
+  }
+
+  function editLocation(idx) {
+    var l = locationsCache[idx]; if (!l) return;
+    document.getElementById('loc-id').value = l.id || '';
+    document.getElementById('loc-type').value = String(l.type || 'country').toLowerCase();
+    document.getElementById('loc-sort').value = l.sort_order || '';
+    document.getElementById('loc-name').value = l.name || '';
+    document.getElementById('loc-region').value = l.region || '';
+    document.getElementById('loc-iso2').value = l.iso2 || '';
+    document.getElementById('loc-pub').checked = boolYes(l.published);
+    document.getElementById('loc-mode').textContent = 'Edit';
+    var iso = document.getElementById('loc-iso2'); if (iso) iso.disabled = (String(l.type).toLowerCase() !== 'country');
+    document.getElementById('loc-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function resetLocationForm() {
+    var f = document.getElementById('loc-form'); if (!f) return; f.reset();
+    document.getElementById('loc-id').value = '';
+    document.getElementById('loc-mode').textContent = 'New';
+    document.getElementById('loc-status').textContent = '';
+    document.getElementById('loc-pub').checked = true;
+    var iso = document.getElementById('loc-iso2'); if (iso) iso.disabled = false;
+  }
+
+  async function deleteLocation(idx) {
+    var l = locationsCache[idx]; if (!l) return;
+    if (!confirm('Remove "' + (l.name || 'this location') + '" from the outreach map?')) return;
+    try { var res = await post({ action: 'deleteOutreachLocation', token: session.token, id: l.id }); if (res.ok) loadLocations(); else alert(res.error || 'Delete failed.'); }
+    catch (e) { alert('Could not delete: ' + e.message); }
+  }
+
+  async function onSaveLocation(e) {
+    e.preventDefault();
+    var status = document.getElementById('loc-status');
+    var name = document.getElementById('loc-name').value.trim();
+    if (!name) { status.textContent = 'Name is required.'; status.style.color = 'var(--sp-red)'; return; }
+    var location = {
+      id: document.getElementById('loc-id').value.trim(),
+      type: document.getElementById('loc-type').value,
+      name: name,
+      region: document.getElementById('loc-region').value.trim(),
+      iso2: document.getElementById('loc-iso2').value.trim(),
+      sort_order: document.getElementById('loc-sort').value,
+      published: document.getElementById('loc-pub').checked ? 'YES' : 'NO'
+    };
+    var btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true; btn.textContent = 'Saving…'; status.textContent = '';
+    try {
+      var res = await post({ action: 'saveOutreachLocation', token: session.token, location: location });
+      if (res.ok) { status.textContent = '✓ Saved'; status.style.color = 'var(--sp-green-dark)'; resetLocationForm(); loadLocations(); }
+      else { status.textContent = res.error || 'Save failed.'; status.style.color = 'var(--sp-red)'; }
+    } catch (err) { status.textContent = 'Could not save: ' + err.message; status.style.color = 'var(--sp-red)'; }
+    finally { btn.disabled = false; btn.textContent = '💾 Save location'; }
   }
 
   // ── Boot ──

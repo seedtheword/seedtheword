@@ -5,6 +5,8 @@
   "biblesGivenAway": 905,
   "biblesGoal2026": 70000,
   "outreachEvents": 25,
+  "outreachCountries": 3,
+  "_outreachCountriesNote": "Fallback count of countries reached, shown before the live OutreachLocations backend loads. The authoritative list is managed in Content Studio → Outreach Map (getOutreachLocations).",
   "biblesLanguagesMessage": "Available in 2,000+ languages through our Gideon's International partnership",
   "biblesInStock": [
     { "language": "English", "count": 257 },

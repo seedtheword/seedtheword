@@ -87,6 +87,95 @@
     [[-160,-72],[-120,-74],[-60,-72],[0,-70],[60,-70],[120,-72],[160,-72]]
   ];
 
+  // ── Real geographic data (Natural Earth via CDN) ──────────────────────
+  // Loaded at runtime and decoded from TopoJSON with a tiny inline decoder
+  // (no library). Until it arrives (or if it fails), we render the hand-drawn
+  // LAND fallback above so the globe is never blank/broken.
+  var GEO = {
+    countries: null,   // array of polygons; each polygon = array of rings; ring = [[lon,lat],...]
+    admin1: null,      // same shape, for US states (and any future admin-1)
+    loading: false, loaded: false
+  };
+  var GEO_SOURCES = {
+    countries: 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json',
+    admin1: 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json'
+  };
+  var GEO_CACHE_PREFIX = 'stw_geo_';
+  var GEO_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+  // Minimal TopoJSON → array-of-polygons decoder.
+  // Returns [ [ring, ring...], ... ] with ring = [[lon,lat],...] in degrees.
+  function topoToPolygons(topo, objectName) {
+    if (!topo || !topo.objects || !topo.objects[objectName]) return null;
+    var tf = topo.transform, sx = 1, sy = 1, tx = 0, ty = 0;
+    if (tf) { sx = tf.scale[0]; sy = tf.scale[1]; tx = tf.translate[0]; ty = tf.translate[1]; }
+    // Pre-decode every arc into absolute [lon,lat] point lists.
+    var arcs = topo.arcs.map(function (arc) {
+      var x = 0, y = 0, out = [];
+      for (var i = 0; i < arc.length; i++) {
+        x += arc[i][0]; y += arc[i][1];
+        out.push(tf ? [x * sx + tx, y * sy + ty] : [x, y]);
+      }
+      return out;
+    });
+    function ringFor(arcIdxList) {
+      var pts = [];
+      for (var i = 0; i < arcIdxList.length; i++) {
+        var idx = arcIdxList[i], rev = idx < 0, a = arcs[rev ? ~idx : idx];
+        if (!a) continue;
+        var seq = rev ? a.slice().reverse() : a;
+        // Skip the duplicated shared endpoint when chaining arcs.
+        for (var j = (i === 0 ? 0 : 1); j < seq.length; j++) pts.push(seq[j]);
+      }
+      return pts;
+    }
+    var geoms = topo.objects[objectName].geometries || [];
+    var polys = [];
+    geoms.forEach(function (g) {
+      if (g.type === 'Polygon') {
+        polys.push(g.arcs.map(ringFor));
+      } else if (g.type === 'MultiPolygon') {
+        g.arcs.forEach(function (poly) { polys.push(poly.map(ringFor)); });
+      }
+    });
+    return polys;
+  }
+
+  function loadGeoLayer(key, onReady) {
+    // Try cache first.
+    try {
+      var raw = localStorage.getItem(GEO_CACHE_PREFIX + key);
+      if (raw) {
+        var c = JSON.parse(raw);
+        if (c && c.ts && (Date.now() - c.ts) < GEO_TTL && c.topo) {
+          var polys = topoToPolygons(c.topo, key === 'admin1' ? 'states' : 'countries');
+          if (polys && polys.length) { onReady(polys); return; }
+        }
+      }
+    } catch (e) {}
+    // Fetch fresh (best-effort).
+    fetch(GEO_SOURCES[key], { cache: 'force-cache' })
+      .then(function (r) { return r.json(); })
+      .then(function (topo) {
+        var objName = key === 'admin1' ? 'states' : 'countries';
+        var polys = topoToPolygons(topo, objName);
+        if (polys && polys.length) {
+          try { localStorage.setItem(GEO_CACHE_PREFIX + key, JSON.stringify({ ts: Date.now(), topo: topo })); } catch (e) {}
+          onReady(polys);
+        }
+      })
+      .catch(function () { /* stay on fallback */ });
+  }
+
+  function loadGeo() {
+    if (GEO.loading || GEO.loaded) return;
+    GEO.loading = true;
+    // The globe's animation loop (tick) repaints every frame, so simply
+    // populating GEO.countries / GEO.admin1 makes the real borders appear.
+    loadGeoLayer('countries', function (polys) { GEO.countries = polys; GEO.loaded = true; });
+    loadGeoLayer('admin1', function (polys) { GEO.admin1 = polys; });
+  }
+
   function esc(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
 
   function setCounters(n) {
@@ -101,8 +190,9 @@
     var pivot = 18 * Math.PI / 180; // latitude tilt (radians); + tips north up
     var PIVOT_MAX = 78 * Math.PI / 180;
     var zoom = 1;           // 1 = full globe; up to ZOOM_MAX zoomed in
-    var ZOOM_MIN = 1, ZOOM_MAX = 4;
-    var CITY_ZOOM = 1.9;    // above this, city pins appear + country pins shrink
+    var ZOOM_MIN = 1, ZOOM_MAX = 8;
+    var ADMIN1_ZOOM = 2.4;  // above this, US state/province borders fade in
+    var CITY_ZOOM = 3.2;    // above this, city pins appear + country pins shrink
     var dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
     var dragging = false, lastX = 0, lastY = 0, autoRot = true, raf = null;
     var baseR = 0, R = 0, cx = 0, cy = 0;
@@ -178,13 +268,49 @@
       }
       ctx.globalAlpha = 1;
 
-      // Land — filled with a soft vertical gradient + darker coastline.
+      // Land — real country polygons when loaded, else hand-drawn fallback.
       var land = ctx.createLinearGradient(0, cy - R, 0, cy + R);
       land.addColorStop(0, '#4c9a52'); land.addColorStop(1, '#357a3b');
-      for (var i = 0; i < LAND.length; i++) {
-        ctx.beginPath(); drawPath(LAND[i], true);
-        ctx.fillStyle = land; ctx.fill();
-        ctx.strokeStyle = 'rgba(20,50,22,0.6)'; ctx.lineWidth = 0.8; ctx.stroke();
+      // When zoomed out, thin every Nth vertex for speed; full detail when close.
+      var step = zoom < 1.4 ? 3 : (zoom < 3 ? 2 : 1);
+
+      function drawRing(ring, st) {
+        var pen = false;
+        for (var k = 0; k < ring.length; k += st) {
+          var pt = ring[k]; var p = project(pt[0], pt[1]);
+          if (p.visible) { if (!pen) { ctx.moveTo(p.x, p.y); pen = true; } else ctx.lineTo(p.x, p.y); }
+          else pen = false;
+        }
+      }
+
+      if (GEO.countries) {
+        for (var i = 0; i < GEO.countries.length; i++) {
+          var poly = GEO.countries[i];
+          ctx.beginPath();
+          for (var r = 0; r < poly.length; r++) drawRing(poly[r], step);
+          ctx.fillStyle = land; ctx.fill('evenodd');
+          ctx.strokeStyle = 'rgba(18,46,20,0.55)'; ctx.lineWidth = 0.7; ctx.stroke();
+        }
+      } else {
+        for (var f = 0; f < LAND.length; f++) {
+          ctx.beginPath(); drawPath(LAND[f], true);
+          ctx.fillStyle = land; ctx.fill();
+          ctx.strokeStyle = 'rgba(20,50,22,0.6)'; ctx.lineWidth = 0.8; ctx.stroke();
+        }
+      }
+
+      // Admin-1 (state/province) borders fade in as you zoom past the threshold.
+      if (GEO.admin1 && zoom >= ADMIN1_ZOOM) {
+        var a1alpha = Math.min(0.6, (zoom - ADMIN1_ZOOM) / 1.5 * 0.6);
+        ctx.save(); ctx.globalAlpha = a1alpha;
+        ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 0.6;
+        for (var s = 0; s < GEO.admin1.length; s++) {
+          var spoly = GEO.admin1[s];
+          ctx.beginPath();
+          for (var sr = 0; sr < spoly.length; sr++) drawRing(spoly[sr], zoom < 4 ? 2 : 1);
+          ctx.stroke();
+        }
+        ctx.restore();
       }
       ctx.restore(); // unclip
 
@@ -288,6 +414,7 @@
     canvas.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('resize', resize);
 
+    loadGeo(); // kick off real-border data load (best-effort; tick() repaints when ready)
     resize();
     tick();
     return { destroy: function () { if (raf) cancelAnimationFrame(raf); } };
@@ -328,7 +455,7 @@
     var globeBlock =
       '<div class="reach-globe">' +
         '<canvas class="reach-globe__canvas" aria-label="Interactive globe showing where Bibles have been sent"></canvas>' +
-        '<div class="reach-globe__hint">Drag to spin &amp; tilt · scroll / pinch to zoom in for cities 🌍</div>' +
+        '<div class="reach-globe__hint">Drag to spin &amp; tilt · scroll / pinch to zoom — borders &amp; cities reveal as you go 🌍</div>' +
       '</div>';
 
     var counterInline =

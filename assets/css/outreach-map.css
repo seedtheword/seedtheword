@@ -45,7 +45,7 @@
 .reach-globe__canvas {
   display: block; width: 100%; height: 100%; cursor: grab;
   filter: drop-shadow(0 10px 26px rgba(23,58,94,0.35));
-  touch-action: pan-y;
+  touch-action: none; /* allow drag-spin + pinch-zoom without page scroll hijack */
 }
 .reach-globe__canvas:active { cursor: grabbing; }
 .reach-globe__hint {

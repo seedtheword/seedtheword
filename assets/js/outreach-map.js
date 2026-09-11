@@ -42,6 +42,18 @@
     EG: [30, 26], TH: [101, 15], CN: [104, 35], JP: [138, 36], KR: [128, 36]
   };
 
+  // City coordinates [lon, lat] for zoom-in pins (keyed by lowercased name).
+  // Covers the reached WA cities + a few likely future ones; unknown cities are
+  // simply skipped (no pin) until added here.
+  var CITY_LATLON = {
+    'seattle': [-122.33, 47.61], 'bellevue': [-122.20, 47.61], 'lynnwood': [-122.31, 47.82],
+    'everett': [-122.20, 47.98], 'mukilteo': [-122.30, 47.94], 'federal way': [-122.31, 47.32],
+    'tacoma': [-122.44, 47.25], 'redmond': [-122.12, 47.67], 'kirkland': [-122.21, 47.68],
+    'renton': [-122.21, 47.48], 'kent': [-122.23, 47.38], 'shoreline': [-122.34, 47.76],
+    'edmonds': [-122.38, 47.81], 'bothell': [-122.21, 47.76], 'seatac': [-122.31, 47.44],
+    'houston': [-95.37, 29.76], 'dallas': [-96.80, 32.78], 'austin': [-97.74, 30.27], 'paramaribo': [-55.17, 5.87]
+  };
+
   // World coastlines as [lon,lat] polylines — denser outlines for a more
   // recognizable Earth. Decorative (not survey-accurate) but higher detail.
   var LAND = [
@@ -82,25 +94,35 @@
     document.querySelectorAll('.js-countries-word').forEach(function (el) { el.textContent = (n === 1 ? 'Country' : 'Countries'); });
   }
 
-  // ── Globe engine ── spin (lon) + pivot (lat), higher quality.
-  function Globe(canvas, markers) {
+  // ── Globe engine ── spin (lon) + pivot (lat) + zoom (wheel/pinch), quality.
+  function Globe(canvas, markers, cityMarkers) {
     var ctx = canvas.getContext('2d');
     var rot = 0.3;          // longitude rotation (radians)
     var pivot = 18 * Math.PI / 180; // latitude tilt (radians); + tips north up
     var PIVOT_MAX = 78 * Math.PI / 180;
+    var zoom = 1;           // 1 = full globe; up to ZOOM_MAX zoomed in
+    var ZOOM_MIN = 1, ZOOM_MAX = 4;
+    var CITY_ZOOM = 1.9;    // above this, city pins appear + country pins shrink
     var dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
     var dragging = false, lastX = 0, lastY = 0, autoRot = true, raf = null;
-    var R = 0, cx = 0, cy = 0;
+    var baseR = 0, R = 0, cx = 0, cy = 0;
+    var pinchDist = 0;
 
     function resize() {
       var rect = canvas.getBoundingClientRect();
       var size = Math.max(160, Math.min(rect.width, rect.height || rect.width));
       canvas.width = size * dpr; canvas.height = size * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      R = size * 0.42; cx = size / 2; cy = size / 2;
+      baseR = size * 0.42; cx = size / 2; cy = size / 2;
+      R = baseR * zoom;
     }
 
-    // Project lon/lat → screen. Spin around Y, then pivot around X.
+    function setZoom(z) {
+      zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z));
+      R = baseR * zoom;
+    }
+
+    // Project lon/lat → screen. Spin around Y, then pivot around X. Scaled by zoom.
     function project(lon, lat) {
       var la = lat * Math.PI / 180;
       var lo = lon * Math.PI / 180 + rot;
@@ -166,16 +188,40 @@
       }
       ctx.restore(); // unclip
 
-      // Markers (drawn after unclip so halos can extend slightly).
+      var zoomedIn = zoom >= CITY_ZOOM;
+
+      function drawPin(p, r, fill, label) {
+        ctx.beginPath(); ctx.arc(p.x, p.y, r + 4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(224,184,78,0.28)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = fill; ctx.fill();
+        ctx.lineWidth = 1.6; ctx.strokeStyle = '#fff'; ctx.stroke();
+        if (label) {
+          ctx.font = '600 11px "Source Sans 3", system-ui, sans-serif';
+          var w = ctx.measureText(label).width;
+          ctx.fillStyle = 'rgba(0,0,0,0.55)';
+          ctx.fillRect(p.x - w / 2 - 4, p.y - r - 18, w + 8, 14);
+          ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
+          ctx.fillText(label, p.x, p.y - r - 7);
+          ctx.textAlign = 'left';
+        }
+      }
+
+      // Country markers — full size zoomed out; smaller once cities show.
       (markers || []).forEach(function (m) {
         var p = project(m.lon, m.lat);
         if (!p.visible) return;
-        ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(224,184,78,0.30)'; ctx.fill();
-        ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#e8c14f'; ctx.fill();
-        ctx.lineWidth = 1.8; ctx.strokeStyle = '#fff'; ctx.stroke();
+        drawPin(p, zoomedIn ? 3.5 : 5, '#e8c14f', zoomedIn ? '' : (zoom > 1.3 ? m.name : ''));
       });
+
+      // City markers — only appear when zoomed in past the threshold.
+      if (zoomedIn) {
+        (cityMarkers || []).forEach(function (m) {
+          var p = project(m.lon, m.lat);
+          if (!p.visible) return;
+          drawPin(p, 4.5, '#d97736', m.name);
+        });
+      }
 
       // Soft shadow/terminator on the lower-right for depth.
       var sh = ctx.createRadialGradient(cx + R * 0.5, cy + R * 0.55, R * 0.2, cx, cy, R);
@@ -187,24 +233,51 @@
     }
 
     function tick() {
-      if (autoRot && !dragging) rot += 0.0020;
+      // Auto-rotate only when at (near) full-globe view; when zoomed in the
+      // user is inspecting a region, so hold still.
+      if (autoRot && !dragging && zoom < 1.15) rot += 0.0020;
       draw();
       raf = requestAnimationFrame(tick);
     }
 
     function ptXY(e) { return e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY }; }
-    function onDown(e) { dragging = true; autoRot = false; var q = ptXY(e); lastX = q.x; lastY = q.y; }
+    function onDown(e) {
+      // Two-finger touch → start a pinch, not a drag.
+      if (e.touches && e.touches.length === 2) {
+        var dx = e.touches[0].clientX - e.touches[1].clientX;
+        var dy = e.touches[0].clientY - e.touches[1].clientY;
+        pinchDist = Math.sqrt(dx * dx + dy * dy);
+        dragging = false; autoRot = false; return;
+      }
+      dragging = true; autoRot = false; var q = ptXY(e); lastX = q.x; lastY = q.y;
+    }
     function onMove(e) {
+      // Pinch-zoom.
+      if (e.touches && e.touches.length === 2) {
+        var dx = e.touches[0].clientX - e.touches[1].clientX;
+        var dy = e.touches[0].clientY - e.touches[1].clientY;
+        var d = Math.sqrt(dx * dx + dy * dy);
+        if (pinchDist) setZoom(zoom * (d / pinchDist));
+        pinchDist = d;
+        if (e.cancelable) e.preventDefault();
+        return;
+      }
       if (!dragging) return;
       var q = ptXY(e);
-      rot += (q.x - lastX) * 0.008;
-      pivot += (q.y - lastY) * 0.006;
+      rot += (q.x - lastX) * 0.008 / Math.max(1, zoom * 0.7); // finer control when zoomed
+      pivot += (q.y - lastY) * 0.006 / Math.max(1, zoom * 0.7);
       if (pivot > PIVOT_MAX) pivot = PIVOT_MAX;
       if (pivot < -PIVOT_MAX) pivot = -PIVOT_MAX;
       lastX = q.x; lastY = q.y;
       if (e.cancelable) e.preventDefault();
     }
-    function onUp() { dragging = false; setTimeout(function () { autoRot = true; }, 3000); }
+    function onUp() { dragging = false; pinchDist = 0; setTimeout(function () { autoRot = true; }, 3000); }
+    function onWheel(e) {
+      autoRot = false;
+      setZoom(zoom * (e.deltaY < 0 ? 1.12 : 0.89));
+      e.preventDefault();
+      clearTimeout(onWheel._t); onWheel._t = setTimeout(function () { autoRot = true; }, 3000);
+    }
 
     canvas.addEventListener('mousedown', onDown);
     window.addEventListener('mousemove', onMove);
@@ -212,6 +285,7 @@
     canvas.addEventListener('touchstart', onDown, { passive: true });
     canvas.addEventListener('touchmove', onMove, { passive: false });
     canvas.addEventListener('touchend', onUp);
+    canvas.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('resize', resize);
 
     resize();
@@ -224,6 +298,15 @@
   function markersFor(countries) {
     return (countries || []).map(function (c) {
       var ll = COUNTRY_LATLON[String(c.iso2 || '').toUpperCase()];
+      return ll ? { lon: ll[0], lat: ll[1], name: c.name } : null;
+    }).filter(Boolean);
+  }
+
+  // City markers (appear on zoom-in). Geocoded by name via CITY_LATLON; cities
+  // not in the table are skipped until added there.
+  function cityMarkersFor(cities) {
+    return (cities || []).map(function (c) {
+      var ll = CITY_LATLON[String(c.name || '').toLowerCase().trim()];
       return ll ? { lon: ll[0], lat: ll[1], name: c.name } : null;
     }).filter(Boolean);
   }
@@ -245,7 +328,7 @@
     var globeBlock =
       '<div class="reach-globe">' +
         '<canvas class="reach-globe__canvas" aria-label="Interactive globe showing where Bibles have been sent"></canvas>' +
-        '<div class="reach-globe__hint">Drag to spin &amp; tilt 🌍</div>' +
+        '<div class="reach-globe__hint">Drag to spin &amp; tilt · scroll / pinch to zoom in for cities 🌍</div>' +
       '</div>';
 
     var counterInline =
@@ -280,7 +363,7 @@
     var canvas = container.querySelector('.reach-globe__canvas');
     if (canvas) {
       if (globeInstance) { try { globeInstance.destroy(); } catch (e) {} }
-      globeInstance = Globe(canvas, markersFor(countries));
+      globeInstance = Globe(canvas, markersFor(countries), cityMarkersFor(cities));
     }
   }
 

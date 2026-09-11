@@ -37,33 +37,28 @@
   text-transform: uppercase; color: var(--reach-muted); margin-top: 0.35rem;
 }
 
-/* Map */
-.reach-map {
-  position: relative; width: 100%; max-width: 860px; margin: 0 auto 1.75rem;
-  border: 1px solid var(--reach-border); border-radius: 14px; overflow: hidden;
-  background: #f3efe6; box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+/* Spinnable globe */
+.reach-globe {
+  position: relative; width: 100%; max-width: 360px; margin: 0.5rem auto 1rem;
+  aspect-ratio: 1 / 1;
 }
-.reach-map__svg { display: block; width: 100%; height: auto; }
-.reach-map__pin {
-  position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column;
-  align-items: center; z-index: 2;
+.reach-globe__canvas {
+  display: block; width: 100%; height: 100%; cursor: grab;
+  filter: drop-shadow(0 10px 26px rgba(23,58,94,0.35));
+  touch-action: pan-y;
 }
-.reach-map__pin-dot {
-  width: 13px; height: 13px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #e0b84e, var(--reach-gold));
-  border: 2px solid #fff; box-shadow: 0 0 0 3px rgba(184,134,11,0.28), 0 2px 6px rgba(0,0,0,0.25);
-  animation: reachPulse 2.6s ease-in-out infinite;
+.reach-globe__canvas:active { cursor: grabbing; }
+.reach-globe__hint {
+  text-align: center; margin-top: 0.35rem; font-family: var(--reach-mono);
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--reach-muted);
 }
-@keyframes reachPulse {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(184,134,11,0.28), 0 2px 6px rgba(0,0,0,0.25); }
-  50% { box-shadow: 0 0 0 7px rgba(184,134,11,0.10), 0 2px 6px rgba(0,0,0,0.25); }
-}
-@media (prefers-reduced-motion: reduce) { .reach-map__pin-dot { animation: none; } }
-.reach-map__pin-label {
-  margin-top: 3px; font-family: var(--reach-sans); font-size: 0.62rem; font-weight: 700;
-  color: var(--reach-fg); background: rgba(255,255,255,0.85); padding: 1px 5px;
-  border-radius: 4px; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-}
+/* Compact mode: globe + inline counter, tight, fits inside milestone/search areas. */
+.reach--compact { text-align: center; }
+.reach--compact .reach__eyebrow { margin-bottom: 0.4rem; }
+.reach--compact .reach-globe { max-width: 260px; margin: 0.25rem auto 0.5rem; }
+.reach__stat--inline { flex-direction: row; align-items: baseline; justify-content: center; gap: 0.5rem; margin: 0.25rem 0 0; }
+.reach__stat--inline .reach__stat-num { font-size: clamp(1.6rem, 4vw, 2.4rem); }
+.reach__stat--inline .reach__stat-label { margin-top: 0; }
 
 /* Grouped chip lists */
 .reach-lists {
@@ -94,6 +89,16 @@
   background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
   border-radius: 14px; backdrop-filter: blur(6px);
 }
+.mission-promo__text { flex: 1 1 240px; min-width: 220px; }
+.mission-promo__globe { flex: 0 0 auto; width: 130px; }
+.mission-promo__globe .reach { max-width: 130px; }
+.mission-promo__globe .reach__eyebrow { display: none; }
+.mission-promo__globe .reach-globe { max-width: 120px; margin: 0 auto; }
+.mission-promo__globe .reach-globe__hint { color: rgba(255,255,255,0.6); }
+.mission-promo__globe .reach__stat--inline { margin-top: 0.15rem; }
+.mission-promo__globe .reach__stat-num { color: #e0b84e; font-size: 1.4rem; }
+.mission-promo__globe .reach__stat-label { color: rgba(255,255,255,0.7); }
+@media (max-width: 640px) { .mission-promo__globe { width: 100%; } .mission-promo__globe .reach-globe { max-width: 160px; } }
 .mission-promo__eyebrow {
   display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
   font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;

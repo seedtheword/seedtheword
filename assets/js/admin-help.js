@@ -36,6 +36,11 @@
   // falls into 'howto' by default.
   const CATEGORIES = [
     { id: 'overview',       label: '📋 Overview',    match: [/overview/i, /operations schedule/i, /recent changes/i] },
+    // Team-portal guide (the new systems): announcements, activity, DMs/moderation,
+    // permissions, community/prayer. Matched BEFORE how-tos so "Guide:" wins.
+    { id: 'guide',          label: '📖 Portal Guide', match: [/^guide:/i, /announcement/i, /incoming activity/i, /team activity/i, /direct message/i, /\bdms?\b/i, /moderation/i, /permission/i, /prayer wall/i, /community feed/i, /reply on community/i] },
+    { id: 'studio',         label: '✨ Content Studio', match: [/content studio/i, /outreach map/i, /outreach stories/i, /testimon/i, /publish/i, /outreach locations/i] },
+    { id: 'deploy',         label: '🚀 Deploy',      match: [/deploy/i, /apps script/i, /redeploy/i, /new version/i, /backend/i] },
     { id: 'howto',          label: '🧰 How-tos',     match: [/^how to/i, /managing/i, /updating images/i, /add a /i, /images/i, /outreach/i, /bundle/i, /media drop/i, /recommendation/i, /homepage/i, /walking the path/i, /announcing events/i] },
     { id: 'bots',           label: '🤖 Bots',        match: [/telegram bot/i, /telegram bots/i, /auto-post/i] },
     { id: 'troubleshoot',   label: '🧯 Troubleshoot', match: [/troubleshoot/i, /everything is on fire/i, /secrets/i] },

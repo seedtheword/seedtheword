@@ -52,6 +52,11 @@
   text-align: center; margin-top: 0.35rem; font-family: var(--reach-mono);
   font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--reach-muted);
 }
+/* Globe-only mode: just the sphere, host provides labels (news milestone card). */
+.reach--globe-only { text-align: center; }
+.reach--globe-only .reach-globe { max-width: 150px; margin: 0 auto; }
+.reach--globe-only .reach-globe__hint { font-size: 0.55rem; }
+
 /* Compact mode: globe + inline counter, tight, fits inside milestone/search areas. */
 .reach--compact { text-align: center; }
 .reach--compact .reach__eyebrow { margin-bottom: 0.4rem; }

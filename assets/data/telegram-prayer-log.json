@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616591,
-  "lastModified": "2026-09-11T19:55:34Z",
+  "lastUpdateId": 669616598,
+  "lastModified": "2026-09-11T21:10:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1351,6 +1351,16 @@
       "kind": "telegram",
       "text": "Right! Forgetting its the military... They'll come after us LOL",
       "ts": "2026-09-11T19:34:10Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6012,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Scott Where our prayer requests/thanksgiving thread is at",
+      "ts": "2026-09-11T21:06:40Z"
     }
   ]
 }

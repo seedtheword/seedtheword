@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616613,
-  "lastModified": "2026-09-11T21:25:38Z",
+  "lastUpdateId": 669616627,
+  "lastModified": "2026-09-11T21:40:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1361,6 +1361,16 @@
       "kind": "telegram",
       "text": "Scott Where our prayer requests/thanksgiving thread is at",
       "ts": "2026-09-11T21:06:40Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6041,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hey guys, I wanna ask for prayer for safety, I hear police sirens in my area, I also found out that nearby there was a shooting",
+      "ts": "2026-09-11T21:39:18Z"
     }
   ]
 }

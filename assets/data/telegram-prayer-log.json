@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616587,
-  "lastModified": "2026-09-11T19:25:34Z",
+  "lastUpdateId": 669616591,
+  "lastModified": "2026-09-11T19:40:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1321,6 +1321,46 @@
       "kind": "telegram",
       "text": "Very encouraging",
       "ts": "2026-09-11T19:24:16Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6006,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I managed to give away every Gospel track on base, I didn't know if I was allowed but God provided. I have evangelized on base. \n\n#NAVY4JESUS",
+      "ts": "2026-09-11T19:30:37Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6007,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Take pictures and send it here and we could repost or if you would like you could also post it on your own Instagram and we will re-share it",
+      "ts": "2026-09-11T19:31:12Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6008,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Uh, I genuinely don't think I am allowed to take pictures on base, I know its not top secret but, I definitely don't feel comfortable showing the inside of a military base all over social media, so I humbly decline",
+      "ts": "2026-09-11T19:32:48Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6009,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Right! Forgetting its the military... They'll come after us LOL",
+      "ts": "2026-09-11T19:34:10Z"
     }
   ]
 }

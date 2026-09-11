@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616630,
-  "lastModified": "2026-09-11T21:56:15Z",
+  "lastUpdateId": 669616635,
+  "lastModified": "2026-09-11T22:10:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1371,6 +1371,56 @@
       "kind": "telegram",
       "text": "Hey guys, I wanna ask for prayer for safety, I hear police sirens in my area, I also found out that nearby there was a shooting",
       "ts": "2026-09-11T21:39:18Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6045,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Do you live in LA?",
+      "ts": "2026-09-11T22:09:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6046,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Or NY?",
+      "ts": "2026-09-11T22:10:05Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6047,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Or just Seattle",
+      "ts": "2026-09-11T22:10:10Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6048,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "he lives in federal way area",
+      "ts": "2026-09-11T22:10:22Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6049,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "i believe",
+      "ts": "2026-09-11T22:10:26Z"
     }
   ]
 }

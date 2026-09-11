@@ -10,1056 +10,7 @@
   <link rel="stylesheet" href="assets/css/main.css?v=33">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
-  <style>
-    /* ============================================================
-       Admin Help page — v5 (modernized to site design language)
-       Site fonts: Fraunces headings, Inter body, IBM Plex Mono labels,
-       gold accents (#B8860B),
-       warm ivory background (#FAFAF8), rule lines.
-       Navigation: category tabs + an alphabet rail that reveals
-       topics as you hover (or tap on mobile).
-       ============================================================ */
-
-    :root {
-      /* ── Design tokens (aligned to site fonts) ──────────────────
-         Fraunces serif, Inter sans, IBM Plex Mono mono, gold accents, warm
-         ivory background. Palette still targets WCAG AA 4.5:1. */
-      --ah-serif:  'Fraunces', Georgia, serif;
-      --ah-sans:   'Inter', system-ui, sans-serif;
-      --ah-mono:   'IBM Plex Mono', monospace;
-      --ah-ink:    #1A1A1A;           /* body + headings */
-      --ah-ink-2:  #2C2C2C;           /* second-level text */
-      --ah-muted:  #6B6B6B;           /* muted captions */
-      --ah-muted-2:#8A8A8A;           /* softest text */
-      --ah-line:   #E8E4DF;           /* warm borders */
-      --ah-line-2: #F0EDE8;           /* section divider */
-      --ah-paper:  #FFFFFF;           /* card body */
-      --ah-off:    #FAFAF8;           /* ivory surface */
-      --ah-sub:    #F5F3F0;           /* alt-card surface */
-      --ah-accent: #B8860B;           /* gold accent */
-      --ah-accent-strong: #9A7209;    /* dark gold for hover */
-      --ah-accent-soft: #FFF8E8;      /* gold-tinted background */
-      --ah-gold:   #B8860B;
-      --ah-green:  #1a5c1d;           /* retained for howto category */
-      --ah-warn:   #b9540d;
-      --ah-err:    #a6251f;
-    }
-
-    /* The page background uses warm ivory from the editorial system.
-       Once unlocked the shell uses the same warm tones. */
-    body.admin-unlocked {
-      background: var(--ah-off);
-      color: var(--ah-ink);
-      font-family: var(--ah-sans);
-    }
-
-    /* ── Gate ── */
-    .admin-gate {
-      min-height: 80vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem 1rem;
-    }
-    .admin-gate__card {
-      max-width: 440px;
-      width: 100%;
-      padding: 2.75rem 2.25rem;
-      border-radius: 18px;
-      text-align: center;
-      background: #fff;
-      border: 1px solid var(--ah-line);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-    }
-    .admin-gate__icon  { font-size: 2.5rem; margin-bottom: 0.9rem; }
-    .admin-gate__title { font-size: 1.45rem; font-weight: 800; margin: 0 0 0.4rem; color: var(--ah-ink); }
-    .admin-gate__hint  { font-size: 0.95rem; color: var(--ah-muted); margin: 0 0 1.5rem; line-height: 1.6; }
-    .admin-gate__input {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      border: 1.5px solid var(--ah-line);
-      border-radius: 10px;
-      font-size: 1rem;
-      background: #fff;
-      margin-bottom: 0.75rem;
-      font-family: inherit;
-      color: var(--ah-ink);
-    }
-    .admin-gate__input:focus {
-      outline: none;
-      border-color: var(--ah-accent);
-      box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.18);
-    }
-    .admin-gate__error {
-      color: var(--ah-err);
-      font-size: 0.88rem;
-      font-weight: 600;
-      min-height: 1.25rem;
-      margin: 0 0 0.5rem;
-    }
-
-    /* ── Shell ── */
-    .admin-shell {
-      display: none;
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 3rem;
-      font-family: var(--ah-sans);
-    }
-    .admin-shell.visible { display: block; }
-
-    /* ── Sticky top nav: tabs + alphabet rail ── */
-    .admin-nav {
-      position: sticky;
-      top: 0;
-      z-index: 80;
-      background: var(--ah-paper);
-      border: 1px solid var(--ah-line);
-      border-top: 2px solid var(--ah-accent);
-      border-radius: 8px;
-      padding: 1rem 1.25rem 0.25rem;
-      margin-bottom: 1.75rem;
-      box-shadow: 0 1px 2px rgba(26,26,26,0.04);
-    }
-    .admin-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      padding-bottom: 0.65rem;
-      border-bottom: 1px solid var(--ah-line-2);
-    }
-    .admin-tab {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0.6rem 1.1rem 0.6rem 1.6rem;
-      background: #fff;
-      border: 2px solid var(--ah-line);
-      border-radius: 999px;
-      font-size: 0.92rem;
-      font-weight: 800;
-      color: var(--ah-ink);
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.2s ease;
-    }
-    /* Inactive-state category indicator — a small colored dot on the
-       left side so admins can distinguish tabs by color even when none
-       is selected. Hidden when the tab is active (the whole pill fills
-       with the category color instead). */
-    .admin-tab::before {
-      content: '';
-      position: absolute;
-      left: 0.65rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--ah-line);
-    }
-    .admin-tab[data-cat="overview"]::before     { background: #1c4f70; }
-    .admin-tab[data-cat="howto"]::before        { background: var(--ah-accent); }
-    .admin-tab[data-cat="bots"]::before         { background: #5d3a8a; }
-    .admin-tab[data-cat="troubleshoot"]::before { background: #994d32; }
-    .admin-tab[data-cat="editor"]::before       { background: var(--ah-gold, #C29A3A); }
-    .admin-tab.is-active::before { display: none; }
-    .admin-tab.is-active { padding-left: 1.1rem; }
-    .admin-tab:hover {
-      border-color: var(--ah-accent);
-      color: var(--ah-accent);
-      background: var(--ah-accent-soft);
-      transform: translateY(-1px);
-    }
-    .admin-tab.is-active {
-      background: var(--ah-accent);
-      border-color: var(--ah-accent);
-      color: #fff;
-      box-shadow: 0 4px 14px rgba(184, 134, 11, 0.28);
-    }
-    /* Category-specific tab tints so admins can recognize them by color too */
-    .admin-tab[data-cat="overview"].is-active    { background: #1c4f70; border-color: #1c4f70; box-shadow: 0 4px 14px rgba(28, 79, 112, 0.28); }
-    .admin-tab[data-cat="howto"].is-active       { background: var(--ah-accent); border-color: var(--ah-accent); }
-    .admin-tab[data-cat="bots"].is-active        { background: #5d3a8a; border-color: #5d3a8a; box-shadow: 0 4px 14px rgba(93, 58, 138, 0.28); }
-    .admin-tab[data-cat="troubleshoot"].is-active{ background: #994d32; border-color: #994d32; box-shadow: 0 4px 14px rgba(153, 77, 50, 0.28); }
-    .admin-tab[data-cat="editor"]                { background: var(--ah-gold, #C29A3A); border-color: var(--ah-gold, #C29A3A); color: #2b1d05; }
-    .admin-tab[data-cat="editor"]:hover          { background: #d5ad48; border-color: #d5ad48; color: #2b1d05; }
-    .admin-tab__count {
-      font-size: 0.72rem;
-      opacity: 0.85;
-      font-weight: 700;
-      padding: 0.1rem 0.45rem;
-      background: rgba(0, 0, 0, 0.08);
-      border-radius: 999px;
-      line-height: 1.4;
-    }
-    .admin-tab.is-active .admin-tab__count { background: rgba(255, 255, 255, 0.2); }
-
-    .admin-search {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      position: relative;
-      padding: 0.85rem 0 0.6rem;
-    }
-    .admin-search__icon {
-      position: absolute;
-      left: 0.85rem;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1rem;
-      pointer-events: none;
-      color: var(--ah-muted);
-    }
-    .admin-search__input {
-      flex: 1;
-      padding: 0.7rem 2.75rem 0.7rem 2.4rem;
-      border: 1.5px solid var(--ah-line);
-      border-radius: 10px;
-      font-size: 0.98rem;
-      background: #fff;
-      color: var(--ah-ink);
-      font-family: inherit;
-    }
-    .admin-search__input:focus {
-      outline: none;
-      border-color: var(--ah-accent);
-      box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.18);
-    }
-    .admin-search__clear {
-      position: absolute;
-      right: 0.55rem;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: 0;
-      padding: 0.25rem 0.55rem;
-      font-size: 1.2rem;
-      color: var(--ah-muted);
-      cursor: pointer;
-      border-radius: 6px;
-      display: none;
-      line-height: 1;
-    }
-    .admin-search__clear:hover { color: var(--ah-ink); background: var(--ah-off); }
-    .admin-search__meta {
-      font-size: 0.82rem;
-      color: var(--ah-muted);
-      margin: 0.3rem 0 0.5rem;
-      min-height: 1.1rem;
-      font-weight: 600;
-    }
-    .admin-search__meta.is-no-results { color: var(--ah-warn); }
-
-    /* ── Autocomplete dropdown ── */
-    .admin-search { position: relative; }
-    .admin-search__suggestions {
-      position: absolute;
-      top: calc(100% + 4px);
-      left: 0;
-      right: 0;
-      z-index: 90;
-      max-height: 420px;
-      overflow-y: auto;
-      background: #fff;
-      border: 1px solid var(--ah-line);
-      border-radius: 12px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
-      margin: 0;
-      padding: 0.35rem;
-      list-style: none;
-    }
-    .admin-search__suggestion {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      padding: 0.7rem 0.9rem;
-      border-radius: 8px;
-      cursor: pointer;
-      color: var(--ah-ink);
-      line-height: 1.35;
-      font-size: 0.95rem;
-    }
-    .admin-search__suggestion:hover,
-    .admin-search__suggestion.is-active {
-      background: var(--ah-accent);
-      color: #fff;
-    }
-    .admin-search__suggestion:hover .admin-search__suggestion-cat,
-    .admin-search__suggestion.is-active .admin-search__suggestion-cat {
-      background: rgba(255, 255, 255, 0.25);
-      color: #fff;
-    }
-    .admin-search__suggestion-cat {
-      font-family: var(--ah-mono);
-      font-size: 0.65rem;
-      font-weight: 500;
-      padding: 0.18rem 0.55rem;
-      background: var(--ah-accent-soft);
-      color: var(--ah-accent);
-      border-radius: 999px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      flex-shrink: 0;
-    }
-    .admin-search__suggestion-title {
-      flex: 1;
-      font-weight: 700;
-      color: inherit;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .admin-search__suggestions-empty {
-      padding: 0.9rem 1rem;
-      color: var(--ah-muted);
-      font-size: 0.9rem;
-    }
-
-    /* ── Alphabet rail ── */
-    .admin-alpha {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.2rem;
-      padding: 0.5rem 0 0.6rem;
-    }
-    .admin-alpha__letter {
-      position: relative;
-      min-width: 1.85rem;
-      height: 1.85rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.88rem;
-      font-weight: 800;
-      color: var(--ah-ink);
-      background: var(--ah-off);
-      border: 1px solid transparent;
-      border-radius: 6px;
-      cursor: pointer;
-      user-select: none;
-      font-family: inherit;
-      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-    }
-    .admin-alpha__letter:hover,
-    .admin-alpha__letter:focus,
-    .admin-alpha__letter.is-open {
-      background: var(--ah-ink);
-      color: #fff;
-      border: 1px solid var(--ah-ink);
-      outline: none;
-    }
-    .admin-alpha__letter:not(.is-empty) {
-      background: var(--ah-accent);
-      border: 1px solid var(--ah-accent);
-      color: #fff;
-    }    .admin-alpha__letter.is-empty {
-      color: #9a9a9a;
-      background: transparent;
-      border: 1px solid var(--ah-line);
-      cursor: default;
-      opacity: 0.9;
-    }
-    .admin-alpha__letter.is-empty:hover { background: transparent; color: #9a9a9a; border-color: var(--ah-line); }
-
-    /* Popup shown when a letter is hovered/opened */
-    .admin-alpha__popup {
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      z-index: 90;
-      min-width: 240px;
-      max-width: 320px;
-      padding: 0.4rem;
-      background: #fff;
-      border: 1px solid var(--ah-line);
-      border-radius: 12px;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.12);
-      display: none;
-      flex-direction: column;
-      gap: 0.1rem;
-    }
-    .admin-alpha__letter.is-open .admin-alpha__popup { display: flex; }
-    .admin-alpha__popup-link {
-      display: block;
-      padding: 0.55rem 0.75rem;
-      border-radius: 7px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--ah-ink);
-      text-decoration: none;
-      line-height: 1.35;
-    }
-    .admin-alpha__popup-link:hover,
-    .admin-alpha__popup-link:focus {
-      background: var(--ah-accent-soft);
-      color: var(--ah-accent);
-      outline: none;
-    }
-    @media (max-width: 640px) {
-      .admin-alpha__popup {
-        left: 0;
-        right: 0;
-        max-width: none;
-      }
-    }
-
-    /* ── Content ── */
-    .admin-content {
-      display: none;
-      background: var(--ah-paper);
-      border: 1px solid var(--ah-line);
-      border-radius: 8px;
-      padding: 2.5rem 2.25rem 2.25rem;
-      box-shadow: 0 1px 2px rgba(26,26,26,0.04);
-    }
-    .admin-content.visible { display: block; }
-
-    .admin-content h1 {
-      font-family: var(--ah-serif);
-      font-size: 2rem;
-      font-weight: 400;
-      letter-spacing: -0.01em;
-      margin: 0 0 0.3rem;
-      color: var(--ah-ink);
-    }
-    .admin-content .admin-subtitle {
-      color: var(--ah-muted);
-      margin: 0 0 1.75rem;
-      font-size: 1rem;
-      line-height: 1.55;
-      font-family: var(--ah-sans);
-    }
-
-    .admin-content h2 {
-      font-family: var(--ah-serif);
-      font-size: 1.45rem;
-      font-weight: 400;
-      letter-spacing: -0.01em;
-      margin: 3rem 0 1rem;
-      padding: 0 0 0.5rem;
-      border-bottom: 2px solid var(--ah-accent);
-      color: var(--ah-ink);
-      scroll-margin-top: 160px;
-    }
-    .admin-content h3 {
-      font-family: var(--ah-sans);
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin: 1.75rem 0 0.55rem;
-      color: var(--ah-ink);
-    }
-    .admin-content p,
-    .admin-content li {
-      font-family: var(--ah-sans);
-      font-size: 1rem;
-      line-height: 1.75;
-      color: var(--ah-ink-2);
-    }
-    .admin-content ul,
-    .admin-content ol {
-      padding-left: 1.5rem;
-      margin: 0.5rem 0 1.25rem;
-    }
-    .admin-content li { margin-bottom: 0.4rem; }
-    .admin-content strong { color: var(--ah-ink); font-weight: 700; }
-    .admin-content em { color: var(--ah-ink); }
-    .admin-content code {
-      background: var(--ah-off);
-      padding: 0.15rem 0.45rem;
-      border-radius: 5px;
-      font-size: 0.88em;
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      color: var(--ah-ink);
-      border: 1px solid var(--ah-line-2);
-    }
-    .admin-content pre {
-      background: #0a0a0a;
-      color: #ffffff;
-      padding: 1.15rem 1.3rem;
-      border-radius: 10px;
-      overflow-x: auto;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      margin: 1rem 0 1.5rem;
-    }
-    .admin-content pre code {
-      background: none;
-      color: inherit;
-      padding: 0;
-      border: 0;
-    }
-    .admin-content a {
-      color: var(--ah-accent);
-      text-decoration: underline;
-      text-underline-offset: 2px;
-      font-weight: 600;
-    }
-    .admin-content a:hover { color: var(--ah-accent-strong); }
-
-    /* Info cards */
-    .admin-card {
-      background: var(--ah-off);
-      border: 1px solid var(--ah-line);
-      border-radius: 8px;
-      padding: 1.2rem 1.5rem;
-      margin: 1rem 0 1.25rem;
-    }
-    .admin-card__label {
-      font-family: var(--ah-mono);
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--ah-muted);
-      margin: 0 0 0.3rem;
-      font-weight: 500;
-    }
-    .admin-card__title {
-      font-family: var(--ah-serif);
-      font-size: 1.05rem;
-      font-weight: 400;
-      margin: 0 0 0.5rem;
-      color: var(--ah-ink);
-    }
-    .admin-card p { margin: 0.3rem 0; }
-
-    /* Callouts */
-    .admin-content .warning {
-      background: #fff8ea;
-      border-left: 5px solid var(--ah-warn);
-      padding: 0.9rem 1.2rem;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      margin: 1rem 0 1.5rem;
-      color: #5a3913;
-    }
-    .admin-content .danger {
-      background: #fff0ef;
-      border-left: 5px solid var(--ah-err);
-      padding: 0.9rem 1.2rem;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      margin: 1rem 0 1.5rem;
-      color: #6b1a16;
-    }
-    /* Search hit highlight */
-    .admin-content mark.admin-search-hit {
-      background: #ffe168;
-      color: inherit;
-      padding: 0 3px;
-      border-radius: 3px;
-    }
-    /* Brief flash when the user jumps to a section via autocomplete
-       or alphabet rail, so they see where they landed. */
-    .admin-jump-flash {
-      animation: admin-jump-flash 1.4s ease-out;
-    }
-    @keyframes admin-jump-flash {
-      0%   { background: rgba(184, 134, 11, 0.18); border-radius: 8px; }
-      100% { background: transparent; border-radius: 8px; }
-    }
-
-    /* Visibility helpers driven by the script */
-    .admin-content [data-hidden="true"] { display: none !important; }
-    .admin-content.is-hidden-behind-editor { display: none !important; }
-    .admin-editor-shell { margin-top: 1.25rem; }
-
-    /* Section headings get a colored left-border by category so admins
-       can scan and recognize sections by color as they scroll. */
-    .admin-content > h2 {
-      border-left: 4px solid var(--ah-accent);
-      padding-left: 1rem;
-      margin-top: 2.5rem;
-      background: var(--ah-sub);
-      padding-top: 0.7rem;
-      padding-bottom: 0.7rem;
-      padding-right: 1rem;
-      border-radius: 0 8px 8px 0;
-    }
-    .admin-content > h2[data-category="overview"]     { border-left-color: #1c4f70; }
-    .admin-content > h2[data-category="howto"]        { border-left-color: var(--ah-accent); }
-    .admin-content > h2[data-category="bots"]         { border-left-color: #5d3a8a; }
-    .admin-content > h2[data-category="troubleshoot"] { border-left-color: #994d32; }
-
-    /* Logout */
-    .admin-logout {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--ah-line);
-      text-align: center;
-      font-size: 0.9rem;
-      color: var(--ah-muted);
-    }
-    .admin-logout button {
-      margin-left: 0.5rem;
-      background: #fff;
-      border: 1.5px solid var(--ah-line);
-      padding: 0.45rem 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--ah-ink);
-      font-family: inherit;
-    }
-    .admin-logout button:hover {
-      border-color: var(--ah-ink);
-    }
-
-    /* Flowcharts */
-    .admin-flowchart {
-      margin: 1.25rem 0 1.75rem;
-      padding: 1.25rem 1.5rem;
-      background: #fff;
-      border: 1px solid var(--ah-line);
-      border-radius: 12px;
-      overflow-x: auto;
-    }
-    .admin-flowchart__label {
-      font-family: var(--ah-mono);
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--ah-muted);
-      margin: 0 0 0.5rem;
-    }
-    .admin-flowchart__title {
-      font-size: 1rem;
-      font-weight: 800;
-      color: var(--ah-ink);
-      margin: 0 0 0.85rem;
-    }
-    .admin-flowchart .mermaid {
-      background: transparent;
-      text-align: center;
-      font-size: 0.9rem;
-    }
-    .admin-flowchart .mermaid svg { max-width: 100%; height: auto; }
-    .admin-flowchart .mermaid:not([data-processed="true"]) {
-      /* While Mermaid loads, HIDE the raw graph source so it doesn't
-         flash as unreadable text. A thin skeleton line stands in. */
-      position: relative;
-      min-height: 48px;
-      color: transparent;
-      background: linear-gradient(90deg, var(--ah-off) 0%, #f0f0f0 50%, var(--ah-off) 100%);
-      background-size: 200% 100%;
-      animation: ah-skeleton 1.2s linear infinite;
-      border-radius: 8px;
-      overflow: hidden;
-      white-space: pre;
-    }
-    @keyframes ah-skeleton {
-      0%   { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    /* Visual stepper — plain-English process cards */
-    .admin-stepper {
-      margin: 1.25rem 0 1.75rem;
-    }
-    .admin-stepper__label {
-      font-family: var(--ah-mono);
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--ah-muted);
-      margin: 0 0 0.4rem;
-    }
-    .admin-stepper__title {
-      font-family: var(--ah-serif);
-      font-size: 1.05rem;
-      font-weight: 400;
-      color: var(--ah-ink);
-      margin: 0 0 1rem;
-    }
-    .admin-stepper__steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      align-items: stretch;
-    }
-    .admin-step {
-      position: relative;
-      background: #fff;
-      border: 1.5px solid var(--ah-line);
-      border-radius: 14px;
-      padding: 1.25rem 1.15rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-    .admin-step__num {
-      position: absolute;
-      top: -12px;
-      left: 1.15rem;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: var(--ah-accent);
-      color: #fff;
-      font-size: 0.8rem;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .admin-step__icon {
-      font-size: 1.8rem;
-      line-height: 1;
-      margin-top: 0.3rem;
-    }
-    .admin-step__title {
-      font-size: 0.98rem;
-      font-weight: 800;
-      color: var(--ah-ink);
-      margin: 0.15rem 0 0;
-    }
-    .admin-step__body {
-      font-size: 0.88rem;
-      line-height: 1.55;
-      color: var(--ah-ink-2);
-      margin: 0;
-    }
-    @media (min-width: 720px) {
-      .admin-step:not(:last-child)::after {
-        content: '›';
-        position: absolute;
-        right: -0.85rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 1.7rem;
-        font-weight: 900;
-        color: var(--ah-line);
-        pointer-events: none;
-        z-index: 1;
-      }
-    }
-    .admin-step--highlight { background: var(--ah-accent-soft); border-color: var(--ah-accent); }
-    .admin-step--warn      { background: #fff8ea; border-color: var(--ah-warn); }
-    .admin-step--done      { background: #0a0a0a; border-color: #0a0a0a; }
-    .admin-step--done .admin-step__title,
-    .admin-step--done .admin-step__body { color: #fff; }
-    .admin-step--done .admin-step__num  { background: #fff; color: #0a0a0a; }
-
-    .admin-branches {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 0.55rem;
-      margin-top: 0.75rem;
-    }
-    .admin-branch {
-      padding: 0.7rem 0.95rem;
-      border-radius: 10px;
-      background: var(--ah-off);
-      border: 1px solid var(--ah-line);
-    }
-    .admin-branch__label {
-      font-family: var(--ah-mono);
-      font-size: 0.65rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--ah-accent);
-      margin: 0 0 0.25rem;
-    }
-    .admin-branch__body {
-      font-size: 0.86rem;
-      line-height: 1.5;
-      color: var(--ah-ink-2);
-      margin: 0;
-    }
-
-    /* Recommendations builder tool */
-    .reco-builder {
-      margin: 1.25rem 0 1.75rem;
-      padding: 1.5rem 1.75rem;
-      background: #fff;
-      border: 1.5px solid var(--ah-ink);
-      border-radius: 14px;
-    }
-    .reco-builder__label {
-      font-family: var(--ah-mono);
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--ah-accent);
-      margin: 0 0 0.4rem;
-    }
-    .reco-builder__title {
-      font-family: var(--ah-serif);
-      font-size: 1.25rem;
-      font-weight: 400;
-      color: var(--ah-ink);
-      margin: 0 0 0.55rem;
-    }
-    .reco-builder__blurb {
-      font-size: 0.95rem;
-      color: var(--ah-ink-2);
-      line-height: 1.65;
-      margin: 0 0 1.1rem;
-    }
-    .reco-builder__tabs {
-      display: flex;
-      gap: 0.4rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-    .reco-builder__tab {
-      padding: 0.5rem 0.95rem;
-      background: #fff;
-      border: 1.5px solid var(--ah-line);
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--ah-ink);
-      cursor: pointer;
-      font-family: inherit;
-      transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
-    }
-    .reco-builder__tab:hover { border-color: var(--ah-ink); }
-    .reco-builder__tab.is-active {
-      background: var(--ah-ink);
-      color: #fff;
-      border-color: var(--ah-ink);
-    }
-    .reco-builder__grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.85rem;
-      margin-bottom: 0.75rem;
-    }
-    .reco-builder__field { display: flex; flex-direction: column; gap: 0.3rem; }
-    .reco-builder__field--full { grid-column: 1 / -1; }
-    .reco-builder__field label {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--ah-ink);
-    }
-    .reco-builder__field input,
-    .reco-builder__field select,
-    .reco-builder__field textarea {
-      padding: 0.55rem 0.8rem;
-      border: 1.5px solid var(--ah-line);
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-family: inherit;
-      background: #fff;
-      color: var(--ah-ink);
-    }
-    .reco-builder__field textarea { resize: vertical; min-height: 3rem; }
-    .reco-builder__field input:focus,
-    .reco-builder__field select:focus,
-    .reco-builder__field textarea:focus {
-      outline: none;
-      border-color: var(--ah-accent);
-      box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.15);
-    }
-    .reco-builder__field .hint {
-      font-size: 0.78rem;
-      color: var(--ah-muted);
-      line-height: 1.45;
-    }
-    .reco-builder__output {
-      margin-top: 0.85rem;
-      background: #0a0a0a;
-      color: #ffffff;
-      padding: 1.1rem 1.25rem;
-      border-radius: 10px;
-      font-family: 'SFMono-Regular', Consolas, monospace;
-      font-size: 0.86rem;
-      line-height: 1.6;
-      white-space: pre;
-      overflow-x: auto;
-      max-height: 280px;
-      overflow-y: auto;
-    }
-    .reco-builder__actions {
-      display: flex;
-      gap: 0.55rem;
-      margin-top: 0.85rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .reco-builder__btn {
-      padding: 0.6rem 1.1rem;
-      border: 0;
-      border-radius: 10px;
-      font-size: 0.92rem;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .reco-builder__btn--primary {
-      background: var(--ah-accent);
-      color: #fff;
-    }
-    .reco-builder__btn--primary:hover { background: var(--ah-accent-strong); }
-    .reco-builder__btn--secondary {
-      background: #fff;
-      border: 1.5px solid var(--ah-line);
-      color: var(--ah-ink);
-    }
-    .reco-builder__btn--secondary:hover { border-color: var(--ah-ink); }
-    .reco-builder__status {
-      font-size: 0.86rem;
-      color: var(--ah-accent);
-      font-weight: 700;
-      min-width: 140px;
-    }
-    .reco-builder__destination {
-      font-size: 0.86rem;
-      color: var(--ah-ink-2);
-      margin: 0.65rem 0 0;
-      line-height: 1.6;
-    }
-    .reco-builder__preview {
-      margin-top: 0.85rem;
-      padding: 1rem 1.2rem;
-      background: #fff;
-      border: 1.5px dashed var(--ah-accent);
-      border-radius: 10px;
-    }
-    .reco-builder__preview-label {
-      font-size: 0.74rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--ah-accent);
-      margin: 0 0 0.55rem;
-    }
-    .reco-builder__preview-body { min-height: 1.25rem; }
-    .reco-builder__preview-body .reco-empty {
-      padding: 0.9rem;
-      text-align: center;
-      font-size: 0.9rem;
-      color: var(--ah-muted);
-      background: var(--ah-off);
-      border-radius: 8px;
-      font-style: italic;
-    }
-
-    /* ── Field tools quick-access strip ── */
-    .admin-field-tools {
-      display: flex;
-      gap: 0.75rem;
-      margin-bottom: 1.25rem;
-      flex-wrap: wrap;
-    }
-    .admin-field-tools__link {
-      flex: 1;
-      min-width: 200px;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.85rem 1.1rem;
-      background: var(--ah-paper);
-      border: 1px solid var(--ah-line);
-      border-top: 2px solid var(--ah-accent);
-      border-radius: 8px;
-      text-decoration: none;
-      color: var(--ah-ink);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .admin-field-tools__link:hover {
-      border-color: var(--ah-accent);
-      box-shadow: 0 2px 8px rgba(184, 134, 11, 0.12);
-    }
-    .admin-field-tools__icon { font-size: 1.5rem; flex-shrink: 0; }
-    .admin-field-tools__text { flex: 1; }
-    .admin-field-tools__text strong {
-      display: block;
-      font-family: var(--ah-sans);
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: var(--ah-ink);
-    }
-    .admin-field-tools__text small {
-      font-family: var(--ah-mono);
-      font-size: 0.72rem;
-      color: var(--ah-muted);
-      letter-spacing: 0.02em;
-    }
-    .admin-field-tools__arrow {
-      font-size: 1.1rem;
-      color: var(--ah-accent);
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    @media (max-width: 640px) {
-      .admin-shell { padding: 1rem 0.85rem 2rem; }
-      .admin-content { padding: 1.75rem 1.25rem 1.5rem; border-radius: 14px; }
-      .admin-nav { padding: 0.85rem 0.85rem 0.25rem; border-radius: 14px; }
-      .admin-content h1 { font-size: 1.55rem; }
-      .admin-content h2 { font-size: 1.2rem; }
-      .reco-builder__grid { grid-template-columns: 1fr; }
-    }
-
-    /* Repeatable groups (partner builder only — socials, photos, videos, contributions)
-       Spec: .kiro/specs/partner-ministries-rich-profiles/ §6.1 */
-    .reco-builder__repeatables { display: flex; flex-direction: column; gap: 0.85rem; margin-top: 1rem; }
-    .reco-builder__repeatable {
-      padding: 0.75rem;
-      border: 1px dashed var(--ah-line);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.5);
-    }
-    .reco-builder__repeatable-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-    .reco-builder__repeatable-header h5 {
-      margin: 0;
-      font-size: 0.92rem;
-      font-weight: 800;
-      color: var(--ah-ink);
-    }
-    .reco-builder__repeatable-rows { display: flex; flex-direction: column; }
-    .reco-builder__repeatable-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) auto;
-      gap: 0.5rem;
-      align-items: end;
-      padding: 0.5rem 0;
-      border-top: 1px solid var(--ah-line);
-    }
-    .reco-builder__repeatable-row:first-child { border-top: 0; }
-    .reco-builder__repeatable-field { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.82rem; }
-    .reco-builder__repeatable-field span {
-      font-size: 0.76rem;
-      font-weight: 700;
-      color: var(--ah-ink);
-    }
-    .reco-builder__repeatable-field input,
-    .reco-builder__repeatable-field select {
-      padding: 0.45rem 0.65rem;
-      border: 1.5px solid var(--ah-line);
-      border-radius: 6px;
-      font: inherit;
-      color: var(--ah-ink);
-      background: #fff;
-    }
-    .reco-builder__repeatable-add,
-    .reco-builder__repeatable-remove {
-      font: inherit;
-      cursor: pointer;
-      padding: 0.35rem 0.7rem;
-      border-radius: 6px;
-      border: 1px solid var(--ah-line);
-      background: rgba(255,255,255,0.85);
-      color: var(--ah-ink);
-    }
-    .reco-builder__repeatable-add:hover { background: var(--ah-ink); color: #fff; }
-    .reco-builder__repeatable-remove { color: #c0392b; border-color: rgba(192, 57, 43, 0.3); }
-    .reco-builder__repeatable-remove:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
-  </style>
+  <link rel="stylesheet" href="assets/css/admin-help.css?v=1">
 </head>
 <body>
 
@@ -1116,107 +67,119 @@
 </section>
 
 <!-- Shell: top nav (tabs + search + alphabet) above content -->
+<!-- Mobile drawer backdrop (only visible < 900px when the drawer is open) -->
+<div class="admin-sidebar__backdrop" id="admin-sidebar-backdrop"></div>
+
 <div class="admin-shell" id="admin-shell">
 
-  <nav class="admin-nav" aria-label="Admin help navigation">
-    <div class="admin-tabs" id="admin-tabs" role="tablist">
-      <!-- Populated by assets/js/admin-help.js after sections load -->
+  <!-- ── Sidebar: search + grouped section nav + editor launch ── -->
+  <aside class="admin-sidebar" id="admin-sidebar" aria-label="Admin help navigation">
+    <div class="admin-sidebar__head">
+      <p class="admin-sidebar__brand"><span>📖</span> Admin Guide</p>
+      <div class="admin-search" id="admin-search-wrap">
+        <span class="admin-search__icon" aria-hidden="true">🔍</span>
+        <input
+          id="admin-search-input"
+          class="admin-search__input"
+          type="search"
+          placeholder="Search every topic…"
+          aria-label="Search admin help"
+          aria-expanded="false"
+          aria-controls="admin-search-suggestions"
+          aria-autocomplete="list"
+          autocomplete="off"
+          spellcheck="false">
+        <button class="admin-search__clear" id="admin-search-clear" type="button" aria-label="Clear search">&times;</button>
+        <ul class="admin-search__suggestions"
+            id="admin-search-suggestions"
+            role="listbox"
+            aria-label="Matching sections"
+            hidden></ul>
+      </div>
+      <p class="admin-search__meta" id="admin-search-meta" role="status" aria-live="polite"></p>
     </div>
 
-    <div class="admin-search" id="admin-search-wrap">
-      <span class="admin-search__icon" aria-hidden="true">🔍</span>
-      <input
-        id="admin-search-input"
-        class="admin-search__input"
-        type="search"
-        placeholder="Search help topics — type a keyword like 'calendar', 'telegram', 'image'…"
-        aria-label="Search admin help"
-        aria-expanded="false"
-        aria-controls="admin-search-suggestions"
-        aria-autocomplete="list"
-        autocomplete="off"
-        spellcheck="false">
-      <button class="admin-search__clear" id="admin-search-clear" type="button" aria-label="Clear search">&times;</button>
-      <!-- Autocomplete dropdown populated by admin-help.js as the user types.
-           Hidden unless the input has focus AND we have a non-empty query. -->
-      <ul class="admin-search__suggestions"
-          id="admin-search-suggestions"
-          role="listbox"
-          aria-label="Matching sections"
-          hidden></ul>
+    <!-- Grouped, collapsible section nav — built by admin-help.js -->
+    <nav class="admin-sidebar__nav" id="admin-sidebar-nav" aria-label="Sections"></nav>
+
+    <div class="admin-sidebar__foot">
+      <button type="button" class="admin-sidebar__editor-btn" id="admin-editor-btn"
+              title="Commit content changes directly from the browser">
+        ✏️ Open the Editor
+      </button>
     </div>
-    <p class="admin-search__meta" id="admin-search-meta" role="status" aria-live="polite"></p>
+  </aside>
 
-    <div class="admin-alpha" id="admin-alpha" role="toolbar" aria-label="Jump by starting letter">
-      <!-- Populated by the script; hover or tap a letter to see topics -->
+  <!-- ── Main column ── -->
+  <div class="admin-main">
+
+    <button type="button" class="admin-drawer-toggle" id="admin-drawer-toggle" aria-controls="admin-sidebar">
+      <span class="admin-drawer-toggle__icon">☰</span> Browse all topics
+    </button>
+
+    <!-- Browser admin editor (mounted on demand from the sidebar button) -->
+    <section id="admin-editor-shell" class="admin-editor-shell" hidden aria-hidden="true">
+      <div id="admin-editor-root"></div>
+    </section>
+
+    <!-- Content (hidden until unlocked, shell unhides on unlock too) -->
+    <main class="admin-content" id="admin-content">
+
+    <!-- Start-here hero -->
+    <div class="admin-hero">
+      <p class="admin-hero__eyebrow">Seed the Word · Admin Guide</p>
+      <h1 class="admin-hero__title">Everything you need to run the site</h1>
+      <p class="admin-hero__blurb">Browse by topic in the sidebar, or search to jump straight to an answer. Every guide is written in plain English — no code needed. New to this? Start with the quick-routing card just below.</p>
+      <div class="admin-hero__actions">
+        <a href="team.html" class="admin-hero__btn admin-hero__btn--solid">📊 Team Portal</a>
+        <a href="admin/dashboard.html" class="admin-hero__btn">✨ Content Studio</a>
+        <a href="presentation.html" target="_blank" rel="noopener" class="admin-hero__btn">📊 Church presentation deck</a>
+      </div>
     </div>
-  </nav>
 
-  <!-- Quick-access field tools (field-logger integration) -->
-  <div id="admin-field-tools" class="admin-field-tools" hidden>
-    <a href="team.html" class="admin-field-tools__link">
-      <span class="admin-field-tools__icon">📊</span>
-      <span class="admin-field-tools__text">
-        <strong>Team Portal — Dashboard</strong>
-        <small>Live stats, scan QR, log inventory</small>
-      </span>
-      <span class="admin-field-tools__arrow">→</span>
-    </a>
-    <a href="team.html" class="admin-field-tools__link">
-      <span class="admin-field-tools__icon">💰</span>
-      <span class="admin-field-tools__text">
-        <strong>Finance</strong>
-        <small>Log expenses, receipts &amp; reports</small>
-      </span>
-      <span class="admin-field-tools__arrow">→</span>
-    </a>
-    <a href="admin/dashboard.html" class="admin-field-tools__link">
-      <span class="admin-field-tools__icon">✨</span>
-      <span class="admin-field-tools__text">
-        <strong>Content Studio <em style="font-style:normal;opacity:0.6;font-size:0.85em;">(super-admin)</em></strong>
-        <small>Stories, testimonies, stats, inventory, members</small>
-      </span>
-      <span class="admin-field-tools__arrow">→</span>
-    </a>
-    <a href="team.html" class="admin-field-tools__link">
-      <span class="admin-field-tools__icon">💬</span>
-      <span class="admin-field-tools__text">
-        <strong>Team Chat</strong>
-        <small>Announcements, DMs &amp; forum</small>
-      </span>
-      <span class="admin-field-tools__arrow">→</span>
-    </a>
-  </div>
+    <!-- Search results count note (shown only while searching) -->
+    <p class="admin-content__searchnote" id="admin-content-searchnote"></p>
 
-  <!-- Browser admin editor (Phase A — recommendations only).
-       Mounted on demand by assets/js/admin-help.js when the admin clicks
-       the "✏️ Editor" tab. Hidden by default. -->
-  <section id="admin-editor-shell" class="admin-editor-shell" hidden aria-hidden="true">
-    <div id="admin-editor-root"></div>
-  </section>
-
-  <!-- Content (hidden until unlocked, shell unhides on unlock too) -->
-  <main class="admin-content" id="admin-content">
-  <h1>Admin Help &amp; FAQ</h1>
-  <p class="admin-subtitle">Everything admins need to keep the site running. Use the tabs to filter by category, the alphabet rail to jump by starting letter, or the search box to find a topic.</p>
+    <!-- Quick-access field tools (field-logger integration) -->
+    <div id="admin-field-tools" class="admin-field-tools" hidden>
+      <a href="team.html" class="admin-field-tools__link">
+        <span class="admin-field-tools__icon">📊</span>
+        <span class="admin-field-tools__text">
+          <strong>Team Portal — Dashboard</strong>
+          <small>Live stats, scan QR, log inventory</small>
+        </span>
+        <span class="admin-field-tools__arrow">→</span>
+      </a>
+      <a href="team.html" class="admin-field-tools__link">
+        <span class="admin-field-tools__icon">💰</span>
+        <span class="admin-field-tools__text">
+          <strong>Finance</strong>
+          <small>Log expenses, receipts &amp; reports</small>
+        </span>
+        <span class="admin-field-tools__arrow">→</span>
+      </a>
+      <a href="admin/dashboard.html" class="admin-field-tools__link">
+        <span class="admin-field-tools__icon">✨</span>
+        <span class="admin-field-tools__text">
+          <strong>Content Studio <em style="font-style:normal;opacity:0.6;font-size:0.85em;">(super-admin)</em></strong>
+          <small>Stories, testimonies, stats, inventory, members</small>
+        </span>
+        <span class="admin-field-tools__arrow">→</span>
+      </a>
+      <a href="team.html" class="admin-field-tools__link">
+        <span class="admin-field-tools__icon">💬</span>
+        <span class="admin-field-tools__text">
+          <strong>Team Chat</strong>
+          <small>Announcements, DMs &amp; forum</small>
+        </span>
+        <span class="admin-field-tools__arrow">→</span>
+      </a>
+    </div>
 
   <!-- Presentation deck for admins to show their church leadership.
        The page itself is public, but the link only lives here. -->
-  <div class="admin-stepper" style="background: linear-gradient(135deg, var(--ah-accent, #1c4f70) 0%, #2c5f2e 100%); color: #fff; border: 0;">
-    <p class="admin-stepper__label" style="color: rgba(255,255,255,0.85);">For admins presenting to their church</p>
-    <p class="admin-stepper__title" style="color: #fff;">📊 Seed the Word Ministry Presentation</p>
-    <p style="color: rgba(255,255,255,0.92); margin: 0 0 1rem; line-height: 1.6;">
-      A 10-slide deck built to take in front of your pastor and elders.
-      Each slide has a "Copy slide" button so you can paste it straight
-      into Google Slides as a new slide. Open the deck, walk through it
-      with the team, then send the Slides link to leadership for review.
-    </p>
-    <p style="margin: 0;">
-      <a href="presentation.html" target="_blank" rel="noopener" class="btn btn-primary" style="background: #fff; color: var(--green, #2c5f2e); font-weight: 700;">
-        Open the presentation deck →
-      </a>
-    </p>
-  </div>
+  <h2 data-category="start" data-nav="Quick routing">🧭 Quick routing — where do I go?</h2>
+  <p>Not sure where a change lives? Start here. Pick what you're trying to update and it tells you exactly where to go. For anything deeper, browse the sidebar or search.</p>
 
   <div class="warning">
     <strong>Heads up:</strong> this page has only a basic password gate on a public
@@ -1234,23 +197,23 @@
       </div>
       <div class="admin-branch">
         <p class="admin-branch__label">🖼️ A photo or video</p>
-        <p class="admin-branch__body">Open the <strong>✏️ Editor</strong> tab and pick the matching image folder or the Videos entry. Direct GitHub uploads to <code>assets/images/</code> still work as a fallback.</p>
+        <p class="admin-branch__body">Click <strong>✏️ Open the Editor</strong> in the sidebar and pick the matching image folder or the Videos entry. Direct GitHub uploads to <code>assets/images/</code> still work as a fallback.</p>
       </div>
       <div class="admin-branch">
         <p class="admin-branch__label">🎧 Spotify / YouTube / link</p>
-        <p class="admin-branch__body">Open the <strong>✏️ Editor</strong> tab, pick <em>Recommendations</em>. Fill the form, preview in place, commit. The legacy copy-paste flow is retired.</p>
+        <p class="admin-branch__body">Click <strong>✏️ Open the Editor</strong>, pick <em>Recommendations</em>. Fill the form, preview in place, commit. The legacy copy-paste flow is retired.</p>
       </div>
       <div class="admin-branch">
         <p class="admin-branch__label">📖 Verse of the Day</p>
-        <p class="admin-branch__body">Open the <strong>✏️ Editor</strong> tab, pick <em>Daily verses rotation</em>. Add an entry and commit.</p>
+        <p class="admin-branch__body">Click <strong>✏️ Open the Editor</strong>, pick <em>Daily verses rotation</em>. Add an entry and commit.</p>
       </div>
       <div class="admin-branch">
         <p class="admin-branch__label">📣 Telegram bot schedule / quiet hours</p>
-        <p class="admin-branch__body">Open the <strong>✏️ Editor</strong> tab, pick <em>Telegram bot config</em>. Structured form for all three bots — announcements, Bible, prayer.</p>
+        <p class="admin-branch__body">Click <strong>✏️ Open the Editor</strong>, pick <em>Telegram bot config</em>. Structured form for all three bots — announcements, Bible, prayer.</p>
       </div>
       <div class="admin-branch">
         <p class="admin-branch__label">🧯 Something is broken</p>
-        <p class="admin-branch__body">Jump to the Troubleshooting section below — hard-refresh first, then diagnose by symptom.</p>
+        <p class="admin-branch__body">Open the <strong>Troubleshoot</strong> group in the sidebar — hard-refresh first, then diagnose by symptom.</p>
       </div>
     </div>
   </div>
@@ -1305,8 +268,8 @@
     </ul>
   </div>
 
-  <h2>📖 Guide: Team Portal — what's new &amp; how to use it</h2>
-  <p>This is your plain-English handbook for everything we've added to the Team Portal and Content Studio. Use the <strong>📖 Portal Guide</strong>, <strong>✨ Content Studio</strong>, and <strong>🚀 Deploy</strong> tabs above to jump between topics, or just scroll. Every section is written for the team — no code needed.</p>
+  <h2 data-category="guide" data-nav="Team Portal — overview">📖 Guide: Team Portal — what's new &amp; how to use it</h2>
+  <p>This is your plain-English handbook for everything we've added to the Team Portal and Content Studio. Use the <strong>Team Portal</strong>, <strong>Content Studio</strong>, and <strong>Deploy</strong> groups in the sidebar to jump between topics, or just scroll. Every section is written for the team — no code needed.</p>
 
   <div class="admin-stepper">
     <p class="admin-stepper__label">The big picture</p>
@@ -1331,7 +294,7 @@
     </div>
   </div>
 
-  <h2>Guide: Posting announcements</h2>
+  <h2 data-category="guide" data-nav="Posting announcements">Guide: Posting announcements</h2>
   <p>Announcements go out from the Team Portal → <strong>Chat</strong> tab. Tap <strong>"📣 New announcement"</strong> to open the composer. You choose <em>who sees it</em> (audience) and <em>how urgent it is</em> (priority).</p>
 
   <div class="admin-card">
@@ -1372,7 +335,7 @@
     <p>If you post the <em>same subject</em> twice within a few minutes, Telegram is skipped so you don't double-post. A <strong>super-admin</strong> gets a one-tap "force send" prompt to push it through anyway. Urgent/Emergency always send. Photos require the <strong>Public</strong> audience. There's also a <strong>"See recent announcements"</strong> link so the team can review what's already gone out this week before reposting.</p>
   </div>
 
-  <h2>Guide: Incoming Activity (team oversight)</h2>
+  <h2 data-category="guide" data-nav="Incoming Activity">Guide: Incoming Activity (team oversight)</h2>
   <p>Everything that comes in from the public — prayer requests, thanksgiving, store orders, free-Bible requests, and contact messages — now funnels into one place so the team has oversight and can respond. It lives at the <strong>top of the Community tab</strong> in the Team Portal (visible to admins, super-admins, and anyone with the <em>Announcements</em> or <em>Moderation</em> permission).</p>
 
   <div class="admin-card">
@@ -1397,7 +360,7 @@
     <p>When new activity comes in, the team gets <strong>at most one email per day per type</strong> — a gentle "new prayer activity is waiting in the portal" nudge. It respects each member's notification preference (members who opted out of emails won't get it). The portal is the real home; email just points you back to it.</p>
   </div>
 
-  <h2>Guide: How prayers &amp; thanksgiving flow to the community</h2>
+  <h2 data-category="guide" data-nav="Prayer &amp; thanksgiving flow">Guide: How prayers &amp; thanksgiving flow to the community</h2>
   <p>When someone submits a prayer request or thanksgiving through the intake form <strong>and ticks "share publicly,"</strong> it now does three things automatically: goes to the Telegram prayer thread, starts the encouragement email drip to them, AND posts to the <strong>community page</strong> as a real post the team and community can reply to.</p>
   <div class="admin-card">
     <p class="admin-card__label">Privacy first</p>
@@ -1409,7 +372,7 @@
     </ul>
   </div>
 
-  <h2>✨ Content Studio — stories, testimonies &amp; the outreach map</h2>
+  <h2 data-category="studio" data-nav="Stories &amp; testimonies">✨ Content Studio — stories, testimonies &amp; the outreach map</h2>
   <p>The Content Studio is a super-admin dashboard at <a href="admin/dashboard.html" target="_blank" rel="noopener">admin/dashboard.html</a> (log in through the Team Portal first). It lets you publish content that appears live on the site — no code, no waiting. Use the left sidebar to switch sections.</p>
   <div class="admin-card">
     <p class="admin-card__label">Content Studio → Content</p>
@@ -1417,7 +380,7 @@
     <p>Add/edit/remove outreach stories and testimonies. Tick <strong>Published</strong> to make one live on the News page; leave it unchecked to save a draft. Changes appear within a couple minutes.</p>
   </div>
 
-  <h2>Guide: Outreach Map — adding countries, states &amp; cities</h2>
+  <h2 data-category="studio" data-nav="Outreach Map (add locations)">Guide: Outreach Map — adding countries, states &amp; cities</h2>
   <p>The spinning globe on the News page and the "countries reached" count are powered by a list you control in <strong>Content Studio → Outreach Map</strong>. This is where you add every new place the ministry reaches.</p>
   <div class="admin-stepper">
     <p class="admin-stepper__label">Step by step</p>
@@ -1435,7 +398,7 @@
     <p>For a city, put its state in "Region" (e.g. Lynnwood → Washington). For a country, you can note the continent. It groups things neatly in the lists under the globe. The <strong>countries reached</strong> number counts only published <em>countries</em>.</p>
   </div>
 
-  <h2>Guide: Members &amp; permissions</h2>
+  <h2 data-category="guide" data-nav="Members &amp; permissions">Guide: Members &amp; permissions</h2>
   <p>In <strong>Content Studio → Members</strong>, set each person's role and fine-tune exactly which sections they can open. Super-admins always have everything; for admins and members you toggle permissions individually.</p>
   <div class="admin-card">
     <p class="admin-card__label">What each permission unlocks</p>
@@ -1452,7 +415,7 @@
     </ul>
   </div>
 
-  <h2>Guide: Direct Messages &amp; moderation</h2>
+  <h2 data-category="guide" data-nav="DMs &amp; moderation">Guide: Direct Messages &amp; moderation</h2>
   <p>The Team Portal → <strong>Chat</strong> tab has an Instagram-style DM inbox for private messages between team members. Most of it just works; here's what admins should know.</p>
   <details class="seed-accordion__item" style="max-width:none;margin:0 0 0.9rem;">
     <summary class="seed-accordion__summary"><span class="seed-accordion__icon">🚫</span><span class="seed-accordion__title">Blocking &amp; who can message whom</span><span class="seed-accordion__plus">+</span></summary>
@@ -1467,13 +430,13 @@
     </div>
   </details>
 
-  <h2>🤖 Telegram bots — the three we run</h2>
+  <h2 data-category="bots" data-nav="The three bots (quick)">🤖 Telegram bots — the three we run</h2>
   <p>We use three separate Telegram bots, each with its own job. Don't mix their tokens — that's what caused announcements to briefly post from the wrong bot.</p>
   <div class="admin-card"><p class="admin-card__label">Daily verses</p><p class="admin-card__title">bible_seedtheword_bot</p><p>Posts the daily Bible reading. Token lives in the Apps Script property <code>BIBLE_BOT_TOKEN</code>.</p></div>
   <div class="admin-card"><p class="admin-card__label">Announcements</p><p class="admin-card__title">news_seedtheword_bot</p><p>Sends public announcements to the @seedtheword channel. Token = <code>TELEGRAM_BOT_TOKEN</code>. Use the <strong>Test Telegram</strong> button in the portal to verify it's working.</p></div>
   <div class="admin-card"><p class="admin-card__label">Prayer thread</p><p class="admin-card__title">pray_seedtheword_bot</p><p>Relays prayer/thanksgiving to the prayer topic. Token = <code>TELEGRAM_PRAYER_BOT_TOKEN</code>.</p></div>
 
-  <h2>🚀 Deploy — pushing new backend features live</h2>
+  <h2 data-category="deploy" data-nav="Deploy the backend">🚀 Deploy — pushing new backend features live</h2>
   <p>The website updates itself when code is committed, but the <strong>backend</strong> (the Google Apps Script that handles orders, prayers, announcements, the activity feed, the outreach map, etc.) has to be <strong>redeployed by hand</strong> after changes. Here's the one-time routine whenever you're told "the backend changed."</p>
   <div class="admin-stepper">
     <p class="admin-stepper__label">Deploy routine</p>
@@ -1486,7 +449,7 @@
   </div>
   <div class="warning"><strong>Rule of thumb:</strong> if a new portal feature "does nothing" or shows old data, the backend probably wasn't redeployed. Re-run the routine above and hard-refresh (Ctrl+Shift+R).</div>
 
-  <h2>📋 Overview — what the site depends on</h2>
+  <h2 data-category="overview" data-nav="What the site depends on">📋 Overview — what the site depends on</h2>
   <p>Your website is static (GitHub Pages) but pulls live data from a few services. If something on the site looks wrong, one of these is usually why.</p>
 
   <div class="admin-card">
@@ -1562,7 +525,7 @@
     <p><strong>Template:</strong> <a href="https://canva.link/0bki9vzlziyz7cj" target="_blank" rel="noopener">Monthly calendar template</a></p>
   </div>
 
-  <h2>🗓️ Ministry Operations Schedule</h2>
+  <h2 data-category="overview" data-nav="Operations schedule">🗓️ Ministry Operations Schedule</h2>
   <p>This is the working rhythm for admin stewardship — who does what, when, and on which platform. It ensures consistency across every channel we serve.</p>
 
   <div class="admin-stepper">
@@ -1700,7 +663,7 @@
     <p>We try not to post on Sundays — this encourages in-person church attendance and honors the rhythm of rest (Genesis 2:2).</p>
   </div>
 
-  <h2>🖼️ Updating images on the website</h2>
+  <h2 data-category="media" data-nav="Updating images">🖼️ Updating images on the website</h2>
   <p>Some parts of the site display images that admins manage directly (team photos, ministry highlights, homepage featured slides, hero backgrounds). Replacing these is done through GitHub's web interface — no coding, no terminal. Here's the full walkthrough.</p>
 
   <div class="admin-stepper">
@@ -1853,7 +816,7 @@
     <strong>Don't worry if you break something.</strong> GitHub tracks every change. If you commit a bad image or the site breaks after your edit, we can revert the change in under a minute. Nothing is permanent. Just ping the dev with the commit message you used and they'll sort it out.
   </div>
 
-  <h2>🎧 Managing "What We're Listening To" &amp; Partner Ministries</h2>
+  <h2 data-category="media" data-nav="Listening To &amp; Partners">🎧 Managing "What We're Listening To" &amp; Partner Ministries</h2>
   <p>Both sections on the <strong>Community page</strong> read from a simple list in one JavaScript file. Adding or removing items is a small, guided edit — no images to upload, no styling to touch.</p>
 
   <div class="admin-card">
@@ -2086,7 +1049,7 @@
     <strong>Common syntax mistake:</strong> every property inside a block needs a comma at the end, and every block needs a comma after its closing <code>&#125;</code> (except optionally the last one). If you commit a broken file, the whole section will just disappear until it's fixed. When in doubt, ping the dev and copy-paste the example above exactly.
   </div>
 
-  <h2>🖼️ Managing bundle slideshow images (store.html)</h2>
+  <h2 data-category="pages" data-nav="Store bundle images">🖼️ Managing bundle slideshow images (store.html)</h2>
   <p>Each of the three bundle cards on the <strong>Store page</strong> has a rotating slideshow at the top of the card. The photos are pulled from three dedicated folders in the repo, and each folder has a tiny manifest file (<code>images.json</code>) that tells the site which photos to show and what caption to put on them. This is designed so you can keep the store feeling fresh without touching any HTML or CSS.</p>
 
   <div class="admin-card">
@@ -2187,7 +1150,7 @@
     <li>If a slideshow doesn't appear at all, open the console (F12) and look for a "could not load manifest" warning — usually it's a JSON typo.</li>
   </ol>
 
-  <h2>📤 Team media drop (how the team shares photos/videos)</h2>
+  <h2 data-category="media" data-nav="Team media drop">📤 Team media drop (how the team shares photos/videos)</h2>
   <p>We don't have a separate upload page. Instead, we use an <strong>encouragement call-out inside the "Ministry Outreach &amp; Highlights" section on news.html</strong> — the "Your story belongs here too" card. When <code>assets/data/media-drop.json</code> is configured, a 📤 <strong>Share Photos &amp; Videos</strong> button appears next to "Submit a Testimony" and "Share on Telegram", and it opens our Google Form. Every submission lands in our ministry Google account with the uploader's name, caption, and the files themselves — plus a row in a Responses spreadsheet. Admins review from there and push the good stuff to the site.</p>
 
   <div class="admin-stepper">
@@ -2292,7 +1255,7 @@
     <li><strong>Leave it unconfigured:</strong> if both URLs still contain <code>REPLACE_WITH_...</code>, the button stays hidden automatically — nothing looks broken on the site.</li>
   </ul>
 
-  <h2>🙌 Managing Ministry Outreach cards (news.html)</h2>
+  <h2 data-category="pages" data-nav="News outreach cards">🙌 Managing Ministry Outreach cards (news.html)</h2>
   <p>The "Ministry Outreach &amp; Highlights" section on the News page leads with up to <strong>3 outreach cards</strong>, each with its own rotating slideshow of photos and videos. Each card represents one real outreach (a date, a location, a short write-up, an optional testimony). New events are added by dropping a new folder of media in and appending one entry to a master index — no HTML edits needed.</p>
 
   <div class="admin-card" style="border-left:4px solid var(--ah-accent);background:rgba(184,134,11,0.05);">
@@ -2402,7 +1365,7 @@
     <strong>Videos auto-play muted.</strong> Browsers block unmuted autoplay, so the slideshow plays videos with sound off. If you need audio, use Instagram or YouTube for that piece of content instead of an outreach card.
   </div>
 
-  <h2>🏠 Managing the Homepage</h2>
+  <h2 data-category="pages" data-nav="Managing the Homepage">🏠 Managing the Homepage</h2>
   <p>The homepage is intentionally tight: <strong>Hero → Featured From Our Ministry (Showcase Carousel) → Walking the Path of Light → Footer</strong>. The Showcase Carousel does all the rotating-content heavy lifting, and the daily verse, tips, and featured highlights are integrated into it.</p>
 
   <div class="admin-card">
@@ -2431,7 +1394,7 @@
   <h3>Edit the showcase slides or daily content</h3>
   <p>Both lists live at the top of <code>assets/js/showcase-carousel.js</code> — <code>FALLBACK_SLIDES</code> and <code>DAILY_CONTENT</code>. This is a JS file, so follow JSON-ish syntax carefully: single quotes, commas after every item, no trailing comma on the last one. If in doubt, ping the dev on duty.</p>
 
-  <h2>🌱 Walking the Path of Light (homepage ministry map)</h2>
+  <h2 data-category="pages" data-nav="Walking the Path of Light">🌱 Walking the Path of Light (homepage ministry map)</h2>
 
   <div class="admin-stepper">
     <p class="admin-stepper__label">Ministry framing</p>
@@ -2466,7 +1429,7 @@
 
   <p>The homepage's second section, anchored in Psalm 119:105 ("Thy word is a lamp unto my feet, and a light unto my path"), draws the ministry's journey as a glowing path of waypoints on a dark canvas. Each waypoint card has a short paragraph, a tag line, and a call-to-action link. Changes here require an HTML edit in <code>index.html</code> (search for <code>the-path</code>). Keep paragraphs short — the cards are meant to be scannable. If the team's lifecycle framing evolves, update all three phase cards together so the loop still makes sense.</p>
 
-  <h2>🔧 How to do common tasks</h2>
+  <h2 data-category="pages" data-nav="Common tasks">🔧 How to do common tasks</h2>
 
   <h3>Add a new event to the calendar</h3>
   <ol>
@@ -2563,7 +1526,7 @@
   </ol>
   <p>If any of those don't behave as described, paste the screen state and we'll trace it from the live system. Most regressions show up in the Apps Script <em>Executions</em> tab — every <code>doPost</code> call logs the full payload + the script's reconciled <code>isSpecialOrder</code> decision.</p>
 
-  <h2>🧯 Troubleshooting — if the site looks broken</h2>
+  <h2 data-category="troubleshoot" data-nav="Troubleshooting">🧯 Troubleshooting — if the site looks broken</h2>
 
   <div class="admin-stepper">
     <p class="admin-stepper__label">Start here</p>
@@ -2636,7 +1599,7 @@
     <li>Check the browser console (F12 → Console tab) for red errors. Screenshot them before pinging the dev.</li>
   </ul>
 
-  <h2>📣 Announcing events to Telegram, Instagram &amp; beyond</h2>
+  <h2 data-category="pages" data-nav="Announcing events">📣 Announcing events to Telegram, Instagram &amp; beyond</h2>
   <p>Every event on the News page has a single <strong>📣 Share Event</strong> button in its modal. Tapping it opens a dropdown with multiple destinations — Telegram, WhatsApp, Instagram, the device share sheet, or plain clipboard — and pre-fills each one with an announcement following our ministry format. No retyping, no copy-paste dance.</p>
 
   <div class="admin-stepper">
@@ -2721,7 +1684,7 @@ More Details (https://seedtheword.org/news.html#event=abc123)</code></pre>
   <h3>Want fully-automated posting (no tap required)?</h3>
   <p>Done — see the next section for how the Telegram bot handles scheduled announcements automatically.</p>
 
-  <h2>🤖 Telegram bots — announcements, Bible, prayer</h2>
+  <h2 data-category="bots" data-nav="Bots — full reference">🤖 Telegram bots — announcements, Bible, prayer</h2>
   <p>We run <strong>three separate Telegram bots</strong> so members see clear senders in the chat and each bot can be paused independently. All three post to the <code>@seedtheword</code> supergroup, each into a different topic.</p>
 
   <div class="admin-card">
@@ -3355,7 +2318,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
     <strong>If a bot goes quiet unexpectedly:</strong> check its Actions run for red errors. 90% of the time it's (1) an expired token (<code>401 Unauthorized</code>) or (2) the bot lost admin permission. Fix the permission or regenerate the token via BotFather <code>/revoke</code>, then re-run manually.
   </div>
 
-  <h2>🔐 Where secrets live (NOT here)</h2>
+  <h2 data-category="troubleshoot" data-nav="Where secrets live">🔐 Where secrets live (NOT here)</h2>
   <p>We intentionally don't store API keys, passwords, or tokens on this page. Secrets live in:</p>
   <ul>
     <li><strong>GitHub Secrets</strong> (repo → Settings → Secrets) — used by Actions</li>
@@ -3368,7 +2331,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
     Even on this admin page — anyone who knows the team password can read everything here.
   </div>
 
-  <h2>📝 Recent changes</h2>
+  <h2 data-category="overview" data-nav="Recent changes">📝 Recent changes</h2>
   <p>Big-picture history of what's on the site and when it was set up:</p>
   <ul>
     <li><strong>May 2026 (current)</strong> — Site-wide reorganization. <strong>Homepage</strong> showcase renamed to "Featured Ministry Feed" with a 9-category rotation (announcements, outreach, highlights, store, ministry initiatives, Friends in Jesus, today's verse, How We S.E.E.D., tips/resources) pulling live data from each source. Path of Light waypoints renamed to <em>Plant the Seed / Water to Grow / Gather the Harvest</em>. <strong>About page</strong> restructured: "About S.E.E.D. Ministry" → "Our S.E.E.D Story"; the 9 stitch tiles' bottom row rewritten to the three phases; "How We S.E.E.D." cards rewritten (Bible reading, fellowship schedule, Study Saturdays, Prayer &amp; Worship with Philippians 4:6-8 and John 4:23-24, Outreach); Contact heading renamed to "Contact us - @seedtheword". <strong>Community page</strong> got a 4-up platform CTA row (Telegram / Spotify / Twitch / Instagram) with equal billing, replacing the old Telegram-only big card; "Daily Touchpoints" renamed to "Learn more about us online". Study Saturday livestream card now merges the weekly review (Old/New Testament passages) into one card. <strong>Admin editor</strong> got a structured form for the Telegram bot config (all three bots + quiet hours + reminder minutes), the Recommendations legacy copy-paste flow was retired (<code>legacyCopyPaste</code> flipped to false), and cache busters bumped to v=12. <strong>Mobile</strong>: seed-story tiles now open on tap (or keyboard Enter/Space) — no longer hover-only.</li>
@@ -3380,7 +2343,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
     <li><strong>Earlier</strong> — Initial site build, Netlify CMS setup then removed, Google Calendar integration, ministry highlights grid.</li>
   </ul>
 
-  <h2>🆘 If everything is on fire</h2>
+  <h2 data-category="troubleshoot" data-nav="If everything is on fire">🆘 If everything is on fire</h2>
   <ul>
     <li>The site deploys from <code>main</code>. To revert a bad change: repo → Commits → find the last good commit → "Revert."</li>
     <li>If you can't figure out what broke, email the dev on duty. Include a screenshot of the broken page and the browser console if possible.</li>
@@ -3389,7 +2352,8 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
   <div class="admin-logout">
     Done here? <button id="admin-logout" type="button">Lock this page</button>
   </div>
-</main>
+    </main>
+  </div><!-- /.admin-main -->
 </div><!-- /.admin-shell -->
 
 <footer class="site-footer" style="margin-top: 0;">
@@ -3473,7 +2437,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
 <script src="assets/js/admin-editor-commit-message.js?v=19" defer></script>
 <script src="assets/js/admin-editor-js-literal.js?v=19" defer></script>
 <script src="assets/js/admin-editor.js?v=21" defer></script>
-<script src="assets/js/admin-help.js?v=31" defer></script>
+<script src="assets/js/admin-help.js?v=32" defer></script>
 
 <script>
   // Populate the "Shared Calendar Photos Drive folder" admin-help card,

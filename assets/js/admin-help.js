@@ -34,22 +34,24 @@
   // is done by substring against the lower-cased heading text; the
   // first rule that matches wins. Any heading that doesn't match
   // falls into 'howto' by default.
+  // ── Categories ──────────────────────────────────────────────
+  // Each section's category is now set EXPLICITLY via a data-category
+  // attribute on its <h2> in admin-help.html. The `match` regexes are
+  // only a fallback for any section that forgets to declare one, so a
+  // renamed heading can never silently jump tabs. `order` controls the
+  // order the groups appear in the sidebar.
   const CATEGORIES = [
-    { id: 'overview',       label: '📋 Overview',    match: [/overview/i, /operations schedule/i, /recent changes/i] },
-    // Team-portal guide (the new systems): announcements, activity, DMs/moderation,
-    // permissions, community/prayer. Matched BEFORE how-tos so "Guide:" wins.
-    { id: 'guide',          label: '📖 Portal Guide', match: [/^guide:/i, /announcement/i, /incoming activity/i, /team activity/i, /direct message/i, /\bdms?\b/i, /moderation/i, /permission/i, /prayer wall/i, /community feed/i, /reply on community/i] },
-    { id: 'studio',         label: '✨ Content Studio', match: [/content studio/i, /outreach map/i, /outreach stories/i, /testimon/i, /publish/i, /outreach locations/i] },
-    { id: 'deploy',         label: '🚀 Deploy',      match: [/deploy/i, /apps script/i, /redeploy/i, /new version/i, /backend/i] },
-    { id: 'howto',          label: '🧰 How-tos',     match: [/^how to/i, /managing/i, /updating images/i, /add a /i, /images/i, /outreach/i, /bundle/i, /media drop/i, /recommendation/i, /homepage/i, /walking the path/i, /announcing events/i] },
-    { id: 'bots',           label: '🤖 Bots',        match: [/telegram bot/i, /telegram bots/i, /auto-post/i] },
-    { id: 'troubleshoot',   label: '🧯 Troubleshoot', match: [/troubleshoot/i, /everything is on fire/i, /secrets/i] },
+    { id: 'start',        label: 'Start here',      icon: '🚀', match: [/start here/i, /quick routing/i, /what's where/i, /site map/i] },
+    { id: 'guide',        label: 'Team Portal',     icon: '📖', match: [/^guide:/i, /team portal/i, /announcement/i, /incoming activity/i, /team activity/i, /direct message/i, /\bdms?\b/i, /moderation/i, /permission/i, /prayer/i, /community feed/i, /reply on community/i] },
+    { id: 'studio',       label: 'Content Studio',  icon: '✨', match: [/content studio/i, /outreach map/i, /outreach stories/i, /testimon/i, /publish/i, /outreach locations/i] },
+    { id: 'media',        label: 'Images & Media',  icon: '🖼️', match: [/updating images/i, /images/i, /media drop/i, /listening to/i, /partner ministr/i, /recommendation/i] },
+    { id: 'pages',        label: 'Pages & Content', icon: '📄', match: [/bundle/i, /store\.html/i, /ministry outreach cards/i, /managing the homepage/i, /walking the path/i, /announcing events/i, /^how to/i, /common tasks/i] },
+    { id: 'bots',         label: 'Telegram Bots',   icon: '🤖', match: [/telegram bot/i, /telegram bots/i, /auto-post/i] },
+    { id: 'overview',     label: 'How It Works',    icon: '📋', match: [/overview/i, /operations schedule/i, /recent changes/i, /what the site depends/i] },
+    { id: 'deploy',       label: 'Deploy',          icon: '🚀', match: [/deploy/i, /apps script/i, /redeploy/i, /new version/i, /backend/i] },
+    { id: 'troubleshoot', label: 'Troubleshoot',    icon: '🧯', match: [/troubleshoot/i, /everything is on fire/i, /secrets/i] },
   ];
-  const DEFAULT_CATEGORY = 'howto';
-  const ALL_CATEGORY = { id: 'all', label: '📚 All' };
-  // Special pseudo-category that, instead of filtering help sections, swaps
-  // the help content out for the browser admin editor.
-  const EDITOR_CATEGORY = { id: 'editor', label: '✏️ Editor', external: true };
+  const DEFAULT_CATEGORY = 'overview';
 
   // ── Sections collected from the page ────────────────────────
   // Each section = h2 + all following siblings up to the next h2
@@ -72,8 +74,9 @@
     var fieldTools = document.getElementById('admin-field-tools');
     if (fieldTools) fieldTools.removeAttribute('hidden');
     collectSections();
-    safeRun('tabs',        initTabs);
-    safeRun('alphabet',    initAlphabet);
+    safeRun('sidebar',     initSidebar);
+    safeRun('drawer',      initDrawer);
+    safeRun('scrollspy',   initScrollSpy);
     safeRun('search',      initSearch);
     safeRun('reco',        initRecoBuilder);
     safeRun('mermaid',     loadMermaid);
@@ -120,8 +123,17 @@
         n = n.nextElementSibling;
       }
 
-      // Category assignment
-      const cat = matchCategory(title) || DEFAULT_CATEGORY;
+      // Category assignment — prefer the EXPLICIT data-category on the
+      // heading; fall back to regex-matching the title only if it's
+      // missing or names an unknown category.
+      const declared = (h2.getAttribute('data-category') || '').trim();
+      const known = CATEGORIES.some((c) => c.id === declared);
+      const cat = known ? declared : (matchCategory(title) || DEFAULT_CATEGORY);
+
+      // A short nav label — prefer an explicit data-nav, else strip the
+      // leading emoji + a "Guide:" prefix so the sidebar reads cleanly.
+      const navLabel = (h2.getAttribute('data-nav') || '').trim() ||
+        title.replace(/^[^A-Za-z0-9]+/, '').replace(/^Guide:\s*/i, '').trim() || title;
 
       // Haystack for search — skip rendered flowchart text to avoid matching graph syntax
       const parts = [];
@@ -131,13 +143,9 @@
         parts.push(clone.textContent || '');
       });
 
-      // First letter for alphabet rail — strip leading emoji/punctuation
-      const letter = getPrimaryLetter(title);
-
       sections.push({
-        id, title, category: cat, nodes,
+        id, title, navLabel, category: cat, nodes,
         haystack: parts.join(' ').toLowerCase(),
-        letter,
       });
 
       // Tag every section node with its category so we can CSS-filter.
@@ -156,60 +164,134 @@
     return null;
   }
 
-  function getPrimaryLetter(title) {
-    // Strip leading emoji + whitespace, look at the first alpha char
-    const stripped = title.replace(/^[^A-Za-z]+/, '');
-    const c = (stripped[0] || '').toUpperCase();
-    return /[A-Z]/.test(c) ? c : '#';
-  }
+  // ── Sidebar: grouped, collapsible list of every section ─────
+  // Builds one collapsible group per category (in CATEGORIES order),
+  // each listing its sections as jump links. This replaces the old
+  // horizontal pill tabs + alphabet rail — it scales to any number of
+  // sections and always shows the full map of the page.
+  function initSidebar() {
+    const nav = document.getElementById('admin-sidebar-nav');
+    if (!nav) return;
 
-  // ── Tabs ────────────────────────────────────────────────────
-  let activeCategory = 'all';
+    // Group sections by category, preserving document order within each.
+    const byCat = {};
+    sections.forEach((s) => {
+      (byCat[s.category] = byCat[s.category] || []).push(s);
+    });
 
-  function initTabs() {
-    const tabsEl = document.getElementById('admin-tabs');
-    if (!tabsEl) return;
-
-    const cats = [ALL_CATEGORY, ...CATEGORIES, EDITOR_CATEGORY];
-    const counts = {};
-    sections.forEach((s) => { counts[s.category] = (counts[s.category] || 0) + 1; });
-    counts.all = sections.length;
-
-    tabsEl.innerHTML = cats.map((c) => {
-      if (c.external) {
-        const active = c.id === activeCategory ? ' is-active' : '';
-        return (
-          '<button type="button" class="admin-tab' + active +
-          '" data-cat="' + c.id + '" role="tab" title="Commit changes directly from the browser">' +
-          escapeHtml(c.label) + '</button>'
-        );
-      }
-      const count = counts[c.id] || 0;
-      if (count === 0 && c.id !== 'all') return '';
-      const active = c.id === activeCategory ? ' is-active' : '';
+    const html = CATEGORIES.map((c) => {
+      const items = byCat[c.id] || [];
+      if (!items.length) return '';
+      const links = items.map((s) =>
+        '<button type="button" class="admin-navlink" data-section-id="' + s.id + '">' +
+        escapeHtml(s.navLabel) + '</button>'
+      ).join('');
       return (
-        '<button type="button" class="admin-tab' + active +
-        '" data-cat="' + c.id + '" role="tab">' +
-        escapeHtml(c.label) +
-        '<span class="admin-tab__count">' + count + '</span>' +
-        '</button>'
+        '<div class="admin-navgroup" data-cat="' + c.id + '">' +
+          '<button type="button" class="admin-navgroup__title" aria-expanded="true">' +
+            '<span class="admin-navgroup__dot"></span>' +
+            '<span class="admin-navgroup__label">' + escapeHtml(c.label) + '</span>' +
+            '<span class="admin-navgroup__count">' + items.length + '</span>' +
+            '<span class="admin-navgroup__chevron">▾</span>' +
+          '</button>' +
+          '<div class="admin-navgroup__links">' + links + '</div>' +
+        '</div>'
       );
     }).join('');
+    nav.innerHTML = html;
 
-    tabsEl.addEventListener('click', (e) => {
-      const btn = e.target.closest('.admin-tab');
-      if (!btn) return;
-      activeCategory = btn.dataset.cat;
-      tabsEl.querySelectorAll('.admin-tab').forEach((b) => {
-        b.classList.toggle('is-active', b.dataset.cat === activeCategory);
-      });
-      if (activeCategory === 'editor') {
-        showEditor();
-      } else {
+    // Collapse / expand a group header.
+    nav.addEventListener('click', (e) => {
+      const title = e.target.closest('.admin-navgroup__title');
+      if (title) {
+        const group = title.closest('.admin-navgroup');
+        const collapsed = group.classList.toggle('is-collapsed');
+        title.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        return;
+      }
+      const link = e.target.closest('.admin-navlink');
+      if (link) {
+        // Leaving the editor view (if open) so the section is visible.
         hideEditor();
-        applyFilters();
+        setEditorButtonActive(false);
+        jumpToSection(link.dataset.sectionId);
+        closeDrawer();
       }
     });
+  }
+
+  // ── Scroll-spy: highlight the section currently in view ─────
+  function initScrollSpy() {
+    const nav = document.getElementById('admin-sidebar-nav');
+    if (!nav || !('IntersectionObserver' in window)) return;
+    const visible = new Map();
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) visible.set(en.target.id, en.intersectionRatio);
+        else visible.delete(en.target.id);
+      });
+      // Pick the section closest to the top that's on screen.
+      let bestId = null;
+      let bestTop = Infinity;
+      visible.forEach((_, id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const top = Math.abs(el.getBoundingClientRect().top);
+        if (top < bestTop) { bestTop = top; bestId = id; }
+      });
+      if (bestId) setActiveNavLink(bestId);
+    }, { rootMargin: '-120px 0px -55% 0px', threshold: [0, 1] });
+    sections.forEach((s) => { if (s.nodes[0]) obs.observe(s.nodes[0]); });
+  }
+
+  function setActiveNavLink(id) {
+    const nav = document.getElementById('admin-sidebar-nav');
+    if (!nav) return;
+    nav.querySelectorAll('.admin-navlink.is-active').forEach((n) => n.classList.remove('is-active'));
+    const link = nav.querySelector('.admin-navlink[data-section-id="' + id + '"]');
+    if (link) {
+      link.classList.add('is-active');
+      // Make sure the active link stays visible in the scrollable nav.
+      link.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  // ── Mobile drawer + editor launch button ────────────────────
+  function initDrawer() {
+    const toggle  = document.getElementById('admin-drawer-toggle');
+    const sidebar = document.getElementById('admin-sidebar');
+    const backdrop = document.getElementById('admin-sidebar-backdrop');
+    if (toggle && sidebar) {
+      toggle.addEventListener('click', () => {
+        const open = sidebar.classList.toggle('is-open');
+        if (backdrop) backdrop.classList.toggle('is-open', open);
+      });
+    }
+    if (backdrop) backdrop.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+
+    // Editor launch button lives in the sidebar foot.
+    const editorBtn = document.getElementById('admin-editor-btn');
+    if (editorBtn) {
+      editorBtn.addEventListener('click', () => {
+        const nowActive = !editorBtn.classList.contains('is-active');
+        setEditorButtonActive(nowActive);
+        if (nowActive) showEditor(); else hideEditor();
+        closeDrawer();
+      });
+    }
+  }
+
+  function setEditorButtonActive(on) {
+    const editorBtn = document.getElementById('admin-editor-btn');
+    if (editorBtn) editorBtn.classList.toggle('is-active', !!on);
+  }
+
+  function closeDrawer() {
+    const sidebar = document.getElementById('admin-sidebar');
+    const backdrop = document.getElementById('admin-sidebar-backdrop');
+    if (sidebar) sidebar.classList.remove('is-open');
+    if (backdrop) backdrop.classList.remove('is-open');
   }
 
   function showEditor() {
@@ -228,116 +310,6 @@
     const shell = document.getElementById('admin-editor-shell');
     if (shell) { shell.hidden = true; shell.setAttribute('aria-hidden', 'true'); }
     if (content) content.classList.remove('is-hidden-behind-editor');
-  }
-
-  // ── Alphabet rail ───────────────────────────────────────────
-  function initAlphabet() {
-    const rail = document.getElementById('admin-alpha');
-    if (!rail) return;
-
-    // Group section titles by starting letter
-    const byLetter = {};
-    sections.forEach((s) => {
-      const L = s.letter;
-      if (!byLetter[L]) byLetter[L] = [];
-      byLetter[L].push(s);
-    });
-
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-    // If any sections start with a non-alpha char, add '#'
-    const hasHash = sections.some((s) => s.letter === '#');
-
-    const letterButtons = letters.map((L) => {
-      const items = byLetter[L] || [];
-      const isEmpty = items.length === 0;
-      const popup = isEmpty
-        ? ''
-        : '<div class="admin-alpha__popup">' +
-            items.map((s) =>
-              '<a class="admin-alpha__popup-link" href="#' + s.id +
-              '" data-section-id="' + s.id + '">' + escapeHtml(s.title) + '</a>'
-            ).join('') +
-          '</div>';
-      return (
-        '<span class="admin-alpha__letter' + (isEmpty ? ' is-empty' : '') +
-        '" data-letter="' + L + '" tabindex="' + (isEmpty ? '-1' : '0') + '">' +
-        L + popup + '</span>'
-      );
-    });
-
-    if (hasHash) {
-      const items = byLetter['#'] || [];
-      const popup = '<div class="admin-alpha__popup">' +
-        items.map((s) =>
-          '<a class="admin-alpha__popup-link" href="#' + s.id +
-          '" data-section-id="' + s.id + '">' + escapeHtml(s.title) + '</a>'
-        ).join('') + '</div>';
-      letterButtons.push(
-        '<span class="admin-alpha__letter" data-letter="#" tabindex="0">#' + popup + '</span>'
-      );
-    }
-
-    rail.innerHTML = letterButtons.join('');
-
-    // Hover to open, click/tap to toggle (mobile-friendly)
-    rail.addEventListener('mouseenter', (e) => {
-      const el = e.target.closest('.admin-alpha__letter');
-      if (!el || el.classList.contains('is-empty')) return;
-      closeAllExcept(el);
-      el.classList.add('is-open');
-    }, true);
-
-    rail.addEventListener('mouseleave', (e) => {
-      const el = e.target.closest('.admin-alpha__letter');
-      if (!el) return;
-      // Delay so the user can mouse into the popup
-      setTimeout(() => {
-        if (!el.matches(':hover') && !el.querySelector('.admin-alpha__popup:hover')) {
-          el.classList.remove('is-open');
-        }
-      }, 120);
-    }, true);
-
-    rail.addEventListener('click', (e) => {
-      const link = e.target.closest('.admin-alpha__popup-link');
-      if (link) {
-        // Let the anchor nav happen; just close the popup
-        const el = link.closest('.admin-alpha__letter');
-        if (el) el.classList.remove('is-open');
-        // Smooth-scroll
-        const id = link.getAttribute('href').slice(1);
-        const target = document.getElementById(id);
-        if (target) {
-          e.preventDefault();
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          // Reset any filters so the section is visible
-          clearSearch(true);
-        }
-        return;
-      }
-      // Tapping the letter itself toggles the popup (for touch users)
-      const letter = e.target.closest('.admin-alpha__letter');
-      if (letter && !letter.classList.contains('is-empty')) {
-        const wasOpen = letter.classList.contains('is-open');
-        closeAllExcept(null);
-        if (!wasOpen) letter.classList.add('is-open');
-      }
-    });
-
-    // Close all popups on outside click
-    document.addEventListener('click', (e) => {
-      if (!rail.contains(e.target)) closeAllExcept(null);
-    });
-    // Esc closes them too
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeAllExcept(null);
-    });
-
-    function closeAllExcept(keep) {
-      rail.querySelectorAll('.admin-alpha__letter.is-open').forEach((n) => {
-        if (n !== keep) n.classList.remove('is-open');
-      });
-    }
   }
 
   // ── Search ──────────────────────────────────────────────────
@@ -414,15 +386,13 @@
     if (!searchEl || !suggestionsEl) return;
 
     const q = (searchEl.value || '').trim().toLowerCase();
-    // Show dropdown even when query is empty IF input is focused — shows
-    // the current category's sections as a jump-menu. This solves the
-    // "I don't know what's on this page" complaint.
-    const activeCatLabel = getCatLabel(activeCategory);
+    // Show the dropdown even when the query is empty IF the input is
+    // focused — it acts as a full jump-menu of every section. This
+    // solves the "I don't know what's on this page" complaint.
     const items = sections.filter((s) => {
-      const catOk = activeCategory === 'all' || s.category === activeCategory;
-      if (!q) return catOk;
-      return catOk && (s.title.toLowerCase().includes(q) || s.haystack.includes(q));
-    }).slice(0, 30);
+      if (!q) return true;
+      return s.title.toLowerCase().includes(q) || s.haystack.includes(q);
+    }).slice(0, 40);
 
     if (items.length === 0) {
       suggestionsEl.innerHTML = '<li class="admin-search__suggestions-empty">No matching sections.</li>';
@@ -432,11 +402,12 @@
     }
 
     suggestionsEl.innerHTML = items.map((s) => {
-      const catShort = s.category === 'all' ? '' : s.category;
+      const c = CATEGORIES.find((x) => x.id === s.category);
+      const catShort = c ? c.label : s.category;
       return (
         '<li class="admin-search__suggestion" role="option" data-section-id="' + s.id + '">' +
-          (catShort ? '<span class="admin-search__suggestion-cat">' + escapeHtml(catShort) + '</span>' : '') +
-          '<span class="admin-search__suggestion-title">' + escapeHtml(s.title) + '</span>' +
+          '<span class="admin-search__suggestion-cat">' + escapeHtml(catShort) + '</span>' +
+          '<span class="admin-search__suggestion-title">' + escapeHtml(s.navLabel) + '</span>' +
         '</li>'
       );
     }).join('');
@@ -501,54 +472,66 @@
   }
 
   // ── The single filter applicator — runs on tab OR search change ──
+  // Pure text search: hides non-matching sections in the content, hides
+  // their nav links + empty groups in the sidebar, and shows a count note.
+  // With no query, everything is shown (the sidebar is the primary nav).
   function applyFilters() {
     const q = currentQuery.toLowerCase();
     const clearBtn = document.getElementById('admin-search-clear');
     const metaEl = document.getElementById('admin-search-meta');
+    const note = document.getElementById('admin-content-searchnote');
+    const nav = document.getElementById('admin-sidebar-nav');
     if (clearBtn) clearBtn.style.display = q ? 'inline-flex' : 'none';
 
     clearHighlights();
 
     let matches = 0;
+    const shownIds = {};
     sections.forEach((s) => {
-      const catOk = activeCategory === 'all' || s.category === activeCategory;
-      const qOk = !q || s.haystack.includes(q);
-      const show = catOk && qOk;
+      const show = !q || s.haystack.includes(q);
       s.nodes.forEach((n) => {
         if (show) n.removeAttribute('data-hidden');
         else      n.setAttribute('data-hidden', 'true');
       });
-      if (show && q) matches++;
-      else if (show) matches++;
+      if (show) { matches++; shownIds[s.id] = true; }
     });
 
-    // Highlight matches
+    // Mirror the filter in the sidebar: dim links whose section is hidden,
+    // and hide any group that has no visible section left.
+    if (nav) {
+      nav.querySelectorAll('.admin-navlink').forEach((link) => {
+        link.classList.toggle('is-hidden-by-search', !!q && !shownIds[link.dataset.sectionId]);
+      });
+      nav.querySelectorAll('.admin-navgroup').forEach((group) => {
+        const anyVisible = Array.prototype.some.call(
+          group.querySelectorAll('.admin-navlink'),
+          (l) => !l.classList.contains('is-hidden-by-search')
+        );
+        group.classList.toggle('is-empty-by-search', !!q && !anyVisible);
+      });
+    }
+
     if (q && matches > 0) highlightMatches(q);
 
+    // Count note above the content.
+    if (note) {
+      if (q && matches > 0) {
+        note.textContent = 'Showing ' + matches + (matches === 1 ? ' section' : ' sections') +
+          ' matching "' + currentQuery + '". Clear the search to see everything.';
+        note.classList.add('is-visible');
+      } else {
+        note.classList.remove('is-visible');
+      }
+    }
     if (metaEl) {
-      if (q) {
-        if (matches === 0) {
-          metaEl.classList.add('is-no-results');
-          metaEl.textContent = 'No tutorials found for "' + currentQuery + '". Try a different term.';
-        } else {
-          metaEl.classList.remove('is-no-results');
-          metaEl.textContent = (matches === 1 ? '1 section' : matches + ' sections') +
-            ' match "' + currentQuery + '"' +
-            (activeCategory !== 'all' ? ' in ' + getCatLabel(activeCategory) : '');
-        }
-      } else if (activeCategory !== 'all') {
-        metaEl.classList.remove('is-no-results');
-        metaEl.textContent = 'Showing ' + matches + ' sections in ' + getCatLabel(activeCategory);
+      if (q && matches === 0) {
+        metaEl.classList.add('is-no-results');
+        metaEl.textContent = 'No topics found for "' + currentQuery + '".';
       } else {
         metaEl.classList.remove('is-no-results');
         metaEl.textContent = '';
       }
     }
-  }
-
-  function getCatLabel(id) {
-    const c = CATEGORIES.find((x) => x.id === id);
-    return c ? c.label : id;
   }
 
   function clearHighlights() {

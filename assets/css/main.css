@@ -13536,6 +13536,9 @@ body.your-walk-modal-open {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  justify-content: center;
+  flex: 1;
+  min-width: 200px;
 }
 .showcase-quicklinks__link {
   padding: 0.5rem 1rem;

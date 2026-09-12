@@ -382,7 +382,7 @@
 
     <!-- Orders Tab — store order management (permission: orders) -->
     <div class="tab-panel" id="tab-orders" hidden>
-      <h3 class="dash-group__title">Store Orders <span class="orders-count" id="orders-count" hidden></span></h3>
+      <h3 class="dash-group__title">Store Orders <span class="orders-count" id="orders-count" hidden></span> <button class="wt-help" data-walkthrough="order-process"></button></h3>
       <div class="orders-mgmt">
         <div class="glass-card orders-intro">
           <h3 class="glass-card__title" style="margin:0 0 0.35rem;">🛒 Order Queue</h3>
@@ -407,7 +407,7 @@
 
     <!-- Scanner Tab -->
     <div class="tab-panel" id="tab-scanner" hidden>
-      <h3 class="dash-group__title">Log an item</h3>
+      <h3 class="dash-group__title">Log an item <button class="wt-help" data-walkthrough="scan-add"></button></h3>
       <div class="glass-card scanner-card">
         <p class="scanner-card__hint">Scan an item's QR code, or add one by hand from the list. Every item logs to today's outreach.</p>
         <button type="button" class="qr-toggle" id="qr-toggle-btn">📷 Scan Item QR</button>
@@ -498,7 +498,7 @@
       <!-- Log new expense form -->
       <h3 class="dash-group__title">Record</h3>
       <div class="glass-card">
-        <h3 class="glass-card__title">➕ Log Expense</h3>
+        <h3 class="glass-card__title">➕ Log Expense <button class="wt-help" data-walkthrough="finance-deposit"></button></h3>
         <form id="finance-form" class="finance-form" novalidate>
           <div class="finance-form__row">
             <div class="finance-form__field">
@@ -659,7 +659,7 @@
         <!-- Conversation list pane -->
         <div class="dm-list-pane" id="dm-list-pane">
           <div class="dm-list-head">
-            <h3 class="dm-list-head__title">Messages</h3>
+            <h3 class="dm-list-head__title">Messages <button class="wt-help" data-walkthrough="dms"></button></h3>
             <button class="dm-new-btn" id="dm-new-btn" title="New message" aria-label="New message">✎</button>
           </div>
           <div class="dm-list" id="dm-list"><p class="dm-empty">Loading…</p></div>
@@ -705,7 +705,7 @@
       <div id="chat-admin-compose" class="ann-composer" style="display:none;">
         <div class="glass-card">
           <div class="ann-composer__head">
-            <h4 class="ann-composer__title">📣 New announcement</h4>
+            <h4 class="ann-composer__title">📣 New announcement <button class="wt-help" data-walkthrough="announcement"></button></h4>
             <button class="ann-composer__close" id="ann-close-btn" aria-label="Close">×</button>
           </div>
 
@@ -765,7 +765,7 @@
       <div class="glass-card" id="activity-card" style="display:none;">
         <div class="activity-head">
           <div>
-            <h3 class="glass-card__title" style="margin:0;">🔔 Incoming activity</h3>
+            <h3 class="glass-card__title" style="margin:0;">🔔 Incoming activity <button class="wt-help" data-walkthrough="incoming-activity"></button></h3>
             <p class="activity-sub">Everything that comes in — prayers, thanksgiving, orders, Bible requests, and messages — funnels here for the team to review and respond.</p>
           </div>
           <span style="display:flex;gap:0.4rem;">
@@ -2223,5 +2223,6 @@
 <script src="assets/js/main.js?v=9"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
 <script src="assets/js/nav-auth.js?v=6"></script>
+<script src="assets/js/walkthroughs.js?v=1"></script>
 </body>
 </html>

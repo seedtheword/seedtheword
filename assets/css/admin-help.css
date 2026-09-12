@@ -1601,3 +1601,38 @@
   color: var(--ah-ink-2); font-weight: 600; font-size: 0.9rem;
 }
 .ah-overlay-demo__veil.is-on { display: flex; }
+
+/* ── Interactive Walkthroughs launcher grid (opens the shared modal) ── */
+.ah-wt-launch {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+  margin: 1.25rem 0 1.75rem;
+}
+.ah-wt-launch__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  text-align: left;
+  padding: 1rem 1.1rem;
+  background: var(--ah-paper);
+  border: 1.5px solid var(--ah-line);
+  border-radius: var(--ah-r-md);
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: var(--ah-sh-sm);
+  transition: transform var(--ah-dur-fast) var(--ah-ease), box-shadow var(--ah-dur-fast) var(--ah-ease), border-color var(--ah-dur-fast) var(--ah-ease);
+}
+.ah-wt-launch__btn:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--ah-sh-md);
+  border-color: var(--ah-accent);
+}
+.ah-wt-launch__ico { font-size: 1.6rem; line-height: 1; margin-bottom: 0.3rem; }
+.ah-wt-launch__label { font-size: 0.98rem; font-weight: 800; color: var(--ah-ink); line-height: 1.3; }
+.ah-wt-launch__cat {
+  font-family: var(--ah-mono);
+  font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ah-muted);
+}

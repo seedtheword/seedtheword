@@ -157,6 +157,9 @@
     else if (id === 'codes') renderCodes(host);
     else if (id === 'messages') renderMessages(host);
     else if (id === 'moderation') renderModeration(host);
+    // Wire any "?" walkthrough triggers in the freshly-rendered section.
+    // Renders may be async (they await network) so also re-wire shortly after.
+    if (window.Walkthroughs) { window.Walkthroughs.wire(host); setTimeout(function () { window.Walkthroughs.wire(host); }, 600); }
   }
 
   function onNew() {
@@ -239,7 +242,7 @@
       if (!res.ok) throw new Error(res.error || 'Failed');
       if (!res.members || !res.members.length) { host.innerHTML = '<div class="sp-card"><p class="sp-empty">No members.</p></div>'; return; }
 
-      host.innerHTML = '<div class="sp-card"><h3 class="sp-card__title">Team members</h3>' +
+      host.innerHTML = '<div class="sp-card"><h3 class="sp-card__title">Team members <button class="wt-help" data-walkthrough="members"></button></h3>' +
         '<p class="sp-card__sub">Set a role, then fine-tune exactly which sections each person can open. Super-admins always have full access.</p>' +
         '<div id="members-list">' + res.members.map(renderMemberRow).join('') + '</div></div>';
 
@@ -410,7 +413,7 @@
   // ══ CODES — generate & manage comp codes (generatePromoCode / listPromoCodes / deactivatePromoCode) ══
   async function renderCodes(host) {
     host.innerHTML =
-      '<div class="sp-card"><h3 class="sp-card__title">Generate a comp code</h3>' +
+      '<div class="sp-card"><h3 class="sp-card__title">Generate a comp code <button class="wt-help" data-walkthrough="comp-code"></button></h3>' +
         '<p class="sp-card__sub">A team-issued code lets someone place a store order at no charge. Set how many times it can be used; each order spends one use, and it dies when it runs out.</p>' +
         '<div class="sp-row">' +
           '<div class="sp-field"><label>Code (optional)</label><input class="sp-input" id="code-str" placeholder="e.g. THANKYOUSTW — blank = auto"></div>' +
@@ -538,7 +541,7 @@
 
       // Stories sub-panel
       '<div id="sub-stories">' +
-        '<div class="sp-card"><h3 class="sp-card__title">➕ <span id="story-mode">New</span> outreach story</h3>' +
+        '<div class="sp-card"><h3 class="sp-card__title">➕ <span id="story-mode">New</span> outreach story <button class="wt-help" data-walkthrough="publish-story"></button></h3>' +
           '<form id="story-form">' +
             '<input type="hidden" id="story-id">' +
             '<div class="sp-row"><div class="sp-field"><label>Date</label><input type="date" class="sp-input" id="story-date"></div>' +
@@ -556,7 +559,7 @@
 
       // Testimonies sub-panel
       '<div id="sub-testimonies" class="sp-sub-hidden">' +
-        '<div class="sp-card"><h3 class="sp-card__title">➕ <span id="testimony-mode">New</span> testimony</h3>' +
+        '<div class="sp-card"><h3 class="sp-card__title">➕ <span id="testimony-mode">New</span> testimony <button class="wt-help" data-walkthrough="publish-testimony"></button></h3>' +
           '<form id="testimony-form">' +
             '<input type="hidden" id="testimony-id">' +
             '<div class="sp-row"><div class="sp-field"><label>Name</label><input class="sp-input" id="testimony-name" placeholder="First or full name"></div>' +
@@ -759,7 +762,7 @@
 
   function renderMap(host) {
     host.innerHTML =
-      '<div class="sp-card"><h3 class="sp-card__title">➕ <span id="loc-mode">New</span> location</h3>' +
+      '<div class="sp-card"><h3 class="sp-card__title">➕ <span id="loc-mode">New</span> location <button class="wt-help" data-walkthrough="outreach-map"></button></h3>' +
         '<p class="sp-card__sub">Add a country, state, or city where Bibles have been sent. Published locations show on the outreach map + count toward "countries reached."</p>' +
         '<form id="loc-form">' +
           '<input type="hidden" id="loc-id">' +

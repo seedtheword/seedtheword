@@ -491,13 +491,27 @@
       from { opacity: 1; transform: translateX(0); }
       to   { opacity: 0; transform: translateX(var(--bb-slide, -32px)); }
     }
-    /* Navigation */
+    /* Navigation — floats at the bottom of the viewport so it's always in reach. */
     .bb-wizard__nav {
+      position: sticky;
+      bottom: 1rem;
+      z-index: 40;
       display: flex; align-items: center; gap: 1rem;
-      max-width: 700px; margin: 1.5rem auto 0; padding: 0 1rem;
+      max-width: 620px; margin: 1.5rem auto 0;
+      padding: 0.7rem 0.9rem;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid #e8e4de;
+      border-radius: 999px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.14);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
     .bb-wizard__nav-hint {
       flex: 1; text-align: center; font-size: 0.82rem; color: var(--muted, #6B6B6B); min-height: 1em;
+    }
+    @media (max-width: 560px) {
+      .bb-wizard__nav { bottom: 0.5rem; margin-left: 0.5rem; margin-right: 0.5rem; padding: 0.6rem 0.7rem; gap: 0.5rem; }
+      .bb-wizard__btn { padding: 0.65rem 1.1rem; font-size: 0.9rem; }
     }
     .bb-wizard__btn {
       font-family: inherit; font-size: 0.95rem; font-weight: 700;
@@ -963,8 +977,7 @@
       <input type="text" id="bb-gotcha" name="_gotcha" tabindex="-1" autocomplete="off">
     </div>
 
-    <button class="bb-submit" type="submit" id="bb-submit">Submit Order</button>
-    <button class="bb-submit bb-submit--cart" type="button" id="bb-add-cart" style="margin-top:0.75rem;background:#fff;color:var(--gold,#B8860B);border:1.5px solid var(--gold,#B8860B);">Add bundle to cart 🛒</button>
+    <button class="bb-submit" type="submit" id="bb-submit">Place Order</button>
   </form>
 
   <!-- Success message -->
@@ -1525,58 +1538,69 @@
     }
     if (honeypot) return; // Bot detected
 
+    if (!orderHandlerUrl) {
+      alert('We could not reach the order service. Please try again shortly or contact us.');
+      return;
+    }
+
     var delivery = document.querySelector('input[name="delivery"]:checked').value;
-    var address = delivery === 'ship' ? buildAddressString() : 'Pickup at next meeting';
+    var wantsShipping = (delivery === 'ship');
+    var shippingAddress = wantsShipping ? buildAddressString() : '';
+
+    // Build the order line items from the selected products — the SAME shape the
+    // store checkout sends, so the order lands in the Team Portal Order Queue
+    // (StoreOrders tab) and triggers the branded store-order emails.
+    var items = [];
+    var subtotalCents = 0;
+    Object.keys(cart).forEach(function (id) {
+      var qty = cart[id];
+      if (!qty || qty < 1) return;
+      var p = getProduct(id);
+      var unit = bundleUnitCents(p);
+      subtotalCents += unit * qty;
+      items.push({
+        productId: id,
+        name: p ? p.name : id,
+        qty: qty,
+        packSize: (p && p.packSize) ? p.packSize : 1,
+        unitPriceCents: unit,
+        lineTotalCents: unit * qty,
+        isBundle: true,
+        customizationId: 'bnd' + Date.now().toString(36)
+      });
+    });
+
+    // Fold every customization choice into the order notes so the team sees the
+    // full bundle configuration in the Order Queue and the order email.
+    var notesParts = [];
+    var dedication = document.getElementById('bb-dedication').value.trim();
+    notesParts.push('CUSTOM BUNDLE');
+    notesParts.push('Delivery: ' + (wantsShipping ? ('Ship to ' + shippingAddress) : 'Pickup at next meeting'));
+    var config = buildConfigString();
+    if (config) notesParts.push(config);
+    if (dedication) notesParts.push('DEDICATION: ' + dedication);
+    var notes = notesParts.join('\n');
+
+    var sess = null;
+    try { sess = JSON.parse(localStorage.getItem('stwm-team-session')); } catch (e) {}
 
     var payload = {
-      type: 'order',
-      bundle: 'custom',
-      gifter_name: name,
-      gifter_email: email,
-      gifter_phone: document.getElementById('bb-phone').value.trim(),
-      delivery_details: delivery === 'ship' ? address : 'Pickup at next meeting',
-      configuration: buildConfigString(),
-      dedication: document.getElementById('bb-dedication').value.trim(),
-      address: address,
+      action: 'placeOrder',
+      token: (sess && sess.token) || '',
+      name: name,
+      email: email,
+      phone: document.getElementById('bb-phone').value.trim(),
+      wantsShipping: wantsShipping,
+      shippingAddress: shippingAddress,
+      notes: notes,
+      items: items,
+      subtotalCents: subtotalCents,
+      currency: 'USD',
       _gotcha: ''
     };
 
-    // Collect customization options
-    var recipient = document.querySelector('input[name="recipient"]:checked');
-    payload.recipient = recipient ? recipient.value : 'self';
-    
-    // Packaging
-    var packaging = document.querySelector('input[name="packaging"]:checked');
-    payload.packaging = packaging ? packaging.value : 'standard';
-    
-    // Special orders
-    var specials = [];
-    document.querySelectorAll('input[name="special"]:checked').forEach(function(cb) { specials.push(cb.value); });
-    payload.specialOrders = specials.join(', ');
-    
-    // Name labels
-    var nameLabels = [];
-    document.querySelectorAll('input[name^="name-label-"]').forEach(function(input) {
-      if (input.value.trim()) nameLabels.push(input.value.trim());
-    });
-    if (nameLabels.length) payload.nameLabels = nameLabels.join(', ');
-    
-    // Outreach details
-    if (payload.recipient === 'outreach') {
-      payload.outreachEvent = {
-        name: (document.getElementById('bb-event-name') || {}).value || '',
-        date: (document.getElementById('bb-event-date') || {}).value || '',
-        location: (document.getElementById('bb-event-location') || {}).value || '',
-        contact: (document.getElementById('bb-event-contact') || {}).value || '',
-        story: (document.getElementById('bb-event-story') || {}).value || ''
-      };
-      var materials = [];
-      document.querySelectorAll('input[name="outreach-material"]:checked').forEach(function(cb) { materials.push(cb.value); });
-      payload.outreachMaterials = materials.join(', ');
-    }
-
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
+    submitBtn.textContent = 'Placing order…';
 
     fetch(orderHandlerUrl, {
       method: 'POST',
@@ -1588,25 +1612,34 @@
     .then(function(data) {
       if (data && data.ok) {
         form.style.display = 'none';
+        // Show the real order id returned by the backend.
+        if (data.orderId) {
+          var msgEl = successDiv.querySelector('.bb-success__msg');
+          if (msgEl) {
+            msgEl.textContent = 'Your order (' + data.orderId + ') is in — we\'ll reach out within 1–2 days to confirm details and arrange payment/shipping. Check your email for confirmation.';
+          }
+        }
         successDiv.classList.add('is-visible');
+        var navBar = document.getElementById('bb-wizard-nav');
+        if (navBar) navBar.style.display = 'none';
+        successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit Order';
-        alert('Order error: ' + (data.error || 'Unknown error. Please try again or contact us.'));
+        submitBtn.textContent = 'Place Order';
+        alert('Order error: ' + ((data && data.error) || 'Unknown error. Please try again or contact us.'));
       }
     })
     .catch(function(err) {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit Order';
+      submitBtn.textContent = 'Place Order';
       alert('Order submission failed: ' + (err.message || 'Network error. Please try again.'));
     });
   });
 
   // ── Add the configured bundle to the shared cart (handoff to cart.html) ──
-  // Computes a total from the current Bible selections (retail-rounded) and
-  // adds ONE cart line marked isBundle, carrying the full configuration so the
-  // team sees exactly what was customized. Personalization/add-ons are recorded
-  // in the config summary; their pricing is confirmed at follow-up.
+  // Per-unit price (in cents) for an order line — prefers live sheet retail
+  // pricing, falls back to parsing the display price. Used to build the
+  // placeOrder items[] and the cart-review total.
   function bundleUnitCents(p) {
     if (!p) return 0;
     if (typeof p.retailCents === 'number') return p.retailCents;
@@ -1616,44 +1649,6 @@
       return (window.STW_Cart && window.STW_Cart.retailCentsFromBase) ? window.STW_Cart.retailCentsFromBase(base) : base;
     }
     return 0;
-  }
-
-  var addCartBtn = document.getElementById('bb-add-cart');
-  if (addCartBtn) {
-    addCartBtn.addEventListener('click', function() {
-      if (!window.STW_Cart) { window.location.href = 'cart.html'; return; }
-      var ids = Object.keys(cart).filter(function(id) { return cart[id] > 0; });
-      if (!ids.length) { alert('Add at least one item to your bundle first.'); return; }
-
-      var totalCents = 0;
-      var itemCount = 0;
-      var names = [];
-      ids.forEach(function(id) {
-        var p = getProduct(id);
-        var qty = cart[id];
-        itemCount += qty;
-        totalCents += bundleUnitCents(p) * qty;
-        names.push((p ? p.name : id) + ' x' + qty);
-      });
-
-      var config = buildConfigString();
-      // Unique id so two differently-configured bundles stay separate lines.
-      var customizationId = 'bnd' + Date.now().toString(36);
-
-      window.STW_Cart.add({
-        productId: 'custom-bundle',
-        name: 'Custom Bundle (' + itemCount + ' item' + (itemCount !== 1 ? 's' : '') + ')',
-        description: names.join(', ') + (config ? ' — ' + config : ''),
-        image: '',
-        unitPriceCents: totalCents,
-        qty: 1,
-        isBundle: true,
-        customizationId: customizationId
-      });
-
-      addCartBtn.textContent = 'Added ✓ Going to cart…';
-      setTimeout(function() { window.location.href = 'cart.html'; }, 700);
-    });
   }
 
   // ── Live Lists-tab catalog merge (mirrors store-catalog.js) ──

@@ -1636,3 +1636,47 @@
   font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--ah-muted);
 }
+
+/* ── Compact topic cards (repackaged Admin Help) ── */
+.ah-topics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 1.75rem;
+}
+.ah-topic {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  background: var(--ah-paper);
+  border: 1px solid var(--ah-line);
+  border-radius: var(--ah-r-md);
+  box-shadow: var(--ah-sh-sm);
+  transition: transform var(--ah-dur-fast) var(--ah-ease), box-shadow var(--ah-dur-fast) var(--ah-ease), border-color var(--ah-dur-fast) var(--ah-ease);
+}
+.ah-topic:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ah-sh-md);
+  border-color: var(--ah-accent-ring);
+}
+.ah-topic__ico { font-size: 1.5rem; line-height: 1; flex-shrink: 0; }
+.ah-topic__main { flex: 1; min-width: 0; }
+.ah-topic__title { font-size: 0.98rem; font-weight: 800; color: var(--ah-ink); margin: 0 0 0.15rem; line-height: 1.25; }
+.ah-topic__desc { font-size: 0.83rem; line-height: 1.45; color: var(--ah-ink-2); margin: 0; }
+.ah-topic__desc code { font-size: 0.9em; }
+.ah-topic .wt-help { flex-shrink: 0; align-self: flex-start; }
+
+/* Inline "?" glyph used in prose to point at the real help buttons */
+.wt-help-inline {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.15rem; height: 1.15rem; border-radius: var(--ah-r-full);
+  border: 1.5px solid var(--ah-accent-ring); background: var(--ah-accent-soft);
+  color: var(--ah-accent-strong); font-size: 0.72rem; font-weight: 800; line-height: 1;
+  vertical-align: middle;
+}
+
+/* Card body lists render tighter inside the compact reference cards */
+.admin-card ul.admin-card__body { margin: 0.4rem 0 0; padding-left: 1.15rem; }
+.admin-card ul.admin-card__body li { margin: 0.25rem 0; font-size: 0.92rem; line-height: 1.5; color: var(--ah-ink-2); }
+.admin-card__body { font-size: 0.92rem; line-height: 1.6; color: var(--ah-ink-2); margin: 0.2rem 0 0; }

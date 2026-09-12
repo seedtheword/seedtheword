@@ -353,6 +353,80 @@
       padding: 2.5rem 1.5rem 1rem;
       text-align: center;
     }
+
+    /* ── Highlighted artistic customizations (promoted hand-painted service) ── */
+    .bb-artistic {
+      position: relative;
+      overflow: hidden;
+      margin: 0 0 1.5rem;
+      padding: 1.5rem 1.5rem 1.25rem;
+      border-radius: 16px;
+      border: 1.5px solid rgba(184,134,11,0.45);
+      background:
+        radial-gradient(ellipse at 15% 0%, rgba(212,168,75,0.16), transparent 55%),
+        radial-gradient(ellipse at 90% 100%, rgba(184,134,11,0.14), transparent 55%),
+        linear-gradient(180deg, #fffdf7 0%, #fbf4e6 100%);
+      box-shadow: 0 8px 28px rgba(184,134,11,0.18), inset 0 0 0 1px rgba(255,255,255,0.5);
+    }
+    /* Slow sweeping shine across the whole panel to draw the eye. */
+    .bb-artistic__glow {
+      position: absolute;
+      top: 0; left: -60%;
+      width: 45%; height: 100%;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,0.55), transparent);
+      transform: skewX(-18deg);
+      animation: bbArtisticSweep 5.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes bbArtisticSweep {
+      0%   { left: -60%; }
+      55%  { left: 130%; }
+      100% { left: 130%; }
+    }
+    .bb-artistic__head { position: relative; z-index: 1; text-align: center; margin-bottom: 1rem; }
+    .bb-artistic__badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #fff; background: linear-gradient(135deg, #B8860B, #D4A84B);
+      padding: 0.3rem 0.85rem; border-radius: 999px;
+      box-shadow: 0 3px 12px rgba(184,134,11,0.4);
+    }
+    .bb-artistic__title { margin: 0.6rem 0 0.35rem; font-size: 1.2rem; font-weight: 800; }
+    .bb-artistic__sub {
+      margin: 0 auto; max-width: 560px;
+      font-size: 0.9rem; line-height: 1.55; color: #6b5a2e;
+    }
+    .bb-artistic__sub strong { color: #8a6a12; }
+    .bb-artistic__grid {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.6rem;
+    }
+    .bb-artistic__opt {
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.7rem 0.9rem; cursor: pointer;
+      background: rgba(255,255,255,0.75);
+      border: 1.5px solid rgba(184,134,11,0.3);
+      border-radius: 10px;
+      font-size: 0.92rem; font-weight: 600; color: #4a4a4a;
+      transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+    .bb-artistic__opt:hover {
+      transform: translateY(-2px);
+      border-color: var(--gold, #B8860B);
+      box-shadow: 0 5px 16px rgba(184,134,11,0.22);
+      background: #fff;
+    }
+    .bb-artistic__opt input { width: 18px; height: 18px; flex-shrink: 0; }
+    .bb-artistic__opt:has(input:checked) {
+      border-color: var(--gold, #B8860B);
+      background: linear-gradient(135deg, rgba(212,168,75,0.18), rgba(184,134,11,0.1));
+      box-shadow: 0 3px 12px rgba(184,134,11,0.25);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bb-artistic__glow { animation: none; display: none; }
+    }
     .bb-inspo__eyebrow {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.7rem;
@@ -660,33 +734,51 @@
       </label>
     </div>
 
-    <!-- Special-order options (collapsible) -->
+    <!-- Highlighted artistic customizations — the promoted hand-painted service.
+         Always visible with a shimmer treatment so it catches the eye en route
+         to checkout. Uses the same name="special" values as before. -->
+    <div class="bb-artistic">
+      <div class="bb-artistic__glow" aria-hidden="true"></div>
+      <div class="bb-artistic__head">
+        <span class="bb-artistic__badge">🎨 Make it a keepsake</span>
+        <p class="bb-artistic__title"><span class="shimmer-gift">✨ Hand-painted &amp; artistic touches ✨</span></p>
+        <p class="bb-artistic__sub">Turn a Bible into a one-of-a-kind gift. No set price — give as the Spirit leads; <strong>most give $20 on average</strong>. Pick any and we'll follow up to make it beautiful.</p>
+      </div>
+      <div class="bb-artistic__grid">
+        <label class="bb-artistic__opt">
+          <input type="checkbox" name="special" value="cover-painting" style="accent-color:var(--gold);">
+          <span>🖌️ Cover painting</span>
+        </label>
+        <label class="bb-artistic__opt">
+          <input type="checkbox" name="special" value="edge-spray" style="accent-color:var(--gold);">
+          <span>🌈 Edge spray painting</span>
+        </label>
+        <label class="bb-artistic__opt">
+          <input type="checkbox" name="special" value="verse-highlighting" style="accent-color:var(--gold);">
+          <span>🖍️ Verse highlighting</span>
+        </label>
+        <label class="bb-artistic__opt">
+          <input type="checkbox" name="special" value="pressed-flowers" style="accent-color:var(--gold);">
+          <span>🌸 Pressed flowers</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Other special-order options (collapsible) -->
     <details style="margin-bottom:1.5rem; border:1px solid #e8e4de; border-radius:10px; padding:0;">
       <summary style="padding:1rem 1.25rem; cursor:pointer; font-size:0.9rem; font-weight:600; color:var(--green); list-style:none; display:flex; align-items:center; gap:0.5rem;">
-        🛎 Special-order options <span style="color:var(--muted); font-weight:400; margin-left:auto;">— talk with our team</span>
+        🛎 More special-order options <span style="color:var(--muted); font-weight:400; margin-left:auto;">— talk with our team</span>
       </summary>
       <div style="padding:0 1.25rem 1.25rem; font-size:0.85rem; color:var(--muted);">
         <p style="margin:0 0 0.75rem;">These require coordination with our team. Check any you're interested in and we'll follow up:</p>
         <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
-          <input type="checkbox" name="special" value="engraving" style="accent-color:var(--gold);"> Engraving
+          <input type="checkbox" name="special" value="engraving" style="accent-color:var(--gold);"> <span>Engraving</span>
         </label>
         <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
-          <input type="checkbox" name="special" value="cover-painting" style="accent-color:var(--gold);"> Cover painting
+          <input type="checkbox" name="special" value="dedication-page" style="accent-color:var(--gold);"> <span>Custom dedication page</span>
         </label>
         <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
-          <input type="checkbox" name="special" value="edge-spray" style="accent-color:var(--gold);"> Edge spray painting
-        </label>
-        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
-          <input type="checkbox" name="special" value="verse-highlighting" style="accent-color:var(--gold);"> Verse highlighting
-        </label>
-        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
-          <input type="checkbox" name="special" value="pressed-flowers" style="accent-color:var(--gold);"> Pressed flowers
-        </label>
-        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
-          <input type="checkbox" name="special" value="dedication-page" style="accent-color:var(--gold);"> Custom dedication page
-        </label>
-        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
-          <input type="checkbox" name="special" value="study-notes" style="accent-color:var(--gold);"> Study notes added
+          <input type="checkbox" name="special" value="study-notes" style="accent-color:var(--gold);"> <span>Study notes added</span>
         </label>
       </div>
     </details>

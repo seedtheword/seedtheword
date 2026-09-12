@@ -22,6 +22,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
+  <link rel="stylesheet" href="assets/css/outreach-map.css?v=3">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
     /* ============================================================
@@ -73,6 +74,15 @@
     .donate-impact__social-link--gideons svg { color: var(--gold, #d4a574); }
     .donate-impact__social-link--youversion svg { color: #fff; }
     .donate-impact__plus { font-size: 0.6em; vertical-align: super; color: rgba(255,255,255,0.5); }
+
+    /* Interactive globe + "Countries Reached" counter, tuned for the dark impact card */
+    .donate-impact__globe { margin: 0 0 2rem; padding-top: 0.5rem; }
+    .donate-impact__globe .reach { max-width: 100%; }
+    .donate-impact__globe .reach__eyebrow { color: var(--gold, #d4a574); }
+    .donate-impact__globe .reach-globe { max-width: 300px; }
+    .donate-impact__globe .reach-globe__hint { color: rgba(255,255,255,0.55); }
+    .donate-impact__globe .reach__stat-num { color: var(--gold, #d4a574); }
+    .donate-impact__globe .reach__stat-label { color: rgba(255,255,255,0.75); }
 
     .donate-story-v2 { padding: 5rem 1.5rem; background: #fff; }
     .donate-story-v2__intro { max-width: 700px; margin: 0 auto 3rem; text-align: center; }
@@ -280,6 +290,9 @@
         <span class="donate-impact__num" id="impact-events">4<span class="donate-impact__plus">+</span></span>
         <span class="donate-impact__label">Outreach Events</span>
       </div>
+    </div>
+    <div class="donate-impact__globe">
+      <div id="outreach-reach" data-reach-mode="compact"></div>
     </div>
     <div class="donate-impact__socials">
       <a class="donate-impact__social-link donate-impact__social-link--telegram" href="https://t.me/seedtheword" target="_blank" rel="noopener" aria-label="Telegram community">
@@ -533,5 +546,6 @@
 <script src="assets/js/donate-page.js?v=3"></script>
 <script src="assets/js/profile-settings.js?v=3"></script>
 <script src="assets/js/nav-auth.js?v=5"></script>
+<script src="assets/js/outreach-map.js?v=5" defer></script>
 </body>
 </html>

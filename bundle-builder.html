@@ -419,6 +419,11 @@
       background: #fff;
     }
     .bb-artistic__opt input { width: 18px; height: 18px; flex-shrink: 0; }
+    .bb-artistic__note {
+      position: relative; z-index: 1;
+      margin: 0.9rem 0 0; text-align: center;
+      font-size: 0.8rem; color: #8a7a4e;
+    }
     .bb-artistic__opt:has(input:checked) {
       border-color: var(--gold, #B8860B);
       background: linear-gradient(135deg, rgba(212,168,75,0.18), rgba(184,134,11,0.1));
@@ -761,27 +766,21 @@
           <input type="checkbox" name="special" value="pressed-flowers" style="accent-color:var(--gold);">
           <span>🌸 Pressed flowers</span>
         </label>
+        <label class="bb-artistic__opt">
+          <input type="checkbox" name="special" value="engraving" style="accent-color:var(--gold);">
+          <span>🔤 Engraving</span>
+        </label>
+        <label class="bb-artistic__opt">
+          <input type="checkbox" name="special" value="dedication-page" style="accent-color:var(--gold);">
+          <span>💌 Custom dedication page</span>
+        </label>
+        <label class="bb-artistic__opt">
+          <input type="checkbox" name="special" value="study-notes" style="accent-color:var(--gold);">
+          <span>📝 Study notes added</span>
+        </label>
       </div>
+      <p class="bb-artistic__note">These require coordination with our team — check any you'd like and we'll follow up.</p>
     </div>
-
-    <!-- Other special-order options (collapsible) -->
-    <details style="margin-bottom:1.5rem; border:1px solid #e8e4de; border-radius:10px; padding:0;">
-      <summary style="padding:1rem 1.25rem; cursor:pointer; font-size:0.9rem; font-weight:600; color:var(--green); list-style:none; display:flex; align-items:center; gap:0.5rem;">
-        🛎 More special-order options <span style="color:var(--muted); font-weight:400; margin-left:auto;">— talk with our team</span>
-      </summary>
-      <div style="padding:0 1.25rem 1.25rem; font-size:0.85rem; color:var(--muted);">
-        <p style="margin:0 0 0.75rem;">These require coordination with our team. Check any you're interested in and we'll follow up:</p>
-        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
-          <input type="checkbox" name="special" value="engraving" style="accent-color:var(--gold);"> <span>Engraving</span>
-        </label>
-        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
-          <input type="checkbox" name="special" value="dedication-page" style="accent-color:var(--gold);"> <span>Custom dedication page</span>
-        </label>
-        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; cursor:pointer;">
-          <input type="checkbox" name="special" value="study-notes" style="accent-color:var(--gold);"> <span>Study notes added</span>
-        </label>
-      </div>
-    </details>
 
     <!-- Outreach extra materials (shown when "outreach" recipient selected) -->
     <div id="bb-outreach-materials" style="display:none; padding:1.25rem; background:rgba(44,95,46,0.04); border:1.5px solid rgba(44,95,46,0.15); border-radius:10px;">

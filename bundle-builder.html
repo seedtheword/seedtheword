@@ -98,6 +98,19 @@
     .bb-cat-group:first-child .bb-cat-group__title { margin-top: 0; }
     .bb-cat-group__grid { margin-bottom: 0.5rem; }
 
+    /* ── Single / Pack variant toggle ── */
+    .bb-variant {
+      display: inline-flex; margin-top: 0.75rem; border-radius: 999px;
+      border: 1.5px solid #e8e4de; overflow: hidden; background: #fff;
+    }
+    .bb-variant__btn {
+      font-family: inherit; font-size: 0.78rem; font-weight: 600;
+      padding: 0.4rem 0.75rem; border: none; background: transparent;
+      color: var(--muted, #666); cursor: pointer; white-space: nowrap;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .bb-variant__btn.is-selected { background: var(--green, #2C5F2E); color: #fff; }
+
     /* ── Quantity controls ── */
     .bb-qty {
       display: flex;
@@ -1006,6 +1019,7 @@
 
   // ── State ──
   var cart = {}; // { productId: quantity }
+  var variants = {}; // { productId: 'single' | 'pack' } — chosen buy option (default single)
   var products = [];
   var orderHandlerUrl = '';
 
@@ -1198,7 +1212,17 @@
           : '<span class="store-card__action store-card__action--disabled">View product</span>') +
         '<p class="bb-stock-note">Handpicked — buy direct from the retailer</p>';
     } else {
+      // Optional Single / Pack toggle — only when the product has a pack.
+      // Single is the DEFAULT so individual selection always works.
+      var variant = variantOf(p.id);
+      var variantToggle = bundleHasPack(p)
+        ? '<div class="bb-variant" role="group" aria-label="Choose single or pack" data-variant-group="' + p.id + '">' +
+            '<button type="button" class="bb-variant__btn' + (variant === 'single' ? ' is-selected' : '') + '" data-variant-set="single" data-id="' + p.id + '">Single · ' + formatCents_(singleUnitCents(p)) + '</button>' +
+            '<button type="button" class="bb-variant__btn' + (variant === 'pack' ? ' is-selected' : '') + '" data-variant-set="pack" data-id="' + p.id + '">Pack of ' + p.packSize + ' · ' + formatCents_(packUnitCents(p)) + '</button>' +
+          '</div>'
+        : '';
       controlsHtml =
+        variantToggle +
         '<div class="bb-qty">' +
           '<button class="bb-qty__btn" data-action="dec" data-id="' + p.id + '" ' + (qty === 0 ? 'disabled' : '') + '>−</button>' +
           '<span class="bb-qty__count" id="qty-' + p.id + '">' + qty + '</span>' +
@@ -1209,9 +1233,18 @@
           : '<p class="bb-stock-note">Max: ' + maxQty + '</p>');
     }
 
+    // Price line: for pack items show single + pack (like the store); single default.
+    var priceHtml = '';
+    if (!isRecommended && (typeof p.retailCents === 'number' || bundleHasPack(p))) {
+      priceHtml = '<span class="store-card__price">' + formatCents_(singleUnitCents(p)) + ' each';
+      if (bundleHasPack(p)) priceHtml += ' · pack of ' + p.packSize + ' ' + formatCents_(packUnitCents(p));
+      priceHtml += '</span>';
+    } else if (p.price) {
+      priceHtml = '<span class="store-card__price">' + p.price + '</span>';
+    }
     var metaHtml =
       '<div class="store-card__meta">' +
-        (p.price ? '<span class="store-card__price">' + p.price + '</span>' : '') +
+        priceHtml +
         (isRecommended
           ? (stockLabel ? '<span class="' + stockClass + '">' + stockLabel + '</span>' : '')
           : (madeToOrder
@@ -1284,6 +1317,20 @@
         renderCart();
       });
     });
+
+    // Single / Pack variant toggle
+    grid.querySelectorAll('.bb-variant__btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var id = this.getAttribute('data-id');
+        var v = this.getAttribute('data-variant-set');
+        variants[id] = (v === 'pack') ? 'pack' : 'single';
+        // Update the selected state on this item's toggle buttons.
+        grid.querySelectorAll('[data-variant-group="' + id + '"] .bb-variant__btn').forEach(function(b) {
+          b.classList.toggle('is-selected', b.getAttribute('data-variant-set') === variants[id]);
+        });
+        renderCart();
+      });
+    });
   }
 
   // ── Update qty display without full re-render ──
@@ -1322,13 +1369,14 @@
       var p = getProduct(id);
       if (!p) return;
       var qty = cart[id];
-      // Pack-aware pricing: for a pack item, qty = number of packs and the unit
-      // price IS the pack price, so a "pack of 50" charges the pack price.
-      var packSize = bundlePackSize(p);
-      var lineCents = bundleUnitCents(p) * qty;
+      // Price by the chosen variant: single (unit) or pack. For a pack line,
+      // qty = number of packs and the unit price is the pack price.
+      var variant = variantOf(id);
+      var packSize = bundlePackSizeFor(p, variant);
+      var lineCents = bundleUnitCents(p, variant) * qty;
       totalCents += lineCents;
 
-      var packNote = packSize > 1 ? ' <span class="bb-cart__item-pack">· pack of ' + packSize + '</span>' : '';
+      var packNote = (variant === 'pack' && p.packSize > 1) ? ' <span class="bb-cart__item-pack">· pack of ' + p.packSize + '</span>' : '';
 
       var li = document.createElement('li');
       li.className = 'bb-cart__item';
@@ -1479,14 +1527,15 @@
     ids.forEach(function (id, idx) {
       var p = getProduct(id);
       var qty = cart[id];
-      var packSize = bundlePackSize(p);
+      var variant = variantOf(id);
       window.STW_Cart.add({
         productId: id,
         name: p ? p.name : id,
         image: (p && p.image) || '',
-        unitPriceCents: bundleUnitCents(p),
+        unitPriceCents: bundleUnitCents(p, variant),
         qty: qty,
-        packSize: packSize,
+        packSize: bundlePackSizeFor(p, variant),
+        variant: (variant === 'pack' ? 'pack' + (p.packSize || '') : 'single'),
         isBundle: true,
         customizationId: customizationId,
         // Put the full customization on the FIRST line so the shopper sees it
@@ -1502,29 +1551,42 @@
 
   // ── (legacy helpers retained for pricing) ──
   // Per-unit price (in cents) for an order line — prefers live sheet retail
-  // pricing, falls back to parsing the display price. Used to build the
-  // cart line items and the cart-review total.
+  // pricing, falls back to parsing the display price.
   //
-  // PACK-AWARE: items sold as a pack (packSize > 1, e.g. "Bookmarks — pack of 50")
-  // are priced at the PACK price, and one bundle "qty" = one pack. So a pack of
-  // 50 charges the pack price, not the single-unit price. The item's display
-  // `price` string already reflects the pack when packSize > 1 (set in
-  // listItemToProduct_/mergeLiveCatalog), so parsing it is a correct fallback.
-  function bundlePackSize(p) {
-    return (p && p.packSize && p.packSize > 1) ? p.packSize : 1;
+  // VARIANT-AWARE, mirroring the store: an item can be added as a SINGLE unit or
+  // (when it has a pack) as a PACK. Single is the default. `variants[id]` holds
+  // the shopper's choice ('single' | 'pack'). singleUnitCents uses retailCents;
+  // packUnitCents uses packRetailCents; hasPack gates the toggle.
+  function bundleHasPack(p) {
+    return !!(p && p.packSize && p.packSize > 1 && typeof p.packRetailCents === 'number');
   }
-  function bundleUnitCents(p) {
+  function singleUnitCents(p) {
     if (!p) return 0;
-    var isPack = bundlePackSize(p) > 1;
-    if (isPack && typeof p.packRetailCents === 'number') return p.packRetailCents;
-    if (!isPack && typeof p.retailCents === 'number') return p.retailCents;
-    // Fallback: parse the display price (already pack price when packSize > 1).
-    var m = p.price && String(p.price).match(/\$?\s*(\d+(?:\.\d{1,2})?)/);
-    if (m) {
-      var base = Math.round(parseFloat(m[1]) * 100);
-      return (window.STW_Cart && window.STW_Cart.retailCentsFromBase) ? window.STW_Cart.retailCentsFromBase(base) : base;
+    if (typeof p.retailCents === 'number') return p.retailCents;
+    // Fallback: parse a single price from the display string only when there's
+    // no pack (otherwise the string is the pack price and would mislead).
+    if (!bundleHasPack(p)) {
+      var m = p.price && String(p.price).match(/\$?\s*(\d+(?:\.\d{1,2})?)/);
+      if (m) {
+        var base = Math.round(parseFloat(m[1]) * 100);
+        return (window.STW_Cart && window.STW_Cart.retailCentsFromBase) ? window.STW_Cart.retailCentsFromBase(base) : base;
+      }
     }
     return 0;
+  }
+  function packUnitCents(p) {
+    if (!p) return 0;
+    if (typeof p.packRetailCents === 'number') return p.packRetailCents;
+    var single = singleUnitCents(p);
+    return single * ((p && p.packSize) || 1);
+  }
+  // The chosen variant's unit price + effective pack size for an item's cart line.
+  function variantOf(id) { return variants[id] === 'pack' ? 'pack' : 'single'; }
+  function bundleUnitCents(p, variant) {
+    return (variant === 'pack') ? packUnitCents(p) : singleUnitCents(p);
+  }
+  function bundlePackSizeFor(p, variant) {
+    return (variant === 'pack' && p && p.packSize) ? p.packSize : 1;
   }
 
   // ── Live Lists-tab catalog merge (mirrors store-catalog.js) ──

@@ -432,6 +432,94 @@
     @media (prefers-reduced-motion: reduce) {
       .bb-artistic__glow { animation: none; display: none; }
     }
+
+    /* Packaging sub-section inside the keepsake panel */
+    .bb-artistic__sub-section {
+      position: relative; z-index: 1;
+      margin-top: 1.25rem; padding-top: 1.1rem;
+      border-top: 1.5px dashed rgba(184,134,11,0.35);
+    }
+    .bb-artistic__subtitle {
+      margin: 0 0 0.6rem; font-size: 0.95rem; font-weight: 700; color: #8a6a12;
+      text-align: center;
+    }
+    .bb-artistic__pack { display: flex; flex-direction: column; gap: 0.5rem; }
+    .bb-artistic__pack-opt {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.6rem 0.8rem; cursor: pointer;
+      background: rgba(255,255,255,0.7);
+      border: 1.5px solid rgba(184,134,11,0.28); border-radius: 10px;
+      font-size: 0.9rem; color: #4a4a4a;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .bb-artistic__pack-opt:hover { border-color: var(--gold, #B8860B); background: #fff; }
+    .bb-artistic__pack-opt:has(input:checked) {
+      border-color: var(--gold, #B8860B);
+      background: linear-gradient(135deg, rgba(212,168,75,0.16), rgba(184,134,11,0.08));
+    }
+    .bb-artistic__pack-opt input { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ── Stepped wizard ── one step visible at a time, slide transition ── */
+    .bb-wizard { max-width: 1100px; margin: 0 auto; padding: 0 1rem 1rem; }
+    .bb-wizard__progress {
+      display: flex; gap: 0.5rem; justify-content: center;
+      max-width: 420px; margin: 1.5rem auto 0.5rem;
+    }
+    .bb-wizard__progress .bb-wizard__dot {
+      flex: 1; height: 6px; border-radius: 999px;
+      background: rgba(44,95,46,0.15); transition: background 0.3s ease;
+    }
+    .bb-wizard__progress .bb-wizard__dot.is-done { background: rgba(184,134,11,0.5); }
+    .bb-wizard__progress .bb-wizard__dot.is-current { background: var(--gold, #B8860B); }
+    .bb-wizard__count {
+      text-align: center; margin: 0 0 0.5rem;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted, #6B6B6B);
+    }
+    /* Each step: hidden by default; the active one is shown. JS drives .is-active. */
+    .bb-step { display: none; }
+    .bb-step.is-active { display: block; animation: bbStepIn 0.32s cubic-bezier(0.4,0,0.2,1); }
+    .bb-step.is-leaving {
+      display: block;
+      animation: bbStepOut 0.16s ease forwards;
+    }
+    @keyframes bbStepIn {
+      from { opacity: 0; transform: translateX(var(--bb-slide, 32px)); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes bbStepOut {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(var(--bb-slide, -32px)); }
+    }
+    /* Navigation */
+    .bb-wizard__nav {
+      display: flex; align-items: center; gap: 1rem;
+      max-width: 700px; margin: 1.5rem auto 0; padding: 0 1rem;
+    }
+    .bb-wizard__nav-hint {
+      flex: 1; text-align: center; font-size: 0.82rem; color: var(--muted, #6B6B6B); min-height: 1em;
+    }
+    .bb-wizard__btn {
+      font-family: inherit; font-size: 0.95rem; font-weight: 700;
+      padding: 0.75rem 1.5rem; border-radius: 999px; cursor: pointer;
+      border: 1.5px solid var(--green, #2C5F2E); background: #fff; color: var(--green, #2C5F2E);
+      transition: transform 0.12s ease, background 0.15s ease, opacity 0.15s ease;
+      min-height: 44px;
+    }
+    .bb-wizard__btn:hover { transform: translateY(-2px); }
+    .bb-wizard__btn--next {
+      background: linear-gradient(135deg, #2C5F2E, #3f8043); color: #fff; border-color: transparent;
+      box-shadow: 0 4px 16px rgba(44,95,46,0.3);
+    }
+    .bb-wizard__btn--back[disabled] { opacity: 0.35; cursor: default; transform: none; }
+    /* No-JS fallback: show every step stacked so the page still works. */
+    .bb-wizard.no-js .bb-step { display: block; }
+    .bb-wizard.no-js .bb-wizard__progress,
+    .bb-wizard.no-js .bb-wizard__count,
+    .bb-wizard.no-js .bb-wizard__nav { display: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .bb-step.is-active, .bb-step.is-leaving { animation: none; }
+    }
     .bb-inspo__eyebrow {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.7rem;
@@ -618,35 +706,30 @@
   <p class="bb-inspo__note">Painted with care, so timelines vary. Give as you feel led — your gift keeps the Word going out.</p>
 </section>
 
-<!-- Step 1: Select items (Bibles, tracts, merch; recommended picks link out) -->
-<section class="bb-section" style="background: var(--light, #f9f6f1);">
-  <h2 class="bb-section__title"><span>Step 1</span> Select Your Items</h2>
-  <p class="bb-section__desc">Browse Bibles, tracts, and merch below. Use the + and − buttons to add them to your bundle. Recommended Picks link out to trusted retailers and aren't part of the bundle.</p>
-  <div class="bb-grid" id="bb-product-grid">
-    <p style="color:var(--muted); text-align:center;">Loading products...</p>
-  </div>
-</section>
+<!-- ============================================================
+     Stepped bundle-builder wizard: one step at a time, animated.
+     Progress bar + Back/Next nav are injected/controlled by the
+     inline JS controller near the bottom of this file.
+     ============================================================ -->
+<div id="bb-wizard" class="bb-wizard no-js">
 
-<!-- Step 2: Your Bundle (Cart) -->
-<section class="bb-section" style="background: #fff;">
-  <h2 class="bb-section__title"><span>Step 2</span> Your Bundle</h2>
-  <p class="bb-section__desc">Review your selections below. Each item is priced individually, plus a flat $7 shipping estimate confirmed at follow-up.</p>
-  <div class="bb-cart" id="bb-cart">
-    <div class="bb-cart__empty" id="bb-cart-empty">
-      <p>📦 Your bundle is empty. Add some items above!</p>
-    </div>
-    <ul class="bb-cart__list" id="bb-cart-list" style="display:none;"></ul>
-    <div class="bb-cart__footer" id="bb-cart-footer" style="display:none;">
-      <span class="bb-cart__total" id="bb-cart-total">$0</span>
-      <button class="bb-cart__clear" id="bb-cart-clear" type="button">Clear All</button>
-    </div>
-  </div>
-</section>
+  <!-- Progress bar (dots + Step X of N) -->
+  <div class="bb-wizard__progress" id="bb-wizard-progress" aria-hidden="true"></div>
+  <p class="bb-wizard__count" id="bb-wizard-count">Step 1 of 5</p>
 
-<!-- Step 3: Who's This For? (Recipient) -->
-<section class="bb-section" style="background: var(--light, #f9f6f1);">
-  <h2 class="bb-section__title"><span>Step 3</span> Who's This For?</h2>
-  <p class="bb-section__desc">This helps us tailor the warmth and tone of the message included.</p>
+  <!-- Step 1: Select items (Bibles, tracts, merch; recommended picks link out) -->
+  <section class="bb-section bb-step is-active" data-step="1" style="background: var(--light, #f9f6f1);">
+    <h2 class="bb-section__title"><span>Step 1</span> Select Your Items</h2>
+    <p class="bb-section__desc">Browse Bibles, tracts, and merch below. Use the + and − buttons to add them to your bundle. Recommended Picks link out to trusted retailers and aren't part of the bundle.</p>
+    <div class="bb-grid" id="bb-product-grid">
+      <p style="color:var(--muted); text-align:center;">Loading products...</p>
+    </div>
+  </section>
+
+  <!-- Step 2: Who's This For? (Recipient) -->
+  <section class="bb-section bb-step" data-step="2" style="background: var(--light, #f9f6f1);">
+    <h2 class="bb-section__title"><span>Step 2</span> Who's This For?</h2>
+    <p class="bb-section__desc">This helps us tailor the warmth and tone of the message included.</p>
   <div class="bb-form__radio-group" id="bb-recipient-group" style="justify-content:center; gap:1rem;">
     <label class="bb-form__radio-label" style="padding:0.75rem 1.5rem; border:1.5px solid #e8e4de; border-radius:10px; cursor:pointer;">
       <input type="radio" name="recipient" value="self" checked> For myself
@@ -688,10 +771,10 @@
   </div>
 </section>
 
-<!-- Step 4: Add-ons & Personalization -->
-<section class="bb-section" style="background: #fff;">
-  <h2 class="bb-section__title"><span>Step 4</span> Add-ons & Personalization</h2>
-  <p class="bb-section__desc">Customize your bundle with extras. All optional.</p>
+<!-- Step 3: Make it a Keepsake (artistic touches, packaging, name labels) -->
+<section class="bb-section bb-step" data-step="3" style="background: #fff;">
+  <h2 class="bb-section__title"><span>Step 3</span> Make it a Keepsake</h2>
+  <p class="bb-section__desc">Optional finishing touches. Add artistic customizations, choose packaging, and personalize with name labels.</p>
   
   <div style="max-width:700px; margin:0 auto;">
     <!-- Personalization (name labels) -->
@@ -701,47 +784,10 @@
       <div id="bb-name-labels-inputs"></div>
     </div>
 
-    <!-- Add-on items -->
-    <h4 style="font-size:0.95rem; font-weight:700; color:var(--dark); margin:0 0 0.75rem;">Include with your bundle:</h4>
-    <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem;">
-      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
-        <input type="checkbox" name="addon" value="reading-plan" style="accent-color:var(--green); width:18px; height:18px;">
-        <span>📅 20-Day Reading Plan Booklet (free)</span>
-      </label>
-      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
-        <input type="checkbox" name="addon" value="bookmarks" checked style="accent-color:var(--green); width:18px; height:18px;">
-        <span>📑 Scripture Bookmarks (free with every Bible)</span>
-      </label>
-      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
-        <input type="checkbox" name="addon" value="tracts" style="accent-color:var(--green); width:18px; height:18px;">
-        <span>📜 Gospel Tracts / Flip Books (free)</span>
-      </label>
-      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
-        <input type="checkbox" name="addon" value="life-book" style="accent-color:var(--green); width:18px; height:18px;">
-        <span>📖 The Life Book (free)</span>
-      </label>
-    </div>
-
-    <!-- Packaging -->
-    <h4 style="font-size:0.95rem; font-weight:700; color:var(--dark); margin:0 0 0.75rem;">Packaging preference:</h4>
-    <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem;">
-      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
-        <input type="radio" name="packaging" value="standard" checked style="accent-color:var(--green);">
-        <span>Standard ministry packaging (hand-signed, prayer note)</span>
-      </label>
-      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
-        <input type="radio" name="packaging" value="burlap" style="accent-color:var(--green);">
-        <span>🧵 Burlap wrap (rustic, handmade feel) — +$3</span>
-      </label>
-      <label style="display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; cursor:pointer; padding:0.5rem 0;">
-        <input type="radio" name="packaging" value="gift-box" style="accent-color:var(--green);">
-        <span>🎁 Gift box (premium presentation) — +$5</span>
-      </label>
-    </div>
-
     <!-- Highlighted artistic customizations — the promoted hand-painted service.
          Always visible with a shimmer treatment so it catches the eye en route
-         to checkout. Uses the same name="special" values as before. -->
+         to checkout. Uses the same name="special" values as before.
+         Packaging preference is folded in as a sub-section below. -->
     <div class="bb-artistic">
       <div class="bb-artistic__glow" aria-hidden="true"></div>
       <div class="bb-artistic__head">
@@ -780,6 +826,25 @@
         </label>
       </div>
       <p class="bb-artistic__note">These require coordination with our team — check any you'd like and we'll follow up.</p>
+
+      <!-- Packaging preference (sub-section of the keepsake panel) -->
+      <div class="bb-artistic__sub-section">
+        <h4 class="bb-artistic__subtitle">🎁 Packaging preference</h4>
+        <div class="bb-artistic__pack">
+          <label class="bb-artistic__pack-opt">
+            <input type="radio" name="packaging" value="standard" checked style="accent-color:var(--gold);">
+            <span>Standard ministry packaging (hand-signed, prayer note)</span>
+          </label>
+          <label class="bb-artistic__pack-opt">
+            <input type="radio" name="packaging" value="burlap" style="accent-color:var(--gold);">
+            <span>🧵 Burlap wrap (rustic, handmade feel) — +$3</span>
+          </label>
+          <label class="bb-artistic__pack-opt">
+            <input type="radio" name="packaging" value="gift-box" style="accent-color:var(--gold);">
+            <span>🎁 Gift box (premium presentation) — +$5</span>
+          </label>
+        </div>
+      </div>
     </div>
 
     <!-- Outreach extra materials (shown when "outreach" recipient selected) -->
@@ -806,9 +871,25 @@
   </div>
 </section>
 
-<!-- Step 5: Checkout Form -->
-<section class="bb-section" style="background: var(--light, #f9f6f1);">
-  <h2 class="bb-section__title"><span>Step 5</span> Checkout</h2>
+  <!-- Step 4: Your Bundle (Cart review) -->
+  <section class="bb-section bb-step" data-step="4" style="background: var(--light, #f9f6f1);">
+    <h2 class="bb-section__title"><span>Step 4</span> Your Bundle</h2>
+    <p class="bb-section__desc">Review your selections below. Each item is priced individually, plus a flat $7 shipping estimate confirmed at follow-up.</p>
+    <div class="bb-cart" id="bb-cart">
+      <div class="bb-cart__empty" id="bb-cart-empty">
+        <p>📦 Your bundle is empty. Go back and add some items!</p>
+      </div>
+      <ul class="bb-cart__list" id="bb-cart-list" style="display:none;"></ul>
+      <div class="bb-cart__footer" id="bb-cart-footer" style="display:none;">
+        <span class="bb-cart__total" id="bb-cart-total">$0</span>
+        <button class="bb-cart__clear" id="bb-cart-clear" type="button">Clear All</button>
+      </div>
+    </div>
+  </section>
+
+<!-- Step 5: Your Details (Checkout Form) -->
+<section class="bb-section bb-step" data-step="5" style="background: var(--light, #f9f6f1);">
+  <h2 class="bb-section__title"><span>Step 5</span> Your Details</h2>
   <p class="bb-section__desc">Fill in your details and we'll reach out to confirm your order and arrange payment/shipping.</p>
 
   <form class="bb-form" id="bb-form" novalidate>
@@ -894,6 +975,15 @@
   </div>
 </section>
 
+  <!-- Wizard navigation (Back / Next) -->
+  <div class="bb-wizard__nav" id="bb-wizard-nav">
+    <button type="button" class="bb-wizard__btn bb-wizard__btn--back" id="bb-wizard-back">← Back</button>
+    <span class="bb-wizard__nav-hint" id="bb-wizard-hint"></span>
+    <button type="button" class="bb-wizard__btn bb-wizard__btn--next" id="bb-wizard-next">Next →</button>
+  </div>
+
+</div><!-- /#bb-wizard -->
+
 <!-- Footer -->
 <footer class="site-footer">
   <div class="container">
@@ -961,6 +1051,111 @@
   var cart = {}; // { productId: quantity }
   var products = [];
   var orderHandlerUrl = '';
+
+  // ── Stepped wizard controller ──────────────────────────────
+  // Shows one .bb-step at a time with a slide transition, a progress bar,
+  // and Back/Next nav. Keeps all existing form fields in the DOM (they're
+  // just hidden between steps), so the submit/cart-handoff logic is untouched.
+  (function initWizard() {
+    var wizard = document.getElementById('bb-wizard');
+    if (!wizard) return;
+    var steps = Array.prototype.slice.call(wizard.querySelectorAll('.bb-step'));
+    if (!steps.length) return;
+
+    var progressEl = document.getElementById('bb-wizard-progress');
+    var countEl = document.getElementById('bb-wizard-count');
+    var backBtn = document.getElementById('bb-wizard-back');
+    var nextBtn = document.getElementById('bb-wizard-next');
+    var hintEl = document.getElementById('bb-wizard-hint');
+    var total = steps.length;
+    var pos = 0;
+    var animating = false;
+
+    // Enable JS mode (CSS then hides inactive steps).
+    wizard.classList.remove('no-js');
+
+    // Build progress dots.
+    if (progressEl) {
+      for (var i = 0; i < total; i++) {
+        var d = document.createElement('span');
+        d.className = 'bb-wizard__dot';
+        progressEl.appendChild(d);
+      }
+    }
+
+    function reduceMotion() {
+      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    // Step 4 is the cart review; block leaving step 1 with an empty bundle,
+    // and block reaching checkout (step 5) with an empty bundle.
+    function bundleCount() {
+      var n = 0;
+      Object.keys(cart).forEach(function (id) { n += cart[id] || 0; });
+      return n;
+    }
+    function canAdvanceFrom(index) {
+      var stepNum = parseInt(steps[index].getAttribute('data-step'), 10);
+      if ((stepNum === 1 || stepNum === 4) && bundleCount() === 0) {
+        if (hintEl) {
+          hintEl.textContent = 'Add at least one item to continue.';
+          setTimeout(function () { if (hintEl) hintEl.textContent = ''; }, 2600);
+        }
+        return false;
+      }
+      return true;
+    }
+
+    function render() {
+      steps.forEach(function (s, i) { s.classList.toggle('is-active', i === pos); });
+      if (countEl) countEl.textContent = 'Step ' + (pos + 1) + ' of ' + total;
+      if (progressEl) {
+        Array.prototype.forEach.call(progressEl.children, function (dot, i) {
+          dot.classList.toggle('is-done', i < pos);
+          dot.classList.toggle('is-current', i === pos);
+        });
+      }
+      if (backBtn) backBtn.disabled = pos === 0;
+      if (nextBtn) {
+        var last = pos === total - 1;
+        nextBtn.textContent = last ? 'Review & finish below ↓' : 'Next →';
+        nextBtn.style.visibility = last ? 'hidden' : 'visible';
+      }
+      if (hintEl) hintEl.textContent = '';
+    }
+
+    function goTo(newPos, dir) {
+      if (animating || newPos < 0 || newPos >= total || newPos === pos) return;
+      var outgoing = steps[pos];
+      var slide = (dir < 0 ? '-32px' : '32px');
+      var reduce = reduceMotion();
+      // Incoming slides from this direction.
+      steps[newPos].style.setProperty('--bb-slide', slide);
+      if (reduce) {
+        pos = newPos; render();
+        wizard.scrollIntoView({ behavior: 'auto', block: 'start' });
+        return;
+      }
+      animating = true;
+      outgoing.style.setProperty('--bb-slide', (dir < 0 ? '32px' : '-32px'));
+      outgoing.classList.add('is-leaving');
+      setTimeout(function () {
+        outgoing.classList.remove('is-leaving');
+        pos = newPos;
+        render();
+        animating = false;
+        wizard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 160);
+    }
+
+    function next() { if (canAdvanceFrom(pos)) goTo(pos + 1, 1); }
+    function prev() { goTo(pos - 1, -1); }
+
+    if (nextBtn) nextBtn.addEventListener('click', next);
+    if (backBtn) backBtn.addEventListener('click', prev);
+
+    render();
+  })();
 
   // ── DOM refs ──
   var grid = document.getElementById('bb-product-grid');
@@ -1244,16 +1439,6 @@
       lines.push(cart[id] + '× ' + name + ' (' + id + ')');
     });
     
-    // Add-ons
-    var addons = [];
-    document.querySelectorAll('input[name="addon"]:checked').forEach(function(cb) {
-      addons.push(cb.parentElement.querySelector('span').textContent.trim());
-    });
-    if (addons.length) {
-      lines.push('');
-      lines.push('ADD-ONS: ' + addons.join(', '));
-    }
-    
     // Packaging
     var packaging = document.querySelector('input[name="packaging"]:checked');
     if (packaging && packaging.value !== 'standard') {
@@ -1359,11 +1544,6 @@
     // Collect customization options
     var recipient = document.querySelector('input[name="recipient"]:checked');
     payload.recipient = recipient ? recipient.value : 'self';
-    
-    // Add-ons
-    var addons = [];
-    document.querySelectorAll('input[name="addon"]:checked').forEach(function(cb) { addons.push(cb.value); });
-    payload.addons = addons.join(', ');
     
     // Packaging
     var packaging = document.querySelector('input[name="packaging"]:checked');

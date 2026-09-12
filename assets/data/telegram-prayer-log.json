@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616677,
-  "lastModified": "2026-09-12T08:55:34Z",
+  "lastUpdateId": 669616678,
+  "lastModified": "2026-09-12T12:50:38Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1791,6 +1791,16 @@
       "kind": "telegram",
       "text": "If you are talking about in Everett, because I believe there is one here too",
       "ts": "2026-09-11T22:31:16Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6092,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for me, and Everyone going to the Abortion walk. That we can have endurance, that we can have boldness, that we can have strength, that we can be protected against the enemy, and the Lords words may be our own, and we can cut down the enemy in this establishment... I believe this is my first time doing an evangelism thing with my church too, so yeah... bless me with favor from the Lord!!!",
+      "ts": "2026-09-12T12:49:33Z"
     }
   ]
 }

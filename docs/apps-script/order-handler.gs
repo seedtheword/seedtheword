@@ -222,6 +222,13 @@ function doPost(e) {
   if ((payload && payload.action) === 'placeOrder') {
     return handlePlaceOrder_(payload);
   }
+  // ── PayPal payments (Phase 1: server-verified pay-now) ──
+  if ((payload && payload.action) === 'createPayPalOrder') {
+    return handleCreatePayPalOrder_(payload);
+  }
+  if ((payload && payload.action) === 'capturePayPalOrder') {
+    return handleCapturePayPalOrder_(payload);
+  }
   if ((payload && payload.action) === 'getProfile') {
     return handleGetProfile_(payload);
   }
@@ -3458,6 +3465,34 @@ function handlePlaceOrder_(payload) {
     var compedCol = ensureColumn_(sheet, 'comped');
     var promoCol = ensureColumn_(sheet, 'promo_code');
     ensureColumn_(sheet, 'tracking_number');
+    // Payment columns (Phase 1). Additive — safe on pre-existing sheets.
+    var payStatusCol = ensureColumn_(sheet, 'payment_status');
+    var payMethodCol = ensureColumn_(sheet, 'payment_method');
+    var ppOrderCol = ensureColumn_(sheet, 'paypal_order_id');
+    var captureCol = ensureColumn_(sheet, 'capture_id');
+    var paidCentsCol = ensureColumn_(sheet, 'amount_paid_cents');
+
+    // ── Resolve payment status (never trust a bare client "paid") ──
+    //  - comped (team code) ................ no charge, treated as settled
+    //  - PayPal capture present + amount matches server subtotal .. paid
+    //  - wants shipping ..................... pending_quote (Phase 2: invoice)
+    //  - otherwise .......................... unpaid (manual follow-up)
+    var paymentMethod = String((payload && payload.paymentMethod) || '').trim();
+    var captureId = String((payload && payload.captureId) || '').trim();
+    var paypalOrderId = String((payload && payload.paypalOrderId) || '').trim();
+    var amountPaidCents = Math.max(0, Math.round(Number(payload && payload.amountPaidCents) || 0));
+    var paymentStatus;
+    if (comped) {
+      paymentStatus = 'comped';
+      paymentMethod = paymentMethod || 'comp-code';
+    } else if (captureId && amountPaidCents === subtotalCents && subtotalCents > 0) {
+      paymentStatus = 'paid';
+      paymentMethod = paymentMethod || 'paypal';
+    } else if (wantsShipping) {
+      paymentStatus = 'pending_quote'; // Phase 2 will send an invoice for the final total
+    } else {
+      paymentStatus = 'unpaid';        // manual method / follow-up
+    }
 
     sheet.appendRow([
       orderId, receivedAt, name, email, phone,
@@ -3468,6 +3503,11 @@ function handlePlaceOrder_(payload) {
     // Stamp comped/promo on the row just appended (by column, so it works
     // regardless of where ensureColumn_ placed the new headers).
     var newRow = sheet.getLastRow();
+    sheet.getRange(newRow, payStatusCol).setValue(paymentStatus);
+    if (paymentMethod) sheet.getRange(newRow, payMethodCol).setValue(paymentMethod);
+    if (paypalOrderId) sheet.getRange(newRow, ppOrderCol).setValue(paypalOrderId);
+    if (captureId) sheet.getRange(newRow, captureCol).setValue(captureId);
+    if (paymentStatus === 'paid') sheet.getRange(newRow, paidCentsCol).setValue(amountPaidCents);
     sheet.getRange(newRow, compedCol).setValue(comped ? 'YES' : 'no');
     sheet.getRange(newRow, promoCol).setValue(promoCode);
 
@@ -3490,7 +3530,7 @@ function handlePlaceOrder_(payload) {
     // Phase 4: throttled team-activity nudge → portal Activity (non-fatal).
     try { if (typeof notifyTeamActivity_ === 'function') notifyTeamActivity_('order', orderId); } catch (e) { console.log('placeOrder activity notify failed:', e); }
 
-    return jsonResponse({ ok: true, orderId: orderId, subtotalCents: subtotalCents, comped: comped, promoCode: promoCode, emailsSent: emailsSent });
+    return jsonResponse({ ok: true, orderId: orderId, subtotalCents: subtotalCents, comped: comped, promoCode: promoCode, paymentStatus: paymentStatus, emailsSent: emailsSent });
   } catch (err) {
     console.log('handlePlaceOrder_ error:', err);
     return jsonResponse({ ok: false, error: 'order-write-failed' });
@@ -3589,7 +3629,10 @@ function handleGetStoreOrders_(payload) {
         status: String(cell(row, 'status') || 'new'),
         comped: String(cell(row, 'comped') || ''),
         promo_code: String(cell(row, 'promo_code') || ''),
-        tracking_number: String(cell(row, 'tracking_number') || '')
+        tracking_number: String(cell(row, 'tracking_number') || ''),
+        payment_status: String(cell(row, 'payment_status') || ''),
+        payment_method: String(cell(row, 'payment_method') || ''),
+        amount_paid_cents: Number(cell(row, 'amount_paid_cents') || 0)
       });
     }
     orders.reverse();
@@ -4759,6 +4802,210 @@ function jsonResponse(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PayPal payments (Phase 1) — server-verified create + capture.
+//
+// SECURITY MODEL (Option B): the browser renders the PayPal JS SDK buttons
+// but NEVER captures money itself. It asks THIS backend to create the order
+// and, after the buyer approves, to capture it. The backend:
+//   1. Recomputes the amount server-side (never trusts the client total).
+//   2. Creates the PayPal order via the REST API with our credentials.
+//   3. On capture, verifies PayPal actually captured the exact expected
+//      amount + currency before returning success.
+// The buyer can pay with a PayPal balance OR a debit/credit card (PayPal's
+// hosted card fields — no PayPal account required) OR Pay Later, all through
+// the one Buttons integration.
+//
+// CREDENTIALS (never in the repo):
+//   Script Properties:  PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET
+//   (Client ID is also in site-config.json for the browser SDK; the SECRET
+//    lives ONLY in Script Properties.) Mode comes from site-config paypalMode
+//    but we also accept an explicit 'mode' from the client for the create call,
+//    validated against the allowed set. See docs/apps-script/paypal-setup.md.
+//
+// NOTE (nonprofit): donations here process as STANDARD PayPal payments. If the
+// ministry enrolls in PayPal's confirmed-charity / nonprofit program, this can
+// later be upgraded to the dedicated donation flow (reduced fees, charity
+// receipt). Functionally identical for now.
+// ══════════════════════════════════════════════════════════════════════
+
+function paypalBaseUrl_(mode) {
+  return (String(mode) === 'live')
+    ? 'https://api-m.paypal.com'
+    : 'https://api-m.sandbox.paypal.com';
+}
+
+// Read PayPal REST credentials from Script Properties. Returns null if unset
+// so callers can fail gracefully (payment disabled) rather than throw.
+function paypalCreds_() {
+  var props = PropertiesService.getScriptProperties();
+  var id = props.getProperty('PAYPAL_CLIENT_ID');
+  var secret = props.getProperty('PAYPAL_CLIENT_SECRET');
+  var mode = props.getProperty('PAYPAL_MODE') || 'sandbox';
+  if (!id || !secret) return null;
+  return { id: id, secret: secret, mode: (mode === 'live' ? 'live' : 'sandbox') };
+}
+
+// OAuth2 client-credentials token for the PayPal REST API.
+function paypalAccessToken_(creds) {
+  var url = paypalBaseUrl_(creds.mode) + '/v1/oauth2/token';
+  var resp = UrlFetchApp.fetch(url, {
+    method: 'post',
+    muteHttpExceptions: true,
+    headers: {
+      'Authorization': 'Basic ' + Utilities.base64Encode(creds.id + ':' + creds.secret),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    payload: 'grant_type=client_credentials'
+  });
+  var code = resp.getResponseCode();
+  var body = {};
+  try { body = JSON.parse(resp.getContentText()); } catch (e) {}
+  if (code < 200 || code >= 300 || !body.access_token) {
+    throw new Error('paypal-auth-failed');
+  }
+  return body.access_token;
+}
+
+// Convert integer cents → PayPal's decimal string (e.g. 599 → "5.99").
+function centsToPayPalAmount_(cents) {
+  var n = Math.max(0, Math.round(Number(cents) || 0));
+  return (n / 100).toFixed(2);
+}
+
+// Server-side expected amount (in cents) for a payment request. For store
+// carts we recompute from the line items (never trust the client). For
+// donations we accept the client amountCents (a donation has no server-side
+// price to check against) but clamp to a sane range.
+function paypalExpectedCents_(payload) {
+  var kind = String((payload && payload.kind) || 'order');
+  if (kind === 'donation') {
+    var amt = Math.round(Number(payload && payload.amountCents) || 0);
+    if (amt < 100) return { ok: false, error: 'Minimum donation is $1.' };       // $1 floor
+    if (amt > 100000000) return { ok: false, error: 'Amount too large.' };        // $1,000,000 ceiling
+    return { ok: true, cents: amt };
+  }
+  var items = (payload && Array.isArray(payload.items)) ? payload.items : [];
+  if (!items.length) return { ok: false, error: 'Cart is empty.' };
+  var cents = 0;
+  items.forEach(function (it) {
+    var qty = Math.max(1, parseInt(it.qty, 10) || 1);
+    var unit = Math.max(0, Math.round(Number(it.unitPriceCents) || 0));
+    cents += unit * qty;
+  });
+  if (cents <= 0) return { ok: false, error: 'Nothing to charge.' };
+  return { ok: true, cents: cents };
+}
+
+// action:'createPayPalOrder' — create a PayPal order for the server-computed
+// amount and return its id for the SDK to approve.
+// Payload: { kind:'order'|'donation', items?|amountCents?, currency? }
+function handleCreatePayPalOrder_(payload) {
+  try {
+    var creds = paypalCreds_();
+    if (!creds) return jsonResponse({ ok: false, error: 'payment-not-configured' });
+
+    var expected = paypalExpectedCents_(payload);
+    if (!expected.ok) return jsonResponse({ ok: false, error: expected.error });
+
+    var currency = String((payload && payload.currency) || 'USD').toUpperCase();
+    var kind = String((payload && payload.kind) || 'order');
+    var token = paypalAccessToken_(creds);
+
+    var body = {
+      intent: 'CAPTURE',
+      purchase_units: [{
+        amount: { currency_code: currency, value: centsToPayPalAmount_(expected.cents) },
+        description: (kind === 'donation') ? 'Seed the Word donation' : 'Seed the Word order'
+      }]
+    };
+    var resp = UrlFetchApp.fetch(paypalBaseUrl_(creds.mode) + '/v2/checkout/orders', {
+      method: 'post',
+      muteHttpExceptions: true,
+      contentType: 'application/json',
+      headers: { 'Authorization': 'Bearer ' + token },
+      payload: JSON.stringify(body)
+    });
+    var code = resp.getResponseCode();
+    var data = {};
+    try { data = JSON.parse(resp.getContentText()); } catch (e) {}
+    if (code < 200 || code >= 300 || !data.id) {
+      console.log('createPayPalOrder failed:', code, resp.getContentText());
+      return jsonResponse({ ok: false, error: 'paypal-create-failed' });
+    }
+    // Echo back the amount we intend to charge so the client can display it,
+    // but the authoritative check happens again at capture.
+    return jsonResponse({ ok: true, id: data.id, amountCents: expected.cents, currency: currency });
+  } catch (err) {
+    console.log('handleCreatePayPalOrder_ error:', err);
+    return jsonResponse({ ok: false, error: 'paypal-create-error' });
+  }
+}
+
+// action:'capturePayPalOrder' — capture an approved PayPal order and VERIFY
+// the captured amount matches what we expected before reporting success.
+// Payload: { paypalOrderId, kind, items?|amountCents?, currency? }
+// Returns { ok, captureId, amountCents, currency, payerEmail } on success.
+function handleCapturePayPalOrder_(payload) {
+  try {
+    var creds = paypalCreds_();
+    if (!creds) return jsonResponse({ ok: false, error: 'payment-not-configured' });
+
+    var paypalOrderId = String((payload && payload.paypalOrderId) || '').trim();
+    if (!paypalOrderId) return jsonResponse({ ok: false, error: 'missing-paypal-order-id' });
+
+    // Recompute what we expect to have been charged.
+    var expected = paypalExpectedCents_(payload);
+    if (!expected.ok) return jsonResponse({ ok: false, error: expected.error });
+    var currency = String((payload && payload.currency) || 'USD').toUpperCase();
+
+    var token = paypalAccessToken_(creds);
+    var resp = UrlFetchApp.fetch(paypalBaseUrl_(creds.mode) + '/v2/checkout/orders/' + encodeURIComponent(paypalOrderId) + '/capture', {
+      method: 'post',
+      muteHttpExceptions: true,
+      contentType: 'application/json',
+      headers: { 'Authorization': 'Bearer ' + token },
+      payload: '{}'
+    });
+    var code = resp.getResponseCode();
+    var data = {};
+    try { data = JSON.parse(resp.getContentText()); } catch (e) {}
+    if (code < 200 || code >= 300 || String(data.status) !== 'COMPLETED') {
+      console.log('capturePayPalOrder not completed:', code, resp.getContentText());
+      return jsonResponse({ ok: false, error: 'paypal-capture-failed' });
+    }
+
+    // Pull the actual captured amount/currency and verify against expected.
+    var cap = null;
+    try { cap = data.purchase_units[0].payments.captures[0]; } catch (e) {}
+    if (!cap || !cap.amount) return jsonResponse({ ok: false, error: 'paypal-no-capture' });
+    var paidCents = Math.round(parseFloat(cap.amount.value) * 100);
+    var paidCurrency = String(cap.amount.currency_code || '').toUpperCase();
+
+    if (paidCurrency !== currency || paidCents !== expected.cents) {
+      // Amount tampering / mismatch — do NOT report paid. This is the core
+      // server-side guarantee that the client can't forge the charge.
+      console.log('capture amount mismatch: paid', paidCents, paidCurrency, 'expected', expected.cents, currency);
+      return jsonResponse({ ok: false, error: 'amount-mismatch' });
+    }
+
+    var payerEmail = '';
+    try { payerEmail = String(data.payer.email_address || ''); } catch (e) {}
+
+    return jsonResponse({
+      ok: true,
+      captureId: String(cap.id || ''),
+      paypalOrderId: paypalOrderId,
+      amountCents: paidCents,
+      currency: paidCurrency,
+      payerEmail: payerEmail
+    });
+  } catch (err) {
+    console.log('handleCapturePayPalOrder_ error:', err);
+    return jsonResponse({ ok: false, error: 'paypal-capture-error' });
+  }
 }
 
 

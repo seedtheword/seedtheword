@@ -16,6 +16,12 @@
   var COST_PER_BIBLE = 2;
   var statsAnimated = false;
 
+  // ── Donation payment state (PayPal) ──
+  var donationDollars = 0;         // current chosen amount in whole dollars
+  var ppConfig = { clientId: '', mode: 'sandbox', currency: 'USD', orderHandlerUrl: '' };
+  var ppSdkLoaded = false;
+  var ppButtonsRendered = false;
+
   // ── Boot ────────────────────────────────────────────────────
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
@@ -116,6 +122,12 @@
     fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : {}; })
       .then(function (cfg) {
+        // Capture PayPal config for the donation buttons.
+        ppConfig.clientId = cfg.paypalClientId || '';
+        ppConfig.mode = cfg.paypalMode || 'sandbox';
+        ppConfig.currency = cfg.currency || 'USD';
+        ppConfig.orderHandlerUrl = cfg.orderHandlerUrl || '';
+        updateDonatePayPal();
         // Populate languages dynamically
         if (cfg.biblesInStock) {
           populateLanguages(cfg.biblesInStock);
@@ -414,12 +426,16 @@
           var val = parseInt(customInput.value, 10);
           updateEquivalence(val > 0 ? val : 0);
           setGlow(val > 0);
+          donationDollars = val > 0 ? val : 0;
         }
       } else {
         if (customWrap) customWrap.classList.remove('is-visible');
-        updateEquivalence(parseInt(amount, 10));
+        var amt = parseInt(amount, 10);
+        updateEquivalence(amt);
         setGlow(true);
+        donationDollars = amt > 0 ? amt : 0;
       }
+      updateDonatePayPal();
     }
 
     buttons.forEach(function (btn) {
@@ -438,18 +454,18 @@
         if (val > 0) {
           updateEquivalence(val);
           setGlow(true);
+          donationDollars = val;
         } else {
           if (equivDisplay) equivDisplay.textContent = '';
           setGlow(false);
+          donationDollars = 0;
         }
+        updateDonatePayPal();
       });
       customInput.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
           e.preventDefault();
-          var val = parseInt(customInput.value, 10);
-          if (val > 0) {
-            window.open('https://venmo.com/u/Vanessamind', '_blank');
-          }
+          customInput.blur(); // just confirm the amount; PayPal buttons handle payment
         }
       });
     }
@@ -635,6 +651,76 @@
         .finally(function () {
           if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send My Free Bible →'; }
         });
+    });
+  }
+
+  // ── Donation via PayPal (card / PayPal / Pay Later) ──────────
+  function loadDonatePayPalSdk() {
+    if (ppSdkLoaded || !ppConfig.clientId) return Promise.resolve(!!window.paypal);
+    return new Promise(function (resolve) {
+      var s = document.createElement('script');
+      s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(ppConfig.clientId) +
+        '&currency=' + encodeURIComponent(ppConfig.currency) + '&intent=capture&components=buttons&enable-funding=venmo,paylater';
+      s.onload = function () { ppSdkLoaded = true; resolve(true); };
+      s.onerror = function () { resolve(false); };
+      document.head.appendChild(s);
+    });
+  }
+
+  // Show the card/PayPal block once an amount is chosen and payment is
+  // configured; render the buttons the first time.
+  function updateDonatePayPal() {
+    var wrap = document.getElementById('donate-paypal-wrap');
+    if (!wrap) return;
+    var canPay = ppConfig.clientId && donationDollars > 0 && ppConfig.orderHandlerUrl;
+    wrap.hidden = !canPay;
+    if (canPay) renderDonatePayPalButtons();
+  }
+
+  function setDonateStatus(msg, kind) {
+    var el = document.getElementById('donate-paypal-status');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.className = 'donate-giving__paypal-status' + (kind ? ' is-' + kind : '');
+  }
+
+  function renderDonatePayPalButtons() {
+    loadDonatePayPalSdk().then(function (ok) {
+      if (!ok || !window.paypal || ppButtonsRendered) return;
+      var container = document.getElementById('donate-paypal-buttons');
+      if (!container) return;
+      ppButtonsRendered = true;
+      var url = ppConfig.orderHandlerUrl;
+      window.paypal.Buttons({
+        style: { layout: 'vertical', shape: 'pill', label: 'donate', color: 'gold' },
+        createOrder: function () {
+          if (!(donationDollars > 0)) { setDonateStatus('Please choose an amount first.', 'error'); return Promise.reject(new Error('no-amount')); }
+          setDonateStatus('', null);
+          return fetch(url, {
+            method: 'POST', mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'createPayPalOrder', kind: 'donation', amountCents: Math.round(donationDollars * 100), currency: ppConfig.currency })
+          }).then(function (r) { return r.json(); })
+            .then(function (res) { if (res && res.ok && res.id) return res.id; throw new Error((res && res.error) || 'create-failed'); });
+        },
+        onApprove: function (data) {
+          setDonateStatus('Confirming your gift…', null);
+          return fetch(url, {
+            method: 'POST', mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'capturePayPalOrder', paypalOrderId: data.orderID, kind: 'donation', amountCents: Math.round(donationDollars * 100), currency: ppConfig.currency })
+          }).then(function (r) { return r.json(); })
+            .then(function (res) {
+              if (res && res.ok) {
+                setDonateStatus('🎉 Thank you for your generous gift of $' + donationDollars + '! A receipt is on its way.', 'success');
+              } else {
+                throw new Error((res && res.error) || 'capture-failed');
+              }
+            })
+            .catch(function (err) { setDonateStatus('Payment could not be completed: ' + (err.message || 'please try again.'), 'error'); });
+        },
+        onError: function () { setDonateStatus('Payment error — please try again or use another method below.', 'error'); }
+      }).render('#donate-paypal-buttons');
     });
   }
 

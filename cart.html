@@ -148,7 +148,17 @@
             <span class="checkout-note__soft">(card checkout coming soon — for now we confirm your order and follow up by email).</span>
           </p>
 
+          <!-- Pay-now (PayPal / debit / credit) — shown for pickup orders with a
+               balance due once the PayPal SDK loads. Falls back to the plain
+               "Place order" button below when payment isn't configured, the
+               order is comped/free, or the shopper wants shipping (quote first). -->
+          <div class="checkout-pay" id="checkout-pay" hidden>
+            <p class="checkout-pay__label">Pay securely — PayPal, debit or credit card</p>
+            <div id="paypal-buttons"></div>
+          </div>
+
           <button type="submit" class="checkout-submit" id="checkout-submit">Place order →</button>
+          <p class="checkout-pay__note" id="checkout-pay-note" hidden></p>
           <p class="checkout-status" id="checkout-status" hidden></p>
         </form>
       </div>

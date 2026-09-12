@@ -85,6 +85,9 @@
     .ord-card__total { font-weight:800; font-size:0.95rem; white-space:nowrap; }
     .ord-tag { display:inline-block; font-size:0.6rem; font-weight:800; letter-spacing:0.05em; padding:0.1rem 0.4rem; border-radius:6px; background:var(--color-bg-subtle); color:var(--color-text-muted); vertical-align:middle; }
     .ord-tag--comped { background:rgba(217,119,54,0.14); color:var(--color-gold,#D97736); }
+    .ord-tag--paid { background:rgba(44,95,46,0.16); color:var(--color-olive,#2C5F2E); }
+    .ord-tag--pending { background:rgba(180,140,20,0.16); color:#9a6a15; }
+    .ord-tag--unpaid { background:rgba(166,37,31,0.12); color:var(--color-danger,#a6251f); }
     .ord-stepper { display:flex; align-items:center; justify-content:space-between; gap:0.2rem; margin:0.85rem 0; }
     .ord-stepper--cancelled { color:var(--color-danger,#a6251f); font-weight:700; font-size:0.85rem; margin:0.7rem 0; }
     .ord-step { flex:1; display:flex; flex-direction:column; align-items:center; gap:0.25rem; position:relative; font-size:0.62rem; color:var(--color-text-muted); text-align:center; }
@@ -956,6 +959,18 @@
     var when = o.received_at ? new Date(o.received_at).toLocaleDateString() : '';
     var comped = String(o.comped || '').toUpperCase() === 'YES';
     var ship = String(o.wants_shipping || '').toUpperCase() === 'YES';
+    var payStatus = String(o.payment_status || '').toLowerCase();
+    var payMethod = String(o.payment_method || '');
+    var paidCents = Number(o.amount_paid_cents || 0);
+    // Payment tag: PAID (green) / PENDING QUOTE / UNPAID / (comped handled separately).
+    var payTag = '';
+    if (payStatus === 'paid') {
+      payTag = ' <span class="ord-tag ord-tag--paid">PAID' + (paidCents ? ' ' + money(paidCents) : '') + (payMethod ? ' · ' + esc(payMethod) : '') + '</span>';
+    } else if (payStatus === 'pending_quote') {
+      payTag = ' <span class="ord-tag ord-tag--pending">AWAITING INVOICE</span>';
+    } else if (payStatus === 'unpaid' && !comped) {
+      payTag = ' <span class="ord-tag ord-tag--unpaid">UNPAID</span>';
+    }
 
     // Next-status actions (skip current). Cancel always available unless done.
     var actions = '';
@@ -973,6 +988,7 @@
       '<div class="ord-card__top">' +
         '<div><strong class="ord-card__id">' + esc(o.order_id) + '</strong>' +
           (comped ? ' <span class="ord-tag ord-tag--comped">COMPED' + (o.promo_code ? ' · ' + esc(o.promo_code) : '') + '</span>' : '') +
+          payTag +
           (ship ? ' <span class="ord-tag">SHIP</span>' : '') +
           '<span class="ord-card__meta">' + esc(o.name) + ' · ' + esc(o.email) + ' · ' + when + '</span></div>' +
         '<span class="ord-card__total">' + (comped ? 'No charge' : money(o.subtotal_cents)) + '</span>' +

@@ -13,6 +13,11 @@
   var Cart = window.STW_Cart;
   var products = [];       // from store-products.json (for favorites display)
   var orderHandlerUrl = '';
+  var paypalClientId = '';
+  var paypalMode = 'sandbox';
+  var currency = 'USD';
+  var paypalSdkLoaded = false;
+  var paypalButtonsRendered = false;
 
   // DOM refs
   var emptyEl, layoutEl, itemsEl, subtotalEl, totalEl, favWrap, favGrid,
@@ -97,6 +102,8 @@
     var sub = Cart.getSubtotalCents();
     subtotalEl.textContent = money(sub);
     totalEl.textContent = money(sub);
+    // Keep the payment path in sync if the checkout form is already open.
+    if (form && !form.hidden && typeof updatePaymentUI === 'function') updatePaymentUI();
   }
 
   // ── Favorites strip ──────────────────────────────────────────
@@ -150,6 +157,14 @@
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
     var nameEl = document.getElementById('co-name');
     if (nameEl) nameEl.focus();
+
+    // Decide pay-now vs quote vs free and render PayPal if applicable.
+    updatePaymentUI();
+  }
+
+  function debounce(fn, ms) {
+    var t;
+    return function () { var a = arguments, c = this; clearTimeout(t); t = setTimeout(function () { fn.apply(c, a); }, ms); };
   }
 
   function buildOrderPayload() {
@@ -203,41 +218,30 @@
     };
   }
 
-  function submitOrder(e) {
-    e.preventDefault();
-    if (document.getElementById('co-gotcha').value) return; // bot
-
+  // Basic pre-submit validation shared by both paths (plain + PayPal).
+  function validateCheckout() {
+    if (document.getElementById('co-gotcha').value) return false; // bot
     var name = (document.getElementById('co-name').value || '').trim();
     var email = (document.getElementById('co-email').value || '').trim();
-    if (!name || !email) {
-      setStatus('Please enter your name and email.', 'error');
-      return;
-    }
-    if (!Cart.getItems().length) {
-      setStatus('Your cart is empty.', 'error');
-      return;
-    }
+    if (!name || !email) { setStatus('Please enter your name and email.', 'error'); return false; }
+    if (!Cart.getItems().length) { setStatus('Your cart is empty.', 'error'); return false; }
+    if (!orderHandlerUrl) { setStatus('We could not reach the order service. Please try again shortly or contact us.', 'error'); return false; }
+    return true;
+  }
 
+  // POST placeOrder to the backend and show the success/failure UI. `extra`
+  // carries verified PayPal payment fields (captureId etc.) when paid online.
+  function recordOrder(extra) {
     var payload = buildOrderPayload();
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Placing order…';
-    setStatus('', null);
+    if (extra) { for (var k in extra) payload[k] = extra[k]; }
+    var name = payload.name;
 
-    // Analytics stub for future FB/Google ads (begin_checkout / purchase).
     try {
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: 'begin_checkout', valueCents: payload.subtotalCents, itemCount: Cart.getCount() });
     } catch (_) {}
 
-    if (!orderHandlerUrl) {
-      // Backend not configured — fail gracefully, keep cart intact.
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Place order →';
-      setStatus('We could not reach the order service. Please try again shortly or contact us.', 'error');
-      return;
-    }
-
-    fetch(orderHandlerUrl, {
+    return fetch(orderHandlerUrl, {
       method: 'POST',
       mode: 'cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -246,40 +250,56 @@
       .then(function (r) { return r.json(); })
       .then(function (res) {
         if (res && res.ok) {
-          try {
-            window.dataLayer.push({ event: 'purchase', orderId: res.orderId || '', valueCents: payload.subtotalCents });
-          } catch (_) {}
+          try { window.dataLayer.push({ event: 'purchase', orderId: res.orderId || '', valueCents: payload.subtotalCents }); } catch (_) {}
           Cart.clear();
           layoutEl.hidden = true;
           emptyEl.hidden = true;
           if (res.orderId) {
-            var compedNote = res.comped
-              ? ' Your team code was applied — there\'s no charge. '
-              : ' ';
-            successMsgEl.textContent = 'Thank you, ' + name + '. Your order (' + res.orderId +
-              ') is confirmed —' + compedNote + 'check your email, and a team member will follow up' +
-              (payload.wantsShipping ? ' to arrange shipping.' : '.');
+            var tail;
+            if (res.paymentStatus === 'paid') {
+              tail = ' — payment received. A receipt is on the way' + (payload.wantsShipping ? ' and we\'ll arrange shipping.' : '.');
+            } else if (res.comped) {
+              tail = ' — your team code was applied, there\'s no charge. A team member will follow up.';
+            } else if (payload.wantsShipping) {
+              tail = ' — we\'ll email you an itemized invoice (with shipping) to approve and pay.';
+            } else {
+              tail = ' — check your email, and a team member will follow up.';
+            }
+            successMsgEl.textContent = 'Thank you, ' + name + '. Your order (' + res.orderId + ') is confirmed' + tail;
           }
           successEl.hidden = false;
           successEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Place order →';
-          // A bad promo code is a friendly, targeted message (cart is kept).
-          if (res && res.code === 'promo-invalid') {
-            setStatus((res.error || 'That code could not be applied.') + ' Remove it or fix it to continue.', 'error');
-            var promoEl = document.getElementById('co-promo');
-            if (promoEl) promoEl.focus();
-          } else {
-            setStatus('Order error: ' + ((res && res.error) || 'Please try again.'), 'error');
-          }
+          return { ok: true };
         }
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Place order →';
+        if (res && res.code === 'promo-invalid') {
+          setStatus((res.error || 'That code could not be applied.') + ' Remove it or fix it to continue.', 'error');
+          var promoEl = document.getElementById('co-promo');
+          if (promoEl) promoEl.focus();
+        } else {
+          setStatus('Order error: ' + ((res && res.error) || 'Please try again.'), 'error');
+        }
+        return { ok: false, res: res };
       })
       .catch(function (err) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Place order →';
         setStatus('Order failed: ' + (err.message || 'Network error. Please try again.'), 'error');
+        return { ok: false, error: err };
       });
+  }
+
+  // Plain "Place order" path — used for comped/free orders and shipping
+  // (quote-first) orders. Online card/PayPal payment goes through the PayPal
+  // Buttons instead (see wirePayPal).
+  function submitOrder(e) {
+    e.preventDefault();
+    if (!validateCheckout()) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Placing order…';
+    setStatus('', null);
+    recordOrder(null);
   }
 
   function setStatus(msg, kind) {
@@ -287,6 +307,109 @@
     statusEl.hidden = false;
     statusEl.textContent = msg;
     statusEl.className = 'checkout-status' + (kind ? ' checkout-status--' + kind : '');
+  }
+
+  // ── PayPal payment ───────────────────────────────────────────
+  // Load the PayPal JS SDK once (buttons + hosted card fields + pay-later).
+  function loadPayPalSdk() {
+    if (paypalSdkLoaded || !paypalClientId) return Promise.resolve(!!window.paypal);
+    return new Promise(function (resolve) {
+      var s = document.createElement('script');
+      s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(paypalClientId) +
+        '&currency=' + encodeURIComponent(currency) + '&intent=capture&components=buttons&enable-funding=venmo,paylater';
+      s.onload = function () { paypalSdkLoaded = true; resolve(true); };
+      s.onerror = function () { resolve(false); };
+      document.head.appendChild(s);
+    });
+  }
+
+  // Decide which checkout path to present based on the CURRENT form state.
+  //   - wants shipping ....... quote-first (no pay now); button "Request quote & invoice"
+  //   - promo code entered ... comped path; plain "Place order"
+  //   - $0 subtotal .......... free; plain "Place order"
+  //   - otherwise ............ pay now via PayPal Buttons (pickup, balance due)
+  function updatePaymentUI() {
+    var payWrap = document.getElementById('checkout-pay');
+    var payNote = document.getElementById('checkout-pay-note');
+    var wantsShipping = shipToggle && shipToggle.checked;
+    var promoEl = document.getElementById('co-promo');
+    var hasPromo = promoEl && promoEl.value.trim().length > 0;
+    var subtotal = Cart ? Cart.getSubtotalCents() : 0;
+    var canPayNow = paypalClientId && !wantsShipping && !hasPromo && subtotal > 0;
+
+    if (wantsShipping) {
+      submitBtn.textContent = 'Request quote & invoice →';
+    } else {
+      submitBtn.textContent = 'Place order →';
+    }
+
+    if (canPayNow) {
+      if (payWrap) payWrap.hidden = false;
+      submitBtn.style.display = 'none';           // pay via PayPal instead
+      if (payNote) {
+        payNote.hidden = false;
+        payNote.textContent = 'Have a team code or prefer to pay another way? Enter a code above, or choose shipping to get an invoice.';
+      }
+      renderPayPalButtons();
+    } else {
+      if (payWrap) payWrap.hidden = true;
+      submitBtn.style.display = '';
+      if (payNote) payNote.hidden = true;
+    }
+  }
+
+  function renderPayPalButtons() {
+    loadPayPalSdk().then(function (ok) {
+      if (!ok || !window.paypal || paypalButtonsRendered) return;
+      var container = document.getElementById('paypal-buttons');
+      if (!container) return;
+      paypalButtonsRendered = true;
+      window.paypal.Buttons({
+        style: { layout: 'vertical', shape: 'pill', label: 'pay' },
+        // Ask OUR backend to create the order (amount computed server-side).
+        createOrder: function () {
+          if (!validateCheckout()) return Promise.reject(new Error('validation'));
+          setStatus('', null);
+          var payload = buildOrderPayload();
+          return fetch(orderHandlerUrl, {
+            method: 'POST', mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'createPayPalOrder', kind: 'order', items: payload.items, currency: currency })
+          }).then(function (r) { return r.json(); })
+            .then(function (res) {
+              if (res && res.ok && res.id) return res.id;
+              throw new Error((res && res.error) || 'create-failed');
+            });
+        },
+        // After buyer approval, capture on OUR backend (verifies the amount),
+        // then record the order as paid.
+        onApprove: function (data) {
+          setStatus('Confirming your payment…', null);
+          var payload = buildOrderPayload();
+          return fetch(orderHandlerUrl, {
+            method: 'POST', mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'capturePayPalOrder', paypalOrderId: data.orderID, kind: 'order', items: payload.items, currency: currency })
+          }).then(function (r) { return r.json(); })
+            .then(function (res) {
+              if (!res || !res.ok) throw new Error((res && res.error) || 'capture-failed');
+              // Payment verified server-side — now record the order as paid.
+              return recordOrder({
+                paymentMethod: 'paypal',
+                paypalOrderId: res.paypalOrderId || data.orderID,
+                captureId: res.captureId,
+                amountPaidCents: res.amountCents
+              });
+            })
+            .catch(function (err) {
+              setStatus('Payment could not be completed: ' + (err.message || 'please try again.'), 'error');
+            });
+        },
+        onError: function () {
+          setStatus('Payment error — please try again or choose another method.', 'error');
+        }
+      }).render('#paypal-buttons');
+    });
   }
 
   // ── Init ─────────────────────────────────────────────────────
@@ -311,8 +434,12 @@
     if (!Cart || !itemsEl) return;
 
     proceedBtn.addEventListener('click', showCheckout);
-    shipToggle.addEventListener('change', function () { shipFields.hidden = !shipToggle.checked; });
+    shipToggle.addEventListener('change', function () { shipFields.hidden = !shipToggle.checked; updatePaymentUI(); });
     form.addEventListener('submit', submitOrder);
+
+    // Re-evaluate which payment path to show when the team-code field changes.
+    var promoEl = document.getElementById('co-promo');
+    if (promoEl) promoEl.addEventListener('input', debounce(updatePaymentUI, 300));
 
     // International address: show a free-text country field for "Other", and
     // relabel State/ZIP to neutral terms when the country isn't the US.
@@ -342,7 +469,12 @@
 
     fetch('assets/data/site-config.json?t=' + Date.now(), { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : {}; })
-      .then(function (cfg) { orderHandlerUrl = cfg.orderHandlerUrl || ''; })
+      .then(function (cfg) {
+        orderHandlerUrl = cfg.orderHandlerUrl || '';
+        paypalClientId = cfg.paypalClientId || '';
+        paypalMode = cfg.paypalMode || 'sandbox';
+        currency = cfg.currency || 'USD';
+      })
       .catch(function () {});
   }
 

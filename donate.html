@@ -130,7 +130,13 @@
     .donate-giving__custom input:focus { outline: none; border-color: var(--gold, #d4a574); box-shadow: 0 0 0 3px rgba(212,165,116,0.3); }
     .donate-giving__custom input::placeholder { color: rgba(255,255,255,0.4); }
 
-    .donate-giving__bible-equiv { text-align: center; font-size: 1.05rem; font-weight: 600; color: var(--gold, #d4a574); margin-bottom: 2.5rem; min-height: 1.6em; line-height: 1.5; }
+    .donate-giving__bible-equiv { text-align: center; font-size: 1.05rem; font-weight: 600; color: var(--gold, #d4a574); margin-bottom: 1.5rem; min-height: 1.6em; line-height: 1.5; }
+
+    .donate-giving__paypal { max-width: 460px; margin: 0 auto 2.25rem; padding: 1.1rem 1.25rem 1.25rem; background: rgba(255,255,255,0.06); border: 2px solid rgba(212,165,116,0.4); border-radius: 12px; }
+    .donate-giving__paypal-label { text-align: center; font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0 0 0.85rem; }
+    .donate-giving__paypal-status { text-align: center; font-size: 0.9rem; margin: 0.75rem 0 0; min-height: 1.2em; color: rgba(255,255,255,0.85); }
+    .donate-giving__paypal-status.is-success { color: #7fdfa0; font-weight: 600; }
+    .donate-giving__paypal-status.is-error { color: #ff9b8a; }
 
     .donate-giving__methods-heading { font-family: 'Anton', Impact, sans-serif; font-size: 1.2rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; color: #fff; margin: 0 0 1rem; text-align: center; }
     .donate-giving__methods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.85rem; margin-bottom: 3rem; border-radius: 12px; padding: 1rem; transition: border-color 0.3s ease, box-shadow 0.3s ease; border: 2px solid transparent; }
@@ -468,7 +474,16 @@
 
     <p class="donate-giving__bible-equiv" aria-live="polite" id="bible-equiv-msg"></p>
 
-    <h3 class="donate-giving__methods-heading">Choose a Payment Method</h3>
+    <!-- Pay by card / PayPal — server-verified. Appears once an amount is chosen
+         and the PayPal SDK is configured. Covers PayPal balance, debit/credit
+         card (no account needed), and Pay Later through one integration. -->
+    <div class="donate-giving__paypal" id="donate-paypal-wrap" hidden>
+      <p class="donate-giving__paypal-label">💳 Give securely by card or PayPal</p>
+      <div id="donate-paypal-buttons"></div>
+      <p class="donate-giving__paypal-status" id="donate-paypal-status" aria-live="polite"></p>
+    </div>
+
+    <h3 class="donate-giving__methods-heading">Other ways to give</h3>
     <div class="donate-giving__methods">
       <a class="donate-giving__method" href="https://venmo.com/u/Vanessamind" target="_blank" rel="noopener" aria-label="Donate via Venmo">
         <span class="donate-giving__method-brand donate-giving__method-brand--venmo">Venmo</span>
@@ -479,11 +494,6 @@
         <span class="donate-giving__method-brand donate-giving__method-brand--cashapp">Cash App</span>
         <span class="donate-giving__method-handle">$Vanessamind</span>
         <span class="donate-giving__method-cta">Open Cash App →</span>
-      </a>
-      <a class="donate-giving__method" href="https://paypal.me/vanessamind" target="_blank" rel="noopener" aria-label="Donate via PayPal">
-        <span class="donate-giving__method-brand donate-giving__method-brand--paypal">PayPal</span>
-        <span class="donate-giving__method-handle">@vanessamind</span>
-        <span class="donate-giving__method-cta">Open PayPal →</span>
       </a>
       <button type="button" class="donate-giving__method" id="zelle-copy-btn" data-copy="vanessamindone@gmail.com" aria-label="Copy Zelle email to clipboard">
         <span class="donate-giving__method-brand donate-giving__method-brand--zelle">Zelle</span>

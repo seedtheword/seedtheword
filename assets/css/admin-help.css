@@ -1316,3 +1316,288 @@
   }
   .admin-sidebar__backdrop.is-open { display: block; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   INTERACTIVE TUTORIALS, CONTEXTUAL "?" TOOLTIPS & LOADING STATES
+   Added for the animated admin walkthroughs. Everything is built
+   from the --ah-* tokens so it inherits light/dark mode cleanly.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Contextual "?" help chip (admin-help scoped, theme-aware) ── */
+.ah-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+  border-radius: var(--ah-r-full);
+  border: 1.5px solid var(--ah-accent-ring);
+  background: var(--ah-accent-soft);
+  color: var(--ah-accent-strong);
+  font-family: var(--ah-sans);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: help;
+  padding: 0;
+  vertical-align: middle;
+  transition: background var(--ah-dur-fast) var(--ah-ease), border-color var(--ah-dur-fast) var(--ah-ease), transform var(--ah-dur-fast) var(--ah-ease);
+}
+.ah-help:hover,
+.ah-help:focus-visible {
+  background: var(--ah-accent);
+  border-color: var(--ah-accent);
+  color: #fff;
+  transform: scale(1.08);
+  outline: none;
+}
+.ah-help-wrap { position: relative; display: inline-flex; align-items: center; }
+.ah-help-tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.5rem);
+  transform: translateX(-50%) translateY(4px);
+  width: max-content;
+  max-width: 17rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--ah-ink);
+  color: var(--ah-paper);
+  font-family: var(--ah-sans);
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+  border-radius: var(--ah-r-sm);
+  box-shadow: var(--ah-sh-lg);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 30;
+  transition: opacity var(--ah-dur-fast) var(--ah-ease), transform var(--ah-dur-fast) var(--ah-ease);
+}
+.ah-help-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--ah-ink);
+}
+.ah-help-wrap:hover .ah-help-tip,
+.ah-help[aria-expanded="true"] + .ah-help-tip,
+.ah-help:focus-visible + .ah-help-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+@media (max-width: 600px) {
+  .ah-help-tip { position: static; transform: none; max-width: 100%; margin-top: 0.4rem; opacity: 1; box-shadow: var(--ah-sh-sm); }
+  .ah-help-tip::after { display: none; }
+  .ah-help-wrap:not(.is-open) .ah-help-tip { display: none; }
+}
+
+/* ── Interactive walkthrough player ── */
+.ah-walk {
+  margin: 1.25rem 0 1.75rem;
+  border: 1px solid var(--ah-line);
+  border-radius: var(--ah-r-lg);
+  background: var(--ah-paper);
+  box-shadow: var(--ah-sh-sm);
+  overflow: hidden;
+}
+.ah-walk__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(28,79,112,0.06), var(--ah-accent-soft));
+  border-bottom: 1px solid var(--ah-line);
+}
+.ah-walk__badge {
+  flex-shrink: 0;
+  width: 2.2rem; height: 2.2rem;
+  border-radius: var(--ah-r-full);
+  background: linear-gradient(135deg, var(--ah-accent), var(--ah-accent-strong));
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem;
+  box-shadow: 0 2px 10px var(--ah-accent-ring);
+}
+.ah-walk__titles { flex: 1; min-width: 0; }
+.ah-walk__eyebrow {
+  font-family: var(--ah-mono);
+  font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--ah-muted); margin: 0;
+}
+.ah-walk__title {
+  font-family: var(--ah-sans); font-size: 1.02rem; font-weight: 800;
+  color: var(--ah-ink); margin: 0.1rem 0 0;
+}
+.ah-walk__count {
+  flex-shrink: 0;
+  font-family: var(--ah-mono); font-size: 0.7rem; font-weight: 600;
+  color: var(--ah-muted-2);
+  background: var(--ah-sub);
+  border-radius: var(--ah-r-full);
+  padding: 0.2rem 0.6rem;
+}
+.ah-walk__body {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 0;
+}
+@media (max-width: 720px) { .ah-walk__body { grid-template-columns: 1fr; } }
+
+/* Simulated UI stage (left) */
+.ah-stage {
+  position: relative;
+  padding: 1.4rem;
+  background: var(--ah-off);
+  border-right: 1px solid var(--ah-line);
+  min-height: 300px;
+}
+@media (max-width: 720px) { .ah-stage { border-right: 0; border-bottom: 1px solid var(--ah-line); } }
+.ah-stage__frame {
+  background: var(--ah-paper);
+  border: 1px solid var(--ah-line);
+  border-radius: var(--ah-r-md);
+  padding: 0.9rem;
+  box-shadow: var(--ah-sh-sm);
+}
+.ah-stage__bartabs { display: flex; gap: 0.3rem; margin-bottom: 0.85rem; flex-wrap: wrap; }
+.ah-mini-tab {
+  font-size: 0.72rem; font-weight: 700; padding: 0.3rem 0.55rem;
+  border-radius: var(--ah-r-sm); border: 1px solid var(--ah-line);
+  background: var(--ah-paper); color: var(--ah-muted); white-space: nowrap;
+}
+.ah-mini-tab.is-active { background: var(--ah-accent); border-color: var(--ah-accent); color: #fff; }
+
+/* A generic simulated control that can be spotlighted */
+.ah-ctl {
+  position: relative;
+  border: 1.5px solid var(--ah-line);
+  border-radius: var(--ah-r-sm);
+  padding: 0.55rem 0.7rem;
+  margin: 0.4rem 0;
+  font-size: 0.82rem;
+  color: var(--ah-ink-2);
+  background: var(--ah-paper);
+  transition: border-color var(--ah-dur) var(--ah-ease), box-shadow var(--ah-dur) var(--ah-ease), background var(--ah-dur) var(--ah-ease), transform var(--ah-dur) var(--ah-ease);
+}
+.ah-ctl__label { display: block; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ah-muted); margin-bottom: 0.2rem; }
+.ah-ctl--btn { background: var(--ah-accent); border-color: var(--ah-accent); color: #fff; font-weight: 700; text-align: center; }
+.ah-ctl--btn-green { background: var(--ah-green); border-color: var(--ah-green); color: #fff; font-weight: 700; text-align: center; }
+.ah-ctl--pill { display: inline-block; width: auto; margin-right: 0.35rem; border-radius: var(--ah-r-full); }
+.ah-ctl-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.ah-ctl-row .ah-ctl { flex: 1; min-width: 0; }
+
+/* Spotlight: the control the current step is teaching */
+.ah-ctl.is-spot {
+  border-color: var(--ah-accent);
+  box-shadow: 0 0 0 3px var(--ah-accent-ring), var(--ah-sh-md);
+  transform: translateY(-1px);
+  z-index: 2;
+  animation: ah-pulse 1.6s var(--ah-ease) infinite;
+}
+@keyframes ah-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--ah-accent-ring), var(--ah-sh-md); }
+  50%       { box-shadow: 0 0 0 6px var(--ah-accent-soft), var(--ah-sh-md); }
+}
+.ah-ctl.is-dim { opacity: 0.4; filter: saturate(0.7); }
+/* A little animated "cursor" that lands on the spotlighted control */
+.ah-cursor {
+  position: absolute;
+  width: 20px; height: 20px;
+  pointer-events: none;
+  z-index: 5;
+  font-size: 1.1rem;
+  transition: left 0.45s var(--ah-ease), top 0.45s var(--ah-ease), opacity 0.2s;
+  opacity: 0;
+}
+.ah-cursor.is-on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .ah-ctl.is-spot { animation: none; }
+  .ah-cursor { transition: none; }
+}
+
+/* Explanation panel (right) */
+.ah-explain { padding: 1.4rem; display: flex; flex-direction: column; }
+.ah-explain__step {
+  font-family: var(--ah-mono); font-size: 0.64rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ah-accent-strong); font-weight: 700; margin: 0 0 0.35rem;
+}
+.ah-explain__title { font-size: 1.1rem; font-weight: 800; color: var(--ah-ink); margin: 0 0 0.5rem; }
+.ah-explain__body { font-size: 0.92rem; line-height: 1.65; color: var(--ah-ink-2); margin: 0 0 0.75rem; flex: 1; }
+.ah-explain__behind {
+  font-size: 0.84rem; line-height: 1.55; color: var(--ah-ink-2);
+  background: var(--ah-sub); border-left: 3px solid var(--ah-accent);
+  border-radius: 0 var(--ah-r-sm) var(--ah-r-sm) 0;
+  padding: 0.6rem 0.8rem; margin: 0 0 1rem;
+}
+.ah-explain__behind b { color: var(--ah-ink); }
+.ah-walk__controls { display: flex; align-items: center; gap: 0.6rem; }
+.ah-walk__btn {
+  font-family: inherit; font-size: 0.86rem; font-weight: 700;
+  padding: 0.55rem 1.1rem; border-radius: var(--ah-r-sm);
+  border: 1.5px solid var(--ah-line); background: var(--ah-paper); color: var(--ah-ink);
+  cursor: pointer;
+  transition: border-color var(--ah-dur-fast) var(--ah-ease), background var(--ah-dur-fast) var(--ah-ease), color var(--ah-dur-fast) var(--ah-ease), opacity var(--ah-dur-fast) var(--ah-ease);
+}
+.ah-walk__btn:hover { border-color: var(--ah-accent); color: var(--ah-accent-strong); }
+.ah-walk__btn--next { background: var(--ah-accent); border-color: var(--ah-accent); color: #fff; }
+.ah-walk__btn--next:hover { background: var(--ah-accent-strong); color: #fff; }
+.ah-walk__btn[disabled] { opacity: 0.4; cursor: default; }
+.ah-walk__btn--replay { margin-left: auto; }
+.ah-walk__progress { display: flex; gap: 4px; margin: 0 0 1rem; }
+.ah-walk__dot {
+  width: 100%; height: 4px; border-radius: var(--ah-r-full);
+  background: var(--ah-line); transition: background var(--ah-dur) var(--ah-ease);
+}
+.ah-walk__dot.is-done { background: var(--ah-accent-ring); }
+.ah-walk__dot.is-current { background: var(--ah-accent); }
+.ah-explain__done {
+  font-size: 0.9rem; color: var(--ah-green); font-weight: 700;
+  display: none; align-items: center; gap: 0.4rem; margin-top: 0.5rem;
+}
+.ah-explain__done.is-visible { display: flex; animation: admin-jump-flash 1.2s ease-out; }
+
+/* ── Loading / "Please wait…" affordances ── */
+.ah-spinner {
+  display: inline-block;
+  width: 1.1em; height: 1.1em;
+  border: 2px solid var(--ah-accent-ring);
+  border-top-color: var(--ah-accent);
+  border-radius: 50%;
+  vertical-align: -0.2em;
+  animation: ah-spin 0.7s linear infinite;
+}
+@keyframes ah-spin { to { transform: rotate(360deg); } }
+.ah-loading-inline {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-size: 0.9rem; color: var(--ah-muted); font-weight: 600;
+}
+.ah-btn-demo {
+  font-family: inherit; font-size: 0.9rem; font-weight: 700;
+  padding: 0.6rem 1.2rem; border-radius: var(--ah-r-sm);
+  border: 0; background: var(--ah-green); color: #fff; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  transition: opacity var(--ah-dur-fast) var(--ah-ease);
+}
+.ah-btn-demo[disabled] { opacity: 0.7; cursor: progress; }
+.ah-overlay-demo {
+  position: relative;
+  border: 1px dashed var(--ah-line);
+  border-radius: var(--ah-r-md);
+  min-height: 120px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ah-muted); font-size: 0.9rem;
+  overflow: hidden;
+}
+.ah-overlay-demo__veil {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem;
+  background: color-mix(in srgb, var(--ah-paper) 78%, transparent);
+  backdrop-filter: blur(2px);
+  color: var(--ah-ink-2); font-weight: 600; font-size: 0.9rem;
+}
+.ah-overlay-demo__veil.is-on { display: flex; }

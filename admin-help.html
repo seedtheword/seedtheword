@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="assets/css/main.css?v=33">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <link rel="stylesheet" href="assets/css/admin-editor.css?v=10">
-  <link rel="stylesheet" href="assets/css/admin-help.css?v=2">
+  <link rel="stylesheet" href="assets/css/admin-help.css?v=4">
 </head>
 <body>
 
@@ -266,6 +266,1051 @@
       <li>Instagram scraper — runs every 6h via the Instagram scrape workflow.</li>
       <li>Keep-alive heartbeat — hourly workflow that writes a timestamp to <code>.github/heartbeat/last-tick.txt</code>. Keeps the repo "active" in GitHub's eyes so scheduled workflows (bots) don't get throttled or paused on the free tier. Zero user-visible effect; skip-ci on its commits.</li>
     </ul>
+  </div>
+
+  <!-- ═══ INTERACTIVE WALKTHROUGHS ═══════════════════════════════
+       Animated, click-through tutorials that mirror the real Team
+       Portal UI. Each `.ah-walk` carries its own simulated controls
+       (.ah-ctl[data-ctl]) and a list of steps (.ah-walk__data). The
+       player in admin-help.js spotlights the control per step and
+       explains what happens behind each click. Step text is plain
+       HTML so it stays readable even if the JS never runs. -->
+  <h2 data-category="walkthroughs" data-nav="Walkthroughs — overview">🎬 Interactive Walkthroughs</h2>
+  <p>These are click-through tutorials that mirror the real Team Portal screens. Press <strong>Next</strong> to step through each task — the control you'd tap lights up on the left, and the panel on the right explains what it does and <em>what happens behind the scenes</em> when you click it. Hover any <span class="ah-help-wrap"><span class="ah-help" aria-label="Example help">?</span><span class="ah-help-tip" role="tooltip">This is a contextual help chip. Hover (or tap on mobile) any of these throughout the guide for a quick explanation of the button next to it.</span></span> chip for a quick explanation.</p>
+
+  <h2 data-category="walkthroughs" data-nav="Record a deposit &amp; attach receipts">💰 Walkthrough: Record a deposit &amp; attach a receipt</h2>
+  <p>Money coming <em>in</em> — a bank deposit, cash donation, or café gift — is logged from <strong>Team Portal → Finance</strong>. There's one form for all money movement; you just set the <strong>Type</strong> to an income/donation option instead of "Expense." Here's the whole flow:</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">💰</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Team Portal · Finance tab</p>
+        <p class="ah-walk__title">Record a deposit &amp; attach a receipt</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-stage__bartabs">
+            <span class="ah-mini-tab" data-tab="dash">📊 Dash</span>
+            <span class="ah-mini-tab" data-tab="finance">💰 Finance</span>
+            <span class="ah-mini-tab" data-tab="orders">🛒 Orders</span>
+          </div>
+          <div class="ah-ctl ah-ctl--pill" data-ctl="fin-tab">💰 Open Finance tab</div>
+          <div class="ah-ctl" data-ctl="fin-type"><span class="ah-ctl__label">Type</span>Income ▼</div>
+          <div class="ah-ctl-row">
+            <div class="ah-ctl" data-ctl="fin-amount"><span class="ah-ctl__label">Amount ($)</span>250.00</div>
+            <div class="ah-ctl" data-ctl="fin-payment"><span class="ah-ctl__label">Payment method</span>Zelle ▼</div>
+          </div>
+          <div class="ah-ctl" data-ctl="fin-category"><span class="ah-ctl__label">Category</span>Designated Scripture ▼</div>
+          <div class="ah-ctl" data-ctl="fin-receipt"><span class="ah-ctl__label">Receipt photos</span>📸 Tap to take photos or choose files</div>
+          <div class="ah-ctl ah-ctl--btn-green" data-ctl="fin-save">💾 Save Entry</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ That's the whole deposit flow — you've got it!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-tab="finance" data-target="fin-tab">
+        <p class="ah-s-title">Open the Finance tab</p>
+        <p class="ah-s-body">In the Team Portal, tap the <strong>💰 Finance</strong> tab along the top. This is where every dollar in and out of the ministry is logged.</p>
+        <p class="ah-s-behind">The tab only appears if your account has the <b>Finance</b> permission. Opening it loads your recent entries and this month's totals from the ledger spreadsheet.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="finance" data-target="fin-type">
+        <p class="ah-s-title">Set the Type to "Income" or "Donation"</p>
+        <p class="ah-s-body">There's no separate "deposit" button — a deposit is just money coming in. Open the <strong>Type</strong> dropdown and choose <strong>Income</strong>, <strong>Donation (Cash)</strong>, or <strong>Donation (Cafe)</strong>. (Leave it on "Expense" only when money is going out.)</p>
+        <p class="ah-s-behind">The Type decides whether the amount is added to income or subtracted as an expense in the monthly Net figure and the P&amp;L report.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="finance" data-target="fin-amount">
+        <p class="ah-s-title">Enter the amount</p>
+        <p class="ah-s-body">Type the dollar amount of the deposit, e.g. <strong>250.00</strong>. The date defaults to today — change it if the deposit happened earlier.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="finance" data-target="fin-payment">
+        <p class="ah-s-title">Pick how it arrived</p>
+        <p class="ah-s-body">Choose the <strong>Payment Method</strong> — for a bank deposit that's usually <strong>Zelle</strong>, <strong>Card</strong>, or <strong>Venmo</strong>; use <strong>Cash</strong> for cash handed in.</p>
+        <p class="ah-s-behind">This is how we tell a bank deposit apart from physical cash later, so the books reconcile against the actual bank statement.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="finance" data-target="fin-category">
+        <p class="ah-s-title">Choose a category</p>
+        <p class="ah-s-body">Pick the <strong>Category</strong> that best describes what the money is for — e.g. <strong>Designated Scripture</strong> for Bible-fund gifts. Add a short description too.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="finance" data-target="fin-receipt">
+        <p class="ah-s-title">Attach the receipt or deposit slip</p>
+        <p class="ah-s-body">Tap <strong>📸 Receipt Photos</strong> to snap a photo or choose files — a deposit slip, a screenshot of the transfer, whatever you have. You can add <strong>more than one</strong>; each shows as a little thumbnail you can remove.</p>
+        <p class="ah-s-behind">Photos are held on your device until you save. On save they upload to the ministry's Google Drive "STW Receipts" folder and the links are filed next to the entry, so anyone reviewing the books can open the proof.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="finance" data-target="fin-save">
+        <p class="ah-s-title">Save the entry</p>
+        <p class="ah-s-body">Tap <strong>💾 Save Entry</strong>. You'll see "Saving…", then a green confirmation, and the deposit appears in the Recent list below.</p>
+        <p class="ah-s-behind">The entry is written to the Finances tab of the ledger spreadsheet and syncs overnight into the STW Finances archive, where it rolls up into the monthly and annual reports automatically.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Add an item in the Scan tab">📦 Walkthrough: Manually add an item in the Scan tab</h2>
+  <p>Out in the field you'll usually scan an item's QR code — but you can also add one <strong>by hand</strong> when there's no code (or you're logging a restock at the office). This is the manual path:</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">📦</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Team Portal · Scan tab</p>
+        <p class="ah-walk__title">Add an item manually</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-stage__bartabs">
+            <span class="ah-mini-tab" data-tab="scan">📷 Scan</span>
+            <span class="ah-mini-tab" data-tab="finance">💰 Finance</span>
+          </div>
+          <div class="ah-ctl ah-ctl--pill" data-ctl="scan-tab">📷 Open Scan tab</div>
+          <div class="ah-ctl" data-ctl="scan-manual">✋ Add Item Manually</div>
+          <div class="ah-ctl" data-ctl="scan-pick"><span class="ah-ctl__label">Choose from list</span>NIV Bible · BIB-001</div>
+          <div class="ah-ctl-row">
+            <div class="ah-ctl" data-ctl="scan-qty"><span class="ah-ctl__label">Quantity</span>− 3 +</div>
+            <div class="ah-ctl" data-ctl="scan-type"><span class="ah-ctl__label">Movement</span>📦 Restock</div>
+          </div>
+          <div class="ah-ctl" data-ctl="scan-paid"><span class="ah-ctl__label">Did the ministry pay?</span>🎁 No — donated</div>
+          <div class="ah-ctl ah-ctl--btn-green" data-ctl="scan-log">Log movement</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Item logged — nicely done!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-tab="scan" data-target="scan-tab">
+        <p class="ah-s-title">Open the Scan tab</p>
+        <p class="ah-s-body">Tap the <strong>📷 Scan</strong> tab. This is your field logger — every item you hand out or restock goes through here.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="scan" data-target="scan-manual">
+        <p class="ah-s-title">Tap "Add Item Manually"</p>
+        <p class="ah-s-body">Below the camera scanner there's an <em>"or"</em> divider and a <strong>✋ Add Item Manually</strong> button. Tap it when there's no QR code to scan.</p>
+        <p class="ah-s-behind">This opens the item picker, which loads the live catalog of items from the ministry's price list — so the names and IDs always match what's in the system.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="scan" data-target="scan-pick">
+        <p class="ah-s-title">Pick the item</p>
+        <p class="ah-s-body">Search or scroll and tap the item you're logging, e.g. <strong>NIV Bible</strong>. That opens the movement sheet where you fill in the details.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="scan" data-target="scan-qty">
+        <p class="ah-s-title">Set the quantity</p>
+        <p class="ah-s-body">Use the <strong>−</strong> / <strong>+</strong> buttons (or type) to set how many. For a box of 3 Bibles, set it to <strong>3</strong>.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="scan" data-target="scan-type">
+        <p class="ah-s-title">Choose the movement type</p>
+        <p class="ah-s-body">Pick what's happening: <strong>Given out</strong> (handed to someone), <strong>Restock</strong> (adding to inventory), <strong>Store order</strong>, or <strong>Adjustment</strong>.</p>
+        <p class="ah-s-behind">"Given out" counts toward your outreach totals and the all-time counter; "Restock" adds stock <b>in</b> and doesn't count as given out.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="scan" data-target="scan-paid">
+        <p class="ah-s-title">Say whether the ministry paid</p>
+        <p class="ah-s-body">Tap <strong>No — donated</strong> if it was given to us, or <strong>Yes — we paid</strong> if the ministry bought it. Choosing "Yes" reveals an optional <strong>receipt</strong> attachment.</p>
+        <p class="ah-s-behind">When you choose "Yes," the system automatically creates a matching <b>expense</b> in Finances (cost pulled from the price list) and files any receipt with it — no double entry needed.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="scan" data-target="scan-log">
+        <p class="ah-s-title">Log the movement</p>
+        <p class="ah-s-body">Tap <strong>Log movement</strong>. You'll see a "✅ Logged" confirmation and the sheet closes.</p>
+        <p class="ah-s-behind">A new row is written to the Inventory tab with the quantity, direction, cost, and your name. If you marked it "we paid," the linked expense is posted at the same time.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Process a store order">🛒 Walkthrough: Process a store order</h2>
+  <p>Store orders move through a simple pipeline: <strong>Received → Confirming → Packing → Shipped → Delivered</strong>. You advance one step at a time, and the system handles inventory and shopper emails for you. Here's how:</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">🛒</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Team Portal · Orders tab</p>
+        <p class="ah-walk__title">Process a store order</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-stage__bartabs">
+            <span class="ah-mini-tab" data-tab="orders">🛒 Orders</span>
+          </div>
+          <div class="ah-ctl ah-ctl--pill" data-ctl="ord-tab">🛒 Open Orders tab</div>
+          <div class="ah-ctl" data-ctl="ord-filter"><span class="ah-ctl__label">Filter</span>Open orders ▼</div>
+          <div class="ah-ctl" data-ctl="ord-card"><span class="ah-ctl__label">Order STW-1042 · Jane D.</span>1× NIV Bible · Received</div>
+          <div class="ah-ctl ah-ctl--btn" data-ctl="ord-confirm">Mark Confirming →</div>
+          <div class="ah-ctl ah-ctl--btn" data-ctl="ord-packing">Mark Packing →</div>
+          <div class="ah-ctl ah-ctl--btn" data-ctl="ord-shipped">Mark Shipped →</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Order on its way — that's the full pipeline!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-tab="orders" data-target="ord-tab">
+        <p class="ah-s-title">Open the Orders tab</p>
+        <p class="ah-s-body">Tap the <strong>🛒 Orders</strong> tab. It shows the order queue with each order's current status.</p>
+        <p class="ah-s-behind">The tab is visible only to members with the <b>Store orders</b> permission. Opening it loads live orders from the store backend.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="orders" data-target="ord-filter">
+        <p class="ah-s-title">Filter to what needs work</p>
+        <p class="ah-s-body">Leave it on <strong>Open orders</strong> to see everything that isn't delivered or cancelled, or filter to a specific status.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="orders" data-target="ord-card">
+        <p class="ah-s-title">Read the order card</p>
+        <p class="ah-s-body">Each card shows the order ID, customer, items, total (or "No charge" if comped), shipping address, and a progress bar of where it is.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="orders" data-target="ord-confirm">
+        <p class="ah-s-title">Mark it Confirming</p>
+        <p class="ah-s-body">A new order shows one button for the <em>next</em> step: <strong>Mark Confirming →</strong>. Tap it once you've reviewed the order.</p>
+        <p class="ah-s-behind">The status updates and the shopper is emailed that their order is being confirmed. Only the single next step is offered, so orders can't skip stages.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="orders" data-target="ord-packing">
+        <p class="ah-s-title">Mark it Packing</p>
+        <p class="ah-s-body">When you start boxing it up, tap <strong>Mark Packing →</strong>.</p>
+        <p class="ah-s-behind">This is the important one: marking <b>Packing</b> logs the items <b>out of inventory</b> automatically and emails the shopper that their order is being packed. No separate scan needed.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="orders" data-target="ord-shipped">
+        <p class="ah-s-title">Mark it Shipped (add tracking)</p>
+        <p class="ah-s-body">Once it's in the mail, tap <strong>Mark Shipped →</strong>. You'll be asked for an optional <strong>tracking number</strong> — paste it or leave blank.</p>
+        <p class="ah-s-behind">The shopper gets a "shipped" email with the tracking number if you added one. The final step, <b>Delivered</b>, is marked when it arrives. To stop an order, use <b>Cancel</b> — it emails the shopper (there's no separate refund button; refunds are handled with your payment provider).</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Post an announcement">📣 Walkthrough: Post an announcement</h2>
+  <p>Announcements go out from <strong>Team Portal → Chat</strong>. You choose <em>who sees it</em> (audience) and <em>how urgent it is</em> (priority), and can attach photos when it's public. Here's the flow:</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">📣</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Team Portal · Chat tab</p>
+        <p class="ah-walk__title">Post an announcement</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-stage__bartabs">
+            <span class="ah-mini-tab" data-tab="chat">💬 Chat</span>
+          </div>
+          <div class="ah-ctl ah-ctl--pill" data-ctl="ann-open">📣 New announcement</div>
+          <div class="ah-ctl" data-ctl="ann-audience"><span class="ah-ctl__label">Who should see this?</span>☑ Admins ☑ Members ☐ 🌍 Public ☐ 📧 Email</div>
+          <div class="ah-ctl" data-ctl="ann-priority"><span class="ah-ctl__label">Priority</span>🟢 Normal · 🟡 Urgent · 🔴 Emergency</div>
+          <div class="ah-ctl" data-ctl="ann-text"><span class="ah-ctl__label">Subject &amp; message</span>Study Saturday moved to 6pm…</div>
+          <div class="ah-ctl" data-ctl="ann-photo"><span class="ah-ctl__label">Optional</span>🖼️ Add photo</div>
+          <div class="ah-ctl ah-ctl--btn-green" data-ctl="ann-send">Post announcement</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Announcement sent — the team's in the loop!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-tab="chat" data-target="ann-open">
+        <p class="ah-s-title">Open the composer</p>
+        <p class="ah-s-body">In the Team Portal, go to the <strong>💬 Chat</strong> tab and tap <strong>📣 New announcement</strong>.</p>
+        <p class="ah-s-behind">The button only appears if your account has the <b>Announcements</b> permission (chat_admin). It opens the composer inline.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="chat" data-target="ann-audience">
+        <p class="ah-s-title">Pick who sees it</p>
+        <p class="ah-s-body">Check one or more audiences: <strong>Admins</strong>, <strong>Members</strong>, <strong>🌍 Public</strong>, or <strong>📧 Email / newsletter</strong>.</p>
+        <p class="ah-s-behind">Public posts to the community page <b>and</b> Telegram. Email sends to opted-in team + newsletter subscribers. Admins/Members just show inside the portal.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="chat" data-target="ann-priority">
+        <p class="ah-s-title">Choose the priority</p>
+        <p class="ah-s-body">Pick <strong>🟢 Normal</strong> (calm heads-up), <strong>🟡 Urgent</strong> (needs attention soon), or <strong>🔴 Emergency</strong> (right now).</p>
+        <p class="ah-s-behind">Emergency <b>emails everyone you selected</b> who allows notifications. Urgent and Emergency always go to Telegram, skipping the anti-spam wait.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="chat" data-target="ann-text">
+        <p class="ah-s-title">Write the subject &amp; message</p>
+        <p class="ah-s-body">Type a short <strong>Subject</strong> and the <strong>Message</strong> body.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="chat" data-target="ann-photo">
+        <p class="ah-s-title">Add a photo (optional)</p>
+        <p class="ah-s-body">Tap <strong>🖼️ Add photo</strong> to attach one or more images. Photos only go out with the <strong>Public</strong> audience.</p>
+        <p class="ah-s-behind">Each photo uploads to the ministry's Drive and is sent with the Telegram post; the first one also appears on the mirrored community post.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="chat" data-target="ann-send">
+        <p class="ah-s-title">Post it</p>
+        <p class="ah-s-body">Tap <strong>Post announcement</strong>. You'll get a confirmation summarizing where it went.</p>
+        <p class="ah-s-behind">A public announcement posts to Telegram and mirrors to the community feed. If the same subject was <em>just</em> sent, Telegram is skipped to avoid spam — as a super-admin you'll be offered a one-tap "force send." Recent posts show below so the team doesn't repost.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Send a direct message">💬 Walkthrough: Send a direct message</h2>
+  <p>The <strong>Chat</strong> tab has an Instagram-style DM inbox for private messages between team members. Here's how to start one:</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">💬</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Team Portal · Chat tab · DMs</p>
+        <p class="ah-walk__title">Send a direct message</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-stage__bartabs">
+            <span class="ah-mini-tab" data-tab="chat">💬 Chat</span>
+          </div>
+          <div class="ah-ctl ah-ctl--pill" data-ctl="dm-open">✉️ DMs</div>
+          <div class="ah-ctl" data-ctl="dm-new"><span class="ah-ctl__label">Start a conversation</span>✎ New message</div>
+          <div class="ah-ctl" data-ctl="dm-pick"><span class="ah-ctl__label">Pick a member</span>David A.</div>
+          <div class="ah-ctl-row">
+            <div class="ah-ctl" data-ctl="dm-input"><span class="ah-ctl__label">Message</span>Praying for the outreach today 🙏</div>
+            <div class="ah-ctl ah-ctl--btn" data-ctl="dm-send">➤</div>
+          </div>
+          <div class="ah-ctl" data-ctl="dm-menu"><span class="ah-ctl__label">Conversation options ⋯</span>🚫 Block · 🚩 Report</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Message sent — that's DMs!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-tab="chat" data-target="dm-open">
+        <p class="ah-s-title">Open the DM inbox</p>
+        <p class="ah-s-body">On the <strong>💬 Chat</strong> tab, the <strong>DMs</strong> inbox is the default view — your conversations list on the left.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="chat" data-target="dm-new">
+        <p class="ah-s-title">Start a new message</p>
+        <p class="ah-s-body">Tap the <strong>✎</strong> new-message button at the top of the list.</p>
+        <p class="ah-s-behind">This opens a member picker that loads the team roster so you can search for who to message.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="chat" data-target="dm-pick">
+        <p class="ah-s-title">Pick a team member</p>
+        <p class="ah-s-body">Search and tap the person you want to message. That opens the conversation thread.</p>
+        <p class="ah-s-behind">If someone is set to <b>Restricted</b> (in Content Studio → Moderation), only their allowed contacts and super-admins can reach them.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="chat" data-target="dm-input">
+        <p class="ah-s-title">Type your message</p>
+        <p class="ah-s-body">Write in the <strong>Message…</strong> box at the bottom of the thread.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="chat" data-target="dm-send">
+        <p class="ah-s-title">Send it</p>
+        <p class="ah-s-body">Tap <strong>➤</strong> (or press Enter). Your message appears instantly in the thread.</p>
+        <p class="ah-s-behind">The message is saved privately between you and the recipient — DMs never appear on the public community page.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="chat" data-target="dm-menu">
+        <p class="ah-s-title">Block or report (if needed)</p>
+        <p class="ah-s-body">The <strong>⋯</strong> menu in a thread lets you <strong>🚫 Block</strong> someone or <strong>🚩 Report</strong> a message.</p>
+        <p class="ah-s-behind">Reports land in Content Studio → Moderation, and super-admins (plus admins with the Moderation permission) are emailed.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Respond to incoming activity">🔔 Walkthrough: Respond to incoming activity</h2>
+  <p>Everything that comes in — prayers, thanksgiving, store orders, Bible requests, and contact messages — funnels into one panel so the team can review and respond. It lives on <strong>Team Portal → Community</strong> (for admins with oversight).</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">🔔</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Team Portal · Community tab</p>
+        <p class="ah-walk__title">Respond to incoming activity</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-stage__bartabs">
+            <span class="ah-mini-tab" data-tab="community">📝 Community</span>
+          </div>
+          <div class="ah-ctl ah-ctl--pill" data-ctl="act-open">🔔 Incoming activity</div>
+          <div class="ah-ctl" data-ctl="act-filter"><span class="ah-ctl__label">Filter</span>All · New · 🙏 Prayer · 🛒 Orders · ✉️ Contact</div>
+          <div class="ah-ctl" data-ctl="act-item"><span class="ah-ctl__label">A friend · Prayer · ● New</span>"Please pray for my job interview…"</div>
+          <div class="ah-ctl ah-ctl--btn-green" data-ctl="act-reply">🙏 Reply on community</div>
+          <div class="ah-ctl" data-ctl="act-seen">Mark seen</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Responded — nobody slips through the cracks!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-tab="community" data-target="act-open">
+        <p class="ah-s-title">Open Incoming Activity</p>
+        <p class="ah-s-body">Go to the <strong>📝 Community</strong> tab. The <strong>🔔 Incoming activity</strong> panel sits at the top.</p>
+        <p class="ah-s-behind">It's visible to admins with the <b>Announcements</b> or <b>Moderation</b> permission (super-admins always). A badge on the tab shows how many new items are waiting.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="community" data-target="act-filter">
+        <p class="ah-s-title">Filter to what you need</p>
+        <p class="ah-s-body">Use the filters — <strong>All</strong>, <strong>New</strong>, <strong>🙏 Prayer</strong>, <strong>🎉 Thanks</strong>, <strong>🛒 Orders</strong>, <strong>📖 Bible</strong>, <strong>✉️ Contact</strong>.</p>
+        <p class="ah-s-behind">The panel aggregates the last 30 days from prayers, store orders, Bible requests, and the contact form into one list.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="community" data-target="act-item">
+        <p class="ah-s-title">Read an item</p>
+        <p class="ah-s-body">Each card shows who it's from, the type, a status (● New / Seen / ✓ Responded), and the message.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="community" data-target="act-reply">
+        <p class="ah-s-title">Reply where it belongs</p>
+        <p class="ah-s-body">For a public prayer or thanksgiving, tap <strong>🙏 Reply on community</strong> and type your reply. Orders show <strong>Open in Orders</strong>; contact messages show <strong>✉️ Reply by email</strong>.</p>
+        <p class="ah-s-behind">Replying to a prayer posts a public comment on the mirrored community post and marks the item <b>Responded</b>. Private (non-shared) prayers show "Private — not shared publicly" instead of a reply button.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="community" data-target="act-seen">
+        <p class="ah-s-title">Mark it handled</p>
+        <p class="ah-s-body">Tap <strong>Mark seen</strong> on anything you've reviewed so the team knows it's covered.</p>
+        <p class="ah-s-behind">Status is shared across the whole team, so two people don't respond to the same thing. The new-count badge updates as items are handled.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Publish an outreach story">✨ Walkthrough: Publish an outreach story (Content Studio)</h2>
+  <p>Super-admins can publish content that goes <strong>live on the public site</strong> — no code — from the <strong>Content Studio</strong>. You reach it from <strong>Team Portal → Content</strong>. Here's publishing an outreach story to the News page:</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">✨</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Content Studio · Content</p>
+        <p class="ah-walk__title">Publish an outreach story</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-stage__bartabs">
+            <span class="ah-mini-tab" data-tab="studio">✨ Content Studio</span>
+          </div>
+          <div class="ah-ctl ah-ctl--pill" data-ctl="st-open">✨ Open Content Studio</div>
+          <div class="ah-ctl" data-ctl="st-nav"><span class="ah-ctl__label">Sidebar</span>✨ Content Studio → 📸 Outreach Stories</div>
+          <div class="ah-ctl" data-ctl="st-title"><span class="ah-ctl__label">Title</span>Bellevue Park Outreach</div>
+          <div class="ah-ctl-row">
+            <div class="ah-ctl" data-ctl="st-loc"><span class="ah-ctl__label">Location</span>Bellevue, WA</div>
+            <div class="ah-ctl" data-ctl="st-img"><span class="ah-ctl__label">Image URL</span>https://…</div>
+          </div>
+          <div class="ah-ctl" data-ctl="st-body"><span class="ah-ctl__label">Story</span>A few sentences on the day…</div>
+          <div class="ah-ctl" data-ctl="st-pub"><span class="ah-ctl__label">Publish</span>☑ Published (visible on News)</div>
+          <div class="ah-ctl ah-ctl--btn-green" data-ctl="st-save">💾 Save story</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Story published — live on the News page!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-tab="studio" data-target="st-open">
+        <p class="ah-s-title">Open Content Studio</p>
+        <p class="ah-s-body">From the Team Portal <strong>Content</strong> tab, tap the <strong>Content Studio</strong> card (or use the ✨ Content Studio link at the top of this guide).</p>
+        <p class="ah-s-behind">Content Studio is a super-admin-only dashboard. It trusts your Team Portal login — if you're not a super-admin it shows a locked screen instead.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="st-nav">
+        <p class="ah-s-title">Go to Content → Outreach Stories</p>
+        <p class="ah-s-body">In the left sidebar pick <strong>Content Studio</strong>, then the <strong>📸 Outreach Stories</strong> card.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="st-title">
+        <p class="ah-s-title">Give it a title</p>
+        <p class="ah-s-body">Enter a <strong>Title</strong> like "Bellevue Park Outreach." This is the only required field.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="st-loc">
+        <p class="ah-s-title">Add location &amp; image</p>
+        <p class="ah-s-body">Fill in the <strong>Location</strong> and paste a public <strong>Image URL</strong> for the photo.</p>
+        <p class="ah-s-behind">The image link needs to be publicly viewable (e.g. a Drive "anyone with the link" image or an uploaded site image).</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="st-body">
+        <p class="ah-s-title">Write the story</p>
+        <p class="ah-s-body">Add a few sentences in the <strong>Story</strong> box — what happened, who you served.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="st-pub">
+        <p class="ah-s-title">Tick "Published"</p>
+        <p class="ah-s-body">Check <strong>Published</strong> to make it live. Leave it unchecked to save a draft for later.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="st-save">
+        <p class="ah-s-title">Save it</p>
+        <p class="ah-s-body">Tap <strong>💾 Save story</strong>. A published story appears at the top of the News page photo essay within a couple of minutes.</p>
+        <p class="ah-s-behind">It's saved to the ministry's content sheet and read live by the News page. If the backend is ever offline, the site falls back to the built-in JSON content — nothing breaks.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Publish a testimony">🗣️ Walkthrough: Publish a testimony (Content Studio)</h2>
+  <p>Testimonies publish the same way as stories, from <strong>Content Studio → Content → Testimonies</strong>. They show on the News page and the Testimonies page.</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">🗣️</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Content Studio · Content</p>
+        <p class="ah-walk__title">Publish a testimony</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-stage__bartabs">
+            <span class="ah-mini-tab" data-tab="studio">✨ Content Studio</span>
+          </div>
+          <div class="ah-ctl ah-ctl--pill" data-ctl="t-nav">🗣️ Testimonies</div>
+          <div class="ah-ctl" data-ctl="t-name"><span class="ah-ctl__label">Name</span>Maria G.</div>
+          <div class="ah-ctl" data-ctl="t-anon"><span class="ah-ctl__label">Privacy</span>☐ Show as anonymous</div>
+          <div class="ah-ctl" data-ctl="t-excerpt"><span class="ah-ctl__label">Short excerpt</span>"I hadn't opened a Bible in years…"</div>
+          <div class="ah-ctl" data-ctl="t-body"><span class="ah-ctl__label">Full testimony</span>The full story in their words…</div>
+          <div class="ah-ctl" data-ctl="t-verse"><span class="ah-ctl__label">Anchor verse</span>John 3:16</div>
+          <div class="ah-ctl" data-ctl="t-pub"><span class="ah-ctl__label">Publish</span>☑ Published (visible on site)</div>
+          <div class="ah-ctl ah-ctl--btn-green" data-ctl="t-save">💾 Save testimony</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Testimony published — to God be the glory!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-tab="studio" data-target="t-nav">
+        <p class="ah-s-title">Switch to Testimonies</p>
+        <p class="ah-s-body">In Content Studio → Content, tap the <strong>🗣️ Testimonies</strong> card to switch from stories to the testimony form.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="t-name">
+        <p class="ah-s-title">Enter the name</p>
+        <p class="ah-s-body">Type the person's <strong>Name</strong> (first or full).</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="t-anon">
+        <p class="ah-s-title">Anonymous?</p>
+        <p class="ah-s-body">If they'd rather not be named, tick <strong>Show as anonymous</strong> — then the name is hidden and it shows as "Anonymous."</p>
+        <p class="ah-s-behind">You must either enter a name <b>or</b> mark it anonymous before it will save.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="t-excerpt">
+        <p class="ah-s-title">Add a short excerpt</p>
+        <p class="ah-s-body">Write a one-line <strong>excerpt</strong> — the pull quote shown in the list.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="t-body">
+        <p class="ah-s-title">Write the full testimony</p>
+        <p class="ah-s-body">Put the full story in their words in the <strong>Full testimony</strong> box.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="t-verse">
+        <p class="ah-s-title">Add an anchor verse (optional)</p>
+        <p class="ah-s-body">Add a verse like <strong>John 3:16</strong> that ties to their story, and a media URL if you have one.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="t-pub">
+        <p class="ah-s-title">Tick "Published"</p>
+        <p class="ah-s-body">Check <strong>Published</strong> to show it on the site now, or leave it as a draft.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="t-save">
+        <p class="ah-s-title">Save it</p>
+        <p class="ah-s-body">Tap <strong>💾 Save testimony</strong>. It appears on the News page and Testimonies page within a couple of minutes.</p>
+        <p class="ah-s-behind">Stored in the content sheet and read live, same as stories.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Add a place to the Outreach Map">🗺️ Walkthrough: Add a place to the Outreach Map</h2>
+  <p>The spinning globe on the News page and the "countries reached" count come from a list you control in <strong>Content Studio → Outreach Map</strong>. Here's adding a new location:</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">🗺️</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Content Studio · Outreach Map</p>
+        <p class="ah-walk__title">Add a country, state, or city</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-stage__bartabs">
+            <span class="ah-mini-tab" data-tab="studio">✨ Content Studio</span>
+          </div>
+          <div class="ah-ctl ah-ctl--pill" data-ctl="map-nav">🗺️ Outreach Map</div>
+          <div class="ah-ctl" data-ctl="map-type"><span class="ah-ctl__label">Type</span>🌍 Country ▼</div>
+          <div class="ah-ctl" data-ctl="map-name"><span class="ah-ctl__label">Name</span>Pakistan</div>
+          <div class="ah-ctl" data-ctl="map-iso"><span class="ah-ctl__label">Country code</span>PK</div>
+          <div class="ah-ctl" data-ctl="map-pub"><span class="ah-ctl__label">Publish</span>☑ Published</div>
+          <div class="ah-ctl ah-ctl--btn-green" data-ctl="map-save">💾 Save location</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ On the map — the reach keeps growing!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-tab="studio" data-target="map-nav">
+        <p class="ah-s-title">Open the Outreach Map</p>
+        <p class="ah-s-body">In Content Studio's sidebar, pick <strong>🗺️ Outreach Map</strong>.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="map-type">
+        <p class="ah-s-title">Pick the type</p>
+        <p class="ah-s-body">Choose <strong>Country</strong>, <strong>State / region</strong>, or <strong>City</strong>.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="map-name">
+        <p class="ah-s-title">Enter the name</p>
+        <p class="ah-s-body">Type the place name, e.g. <strong>Pakistan</strong>. For a city, put its state in the "Region / parent" field so it groups neatly.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="map-iso">
+        <p class="ah-s-title">Add the country code (countries only)</p>
+        <p class="ah-s-body">For a country, add the 2-letter code (<strong>US</strong>, <strong>SR</strong>, <strong>PK</strong>…) so it tints/pins on the globe. States and cities don't need one.</p>
+        <p class="ah-s-behind">The code field auto-disables for states and cities since only countries tint the world map.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="map-pub">
+        <p class="ah-s-title">Keep "Published" on</p>
+        <p class="ah-s-body">Leave <strong>Published</strong> checked to show it live.</p>
+        <p class="ah-s-behind">The "countries reached" number counts only <b>published countries</b> — states and cities show in the lists under the globe but don't bump that count.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="map-save">
+        <p class="ah-s-title">Save the location</p>
+        <p class="ah-s-body">Tap <strong>💾 Save location</strong>. The globe and count update within a couple of minutes.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Set a member's role &amp; permissions">👥 Walkthrough: Set a member's role &amp; permissions</h2>
+  <p>In <strong>Content Studio → Members</strong> you set each person's role and fine-tune exactly which sections they can open. Here's the flow:</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">👥</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Content Studio · Members</p>
+        <p class="ah-walk__title">Set a role &amp; permissions</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-stage__bartabs">
+            <span class="ah-mini-tab" data-tab="studio">✨ Content Studio</span>
+          </div>
+          <div class="ah-ctl ah-ctl--pill" data-ctl="mem-nav">👥 Members</div>
+          <div class="ah-ctl" data-ctl="mem-role"><span class="ah-ctl__label">David A. · Role</span>Admin ▼</div>
+          <div class="ah-ctl" data-ctl="mem-perms"><span class="ah-ctl__label">Permissions ▾</span>☑ Finance ☑ Store orders ☐ Moderation</div>
+          <div class="ah-ctl ah-ctl--btn-green" data-ctl="mem-save">Save permissions</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Access set — they can see exactly what they need!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-tab="studio" data-target="mem-nav">
+        <p class="ah-s-title">Open Members</p>
+        <p class="ah-s-body">In Content Studio's sidebar, pick <strong>👥 Members</strong> to see the team roster.</p>
+        <p class="ah-s-behind">Managing members is super-admin territory (the "Manage members" permission).</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="mem-role">
+        <p class="ah-s-title">Set the role</p>
+        <p class="ah-s-body">On a member's card, use the role dropdown: <strong>Member</strong>, <strong>Admin</strong>, or <strong>Super Admin</strong>.</p>
+        <p class="ah-s-behind">Super-admins automatically get every permission — the grid locks all-on for them. It saves the moment you change the dropdown.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="mem-perms">
+        <p class="ah-s-title">Fine-tune permissions</p>
+        <p class="ah-s-body">Tap <strong>Permissions ▾</strong> to expand the grid, then tick exactly what they can open: Inventory scanner, Finance, Store orders, Announcements, Training admin, Content Studio, Manage members, Moderation.</p>
+        <p class="ah-s-behind">These control which tabs appear in that person's Team Portal — e.g. the Finance tab only shows with the Finance permission.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="mem-save">
+        <p class="ah-s-title">Save permissions</p>
+        <p class="ah-s-body">Tap <strong>Save permissions</strong>. The change takes effect the next time they open their portal.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Generate a comp code">🎟️ Walkthrough: Generate a comp code</h2>
+  <p>A comp code lets someone place a store order at <strong>no charge</strong>. You create and manage them in <strong>Content Studio → Codes</strong>.</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">🎟️</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Content Studio · Codes</p>
+        <p class="ah-walk__title">Generate a comp code</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-stage__bartabs">
+            <span class="ah-mini-tab" data-tab="studio">✨ Content Studio</span>
+          </div>
+          <div class="ah-ctl ah-ctl--pill" data-ctl="code-nav">🎟️ Codes</div>
+          <div class="ah-ctl-row">
+            <div class="ah-ctl" data-ctl="code-str"><span class="ah-ctl__label">Code (optional)</span>THANKYOUSTW</div>
+            <div class="ah-ctl" data-ctl="code-max"><span class="ah-ctl__label">Max uses</span>5</div>
+          </div>
+          <div class="ah-ctl" data-ctl="code-note"><span class="ah-ctl__label">Note</span>Volunteer appreciation</div>
+          <div class="ah-ctl ah-ctl--btn-green" data-ctl="code-gen">Generate code</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Code ready to share!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-tab="studio" data-target="code-nav">
+        <p class="ah-s-title">Open Codes</p>
+        <p class="ah-s-body">In Content Studio's sidebar, pick <strong>🎟️ Codes</strong>.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="code-str">
+        <p class="ah-s-title">Choose a code (or leave blank)</p>
+        <p class="ah-s-body">Type a memorable <strong>code</strong> like "THANKYOUSTW," or leave it blank to auto-generate one (e.g. STW-XXXX-XXXX).</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="code-max">
+        <p class="ah-s-title">Set max uses</p>
+        <p class="ah-s-body">Set <strong>Max uses</strong> — how many no-charge orders the code allows. Each order spends one use.</p>
+        <p class="ah-s-behind">When the last use is spent, the code auto-deactivates so it can't be over-redeemed.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="code-note">
+        <p class="ah-s-title">Add a note</p>
+        <p class="ah-s-body">Jot a <strong>note</strong> so you remember who/what it's for.</p>
+      </div>
+      <div class="ah-walk-step" data-tab="studio" data-target="code-gen">
+        <p class="ah-s-title">Generate it</p>
+        <p class="ah-s-body">Tap <strong>Generate code</strong>. It appears in the list below with its usage count — share it with the recipient to use at checkout. You can <strong>deactivate</strong> any code from the list to kill remaining uses instantly.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Edit &amp; publish with the Editor">✏️ Walkthrough: Edit site content with the Editor</h2>
+  <p>The in-page <strong>Editor</strong> (the ✏️ button in this guide's sidebar) lets you change site content — recommendations, verses, images, Telegram bot settings, bundles, and more — and commit it straight to the site. Here's the whole flow, using a recommendation as the example:</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">✏️</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Admin Help · Editor</p>
+        <p class="ah-walk__title">Edit &amp; commit site content</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-ctl" data-ctl="ed-open">✏️ Open the Editor</div>
+          <div class="ah-ctl" data-ctl="ed-pat"><span class="ah-ctl__label">First time only</span>🔐 Connect &amp; validate GitHub token</div>
+          <div class="ah-ctl" data-ctl="ed-pick"><span class="ah-ctl__label">Pick what to edit</span>Recommendations · Daily verses · Images · Telegram config…</div>
+          <div class="ah-ctl" data-ctl="ed-edit"><span class="ah-ctl__label">Edit form + live preview</span>Fill fields, watch the preview</div>
+          <div class="ah-ctl ah-ctl--btn" data-ctl="ed-review">Review changes →</div>
+          <div class="ah-ctl" data-ctl="ed-diff"><span class="ah-ctl__label">Diff</span>+3 added, −1 removed</div>
+          <div class="ah-ctl ah-ctl--btn-green" data-ctl="ed-commit">Yes, commit</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Committed — the site rebuilds in under a minute!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-target="ed-open">
+        <p class="ah-s-title">Open the Editor</p>
+        <p class="ah-s-body">Right here in Admin Help, tap <strong>✏️ Open the Editor</strong> at the bottom of the sidebar.</p>
+        <p class="ah-s-behind">The Editor is a no-code form UI over the site's data files — it reads and writes them for you so you never touch raw JSON.</p>
+      </div>
+      <div class="ah-walk-step" data-target="ed-pat">
+        <p class="ah-s-title">Connect GitHub (first time only)</p>
+        <p class="ah-s-body">The first time, you'll paste a GitHub <strong>access token</strong> and tap <strong>Connect &amp; validate</strong>. A short 5-step guide walks you through creating one with the right permissions.</p>
+        <p class="ah-s-behind">The token is what lets the Editor save changes to the site's repository on your behalf. It's stored only in your browser and re-checked each visit — after the first time you go straight to the picker.</p>
+      </div>
+      <div class="ah-walk-step" data-target="ed-pick">
+        <p class="ah-s-title">Pick what to edit</p>
+        <p class="ah-s-body">Choose from the grouped list: <strong>Recommendations</strong>, <strong>Daily verses</strong>, image folders (Team headshots, Featured, Ministry highlights…), <strong>Telegram bot config</strong>, the store <strong>bundles</strong>, the homepage carousel, and more.</p>
+      </div>
+      <div class="ah-walk-step" data-target="ed-edit">
+        <p class="ah-s-title">Fill the form — watch the preview</p>
+        <p class="ah-s-body">Edit the fields on the left. A <strong>live preview</strong> on the right shows exactly how it'll look on the site — if it looks right here, it'll look right live.</p>
+        <p class="ah-s-behind">Your changes autosave as a draft in your browser, so you won't lose work if you get interrupted.</p>
+      </div>
+      <div class="ah-walk-step" data-target="ed-review">
+        <p class="ah-s-title">Review changes</p>
+        <p class="ah-s-body">Tap <strong>Review changes →</strong>. The Editor checks your entries and, if anything's off, highlights it before you go further.</p>
+      </div>
+      <div class="ah-walk-step" data-target="ed-diff">
+        <p class="ah-s-title">Check the diff</p>
+        <p class="ah-s-body">You'll see a plain <strong>diff</strong> — the exact lines added and removed — so there are no surprises. Tap <strong>Commit →</strong> when it looks right.</p>
+      </div>
+      <div class="ah-walk-step" data-target="ed-commit">
+        <p class="ah-s-title">Confirm &amp; commit</p>
+        <p class="ah-s-body">A commit message is pre-filled (you can edit it). Tap <strong>Yes, commit</strong>.</p>
+        <p class="ah-s-behind">The Editor saves the change to the site's repository. GitHub Pages rebuilds the live site in about 30–60 seconds — then hard-refresh to see it.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Add a calendar event">📅 Walkthrough: Add a calendar event</h2>
+  <p>Events on the site come straight from the ministry's Google Calendar — there's nothing to commit. Add it there and the site catches up within a minute.</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">📅</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Google Calendar</p>
+        <p class="ah-walk__title">Add an event the site will show</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-ctl" data-ctl="cal-signin"><span class="ah-ctl__label">calendar.google.com</span>Sign in · seedthewordministry@gmail.com</div>
+          <div class="ah-ctl" data-ctl="cal-click"><span class="ah-ctl__label">On the date</span>Click the day / time slot</div>
+          <div class="ah-ctl" data-ctl="cal-details"><span class="ah-ctl__label">Details</span>Title · start/end time · description</div>
+          <div class="ah-ctl ah-ctl--btn-green" data-ctl="cal-save">Save</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Event live on the site within a minute!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-target="cal-signin">
+        <p class="ah-s-title">Sign in to Google Calendar</p>
+        <p class="ah-s-body">Open <strong>calendar.google.com</strong> and sign in with the ministry account (<strong>seedthewordministry@gmail.com</strong>).</p>
+        <p class="ah-s-behind">The site reads events live from this one calendar — no other setup needed.</p>
+      </div>
+      <div class="ah-walk-step" data-target="cal-click">
+        <p class="ah-s-title">Click the date</p>
+        <p class="ah-s-body">Click anywhere on the calendar on the day (and time) the event happens.</p>
+      </div>
+      <div class="ah-walk-step" data-target="cal-details">
+        <p class="ah-s-title">Fill in the details</p>
+        <p class="ah-s-body">Enter a <strong>title</strong>, pick a <strong>start/end time</strong>, and add a <strong>description</strong>.</p>
+      </div>
+      <div class="ah-walk-step" data-target="cal-save">
+        <p class="ah-s-title">Save</p>
+        <p class="ah-s-body">Tap <strong>Save</strong>. The event shows on the News page (and homepage feed) <strong>within about a minute</strong>.</p>
+        <p class="ah-s-behind">The announcements Telegram bot also picks up calendar events automatically and posts upcoming/live ones on its schedule.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Deploy the backend">🚀 Walkthrough: Deploy the backend</h2>
+  <p>The website updates itself on every commit, but the <strong>backend</strong> (the Google Apps Script that powers orders, prayers, announcements, the activity feed, the outreach map, and more) has to be <strong>redeployed by hand</strong> after its code changes. Here's the routine:</p>
+
+  <div class="ah-walk">
+    <div class="ah-walk__head">
+      <span class="ah-walk__badge">🚀</span>
+      <div class="ah-walk__titles">
+        <p class="ah-walk__eyebrow">Google Apps Script</p>
+        <p class="ah-walk__title">Redeploy the backend</p>
+      </div>
+      <span class="ah-walk__count"></span>
+    </div>
+    <div class="ah-walk__body">
+      <div class="ah-stage">
+        <span class="ah-cursor" aria-hidden="true">👆</span>
+        <div class="ah-stage__frame">
+          <div class="ah-ctl" data-ctl="dep-paste"><span class="ah-ctl__label">1 · Paste</span>Copy each .gs file → matching file → Save</div>
+          <div class="ah-ctl" data-ctl="dep-deploy"><span class="ah-ctl__label">2 · Deploy</span>Deploy → Manage deployments → ✏️ edit</div>
+          <div class="ah-ctl" data-ctl="dep-version"><span class="ah-ctl__label">Version</span>New version → Deploy</div>
+          <div class="ah-ctl" data-ctl="dep-setup"><span class="ah-ctl__label">3 · Setup (if noted)</span>Run the one-time setup function</div>
+        </div>
+      </div>
+      <div class="ah-explain">
+        <p class="ah-explain__step"></p>
+        <h3 class="ah-explain__title"></h3>
+        <div class="ah-explain__body"></div>
+        <div class="ah-explain__behind"></div>
+        <div class="ah-walk__progress"></div>
+        <div class="ah-walk__controls">
+          <button type="button" class="ah-walk__btn ah-walk__btn--back">← Back</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--next">Next →</button>
+          <button type="button" class="ah-walk__btn ah-walk__btn--replay">↻ Replay</button>
+        </div>
+        <p class="ah-explain__done">✓ Backend live — the new feature works now!</p>
+      </div>
+    </div>
+    <div class="ah-walk__data" hidden>
+      <div class="ah-walk-step" data-target="dep-paste">
+        <p class="ah-s-title">Paste the updated files</p>
+        <p class="ah-s-body">Open the <strong>STW Order Handler</strong> Apps Script project. Copy each updated <code>.gs</code> file from <code>docs/apps-script/</code> into its matching file and <strong>Save</strong>.</p>
+        <p class="ah-s-behind">The full list of which files and setup functions go with each feature is in <code>docs/apps-script/DEPLOY-CHECKLIST.md</code> — the single source of truth.</p>
+      </div>
+      <div class="ah-walk-step" data-target="dep-deploy">
+        <p class="ah-s-title">Open Manage deployments</p>
+        <p class="ah-s-body">Click <strong>Deploy → Manage deployments</strong>, then the <strong>✏️ edit</strong> (pencil) on the existing web app.</p>
+        <p class="ah-s-behind">Editing the existing deployment keeps the same URL — so the site's config needs no change.</p>
+      </div>
+      <div class="ah-walk-step" data-target="dep-version">
+        <p class="ah-s-title">Deploy a New version</p>
+        <p class="ah-s-body">Set <strong>Version → New version</strong> and click <strong>Deploy</strong>. <em>Not</em> "New deployment" — that would make a different URL.</p>
+        <p class="ah-s-behind">This is the step people forget: if a portal feature "does nothing" or shows old data, the backend probably wasn't redeployed to a new version.</p>
+      </div>
+      <div class="ah-walk-step" data-target="dep-setup">
+        <p class="ah-s-title">Run setup (only for brand-new features)</p>
+        <p class="ah-s-body">For a new feature, run its one-time setup function once from the editor's Run menu (e.g. <code>stwLocationsSetup()</code> for the outreach map). The checklist says which, if any.</p>
+        <p class="ah-s-behind">Setup functions just create the spreadsheet tabs a feature needs. They're safe to re-run. Then hard-refresh the site (Ctrl+Shift+R).</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 data-category="walkthroughs" data-nav="Loading &amp; waiting states">⏳ Loading &amp; "Please wait…" states</h2>
+  <p>Some actions talk to the ministry's spreadsheet backend, which takes a moment. When that happens you'll see one of these — so you know it's working, not stuck. Try them:</p>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Button spinner</p>
+    <p class="admin-card__title">Buttons show progress while they work</p>
+    <p>When you tap <strong>Save</strong>, <strong>Log</strong>, or <strong>Mark…</strong>, the button disables itself and shows a spinner so you don't double-tap. It re-enables when the server responds.</p>
+    <p><button type="button" class="ah-btn-demo" id="ah-demo-btn">💾 Save Entry</button> <span class="ah-help-wrap"><span class="ah-help" aria-label="Why buttons disable">?</span><span class="ah-help-tip" role="tooltip">Disabling the button while it saves prevents accidental duplicate entries if the network is slow.</span></span></p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Loading overlay</p>
+    <p class="admin-card__title">Lists show "Please wait…" while they load</p>
+    <p>When a panel is fetching data (orders, finance history, members), it shows a gentle overlay so you know something's on the way.</p>
+    <div class="ah-overlay-demo" id="ah-demo-overlay">
+      <span>📋 Order queue</span>
+      <div class="ah-overlay-demo__veil"><span class="ah-spinner"></span><span>Please wait…</span></div>
+    </div>
+    <p style="margin-top:0.6rem;"><button type="button" class="ah-btn-demo" id="ah-demo-overlay-btn">▶ Show the loading overlay</button></p>
+  </div>
+
+  <div class="admin-card">
+    <p class="admin-card__label">Inline spinner</p>
+    <p class="admin-card__title">Small "working…" hints</p>
+    <p>Quick background actions show a small inline spinner like this: <span class="ah-loading-inline"><span class="ah-spinner"></span> Working…</span> — when it disappears, the action finished.</p>
   </div>
 
   <h2 data-category="guide" data-nav="Team Portal — overview">📖 Guide: Team Portal — what's new &amp; how to use it</h2>
@@ -2437,7 +3482,7 @@ https://open.spotify.com/playlist/18QMpMTYrFt2KxW1Q9NsvX?si=69aaa882a74d40c8&amp
 <script src="assets/js/admin-editor-commit-message.js?v=19" defer></script>
 <script src="assets/js/admin-editor-js-literal.js?v=19" defer></script>
 <script src="assets/js/admin-editor.js?v=21" defer></script>
-<script src="assets/js/admin-help.js?v=32" defer></script>
+<script src="assets/js/admin-help.js?v=34" defer></script>
 
 <script>
   // Populate the "Shared Calendar Photos Drive folder" admin-help card,

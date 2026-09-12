@@ -42,6 +42,7 @@
   // order the groups appear in the sidebar.
   const CATEGORIES = [
     { id: 'start',        label: 'Start here',      icon: '🚀', match: [/start here/i, /quick routing/i, /what's where/i, /site map/i] },
+    { id: 'walkthroughs', label: 'Interactive Walkthroughs', icon: '🎬', match: [/walkthrough/i, /interactive tour/i, /record a deposit/i, /add an item.*scan/i, /process.*order/i, /loading .*waiting/i] },
     { id: 'guide',        label: 'Team Portal',     icon: '📖', match: [/^guide:/i, /team portal/i, /announcement/i, /incoming activity/i, /team activity/i, /direct message/i, /\bdms?\b/i, /moderation/i, /permission/i, /prayer/i, /community feed/i, /reply on community/i] },
     { id: 'studio',       label: 'Content Studio',  icon: '✨', match: [/content studio/i, /outreach map/i, /outreach stories/i, /testimon/i, /publish/i, /outreach locations/i] },
     { id: 'media',        label: 'Images & Media',  icon: '🖼️', match: [/updating images/i, /images/i, /media drop/i, /listening to/i, /partner ministr/i, /recommendation/i] },
@@ -80,6 +81,9 @@
     safeRun('search',      initSearch);
     safeRun('reco',        initRecoBuilder);
     safeRun('mermaid',     loadMermaid);
+    safeRun('walkthroughs', initWalkthroughs);
+    safeRun('helptips',    initHelpTips);
+    safeRun('loadingdemos', initLoadingDemos);
   }
 
   function lock() {
@@ -1297,6 +1301,195 @@
   }
 
   // ── Utilities ───────────────────────────────────────────────
+  // ── Interactive walkthrough player ─────────────────────────
+  // Progressive-enhancement: each `.ah-walk` already contains a
+  // simulated UI (`.ah-stage` with `.ah-ctl[data-ctl]` controls) and
+  // a list of steps (`.ah-walk__data > .ah-walk-step`). This wires the
+  // Back / Next / Replay controls, spotlights the control each step
+  // teaches, and animates a little cursor onto it. If the JS fails or
+  // is disabled, the step text is still fully readable.
+  function initWalkthroughs() {
+    var walks = document.querySelectorAll('.ah-walk');
+    walks.forEach(function (walk) {
+      var stage    = walk.querySelector('.ah-stage');
+      var cursor   = walk.querySelector('.ah-cursor');
+      var stepEls  = Array.prototype.slice.call(walk.querySelectorAll('.ah-walk__data > .ah-walk-step'));
+      var elStepNo = walk.querySelector('.ah-explain__step');
+      var elTitle  = walk.querySelector('.ah-explain__title');
+      var elBody   = walk.querySelector('.ah-explain__body');
+      var elBehind = walk.querySelector('.ah-explain__behind');
+      var elDone   = walk.querySelector('.ah-explain__done');
+      var elCount  = walk.querySelector('.ah-walk__count');
+      var btnBack  = walk.querySelector('.ah-walk__btn--back');
+      var btnNext  = walk.querySelector('.ah-walk__btn--next');
+      var btnReplay= walk.querySelector('.ah-walk__btn--replay');
+      var progress = walk.querySelector('.ah-walk__progress');
+      if (!stepEls.length || !elTitle || !btnNext) return;
+
+      var total = stepEls.length;
+      var idx = 0;
+
+      if (elCount) elCount.textContent = total + ' steps';
+      if (progress) {
+        progress.innerHTML = '';
+        for (var i = 0; i < total; i++) {
+          var d = document.createElement('span');
+          d.className = 'ah-walk__dot';
+          progress.appendChild(d);
+        }
+      }
+
+      function reads(step, sel) {
+        var n = step.querySelector(sel);
+        return n ? n.innerHTML : '';
+      }
+
+      function moveCursorTo(ctl) {
+        if (!cursor || !stage || !ctl) { if (cursor) cursor.classList.remove('is-on'); return; }
+        // Position the cursor near the center-right of the spotlighted control,
+        // measured relative to the stage so it works at any width.
+        var sRect = stage.getBoundingClientRect();
+        var cRect = ctl.getBoundingClientRect();
+        var x = (cRect.left - sRect.left) + Math.min(cRect.width - 14, cRect.width * 0.5);
+        var y = (cRect.top - sRect.top) + (cRect.height * 0.5);
+        cursor.style.left = x + 'px';
+        cursor.style.top = y + 'px';
+        cursor.classList.add('is-on');
+      }
+
+      function render() {
+        var step = stepEls[idx];
+        var target = step.getAttribute('data-target') || '';
+        var tab = step.getAttribute('data-tab') || '';
+
+        // Text panel
+        if (elStepNo) elStepNo.textContent = 'Step ' + (idx + 1) + ' of ' + total;
+        if (elTitle)  elTitle.innerHTML = reads(step, '.ah-s-title');
+        if (elBody)   elBody.innerHTML = reads(step, '.ah-s-body');
+        var behind = reads(step, '.ah-s-behind');
+        if (elBehind) {
+          if (behind) { elBehind.innerHTML = '<b>Behind the scenes:</b> ' + behind; elBehind.style.display = ''; }
+          else elBehind.style.display = 'none';
+        }
+
+        // Optional simulated tab switch
+        if (tab && stage) {
+          stage.querySelectorAll('.ah-mini-tab').forEach(function (t) {
+            t.classList.toggle('is-active', t.getAttribute('data-tab') === tab);
+          });
+        }
+
+        // Spotlight the target control; dim the rest.
+        var spot = null;
+        if (stage) {
+          stage.querySelectorAll('.ah-ctl').forEach(function (ctl) {
+            var isTarget = target && ctl.getAttribute('data-ctl') === target;
+            ctl.classList.toggle('is-spot', !!isTarget);
+            ctl.classList.toggle('is-dim', !!target && !isTarget);
+            if (isTarget) spot = ctl;
+          });
+        }
+        // Defer cursor move so layout (tab switch) has settled.
+        window.requestAnimationFrame(function () { moveCursorTo(spot); });
+
+        // Progress dots
+        if (progress) {
+          Array.prototype.forEach.call(progress.children, function (dot, i) {
+            dot.classList.toggle('is-done', i < idx);
+            dot.classList.toggle('is-current', i === idx);
+          });
+        }
+
+        // Buttons
+        if (btnBack) btnBack.disabled = idx === 0;
+        var last = idx === total - 1;
+        if (btnNext) btnNext.textContent = last ? 'Finish ✓' : 'Next →';
+        if (elDone) elDone.classList.toggle('is-visible', last);
+      }
+
+      if (btnNext) btnNext.addEventListener('click', function () {
+        if (idx < total - 1) { idx++; render(); }
+        else { /* finished — keep last step visible, done badge shows */ }
+      });
+      if (btnBack) btnBack.addEventListener('click', function () {
+        if (idx > 0) { idx--; render(); }
+      });
+      if (btnReplay) btnReplay.addEventListener('click', function () {
+        idx = 0; render();
+      });
+
+      render();
+    });
+  }
+
+  // ── Contextual "?" tooltips ─────────────────────────────────
+  // Desktop reveals on hover/focus via CSS. This adds click-to-toggle
+  // for touch devices (aria-expanded + .is-open on the wrapper).
+  function initHelpTips() {
+    document.querySelectorAll('.ah-help').forEach(function (btn) {
+      btn.setAttribute('role', 'button');
+      btn.setAttribute('tabindex', '0');
+      if (!btn.hasAttribute('aria-expanded')) btn.setAttribute('aria-expanded', 'false');
+      function toggle(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var open = btn.getAttribute('aria-expanded') === 'true';
+        // Close any others first.
+        document.querySelectorAll('.ah-help[aria-expanded="true"]').forEach(function (o) {
+          o.setAttribute('aria-expanded', 'false');
+          var w = o.closest('.ah-help-wrap'); if (w) w.classList.remove('is-open');
+        });
+        if (!open) {
+          btn.setAttribute('aria-expanded', 'true');
+          var wrap = btn.closest('.ah-help-wrap'); if (wrap) wrap.classList.add('is-open');
+        }
+      }
+      btn.addEventListener('click', toggle);
+      btn.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') toggle(e);
+        if (e.key === 'Escape') { btn.setAttribute('aria-expanded', 'false'); var w = btn.closest('.ah-help-wrap'); if (w) w.classList.remove('is-open'); }
+      });
+    });
+    // Outside click closes open tips.
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('.ah-help-wrap')) return;
+      document.querySelectorAll('.ah-help[aria-expanded="true"]').forEach(function (o) {
+        o.setAttribute('aria-expanded', 'false');
+        var w = o.closest('.ah-help-wrap'); if (w) w.classList.remove('is-open');
+      });
+    });
+  }
+
+  // ── Loading / "Please wait…" demos ──────────────────────────
+  // Wires the two demo buttons in the "Loading & waiting" section so
+  // admins can see the exact spinner + overlay affordances the real
+  // tools use while the backend responds.
+  function initLoadingDemos() {
+    var btn = document.getElementById('ah-demo-btn');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        if (btn.disabled) return;
+        var original = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="ah-spinner"></span> Saving…';
+        setTimeout(function () {
+          btn.innerHTML = '✓ Saved';
+          setTimeout(function () { btn.disabled = false; btn.innerHTML = original; }, 1200);
+        }, 1600);
+      });
+    }
+    var overlayBtn = document.getElementById('ah-demo-overlay-btn');
+    var overlay = document.getElementById('ah-demo-overlay');
+    if (overlayBtn && overlay) {
+      var veil = overlay.querySelector('.ah-overlay-demo__veil');
+      overlayBtn.addEventListener('click', function () {
+        if (!veil) return;
+        veil.classList.add('is-on');
+        setTimeout(function () { veil.classList.remove('is-on'); }, 1800);
+      });
+    }
+  }
+
   function slugify(s) {
     return String(s).toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')

@@ -71,8 +71,8 @@
     .donate-impact__social-link svg { width: 20px; height: 20px; flex-shrink: 0; }
     .donate-impact__social-link--telegram svg { color: #0088cc; }
     .donate-impact__social-link--instagram svg { color: #E4405F; }
-    .donate-impact__social-link--gideons svg { color: var(--gold, #d4a574); }
-    .donate-impact__social-link--youversion svg { color: #fff; }
+    /* Gideons + YouVersion marks use explicit multi-color fills in the SVG itself */
+    .donate-impact__social-link--youversion svg { border-radius: 5px; }
     .donate-impact__plus { font-size: 0.6em; vertical-align: super; color: rgba(255,255,255,0.5); }
 
     /* Interactive globe + "Countries Reached" counter, tuned for the dark impact card */
@@ -304,11 +304,21 @@
         Instagram
       </a>
       <a class="donate-impact__social-link donate-impact__social-link--gideons" href="https://gideons.org/find-hope#bibleapp" target="_blank" rel="noopener" aria-label="Gideons Bible App">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6zm1 3h10v1H7V5zm0 3h10v1H7V8zm0 3h7v1H7v-1z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+          <!-- Gideons: torch/lamp within a pitcher (Judges 7) -->
+          <path d="M12 1.6c.4 1 .3 1.9-.3 2.6-.5.6-.7 1.2-.4 1.9.2-.3.5-.5.8-.6-.2.7 0 1.3.5 1.8.6.6.9 1.3.7 2.1-.2.8-.9 1.4-1.8 1.4-1.1 0-2-.9-2-2 0-1 .5-1.7 1-2.5.6-1 1-2 .5-3.1.5.2 1 .6 1.3 1.1z" fill="#E8A33D"/>
+          <path d="M6.6 8.5h10.8c.5 0 .8.5.6 1l-1.7 9.3c-.2 1-1 1.7-2 1.7H9.7c-1 0-1.8-.7-2-1.7L6 9.5c-.1-.5.2-1 .6-1z" fill="#2C5F2E"/>
+          <path d="M8.4 11.2h7.2l-1.1 6c-.1.6-.6 1-1.2 1h-2.6c-.6 0-1.1-.4-1.2-1z" fill="#3f8043"/>
+        </svg>
         Gideons App
       </a>
       <a class="donate-impact__social-link donate-impact__social-link--youversion" href="https://www.bible.com/app" target="_blank" rel="noopener" aria-label="YouVersion Bible App">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+          <!-- YouVersion Bible App: white speech mark on the brand orange-red rounded square -->
+          <rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="#FF3D4D"/>
+          <path d="M8.9 7.2c-1.9 0-3.4 1.5-3.4 3.4 0 1.8 1.3 3.2 3 3.4-.1.9-.6 1.6-1.4 2.1-.3.2-.2.7.2.6 2.4-.5 4.1-2.4 4.1-4.9v-.9c0-1.9-1.5-3.2-2.5-3.2z" fill="#fff"/>
+          <path d="M15.6 7.2c-1.9 0-3.4 1.5-3.4 3.4 0 1.8 1.3 3.2 3 3.4-.1.9-.6 1.6-1.4 2.1-.3.2-.2.7.2.6 2.4-.5 4.1-2.4 4.1-4.9v-.9c0-1.9-1.1-3.2-2.5-3.2z" fill="#fff"/>
+        </svg>
         YouVersion
       </a>
     </div>

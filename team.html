@@ -88,6 +88,7 @@
     .ord-tag--paid { background:rgba(44,95,46,0.16); color:var(--color-olive,#2C5F2E); }
     .ord-tag--pending { background:rgba(180,140,20,0.16); color:#9a6a15; }
     .ord-tag--unpaid { background:rgba(166,37,31,0.12); color:var(--color-danger,#a6251f); }
+    .ord-actions--pay { margin-top:0.4rem; padding-top:0.5rem; border-top:1px dashed var(--color-border,#e0e0e0); }
     .ord-stepper { display:flex; align-items:center; justify-content:space-between; gap:0.2rem; margin:0.85rem 0; }
     .ord-stepper--cancelled { color:var(--color-danger,#a6251f); font-weight:700; font-size:0.85rem; margin:0.7rem 0; }
     .ord-step { flex:1; display:flex; flex-direction:column; align-items:center; gap:0.25rem; position:relative; font-size:0.62rem; color:var(--color-text-muted); text-align:center; }
@@ -966,6 +967,8 @@
     var payTag = '';
     if (payStatus === 'paid') {
       payTag = ' <span class="ord-tag ord-tag--paid">PAID' + (paidCents ? ' ' + money(paidCents) : '') + (payMethod ? ' · ' + esc(payMethod) : '') + '</span>';
+    } else if (payStatus === 'invoiced') {
+      payTag = ' <span class="ord-tag ord-tag--pending">INVOICED</span>';
     } else if (payStatus === 'pending_quote') {
       payTag = ' <span class="ord-tag ord-tag--pending">AWAITING INVOICE</span>';
     } else if (payStatus === 'unpaid' && !comped) {
@@ -984,6 +987,18 @@
       actions += '<button class="btn btn--outline btn--sm ord-cancel" data-order="' + esc(o.order_id) + '">Cancel</button>';
     }
 
+    // ── Payment actions ── invoice + manual settle, for orders not yet paid
+    // and not comped. Uses the order subtotal as the default invoice amount.
+    var payActions = '';
+    if (payStatus !== 'paid' && !comped && o.status !== 'cancelled') {
+      var invLabel = (payStatus === 'invoiced') ? 'Resend invoice' : 'Create & send invoice';
+      payActions += '<button class="btn btn--gold btn--sm ord-invoice" data-order="' + esc(o.order_id) + '" data-subtotal="' + esc(o.subtotal_cents) + '" data-email="' + esc(o.email) + '">🧾 ' + invLabel + '</button>';
+      payActions += '<button class="btn btn--green btn--sm ord-markpaid" data-order="' + esc(o.order_id) + '" data-subtotal="' + esc(o.subtotal_cents) + '">✓ Mark paid</button>';
+      if (payStatus === 'invoiced' && o.invoice_url) {
+        payActions += '<a class="btn btn--outline btn--sm" href="' + esc(o.invoice_url) + '" target="_blank" rel="noopener">View invoice ↗</a>';
+      }
+    }
+
     return '<div class="ord-card" data-order-card="' + esc(o.order_id) + '">' +
       '<div class="ord-card__top">' +
         '<div><strong class="ord-card__id">' + esc(o.order_id) + '</strong>' +
@@ -997,6 +1012,7 @@
       '<div class="ord-items">' + itemRows + '</div>' +
       (ship && o.shipping_address ? '<div class="ord-ship">📦 ' + esc(o.shipping_address) + '</div>' : '') +
       (o.notes ? '<div class="ord-notes">📝 ' + esc(o.notes) + '</div>' : '') +
+      (payActions ? '<div class="ord-actions ord-actions--pay">' + payActions + '</div>' : '') +
       '<div class="ord-actions">' + actions + '</div>' +
       '</div>';
   }
@@ -1044,6 +1060,61 @@
         advance(this.dataset.order, 'cancelled', this);
       });
     });
+    root.querySelectorAll('.ord-invoice').forEach(function (b) {
+      b.addEventListener('click', function () { sendInvoice(this); });
+    });
+    root.querySelectorAll('.ord-markpaid').forEach(function (b) {
+      b.addEventListener('click', function () { markPaid(this); });
+    });
+  }
+
+  // Create + send a PayPal invoice for the final total (subtotal + shipping,
+  // minus any discount). PayPal emails the customer a hosted pay link.
+  async function sendInvoice(btn) {
+    var orderId = btn.dataset.order;
+    var subtotal = Number(btn.dataset.subtotal || 0);
+    var email = btn.dataset.email || '';
+    if (!email || email.indexOf('@') === -1) { alert('This order has no valid email to invoice.'); return; }
+    var itemsDollars = prompt('Invoice items total (USD) — adjust if you added/removed/discounted items:', (subtotal / 100).toFixed(2));
+    if (itemsDollars === null) return;
+    var shipDollars = prompt('Shipping to add (USD) — leave 0 for none:', '0');
+    if (shipDollars === null) return;
+    var itemsCents = Math.round(parseFloat(itemsDollars) * 100);
+    var shipCents = Math.round(parseFloat(shipDollars) * 100) || 0;
+    if (!(itemsCents > 0)) { alert('Enter a valid items total.'); return; }
+    if (!confirm('Send a PayPal invoice to ' + email + ' for $' + ((itemsCents + shipCents) / 100).toFixed(2) + ' (items $' + (itemsCents / 100).toFixed(2) + (shipCents ? ' + shipping $' + (shipCents / 100).toFixed(2) : '') + ')?')) return;
+    btn.disabled = true; var orig = btn.textContent; btn.textContent = 'Sending…';
+    try {
+      var res = await post({
+        action: 'createStoreInvoice', passphrase_hash: ADMIN_HASH, token: (sess() && sess().token) || '',
+        order_id: orderId,
+        items: [{ name: 'Seed the Word order ' + orderId, qty: 1, unitPriceCents: itemsCents }],
+        shippingCents: shipCents
+      });
+      if (res && res.ok) { alert('Invoice sent to ' + email + '.'); load(); }
+      else { alert((res && res.error) || 'Invoice failed'); btn.disabled = false; btn.textContent = orig; }
+    } catch (e) { alert(e.message); btn.disabled = false; btn.textContent = orig; }
+  }
+
+  // Manually settle an order (cash on pickup, Zelle, invoice paid out-of-band).
+  async function markPaid(btn) {
+    var orderId = btn.dataset.order;
+    var subtotal = Number(btn.dataset.subtotal || 0);
+    var method = prompt('Payment method (e.g. cash, zelle, cashapp, paypal, invoice):', 'cash');
+    if (method === null) return;
+    var amtDollars = prompt('Amount paid (USD):', (subtotal / 100).toFixed(2));
+    if (amtDollars === null) return;
+    var amtCents = Math.round(parseFloat(amtDollars) * 100);
+    if (!(amtCents >= 0)) { alert('Enter a valid amount.'); return; }
+    btn.disabled = true; var orig = btn.textContent; btn.textContent = 'Saving…';
+    try {
+      var res = await post({
+        action: 'markStoreOrderPaid', passphrase_hash: ADMIN_HASH, token: (sess() && sess().token) || '',
+        order_id: orderId, method: (method || 'manual').trim().toLowerCase(), amountCents: amtCents
+      });
+      if (res && res.ok) { load(); }
+      else { alert((res && res.error) || 'Update failed'); btn.disabled = false; btn.textContent = orig; }
+    } catch (e) { alert(e.message); btn.disabled = false; btn.textContent = orig; }
   }
 
   async function advance(orderId, status, btn) {

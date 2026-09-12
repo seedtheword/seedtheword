@@ -169,6 +169,12 @@ function doPost(e) {
     return jsonResponse({ ok: true, route: 'honeypot' });
   }
 
+  // PayPal webhook events arrive as plain POSTs carrying `event_type` +
+  // `resource` (no action/type). Route them to the webhook handler.
+  if (payload && payload.event_type && payload.resource) {
+    return handlePayPalWebhook_(payload);
+  }
+
   // Route on `type` discriminator. Default is 'order' for backward-
   // compat with bundle-builder.html submissions that pre-date the
   // multi-form support.
@@ -298,6 +304,8 @@ function doPost(e) {
   // ── Store order management (admin) ──
   if ((payload && payload.action) === 'getStoreOrders') return handleGetStoreOrders_(payload);
   if ((payload && payload.action) === 'updateStoreOrderStatus') return handleUpdateStoreOrderStatus_(payload);
+  if ((payload && payload.action) === 'createStoreInvoice') return handleCreateStoreInvoice_(payload);
+  if ((payload && payload.action) === 'markStoreOrderPaid') return handleMarkStoreOrderPaid_(payload);
   // ── Promo / comp codes ──
   if ((payload && payload.action) === 'generatePromoCode') return handleGeneratePromoCode_(payload);
   if ((payload && payload.action) === 'listPromoCodes') return handleListPromoCodes_(payload);
@@ -3632,7 +3640,9 @@ function handleGetStoreOrders_(payload) {
         tracking_number: String(cell(row, 'tracking_number') || ''),
         payment_status: String(cell(row, 'payment_status') || ''),
         payment_method: String(cell(row, 'payment_method') || ''),
-        amount_paid_cents: Number(cell(row, 'amount_paid_cents') || 0)
+        amount_paid_cents: Number(cell(row, 'amount_paid_cents') || 0),
+        paypal_invoice_id: String(cell(row, 'paypal_invoice_id') || ''),
+        invoice_url: String(cell(row, 'invoice_url') || '')
       });
     }
     orders.reverse();
@@ -5005,6 +5015,235 @@ function handleCapturePayPalOrder_(payload) {
   } catch (err) {
     console.log('handleCapturePayPalOrder_ error:', err);
     return jsonResponse({ ok: false, error: 'paypal-capture-error' });
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PayPal payments (Phase 2) — invoice track for shipping/quote orders.
+//
+// A shipping order is recorded as payment_status 'pending_quote' (no charge
+// yet). The team reviews it, adjusts the total + adds real shipping, and from
+// the portal sends a PayPal INVOICE for the final amount. PayPal emails the
+// customer a hosted pay link (PayPal balance OR card — no account needed) and
+// notifies us when it's paid. The team can also mark an order paid manually
+// (cash on pickup, Zelle, etc.).
+//
+// Extra Script Property (optional, for webhook auto-settle): PAYPAL_WEBHOOK_ID.
+// ══════════════════════════════════════════════════════════════════════
+
+// Locate a StoreOrders row by order_id. Returns { sheet, row (1-based), idx
+// (header→col map), values } or null. Shared by the Phase-2 handlers.
+function findStoreOrderRow_(orderId) {
+  orderId = String(orderId || '').trim();
+  if (!orderId) return null;
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+  var sheet = ss.getSheetByName(STORE_ORDERS_TAB);
+  if (!sheet || sheet.getLastRow() < 2) return null;
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn();
+  var values = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+  var headers = values[0].map(function (h) { return String(h).trim(); });
+  var idx = {}; headers.forEach(function (h, i) { idx[h] = i; });
+  if (idx.order_id == null) return null;
+  for (var r = 1; r < values.length; r++) {
+    if (String(values[r][idx.order_id] || '').trim() === orderId) {
+      return { ss: ss, sheet: sheet, row: r + 1, idx: idx, values: values[r] };
+    }
+  }
+  return null;
+}
+
+// action:'createStoreInvoice' (admin) — create + send a PayPal invoice for the
+// final total the team decides on. The team passes explicit line items and an
+// optional shipping amount so they can add/remove/discount before charging.
+// Payload: { order_id, items:[{name, qty, unitPriceCents}], shippingCents?,
+//            discountCents?, note?, passphrase_hash, token }
+function handleCreateStoreInvoice_(payload) {
+  if (!validateAdminPassphrase_(payload)) return jsonResponse({ ok: false, error: 'Unauthorized' });
+  try {
+    var creds = paypalCreds_();
+    if (!creds) return jsonResponse({ ok: false, error: 'payment-not-configured' });
+
+    var found = findStoreOrderRow_(payload && payload.order_id);
+    if (!found) return jsonResponse({ ok: false, error: 'Order not found' });
+
+    var email = String(found.values[found.idx.email] || '').trim();
+    var name = String(found.values[found.idx.name] || '').trim();
+    if (!email || email.indexOf('@') === -1) return jsonResponse({ ok: false, error: 'Order has no valid email to invoice.' });
+
+    var currency = String(found.values[found.idx.currency] || 'USD').toUpperCase();
+    var lineItems = (payload && Array.isArray(payload.items) && payload.items.length)
+      ? payload.items
+      : (function () {
+          // Fall back to the order's stored items if the team didn't override.
+          try { return JSON.parse(String(found.values[found.idx.items_json] || '[]')); } catch (e) { return []; }
+        })();
+    if (!lineItems.length) return jsonResponse({ ok: false, error: 'No line items to invoice.' });
+
+    var items = lineItems.map(function (it) {
+      return {
+        name: String(it.name || 'Item').slice(0, 200),
+        quantity: String(Math.max(1, parseInt(it.qty, 10) || 1)),
+        unit_amount: { currency_code: currency, value: centsToPayPalAmount_(it.unitPriceCents) }
+      };
+    });
+
+    var shippingCents = Math.max(0, Math.round(Number(payload && payload.shippingCents) || 0));
+    var discountCents = Math.max(0, Math.round(Number(payload && payload.discountCents) || 0));
+    var nameParts = name.split(/\s+/);
+    var token = paypalAccessToken_(creds);
+    var base = paypalBaseUrl_(creds.mode);
+
+    var invoiceBody = {
+      detail: {
+        currency_code: currency,
+        note: String((payload && payload.note) || 'Thank you for supporting Seed the Word Ministry.').slice(0, 500),
+        reference: String(payload.order_id)
+      },
+      primary_recipients: [{
+        billing_info: {
+          name: { given_name: (nameParts[0] || name || 'Friend'), surname: nameParts.slice(1).join(' ') },
+          email_address: email
+        }
+      }],
+      items: items
+    };
+    if (shippingCents > 0) {
+      invoiceBody.amount = { breakdown: { shipping: { amount: { currency_code: currency, value: centsToPayPalAmount_(shippingCents) } } } };
+    }
+    if (discountCents > 0) {
+      invoiceBody.amount = invoiceBody.amount || { breakdown: {} };
+      invoiceBody.amount.breakdown = invoiceBody.amount.breakdown || {};
+      invoiceBody.amount.breakdown.discount = { invoice_discount: { amount: { currency_code: currency, value: centsToPayPalAmount_(discountCents) } } };
+    }
+
+    // 1) Create the draft invoice.
+    var createResp = UrlFetchApp.fetch(base + '/v2/invoicing/invoices', {
+      method: 'post', muteHttpExceptions: true, contentType: 'application/json',
+      headers: { 'Authorization': 'Bearer ' + token },
+      payload: JSON.stringify(invoiceBody)
+    });
+    var createData = {};
+    try { createData = JSON.parse(createResp.getContentText()); } catch (e) {}
+    var invoiceId = createData.id || '';
+    if (!invoiceId && createData.href) {
+      // Some responses return only a location href ending in the id.
+      invoiceId = String(createData.href).split('/').pop();
+    }
+    if (!invoiceId) {
+      console.log('createStoreInvoice draft failed:', createResp.getResponseCode(), createResp.getContentText());
+      return jsonResponse({ ok: false, error: 'invoice-create-failed' });
+    }
+
+    // 2) Send it (PayPal emails the recipient the pay link).
+    var sendResp = UrlFetchApp.fetch(base + '/v2/invoicing/invoices/' + encodeURIComponent(invoiceId) + '/send', {
+      method: 'post', muteHttpExceptions: true, contentType: 'application/json',
+      headers: { 'Authorization': 'Bearer ' + token },
+      payload: JSON.stringify({ send_to_recipient: true })
+    });
+    var sendCode = sendResp.getResponseCode();
+    if (sendCode < 200 || sendCode >= 300) {
+      console.log('createStoreInvoice send failed:', sendCode, sendResp.getContentText());
+      // Draft exists but wasn't sent — surface so the team can retry from PayPal.
+      return jsonResponse({ ok: false, error: 'invoice-send-failed', invoiceId: invoiceId });
+    }
+
+    // 3) Record on the order row.
+    var invUrl = '';
+    try {
+      var getResp = UrlFetchApp.fetch(base + '/v2/invoicing/invoices/' + encodeURIComponent(invoiceId), {
+        muteHttpExceptions: true, headers: { 'Authorization': 'Bearer ' + token }
+      });
+      var inv = JSON.parse(getResp.getContentText());
+      if (inv && inv.detail && inv.detail.metadata && inv.detail.metadata.recipient_view_url) {
+        invUrl = inv.detail.metadata.recipient_view_url;
+      }
+    } catch (e) {}
+
+    var invIdCol = ensureColumn_(found.sheet, 'paypal_invoice_id');
+    var invUrlCol = ensureColumn_(found.sheet, 'invoice_url');
+    var payStatusCol = ensureColumn_(found.sheet, 'payment_status');
+    found.sheet.getRange(found.row, invIdCol).setValue(invoiceId);
+    if (invUrl) found.sheet.getRange(found.row, invUrlCol).setValue(invUrl);
+    found.sheet.getRange(found.row, payStatusCol).setValue('invoiced');
+
+    return jsonResponse({ ok: true, order_id: payload.order_id, invoiceId: invoiceId, invoiceUrl: invUrl, payment_status: 'invoiced' });
+  } catch (err) {
+    console.log('handleCreateStoreInvoice_ error:', err);
+    return jsonResponse({ ok: false, error: 'invoice-error' });
+  }
+}
+
+// action:'markStoreOrderPaid' (admin) — manually settle an order (cash on
+// pickup, Zelle, an invoice PayPal confirmed out-of-band, etc.).
+// Payload: { order_id, method?, amountCents?, passphrase_hash, token }
+function handleMarkStoreOrderPaid_(payload) {
+  if (!validateAdminPassphrase_(payload)) return jsonResponse({ ok: false, error: 'Unauthorized' });
+  try {
+    var found = findStoreOrderRow_(payload && payload.order_id);
+    if (!found) return jsonResponse({ ok: false, error: 'Order not found' });
+    var method = String((payload && payload.method) || 'manual').trim() || 'manual';
+    var amountCents = Math.max(0, Math.round(Number(payload && payload.amountCents) || 0));
+    if (!amountCents) amountCents = Number(found.values[found.idx.subtotal_cents] || 0);
+
+    var payStatusCol = ensureColumn_(found.sheet, 'payment_status');
+    var payMethodCol = ensureColumn_(found.sheet, 'payment_method');
+    var paidCentsCol = ensureColumn_(found.sheet, 'amount_paid_cents');
+    found.sheet.getRange(found.row, payStatusCol).setValue('paid');
+    found.sheet.getRange(found.row, payMethodCol).setValue(method);
+    found.sheet.getRange(found.row, paidCentsCol).setValue(amountCents);
+
+    return jsonResponse({ ok: true, order_id: payload.order_id, payment_status: 'paid', amount_paid_cents: amountCents, payment_method: method });
+  } catch (err) {
+    console.log('handleMarkStoreOrderPaid_ error:', err);
+    return jsonResponse({ ok: false, error: 'mark-paid-failed' });
+  }
+}
+
+// PayPal webhook — auto-settle an order when its invoice is paid. Best-effort:
+// only acts on INVOICING.INVOICE.PAID, matches our stored paypal_invoice_id,
+// and re-verifies by trusting the event's status. Returns ok:true always so
+// PayPal doesn't retry-storm us. Configure the webhook URL in the PayPal app to
+// point at this web app's /exec URL; events arrive as normal POSTs.
+function handlePayPalWebhook_(payload) {
+  try {
+    var eventType = String((payload && payload.event_type) || '');
+    if (eventType !== 'INVOICING.INVOICE.PAID') {
+      return jsonResponse({ ok: true, route: 'webhook-ignored', eventType: eventType });
+    }
+    var resource = payload.resource || {};
+    var invoiceId = String((resource.invoice && resource.invoice.id) || resource.id || '').trim();
+    if (!invoiceId) return jsonResponse({ ok: true, route: 'webhook-no-invoice-id' });
+
+    // Find the order carrying this invoice id.
+    var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
+    var sheet = ss.getSheetByName(STORE_ORDERS_TAB);
+    if (!sheet || sheet.getLastRow() < 2) return jsonResponse({ ok: true, route: 'webhook-no-orders' });
+    var lastRow = sheet.getLastRow();
+    var values = sheet.getRange(1, 1, lastRow, sheet.getLastColumn()).getValues();
+    var headers = values[0].map(function (h) { return String(h).trim(); });
+    var idx = {}; headers.forEach(function (h, i) { idx[h] = i; });
+    if (idx.paypal_invoice_id == null) return jsonResponse({ ok: true, route: 'webhook-no-invoice-col' });
+
+    for (var r = 1; r < values.length; r++) {
+      if (String(values[r][idx.paypal_invoice_id] || '').trim() === invoiceId) {
+        var payStatusCol = ensureColumn_(sheet, 'payment_status');
+        var payMethodCol = ensureColumn_(sheet, 'payment_method');
+        var paidCentsCol = ensureColumn_(sheet, 'amount_paid_cents');
+        // Amount from the event when present, else the order subtotal.
+        var paid = 0;
+        try { paid = Math.round(parseFloat(resource.amount.value) * 100); } catch (e) {}
+        if (!paid) paid = Number(values[r][idx.subtotal_cents] || 0);
+        sheet.getRange(r + 1, payStatusCol).setValue('paid');
+        sheet.getRange(r + 1, payMethodCol).setValue('paypal-invoice');
+        sheet.getRange(r + 1, paidCentsCol).setValue(paid);
+        return jsonResponse({ ok: true, route: 'webhook-settled', invoiceId: invoiceId });
+      }
+    }
+    return jsonResponse({ ok: true, route: 'webhook-invoice-unmatched', invoiceId: invoiceId });
+  } catch (err) {
+    console.log('handlePayPalWebhook_ error:', err);
+    return jsonResponse({ ok: true, route: 'webhook-error' });
   }
 }
 

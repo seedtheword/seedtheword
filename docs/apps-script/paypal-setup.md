@@ -101,10 +101,67 @@ The backend reads the Secret from Script Properties — it is never in the repo.
 | $0 total                     | Plain "Place order"                      | `unpaid` / `comped`     |
 | Wants shipping               | "Request quote & invoice" — no charge yet| `pending_quote`         |
 
-The shipping / invoice track (Phase 2) is where the team reviews the order,
-adjusts items + adds real shipping, and sends a PayPal invoice for the final
-total. That is not built yet — for now `pending_quote` orders are followed up by
-the team.
+---
+
+## Phase 2 — shipping quote / invoice track (now built)
+
+Shipping orders record as `pending_quote`. From **Team Portal → Orders**, each
+such order shows two extra actions:
+
+- **🧾 Create & send invoice** — prompts for the final items total and any
+  shipping, then calls PayPal's Invoicing API to create + send an invoice.
+  PayPal emails the customer a hosted pay link (PayPal or card). The order flips
+  to `invoiced`, and a **View invoice ↗** link appears.
+- **✓ Mark paid** — manually settle an order (cash on pickup, Zelle, Cash App,
+  or an invoice PayPal confirmed out of band). Sets `paid` with the method +
+  amount you enter.
+
+This needs the **same** `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` Script
+Properties as Phase 1 — the Invoicing API uses the same REST app. No extra
+credentials are required for manual invoicing.
+
+### Optional: auto-settle paid invoices via webhook
+
+So a paid invoice flips to `paid` automatically (instead of the team clicking
+"Mark paid"):
+
+1. PayPal developer dashboard → your app → **Add Webhook**.
+2. **Webhook URL** = your Apps Script web-app `/exec` URL (the same
+   `orderHandlerUrl`).
+3. Subscribe to the event **`INVOICING.INVOICE.PAID`** (you can add
+   `CHECKOUT.ORDER.APPROVED` too; the handler ignores unrelated events).
+4. (Optional, for signature verification later) copy the **Webhook ID** into a
+   Script Property `PAYPAL_WEBHOOK_ID`. The current handler matches by our
+   stored invoice id and trusts the event; signature verification can be added
+   if you want defense-in-depth.
+
+Without a webhook, everything still works — the team just uses **Mark paid**.
+
+---
+
+## FULL REDEPLOY CHECKLIST (do this to make payments live)
+
+1. **PayPal REST app** (developer.paypal.com, Sandbox first): create it, copy
+   **Client ID** + **Secret**.
+2. **Apps Script Script Properties** (Project Settings → Script properties): add
+   `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_MODE=sandbox`
+   (+ optional `PAYPAL_WEBHOOK_ID`).
+3. **Paste the new `order-handler.gs`** from this repo over the Apps Script
+   editor's `Code.gs` (it now contains: `createPayPalOrder`, `capturePayPalOrder`,
+   `createStoreInvoice`, `markStoreOrderPaid`, and the webhook handler). Save.
+4. **Deploy → Manage deployments → Edit (pencil) → Version: New version →
+   Deploy.** The web-app URL stays the same; a new version is required for the
+   new actions to exist.
+5. **site-config.json**: set `paypalClientId` to your Client ID, keep
+   `paypalMode: "sandbox"`, `currency: "USD"`. Commit + let GitHub Pages publish.
+6. **(Optional) Webhook**: add it in the PayPal app pointing at the `/exec` URL,
+   subscribe to `INVOICING.INVOICE.PAID`.
+7. **Test in Sandbox** (below), then repeat steps 1–5 with **Live** credentials
+   and flip `paypalMode` to `"live"` + `PAYPAL_MODE=live`.
+
+After steps 1–5 the donate page's "Give securely by card or PayPal" block and the
+cart's pay-now buttons will appear (they stay hidden while `paypalClientId` is
+empty).
 
 ---
 

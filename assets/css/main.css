@@ -12868,7 +12868,7 @@ body.your-walk-modal-open {
    Ministry Impact Section — homepage counter + slideshow
    ============================================================ */
 .ministry-impact-section {
-  padding: 4rem 0 5rem;
+  padding: 2.5rem 0 4rem;
   position: relative;
   overflow: hidden;
   color: rgba(255,255,255,0.92);
@@ -13328,14 +13328,14 @@ body.your-walk-modal-open {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1.25rem 1.75rem;
+  padding: 0.85rem 1.5rem;
   flex-wrap: wrap;
   background: rgba(255,255,255,0.04);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(212,165,116,0.2);
   border-radius: 20px;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.25rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 .showcase-topbar:has(.showcase-search__input.is-expanded) .showcase-quicklinks {

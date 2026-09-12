@@ -932,8 +932,10 @@
       var nativeHtml = p.nativeName ? '<span class="store-card__native">' + p.nativeName + '</span>' : '';
       var imgSrc = p.image || 'assets/images/stw-logo.jpg';
       var qty = cart[p.id] || 0;
-      var maxQty = p.stockCount || 99;
-      var disabled = p.stockCount === 0;
+      // Bundles are built to order — every language/option is always selectable,
+      // regardless of current shelf stock. We never disable or cap by stockCount.
+      var maxQty = 99;
+      var madeToOrder = p.stockCount === 0;
 
       card.innerHTML =
         '<div class="store-card__image"><img src="' + imgSrc + '" alt="' + p.name + '" loading="lazy"></div>' +
@@ -943,17 +945,18 @@
           '<p class="store-card__desc">' + p.description + '</p>' +
           '<div class="store-card__meta">' +
             '<span class="store-card__price">' + p.price + '</span>' +
-            (stockLabel ? '<span class="' + stockClass + '">' + stockLabel + '</span>' : '') +
+            (madeToOrder
+              ? '<span class="store-card__stock store-card__stock--low">Made to order</span>'
+              : (stockLabel ? '<span class="' + stockClass + '">' + stockLabel + '</span>' : '')) +
           '</div>' +
-          (disabled
-            ? '<p style="color:var(--muted); font-size:0.85rem; margin-top:0.5rem;">Currently unavailable</p>'
-            : '<div class="bb-qty">' +
-                '<button class="bb-qty__btn" data-action="dec" data-id="' + p.id + '" ' + (qty === 0 ? 'disabled' : '') + '>−</button>' +
-                '<span class="bb-qty__count" id="qty-' + p.id + '">' + qty + '</span>' +
-                '<button class="bb-qty__btn" data-action="inc" data-id="' + p.id + '" ' + (qty >= maxQty ? 'disabled' : '') + '>+</button>' +
-              '</div>' +
-              '<p class="bb-stock-note">Max: ' + maxQty + '</p>'
-          ) +
+          '<div class="bb-qty">' +
+            '<button class="bb-qty__btn" data-action="dec" data-id="' + p.id + '" ' + (qty === 0 ? 'disabled' : '') + '>−</button>' +
+            '<span class="bb-qty__count" id="qty-' + p.id + '">' + qty + '</span>' +
+            '<button class="bb-qty__btn" data-action="inc" data-id="' + p.id + '" ' + (qty >= maxQty ? 'disabled' : '') + '>+</button>' +
+          '</div>' +
+          (madeToOrder
+            ? '<p class="bb-stock-note">Built to order — we\'ll source it for your bundle</p>'
+            : '<p class="bb-stock-note">Max: ' + maxQty + '</p>') +
         '</div>';
       grid.appendChild(card);
     });
@@ -964,7 +967,7 @@
         var id = this.getAttribute('data-id');
         var action = this.getAttribute('data-action');
         var p = getProduct(id);
-        var maxQty = p.stockCount || 99;
+        var maxQty = 99; // built to order — not capped by current shelf stock
         if (action === 'inc') {
           cart[id] = Math.min((cart[id] || 0) + 1, maxQty);
         } else {
@@ -982,8 +985,7 @@
     var el = document.getElementById('qty-' + id);
     if (el) el.textContent = cart[id] || 0;
     // Update button states
-    var p = getProduct(id);
-    var maxQty = p ? (p.stockCount || 99) : 99;
+    var maxQty = 99; // built to order — not capped by current shelf stock
     var qty = cart[id] || 0;
     var btns = grid.querySelectorAll('[data-id="' + id + '"]');
     btns.forEach(function(btn) {

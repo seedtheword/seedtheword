@@ -254,23 +254,26 @@
           Cart.clear();
           layoutEl.hidden = true;
           emptyEl.hidden = true;
-          if (res.orderId) {
-            var tail;
-            if (res.paymentStatus === 'paid') {
-              tail = ' — payment received. A receipt is on the way' + (payload.wantsShipping ? ' and we\'ll arrange shipping.' : '.');
-            } else if (res.comped) {
-              tail = ' — your team code was applied, there\'s no charge. A team member will follow up.';
-            } else if (payload.wantsShipping) {
-              tail = ' — we\'ll email you an itemized invoice (with shipping) to approve and pay.';
-            } else {
-              tail = ' — check your email, and a team member will follow up.';
-            }
-            successMsgEl.textContent = 'Thank you, ' + name + '. Your order (' + res.orderId + ') is confirmed' + tail;
+          // Build the confirmation message + full-screen overlay.
+          var title, msg;
+          if (res.paymentStatus === 'paid') {
+            title = 'Payment received! 🎉';
+            msg = 'Thank you, ' + name + '. A receipt is on the way' + (payload.wantsShipping ? ' and we\'ll email you to arrange shipping.' : '.');
+          } else if (res.comped) {
+            title = 'You\'re all set! 🎉';
+            msg = 'Thank you, ' + name + '. Your team code was applied — there\'s no charge. A team member will follow up.';
+          } else if (payload.wantsShipping) {
+            title = 'Order received! 🎉';
+            msg = 'Thank you, ' + name + '. We\'ll email you an itemized invoice (with shipping) to approve and pay.';
+          } else {
+            title = 'Order received! 🎉';
+            msg = 'Thank you, ' + name + '. Check your email — a team member will follow up.';
           }
-          successEl.hidden = false;
-          successEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (successMsgEl && res.orderId) successMsgEl.textContent = title + ' Your order (' + res.orderId + ') is confirmed. ' + msg;
+          overlayShowDone({ title: title, orderId: res.orderId || '', msg: msg });
           return { ok: true };
         }
+        overlayHide();
         submitBtn.disabled = false;
         submitBtn.textContent = 'Place order →';
         if (res && res.code === 'promo-invalid') {
@@ -283,6 +286,7 @@
         return { ok: false, res: res };
       })
       .catch(function (err) {
+        overlayHide();
         submitBtn.disabled = false;
         submitBtn.textContent = 'Place order →';
         setStatus('Order failed: ' + (err.message || 'Network error. Please try again.'), 'error');
@@ -299,6 +303,7 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Placing order…';
     setStatus('', null);
+    overlayShowProcessing('Placing your order…');
     recordOrder(null);
   }
 
@@ -307,6 +312,43 @@
     statusEl.hidden = false;
     statusEl.textContent = msg;
     statusEl.className = 'checkout-status' + (kind ? ' checkout-status--' + kind : '');
+  }
+
+  // ── Full-screen checkout overlay (processing → confirmation) ──
+  function overlayShowProcessing(msg) {
+    var ov = document.getElementById('checkout-overlay');
+    if (!ov) return;
+    var proc = document.getElementById('checkout-overlay-processing');
+    var done = document.getElementById('checkout-overlay-done');
+    if (proc) {
+      proc.hidden = false;
+      var m = proc.querySelector('.checkout-overlay__msg');
+      if (m && msg) m.textContent = msg;
+    }
+    if (done) done.hidden = true;
+    ov.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function overlayShowDone(opts) {
+    var ov = document.getElementById('checkout-overlay');
+    if (!ov) return;
+    var proc = document.getElementById('checkout-overlay-processing');
+    var done = document.getElementById('checkout-overlay-done');
+    if (proc) proc.hidden = true;
+    if (done) done.hidden = false;
+    var titleEl = document.getElementById('checkout-overlay-title');
+    var orderEl = document.getElementById('checkout-overlay-order');
+    var msgEl = document.getElementById('checkout-overlay-msg');
+    if (titleEl && opts.title) titleEl.textContent = opts.title;
+    if (orderEl) { orderEl.textContent = opts.orderId ? ('Order ' + opts.orderId) : ''; orderEl.hidden = !opts.orderId; }
+    if (msgEl) msgEl.textContent = opts.msg || '';
+    ov.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function overlayHide() {
+    var ov = document.getElementById('checkout-overlay');
+    if (ov) ov.hidden = true;
+    document.body.style.overflow = '';
   }
 
   // ── PayPal payment ───────────────────────────────────────────
@@ -384,7 +426,7 @@
         // After buyer approval, capture on OUR backend (verifies the amount),
         // then record the order as paid.
         onApprove: function (data) {
-          setStatus('Confirming your payment…', null);
+          overlayShowProcessing('Processing your payment…');
           var payload = buildOrderPayload();
           return fetch(orderHandlerUrl, {
             method: 'POST', mode: 'cors',
@@ -402,6 +444,7 @@
               });
             })
             .catch(function (err) {
+              overlayHide();
               setStatus('Payment could not be completed: ' + (err.message || 'please try again.'), 'error');
             });
         },

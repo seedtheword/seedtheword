@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=34">
   <link rel="stylesheet" href="assets/css/store-catalog.css?v=14">
-  <link rel="stylesheet" href="assets/css/cart.css?v=1">
+  <link rel="stylesheet" href="assets/css/cart.css?v=2">
   <script src="assets/js/theme-toggle.js?v=1"></script>
 </head>
 <body>
@@ -188,7 +188,8 @@
       </aside>
     </div>
 
-    <!-- Success state -->
+    <!-- Inline success (kept as a no-JS / fallback anchor; the overlay below is
+         the primary confirmation experience). -->
     <div class="cart-success" id="cart-success" hidden>
       <div class="cart-success__check">✓</div>
       <h2 class="cart-success__title">Order received!</h2>
@@ -201,6 +202,29 @@
       <h2 class="cart-favorites__title">Your Favorites</h2>
       <div class="cart-favorites__grid" id="cart-favorites-grid"></div>
     </section>
+  </div>
+
+  <!-- Full-screen checkout overlay: processing spinner → confirmation. -->
+  <div class="checkout-overlay" id="checkout-overlay" hidden aria-live="polite" role="dialog" aria-modal="true">
+    <div class="checkout-overlay__card">
+      <!-- Processing state -->
+      <div class="checkout-overlay__state" id="checkout-overlay-processing">
+        <div class="checkout-overlay__spinner" aria-hidden="true"></div>
+        <h2 class="checkout-overlay__title">Processing your payment…</h2>
+        <p class="checkout-overlay__msg">Please hold on — don't close this window.</p>
+      </div>
+      <!-- Confirmed state -->
+      <div class="checkout-overlay__state" id="checkout-overlay-done" hidden>
+        <div class="checkout-overlay__check" aria-hidden="true">✓</div>
+        <h2 class="checkout-overlay__title" id="checkout-overlay-title">Thank you! 🎉</h2>
+        <p class="checkout-overlay__order" id="checkout-overlay-order"></p>
+        <p class="checkout-overlay__msg" id="checkout-overlay-msg"></p>
+        <div class="checkout-overlay__actions">
+          <a href="store.html" class="checkout-overlay__btn checkout-overlay__btn--primary">Continue shopping →</a>
+          <a href="index.html" class="checkout-overlay__btn">Back to home</a>
+        </div>
+      </div>
+    </div>
   </div>
 </main>
 
@@ -223,6 +247,6 @@
 <script src="assets/js/cart-badge.js?v=2"></script>
 <script src="assets/js/nav-auth.js?v=5"></script>
 <script src="assets/js/profile-settings.js?v=3"></script>
-<script src="assets/js/cart-page.js?v=2"></script>
+<script src="assets/js/cart-page.js?v=3"></script>
 </body>
 </html>

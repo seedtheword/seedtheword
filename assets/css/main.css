@@ -13487,7 +13487,7 @@ body.your-walk-modal-open {
 }
 .l4j__where { font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.85); margin: 0; }
 .l4j__cardtext { font-size: 0.95rem; line-height: 1.5; color: rgba(255,255,255,0.78); margin: 0 auto 0.9rem; max-width: 44ch; }
-.l4j__ctas { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
+.l4j__ctas { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; margin-bottom: 0.9rem; }
 .l4j__btn {
   display: inline-flex; align-items: center; gap: 0.4rem;
   padding: 0.72rem 1.4rem;

@@ -1229,7 +1229,7 @@
   font-size: 0.66rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #f0d68a;
+  color: #ffe08a !important;
   margin: 0 0 0.45rem;
 }
 .admin-hero__title {
@@ -1238,15 +1238,18 @@
   font-weight: 500;
   letter-spacing: -0.01em;
   margin: 0 0 0.55rem;
-  color: #fff;
+  color: #fff !important;
 }
+/* Force light text on the dark gradient — override main.css's default
+   paragraph color, which otherwise renders these near-invisible. */
 .admin-hero__blurb {
   font-size: 1rem;
   line-height: 1.65;
-  opacity: 0.94;
   margin: 0 0 1.25rem;
   max-width: 60ch;
+  color: rgba(255, 255, 255, 0.95) !important;
 }
+.admin-hero__blurb strong { color: #ffe08a; font-weight: 700; }
 .admin-hero__actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
 .admin-hero__btn {
   display: inline-flex;

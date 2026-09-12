@@ -85,6 +85,31 @@
 
           <div class="checkout-ship-fields" id="co-ship-fields" hidden>
             <div class="checkout-field">
+              <label for="co-country">Country</label>
+              <select id="co-country" autocomplete="country-name">
+                <option value="United States" selected>United States</option>
+                <option value="Canada">Canada</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Australia">Australia</option>
+                <option value="New Zealand">New Zealand</option>
+                <option value="Ireland">Ireland</option>
+                <option value="India">India</option>
+                <option value="Philippines">Philippines</option>
+                <option value="Nigeria">Nigeria</option>
+                <option value="Kenya">Kenya</option>
+                <option value="South Africa">South Africa</option>
+                <option value="Mexico">Mexico</option>
+                <option value="Brazil">Brazil</option>
+                <option value="Germany">Germany</option>
+                <option value="France">France</option>
+                <option value="Other">Other (enter below)</option>
+              </select>
+            </div>
+            <div class="checkout-field" id="co-country-other-field" hidden>
+              <label for="co-country-other">Country name</label>
+              <input type="text" id="co-country-other" autocomplete="country-name" placeholder="Enter your country">
+            </div>
+            <div class="checkout-field">
               <label for="co-addr">Street address</label>
               <input type="text" id="co-addr" autocomplete="street-address">
             </div>
@@ -94,12 +119,12 @@
                 <input type="text" id="co-city" autocomplete="address-level2">
               </div>
               <div class="checkout-field">
-                <label for="co-state">State</label>
-                <input type="text" id="co-state" autocomplete="address-level1" value="WA">
+                <label for="co-state" id="co-state-label">State / Province</label>
+                <input type="text" id="co-state" autocomplete="address-level1">
               </div>
               <div class="checkout-field">
-                <label for="co-zip">ZIP</label>
-                <input type="text" id="co-zip" autocomplete="postal-code" inputmode="numeric">
+                <label for="co-zip" id="co-zip-label">Postal code</label>
+                <input type="text" id="co-zip" autocomplete="postal-code">
               </div>
             </div>
           </div>

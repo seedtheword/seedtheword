@@ -172,6 +172,8 @@
       border-bottom: 1px solid #f0ece6;
     }
     .bb-cart__item:last-child { border-bottom: none; }
+    .bb-cart__item-pack { font-size: 0.78rem; font-weight: 600; color: var(--gold, #B8860B); }
+    .bb-cart__item--note { justify-content: center; }
     .bb-cart__item-name {
       font-size: 0.9rem;
       font-weight: 600;
@@ -888,7 +890,7 @@
   <!-- Step 4: Your Bundle (Cart review) -->
   <section class="bb-section bb-step" data-step="4" style="background: var(--light, #f9f6f1);">
     <h2 class="bb-section__title"><span>Step 4</span> Your Bundle</h2>
-    <p class="bb-section__desc">Review your selections below. Each item is priced individually, plus a flat $7 shipping estimate confirmed at follow-up.</p>
+    <p class="bb-section__desc">Review your selections below. Each item is priced individually. Shipping is estimated at checkout based on your address — you'll complete payment in your cart.</p>
     <div class="bb-cart" id="bb-cart">
       <div class="bb-cart__empty" id="bb-cart-empty">
         <p>📦 Your bundle is empty. Go back and add some items!</p>
@@ -903,72 +905,13 @@
 
 <!-- Step 5: Your Details (Checkout Form) -->
 <section class="bb-section bb-step" data-step="5" style="background: var(--light, #f9f6f1);">
-  <h2 class="bb-section__title"><span>Step 5</span> Your Details</h2>
-  <p class="bb-section__desc">Fill in your details and we'll reach out to confirm your order and arrange payment/shipping.</p>
+  <h2 class="bb-section__title"><span>Step 5</span> Finishing Touches</h2>
+  <p class="bb-section__desc">Add an optional note, then continue to your cart — you'll enter contact details, shipping address, and complete payment there.</p>
 
   <form class="bb-form" id="bb-form" novalidate>
     <div class="bb-form__row">
-      <label class="bb-form__label" for="bb-name">Name *</label>
-      <input class="bb-form__input" type="text" id="bb-name" name="gifter_name" required autocomplete="name">
-    </div>
-    <div class="bb-form__row">
-      <label class="bb-form__label" for="bb-email">Email *</label>
-      <input class="bb-form__input" type="email" id="bb-email" name="gifter_email" required autocomplete="email">
-    </div>
-    <div class="bb-form__row">
-      <label class="bb-form__label" for="bb-phone">Phone (optional)</label>
-      <input class="bb-form__input" type="tel" id="bb-phone" name="gifter_phone" autocomplete="tel">
-    </div>
-    <div class="bb-form__row">
-      <label class="bb-form__label">Delivery Preference *</label>
-      <div class="bb-form__radio-group">
-        <label class="bb-form__radio-label">
-          <input type="radio" name="delivery" value="ship" checked> Ship to me
-        </label>
-        <label class="bb-form__radio-label">
-          <input type="radio" name="delivery" value="pickup"> Pick up at next meeting
-        </label>
-      </div>
-    </div>
-
-    <!-- Shipping address (shown only when "Ship to me" selected) -->
-    <div class="bb-form__address is-visible" id="bb-address-section">
-      <div class="bb-form__address-grid">
-        <div class="bb-form__row bb-form__address-full">
-          <label class="bb-form__label" for="bb-street">Street Address</label>
-          <input class="bb-form__input" type="text" id="bb-street" name="street" autocomplete="street-address">
-        </div>
-        <div class="bb-form__row">
-          <label class="bb-form__label" for="bb-city">City</label>
-          <input class="bb-form__input" type="text" id="bb-city" name="city" autocomplete="address-level2">
-        </div>
-        <div class="bb-form__row">
-          <label class="bb-form__label" for="bb-state">State</label>
-          <select class="bb-form__select" id="bb-state" name="state" autocomplete="address-level1">
-            <option value="">Select state</option>
-            <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option>
-            <option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option>
-            <option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option>
-            <option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option>
-            <option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option>
-            <option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option>
-            <option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option>
-            <option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option>
-            <option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option>
-            <option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
-            <option>DC</option>
-          </select>
-        </div>
-        <div class="bb-form__row">
-          <label class="bb-form__label" for="bb-zip">ZIP Code</label>
-          <input class="bb-form__input" type="text" id="bb-zip" name="zip" autocomplete="postal-code" maxlength="10">
-        </div>
-      </div>
-    </div>
-
-    <div class="bb-form__row">
-      <label class="bb-form__label" for="bb-dedication">Dedication Message (optional)</label>
-      <textarea class="bb-form__textarea" id="bb-dedication" name="dedication" placeholder="Who is this for? Any special note to include with the Bibles?"></textarea>
+      <label class="bb-form__label" for="bb-dedication">Dedication / note (optional)</label>
+      <textarea class="bb-form__textarea" id="bb-dedication" name="dedication" placeholder="Who is this for? Any special note to include?"></textarea>
     </div>
 
     <!-- Honeypot -->
@@ -977,14 +920,15 @@
       <input type="text" id="bb-gotcha" name="_gotcha" tabindex="-1" autocomplete="off">
     </div>
 
-    <button class="bb-submit" type="submit" id="bb-submit">Place Order</button>
+    <button class="bb-submit" type="submit" id="bb-submit">Continue to Cart 🛒</button>
+    <p style="text-align:center;font-size:0.82rem;color:var(--muted);margin:0.75rem 0 0;">Your bundle items and customizations go straight to your cart for secure checkout.</p>
   </form>
 
-  <!-- Success message -->
+  <!-- Success message (fallback; normally we redirect to the cart) -->
   <div class="bb-success" id="bb-success">
-    <div class="bb-success__icon">🎉</div>
-    <h3 class="bb-success__title">Your bundle order has been received!</h3>
-    <p class="bb-success__msg">We'll reach out within 1–2 days to confirm details and arrange payment/shipping. Check your email for confirmation.</p>
+    <div class="bb-success__icon">🛒</div>
+    <h3 class="bb-success__title">Your bundle is in your cart!</h3>
+    <p class="bb-success__msg">Head to your cart to enter shipping details and complete payment.</p>
   </div>
 </section>
 
@@ -1180,7 +1124,6 @@
   var form = document.getElementById('bb-form');
   var submitBtn = document.getElementById('bb-submit');
   var successDiv = document.getElementById('bb-success');
-  var addressSection = document.getElementById('bb-address-section');
   var bundleHint = document.getElementById('bb-bundle-hint');
 
   // ── URL params for bundle presets ──
@@ -1196,18 +1139,6 @@
     bundleHint.textContent = '💡 Starting from "' + label + '" — customize freely below!';
     bundleHint.style.display = 'inline-block';
   }
-
-  // ── Delivery toggle ──
-  var radios = document.querySelectorAll('input[name="delivery"]');
-  radios.forEach(function(r) {
-    r.addEventListener('change', function() {
-      if (this.value === 'ship') {
-        addressSection.classList.add('is-visible');
-      } else {
-        addressSection.classList.remove('is-visible');
-      }
-    });
-  });
 
   // ── Get product by ID ──
   function getProduct(id) {
@@ -1391,34 +1322,34 @@
       var p = getProduct(id);
       if (!p) return;
       var qty = cart[id];
-      // Use the same per-item price the cart actually charges (real sheet
-      // pricing in cents), so the displayed total matches checkout.
+      // Pack-aware pricing: for a pack item, qty = number of packs and the unit
+      // price IS the pack price, so a "pack of 50" charges the pack price.
+      var packSize = bundlePackSize(p);
       var lineCents = bundleUnitCents(p) * qty;
       totalCents += lineCents;
+
+      var packNote = packSize > 1 ? ' <span class="bb-cart__item-pack">· pack of ' + packSize + '</span>' : '';
 
       var li = document.createElement('li');
       li.className = 'bb-cart__item';
       li.innerHTML =
-        '<span class="bb-cart__item-name">' + p.name + '</span>' +
+        '<span class="bb-cart__item-name">' + p.name + packNote + '</span>' +
         '<span class="bb-cart__item-qty">×' + qty + '</span>' +
         '<span class="bb-cart__item-price">' + formatCents_(lineCents) + '</span>' +
         '<button class="bb-cart__item-remove" data-id="' + id + '" title="Remove" aria-label="Remove ' + p.name + '">✕</button>';
       cartList.appendChild(li);
     });
 
-    // Add shipping (flat estimate, confirmed at follow-up)
-    var shippingCents = 700;
-    totalCents += shippingCents;
-    var shipLi = document.createElement('li');
-    shipLi.className = 'bb-cart__item';
-    shipLi.innerHTML =
-      '<span class="bb-cart__item-name" style="color:var(--muted);">Shipping (estimate)</span>' +
-      '<span class="bb-cart__item-qty"></span>' +
-      '<span class="bb-cart__item-price" style="color:var(--muted);">' + formatCents_(shippingCents) + '</span>' +
-      '<span style="width:26px;"></span>';
-    cartList.appendChild(shipLi);
-
+    // Subtotal is items only. Shipping is NOT tallied here — it's estimated at
+    // checkout in the cart based on the delivery address.
     cartTotal.textContent = formatCents_(totalCents);
+
+    // Small, non-tallied suggestion line so the shopper knows shipping comes later.
+    var shipLi = document.createElement('li');
+    shipLi.className = 'bb-cart__item bb-cart__item--note';
+    shipLi.innerHTML =
+      '<span class="bb-cart__item-name" style="color:var(--muted);font-style:italic;">Shipping is estimated at checkout based on your address.</span>';
+    cartList.appendChild(shipLi);
 
     // Remove buttons
     cartList.querySelectorAll('.bb-cart__item-remove').forEach(function(btn) {
@@ -1510,139 +1441,84 @@
     return lines.join('\n');
   }
 
-  // ── Build address string ──
-  function buildAddressString() {
-    var street = document.getElementById('bb-street').value.trim();
-    var city = document.getElementById('bb-city').value.trim();
-    var state = document.getElementById('bb-state').value;
-    var zip = document.getElementById('bb-zip').value.trim();
-    return [street, city, state, zip].filter(Boolean).join(', ');
-  }
-
-  // ── Form submission ──
+  // ── Continue to cart ──
+  // The bundle builder does NOT place the final order. It adds each selected
+  // product to the shared cart as its OWN line (pack-aware pricing), carries the
+  // full customization so the shopper can see it in the cart, then hands off to
+  // cart.html where contact details, shipping estimate, and payment happen.
   form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Validate
-    var name = document.getElementById('bb-name').value.trim();
-    var email = document.getElementById('bb-email').value.trim();
     var honeypot = document.getElementById('bb-gotcha').value;
+    if (honeypot) return; // Bot detected
 
-    if (!name || !email) {
-      alert('Please fill in your name and email.');
-      return;
-    }
-    if (!Object.keys(cart).length) {
+    var ids = Object.keys(cart).filter(function (id) { return cart[id] > 0; });
+    if (!ids.length) {
       alert('Your bundle is empty! Add some items first.');
       return;
     }
-    if (honeypot) return; // Bot detected
-
-    if (!orderHandlerUrl) {
-      alert('We could not reach the order service. Please try again shortly or contact us.');
+    if (!window.STW_Cart) {
+      alert('The cart is unavailable right now. Please refresh and try again.');
       return;
     }
 
-    var delivery = document.querySelector('input[name="delivery"]:checked').value;
-    var wantsShipping = (delivery === 'ship');
-    var shippingAddress = wantsShipping ? buildAddressString() : '';
+    // A shared id ties these lines together as one configured bundle. The cart
+    // keys lines by productId + variant + customizationId, so each distinct
+    // product stays its own line while all belonging to this bundle.
+    var customizationId = 'bnd' + Date.now().toString(36);
 
-    // Build the order line items from the selected products — the SAME shape the
-    // store checkout sends, so the order lands in the Team Portal Order Queue
-    // (StoreOrders tab) and triggers the branded store-order emails.
-    var items = [];
-    var subtotalCents = 0;
-    Object.keys(cart).forEach(function (id) {
-      var qty = cart[id];
-      if (!qty || qty < 1) return;
+    // Full customization summary — shown to the shopper on the bundle's first
+    // line in the cart, and carried through to the order the team receives.
+    var configParts = [];
+    var config = buildConfigString();
+    if (config) configParts.push(config);
+    var dedication = document.getElementById('bb-dedication').value.trim();
+    if (dedication) configParts.push('DEDICATION: ' + dedication);
+    var configText = configParts.join('\n');
+
+    ids.forEach(function (id, idx) {
       var p = getProduct(id);
-      var unit = bundleUnitCents(p);
-      subtotalCents += unit * qty;
-      items.push({
+      var qty = cart[id];
+      var packSize = bundlePackSize(p);
+      window.STW_Cart.add({
         productId: id,
         name: p ? p.name : id,
+        image: (p && p.image) || '',
+        unitPriceCents: bundleUnitCents(p),
         qty: qty,
-        packSize: (p && p.packSize) ? p.packSize : 1,
-        unitPriceCents: unit,
-        lineTotalCents: unit * qty,
+        packSize: packSize,
         isBundle: true,
-        customizationId: 'bnd' + Date.now().toString(36)
+        customizationId: customizationId,
+        // Put the full customization on the FIRST line so the shopper sees it
+        // once in the cart (and it travels into the order notes at checkout).
+        description: (idx === 0 && configText) ? ('Custom bundle — ' + configText.replace(/\n/g, ' · ')) : 'Part of your custom bundle'
       });
     });
 
-    // Fold every customization choice into the order notes so the team sees the
-    // full bundle configuration in the Order Queue and the order email.
-    var notesParts = [];
-    var dedication = document.getElementById('bb-dedication').value.trim();
-    notesParts.push('CUSTOM BUNDLE');
-    notesParts.push('Delivery: ' + (wantsShipping ? ('Ship to ' + shippingAddress) : 'Pickup at next meeting'));
-    var config = buildConfigString();
-    if (config) notesParts.push(config);
-    if (dedication) notesParts.push('DEDICATION: ' + dedication);
-    var notes = notesParts.join('\n');
-
-    var sess = null;
-    try { sess = JSON.parse(localStorage.getItem('stwm-team-session')); } catch (e) {}
-
-    var payload = {
-      action: 'placeOrder',
-      token: (sess && sess.token) || '',
-      name: name,
-      email: email,
-      phone: document.getElementById('bb-phone').value.trim(),
-      wantsShipping: wantsShipping,
-      shippingAddress: shippingAddress,
-      notes: notes,
-      items: items,
-      subtotalCents: subtotalCents,
-      currency: 'USD',
-      _gotcha: ''
-    };
-
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Placing order…';
-
-    fetch(orderHandlerUrl, {
-      method: 'POST',
-      mode: 'cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data && data.ok) {
-        form.style.display = 'none';
-        // Show the real order id returned by the backend.
-        if (data.orderId) {
-          var msgEl = successDiv.querySelector('.bb-success__msg');
-          if (msgEl) {
-            msgEl.textContent = 'Your order (' + data.orderId + ') is in — we\'ll reach out within 1–2 days to confirm details and arrange payment/shipping. Check your email for confirmation.';
-          }
-        }
-        successDiv.classList.add('is-visible');
-        var navBar = document.getElementById('bb-wizard-nav');
-        if (navBar) navBar.style.display = 'none';
-        successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Place Order';
-        alert('Order error: ' + ((data && data.error) || 'Unknown error. Please try again or contact us.'));
-      }
-    })
-    .catch(function(err) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Place Order';
-      alert('Order submission failed: ' + (err.message || 'Network error. Please try again.'));
-    });
+    submitBtn.textContent = 'Going to cart…';
+    setTimeout(function () { window.location.href = 'cart.html'; }, 500);
   });
 
-  // ── Add the configured bundle to the shared cart (handoff to cart.html) ──
+  // ── (legacy helpers retained for pricing) ──
   // Per-unit price (in cents) for an order line — prefers live sheet retail
   // pricing, falls back to parsing the display price. Used to build the
-  // placeOrder items[] and the cart-review total.
+  // cart line items and the cart-review total.
+  //
+  // PACK-AWARE: items sold as a pack (packSize > 1, e.g. "Bookmarks — pack of 50")
+  // are priced at the PACK price, and one bundle "qty" = one pack. So a pack of
+  // 50 charges the pack price, not the single-unit price. The item's display
+  // `price` string already reflects the pack when packSize > 1 (set in
+  // listItemToProduct_/mergeLiveCatalog), so parsing it is a correct fallback.
+  function bundlePackSize(p) {
+    return (p && p.packSize && p.packSize > 1) ? p.packSize : 1;
+  }
   function bundleUnitCents(p) {
     if (!p) return 0;
-    if (typeof p.retailCents === 'number') return p.retailCents;
+    var isPack = bundlePackSize(p) > 1;
+    if (isPack && typeof p.packRetailCents === 'number') return p.packRetailCents;
+    if (!isPack && typeof p.retailCents === 'number') return p.retailCents;
+    // Fallback: parse the display price (already pack price when packSize > 1).
     var m = p.price && String(p.price).match(/\$?\s*(\d+(?:\.\d{1,2})?)/);
     if (m) {
       var base = Math.round(parseFloat(m[1]) * 100);

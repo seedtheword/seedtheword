@@ -171,11 +171,17 @@
     var wantsShipping = document.getElementById('co-ship').checked;
     var address = '';
     if (wantsShipping) {
+      var countrySel = document.getElementById('co-country');
+      var country = countrySel ? countrySel.value : '';
+      if (country === 'Other') {
+        country = (document.getElementById('co-country-other').value || '').trim();
+      }
       address = [
         (document.getElementById('co-addr').value || '').trim(),
         (document.getElementById('co-city').value || '').trim(),
         (document.getElementById('co-state').value || '').trim(),
-        (document.getElementById('co-zip').value || '').trim()
+        (document.getElementById('co-zip').value || '').trim(),
+        country
       ].filter(Boolean).join(', ');
     }
     var sess = null;
@@ -307,6 +313,21 @@
     proceedBtn.addEventListener('click', showCheckout);
     shipToggle.addEventListener('change', function () { shipFields.hidden = !shipToggle.checked; });
     form.addEventListener('submit', submitOrder);
+
+    // International address: show a free-text country field for "Other", and
+    // relabel State/ZIP to neutral terms when the country isn't the US.
+    var countrySel = document.getElementById('co-country');
+    if (countrySel) {
+      countrySel.addEventListener('change', function () {
+        var otherField = document.getElementById('co-country-other-field');
+        if (otherField) otherField.hidden = (countrySel.value !== 'Other');
+        var stateLabel = document.getElementById('co-state-label');
+        var zipLabel = document.getElementById('co-zip-label');
+        var isUS = (countrySel.value === 'United States');
+        if (stateLabel) stateLabel.textContent = isUS ? 'State' : 'State / Province / Region';
+        if (zipLabel) zipLabel.textContent = isUS ? 'ZIP code' : 'Postal code';
+      });
+    }
 
     // Re-render whenever the cart changes (also covers other-tab edits).
     Cart.onChange(renderItems);

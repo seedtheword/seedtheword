@@ -13326,7 +13326,7 @@ body.your-walk-modal-open {
 .showcase-topbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1rem;
   padding: 0.85rem 1.5rem;
   flex-wrap: wrap;
@@ -13513,7 +13513,6 @@ body.your-walk-modal-open {
 
 .showcase-verse {
   text-align: center;
-  flex: 1;
   min-width: 200px;
 }
 .showcase-verse__text {
@@ -13537,8 +13536,6 @@ body.your-walk-modal-open {
   gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: center;
-  flex: 1;
-  min-width: 200px;
 }
 .showcase-quicklinks__link {
   padding: 0.5rem 1rem;

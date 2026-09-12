@@ -54,6 +54,10 @@
     .donate-hero__scroll-cta--solid:hover { background: #c99560; border-color: #c99560; transform: translateY(-2px); }
     .donate-hero__scroll-cta--outline { border: 2px solid rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); }
     .donate-hero__scroll-cta--outline:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
+    /* Center CTA — bolder + louder than the two side buttons. */
+    .donate-hero__ctas { align-items: center; }
+    .donate-hero__scroll-cta--hero { font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; letter-spacing: 0.01em; padding: 1rem 2.2rem; border-radius: 40px; box-shadow: 0 8px 24px rgba(212,165,116,0.45); text-transform: uppercase; }
+    .donate-hero__scroll-cta--hero:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 30px rgba(212,165,116,0.55); }
     .donate-hero__scroll-arrow { display: inline-block; animation: bounce-down 2s ease-in-out infinite; }
     @keyframes bounce-down { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 
@@ -271,7 +275,10 @@
     <h1 class="donate-hero__headline">Every <em>$2</em> puts a Bible<br>in someone's hands</h1>
     <p class="donate-hero__subline">Seed the Word partners with Gideons International to reach every language, every community — one Bible at a time. Your gift makes it happen.</p>
     <div class="donate-hero__ctas">
-      <a class="donate-hero__scroll-cta donate-hero__scroll-cta--solid" href="#impact" aria-label="See our ministry impact">
+      <a class="donate-hero__scroll-cta donate-hero__scroll-cta--outline" href="#give" aria-label="Donate to the ministry">
+        ❤ Click to donate
+      </a>
+      <a class="donate-hero__scroll-cta donate-hero__scroll-cta--solid donate-hero__scroll-cta--hero" href="#impact" aria-label="See our ministry impact">
         See our impact <span class="donate-hero__scroll-arrow" aria-hidden="true">↓</span>
       </a>
       <a class="donate-hero__scroll-cta donate-hero__scroll-cta--outline" href="connect.html#bible" aria-label="Request a free Bible">

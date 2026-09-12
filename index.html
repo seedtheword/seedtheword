@@ -18,7 +18,7 @@
   <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <title>Home — Seed the Word Ministry</title>
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
-  <link rel="stylesheet" href="assets/css/main.css?v=34">
+  <link rel="stylesheet" href="assets/css/main.css?v=35">
   <script src="assets/js/theme-toggle.js?v=1"></script>
   <style>
     .btn-bible-glass {
@@ -309,15 +309,26 @@
       </div>
     </div>
 
-    <!-- Young Adults Service Launch — RSVP Banner -->
-    <!-- Young Adults Service — Maple Park -->
-    <div style="text-align:center;margin-bottom:2rem;">
-      <h2 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:700;color:#fff;margin:0 0 0.35rem;text-shadow:0 2px 12px rgba(0,0,0,0.4);">Coming to our Young Adults?</h2>
-      <p style="font-size:clamp(1rem,2vw,1.2rem);color:rgba(255,255,255,0.8);margin:0 0 1rem;font-weight:400;line-height:1.5;">Mondays at Maple Park — let us know you're coming.</p>
-      <button id="rsvp-open-btn" style="display:inline-flex;align-items:center;gap:0.4rem;background:linear-gradient(135deg,#D97736,#e08a42);color:#fff;border:none;border-radius:999px;padding:0.8rem 2rem;font-size:1rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(217,119,54,0.35);transition:transform 0.15s,box-shadow 0.15s;">
-        RSVP Now →
-      </button>
-      <img src="assets/images/backgrounds/maple_park_flyer_universal.jpg" alt="Young Adults Service — Mondays at Maple Park" style="max-width:480px;width:100%;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.3);margin-top:1.25rem;display:block;margin-left:auto;margin-right:auto;">
+    <!-- Young Adults Service — Maple Park, framed within the #Lynnwood4Jesus mission -->
+    <div class="l4j" id="lynnwood4jesus">
+      <a href="news.html#lynnwood4jesus" class="l4j__tag">#Lynnwood4Jesus</a>
+      <h2 class="l4j__title">It starts on our street — and reaches the world.</h2>
+      <p class="l4j__lead">We're a local outreach right here in <strong>Lynnwood</strong>, and every step of it — starting with our Young Adults gathering — helps us raise support for our <strong>international outreaches</strong>. Come be part of it.</p>
+
+      <div class="l4j__card">
+        <div class="l4j__cardhead">
+          <span class="l4j__badge">🔥 Young Adults</span>
+          <p class="l4j__where">Mondays · 6:30–9PM · Maple Park, Lynnwood</p>
+        </div>
+        <p class="l4j__cardtext">Coming to our Young Adults? Let us know you're coming — then step into the mission with us.</p>
+        <div class="l4j__ctas">
+          <button id="rsvp-open-btn" class="l4j__btn l4j__btn--primary">RSVP for Mondays →</button>
+          <a href="donate.html#give" class="l4j__btn">❤ Support the Mission</a>
+          <a href="connect.html" class="l4j__btn l4j__btn--ghost">🤝 Get Involved</a>
+        </div>
+      </div>
+
+      <img src="assets/images/backgrounds/maple_park_flyer_universal.jpg" alt="Young Adults Service — Mondays at Maple Park, Lynnwood" class="l4j__flyer">
     </div>
 
     <!-- RSVP Modal -->

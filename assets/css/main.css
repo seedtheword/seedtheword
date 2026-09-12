@@ -13411,6 +13411,81 @@ body.your-walk-modal-open {
 .showcase-search__results a:hover { background: rgba(255,255,255,0.08); }
 .showcase-search__results a small { display: block; color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-top: 0.2rem; }
 
+/* ── #Lynnwood4Jesus mission band (wraps the Young Adults RSVP) ── */
+.l4j { text-align: center; margin: 0.5rem auto 2rem; max-width: 620px; }
+.l4j__tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #fff;
+  background: linear-gradient(135deg, #D97736, #e08a42);
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  text-decoration: none;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 2px 12px rgba(217,119,54,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.l4j__tag:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(217,119,54,0.55); }
+.l4j__title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.6rem, 3.2vw, 2.35rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin: 0 0 0.6rem;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+.l4j__lead {
+  font-size: clamp(0.98rem, 1.8vw, 1.12rem);
+  line-height: 1.6;
+  color: rgba(255,255,255,0.82);
+  margin: 0 auto 1.5rem;
+  max-width: 52ch;
+}
+.l4j__lead strong { color: #f0c98a; font-weight: 700; }
+.l4j__card {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
+  padding: 1.4rem 1.5rem 1.5rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+.l4j__cardhead { display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.65rem; }
+.l4j__badge {
+  font-size: 0.78rem; font-weight: 800; letter-spacing: 0.02em;
+  color: #fff; background: rgba(217,119,54,0.9);
+  padding: 0.25rem 0.7rem; border-radius: 999px;
+}
+.l4j__where { font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.85); margin: 0; }
+.l4j__cardtext { font-size: 0.95rem; line-height: 1.55; color: rgba(255,255,255,0.78); margin: 0 auto 1.15rem; max-width: 44ch; }
+.l4j__ctas { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
+.l4j__btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.72rem 1.4rem;
+  font-size: 0.92rem; font-weight: 700; font-family: 'Inter', sans-serif;
+  border-radius: 999px; text-decoration: none; cursor: pointer;
+  color: #fff; background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.22);
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+.l4j__btn:hover { background: rgba(255,255,255,0.2); border-color: var(--gold, #d4a574); transform: translateY(-2px); }
+.l4j__btn--primary {
+  background: linear-gradient(135deg, #D97736, #e08a42);
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(217,119,54,0.35);
+}
+.l4j__btn--primary:hover { background: linear-gradient(135deg, #c86a2e, #d97736); }
+.l4j__btn--ghost { background: transparent; }
+.l4j__flyer {
+  max-width: 480px; width: 100%; border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  margin: 1.4rem auto 0; display: block;
+}
+
 .showcase-verse {
   text-align: center;
   flex: 1;

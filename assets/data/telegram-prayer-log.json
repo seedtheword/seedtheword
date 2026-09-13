@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616706,
-  "lastModified": "2026-09-13T16:55:33Z",
+  "lastUpdateId": 669616710,
+  "lastModified": "2026-09-13T17:10:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -288,36 +288,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5486,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "He wrote God Love on the cardboard!!! Prayers Toni #JesusforToni!!!",
-      "ts": "2026-08-30T17:00:32Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5487,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Give him lots of prayers, hes a really nice dude!!!",
-      "ts": "2026-08-30T17:01:11Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5489,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "MISSION, COMPLETE!!! (EXPLOSIONS)",
-      "ts": "2026-08-30T17:02:16Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5528,
@@ -1867,6 +1837,36 @@
       "kind": "telegram",
       "text": "Good morning and Blessed days for everyone, I wanna ask everyone for prayer of healing, yesterday when I had breakfast my stomach started to cramp and it started to worsen all throughout the day, I kept waking up with my body cramping and almost throwing up, so I ask please pray for my body to heal.",
       "ts": "2026-09-13T16:50:11Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6122,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Amen and thank you Liam for the prayer",
+      "ts": "2026-09-13T17:02:54Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6123,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I need prayers... I need to go back to EvCC for aerospace... Or persue a career... additionally I cannot evangelize nor go to church more then once a week, my father has said no more... also I am not allowed to go out anymore... lastly this is day 1. I am on half dose of my anxiety depression medications, or when the enemy attacks me, he's getting me with less defenses, and when I am isolated with lots of stressors... I pray for safety, protection... that the demons that used to call me to kill myself or hurt myself will stay silent, and not come back again. If they do, pray I can be safe, make safe decisions, and that I will have faith and trust in the strong man inside of me to keep them at bay... also I can't go to church today because I am doing youth tomorrow, so help me rest in God for now",
+      "ts": "2026-09-13T17:03:16Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6124,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "And I am switching rooms with my sister before October 10",
+      "ts": "2026-09-13T17:04:53Z"
     }
   ]
 }

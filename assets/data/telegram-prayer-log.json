@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616705,
-  "lastModified": "2026-09-13T16:25:33Z",
+  "lastUpdateId": 669616706,
+  "lastModified": "2026-09-13T16:55:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -288,16 +288,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5485,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer for Toni, hes another homeless guy, so that he might get some assistance and that God may continue to bless, him... funnily enough he prayed for me first after I bought him food so hes a fellow believer in Christ. Send him lots of love, once again Jesus makes me feel like a super hero, I was able to stop a bus beforehand for a anotherguy at the last second stepping out and halting it so he could get on... wait as I am typing this he turned around and started talking will let you guys know what happens next",
-      "ts": "2026-08-30T16:48:41Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5486,
@@ -1867,6 +1857,16 @@
       "kind": "telegram",
       "text": "Belview Ukranian fest",
       "ts": "2026-09-12T21:28:35Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6120,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Good morning and Blessed days for everyone, I wanna ask everyone for prayer of healing, yesterday when I had breakfast my stomach started to cramp and it started to worsen all throughout the day, I kept waking up with my body cramping and almost throwing up, so I ask please pray for my body to heal.",
+      "ts": "2026-09-13T16:50:11Z"
     }
   ]
 }

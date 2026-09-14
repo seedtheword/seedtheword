@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
@@ -1052,15 +1052,56 @@
   var wrap = track ? track.parentElement : null;
   var leftBtn = document.querySelector('.careers-carousel__arrow--left.careers-carousel__arrow--light');
   var rightBtn = document.querySelector('.careers-carousel__arrow--right.careers-carousel__arrow--light');
-  if (!track || !wrap || !leftBtn || !rightBtn) return;
-  var offset = 0, cardW = 316;
+  if (!track || !wrap) return;
   var cards = track.querySelectorAll('.glass-role');
+
+  function getCardW() {
+    if (!cards.length) return 316;
+    var gap = parseFloat(window.getComputedStyle(track).gap || window.getComputedStyle(track).columnGap) || 24;
+    return cards[0].offsetWidth + gap;
+  }
+
+  var offset = 0;
+  var cardW = getCardW();
   var maxOff = Math.max(0, (cards.length * cardW) - wrap.clientWidth);
   track.style.transition = 'transform 0.6s cubic-bezier(0.25,0.1,0.25,1)';
+
   function go() { track.style.transform = 'translateX(' + (-offset) + 'px)'; }
-  leftBtn.addEventListener('click', function() { offset = Math.max(0, offset - cardW); go(); });
-  rightBtn.addEventListener('click', function() { offset = Math.min(maxOff, offset + cardW); go(); });
-  window.addEventListener('resize', function() { maxOff = Math.max(0, (cards.length * cardW) - wrap.clientWidth); if (offset > maxOff) { offset = maxOff; go(); } });
+
+  if (leftBtn) leftBtn.addEventListener('click', function() { offset = Math.max(0, offset - cardW); go(); });
+  if (rightBtn) rightBtn.addEventListener('click', function() { offset = Math.min(maxOff, offset + cardW); go(); });
+
+  window.addEventListener('resize', function() {
+    cardW = getCardW();
+    maxOff = Math.max(0, (cards.length * cardW) - wrap.clientWidth);
+    if (offset > maxOff) { offset = maxOff; go(); }
+  });
+
+  // Touch/swipe support
+  var dragging = false, startX = 0, startOff = 0, moved = false;
+  function ptX(e) { return e.touches && e.touches.length ? e.touches[0].clientX : e.clientX; }
+  wrap.addEventListener('touchstart', function(e) {
+    dragging = true; moved = false;
+    startX = ptX(e); startOff = offset;
+    track.style.transition = 'none';
+  }, { passive: true });
+  wrap.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    var dx = ptX(e) - startX;
+    if (Math.abs(dx) > 4) moved = true;
+    offset = Math.max(0, Math.min(maxOff, startOff - dx));
+    track.style.transform = 'translateX(' + (-offset) + 'px)';
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+  wrap.addEventListener('touchend', function() {
+    if (!dragging) return;
+    dragging = false;
+    cardW = getCardW();
+    offset = Math.round(offset / cardW) * cardW;
+    offset = Math.max(0, Math.min(maxOff, offset));
+    track.style.transition = 'transform 0.6s cubic-bezier(0.25,0.1,0.25,1)';
+    go();
+  });
 })();
 
 // Encounter Jesus reveal button

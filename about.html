@@ -1086,12 +1086,21 @@
   // Touch/swipe support
   var dragging = false, startX = 0, startOff = 0, moved = false;
   var swipeHint = document.getElementById('about-careers-swipe-hint');
+  var swipeHintTimer = null;
+  function scheduleHintReappear() {
+    if (!swipeHint) return;
+    if (swipeHintTimer) clearTimeout(swipeHintTimer);
+    swipeHintTimer = setTimeout(function() {
+      if (offset < maxOff - 4) swipeHint.classList.remove('is-hidden');
+    }, 4000);
+  }
   function ptX(e) { return e.touches && e.touches.length ? e.touches[0].clientX : e.clientX; }
   wrap.addEventListener('touchstart', function(e) {
     dragging = true; moved = false;
     startX = ptX(e); startOff = offset;
     track.style.transition = 'none';
     if (swipeHint) swipeHint.classList.add('is-hidden');
+    if (swipeHintTimer) clearTimeout(swipeHintTimer);
   }, { passive: true });
   wrap.addEventListener('touchmove', function(e) {
     if (!dragging) return;
@@ -1109,6 +1118,7 @@
     offset = Math.max(0, Math.min(maxOff, offset));
     track.style.transition = 'transform 0.6s cubic-bezier(0.25,0.1,0.25,1)';
     go();
+    scheduleHintReappear();
   });
 })();
 

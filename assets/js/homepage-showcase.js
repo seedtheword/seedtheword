@@ -231,6 +231,19 @@
     }
 
     var swipeHint = document.getElementById('careers-swipe-hint');
+    var swipeHintTimer = null;
+
+    // Re-show the hint a few seconds after a swipe, but only while there are
+    // still more cards to reveal (i.e. not parked at the far end).
+    function scheduleHintReappear() {
+      if (!swipeHint) return;
+      if (swipeHintTimer) clearTimeout(swipeHintTimer);
+      swipeHintTimer = setTimeout(function() {
+        if (currentOffset < maxOffset - 4) {
+          swipeHint.classList.remove('is-hidden');
+        }
+      }, 4000);
+    }
 
     function dragStart(e) {
       dragging = true;
@@ -241,6 +254,7 @@
       setTransition(false); // 1:1 follow while dragging
       wrap.classList.add('is-dragging');
       if (swipeHint) swipeHint.classList.add('is-hidden');
+      if (swipeHintTimer) clearTimeout(swipeHintTimer);
     }
 
     function dragMove(e) {
@@ -262,6 +276,7 @@
       currentOffset = Math.round(currentOffset / cardWidth) * cardWidth;
       clampOffset();
       updatePosition();
+      scheduleHintReappear();
     }
 
     // Mouse

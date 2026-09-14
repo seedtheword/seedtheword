@@ -1072,6 +1072,14 @@
   var maxOff = Math.max(0, (cards.length * cardW) - wrap.clientWidth);
   track.style.transition = 'transform 0.6s cubic-bezier(0.25,0.1,0.25,1)';
 
+  // Recalculate once layout settles (cards/fonts loaded) so maxOff is correct
+  function recalc() {
+    cardW = getCardW();
+    maxOff = Math.max(0, (cards.length * cardW) - wrap.clientWidth);
+  }
+  setTimeout(recalc, 300);
+  window.addEventListener('load', recalc);
+
   function go() { track.style.transform = 'translateX(' + (-offset) + 'px)'; }
 
   if (leftBtn) leftBtn.addEventListener('click', function() { offset = Math.max(0, offset - cardW); go(); });
@@ -1091,6 +1099,7 @@
     if (!swipeHint) return;
     if (swipeHintTimer) clearTimeout(swipeHintTimer);
     swipeHintTimer = setTimeout(function() {
+      recalc();
       if (offset < maxOff - 4) swipeHint.classList.remove('is-hidden');
     }, 4000);
   }

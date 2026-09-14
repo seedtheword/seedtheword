@@ -719,6 +719,12 @@
           </div>
         </div>
         <button class="careers-carousel__arrow careers-carousel__arrow--right careers-carousel__arrow--light" aria-label="Next positions">&#8250;</button>
+        <div class="careers-swipe-hint" id="about-careers-swipe-hint">
+          <span>Swipe to see more roles</span>
+          <span class="careers-swipe-hint__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </span>
+        </div>
         <p style="text-align:center; margin-top:1.25rem; font-size:0.8rem; color:var(--muted,#666); font-style:italic;">** Training provided for select roles</p>
       </div>
     </div>
@@ -1079,11 +1085,13 @@
 
   // Touch/swipe support
   var dragging = false, startX = 0, startOff = 0, moved = false;
+  var swipeHint = document.getElementById('about-careers-swipe-hint');
   function ptX(e) { return e.touches && e.touches.length ? e.touches[0].clientX : e.clientX; }
   wrap.addEventListener('touchstart', function(e) {
     dragging = true; moved = false;
     startX = ptX(e); startOff = offset;
     track.style.transition = 'none';
+    if (swipeHint) swipeHint.classList.add('is-hidden');
   }, { passive: true });
   wrap.addEventListener('touchmove', function(e) {
     if (!dragging) return;

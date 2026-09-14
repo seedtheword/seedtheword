@@ -230,6 +230,8 @@
       return e.touches && e.touches.length ? e.touches[0].clientX : e.clientX;
     }
 
+    var swipeHint = document.getElementById('careers-swipe-hint');
+
     function dragStart(e) {
       dragging = true;
       moved = false;
@@ -238,6 +240,7 @@
       track.style.willChange = 'transform';
       setTransition(false); // 1:1 follow while dragging
       wrap.classList.add('is-dragging');
+      if (swipeHint) swipeHint.classList.add('is-hidden');
     }
 
     function dragMove(e) {

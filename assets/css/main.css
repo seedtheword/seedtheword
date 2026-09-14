@@ -13635,7 +13635,7 @@ body.your-walk-modal-open {
   }
 }
 
-/* ── Swipe hint (mobile only) ── */
+/* ── Swipe hint (mobile only) — animated floating pill with a swiping hand ── */
 .careers-swipe-hint {
   display: none;
 }
@@ -13644,31 +13644,50 @@ body.your-walk-modal-open {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    margin-top: 0.9rem;
+    gap: 0.6rem;
+    margin: 1.1rem auto 0;
+    width: fit-content;
+    padding: 0.55rem 1.1rem 0.55rem 0.9rem;
+    border-radius: 999px;
     font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    color: rgba(255,255,255,0.6);
-    transition: opacity 0.4s ease;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #fff;
+    background: linear-gradient(135deg, var(--gold, #B8860B), #d4a84b);
+    box-shadow: 0 4px 18px rgba(184,134,11,0.45);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+    animation: swipeFloat 2.4s ease-in-out infinite;
   }
-  /* Light variant (about page) */
+  /* Light variant (about page) — green pill to match the light theme */
   .careers-carousel--light .careers-swipe-hint {
-    color: var(--muted, #888);
+    background: linear-gradient(135deg, var(--green, #2C5F2E), #3a7d3c);
+    box-shadow: 0 4px 18px rgba(44,95,46,0.4);
+    color: #fff;
   }
   .careers-swipe-hint.is-hidden {
     opacity: 0;
+    transform: translateY(6px) scale(0.92);
     pointer-events: none;
   }
+  /* The hand/finger swipes across a little track */
   .careers-swipe-hint__icon {
     display: inline-flex;
-    animation: swipeBob 1.4s ease-in-out infinite;
+    animation: swipeHand 1.6s ease-in-out infinite;
   }
-  @keyframes swipeBob {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(8px); }
+  /* Gentle vertical float of the whole pill so it draws the eye */
+  @keyframes swipeFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  /* The hand slides right, lifts, resets — mimics a swipe gesture */
+  @keyframes swipeHand {
+    0%   { transform: translateX(-5px) rotate(-8deg); opacity: 0.6; }
+    35%  { transform: translateX(6px) rotate(0deg);  opacity: 1; }
+    70%  { transform: translateX(6px) rotate(0deg);  opacity: 1; }
+    100% { transform: translateX(-5px) rotate(-8deg); opacity: 0.6; }
   }
   @media (prefers-reduced-motion: reduce) {
+    .careers-swipe-hint,
     .careers-swipe-hint__icon { animation: none; }
   }
 }

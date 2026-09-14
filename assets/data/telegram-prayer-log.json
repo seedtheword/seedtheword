@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616735,
-  "lastModified": "2026-09-14T20:10:39Z",
+  "lastUpdateId": 669616742,
+  "lastModified": "2026-09-14T20:25:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1903,6 +1903,16 @@
       "kind": "telegram",
       "text": "Prayer request for Greg. I bumped into him as I was walking to the bus stop. He said he was 🤏to going under, so send him thoughts and prayers.\n\nMore weight has been added and I can acutely feel the thorn in my flesh, help me not feel fear, depression, or anxiety, that God can keep snapping me back to reality, over and over so I don't get stuck in my Head, and the moment, but rather so I can see and experience his Goodness. Knowing that this feeling is temporary and nothing against me will prosper",
       "ts": "2026-09-14T17:19:51Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6154,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I am trying to start classes again at EvCC, so I can extend platnum insurance through the military, so planning to work and go to school... going to try to get my FAA, additionally if any of you guys enroll, I suggest we evangelize here and collaborate with the Christian group on campus",
+      "ts": "2026-09-14T20:25:12Z"
     }
   ]
 }

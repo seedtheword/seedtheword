@@ -13623,15 +13623,21 @@ body.your-walk-modal-open {
 /* Mobile: one full-width card at a time — prevents the clipped two-card layout */
 @media(max-width:540px) {
   .careers-carousel__track .glass-role {
-    flex: 0 0 calc(100vw - 4rem);
-    max-width: 360px;
+    flex: 0 0 calc(100% - 2rem);
+    max-width: none;
+  }
+  /* Hide arrow buttons on mobile — swipe only */
+  .careers-carousel__arrow {
+    display: none;
+  }
+  /* Remove the negative margin that assumes arrows exist */
+  .careers-carousel {
+    padding-left: 0;
+    padding-right: 0;
   }
   .careers-carousel__wrap {
-    /* Prevent the arrow buttons from overlapping card content */
-    margin: 0 0.25rem;
+    margin: 0;
   }
-  .careers-carousel__arrow--left { left: -16px; }
-  .careers-carousel__arrow--right { right: -16px; }
 }
 
 /* Light-mode carousel variant (about page) */

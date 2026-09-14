@@ -171,8 +171,19 @@
     if (!track || !wrap || !leftBtn || !rightBtn) return;
 
     var currentOffset = 0;
-    var cardWidth = 316; // 300px card + 16px gap
     var cards = track.querySelectorAll('.glass-role');
+
+    function getCardWidth() {
+      // Read the actual rendered width + gap so mobile (full-width cards)
+      // and desktop (300px cards) both snap correctly.
+      if (!cards.length) return 316;
+      var cardEl = cards[0];
+      var style = window.getComputedStyle(track);
+      var gap = parseFloat(style.gap || style.columnGap) || 24;
+      return cardEl.offsetWidth + gap;
+    }
+
+    var cardWidth = getCardWidth();
     var maxOffset = Math.max(0, (cards.length * cardWidth) - wrap.clientWidth);
 
     var willChangeTimer = null;
@@ -265,6 +276,7 @@
     }, true);
 
     window.addEventListener('resize', function() {
+      cardWidth = getCardWidth();
       maxOffset = Math.max(0, (cards.length * cardWidth) - wrap.clientWidth);
       if (currentOffset > maxOffset) { currentOffset = maxOffset; updatePosition(); }
     });

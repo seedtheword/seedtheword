@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669616785,
-  "lastModified": "2026-09-15T18:55:36Z",
+  "lastModified": "2026-09-15T19:10:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -294,26 +294,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5532,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Praying for you also 🙏PRAYER DOG🙏",
-      "ts": "2026-09-01T18:57:58Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5533,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "In Jesus name no weapon formed against us shall prosper",
-      "ts": "2026-09-01T19:09:09Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5535,

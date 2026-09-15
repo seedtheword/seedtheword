@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616781,
-  "lastModified": "2026-09-15T06:10:34Z",
+  "lastUpdateId": 669616783,
+  "lastModified": "2026-09-15T06:25:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -2013,6 +2013,16 @@
       "kind": "telegram",
       "text": "We got Bibles  grab one of ours",
       "ts": "2026-09-15T05:58:47Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6190,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Sorry I just reread your message. Yeah right that Bible is yours. We'll get you another one brother",
+      "ts": "2026-09-15T06:14:40Z"
     }
   ]
 }

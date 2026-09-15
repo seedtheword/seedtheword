@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616770,
-  "lastModified": "2026-09-15T05:55:37Z",
+  "lastUpdateId": 669616781,
+  "lastModified": "2026-09-15T06:10:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1973,6 +1973,46 @@
       "kind": "telegram",
       "text": "Give it away now brother",
       "ts": "2026-09-15T05:55:30Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6182,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I don’t understand",
+      "ts": "2026-09-15T05:55:47Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6183,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "We give away Bibles",
+      "ts": "2026-09-15T05:55:56Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6184,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "But this is my personal bible, this is what I felt was pulling me, like it was calling for me",
+      "ts": "2026-09-15T05:58:35Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6185,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "We got Bibles  grab one of ours",
+      "ts": "2026-09-15T05:58:47Z"
     }
   ]
 }

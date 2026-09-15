@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616790,
-  "lastModified": "2026-09-15T19:52:57Z",
+  "lastUpdateId": 669616792,
+  "lastModified": "2026-09-15T20:40:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1973,6 +1973,16 @@
       "kind": "telegram",
       "text": "Sorry I just reread your message. Yeah right that Bible is yours. We'll get you another one brother",
       "ts": "2026-09-15T06:14:40Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6200,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Currently at the dentist with family (for a family member) prayers would be greatly appreciated",
+      "ts": "2026-09-15T20:38:15Z"
     }
   ]
 }

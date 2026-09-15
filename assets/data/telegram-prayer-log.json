@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669616785,
-  "lastModified": "2026-09-15T17:25:36Z",
+  "lastModified": "2026-09-15T18:55:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -294,26 +294,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5529,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "🙏PRAYER DOG🙏 please help me pray",
-      "ts": "2026-09-01T18:54:03Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5530,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "and also against abortions, witchcraft, idol worship, adultery",
-      "ts": "2026-09-01T18:54:44Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5532,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616818,
-  "lastModified": "2026-09-16T17:10:40Z",
+  "lastUpdateId": 669616828,
+  "lastModified": "2026-09-16T17:25:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -294,16 +294,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5565,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Please add more here for the people you at least can remember!",
-      "ts": "2026-09-02T17:21:15Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5566,

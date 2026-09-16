@@ -1948,7 +1948,10 @@ const INVENTORY_HEADERS = [
   // cost_per_unit(col H) is ALWAYS filled from the Lists sheet. Cost, when the ministry
   // paid, is posted to the Finances tab (where receipt_url lives) — not stored here.
   // detail_notes = optional extra remarks.
-  'detail_notes'
+  'detail_notes',
+  // team_member = who logged the movement; getScanHistory filters on this so a
+  // member's own scans show in their today-list and "View Full History".
+  'team_member'
 ];
 
 /**
@@ -2974,6 +2977,9 @@ function handleTeamScan_(payload) {
     var cNotes = ensureColumn_(invSheet, 'notes');
     var cOrder = ensureColumn_(invSheet, 'order_id');
     var cDetail = ensureColumn_(invSheet, 'detail_notes');
+    // Who logged this movement — needed so getScanHistory can return this
+    // member's rows (the history/today-list filter matches on this column).
+    var cTeam = ensureColumn_(invSheet, 'team_member');
 
     // row_id
     var headers = invSheet.getRange(1,1,1,invSheet.getLastColumn()).getValues()[0];
@@ -3000,6 +3006,7 @@ function handleTeamScan_(payload) {
     setCol(cNotes, donorNote);       // column J — donor/attribution
     setCol(cOrder, '');
     setCol(cDetail, detailNotes);    // extra remarks
+    setCol(cTeam, teamMember);       // who logged it (drives getScanHistory)
     if(rowIdColIdx>0){ setCol(rowIdColIdx, rowId); } else { row.push(rowId); }
     invSheet.appendRow(row);
 

@@ -186,9 +186,18 @@ async function loadServerScanCounts(){
     session.serverEventQty=evt?eventQty:todayQty;
     // Server all-time (sum of this member's inventory rows) is the truth.
     if(allQty>0||!session.totalScans)session.totalScans=Math.max(allQty,session.totalScans||0);
-    // Rebuild today's local scan log from the server so it survives reloads
-    // and reflects scans made on another device.
-    session.todayScans=todayRows;
+    // Rebuild today's local scan log from the server so it survives reloads and
+    // reflects scans from other devices — but DON'T drop a just-added item the
+    // server hasn't returned yet (brief write lag). Keep any local today-scan
+    // that has no matching server row (by id+qty), so nothing "disappears".
+    var pending=(session.todayScans||[]).filter(function(local){
+      return !todayRows.some(function(sv){
+        return String(sv.id)===String(local.id)&&(parseInt(sv.qty,10)||1)===(parseInt(local.qty,10)||1);
+      });
+    });
+    // Only carry forward items added very recently (avoid resurrecting ones the
+    // user deleted server-side). Items without a time were server-sourced.
+    session.todayScans=todayRows.concat(pending);
     saveSession();
     syncDashStats();
     updateActivityList();updateScanCount();
@@ -1261,10 +1270,18 @@ async function logMovement(m){
     syncDashStats();
   }
   try{
-    await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:m.id,item_name:m.name,qty:m.qty,event_label:session.event,date:localToday(),movement_type:m.movement_type,paid:!!m.paid,donor_note:m.donor_note||'',detail_notes:m.detail_notes||'',receipt_data:m.receipt_data||''});
+    var res=await postAction({action:'teamScan',token:session.token,team_member:session.name,item_id:m.id,item_name:m.name,qty:m.qty,event_label:session.event,date:localToday(),movement_type:m.movement_type,paid:!!m.paid,donor_note:m.donor_note||'',detail_notes:m.detail_notes||'',receipt_data:m.receipt_data||''});
+    if(res&&res.ok===false){
+      // Surface a real backend rejection instead of silently losing the item.
+      alert('Could not save "'+m.name+'": '+(res.error||'server error')+'\n\nIt is still showing on your device but was NOT saved. Please try again.');
+      return;
+    }
     // Re-sync authoritative counts from the server after the write lands.
     if(leaving)loadServerScanCounts();
-  }catch(e){}
+  }catch(e){
+    // Network/parse failure — don't wipe the optimistic item; tell the user.
+    alert('Saved to this device but the server did not confirm "'+m.name+'": '+(e&&e.message||e)+'\n\nCheck your connection; it will sync when you\'re back online.');
+  }
 }
 // Back-compat shim (in case other code calls logScan).
 async function logScan(itemId,itemName,qty){ return logMovement({id:itemId,name:itemName,qty:parseInt(qty)||1,movement_type:'outreach',paid:false}); }

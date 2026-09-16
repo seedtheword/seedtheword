@@ -1518,23 +1518,35 @@ function handleGetScanHistory_(payload) {
 
     var data = sheet.getRange(2, 1, sheet.getLastRow()-1, sheet.getLastColumn()).getValues();
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    var rowIdCol = -1;
-    for (var h = 0; h < headers.length; h++) {
-      if (String(headers[h]).toLowerCase().replace(/[\s_\-]/g, '') === 'rowid') { rowIdCol = h; break; }
-    }
+    // Resolve columns by HEADER NAME (do not hardcode indices — the sheet's
+    // real layout may differ, and the member filter must match the same
+    // team_member column the writer fills, not the donor "notes" column).
+    var norm = function (s) { return String(s).toLowerCase().replace(/[\s_\-]/g, ''); };
+    var col = {};
+    for (var h = 0; h < headers.length; h++) col[norm(headers[h])] = h;
+    var cRowId = (col.rowid !== undefined) ? col.rowid : -1;
+    var cDate  = (col.date  !== undefined) ? col.date  : 0;
+    var cItemId   = (col.itemid   !== undefined) ? col.itemid   : 2;
+    var cItemName = (col.itemname !== undefined) ? col.itemname : 3;
+    var cQty   = (col.qty !== undefined) ? col.qty : 4;
+    var cEvent = (col.eventsource !== undefined) ? col.eventsource : ((col.event !== undefined) ? col.event : 6);
+    // team_member column — the field the history filters on. Older rows written
+    // before this column existed won't have it, so fall back to the legacy
+    // index 9 only when there is no team_member column at all.
+    var cTeam = (col.teammember !== undefined) ? col.teammember : 9;
 
+    var wantName = String(user.name || '').toLowerCase().trim();
     var scans = [];
     for (var i = data.length - 1; i >= 0 && scans.length < 100; i--) {
-      // Column 9 (index 9) is team_member
-      if (String(data[i][9]).toLowerCase().trim() === user.name.toLowerCase()) {
-        var rowDate = data[i][0] instanceof Date ? data[i][0].toISOString().split('T')[0] : String(data[i][0]).trim().split('T')[0];
+      if (String(data[i][cTeam]).toLowerCase().trim() === wantName) {
+        var rowDate = data[i][cDate] instanceof Date ? data[i][cDate].toISOString().split('T')[0] : String(data[i][cDate]).trim().split('T')[0];
         scans.push({
-          row_id: rowIdCol >= 0 ? String(data[i][rowIdCol]) : 'ROW-' + (i+2),
+          row_id: cRowId >= 0 ? String(data[i][cRowId]) : 'ROW-' + (i+2),
           date: rowDate,
-          item_id: String(data[i][2]),
-          item_name: String(data[i][3]),
-          qty: parseInt(data[i][4]) || 1,
-          event: String(data[i][6] || '')
+          item_id: String(data[i][cItemId]),
+          item_name: String(data[i][cItemName]),
+          qty: parseInt(data[i][cQty]) || 1,
+          event: String(data[i][cEvent] || '')
         });
       }
     }

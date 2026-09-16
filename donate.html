@@ -54,6 +54,9 @@
     .donate-hero__scroll-cta--solid:hover { background: #c99560; border-color: #c99560; transform: translateY(-2px); }
     .donate-hero__scroll-cta--outline { border: 2px solid rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); }
     .donate-hero__scroll-cta--outline:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
+    /* Stacked variant — main label + tiny caveat sub-line */
+    .donate-hero__scroll-cta--stacked { flex-direction: column; gap: 0.1rem; line-height: 1.15; padding-top: 0.55rem; padding-bottom: 0.55rem; }
+    .donate-hero__cta-sub { font-size: 0.68rem; font-weight: 500; opacity: 0.8; text-transform: none; }
     /* Center CTA — bolder + louder than the two side buttons. */
     .donate-hero__ctas { align-items: center; }
     .donate-hero__scroll-cta--hero { font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; letter-spacing: 0.01em; padding: 1rem 2.2rem; border-radius: 40px; box-shadow: 0 8px 24px rgba(212,165,116,0.45); text-transform: uppercase; }
@@ -196,6 +199,8 @@
     body.modal-open { overflow: hidden; }
     .donate-receive-form__title { font-family: 'Anton', Impact, sans-serif; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 400; text-transform: uppercase; color: var(--dark, #1a1a1a); margin: 0 0 0.5rem; text-align: center; }
     .donate-receive-form__desc { text-align: center; font-size: 1rem; line-height: 1.6; color: var(--muted, #666); margin: 0 0 2rem; }
+    .donate-receive-form__note { text-align: center; font-size: 0.82rem; line-height: 1.5; color: var(--muted, #777); margin: 0 0 1.5rem; }
+    .donate-receive-form__note strong { color: var(--green, #2C5F2E); font-weight: 700; }
     .donate-receive-form__field { margin-bottom: 1.25rem; }
     .donate-receive-form__field label { display: block; font-weight: 600; font-size: 0.9rem; color: var(--dark, #1a1a1a); margin-bottom: 0.4rem; }
     .donate-receive-form__field input,
@@ -281,8 +286,9 @@
       <a class="donate-hero__scroll-cta donate-hero__scroll-cta--solid donate-hero__scroll-cta--hero" href="#impact" aria-label="See our ministry impact">
         See our impact <span class="donate-hero__scroll-arrow" aria-hidden="true">↓</span>
       </a>
-      <a class="donate-hero__scroll-cta donate-hero__scroll-cta--outline" href="connect.html#bible" aria-label="Request a free Bible">
-        Get Your Free Bible →
+      <a class="donate-hero__scroll-cta donate-hero__scroll-cta--outline donate-hero__scroll-cta--stacked" href="connect.html#bible" aria-label="Request a free Bible">
+        <span>Get Your Free Bible →</span>
+        <span class="donate-hero__cta-sub">See details to learn more</span>
       </a>
     </div>
   </div>
@@ -361,6 +367,7 @@
   <div class="donate-receive-form__inner">
     <button type="button" class="donate-receive-form__close" aria-label="Close">&times;</button>
     <h2 class="donate-receive-form__title">Receive a Free Bible</h2>
+    <p class="donate-receive-form__note">The Bible itself is <strong>free</strong>. We'll quote shipping &amp; any customizations when we follow up.</p>
     <form class="donate-receive-form__form" id="receive-bible-form" autocomplete="on">
       <div class="donate-receive-form__field">
         <label for="receive-name">Name</label>

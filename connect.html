@@ -220,6 +220,10 @@
     .form-status--error { color: #a6251f; }
     .form-status--ok { color: var(--c-green); }
 
+    /* Free-Bible clarification — Bible is free; shipping/customizations extra */
+    .free-bible-note { text-align: center; font-size: 0.78rem; line-height: 1.5; color: #6b6257; margin: 0 0 0.75rem; }
+    .free-bible-note strong { color: var(--c-green); font-weight: 700; }
+
     /* Success */
     .connect-success { display: none; text-align: center; padding: 2.5rem 1rem; }
     .connect-success.active { display: block; }
@@ -434,6 +438,7 @@
       </fieldset>
 
       <input type="text" name="extra_field_2" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="free-bible-note">The Bible itself is <strong>free</strong>. We'll quote shipping &amp; any customizations when we follow up.</p>
       <div class="form-status" id="status-bible"></div>
       <button type="submit" class="btn-submit btn-submit--green">Request a Free Bible</button>
     </div>

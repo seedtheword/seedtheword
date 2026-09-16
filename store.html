@@ -212,9 +212,12 @@
         <span class="free-bible-cta__icon" aria-hidden="true">📖</span>
         <span class="free-bible-cta__text">
           <span class="free-bible-cta__title">Looking for a free Bible?</span>
-          <span class="free-bible-cta__sub">We give them away — just share your story with our team.</span>
+          <span class="free-bible-cta__sub">The Bible itself is free — just share your story with our team. <em>We'll quote shipping &amp; any customizations.</em></span>
         </span>
-        <span class="free-bible-cta__btn">Request one free →</span>
+        <span class="free-bible-cta__btn">
+          <span class="free-bible-cta__btn-main">Request one free →</span>
+          <span class="free-bible-cta__btn-sub">See details to learn more</span>
+        </span>
       </a>
       <style>
         .free-bible-cta {
@@ -268,10 +271,12 @@
           font-weight: 800; font-size: 1.05rem; color: #3d2f14; line-height: 1.2;
         }
         .free-bible-cta__sub { font-size: 0.84rem; color: #5c4a2a; line-height: 1.35; }
+        .free-bible-cta__sub em { display: inline-block; font-style: normal; font-size: 0.74rem; color: #8a734a; opacity: 0.9; }
         .free-bible-cta__btn {
           flex: 0 0 auto; white-space: nowrap; font-weight: 800; font-size: 0.85rem;
+          display: flex; flex-direction: column; align-items: center; line-height: 1.15;
           /* Soft warm cream instead of harsh pure white — easier on the eyes. */
-          color: #f4efe4; padding: 0.62rem 1.4rem; border-radius: 999px;
+          color: #f4efe4; padding: 0.55rem 1.3rem; border-radius: 999px;
           /* Lighter, fresher mid-green (not the deep olive). */
           background: linear-gradient(135deg, #4a9d4e, #3a7d3c);
           border: 1px solid rgba(255, 255, 255, 0.3);
@@ -279,6 +284,8 @@
           /* Gentle attention pulse (offset from the card's breathe rhythm). */
           animation: fbcBtnPulse 2.6s ease-in-out infinite;
         }
+        .free-bible-cta__btn-main { display: block; }
+        .free-bible-cta__btn-sub { display: block; font-size: 0.62rem; font-weight: 600; opacity: 0.85; text-transform: none; letter-spacing: 0.01em; margin-top: 0.1rem; }
         @keyframes fbcBtnPulse {
           0%, 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(58, 125, 60, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
           50%      { transform: scale(1.04); box-shadow: 0 6px 20px rgba(58, 125, 60, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.35); }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616795,
-  "lastModified": "2026-09-16T00:25:32Z",
+  "lastUpdateId": 669616800,
+  "lastModified": "2026-09-16T00:55:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1973,6 +1973,56 @@
       "kind": "telegram",
       "text": "plz also pray over me. Been feeling off today, can't quite put my figure on it but I'm sure there are many reasons why I feel this way and it could be just collectively adding up.",
       "ts": "2026-09-16T00:00:54Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6204,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Kinda rough prayer there Liam, all good?",
+      "ts": "2026-09-16T00:43:30Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6205,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "🙅‍♂",
+      "ts": "2026-09-16T00:44:33Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6206,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Withdrawal symptoms... no... not at all...",
+      "ts": "2026-09-16T00:45:01Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6207,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Call me then",
+      "ts": "2026-09-16T00:49:21Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6208,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hey guys I just want to ask for prayer over my safety and over my addictions, I’ve been wanting to get rid of these addictions for quite a while now and want to keep my body clean and have a healthy body",
+      "ts": "2026-09-16T00:49:46Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616828,
-  "lastModified": "2026-09-16T17:25:39Z",
+  "lastUpdateId": 669616829,
+  "lastModified": "2026-09-16T17:40:40Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -294,16 +294,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5566,
-      "userId": 8583445613,
-      "displayName": "Edward Wei",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "January 10th will be our next prayer night. I need to ping people to get confirmation we have the space.",
-      "ts": "2026-09-02T17:28:18Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5569,

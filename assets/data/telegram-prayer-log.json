@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669616814,
-  "lastModified": "2026-09-16T07:25:34Z",
+  "lastModified": "2026-09-16T11:25:41Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -294,16 +294,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5551,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "JESUS4JAMIE!!!",
-      "ts": "2026-09-02T11:13:20Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5552,

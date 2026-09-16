@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669616814,
-  "lastModified": "2026-09-16T05:10:35Z",
+  "lastModified": "2026-09-16T07:25:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -294,16 +294,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5548,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Guys please be praying for Brandon’s arborist test tomorrow!!!",
-      "ts": "2026-09-02T07:23:41Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5551,

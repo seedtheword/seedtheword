@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616800,
-  "lastModified": "2026-09-16T00:55:32Z",
+  "lastUpdateId": 669616806,
+  "lastModified": "2026-09-16T01:10:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -2023,6 +2023,36 @@
       "kind": "telegram",
       "text": "Hey guys I just want to ask for prayer over my safety and over my addictions, I’ve been wanting to get rid of these addictions for quite a while now and want to keep my body clean and have a healthy body",
       "ts": "2026-09-16T00:49:46Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6209,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Sure, you can hop on a call with me and Liam right now @Jhei_Cruz",
+      "ts": "2026-09-16T00:56:48Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6210,
+      "userId": 8349167884,
+      "displayName": "Jheremie Cruz",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Where do I join?",
+      "ts": "2026-09-16T01:02:55Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6211,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "🙏PRAYER DOG🙏 just prayed for you🙏✝️❤️",
+      "ts": "2026-09-16T01:03:20Z"
     }
   ]
 }

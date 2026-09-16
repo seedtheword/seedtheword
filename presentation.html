@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,13 +7,13 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="Seed the Word Ministry â€” a 10-slide presentation deck for admins to take to their church leadership.">
+  <meta name="description" content="Seed the Word Ministry — a 10-slide presentation deck for admins to take to their church leadership.">
   <link rel="canonical" href="https://seedtheword.org/presentation.html">
   <title>Seed the Word Ministry Presentation</title>
   <link rel="stylesheet" href="assets/css/main.css?v=33">
   <style>
     /* ============================================================
-       Presentation deck â€” designed for two views in one page:
+       Presentation deck — designed for two views in one page:
          (a) On-screen slideshow: each .pres-slide is sized 16:9
              and steps through with arrow keys / space.
          (b) Long-form scroll for review or copy-paste to Google Slides.
@@ -30,7 +30,7 @@
       padding: 0;
     }
 
-    /* Top toolbar â€” sticky so the "Copy entire deck" button is always
+    /* Top toolbar — sticky so the "Copy entire deck" button is always
        reachable and admins can navigate with the slide counter. */
     .pres-toolbar {
       position: sticky;
@@ -78,7 +78,7 @@
     }
     .pres-btn--ghost:hover { background: rgba(255, 255, 255, 0.1); }
 
-    /* The deck itself â€” slides are 16:9 cards with brand chrome. */
+    /* The deck itself — slides are 16:9 cards with brand chrome. */
     .pres-deck {
       max-width: 980px;
       margin: 2rem auto 4rem;
@@ -163,7 +163,7 @@
       line-height: 1.65;
     }
     .pres-slide__bullets li::before {
-      content: 'Â·';
+      content: '·';
       position: absolute;
       left: 0.65rem;
       color: var(--gold, #c79a3a);
@@ -205,8 +205,8 @@
       list-style: none;
     }
     .pres-slide__notes summary::-webkit-details-marker { display: none; }
-    .pres-slide__notes summary::before { content: 'â–¸ '; color: var(--green); }
-    .pres-slide__notes[open] summary::before { content: 'â–¾ '; }
+    .pres-slide__notes summary::before { content: '▸ '; color: var(--green); }
+    .pres-slide__notes[open] summary::before { content: '▾ '; }
     .pres-slide__notes-body {
       margin-top: 0.85rem;
       font-size: 0.95rem;
@@ -217,7 +217,7 @@
       border-radius: 8px;
     }
 
-    /* Title slide â€” the cover. Brand-green background, big serif title. */
+    /* Title slide — the cover. Brand-green background, big serif title. */
     .pres-slide--title { background: linear-gradient(135deg, #1a4a1c, #2c5f2e); color: #fff; }
     .pres-slide--title .pres-slide__chrome {
       background: rgba(0, 0, 0, 0.2);
@@ -229,7 +229,7 @@
     .pres-slide--title .pres-slide__lead { color: rgba(255, 255, 255, 0.9); }
     .pres-slide--title .pres-slide__eyebrow { color: var(--gold, #d4a574); }
 
-    /* The closing slide â€” same green chrome as the cover for symmetry. */
+    /* The closing slide — same green chrome as the cover for symmetry. */
     .pres-slide--closing { background: linear-gradient(135deg, #2c5f2e, #1a4a1c); color: #fff; }
     .pres-slide--closing .pres-slide__chrome {
       background: rgba(0, 0, 0, 0.2);
@@ -279,7 +279,7 @@
       .pres-toolbar__title { font-size: 0.9rem; }
     }
 
-    /* Print â€” one slide per A4/Letter page when admins want a handout. */
+    /* Print — one slide per A4/Letter page when admins want a handout. */
     @media print {
       body { background: #fff; }
       .pres-toolbar, .pres-slide__copy, .pres-slide__notes { display: none; }
@@ -292,40 +292,40 @@
 <body>
 
 <header class="pres-toolbar">
-  <h1 class="pres-toolbar__title">ðŸ“Š Seed the Word Ministry <span>Â· Presentation</span></h1>
+  <h1 class="pres-toolbar__title">📊 Seed the Word Ministry <span>· Presentation</span></h1>
   <div class="pres-toolbar__actions">
-    <button type="button" class="pres-btn pres-btn--ghost" id="pres-copy-deck">ðŸ“‹ Copy entire deck</button>
-    <button type="button" class="pres-btn pres-btn--ghost" onclick="window.print()">ðŸ–¨ï¸ Print</button>
-    <a href="admin-help.html" class="pres-btn pres-btn--ghost" style="text-decoration: none;">â† Back to admin help</a>
+    <button type="button" class="pres-btn pres-btn--ghost" id="pres-copy-deck">📋 Copy entire deck</button>
+    <button type="button" class="pres-btn pres-btn--ghost" onclick="window.print()">🖨️ Print</button>
+    <a href="admin-help.html" class="pres-btn pres-btn--ghost" style="text-decoration: none;">← Back to admin help</a>
   </div>
 </header>
 
 <main class="pres-deck" id="pres-deck">
 
-<!-- â”€â”€â”€ Slide 1 â”€â”€â”€ Title -->
+<!-- ─── Slide 1 ─── Title -->
 <article class="pres-slide pres-slide--title" data-slide="1">
   <div class="pres-slide__chrome">
     <span class="pres-slide__num">Slide 1 of 10</span>
-    <button type="button" class="pres-slide__copy" data-copy-slide="1">ðŸ“‹ Copy slide</button>
+    <button type="button" class="pres-slide__copy" data-copy-slide="1">📋 Copy slide</button>
   </div>
   <div class="pres-slide__body">
     <p class="pres-slide__eyebrow">A proposal to Maple Park</p>
     <h2 class="pres-slide__title">Seed the Word</h2>
-    <p class="pres-slide__lead">Bringing back young adults ministry and formal evangelism to Maple Park â€” led by the Holy Spirit, planted through the Word.</p>
+    <p class="pres-slide__lead">Bringing back young adults ministry and formal evangelism to Maple Park — led by the Holy Spirit, planted through the Word.</p>
     <p class="pres-slide__lead" style="opacity: 0.85; font-size: 0.95rem; margin-top: 1.5rem;">Presented by Edward and David</p>
   </div>
 </article>
 
-<!-- â”€â”€â”€ Slide 2 â”€â”€â”€ The hunger -->
+<!-- ─── Slide 2 ─── The hunger -->
 <article class="pres-slide" data-slide="2">
   <div class="pres-slide__chrome">
     <span class="pres-slide__num">Slide 2 of 10</span>
-    <button type="button" class="pres-slide__copy" data-copy-slide="2">ðŸ“‹ Copy slide</button>
+    <button type="button" class="pres-slide__copy" data-copy-slide="2">📋 Copy slide</button>
   </div>
   <div class="pres-slide__body">
     <p class="pres-slide__eyebrow">The need</p>
     <h2 class="pres-slide__title">Maple Park is hungry for the Gospel.</h2>
-    <p class="pres-slide__lead">Edward has spent more than half his life in this neighborhood. The community needs the reviving power of Jesus â€” and the harvest is plentiful.</p>
+    <p class="pres-slide__lead">Edward has spent more than half his life in this neighborhood. The community needs the reviving power of Jesus — and the harvest is plentiful.</p>
     <ul class="pres-slide__bullets">
       <li>Young adults across the area without a meeting place</li>
       <li>Newcomers to faith with no one to disciple them</li>
@@ -333,34 +333,34 @@
     </ul>
     <blockquote class="pres-slide__verse">
       "The harvest is plentiful but the workers are few. Ask the Lord of the harvest, therefore, to send out workers into his harvest field."
-      <cite>â€” Matthew 9:37-38 NIV</cite>
+      <cite>— Matthew 9:37-38 NIV</cite>
     </blockquote>
   </div>
 </article>
 
-<!-- â”€â”€â”€ Slide 3 â”€â”€â”€ Who we are -->
+<!-- ─── Slide 3 ─── Who we are -->
 <article class="pres-slide" data-slide="3">
   <div class="pres-slide__chrome">
     <span class="pres-slide__num">Slide 3 of 10</span>
-    <button type="button" class="pres-slide__copy" data-copy-slide="3">ðŸ“‹ Copy slide</button>
+    <button type="button" class="pres-slide__copy" data-copy-slide="3">📋 Copy slide</button>
   </div>
   <div class="pres-slide__body">
     <p class="pres-slide__eyebrow">Who we are</p>
     <h2 class="pres-slide__title">Two friends, called by the Spirit, met through evangelism.</h2>
-    <p class="pres-slide__lead">Edward and David came together on the streets, sharing Christ. From that meeting, the Lord built Seed the Word â€” a young-adult ministry committed to Scripture, fellowship, and giving away Bibles.</p>
+    <p class="pres-slide__lead">Edward and David came together on the streets, sharing Christ. From that meeting, the Lord built Seed the Word — a young-adult ministry committed to Scripture, fellowship, and giving away Bibles.</p>
     <ul class="pres-slide__bullets">
       <li>30+ members across the region</li>
-      <li>5â€“10 attending each meeting and outreach event</li>
+      <li>5–10 attending each meeting and outreach event</li>
       <li>Reading Scripture, fellowship, and worship together</li>
     </ul>
   </div>
 </article>
 
-<!-- â”€â”€â”€ Slide 4 â”€â”€â”€ David's call -->
+<!-- ─── Slide 4 ─── David's call -->
 <article class="pres-slide" data-slide="4">
   <div class="pres-slide__chrome">
     <span class="pres-slide__num">Slide 4 of 10</span>
-    <button type="button" class="pres-slide__copy" data-copy-slide="4">ðŸ“‹ Copy slide</button>
+    <button type="button" class="pres-slide__copy" data-copy-slide="4">📋 Copy slide</button>
   </div>
   <div class="pres-slide__body">
     <p class="pres-slide__eyebrow">A prophetic word</p>
@@ -368,7 +368,7 @@
     <p class="pres-slide__lead">After David's water baptism, in earnest prayer for a way to bear fruit for the Kingdom, a minister from Gideons International approached him with a word from the Holy Spirit. That word became our calling. Seed the Word is now part of the Gideons mission to spread God's Word wherever we can.</p>
     <blockquote class="pres-slide__verse">
       "I am the vine; you are the branches. If you remain in me and I in you, you will bear much fruit; apart from me you can do nothing."
-      <cite>â€” John 15:5 NIV</cite>
+      <cite>— John 15:5 NIV</cite>
     </blockquote>
     <details class="pres-slide__notes">
       <summary>Speaker notes</summary>
@@ -379,11 +379,11 @@
   </div>
 </article>
 
-<!-- â”€â”€â”€ Slide 5 â”€â”€â”€ The fruit so far -->
+<!-- ─── Slide 5 ─── The fruit so far -->
 <article class="pres-slide" data-slide="5">
   <div class="pres-slide__chrome">
     <span class="pres-slide__num">Slide 5 of 10</span>
-    <button type="button" class="pres-slide__copy" data-copy-slide="5">ðŸ“‹ Copy slide</button>
+    <button type="button" class="pres-slide__copy" data-copy-slide="5">📋 Copy slide</button>
   </div>
   <div class="pres-slide__body">
     <p class="pres-slide__eyebrow">What God has already done</p>
@@ -392,41 +392,41 @@
       <li>Evangelized, prayed, and handed out Bibles in multiple cities</li>
       <li>Played worship music for guests in a restaurant</li>
       <li>Wrote new songs to worship the Lord</li>
-      <li>Built a digital home for the ministry â€” testimonies, daily readings, and a global community of newcomers</li>
+      <li>Built a digital home for the ministry — testimonies, daily readings, and a global community of newcomers</li>
     </ul>
     <p class="pres-slide__lead" style="margin-top: 1rem;">Every Bible placed has been a seed the Spirit watered. Every new face has been God answering the prayer for laborers.</p>
   </div>
 </article>
 
-<!-- â”€â”€â”€ Slide 6 â”€â”€â”€ How we'd gather -->
+<!-- ─── Slide 6 ─── How we'd gather -->
 <article class="pres-slide" data-slide="6">
   <div class="pres-slide__chrome">
     <span class="pres-slide__num">Slide 6 of 10</span>
-    <button type="button" class="pres-slide__copy" data-copy-slide="6">ðŸ“‹ Copy slide</button>
+    <button type="button" class="pres-slide__copy" data-copy-slide="6">📋 Copy slide</button>
   </div>
   <div class="pres-slide__body">
     <p class="pres-slide__eyebrow">How we gather</p>
     <h2 class="pres-slide__title">A simple rhythm anyone can hold.</h2>
-    <p class="pres-slide__lead">Every life group walks through five movements. They aren't a checklist â€” they're a rhythm the Spirit fills.</p>
+    <p class="pres-slide__lead">Every life group walks through five movements. They aren't a checklist — they're a rhythm the Spirit fills.</p>
     <ul class="pres-slide__bullets">
-      <li><strong>Worship &amp; Prayer</strong> â€” we come to God first</li>
-      <li><strong>Embrace Fellowship</strong> â€” the room becomes a body, not a crowd</li>
-      <li><strong>Encounter Jesus in the Word</strong> â€” one chapter, sat with together</li>
-      <li><strong>Reflection</strong> â€” four S.E.E.D. questions in plain language</li>
-      <li><strong>How We Outreach</strong> â€” pray, eat, walk out sent</li>
+      <li><strong>Worship &amp; Prayer</strong> — we come to God first</li>
+      <li><strong>Embrace Fellowship</strong> — the room becomes a body, not a crowd</li>
+      <li><strong>Encounter Jesus in the Word</strong> — one chapter, sat with together</li>
+      <li><strong>Reflection</strong> — four S.E.E.D. questions in plain language</li>
+      <li><strong>How We Outreach</strong> — pray, eat, walk out sent</li>
     </ul>
   </div>
 </article>
 
-<!-- â”€â”€â”€ Slide 7 â”€â”€â”€ How to Seed -->
+<!-- ─── Slide 7 ─── How to Seed -->
 <article class="pres-slide" data-slide="7">
   <div class="pres-slide__chrome">
     <span class="pres-slide__num">Slide 7 of 10</span>
-    <button type="button" class="pres-slide__copy" data-copy-slide="7">ðŸ“‹ Copy slide</button>
+    <button type="button" class="pres-slide__copy" data-copy-slide="7">📋 Copy slide</button>
   </div>
   <div class="pres-slide__body">
     <p class="pres-slide__eyebrow">How we seed</p>
-    <h2 class="pres-slide__title">Take a Bible home â€” only if you'd like to.</h2>
+    <h2 class="pres-slide__title">Take a Bible home — only if you'd like to.</h2>
     <p class="pres-slide__lead">If you join us, you're welcome to take a Bible home for the week. We ask one thing:</p>
     <p class="pres-slide__lead" style="font-style: italic; padding-left: 1.25rem; border-left: 3px solid var(--gold);">
       In your prayer time, ask the Lord who this Bible is for. If someone comes to mind, give it. If no one comes to mind, bring it back next week. There's no pressure either way.
@@ -434,34 +434,34 @@
     <p class="pres-slide__lead"><strong>The work is the Lord's. The Bible is the seed.</strong></p>
     <blockquote class="pres-slide__verse">
       "Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver."
-      <cite>â€” 2 Corinthians 9:7 NIV</cite>
+      <cite>— 2 Corinthians 9:7 NIV</cite>
     </blockquote>
   </div>
 </article>
 
-<!-- â”€â”€â”€ Slide 8 â”€â”€â”€ The ask -->
+<!-- ─── Slide 8 ─── The ask -->
 <article class="pres-slide" data-slide="8">
   <div class="pres-slide__chrome">
     <span class="pres-slide__num">Slide 8 of 10</span>
-    <button type="button" class="pres-slide__copy" data-copy-slide="8">ðŸ“‹ Copy slide</button>
+    <button type="button" class="pres-slide__copy" data-copy-slide="8">📋 Copy slide</button>
   </div>
   <div class="pres-slide__body">
     <p class="pres-slide__eyebrow">What we're asking</p>
     <h2 class="pres-slide__title">Three things, in plain words.</h2>
     <ul class="pres-slide__bullets">
-      <li><strong>A venue</strong> â€” Maple Park Church as our gathering place at least once a week</li>
-      <li><strong>An allotted budget</strong> â€” to help draw church and community participation, and to keep Bibles in members' hands</li>
-      <li><strong>Your prayers and spiritual guidance</strong> â€” we cede to the leadership of Maple Park in any matter for the sake of sponsorship</li>
+      <li><strong>A venue</strong> — Maple Park Church as our gathering place at least once a week</li>
+      <li><strong>An allotted budget</strong> — to help draw church and community participation, and to keep Bibles in members' hands</li>
+      <li><strong>Your prayers and spiritual guidance</strong> — we cede to the leadership of Maple Park in any matter for the sake of sponsorship</li>
     </ul>
     <p class="pres-slide__lead" style="margin-top: 1.25rem;">We are not asking the church to start something new. We're asking the church to host what the Lord has already begun.</p>
   </div>
 </article>
 
-<!-- â”€â”€â”€ Slide 9 â”€â”€â”€ Why now -->
+<!-- ─── Slide 9 ─── Why now -->
 <article class="pres-slide" data-slide="9">
   <div class="pres-slide__chrome">
     <span class="pres-slide__num">Slide 9 of 10</span>
-    <button type="button" class="pres-slide__copy" data-copy-slide="9">ðŸ“‹ Copy slide</button>
+    <button type="button" class="pres-slide__copy" data-copy-slide="9">📋 Copy slide</button>
   </div>
   <div class="pres-slide__body">
     <p class="pres-slide__eyebrow">Why now</p>
@@ -469,28 +469,28 @@
     <p class="pres-slide__lead">Young adults are leaving churches at the rate the Lord is calling them. Newcomers to faith are finding their way to Maple Park because the Word has been planted there for years. With the church's blessing, we can disciple them in the very neighborhood where Edward grew up.</p>
     <blockquote class="pres-slide__verse">
       "How beautiful are the feet of those who bring good news!"
-      <cite>â€” Romans 10:15 NIV</cite>
+      <cite>— Romans 10:15 NIV</cite>
     </blockquote>
   </div>
 </article>
 
-<!-- â”€â”€â”€ Slide 10 â”€â”€â”€ Closing -->
+<!-- ─── Slide 10 ─── Closing -->
 <article class="pres-slide pres-slide--closing" data-slide="10">
   <div class="pres-slide__chrome">
     <span class="pres-slide__num">Slide 10 of 10</span>
-    <button type="button" class="pres-slide__copy" data-copy-slide="10">ðŸ“‹ Copy slide</button>
+    <button type="button" class="pres-slide__copy" data-copy-slide="10">📋 Copy slide</button>
   </div>
   <div class="pres-slide__body">
     <p class="pres-slide__eyebrow">The closing</p>
     <h2 class="pres-slide__title">Send us. Lead us. Pray over us.</h2>
     <p class="pres-slide__lead">We are honored to serve Jesus with the zeal of servitude. With Maple Park behind us, we believe the Lord will multiply this work beyond what any of us can plan.</p>
     <blockquote class="pres-slide__verse">
-      "Therefore go and make disciples of all nationsâ€¦ and surely I am with you always, to the very end of the age."
-      <cite>â€” Matthew 28:19-20 NIV</cite>
+      "Therefore go and make disciples of all nations… and surely I am with you always, to the very end of the age."
+      <cite>— Matthew 28:19-20 NIV</cite>
     </blockquote>
     <p class="pres-slide__lead" style="margin-top: 1.5rem; opacity: 0.92;">
       <strong>Sincerely,</strong><br>
-      Edward and David â€” and the team of Seed the Word
+      Edward and David — and the team of Seed the Word
     </p>
   </div>
 </article>
@@ -512,7 +512,7 @@
   }
 
   // Build the plain-text representation of one slide. Format optimized
-  // for pasting into Google Slides as a new slide â€” the slide title
+  // for pasting into Google Slides as a new slide — the slide title
   // becomes the slide title, the lead and bullets become the body.
   function slideToPlainText(slideEl) {
     const num = slideEl.dataset.slide || '?';
@@ -522,15 +522,15 @@
     const bullets = Array.from(slideEl.querySelectorAll('.pres-slide__bullets li'));
     const verse = slideEl.querySelector('.pres-slide__verse');
     const out = [];
-    out.push('Slide ' + num + ' â€” ' + (eyebrow ? eyebrow.toUpperCase() : ''));
+    out.push('Slide ' + num + ' — ' + (eyebrow ? eyebrow.toUpperCase() : ''));
     out.push('');
     out.push(title.trim());
     out.push('');
     leads.forEach((p) => { out.push(p.textContent.trim()); out.push(''); });
     if (bullets.length) {
       bullets.forEach((li) => {
-        // Strip the leading 'Â·' visual marker if present.
-        out.push('â€¢ ' + li.textContent.trim());
+        // Strip the leading '·' visual marker if present.
+        out.push('• ' + li.textContent.trim());
       });
       out.push('');
     }
@@ -549,7 +549,7 @@
       await navigator.clipboard.writeText(text);
       return true;
     } catch (_) {
-      // Fallback for older browsers â€” drop into a hidden textarea.
+      // Fallback for older browsers — drop into a hidden textarea.
       const ta = document.createElement('textarea');
       ta.value = text;
       ta.style.position = 'fixed';
@@ -573,14 +573,14 @@
       if (ok) {
         btn.classList.add('copied');
         const original = btn.textContent;
-        btn.textContent = 'âœ“ Copied';
-        showToast('Slide ' + slide.dataset.slide + ' copied â€” paste into Google Slides');
+        btn.textContent = '✓ Copied';
+        showToast('Slide ' + slide.dataset.slide + ' copied — paste into Google Slides');
         setTimeout(() => {
           btn.classList.remove('copied');
           btn.textContent = original;
         }, 2200);
       } else {
-        showToast('Copy failed â€” select text manually');
+        showToast('Copy failed — select text manually');
       }
     });
   });
@@ -592,13 +592,13 @@
       const slides = document.querySelectorAll('.pres-slide');
       const blocks = [];
       slides.forEach((s) => blocks.push(slideToPlainText(s)));
-      const text = blocks.join('\n\nâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€\n\n');
+      const text = blocks.join('\n\n──────────────────────────────\n\n');
       const ok = await copyText(text);
-      showToast(ok ? 'Entire deck copied â€” paste into Google Slides' : 'Copy failed â€” try slide-by-slide');
+      showToast(ok ? 'Entire deck copied — paste into Google Slides' : 'Copy failed — try slide-by-slide');
     });
   }
 
-  // Keyboard navigation â€” arrow keys / space scroll one slide at a time.
+  // Keyboard navigation — arrow keys / space scroll one slide at a time.
   let currentSlide = 0;
   const slides = Array.from(document.querySelectorAll('.pres-slide'));
   function scrollToSlide(idx) {

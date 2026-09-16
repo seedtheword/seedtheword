@@ -1,10 +1,23 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connect — Seed the Word Ministry</title>
+  <title>Connect â€” Seed the Word Ministry</title>
   <meta name="description" content="Submit a prayer request, share thanksgiving, or request a free Bible from Seed the Word Ministry.">
+  <link rel="canonical" href="https://seedtheword.org/connect.html">
+  <!-- Open Graph (link previews) -->
+  <meta property="og:site_name" content="Seed the Word Ministry">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Connect — Seed the Word Ministry">
+  <meta property="og:description" content="Submit a prayer request, share thanksgiving, or request a free Bible from Seed the Word Ministry.">
+  <meta property="og:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
+  <meta property="og:url" content="https://seedtheword.org/connect.html">
+  <!-- Twitter card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Connect — Seed the Word Ministry">
+  <meta name="twitter:description" content="Submit a prayer request, share thanksgiving, or request a free Bible.">
+  <meta name="twitter:image" content="https://seedtheword.org/assets/images/backgrounds/bible-in-background.jpg">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
@@ -220,7 +233,7 @@
     .form-status--error { color: #a6251f; }
     .form-status--ok { color: var(--c-green); }
 
-    /* Free-Bible clarification — Bible is free; shipping/customizations extra */
+    /* Free-Bible clarification â€” Bible is free; shipping/customizations extra */
     .free-bible-note { text-align: center; font-size: 0.78rem; line-height: 1.5; color: #6b6257; margin: 0 0 0.75rem; }
     .free-bible-note strong { color: var(--c-green); font-weight: 700; }
 
@@ -335,8 +348,8 @@
   <!-- Tabs -->
   <div id="connect-tabs">
     <div class="tab-row">
-      <button class="tab-btn active" data-form="prayer">🙏 Prayer & Thanks</button>
-      <button class="tab-btn" data-form="bible">📖 Free Bible</button>
+      <button class="tab-btn active" data-form="prayer">ðŸ™ Prayer & Thanks</button>
+      <button class="tab-btn" data-form="bible">ðŸ“– Free Bible</button>
     </div>
   </div>
 
@@ -346,8 +359,8 @@
       <!-- Pill slider: Prayer / Thanksgiving -->
       <div class="pill-track">
         <div class="pill-slider" id="kind-slider"></div>
-        <button type="button" class="pill-btn active" data-kind="prayer">🙏 Prayer Request</button>
-        <button type="button" class="pill-btn" data-kind="thanksgiving">🎉 Thanksgiving</button>
+        <button type="button" class="pill-btn active" data-kind="prayer">ðŸ™ Prayer Request</button>
+        <button type="button" class="pill-btn" data-kind="thanksgiving">ðŸŽ‰ Thanksgiving</button>
       </div>
       <input type="hidden" name="kind" id="prayer-kind" value="prayer">
 
@@ -378,7 +391,7 @@
     <div class="connect-card">
       <!-- Soft "already requested" notice (shown when a request was made on this device) -->
       <div class="bible-already" id="bible-already" hidden style="background:rgba(44,95,46,0.08);border:1px solid rgba(44,95,46,0.2);border-radius:12px;padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.88rem;line-height:1.5;color:var(--c-green,#2C5F2E);">
-        📖 It looks like you already requested a free Bible from this device. Free Bibles are one per person — if you need to update your request or have a question, just reply to our email or reach out to us. Thank you!
+        ðŸ“– It looks like you already requested a free Bible from this device. Free Bibles are one per person â€” if you need to update your request or have a question, just reply to our email or reach out to us. Thank you!
       </div>
 
       <div class="field"><label>First name *</label><input type="text" name="name" required autocomplete="given-name" maxlength="60"></div>
@@ -418,7 +431,7 @@
           </select>
         </div>
       </div>
-      <div class="field"><label>Why would you like a Bible? *</label><textarea name="story" required minlength="80" maxlength="1500" rows="5" placeholder="A couple of honest sentences — we read every one."></textarea></div>
+      <div class="field"><label>Why would you like a Bible? *</label><textarea name="story" required minlength="80" maxlength="1500" rows="5" placeholder="A couple of honest sentences â€” we read every one."></textarea></div>
 
       <fieldset class="notify-fieldset">
         <legend>How should we reach you?</legend>
@@ -446,33 +459,33 @@
 
   <!-- Success -->
   <div class="connect-success" id="connect-success">
-    <div style="font-size:3.5rem;margin-bottom:1rem;" id="success-icon">✅</div>
+    <div style="font-size:3.5rem;margin-bottom:1rem;" id="success-icon">âœ…</div>
     <h2 style="font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;margin:0 0 0.5rem;" id="success-title">Sent!</h2>
     <p style="font-size:0.92rem;color:var(--c-muted);line-height:1.6;margin:0 0 1.5rem;" id="success-text">Thank you. Our team will be in touch.</p>
-    <a href="community.html" style="display:inline-block;padding:0.7rem 1.5rem;background:var(--c-green);color:#fff;border-radius:12px;font-size:0.88rem;font-weight:600;text-decoration:none;">Visit our community →</a>
+    <a href="community.html" style="display:inline-block;padding:0.7rem 1.5rem;background:var(--c-green);color:#fff;border-radius:12px;font-size:0.88rem;font-weight:600;text-decoration:none;">Visit our community â†’</a>
   </div>
 </div>
 
 <!-- Suggestions -->
 <div class="connect-suggestions">
   <div class="suggest-card">
-    <span class="suggest-card__icon">📸</span>
+    <span class="suggest-card__icon">ðŸ“¸</span>
     <div class="suggest-card__text">
       <p class="suggest-card__title">Find us on Instagram</p>
-      <p class="suggest-card__desc">See what we've been up to — outreach, events, community.</p>
+      <p class="suggest-card__desc">See what we've been up to â€” outreach, events, community.</p>
     </div>
     <a href="https://www.instagram.com/seedtheword/" target="_blank" rel="noopener" class="suggest-card__btn suggest-card__btn--pink">Follow</a>
   </div>
   <div class="suggest-card">
-    <span class="suggest-card__icon">📘</span>
+    <span class="suggest-card__icon">ðŸ“˜</span>
     <div class="suggest-card__text">
       <p class="suggest-card__title">Follow us on Facebook</p>
-      <p class="suggest-card__desc">Updates, events, and community — connect with us there too.</p>
+      <p class="suggest-card__desc">Updates, events, and community â€” connect with us there too.</p>
     </div>
     <a href="https://www.facebook.com/share/1HMLEinrAa/" target="_blank" rel="noopener" class="suggest-card__btn" style="background:#1877F2;color:#fff;">Follow</a>
   </div>
   <div class="suggest-card">
-    <span class="suggest-card__icon">✈️</span>
+    <span class="suggest-card__icon">âœˆï¸</span>
     <div class="suggest-card__text">
       <p class="suggest-card__title">Join our Telegram</p>
       <p class="suggest-card__desc">Daily Bible reading, prayer, and real-time fellowship.</p>
@@ -483,12 +496,12 @@
     <img src="assets/images/backgrounds/maple_park_flyer_universal.jpg" alt="Young Adults" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;">
     <div class="suggest-card__text">
       <p class="suggest-card__title">Young Adults Fellowship</p>
-      <p class="suggest-card__desc">Mondays 6:30 PM · Maple Park · Everyone welcome</p>
+      <p class="suggest-card__desc">Mondays 6:30 PM Â· Maple Park Â· Everyone welcome</p>
     </div>
     <a href="index.html" class="suggest-card__btn suggest-card__btn--gold">RSVP</a>
   </div>
   <div class="suggest-card">
-    <span class="suggest-card__icon">❤️</span>
+    <span class="suggest-card__icon">â¤ï¸</span>
     <div class="suggest-card__text">
       <p class="suggest-card__title">Support the Ministry</p>
       <p class="suggest-card__desc">Help us keep giving Bibles for free.</p>
@@ -506,7 +519,7 @@
           <img src="assets/images/stw-logo.jpg" alt="Seed the Word" class="footer-brand__logo">
           <p class="footer-brand__name">Seed the Word Ministry</p>
         </div>
-        <p class="footer-brand__tagline">Welcoming newcomers to faith — one Bible at a time.</p>
+        <p class="footer-brand__tagline">Welcoming newcomers to faith â€” one Bible at a time.</p>
         <p style="font-size:0.82rem;color:var(--muted);margin-top:0.75rem;line-height:1.5">Seed the Word is a Washington State registered nonprofit corporation (UBI 606 261 509, effective July 13, 2026).</p>
       </div>
       <div>
@@ -535,9 +548,9 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12A12 12 0 0 0 12 0zm5.5 17.3a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.34-1.46c4.56-1.04 8.48-.59 11.65 1.34.35.22.46.69.26 1.03zm1.47-3.28a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.37-1.33 9.79-.67 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41c-3.87-2.3-10.25-2.51-13.94-1.39a1.13 1.13 0 1 1-.66-2.17c4.24-1.29 11.28-1.04 15.73 1.6a1.13 1.13 0 0 1-1.13 1.96z"/></svg>
           </a>
         </div>
-        <a class="footer-connect__contact" href="connect.html">🤝 Connect with Us</a>
-        <a class="footer-connect__contact" href="about.html#contact">✉️ Contact us</a>
-        <a class="footer-connect__contact" href="donate.html">📖 Donate or receive a Bible</a>
+        <a class="footer-connect__contact" href="connect.html">ðŸ¤ Connect with Us</a>
+        <a class="footer-connect__contact" href="about.html#contact">âœ‰ï¸ Contact us</a>
+        <a class="footer-connect__contact" href="donate.html">ðŸ“– Donate or receive a Bible</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -576,7 +589,7 @@
     t.addEventListener('click', function() { selectConnectTab(this.dataset.form); });
   });
   // Deep-link: connect.html#bible opens the Free Bible tab directly (used by
-  // the donate page's "Get Your Free Bible" CTA — one canonical form).
+  // the donate page's "Get Your Free Bible" CTA â€” one canonical form).
   (function(){
     var h = (location.hash || '').replace('#','').toLowerCase();
     if (h === 'bible') selectConnectTab('bible');
@@ -596,7 +609,7 @@
       var btn2 = document.getElementById('prayer-submit-btn');
       if (kind === 'thanksgiving') {
         label.textContent = 'What are you thankful for? *';
-        ta.placeholder = 'Share what God has done — we celebrate with you!';
+        ta.placeholder = 'Share what God has done â€” we celebrate with you!';
         btn2.textContent = 'Share Thanksgiving';
       } else {
         label.textContent = 'Your prayer request *';
@@ -631,7 +644,7 @@
     try {
       var r = await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
       var res = await r.json();
-      if (res.ok||res.status==='ok') { showSuccess(kind==='prayer'?'🙏':'🎉', kind==='prayer'?'Prayer Request Sent':'Thanksgiving Shared', kind==='prayer'?'Our team will be praying for you.':'Thank you for sharing! We celebrate with you.'); form.reset(); }
+      if (res.ok||res.status==='ok') { showSuccess(kind==='prayer'?'ðŸ™':'ðŸŽ‰', kind==='prayer'?'Prayer Request Sent':'Thanksgiving Shared', kind==='prayer'?'Our team will be praying for you.':'Thank you for sharing! We celebrate with you.'); form.reset(); }
       else { st.textContent=res.error||'Something went wrong.'; st.className='form-status form-status--error'; }
     } catch(e) { st.textContent='Could not connect. Try again.'; st.className='form-status form-status--error'; }
     btn.disabled=false; btn.textContent=kind==='prayer'?'Submit Prayer Request':'Share Thanksgiving';
@@ -639,7 +652,7 @@
 
   // Soft one-per-person guard: after a successful request we set this key so a
   // returning visitor on the same device sees a gentle notice. This is a
-  // convenience nudge only — the real 1-per-person gate is server-side
+  // convenience nudge only â€” the real 1-per-person gate is server-side
   // (email/phone). Show the notice on load if the key is present.
   var BIBLE_TOKEN_KEY = 'stwm-bible-requested';
   (function checkBibleToken(){
@@ -695,13 +708,13 @@
     document.querySelectorAll('.connect-form').forEach(function(f){f.classList.remove('active');});
     var tabs=document.getElementById('connect-tabs'); if(tabs) tabs.style.display='none';
     var el = document.getElementById('connect-success');
-    document.getElementById('success-icon').textContent='📖';
+    document.getElementById('success-icon').textContent='ðŸ“–';
     document.getElementById('success-title').textContent='Bible Request Sent';
     var links = [];
-    if (chose && chose.prayer) links.push('<a href="community.html#signup" style="color:var(--c-green,#2C5F2E);font-weight:600;">Create a free account to get prayer-community notifications →</a>');
-    if (chose && chose.study) links.push('<a href="https://t.me/seedtheword" target="_blank" rel="noopener" style="color:var(--c-green,#2C5F2E);font-weight:600;">Join our Bible study on Telegram →</a>');
-    if (chose && chose.volunteer) links.push('<a href="about.html#careers" style="color:var(--c-green,#2C5F2E);font-weight:600;">See how to volunteer for outreach →</a>');
-    if (chose && chose.support) links.push('<a href="donate.html#give" style="color:var(--c-gold,#D97736);font-weight:600;">Ways to support the ministry →</a>');
+    if (chose && chose.prayer) links.push('<a href="community.html#signup" style="color:var(--c-green,#2C5F2E);font-weight:600;">Create a free account to get prayer-community notifications â†’</a>');
+    if (chose && chose.study) links.push('<a href="https://t.me/seedtheword" target="_blank" rel="noopener" style="color:var(--c-green,#2C5F2E);font-weight:600;">Join our Bible study on Telegram â†’</a>');
+    if (chose && chose.volunteer) links.push('<a href="about.html#careers" style="color:var(--c-green,#2C5F2E);font-weight:600;">See how to volunteer for outreach â†’</a>');
+    if (chose && chose.support) links.push('<a href="donate.html#give" style="color:var(--c-gold,#D97736);font-weight:600;">Ways to support the ministry â†’</a>');
     var extra = links.length
       ? '<div style="margin-top:1rem;text-align:left;font-size:0.9rem;line-height:1.9;">' + links.join('<br>') + '</div>'
       : '';

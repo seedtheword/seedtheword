@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Keep private / functional areas out of search results
+Disallow: /admin/
+Disallow: /team.html
+Disallow: /admin-help.html
+Disallow: /orders.html
+Disallow: /checkout.html
+Disallow: /cart.html
+Disallow: /community.html.backup
+
+Sitemap: https://seedtheword.org/sitemap.xml

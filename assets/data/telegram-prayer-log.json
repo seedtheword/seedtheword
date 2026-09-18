@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617058,
-  "lastModified": "2026-09-18T21:10:48Z",
+  "lastUpdateId": 669617060,
+  "lastModified": "2026-09-18T21:40:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1879,6 +1879,16 @@
       "kind": "telegram",
       "text": "I got stress hives last night, I never have had them, and I couldn't force myself to sleep... I tried but my mind was filled with anxiety... I ultimately fell asleep after repeated prayers, praise God... being off my meds has been rough, I haven't given up yet... the devil shall not win, Job had everything stripped away, his body weakened, and his skin infested... he suffered, but didn't lose faith, so neither will I... still keep sending me prayers... it means alot",
       "ts": "2026-09-18T15:21:13Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6426,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request 9/18/2026:\n\nPraying for complete victory over anxiety, distress, evil.\n\nMy Spirit wants more freedom but the body is rejecting and pushing back really hard, feel locked in the middle, need a breakthrough.",
+      "ts": "2026-09-18T21:34:46Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669616909,
-  "lastModified": "2026-09-18T03:55:34Z",
+  "lastModified": "2026-09-18T04:10:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -300,26 +300,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5582,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Let's us know what to pray for Pavlo",
-      "ts": "2026-09-04T04:04:49Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5583,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "@Pavlo",
-      "ts": "2026-09-04T04:06:52Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5589,

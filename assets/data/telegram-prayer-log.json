@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669616909,
-  "lastModified": "2026-09-18T04:10:33Z",
+  "lastUpdateId": 669616910,
+  "lastModified": "2026-09-18T08:10:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1869,6 +1869,16 @@
       "kind": "telegram",
       "text": "Considering some of the recent ministry issues we have experienced, this memo is an address from 1 Corinthians Chapter 1\n\nHere our elders, leaders, and myself have agreed to express the principle understanding of how the church within our ministry is meant to function and what is allowed to happen and what should not be happening\n\nI also said a prayer at the end so I strongly encourage everyone to listen to learn more on how we view from a Biblical perspective on things as it pertains to our 4 S.E.E.D. principles so we can all do better",
       "ts": "2026-09-17T08:19:53Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6304,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "A ministry sent us this as a prayer request:\n\nThank you! we ask that you pray for our children and share our link to help them https://nobabyblisters.org/donate/🙏🏻\n\nGod Bless You,\nMolly,\nDonor Care",
+      "ts": "2026-09-18T08:00:44Z"
     }
   ]
 }

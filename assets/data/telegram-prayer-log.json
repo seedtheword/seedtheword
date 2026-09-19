@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617081,
-  "lastModified": "2026-09-19T21:10:31Z",
+  "lastUpdateId": 669617083,
+  "lastModified": "2026-09-19T21:25:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1935,6 +1935,26 @@
       "kind": "telegram",
       "text": "I love Seed The Word family!",
       "ts": "2026-09-19T20:59:50Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6449,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for Patrick, 50 yo man who works at Dennys hes a fellow believer however is struggling with Marijuana, additionally he asked for prayers for his friend Hidi, she is a drug addict, and her family is too, so prayer requests for her",
+      "ts": "2026-09-19T21:18:31Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6450,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for Levon for his safety and so his faith may grow.",
+      "ts": "2026-09-19T21:25:35Z"
     }
   ]
 }

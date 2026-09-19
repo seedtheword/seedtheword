@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-09-19T15:26:04+00:00",
+  "updated": "2026-09-19T19:26:03+00:00",
   "events": {
     "qmeg53h5vijbip6e9o0r5in030@google.com": {
       "title": "SEED THE WORD YOUNG ADULTS/BIBLE STUDY",
@@ -28,9 +28,10 @@
     "8sd6b8gilsj08cae4a04mtfkag@google.com": {
       "title": "BELLEVUE PARK CUTY HILL EVANGELISM",
       "start": "2026-09-19T22:00:00+00:00",
-      "lastPosted": "2026-09-19T15:26:04+00:00",
+      "lastPosted": "2026-09-19T19:26:03+00:00",
       "overviewPosted": true,
-      "recapPosted": true
+      "recapPosted": true,
+      "reminderPosted": true
     },
     "jrtoc3uj0msq5t6j60ca25b9hs@google.com": {
       "title": "SEED THE WORD PRAYER NIGHT",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617078,
-  "lastModified": "2026-09-19T19:55:35Z",
+  "lastUpdateId": 669617079,
+  "lastModified": "2026-09-19T20:25:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1915,6 +1915,16 @@
       "kind": "telegram",
       "text": "https://bible.com/videos/54896?utm=video&language_tag=en\n\nWho are you thankful for today?",
       "ts": "2026-09-19T19:43:47Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6447,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "(I say all of you guys, greatful for each one of you ❤️)",
+      "ts": "2026-09-19T20:15:14Z"
     }
   ]
 }

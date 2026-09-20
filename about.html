@@ -650,7 +650,7 @@
           <article class="team-panel" data-name="Vanessa">
             <div class="team-panel__inner">
               <div class="team-panel__face team-panel__front">
-                <img src="assets/images/team/Vanessa.jpg" alt="Vanessa" loading="lazy">
+                <img src="assets/images/team/Vanessa.jpg" alt="Vanessa" loading="lazy" style="--pos:65% 30%">
               </div>
               <div class="team-panel__face team-panel__back">
                 <h3 class="team-panel__name">Vanessa</h3>
@@ -674,7 +674,7 @@
           <article class="team-panel" data-name="Liam">
             <div class="team-panel__inner">
               <div class="team-panel__face team-panel__front">
-                <img src="assets/images/team/Liam.jpg" alt="Liam" loading="lazy">
+                <img src="assets/images/team/Liam.jpg" alt="Liam" loading="lazy" style="--pos:15% 35%">
               </div>
               <div class="team-panel__face team-panel__back">
                 <h3 class="team-panel__name">Liam</h3>
@@ -799,7 +799,9 @@
   .team-scene.is-armed .team-panels {
     display: flex; gap: 0; flex-wrap: nowrap;
     perspective: 1600px;
-    width: min(1100px, 92vw); height: min(70vh, 560px);
+    /* Wider + shorter than before so each 1/5 panel is a gentler portrait crop
+       (was ~220x560, too tall/narrow and cropped faces off). */
+    width: min(1180px, 94vw); height: min(56vh, 460px);
   }
   .team-scene.is-armed .team-panel {
     flex: 0 0 20%; max-width: none; height: 100%;
@@ -819,6 +821,8 @@
   }
   .team-scene.is-armed .team-panel__front img {
     width: 100%; height: 100%; object-fit: cover; border-radius: 10px;
+    /* Per-panel crop focus (set inline via --pos); defaults to upper-center */
+    object-position: var(--pos, center 25%);
   }
   .team-scene.is-armed .team-panel__back {
     transform: rotateY(180deg);

@@ -827,11 +827,33 @@
   .team-scene.is-armed .team-panel__back {
     transform: rotateY(180deg);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background: var(--green, #2C5F2E); color: #fff; padding: 1.25rem;
+    gap: 0.4rem;
+    background: var(--green, #2C5F2E); color: #fff;
+    padding: 1rem 0.75rem; text-align: center;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
   }
-  .team-scene.is-armed .team-panel__name { color: #fff; }
-  .team-scene.is-armed .team-panel__role { color: rgba(255,255,255,0.85); }
+  .team-scene.is-armed .team-panel__name {
+    color: #fff; margin: 0; font-size: 1.05rem; line-height: 1.2;
+  }
+  .team-scene.is-armed .team-panel__role {
+    color: rgba(255,255,255,0.85); margin: 0;
+    font-size: 0.78rem; line-height: 1.35;
+    /* keep long roles inside the narrow panel */
+    max-width: 100%; overflow-wrap: anywhere; hyphens: auto;
+  }
+  /* Visible pill button on the green back (the site .btn styles can wash out) */
+  .team-scene.is-armed .team-panel__back .btn-testimony {
+    margin-top: 0.5rem; display: inline-block;
+    padding: 0.5rem 1rem; border-radius: 999px;
+    background: #fff; color: var(--green, #2C5F2E);
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em;
+    text-decoration: none; white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+  .team-scene.is-armed .team-panel__back .btn-testimony:hover {
+    background: var(--gold, #C9A54D); color: #fff; transform: translateY(-1px);
+  }
 
   @media (max-width: 780px) {
     /* Never use the sticky scene on small screens — plain stacked grid */

@@ -616,75 +616,76 @@
   <div class="container">
     <h2 class="section-title">Meet our team</h2>
     <p style="text-align:center;color:var(--muted);max-width:700px;margin:0 auto 3rem;font-size:1rem;line-height:1.7">The dedicated servants behind Seed the Word Ministry.</p>
-    <!-- Scroll-split team panels: 5 flush portraits read as one strip (Phase 1),
-         split apart as you scroll (Phase 2), then flip to reveal each bio
-         (Phase 3). Falls back to a plain responsive grid without JS / on mobile
-         / with reduced motion. -->
-    <div class="team-scene" id="team-scene">
-      <div class="team-stage">
-        <div class="team-panels" id="team-panels">
-          <article class="team-panel" data-name="David L.">
-            <div class="team-panel__inner">
-              <div class="team-panel__face team-panel__front">
-                <img src="assets/images/team/David L..jpg" alt="David L." loading="lazy">
-              </div>
-              <div class="team-panel__face team-panel__back">
-                <h3 class="team-panel__name">David L.</h3>
-                <p class="team-panel__role">Elder</p>
-                <a href="news.html?author=David%20L.#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
-              </div>
-            </div>
-          </article>
-          <article class="team-panel" data-name="David A.">
-            <div class="team-panel__inner">
-              <div class="team-panel__face team-panel__front">
-                <img src="assets/images/team/David A..jpg" alt="David A." loading="lazy">
-              </div>
-              <div class="team-panel__face team-panel__back">
-                <h3 class="team-panel__name">David A.</h3>
-                <p class="team-panel__role">Ministry Leader</p>
-                <a href="news.html?author=David%20A.#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
-              </div>
-            </div>
-          </article>
-          <article class="team-panel" data-name="Vanessa">
-            <div class="team-panel__inner">
-              <div class="team-panel__face team-panel__front">
-                <img src="assets/images/team/Vanessa.jpg" alt="Vanessa" loading="lazy" style="--pos:65% 30%">
-              </div>
-              <div class="team-panel__face team-panel__back">
-                <h3 class="team-panel__name">Vanessa</h3>
-                <p class="team-panel__role">Administrator (Social Media)</p>
-                <a href="news.html?author=Vanessa#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
-              </div>
-            </div>
-          </article>
-          <article class="team-panel" data-name="Edward">
-            <div class="team-panel__inner">
-              <div class="team-panel__face team-panel__front">
-                <img src="assets/images/team/Edward.jpg" alt="Edward" loading="lazy">
-              </div>
-              <div class="team-panel__face team-panel__back">
-                <h3 class="team-panel__name">Edward</h3>
-                <p class="team-panel__role">Worship Leader</p>
-                <a href="news.html?author=Edward#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
-              </div>
-            </div>
-          </article>
-          <article class="team-panel" data-name="Liam">
-            <div class="team-panel__inner">
-              <div class="team-panel__face team-panel__front">
-                <img src="assets/images/team/Liam.jpg" alt="Liam" loading="lazy" style="--pos:15% 35%">
-              </div>
-              <div class="team-panel__face team-panel__back">
-                <h3 class="team-panel__name">Liam</h3>
-                <p class="team-panel__role">Prayer Warrior (aka Prayer Dog) 🐕</p>
-                <a href="news.html?author=Liam#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
-              </div>
-            </div>
-          </article>
+    <!-- Team flip-card grid: each card shows a portrait; hover (desktop) or
+         tap (mobile) flips it to reveal name, role, and testimony link. Cards
+         fade+rise in as the section scrolls into view. Robust to differently
+         framed photos; degrades to plain visible cards without JS. -->
+    <div class="team-flip-grid" id="team-flip">
+      <article class="flip-card" tabindex="0" aria-label="David L., Elder">
+        <div class="flip-card__inner">
+          <div class="flip-card__face flip-card__front">
+            <img src="assets/images/team/David L..jpg" alt="David L." loading="lazy">
+            <span class="flip-card__hint">David L.</span>
+          </div>
+          <div class="flip-card__face flip-card__back">
+            <h3 class="flip-card__name">David L.</h3>
+            <p class="flip-card__role">Elder</p>
+            <a href="news.html?author=David%20L.#share-your-story" class="flip-card__btn">Hear My Testimony</a>
+          </div>
         </div>
-      </div>
+      </article>
+      <article class="flip-card" tabindex="0" aria-label="David A., Ministry Leader">
+        <div class="flip-card__inner">
+          <div class="flip-card__face flip-card__front">
+            <img src="assets/images/team/David A..jpg" alt="David A." loading="lazy">
+            <span class="flip-card__hint">David A.</span>
+          </div>
+          <div class="flip-card__face flip-card__back">
+            <h3 class="flip-card__name">David A.</h3>
+            <p class="flip-card__role">Ministry Leader</p>
+            <a href="news.html?author=David%20A.#share-your-story" class="flip-card__btn">Hear My Testimony</a>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0" aria-label="Vanessa, Administrator">
+        <div class="flip-card__inner">
+          <div class="flip-card__face flip-card__front">
+            <img src="assets/images/team/Vanessa.jpg" alt="Vanessa" loading="lazy">
+            <span class="flip-card__hint">Vanessa</span>
+          </div>
+          <div class="flip-card__face flip-card__back">
+            <h3 class="flip-card__name">Vanessa</h3>
+            <p class="flip-card__role">Administrator (Social Media)</p>
+            <a href="news.html?author=Vanessa#share-your-story" class="flip-card__btn">Hear My Testimony</a>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0" aria-label="Edward, Worship Leader">
+        <div class="flip-card__inner">
+          <div class="flip-card__face flip-card__front">
+            <img src="assets/images/team/Edward.jpg" alt="Edward" loading="lazy">
+            <span class="flip-card__hint">Edward</span>
+          </div>
+          <div class="flip-card__face flip-card__back">
+            <h3 class="flip-card__name">Edward</h3>
+            <p class="flip-card__role">Worship Leader</p>
+            <a href="news.html?author=Edward#share-your-story" class="flip-card__btn">Hear My Testimony</a>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0" aria-label="Liam, Prayer Warrior">
+        <div class="flip-card__inner">
+          <div class="flip-card__face flip-card__front">
+            <img src="assets/images/team/Liam.jpg" alt="Liam" loading="lazy">
+            <span class="flip-card__hint">Liam</span>
+          </div>
+          <div class="flip-card__face flip-card__back">
+            <h3 class="flip-card__name">Liam</h3>
+            <p class="flip-card__role">Prayer Warrior (aka Prayer Dog) 🐕</p>
+            <a href="news.html?author=Liam#share-your-story" class="flip-card__btn">Hear My Testimony</a>
+          </div>
+        </div>
+      </article>
     </div>
 
     <!-- Open Positions Carousel (integrated into Meet Our Team) -->
@@ -760,195 +761,125 @@
   </div>
 </section>
 
-<!-- ── "Meet our team" scroll-split-card animation ───────────────────────
-     Three phases driven by scroll progress through a tall sticky section:
-       Phase 1 (0.0–0.15): 5 portraits sit flush, reading as one strip.
-       Phase 2 (0.15–0.55): panels split apart (gaps open, drift outward).
-       Phase 3 (0.55–1.0): each panel flips on the Y-axis to reveal its bio.
-     Vanilla JS/CSS, GPU transforms. Falls back to a plain responsive grid on
-     mobile, with reduced motion, or without JS. Scoped to #team-scene only. -->
+<!-- ── "Meet our team" flip-card grid ────────────────────────────────────
+     Each card shows a portrait; hover (desktop) or tap/focus (mobile/keyboard)
+     flips it to reveal name, role, and testimony link. Cards fade + rise in as
+     the section scrolls into view. Robust to differently framed photos; without
+     JS the cards simply stay visible (front face). Scoped to #team-flip. -->
 <style>
-  /* Fallback (no JS / not armed): simple responsive row of cards */
-  .team-scene { }
-  .team-panels {
-    display: flex; justify-content: center; gap: 1.25rem; flex-wrap: wrap;
+  .team-flip-grid {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem;
   }
-  .team-panel {
-    flex: 1 1 160px; max-width: 220px; list-style: none;
+  .flip-card {
+    flex: 0 1 190px; height: 260px; perspective: 1000px;
+    background: none; border: 0; cursor: pointer; outline: none;
+    /* reveal-on-scroll start state (JS toggles .is-in) */
+    opacity: 0; transform: translateY(22px);
+    transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1),
+                transform 0.6s cubic-bezier(0.22,1,0.36,1);
+    transition-delay: var(--reveal-delay, 0s);
   }
-  .team-panel__inner { position: relative; }
-  .team-panel__face { border-radius: 12px; overflow: hidden; }
-  .team-panel__front img {
-    width: 100%; height: 260px; object-fit: cover; display: block; border-radius: 12px;
-  }
-  .team-panel__back { text-align: center; padding: 1rem 0.5rem; }
-  .team-panel__name { margin: 0.75rem 0 0.25rem; font-family: var(--serif, Georgia, serif); }
-  .team-panel__role { margin: 0 0 1rem; color: var(--muted, #666); font-size: 0.95rem; }
+  .team-flip-grid.is-in .flip-card { opacity: 1; transform: translateY(0); }
 
-  /* Armed (JS + desktop + motion OK): sticky scroll-driven 3D scene */
-  .team-scene.is-armed {
-    position: relative;
-    /* Tall track gives us scroll room for the 3 phases */
-    height: 320vh;
-  }
-  .team-scene.is-armed .team-stage {
-    position: sticky; top: 0; height: 100vh;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
-  }
-  .team-scene.is-armed .team-panels {
-    display: flex; gap: 0; flex-wrap: nowrap; justify-content: center;
-    perspective: 1600px;
-    /* Leave side room so the outer panels can drift apart without spilling
-       past the stage (which clips with overflow:hidden). */
-    width: min(1040px, 86vw); height: min(52vh, 430px);
-  }
-  .team-scene.is-armed .team-panel {
-    flex: 0 0 20%; max-width: none; height: 100%;
-    padding: 0 4px;            /* tiny seam so panels read as separate cards */
-    box-sizing: border-box;
-    /* JS sets --gap (px) and --flip (deg) per panel */
-    transform: translateX(var(--gap, 0px));
-    will-change: transform;
-  }
-  .team-scene.is-armed .team-panel__inner {
+  .flip-card__inner {
     position: relative; width: 100%; height: 100%;
     transform-style: preserve-3d;
-    transform: rotateY(var(--flip, 0deg));
-    transition: none;
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
   }
-  .team-scene.is-armed .team-panel__face {
+  /* Flip on hover, keyboard focus, or a JS-toggled tap class */
+  .flip-card:hover .flip-card__inner,
+  .flip-card:focus-visible .flip-card__inner,
+  .flip-card.is-flipped .flip-card__inner { transform: rotateY(180deg); }
+
+  .flip-card__face {
     position: absolute; inset: 0; backface-visibility: hidden;
-    border-radius: 10px; overflow: hidden;
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 10px 30px -12px rgba(0,0,0,0.35);
   }
-  .team-scene.is-armed .team-panel__front img {
-    width: 100%; height: 100%; object-fit: cover; border-radius: 10px;
-    /* Per-panel crop focus (set inline via --pos); defaults to upper-center */
-    object-position: var(--pos, center 25%);
+  .flip-card__front { background: #eceae5; }
+  .flip-card__front img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center 22%;
+    display: block;
   }
-  .team-scene.is-armed .team-panel__back {
+  /* Name label on the front, so faces are identifiable before flipping */
+  .flip-card__hint {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 1.5rem 0.75rem 0.7rem;
+    font-family: var(--serif, Georgia, serif); font-size: 1rem; color: #fff;
+    text-align: center;
+    background: linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0));
+  }
+  .flip-card__back {
     transform: rotateY(180deg);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 0.5rem;
+    gap: 0.35rem; padding: 1.1rem 0.9rem; text-align: center;
     background:
       radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.08), rgba(255,255,255,0) 60%),
       var(--green, #2C5F2E);
     color: #fff;
-    padding: 1.25rem 0.9rem; text-align: center;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14);
   }
-  .team-scene.is-armed .team-panel__name {
-    color: #fff; margin: 0; font-size: 1.1rem; line-height: 1.2;
-  }
-  /* Gold divider under each name */
-  .team-scene.is-armed .team-panel__name::after {
+  .flip-card__name { margin: 0; font-size: 1.1rem; line-height: 1.2; color: #fff; }
+  .flip-card__name::after {
     content: ""; display: block; width: 30px; height: 2px; border-radius: 2px;
-    background: var(--gold, #C9A54D); margin: 0.55rem auto 0.1rem;
+    background: var(--gold, #C9A54D); margin: 0.5rem auto 0.15rem;
   }
-  .team-scene.is-armed .team-panel__role {
-    color: rgba(255,255,255,0.88); margin: 0;
-    font-size: 0.8rem; line-height: 1.4;
-    /* keep long roles inside the narrow panel */
-    max-width: 100%; overflow-wrap: anywhere; hyphens: auto;
+  .flip-card__role {
+    margin: 0 0 0.35rem; font-size: 0.82rem; line-height: 1.4;
+    color: rgba(255,255,255,0.88); overflow-wrap: anywhere;
   }
-  /* Visible pill button on the green back (the site .btn styles can wash out) */
-  .team-scene.is-armed .team-panel__back .btn-testimony {
-    margin-top: 0.5rem; display: inline-block;
+  .flip-card__btn {
+    display: inline-block; margin-top: 0.35rem;
     padding: 0.5rem 1rem; border-radius: 999px;
     background: #fff; color: var(--green, #2C5F2E);
-    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em;
-    text-decoration: none; white-space: nowrap;
+    font-size: 0.72rem; font-weight: 700; text-decoration: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.18);
     transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
   }
-  .team-scene.is-armed .team-panel__back .btn-testimony:hover {
-    background: var(--gold, #C9A54D); color: #fff; transform: translateY(-1px);
-  }
+  .flip-card__btn:hover { background: var(--gold, #C9A54D); color: #fff; transform: translateY(-1px); }
 
-  @media (max-width: 780px) {
-    /* Never use the sticky scene on small screens — plain stacked grid.
-       Show the photo (front) with name/role/link beneath it, no 3D. */
-    .team-scene.is-armed { height: auto !important; }
-    .team-scene.is-armed .team-stage { position: static; height: auto; overflow: visible; }
-    .team-scene.is-armed .team-panels {
-      flex-wrap: wrap; justify-content: center; gap: 1.25rem;
-      width: auto; height: auto; perspective: none;
-    }
-    .team-scene.is-armed .team-panel {
-      flex: 1 1 150px; max-width: 220px; height: auto; padding: 0; transform: none;
-    }
-    .team-scene.is-armed .team-panel__inner { transform: none; transform-style: flat; }
-    .team-scene.is-armed .team-panel__face {
-      position: static; inset: auto; transform: none; backface-visibility: visible;
-    }
-    .team-scene.is-armed .team-panel__front img { height: 240px; }
-    .team-scene.is-armed .team-panel__back {
-      background: none; box-shadow: none; color: inherit; padding: 0.75rem 0.25rem 0;
-    }
-    .team-scene.is-armed .team-panel__name { color: var(--ink, #1f1f1f); }
-    .team-scene.is-armed .team-panel__name::after { background: var(--green, #2C5F2E); }
-    .team-scene.is-armed .team-panel__role { color: var(--muted, #666); }
-    .team-scene.is-armed .team-panel__back .btn-testimony {
-      background: var(--green, #2C5F2E); color: #fff;
-    }
+  @media (prefers-reduced-motion: reduce) {
+    .flip-card { opacity: 1; transform: none; transition: none; }
+    .flip-card__inner { transition: none; }
   }
 </style>
 <script>
   (function () {
-    var scene = document.getElementById('team-scene');
-    var panels = scene && document.getElementById('team-panels');
-    if (!scene || !panels) return;
-
-    var cards = Array.prototype.slice.call(panels.querySelectorAll('.team-panel'));
+    var grid = document.getElementById('team-flip');
+    if (!grid) return;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.flip-card'));
     if (!cards.length) return;
+
+    // Stagger the reveal so cards rise in one after another
+    cards.forEach(function (card, i) {
+      card.style.setProperty('--reveal-delay', (i * 0.08) + 's');
+    });
 
     var reduce = window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var smallScreen = window.matchMedia &&
-      window.matchMedia('(max-width: 780px)').matches;
 
-    // Only arm the cinematic scene on capable, motion-OK, larger screens.
-    if (reduce || smallScreen) return; // leaves the plain fallback grid
-    scene.classList.add('is-armed');
-
-    var mid = (cards.length - 1) / 2; // center index (2 for 5 cards)
-    var MAX_GAP = 26;                 // px of drift per step at full split
-    var ticking = false;
-
-    // Small helper: clamp + normalize a value into 0..1 across [a, b]
-    function phase(p, a, b) {
-      if (p <= a) return 0;
-      if (p >= b) return 1;
-      return (p - a) / (b - a);
+    // Reveal on scroll into view (once)
+    if (reduce || !('IntersectionObserver' in window)) {
+      grid.classList.add('is-in');
+    } else {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { grid.classList.add('is-in'); io.disconnect(); }
+        });
+      }, { threshold: 0.2 });
+      io.observe(grid);
     }
 
-    function update() {
-      ticking = false;
-      var rect = scene.getBoundingClientRect();
-      var total = rect.height - window.innerHeight; // scrollable distance
-      if (total <= 0) return;
-      // progress 0 (scene top hits viewport top) .. 1 (scene bottom hits it)
-      var p = Math.min(1, Math.max(0, -rect.top / total));
-
-      var splitP = phase(p, 0.15, 0.55); // 0..1 how far apart
-      var flipP = phase(p, 0.55, 1.0);   // 0..1 how flipped
-
-      for (var i = 0; i < cards.length; i++) {
-        var offset = i - mid;                       // -2..+2 for 5 cards
-        var gap = offset * MAX_GAP * splitP;        // outer panels drift more
-        var flip = 180 * flipP;                     // all flip together
-        cards[i].style.setProperty('--gap', gap.toFixed(2) + 'px');
-        cards[i].style.setProperty('--flip', flip.toFixed(2) + 'deg');
-      }
+    // Touch devices have no hover: tap to flip. Keep hover/focus for others.
+    var canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+    if (!canHover) {
+      cards.forEach(function (card) {
+        card.addEventListener('click', function (e) {
+          // Let the testimony link work normally when the card is flipped
+          if (e.target.closest('.flip-card__btn')) return;
+          card.classList.toggle('is-flipped');
+        });
+      });
     }
-
-    function onScroll() {
-      if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-    update(); // set initial state
   })();
 </script>
 

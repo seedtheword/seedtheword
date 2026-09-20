@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
@@ -616,7 +616,7 @@
   <div class="container">
     <h2 class="section-title">Meet our team</h2>
     <p style="text-align:center;color:var(--muted);max-width:700px;margin:0 auto 3rem;font-size:1rem;line-height:1.7">The dedicated servants behind Seed the Word Ministry.</p>
-    <div class="cards-grid">
+    <div class="cards-grid team-split" id="team-split">
       <article class="testimony-card">
         <div class="testimony-card__avatar">
           <img src="assets/images/team/David L..jpg" alt="David L.">
@@ -731,6 +731,73 @@
     </div>
   </div>
 </section>
+
+<!-- ── "Meet our team" split-on-view animation (scroll-split-card style) ──
+     Self-contained: styles + IntersectionObserver scoped to #team-split only.
+     Cards start clustered toward the center (scaled + faded), then split apart
+     into their grid positions with a stagger when the section scrolls into
+     view. Plays once. Respects prefers-reduced-motion. -->
+<style>
+  /* Only apply the effect when JS has armed it (avoids hiding cards if JS/off) */
+  .team-split.split-armed .testimony-card {
+    opacity: 0;
+    transform: translateX(var(--split-x, 0)) translateY(18px) scale(0.9);
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--split-delay, 0s);
+    will-change: transform, opacity;
+  }
+  .team-split.split-armed.is-split .testimony-card {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .team-split.split-armed .testimony-card {
+      opacity: 1; transform: none; transition: none;
+    }
+  }
+</style>
+<script>
+  (function () {
+    var grid = document.getElementById('team-split');
+    if (!grid) return;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.testimony-card'));
+    if (!cards.length) return;
+
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Arm the effect: cards start clustered toward the horizontal center, then
+    // fan out to their real positions. The middle card barely moves; outer
+    // cards start further in, so they "split apart" outward.
+    var mid = (cards.length - 1) / 2;
+    cards.forEach(function (card, i) {
+      var offsetFromCenter = i - mid;           // negative = left, positive = right
+      var startShift = -offsetFromCenter * 60;  // start pulled toward center (px)
+      card.style.setProperty('--split-x', startShift + 'px');
+      card.style.setProperty('--split-delay', (Math.abs(offsetFromCenter) * 0.08) + 's');
+    });
+    grid.classList.add('split-armed');
+
+    function play() { grid.classList.add('is-split'); }
+
+    if (reduce || !('IntersectionObserver' in window)) {
+      play();
+      return;
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          play();
+          io.disconnect(); // once only
+        }
+      });
+    }, { threshold: 0.25 });
+    io.observe(grid);
+  })();
+</script>
 
 <!-- How We S.E.E.D. — restructured May 2026 around the "How We Meet" five-movement rhythm.
      The five movements map onto the four S.E.E.D. values (one value per movement, with

@@ -797,14 +797,16 @@
     overflow: hidden;
   }
   .team-scene.is-armed .team-panels {
-    display: flex; gap: 0; flex-wrap: nowrap;
+    display: flex; gap: 0; flex-wrap: nowrap; justify-content: center;
     perspective: 1600px;
-    /* Wider + shorter than before so each 1/5 panel is a gentler portrait crop
-       (was ~220x560, too tall/narrow and cropped faces off). */
-    width: min(1180px, 94vw); height: min(56vh, 460px);
+    /* Leave side room so the outer panels can drift apart without spilling
+       past the stage (which clips with overflow:hidden). */
+    width: min(1040px, 86vw); height: min(52vh, 430px);
   }
   .team-scene.is-armed .team-panel {
     flex: 0 0 20%; max-width: none; height: 100%;
+    padding: 0 4px;            /* tiny seam so panels read as separate cards */
+    box-sizing: border-box;
     /* JS sets --gap (px) and --flip (deg) per panel */
     transform: translateX(var(--gap, 0px));
     will-change: transform;
@@ -827,17 +829,25 @@
   .team-scene.is-armed .team-panel__back {
     transform: rotateY(180deg);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 0.4rem;
-    background: var(--green, #2C5F2E); color: #fff;
-    padding: 1rem 0.75rem; text-align: center;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+    gap: 0.5rem;
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.08), rgba(255,255,255,0) 60%),
+      var(--green, #2C5F2E);
+    color: #fff;
+    padding: 1.25rem 0.9rem; text-align: center;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14);
   }
   .team-scene.is-armed .team-panel__name {
-    color: #fff; margin: 0; font-size: 1.05rem; line-height: 1.2;
+    color: #fff; margin: 0; font-size: 1.1rem; line-height: 1.2;
+  }
+  /* Gold divider under each name */
+  .team-scene.is-armed .team-panel__name::after {
+    content: ""; display: block; width: 30px; height: 2px; border-radius: 2px;
+    background: var(--gold, #C9A54D); margin: 0.55rem auto 0.1rem;
   }
   .team-scene.is-armed .team-panel__role {
-    color: rgba(255,255,255,0.85); margin: 0;
-    font-size: 0.78rem; line-height: 1.35;
+    color: rgba(255,255,255,0.88); margin: 0;
+    font-size: 0.8rem; line-height: 1.4;
     /* keep long roles inside the narrow panel */
     max-width: 100%; overflow-wrap: anywhere; hyphens: auto;
   }
@@ -856,15 +866,31 @@
   }
 
   @media (max-width: 780px) {
-    /* Never use the sticky scene on small screens — plain stacked grid */
+    /* Never use the sticky scene on small screens — plain stacked grid.
+       Show the photo (front) with name/role/link beneath it, no 3D. */
     .team-scene.is-armed { height: auto !important; }
-    .team-scene.is-armed .team-stage { position: static; height: auto; }
+    .team-scene.is-armed .team-stage { position: static; height: auto; overflow: visible; }
     .team-scene.is-armed .team-panels {
-      flex-wrap: wrap; gap: 1.25rem; width: auto; height: auto; perspective: none;
+      flex-wrap: wrap; justify-content: center; gap: 1.25rem;
+      width: auto; height: auto; perspective: none;
     }
-    .team-scene.is-armed .team-panel { flex: 1 1 140px; transform: none; }
-    .team-scene.is-armed .team-panel__inner { transform: none; }
-    .team-scene.is-armed .team-panel__back { position: static; transform: none; }
+    .team-scene.is-armed .team-panel {
+      flex: 1 1 150px; max-width: 220px; height: auto; padding: 0; transform: none;
+    }
+    .team-scene.is-armed .team-panel__inner { transform: none; transform-style: flat; }
+    .team-scene.is-armed .team-panel__face {
+      position: static; inset: auto; transform: none; backface-visibility: visible;
+    }
+    .team-scene.is-armed .team-panel__front img { height: 240px; }
+    .team-scene.is-armed .team-panel__back {
+      background: none; box-shadow: none; color: inherit; padding: 0.75rem 0.25rem 0;
+    }
+    .team-scene.is-armed .team-panel__name { color: var(--ink, #1f1f1f); }
+    .team-scene.is-armed .team-panel__name::after { background: var(--green, #2C5F2E); }
+    .team-scene.is-armed .team-panel__role { color: var(--muted, #666); }
+    .team-scene.is-armed .team-panel__back .btn-testimony {
+      background: var(--green, #2C5F2E); color: #fff;
+    }
   }
 </style>
 <script>

@@ -616,47 +616,75 @@
   <div class="container">
     <h2 class="section-title">Meet our team</h2>
     <p style="text-align:center;color:var(--muted);max-width:700px;margin:0 auto 3rem;font-size:1rem;line-height:1.7">The dedicated servants behind Seed the Word Ministry.</p>
-    <div class="cards-grid team-split" id="team-split">
-      <article class="testimony-card">
-        <div class="testimony-card__avatar">
-          <img src="assets/images/team/David L..jpg" alt="David L.">
+    <!-- Scroll-split team panels: 5 flush portraits read as one strip (Phase 1),
+         split apart as you scroll (Phase 2), then flip to reveal each bio
+         (Phase 3). Falls back to a plain responsive grid without JS / on mobile
+         / with reduced motion. -->
+    <div class="team-scene" id="team-scene">
+      <div class="team-stage">
+        <div class="team-panels" id="team-panels">
+          <article class="team-panel" data-name="David L.">
+            <div class="team-panel__inner">
+              <div class="team-panel__face team-panel__front">
+                <img src="assets/images/team/David L..jpg" alt="David L." loading="lazy">
+              </div>
+              <div class="team-panel__face team-panel__back">
+                <h3 class="team-panel__name">David L.</h3>
+                <p class="team-panel__role">Elder</p>
+                <a href="news.html?author=David%20L.#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
+              </div>
+            </div>
+          </article>
+          <article class="team-panel" data-name="David A.">
+            <div class="team-panel__inner">
+              <div class="team-panel__face team-panel__front">
+                <img src="assets/images/team/David A..jpg" alt="David A." loading="lazy">
+              </div>
+              <div class="team-panel__face team-panel__back">
+                <h3 class="team-panel__name">David A.</h3>
+                <p class="team-panel__role">Ministry Leader</p>
+                <a href="news.html?author=David%20A.#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
+              </div>
+            </div>
+          </article>
+          <article class="team-panel" data-name="Vanessa">
+            <div class="team-panel__inner">
+              <div class="team-panel__face team-panel__front">
+                <img src="assets/images/team/Vanessa.jpg" alt="Vanessa" loading="lazy">
+              </div>
+              <div class="team-panel__face team-panel__back">
+                <h3 class="team-panel__name">Vanessa</h3>
+                <p class="team-panel__role">Administrator (Social Media)</p>
+                <a href="news.html?author=Vanessa#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
+              </div>
+            </div>
+          </article>
+          <article class="team-panel" data-name="Edward">
+            <div class="team-panel__inner">
+              <div class="team-panel__face team-panel__front">
+                <img src="assets/images/team/Edward.jpg" alt="Edward" loading="lazy">
+              </div>
+              <div class="team-panel__face team-panel__back">
+                <h3 class="team-panel__name">Edward</h3>
+                <p class="team-panel__role">Worship Leader</p>
+                <a href="news.html?author=Edward#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
+              </div>
+            </div>
+          </article>
+          <article class="team-panel" data-name="Liam">
+            <div class="team-panel__inner">
+              <div class="team-panel__face team-panel__front">
+                <img src="assets/images/team/Liam.jpg" alt="Liam" loading="lazy">
+              </div>
+              <div class="team-panel__face team-panel__back">
+                <h3 class="team-panel__name">Liam</h3>
+                <p class="team-panel__role">Prayer Warrior (aka Prayer Dog) 🐕</p>
+                <a href="news.html?author=Liam#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
+              </div>
+            </div>
+          </article>
         </div>
-        <h3 class="testimony-card__name">David L.</h3>
-        <p class="testimony-card__text">Elder</p>
-        <a href="news.html?author=David%20L.#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
-      </article>
-      <article class="testimony-card">
-        <div class="testimony-card__avatar">
-          <img src="assets/images/team/David A..jpg" alt="David A.">
-        </div>
-        <h3 class="testimony-card__name">David A.</h3>
-        <p class="testimony-card__text">Ministry Leader</p>
-        <a href="news.html?author=David%20A.#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
-      </article>
-      <article class="testimony-card">
-        <div class="testimony-card__avatar">
-          <img src="assets/images/team/Vanessa.jpg" alt="Vanessa">
-        </div>
-        <h3 class="testimony-card__name">Vanessa</h3>
-        <p class="testimony-card__text">Administrator (Social Media)</p>
-        <a href="news.html?author=Vanessa#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
-      </article>
-      <article class="testimony-card">
-        <div class="testimony-card__avatar">
-          <img src="assets/images/team/Edward.jpg" alt="Edward">
-        </div>
-        <h3 class="testimony-card__name">Edward</h3>
-        <p class="testimony-card__text">Worship Leader</p>
-        <a href="news.html?author=Edward#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
-      </article>
-      <article class="testimony-card">
-        <div class="testimony-card__avatar">
-          <img src="assets/images/team/Liam.jpg" alt="Liam">
-        </div>
-        <h3 class="testimony-card__name">Liam</h3>
-        <p class="testimony-card__text">Prayer Warrior (aka Prayer Dog) 🐕</p>
-        <a href="news.html?author=Liam#share-your-story" class="btn btn-testimony">Hear My Testimony</a>
-      </article>
+      </div>
     </div>
 
     <!-- Open Positions Carousel (integrated into Meet Our Team) -->
@@ -732,70 +760,143 @@
   </div>
 </section>
 
-<!-- ── "Meet our team" split-on-view animation (scroll-split-card style) ──
-     Self-contained: styles + IntersectionObserver scoped to #team-split only.
-     Cards start clustered toward the center (scaled + faded), then split apart
-     into their grid positions with a stagger when the section scrolls into
-     view. Plays once. Respects prefers-reduced-motion. -->
+<!-- ── "Meet our team" scroll-split-card animation ───────────────────────
+     Three phases driven by scroll progress through a tall sticky section:
+       Phase 1 (0.0–0.15): 5 portraits sit flush, reading as one strip.
+       Phase 2 (0.15–0.55): panels split apart (gaps open, drift outward).
+       Phase 3 (0.55–1.0): each panel flips on the Y-axis to reveal its bio.
+     Vanilla JS/CSS, GPU transforms. Falls back to a plain responsive grid on
+     mobile, with reduced motion, or without JS. Scoped to #team-scene only. -->
 <style>
-  /* Only apply the effect when JS has armed it (avoids hiding cards if JS/off) */
-  .team-split.split-armed .testimony-card {
-    opacity: 0;
-    transform: translateX(var(--split-x, 0)) translateY(18px) scale(0.9);
-    transition:
-      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-    transition-delay: var(--split-delay, 0s);
-    will-change: transform, opacity;
+  /* Fallback (no JS / not armed): simple responsive row of cards */
+  .team-scene { }
+  .team-panels {
+    display: flex; justify-content: center; gap: 1.25rem; flex-wrap: wrap;
   }
-  .team-split.split-armed.is-split .testimony-card {
-    opacity: 1;
-    transform: translateX(0) translateY(0) scale(1);
+  .team-panel {
+    flex: 1 1 160px; max-width: 220px; list-style: none;
   }
-  @media (prefers-reduced-motion: reduce) {
-    .team-split.split-armed .testimony-card {
-      opacity: 1; transform: none; transition: none;
+  .team-panel__inner { position: relative; }
+  .team-panel__face { border-radius: 12px; overflow: hidden; }
+  .team-panel__front img {
+    width: 100%; height: 260px; object-fit: cover; display: block; border-radius: 12px;
+  }
+  .team-panel__back { text-align: center; padding: 1rem 0.5rem; }
+  .team-panel__name { margin: 0.75rem 0 0.25rem; font-family: var(--serif, Georgia, serif); }
+  .team-panel__role { margin: 0 0 1rem; color: var(--muted, #666); font-size: 0.95rem; }
+
+  /* Armed (JS + desktop + motion OK): sticky scroll-driven 3D scene */
+  .team-scene.is-armed {
+    position: relative;
+    /* Tall track gives us scroll room for the 3 phases */
+    height: 320vh;
+  }
+  .team-scene.is-armed .team-stage {
+    position: sticky; top: 0; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .team-scene.is-armed .team-panels {
+    display: flex; gap: 0; flex-wrap: nowrap;
+    perspective: 1600px;
+    width: min(1100px, 92vw); height: min(70vh, 560px);
+  }
+  .team-scene.is-armed .team-panel {
+    flex: 0 0 20%; max-width: none; height: 100%;
+    /* JS sets --gap (px) and --flip (deg) per panel */
+    transform: translateX(var(--gap, 0px));
+    will-change: transform;
+  }
+  .team-scene.is-armed .team-panel__inner {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transform: rotateY(var(--flip, 0deg));
+    transition: none;
+  }
+  .team-scene.is-armed .team-panel__face {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    border-radius: 10px; overflow: hidden;
+  }
+  .team-scene.is-armed .team-panel__front img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 10px;
+  }
+  .team-scene.is-armed .team-panel__back {
+    transform: rotateY(180deg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--green, #2C5F2E); color: #fff; padding: 1.25rem;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+  }
+  .team-scene.is-armed .team-panel__name { color: #fff; }
+  .team-scene.is-armed .team-panel__role { color: rgba(255,255,255,0.85); }
+
+  @media (max-width: 780px) {
+    /* Never use the sticky scene on small screens — plain stacked grid */
+    .team-scene.is-armed { height: auto !important; }
+    .team-scene.is-armed .team-stage { position: static; height: auto; }
+    .team-scene.is-armed .team-panels {
+      flex-wrap: wrap; gap: 1.25rem; width: auto; height: auto; perspective: none;
     }
+    .team-scene.is-armed .team-panel { flex: 1 1 140px; transform: none; }
+    .team-scene.is-armed .team-panel__inner { transform: none; }
+    .team-scene.is-armed .team-panel__back { position: static; transform: none; }
   }
 </style>
 <script>
   (function () {
-    var grid = document.getElementById('team-split');
-    if (!grid) return;
-    var cards = Array.prototype.slice.call(grid.querySelectorAll('.testimony-card'));
+    var scene = document.getElementById('team-scene');
+    var panels = scene && document.getElementById('team-panels');
+    if (!scene || !panels) return;
+
+    var cards = Array.prototype.slice.call(panels.querySelectorAll('.team-panel'));
     if (!cards.length) return;
 
     var reduce = window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var smallScreen = window.matchMedia &&
+      window.matchMedia('(max-width: 780px)').matches;
 
-    // Arm the effect: cards start clustered toward the horizontal center, then
-    // fan out to their real positions. The middle card barely moves; outer
-    // cards start further in, so they "split apart" outward.
-    var mid = (cards.length - 1) / 2;
-    cards.forEach(function (card, i) {
-      var offsetFromCenter = i - mid;           // negative = left, positive = right
-      var startShift = -offsetFromCenter * 60;  // start pulled toward center (px)
-      card.style.setProperty('--split-x', startShift + 'px');
-      card.style.setProperty('--split-delay', (Math.abs(offsetFromCenter) * 0.08) + 's');
-    });
-    grid.classList.add('split-armed');
+    // Only arm the cinematic scene on capable, motion-OK, larger screens.
+    if (reduce || smallScreen) return; // leaves the plain fallback grid
+    scene.classList.add('is-armed');
 
-    function play() { grid.classList.add('is-split'); }
+    var mid = (cards.length - 1) / 2; // center index (2 for 5 cards)
+    var MAX_GAP = 26;                 // px of drift per step at full split
+    var ticking = false;
 
-    if (reduce || !('IntersectionObserver' in window)) {
-      play();
-      return;
+    // Small helper: clamp + normalize a value into 0..1 across [a, b]
+    function phase(p, a, b) {
+      if (p <= a) return 0;
+      if (p >= b) return 1;
+      return (p - a) / (b - a);
     }
 
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          play();
-          io.disconnect(); // once only
-        }
-      });
-    }, { threshold: 0.25 });
-    io.observe(grid);
+    function update() {
+      ticking = false;
+      var rect = scene.getBoundingClientRect();
+      var total = rect.height - window.innerHeight; // scrollable distance
+      if (total <= 0) return;
+      // progress 0 (scene top hits viewport top) .. 1 (scene bottom hits it)
+      var p = Math.min(1, Math.max(0, -rect.top / total));
+
+      var splitP = phase(p, 0.15, 0.55); // 0..1 how far apart
+      var flipP = phase(p, 0.55, 1.0);   // 0..1 how flipped
+
+      for (var i = 0; i < cards.length; i++) {
+        var offset = i - mid;                       // -2..+2 for 5 cards
+        var gap = offset * MAX_GAP * splitP;        // outer panels drift more
+        var flip = 180 * flipP;                     // all flip together
+        cards[i].style.setProperty('--gap', gap.toFixed(2) + 'px');
+        cards[i].style.setProperty('--flip', flip.toFixed(2) + 'deg');
+      }
+    }
+
+    function onScroll() {
+      if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update(); // set initial state
   })();
 </script>
 

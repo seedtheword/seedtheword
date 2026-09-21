@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617088,
-  "lastModified": "2026-09-20T02:10:32Z",
+  "lastUpdateId": 669617089,
+  "lastModified": "2026-09-21T07:25:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1985,6 +1985,16 @@
       "kind": "telegram",
       "text": "Hey guys my Grandma Suzanne is in the hospital right now got rushed there by ambulance, please have her in your prayers",
       "ts": "2026-09-20T01:40:37Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6455,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hey guys I would like to ask a prayer for my Grandpa for a speedy recovery he’s currently in icu",
+      "ts": "2026-09-21T07:11:22Z"
     }
   ]
 }

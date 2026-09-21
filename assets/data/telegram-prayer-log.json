@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617089,
-  "lastModified": "2026-09-21T12:40:36Z",
+  "lastUpdateId": 669617090,
+  "lastModified": "2026-09-21T14:10:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1985,6 +1985,16 @@
       "kind": "telegram",
       "text": "Hey guys I would like to ask a prayer for my Grandpa for a speedy recovery he’s currently in icu",
       "ts": "2026-09-21T07:11:22Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6456,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Wait grandma or pa, or is it literally both?",
+      "ts": "2026-09-21T14:01:45Z"
     }
   ]
 }

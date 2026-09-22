@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617098,
-  "lastModified": "2026-09-22T00:10:44Z",
+  "lastUpdateId": 669617099,
+  "lastModified": "2026-09-22T00:55:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -2001,6 +2001,16 @@
       "kind": "telegram",
       "text": "Wait grandma or pa, or is it literally both?",
       "ts": "2026-09-21T14:01:45Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6465,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Please keep praying for my family y’all. I spoke about Jesus and the gospel to my sister and she completely rejected it, so I just pray that a seed was planted..",
+      "ts": "2026-09-22T00:46:03Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617123,
-  "lastModified": "2026-09-22T18:40:36Z",
+  "lastModified": "2026-09-22T19:25:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -312,16 +312,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5768,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey Guys we have a woman named Wanta, who would like some prayers for her Gambling addiction.\n\nShe's a really sweet lady and she and I are just talking about Jesus and taking the bus, but send her some love and prayers.\n\n#JESUS4WANTA",
-      "ts": "2026-09-08T19:21:17Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5772,

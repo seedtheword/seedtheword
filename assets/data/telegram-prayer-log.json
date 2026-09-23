@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617135,
-  "lastModified": "2026-09-23T17:25:35Z",
+  "lastModified": "2026-09-23T18:55:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -312,16 +312,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5879,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "we will be praying Jheremie!",
-      "ts": "2026-09-09T18:54:51Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5880,

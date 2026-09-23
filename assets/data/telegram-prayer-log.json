@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617137,
-  "lastModified": "2026-09-23T21:10:37Z",
+  "lastModified": "2026-09-23T21:40:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -312,26 +312,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5930,
-      "userId": 7395577266,
-      "displayName": "Brandon Fowlkes",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Please pray that I may obtain more patience🙏🙏🙏",
-      "ts": "2026-09-09T21:38:41Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5931,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Absolutely Brandon 🙏🏻",
-      "ts": "2026-09-09T21:40:22Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5933,

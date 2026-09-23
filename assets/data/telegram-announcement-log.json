@@ -1,6 +1,6 @@
 {
   "_help": "Auto-managed by .github/scripts/post_calendar_to_telegram.py. Tracks which event statuses have been announced so we don't spam the chat. Do not edit by hand; if you need to force a re-announcement, delete the relevant event entry and commit.",
-  "updated": "2026-09-23T15:47:55+00:00",
+  "updated": "2026-09-23T22:56:16+00:00",
   "events": {
     "kho4rdaagq7380idak21gl43a0@google.com": {
       "title": "SEATTLE BETHANY YOUTH",
@@ -34,8 +34,9 @@
     "jld2489fp6rmg6trefedbao81k@google.com": {
       "title": "SEED THE WORD PRAYER NIGHT",
       "start": "2026-09-24T01:30:00+00:00",
-      "lastPosted": "2026-09-23T15:47:55+00:00",
-      "upcomingPosted": true
+      "lastPosted": "2026-09-23T22:56:16+00:00",
+      "upcomingPosted": true,
+      "reminderPosted": true
     }
   },
   "schedule": {

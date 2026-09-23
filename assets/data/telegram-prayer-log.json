@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617135,
-  "lastModified": "2026-09-23T16:55:35Z",
+  "lastModified": "2026-09-23T17:25:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -312,26 +312,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5876,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "It’s bad, all my friends wonder how I’m still alive",
-      "ts": "2026-09-09T17:19:56Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5877,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Drinking so much energy drinks and coffee everyday",
-      "ts": "2026-09-09T17:20:18Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5879,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617137,
-  "lastModified": "2026-09-23T20:40:35Z",
+  "lastModified": "2026-09-23T20:55:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -312,26 +312,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5882,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thank you Liam 🙏🏻",
-      "ts": "2026-09-09T20:43:54Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5883,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Just know that any prayer, even if it feels small, isn’t too small for God. Even feeling overwhelmed can lead to bigger problems if the enemy is not snuffed out from the root early",
-      "ts": "2026-09-09T20:52:08Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5885,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617164,
-  "lastModified": "2026-09-24T15:25:40Z",
+  "lastModified": "2026-09-24T17:25:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -318,16 +318,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5978,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Defensive prayers for me, David, and Ken... as we march and proclaim the Gospel at U-dub... from previous evangelism experiences, The devil hits individual members with anxiety, and fear, and issues during or before the event to nurtralize our effectiveness. And so... here's a prayer for our Defenses",
-      "ts": "2026-09-10T17:22:55Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 5980,

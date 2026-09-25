@@ -15,7 +15,7 @@
   <title>Community — Seed the Word Ministry</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <!-- Extra display fonts for Verse Studio -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@600;700;800&family=Dancing+Script:wght@600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Cormorant+Garamond:wght@500;600;700&family=EB+Garamond:wght@500;600&family=Montserrat:wght@600;700;800&family=Oswald:wght@500;600;700&family=Dancing+Script:wght@600;700&family=Pacifico&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
   <link rel="stylesheet" href="assets/css/lms.css?v=2">
@@ -306,7 +306,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
   <link rel="stylesheet" href="assets/css/community-forkful.css?v=25">
-  <link rel="stylesheet" href="assets/css/verse-studio.css?v=2">
+  <link rel="stylesheet" href="assets/css/verse-studio.css?v=3">
 </head>
 <body class="community-body">
 
@@ -364,6 +364,17 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
           <!-- Activity summary injected by renderHomeDashboard() -->
         </div>
       </div>
+
+      <!-- New feature promo: Verse Studio -->
+      <button type="button" class="vs-promo" id="vs-promo" onclick="switchChannel('scripture');setTimeout(function(){var b=document.getElementById('vs-open');if(b){b.click();}var el=document.getElementById('verse-studio');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},450);">
+        <span class="vs-promo__badge">NEW</span>
+        <span class="vs-promo__icon" aria-hidden="true">🎬</span>
+        <span class="vs-promo__body">
+          <span class="vs-promo__title">Verse Studio — make animated Scripture clips</span>
+          <span class="vs-promo__sub">Turn verses, your reading-plan passages, and Bible studies into short animated videos for Instagram Reels &amp; Stories. Pick a look, add music, download.</span>
+        </span>
+        <span class="vs-promo__go" aria-hidden="true">Try it →</span>
+      </button>
 
       <!-- Stories rail (Instagram-style, 24h ephemeral) -->
       <div class="stories-rail" id="stories-rail"></div>
@@ -450,20 +461,22 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
             <!-- Controls -->
             <div class="vs-controls">
               <div class="vs-field">
-                <label for="vs-ref">Look up a verse (KJV) — or just paste your own text below</label>
+                <label for="vs-ref">Add Scripture (KJV) — stack as many passages as you like</label>
                 <div class="vs-ref-row">
                   <input type="text" id="vs-ref" placeholder="e.g. John 3:16 or Psalm 23" autocomplete="off">
-                  <button type="button" class="vs-btn" id="vs-fetch">Look up</button>
+                  <button type="button" class="vs-btn vs-btn--primary" id="vs-add">＋ Add</button>
                 </div>
+                <div class="vs-passages" id="vs-passages"></div>
               </div>
               <div class="vs-field">
-                <label for="vs-text">Text (paste a whole chapter if you like — it pages automatically)</label>
-                <textarea id="vs-text" rows="5"></textarea>
+                <label for="vs-text">Or paste your own text (a whole chapter pages automatically)</label>
+                <textarea id="vs-text" rows="4" placeholder="Paste any passage or note here…"></textarea>
+                <button type="button" class="vs-btn" id="vs-add-text" style="align-self:flex-start;">＋ Add pasted text</button>
               </div>
               <div class="vs-field">
-                <label for="vs-attrib">Attribution / caption (edit or clear it)</label>
+                <label for="vs-attrib">Caption / attribution (used for pasted text; edit or clear)</label>
                 <input type="text" id="vs-attrib" placeholder="e.g. — John 3:16 (KJV)" autocomplete="off">
-                <label class="vs-check"><input type="checkbox" id="vs-show-attrib" checked> Show this line on the clip</label>
+                <label class="vs-check"><input type="checkbox" id="vs-show-attrib" checked> Show the caption line on the clip</label>
               </div>
               <div class="vs-row2">
                 <div class="vs-field">
@@ -475,29 +488,6 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
                   </select>
                 </div>
                 <div class="vs-field">
-                  <label for="vs-style">Animation</label>
-                  <select id="vs-style">
-                    <option value="fade">Fade &amp; lift</option>
-                    <option value="rise">Line-by-line rise</option>
-                    <option value="zoom">Slow zoom</option>
-                    <option value="word">Word by word</option>
-                  </select>
-                </div>
-              </div>
-              <div class="vs-row2">
-                <div class="vs-field">
-                  <label for="vs-font">Font</label>
-                  <select id="vs-font">
-                    <option value="Georgia, serif">Georgia (serif)</option>
-                    <option value="'Playfair Display', Georgia, serif">Playfair (elegant serif)</option>
-                    <option value="'Fraunces', Georgia, serif">Fraunces (display serif)</option>
-                    <option value="'Cormorant Garamond', Georgia, serif">Cormorant (classic)</option>
-                    <option value="Inter, system-ui, sans-serif">Inter (modern sans)</option>
-                    <option value="'Montserrat', system-ui, sans-serif">Montserrat (bold sans)</option>
-                    <option value="'Dancing Script', cursive">Dancing Script (handwritten)</option>
-                  </select>
-                </div>
-                <div class="vs-field">
                   <label for="vs-duration">Clip length</label>
                   <select id="vs-duration">
                     <option value="5">5 seconds</option>
@@ -506,12 +496,58 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
                     <option value="15">15 seconds</option>
                     <option value="20">20 seconds</option>
                     <option value="30">30 seconds</option>
+                    <option value="45">45 seconds</option>
+                    <option value="60">1 minute</option>
+                    <option value="120">2 minutes</option>
+                    <option value="180">3 minutes</option>
+                    <option value="300">5 minutes</option>
+                  </select>
+                </div>
+              </div>
+              <div class="vs-row2">
+                <div class="vs-field">
+                  <label for="vs-style">Text animation</label>
+                  <select id="vs-style">
+                    <option value="fade">Fade &amp; lift</option>
+                    <option value="rise">Line-by-line rise</option>
+                    <option value="zoom">Slow zoom</option>
+                    <option value="typewriter">Typewriter</option>
+                    <option value="word">Word by word</option>
+                  </select>
+                </div>
+                <div class="vs-field">
+                  <label for="vs-transition">Slide transition</label>
+                  <select id="vs-transition">
+                    <option value="crossfade">Crossfade</option>
+                    <option value="slide">Slide across</option>
+                    <option value="fadelogo">Fade through logo</option>
                   </select>
                 </div>
               </div>
               <div class="vs-field">
+                <label for="vs-font">Font</label>
+                <select id="vs-font">
+                  <option value="Georgia, serif">Georgia (serif)</option>
+                  <option value="'Playfair Display', Georgia, serif">Playfair (elegant serif)</option>
+                  <option value="'Fraunces', Georgia, serif">Fraunces (display serif)</option>
+                  <option value="'Cormorant Garamond', Georgia, serif">Cormorant (classic)</option>
+                  <option value="'EB Garamond', Georgia, serif">EB Garamond (book)</option>
+                  <option value="Inter, system-ui, sans-serif">Inter (modern sans)</option>
+                  <option value="'Montserrat', system-ui, sans-serif">Montserrat (bold sans)</option>
+                  <option value="'Oswald', system-ui, sans-serif">Oswald (condensed)</option>
+                  <option value="'Dancing Script', cursive">Dancing Script (handwritten)</option>
+                  <option value="'Pacifico', cursive">Pacifico (script)</option>
+                </select>
+              </div>
+              <div class="vs-field">
+                <label>Text color</label>
+                <div class="vs-swatches vs-swatches--sm" id="vs-fontcolors"></div>
+                <label class="vs-hex"><span>Custom:</span> <input type="color" id="vs-font-hex" value="#ffffff"></label>
+              </div>
+              <div class="vs-field">
                 <label>Background</label>
                 <div class="vs-swatches" id="vs-swatches"></div>
+                <label class="vs-hex"><span>Custom color:</span> <input type="color" id="vs-bg-hex" value="#2C5F2E"></label>
                 <label class="vs-upload-btn" for="vs-bg-upload">🖼 Upload your own background image</label>
                 <input type="file" id="vs-bg-upload" accept="image/*" hidden>
               </div>
@@ -521,7 +557,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
                 <input type="file" id="vs-audio-upload" accept="audio/*" hidden>
                 <span class="vs-audio-name" id="vs-audio-name"></span>
               </div>
-              <p class="vs-legal">KJV Scripture is Public Domain. Everything is made on your device — nothing is uploaded. When a soundtrack is added the clip records as WebM (video + audio). Note: baking copyrighted music into a Reel can get it muted or flagged — for public posts, adding music inside Instagram is safer.</p>
+              <p class="vs-legal">KJV Scripture is Public Domain. Everything is made on your device — nothing is uploaded. With a soundtrack the clip records as WebM (video + audio). Note: baking copyrighted music into a Reel can get it muted or flagged — for public posts, adding music inside Instagram is safer.</p>
             </div>
           </div>
         </div>
@@ -707,7 +743,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/google-calendar.js?v=16"></script>
 <script src="assets/js/community-catalog.js?v=6"></script>
-<script src="assets/js/verse-studio.js?v=2" defer></script>
+<script src="assets/js/verse-studio.js?v=3" defer></script>
 <script>
 (function(){
 'use strict';

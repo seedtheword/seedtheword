@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617088,
-  "lastModified": "2026-09-20T02:10:32Z",
+  "lastUpdateId": 669617176,
+  "lastModified": "2026-09-25T03:10:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -303,659 +303,21 @@
       "messageId": 6436,
       "entryCount": 4,
       "postedAt": "2026-09-19T15:17:43Z"
+    },
+    "2026-W39-mon": {
+      "since": "2026-09-21T15:17:31Z",
+      "messageId": 6457,
+      "entryCount": 11,
+      "postedAt": "2026-09-21T15:17:45Z"
+    },
+    "2026-W39-thu": {
+      "since": "2026-09-24T15:17:29Z",
+      "messageId": 6528,
+      "entryCount": 6,
+      "postedAt": "2026-09-24T15:17:39Z"
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 5687,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Everyone please pray for Scott!\n\nI found this man on a random Facebook video while I was doom scrolling and He is looking for Jesus.\n\nHe's not too far from where I live and I'm going to meet up with Him to bring Him back to the house of prayer so He can rekindle His relationship with Jesus.\n\nPray earnestly everyone!\n\nThis is a testament to the power of the Holy Spirit and I am all here to support everything in God's kingdom. Do not doubt, do not scroll. Do not take a moment not to comment on a random post. You see where you can feel someone needs to hear about Jesus because this desperation is real. This generation needs Jesus badly",
-      "ts": "2026-09-07T12:27:13Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5768,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey Guys we have a woman named Wanta, who would like some prayers for her Gambling addiction.\n\nShe's a really sweet lady and she and I are just talking about Jesus and taking the bus, but send her some love and prayers.\n\n#JESUS4WANTA",
-      "ts": "2026-09-08T19:21:17Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5772,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Literally turns out we just walked to base. I have been keeping her company and being her bodyguard, its awesome.\n\n\nAlso she all of a sudden started calling me handsome, prayed for a beautiful woman to be my wife and so we have beautiful kids... I am so flustered, but you know what... I genuinely believe I will find a woman of valor and have 2-3 beautiful children...",
-      "ts": "2026-09-08T20:07:49Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5773,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "And then she had to go, but like my granny she hugged me, and kissed my head... I genuinely want to cry...",
-      "ts": "2026-09-08T20:33:11Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5774,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "She was sooooo sweet",
-      "ts": "2026-09-08T20:33:31Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5775,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "LOL pure heart",
-      "ts": "2026-09-08T20:48:45Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5823,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "@Jhei_Cruz ask your prayer requests here!",
-      "ts": "2026-09-09T05:06:42Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5824,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "theres no prayer request too big or too small.",
-      "ts": "2026-09-09T05:07:13Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5827,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I have a really bad caffeine addiction",
-      "ts": "2026-09-09T12:18:28Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5828,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Like really bad",
-      "ts": "2026-09-09T12:18:39Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5829,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I feel you, do you want to get off it",
-      "ts": "2026-09-09T12:19:01Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5830,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Like it’s almost as bad as my nicotine addiction which I want to also get rid of, cause I’ve been dealing with that since I was 19 years old, so yes I want to get off it",
-      "ts": "2026-09-09T12:21:09Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5831,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Well then the first step is choosing to get less of it, I know Rockstar energy drinks have a version that helps you get off it, and additionally after trying that gradually take less and less, until you eventually just get off it. Personally I kinda need it to function as my job is ridiculously early so I don't have the ability to get off caffeine rn... but you my friend can. The first step is the hardest.",
-      "ts": "2026-09-09T12:37:39Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5832,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Yeah my addiction is having almost 5-10 cans of either redbull or monsters, I also have caffeine gum with 40mg of caffeine in each piece of gum, back when I also used to work for amazon, I’d take about almost 20 shots of espresso",
-      "ts": "2026-09-09T12:40:09Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5833,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "A day?!",
-      "ts": "2026-09-09T12:40:27Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5834,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Yes",
-      "ts": "2026-09-09T12:40:34Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5835,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "How are you not dead!!!",
-      "ts": "2026-09-09T12:40:44Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5836,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I am simply an anomaly",
-      "ts": "2026-09-09T12:40:59Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5837,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "OK, pick probably 1... like only one",
-      "ts": "2026-09-09T12:41:10Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5838,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "One what?",
-      "ts": "2026-09-09T12:41:20Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5839,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Start there, one redbull to start with, instead of 5",
-      "ts": "2026-09-09T12:41:38Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5840,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Replace the others with water",
-      "ts": "2026-09-09T12:42:15Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5841,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Mmm, well once I taste a redbull my tongue tends to crave the flavor even more",
-      "ts": "2026-09-09T12:42:26Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5842,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Then sparkling water, or some water vitamin bags,",
-      "ts": "2026-09-09T12:43:02Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5843,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "You could also drink regular coffee too, instead of an energy drink... it tastes... well less good",
-      "ts": "2026-09-09T12:45:02Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5844,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I’m lactose intolerant 😭",
-      "ts": "2026-09-09T12:45:26Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5845,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I drink almond milk",
-      "ts": "2026-09-09T12:45:35Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5846,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "So no pumpkin spice latte for me",
-      "ts": "2026-09-09T12:45:39Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5847,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Also I mean brew your own",
-      "ts": "2026-09-09T12:45:49Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5848,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Like a pot",
-      "ts": "2026-09-09T12:46:00Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5849,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I’m allergic to nut milks too",
-      "ts": "2026-09-09T12:46:29Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5850,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Then drink it black?",
-      "ts": "2026-09-09T12:46:44Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5851,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Oh wait there's oat milk",
-      "ts": "2026-09-09T12:46:56Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5852,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Black coffee has caffeine in it",
-      "ts": "2026-09-09T12:47:00Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5853,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I know, you can't immediately hop off fully you will be in so much pain, I have done it",
-      "ts": "2026-09-09T12:47:31Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5854,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Change is gradual",
-      "ts": "2026-09-09T12:47:45Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5855,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I can’t just gradually do it, since my body is gonna crave more and more",
-      "ts": "2026-09-09T12:48:16Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5856,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I know thats why the black coffee and you having to make it will discorage you drinking it, also drinking coffee without food makes you feel sick which will naturally discourage you... however I understand your point.",
-      "ts": "2026-09-09T12:49:34Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5858,
-      "userId": 6041224258,
-      "displayName": "Arthur Didenko",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Black coffee and maple bar?",
-      "ts": "2026-09-09T14:10:28Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5859,
-      "userId": 6041224258,
-      "displayName": "Arthur Didenko",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Come on somebody",
-      "ts": "2026-09-09T14:10:40Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5870,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Sounds like you need prayer for this. With the power of Jesus you can do it @Jhei_Cruz !",
-      "ts": "2026-09-09T16:42:46Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5876,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "It’s bad, all my friends wonder how I’m still alive",
-      "ts": "2026-09-09T17:19:56Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5877,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Drinking so much energy drinks and coffee everyday",
-      "ts": "2026-09-09T17:20:18Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5879,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "we will be praying Jheremie!",
-      "ts": "2026-09-09T18:54:51Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5880,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Plz also pray for me, I feel a wave of feeling overwhelmed and anxious after multiple little events happening around me and also being overwhelmed by decisions I have to make or tasks I need to get done, and I am afraid to take it out on someone or make a mistake because of any emotions I might be unaware of, naturally it makes me want to withdraw from community and even being around family, I feel this may be an attack from the enemy and I just need prayer for strength, self awareness, courage, confidence and peace. And pray also for a longing in my heart to keep opening up scripture even when things get tough.",
-      "ts": "2026-09-09T20:40:20Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5882,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thank you Liam 🙏🏻",
-      "ts": "2026-09-09T20:43:54Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5883,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Just know that any prayer, even if it feels small, isn’t too small for God. Even feeling overwhelmed can lead to bigger problems if the enemy is not snuffed out from the root early",
-      "ts": "2026-09-09T20:52:08Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5885,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "To be honest then, I am struggling as I am not able to easily get stuff done, given my arms are messed up, and due I cannot go to my home church right now due to circumstances... I am just super depressed, and ended up sleeping all morning till noon because it felt like the only thing I can do rather then be awake and anxious for the future... I genuinely am afraid God is pulling me away from everyone once again... I understand why, I understand my will is secondary, I will be obedient, but he might be moving me to a separate stage of my life, and it might be a painful one. I believe even though I might be made to carry that cross, Christ is carrying it with me",
-      "ts": "2026-09-09T20:57:18Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5890,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I’m not really good at praying but I will do what I can to pray for you\n\n\nFather God please help my sister in Christ Vanessa from all the things going through her mind, I pray that she will have a calm mind and silence all the nervousness and anxieties from her mind and heart, I pray that enemy trying to pull her out of our community to be rebuked and silenced. I pray to you father to have all your Angels to gather around her to fight the enemies trying to get to her and her peace of mind, I pray that she will open up the scriptures she needs when things get rough, I pray for her to be covered in your holy blood for her to be protected from whatever that tries to attack her whether it be physical or spiritual. \n\nIn Jesus name Amen.",
-      "ts": "2026-09-09T21:04:06Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5891,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Wait I thought I put it here, I guess I was still half asleep😵‍💫",
-      "ts": "2026-09-09T21:04:44Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5895,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "No worries 😌",
-      "ts": "2026-09-09T21:05:32Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5897,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thank you Seed The Word family 🥹🙏🏻",
-      "ts": "2026-09-09T21:06:01Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5930,
-      "userId": 7395577266,
-      "displayName": "Brandon Fowlkes",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Please pray that I may obtain more patience🙏🙏🙏",
-      "ts": "2026-09-09T21:38:41Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5931,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Absolutely Brandon 🙏🏻",
-      "ts": "2026-09-09T21:40:22Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5933,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I think we could all use a little more patience, and a lot more faith 🙌🏻 and a tonna’ Jesus",
-      "ts": "2026-09-09T21:42:59Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5934,
-      "userId": 8045440327,
-      "displayName": "Liam Webster",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Everything is going to be alright!!!",
-      "ts": "2026-09-09T21:43:21Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5937,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Father God I ask you please give my brother in Christ the patience he needs to get through what he’s going through, I ask you father to give him the strength to have the patience for everything he goes through, please allow your angels to touch him so that when they do touch him he can feel lighter, with no frustration or anger that comes from the enemy. Father God I ask you to help him fight the enemies that try to get him to lose his patience, allow him to get more patience Father God.\n\nIn Jesus name Amen.",
-      "ts": "2026-09-09T21:46:39Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5938,
-      "userId": 7395577266,
-      "displayName": "Brandon Fowlkes",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thank you!",
-      "ts": "2026-09-09T21:46:52Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5965,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer request from Dad",
-      "ts": "2026-09-10T00:29:42Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5966,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Also I got a request from my Gran who is suffering from a head cold but miraculously started getting better after we prayed for her",
-      "ts": "2026-09-10T00:30:26Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5967,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "So keep praying guys!!!",
-      "ts": "2026-09-10T00:30:37Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5968,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "this makes me so happyy",
-      "ts": "2026-09-10T00:39:25Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5969,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer for Rene, she just got spinal surgery, I was talking to her sister Liz on the bus, so prayer requests for her too, so she recovers quickly, and heals nicely",
-      "ts": "2026-09-10T00:47:14Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5978,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Defensive prayers for me, David, and Ken... as we march and proclaim the Gospel at U-dub... from previous evangelism experiences, The devil hits individual members with anxiety, and fear, and issues during or before the event to nurtralize our effectiveness. And so... here's a prayer for our Defenses",
-      "ts": "2026-09-10T17:22:55Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 5980,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "[Evangelism people from U dub]\n\nNick: -that he grows closer to God, and his children be prosperous\n\nSteven: -that the spirit dwells in all the fellowship within the coming year.\n\nNelson & Rodrigo : -general prayers for their continued walk in faith\n\nAndrew & Josh (SPECIAL ATTENTION TO ANDREW -seeking an experience with Jesus to help him believe again, since hes open. Possibly related to work or money since he needs it, that might be a good way.\n\nGloria: -personal experience (she isn't open to believing so I suggest prayer for softening hearts)\n\nKatya: -Dental test, and so she can grow closer to God in fellowship, and general walk",
-      "ts": "2026-09-10T23:39:06Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6001,
@@ -1985,6 +1347,86 @@
       "kind": "telegram",
       "text": "Hey guys my Grandma Suzanne is in the hospital right now got rushed there by ambulance, please have her in your prayers",
       "ts": "2026-09-20T01:40:37Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6455,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hey guys I would like to ask a prayer for my Grandpa for a speedy recovery he’s currently in icu",
+      "ts": "2026-09-21T07:11:22Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6456,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Wait grandma or pa, or is it literally both?",
+      "ts": "2026-09-21T14:01:45Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6465,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Please keep praying for my family y’all. I spoke about Jesus and the gospel to my sister and she completely rejected it, so I just pray that a seed was planted..",
+      "ts": "2026-09-22T00:46:03Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6466,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Also pray that I get my credit card thing figured out because I’m realizing it’s more difficult to figure out and get set up",
+      "ts": "2026-09-22T05:42:01Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6487,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hey update on Granny's health she got better, Praise God, additionally prayer for Annette (my aunt) and her daughter (my cousin) that they can just continue to walk in Christ amd stay close to him, that they can walk in the spirit, and they may be protected from whatever issues they have in their life",
+      "ts": "2026-09-22T20:58:44Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6490,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hey, I am getting vibes that something big might happen in the near future, that there will be a temptation that I will have to endure that if I fail, will impact my life long term, like how Davids, sickness allowed the rebellion from his son\n\n\nHowever God has given me an out, prayer, I need to pray, and pray without ceasing, as I approach the end of John, I am realizing its almost matching up with my plans on Friday, thats actually when Peter will deny Jesus if I continue my plan, and so I am becoming painfully aware that something will happen then, my request and prayer, is that you intercede for me, and do it as often as you can, not just once, but again and again, and again... that I may be protected against the enemy, anxiety, depression, fear... that I may seek and obey Gods will, rather then my own... I don't want to sin, but I also know as my verse of the day shows, in that same chapter, there are sins, I may commit I have no awareness of, and so I need protection and forgiveness for those sins, but also that they may be revealed to me so I can repent... I am trying my absolute best to be faithful to God, so please help me... and I will pray and do my own part... additionally if temptation comes, I know God will provide a way out, so please keep encouraging me to walk the good walk, however, as Jesus instructed Peter back in gethsemene, he said pray without ceasing, and he tried to shelter Peter from his sin, in advance, to build up his spiritual walls... I ask you all help me. \n\nLet my words, my prayers, be sufficient for God, but even more so, let our words, I know its written when two or more agree on something it will be done for them in Jesus's name...\n\nSo I ask all this in Jesus's name, and I pray... Amen 😞🙏",
+      "ts": "2026-09-23T15:03:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6491,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Please pray for my heart. That I would not loose hope, that I would not allow the enemy to get in my head with lies and discouragement. I also need guidance from the Lord.. I want to know what to do next.. I just want peace, unity.. I rebuke rejection, I rebuke manipulation, I rebuke unkindness, I rebuke impatience, pride and arrogance. We’re children of God, let’s act like it. God doesn’t promise tomorrow, let’s start acting like today is our last chance to show the love of God.",
+      "ts": "2026-09-23T15:07:04Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6503,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thanksgiving Announcement 9/23/2026:",
+      "ts": "2026-09-23T23:34:56Z"
     }
   ]
 }

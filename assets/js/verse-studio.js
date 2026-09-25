@@ -100,7 +100,7 @@
   var SOUNDTRACKS = [
     { id: '', label: 'No sound (default)', src: '' },
     { id: 'after-the-end', label: 'After the End — reflective (CC0)', src: 'assets/audio/after-the-end.mp3' },
-    { id: 'magic-in-the-garden', label: 'Magic in the Garden — gentle (CC0)', src: 'assets/audio/magic-in-the-garden.mp3' }
+    { id: 'garden-of-prayer', label: 'Garden of Prayer — gentle (CC0)', src: 'assets/audio/garden-of-prayer.mp3' }
   ];
 
   var state = {

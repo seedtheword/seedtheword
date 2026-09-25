@@ -14,9 +14,13 @@ Preset tracks:
 | File name                | Track (FreePD "Scoring") | Mood        | Status         |
 |--------------------------|--------------------------|-------------|----------------|
 | after-the-end.mp3        | After the End            | reflective  | live           |
-| magic-in-the-garden.mp3  | Magic in the Garden      | gentle      | live           |
+| garden-of-prayer.mp3     | Magic in the Garden *    | gentle      | live           |
 | novus-initium.mp3        | Novus Initium            | hopeful     | not added yet  |
 | the-lagoon.mp3           | The Lagoon               | calm        | not added yet  |
+
+\* The FreePD track is titled "Magic in the Garden"; we host it as
+`garden-of-prayer.mp3` and label it "Garden of Prayer" in the app so the name
+suits a Christian ministry. The audio file is unchanged and still CC0.
 
 The first two are included and appear in the Verse Studio soundtrack dropdown.
 The other two can be added later (download from FreePD, drop in here, then add

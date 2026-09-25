@@ -9,14 +9,18 @@ courtesy.
 Source collection: https://freepd.com  (mirror: https://archive.org/details/freepd)
 License: CC0 1.0 Universal (Public Domain Dedication) — https://creativecommons.org/publicdomain/zero/1.0/
 
-Preset tracks (place the .mp3 files in this folder with these exact names):
+Preset tracks:
 
-| File name                | Track (FreePD "Scoring") | Mood        |
-|--------------------------|--------------------------|-------------|
-| after-the-end.mp3        | After the End            | reflective  |
-| magic-in-the-garden.mp3  | Magic in the Garden      | gentle      |
-| novus-initium.mp3        | Novus Initium            | hopeful     |
-| the-lagoon.mp3           | The Lagoon               | calm        |
+| File name                | Track (FreePD "Scoring") | Mood        | Status         |
+|--------------------------|--------------------------|-------------|----------------|
+| after-the-end.mp3        | After the End            | reflective  | live           |
+| magic-in-the-garden.mp3  | Magic in the Garden      | gentle      | live           |
+| novus-initium.mp3        | Novus Initium            | hopeful     | not added yet  |
+| the-lagoon.mp3           | The Lagoon               | calm        | not added yet  |
+
+The first two are included and appear in the Verse Studio soundtrack dropdown.
+The other two can be added later (download from FreePD, drop in here, then add
+them back to the SOUNDTRACKS list in assets/js/verse-studio.js).
 
 ## How to add the files
 Automated download from this environment was blocked, so the MP3s need to be

@@ -99,10 +99,8 @@
   // assets/audio/. Same-origin so they mux cleanly into recordings. Default = none.
   var SOUNDTRACKS = [
     { id: '', label: 'No sound (default)', src: '' },
-    { id: 'after-the-end', label: 'After the End — reflective', src: 'assets/audio/after-the-end.mp3' },
-    { id: 'magic-in-the-garden', label: 'Magic in the Garden — gentle', src: 'assets/audio/magic-in-the-garden.mp3' },
-    { id: 'novus-initium', label: 'Novus Initium — hopeful', src: 'assets/audio/novus-initium.mp3' },
-    { id: 'the-lagoon', label: 'The Lagoon — calm', src: 'assets/audio/the-lagoon.mp3' }
+    { id: 'after-the-end', label: 'After the End — reflective (CC0)', src: 'assets/audio/after-the-end.mp3' },
+    { id: 'magic-in-the-garden', label: 'Magic in the Garden — gentle (CC0)', src: 'assets/audio/magic-in-the-garden.mp3' }
   ];
 
   var state = {

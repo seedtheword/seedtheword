@@ -1,0 +1,103 @@
+/* ============================================================
+   verse-studio.css
+   Styles for the Verse Studio — pick/enter a KJV verse, animate it
+   over a background, preview it, and export an MP4 (WebM fallback)
+   clip sized for Instagram. Scoped under .verse-studio.
+   ============================================================ */
+
+.vs-block {
+  margin-top: 1.75rem;
+  border: 1px solid var(--border-warm, #e8e4de);
+  border-radius: 16px;
+  background: var(--color-surface, #fff);
+  overflow: hidden;
+}
+.vs-block__head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 1rem; padding: 1.25rem 1.35rem 0.5rem;
+}
+.vs-block__eyebrow {
+  font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gold, #C9A54D); font-weight: 700;
+}
+.vs-block__title {
+  margin: 0.15rem 0 0; font-family: var(--serif, Georgia, serif);
+  font-size: 1.35rem; color: var(--color-text, #1f1f1f);
+}
+.vs-block__hint {
+  margin: 0 1.35rem 1rem; color: var(--muted, #666); font-size: 0.95rem; line-height: 1.6;
+}
+
+/* Collapsed teaser -> expands to the full studio */
+.vs-block__toggle {
+  margin: 0 1.35rem 1.35rem; display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.3rem; border-radius: 999px; border: 0; cursor: pointer;
+  background: var(--green, #2C5F2E); color: #fff; font-weight: 700; font-size: 0.9rem;
+}
+.vs-block__toggle:hover { background: #24512680; background: #245126; }
+
+.vs-studio { display: none; padding: 0 1.35rem 1.5rem; }
+.vs-block.is-open .vs-studio { display: block; }
+.vs-block.is-open .vs-block__toggle { display: none; }
+
+.vs-grid {
+  display: grid; gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+}
+@media (max-width: 820px) { .vs-grid { grid-template-columns: 1fr; } }
+
+/* ── Preview canvas ─────────────────────────────────────────── */
+.vs-stage {
+  display: flex; flex-direction: column; align-items: center; gap: 0.85rem;
+}
+.vs-canvas-wrap {
+  position: relative; width: 100%; max-width: 340px; margin: 0 auto;
+  border-radius: 14px; overflow: hidden; background: #111;
+  box-shadow: 0 14px 40px -16px rgba(0,0,0,0.5);
+}
+.vs-canvas { display: block; width: 100%; height: auto; }
+.vs-stage__note { font-size: 0.8rem; color: var(--muted, #666); text-align: center; }
+
+.vs-playbar { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+.vs-btn {
+  padding: 0.6rem 1.1rem; border-radius: 999px; border: 1px solid var(--border-warm, #ddd);
+  background: #fff; color: var(--color-text, #1f1f1f); font-weight: 600; font-size: 0.85rem;
+  cursor: pointer; transition: background .2s, color .2s, border-color .2s, transform .2s;
+}
+.vs-btn:hover { border-color: var(--green, #2C5F2E); transform: translateY(-1px); }
+.vs-btn--primary { background: var(--gold, #C9A54D); border-color: var(--gold, #C9A54D); color: #1f1200; }
+.vs-btn--primary:hover { background: #b8933f; color: #1f1200; }
+.vs-btn--record { background: var(--green, #2C5F2E); border-color: var(--green, #2C5F2E); color: #fff; }
+.vs-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+/* ── Controls ───────────────────────────────────────────────── */
+.vs-controls { display: flex; flex-direction: column; gap: 1rem; }
+.vs-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.vs-field > label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; color: var(--muted, #555); text-transform: uppercase; }
+.vs-field input[type="text"], .vs-field textarea, .vs-field select {
+  width: 100%; box-sizing: border-box; padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border-warm, #ddd); border-radius: 10px;
+  font: inherit; color: var(--color-text, #1f1f1f); background: #fff;
+}
+.vs-field textarea { resize: vertical; min-height: 66px; }
+.vs-ref-row { display: flex; gap: 0.5rem; }
+.vs-ref-row input { flex: 1; }
+
+.vs-swatches { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.vs-swatch {
+  width: 34px; height: 34px; border-radius: 9px; cursor: pointer;
+  border: 2px solid transparent; padding: 0; background-clip: padding-box;
+}
+.vs-swatch.is-active { border-color: var(--green, #2C5F2E); box-shadow: 0 0 0 2px #fff inset; }
+
+.vs-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+.vs-status { font-size: 0.85rem; min-height: 1.2em; }
+.vs-status--ok { color: var(--green, #2C5F2E); }
+.vs-status--err { color: #b3261e; }
+.vs-status--busy { color: var(--muted, #666); }
+
+.vs-downloads { display: flex; flex-direction: column; gap: 0.4rem; }
+.vs-downloads a { color: var(--green, #2C5F2E); font-weight: 700; font-size: 0.9rem; }
+
+.vs-legal { margin-top: 0.75rem; font-size: 0.72rem; color: var(--muted, #888); line-height: 1.5; }

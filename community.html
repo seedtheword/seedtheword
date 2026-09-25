@@ -304,6 +304,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
   <link rel="stylesheet" href="assets/css/community-forkful.css?v=25">
+  <link rel="stylesheet" href="assets/css/verse-studio.css?v=1">
 </head>
 <body class="community-body">
 
@@ -415,6 +416,82 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         </div>
         <p class="groups-block__hint">Create a group chat for any topic — a book, a sermon, a question — and name it whatever you like. Everyone in the community can join the conversation.</p>
         <div class="groups-list" id="groups-list"><div class="groups-list__loading">Loading groups…</div></div>
+      </div>
+
+      <!-- Verse Studio: make an animated, shareable KJV verse clip for Instagram -->
+      <div class="vs-block" id="verse-studio">
+        <div class="vs-block__head">
+          <div>
+            <span class="vs-block__eyebrow">Create &amp; Share</span>
+            <h3 class="vs-block__title">🎬 Verse Studio</h3>
+          </div>
+        </div>
+        <p class="vs-block__hint">Turn a KJV verse into an animated clip you can post to Instagram Reels, Stories, or feed. Pick a verse, choose a look, preview it, and download the video.</p>
+        <button type="button" class="vs-block__toggle" id="vs-open">🎬 Open Verse Studio</button>
+
+        <div class="vs-studio">
+          <div class="vs-grid">
+            <!-- Live preview -->
+            <div class="vs-stage">
+              <div class="vs-canvas-wrap">
+                <canvas class="vs-canvas" id="vs-canvas" width="1080" height="1920" aria-label="Verse animation preview"></canvas>
+              </div>
+              <div class="vs-playbar">
+                <button type="button" class="vs-btn vs-btn--primary" id="vs-play">▶ Preview</button>
+                <button type="button" class="vs-btn vs-btn--record" id="vs-record">● Record clip</button>
+              </div>
+              <p class="vs-status" id="vs-status"></p>
+              <div class="vs-downloads" id="vs-downloads"></div>
+              <p class="vs-stage__note">Tip: Instagram Reels &amp; Stories use the 9:16 “Story” size.</p>
+            </div>
+
+            <!-- Controls -->
+            <div class="vs-controls">
+              <div class="vs-field">
+                <label for="vs-ref">Verse reference (KJV)</label>
+                <div class="vs-ref-row">
+                  <input type="text" id="vs-ref" placeholder="e.g. John 3:16" autocomplete="off">
+                  <button type="button" class="vs-btn" id="vs-fetch">Look up</button>
+                </div>
+              </div>
+              <div class="vs-field">
+                <label for="vs-text">Verse text (edit if you like)</label>
+                <textarea id="vs-text" rows="4"></textarea>
+              </div>
+              <div class="vs-row2">
+                <div class="vs-field">
+                  <label for="vs-format">Size</label>
+                  <select id="vs-format">
+                    <option value="story">Story / Reel (9:16)</option>
+                    <option value="square">Square (1:1)</option>
+                    <option value="post">Portrait (4:5)</option>
+                  </select>
+                </div>
+                <div class="vs-field">
+                  <label for="vs-style">Animation</label>
+                  <select id="vs-style">
+                    <option value="fade">Fade &amp; lift</option>
+                    <option value="rise">Line-by-line rise</option>
+                    <option value="word">Word by word</option>
+                  </select>
+                </div>
+              </div>
+              <div class="vs-field">
+                <label for="vs-font">Font</label>
+                <select id="vs-font">
+                  <option value="Georgia, serif">Georgia (serif)</option>
+                  <option value="'Playfair Display', Georgia, serif">Playfair (elegant)</option>
+                  <option value="Inter, system-ui, sans-serif">Inter (modern)</option>
+                </select>
+              </div>
+              <div class="vs-field">
+                <label>Background</label>
+                <div class="vs-swatches" id="vs-swatches"></div>
+              </div>
+              <p class="vs-legal">Scripture shown in the King James Version (Public Domain). Videos are made on your device — nothing is uploaded. Add music inside Instagram when you post.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Group chat room (shown when a group is open; hides the reader/discussion) -->
@@ -597,6 +674,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/google-calendar.js?v=16"></script>
 <script src="assets/js/community-catalog.js?v=6"></script>
+<script src="assets/js/verse-studio.js?v=1" defer></script>
 <script>
 (function(){
 'use strict';

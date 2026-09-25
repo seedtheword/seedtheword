@@ -46,6 +46,7 @@
   var durSel = $('#vs-duration');
   var fontColorWrap = $('#vs-fontcolors');
   var fontHex = $('#vs-font-hex');
+  var contrastToggle = $('#vs-contrast');
   var bgWrap = $('#vs-swatches');
   var bgHex = $('#vs-bg-hex');
   var bgUpload = $('#vs-bg-upload');
@@ -81,6 +82,7 @@
     bg: { type: 'grad', stops: GRADIENTS[0].stops },
     bgImage: null,
     fontColor: '#ffffff',
+    contrast: true,
     format: 'story',
     style: 'fade',
     transition: 'crossfade',
@@ -249,8 +251,33 @@
     ctx.font = '600 ' + fontSize + 'px ' + state.font; ctx.fillStyle = state.fontColor;
 
     var appear = easeOut(Math.min(1, local / 0.20));
+
+    // Legibility scrim: a soft dark panel behind the text block so text pops
+    // on busy photo/gradient backgrounds. Skipped if the user turns it off.
+    if (state.contrast) {
+      var blockTop = startY - lineH * 0.9;
+      var blockBottom = startY + lines.length * lineH + lineH * (slide.attribution && state.showAttribution ? 1.1 : 0.4);
+      var bh = blockBottom - blockTop;
+      var sg = ctx.createLinearGradient(0, blockTop, 0, blockBottom);
+      sg.addColorStop(0, 'rgba(0,0,0,0)');
+      sg.addColorStop(0.18, 'rgba(0,0,0,0.42)');
+      sg.addColorStop(0.82, 'rgba(0,0,0,0.42)');
+      sg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.save();
+      ctx.globalAlpha = alpha * appear;
+      ctx.fillStyle = sg;
+      ctx.fillRect(0, blockTop, W, bh);
+      ctx.restore();
+    }
+
     ctx.save();
     ctx.translate(dx, 0);
+
+    // Drop shadow so the letters separate from whatever is behind them.
+    ctx.shadowColor = 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = Math.round(fontSize * 0.28);
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = Math.round(fontSize * 0.06);
     if (state.style === 'fade') {
       ctx.globalAlpha = alpha * appear;
       var sh = (1 - appear) * (H * 0.025);
@@ -493,6 +520,7 @@
   fontSel.addEventListener('change', function () { state.font = fontSel.value; repageAll(); drawStatic(); });
   durSel.addEventListener('change', function () { state.durationMs = parseInt(durSel.value, 10) * 1000; });
   if (fontHex) fontHex.addEventListener('input', function () { state.fontColor = fontHex.value; setActive(fontColorWrap, null); drawStatic(); });
+  if (contrastToggle) contrastToggle.addEventListener('change', function () { state.contrast = contrastToggle.checked; drawStatic(); });
   if (bgHex) bgHex.addEventListener('input', function () { state.bg = { type: 'solid', color: bgHex.value }; state.bgImage = null; setActive(bgWrap, null); drawStatic(); });
   playBtn.addEventListener('click', play);
   recBtn.addEventListener('click', record);

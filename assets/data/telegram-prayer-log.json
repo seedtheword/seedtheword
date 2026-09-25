@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617206,
-  "lastModified": "2026-09-25T21:40:39Z",
+  "lastModified": "2026-09-25T22:10:40Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -318,56 +318,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6045,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Do you live in LA?",
-      "ts": "2026-09-11T22:09:52Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6046,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Or NY?",
-      "ts": "2026-09-11T22:10:05Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6047,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Or just Seattle",
-      "ts": "2026-09-11T22:10:10Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6048,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "he lives in federal way area",
-      "ts": "2026-09-11T22:10:22Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6049,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "i believe",
-      "ts": "2026-09-11T22:10:26Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6050,

@@ -35,6 +35,10 @@
   var refInput = $('#vs-ref');
   var addBtn = $('#vs-add');
   var passagesEl = $('#vs-passages');
+  var bookSel = $('#vs-book');
+  var chapSel = $('#vs-chapter');
+  var verseInput = $('#vs-verse');
+  var soundSel = $('#vs-soundtrack');
   var textArea = $('#vs-text');
   var addTextBtn = $('#vs-add-text');
   var attribInput = $('#vs-attrib');
@@ -74,6 +78,32 @@
 
   // Font color presets
   var FONT_COLORS = ['#ffffff', '#f7ecd0', '#E4CB86', '#C9A54D', '#ffd9a0', '#cfe8d8', '#111111', '#f5c2c2'];
+
+  // 66 books with chapter counts, for the Book -> Chapter -> Verse dropdowns.
+  var BIBLE_BOOKS = [
+    ['Genesis',50],['Exodus',40],['Leviticus',27],['Numbers',36],['Deuteronomy',34],
+    ['Joshua',24],['Judges',21],['Ruth',4],['1 Samuel',31],['2 Samuel',24],
+    ['1 Kings',22],['2 Kings',25],['1 Chronicles',29],['2 Chronicles',36],['Ezra',10],
+    ['Nehemiah',13],['Esther',10],['Job',42],['Psalms',150],['Proverbs',31],
+    ['Ecclesiastes',12],['Song of Solomon',8],['Isaiah',66],['Jeremiah',52],['Lamentations',5],
+    ['Ezekiel',48],['Daniel',12],['Hosea',14],['Joel',3],['Amos',9],['Obadiah',1],
+    ['Jonah',4],['Micah',7],['Nahum',3],['Habakkuk',3],['Zephaniah',3],['Haggai',2],
+    ['Zechariah',14],['Malachi',4],['Matthew',28],['Mark',16],['Luke',24],['John',21],
+    ['Acts',28],['Romans',16],['1 Corinthians',16],['2 Corinthians',13],['Galatians',6],
+    ['Ephesians',6],['Philippians',4],['Colossians',4],['1 Thessalonians',5],['2 Thessalonians',3],
+    ['1 Timothy',6],['2 Timothy',4],['Titus',3],['Philemon',1],['Hebrews',13],['James',5],
+    ['1 Peter',5],['2 Peter',3],['1 John',5],['2 John',1],['3 John',1],['Jude',1],['Revelation',22]
+  ];
+
+  // CC0 / Public Domain soundtrack presets (from FreePD.com, CC0). Files live in
+  // assets/audio/. Same-origin so they mux cleanly into recordings. Default = none.
+  var SOUNDTRACKS = [
+    { id: '', label: 'No sound (default)', src: '' },
+    { id: 'after-the-end', label: 'After the End — reflective', src: 'assets/audio/after-the-end.mp3' },
+    { id: 'magic-in-the-garden', label: 'Magic in the Garden — gentle', src: 'assets/audio/magic-in-the-garden.mp3' },
+    { id: 'novus-initium', label: 'Novus Initium — hopeful', src: 'assets/audio/novus-initium.mp3' },
+    { id: 'the-lagoon', label: 'The Lagoon — calm', src: 'assets/audio/the-lagoon.mp3' }
+  ];
 
   var state = {
     slides: [],            // [{ text, attribution }]
@@ -248,78 +278,114 @@
     var totalH = lines.length * lineH;
     var startY = (H - totalH) / 2 + lineH / 2 - H * 0.02;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = '600 ' + fontSize + 'px ' + state.font; ctx.fillStyle = state.fontColor;
+    ctx.font = '600 ' + fontSize + 'px ' + state.font;
 
     var appear = easeOut(Math.min(1, local / 0.20));
 
-    // Legibility scrim: a soft dark panel behind the text block so text pops
-    // on busy photo/gradient backgrounds. Skipped if the user turns it off.
+    // Legibility scrim: a soft dark panel behind the text block. Optional.
     if (state.contrast) {
       var blockTop = startY - lineH * 0.9;
       var blockBottom = startY + lines.length * lineH + lineH * (slide.attribution && state.showAttribution ? 1.1 : 0.4);
       var bh = blockBottom - blockTop;
       var sg = ctx.createLinearGradient(0, blockTop, 0, blockBottom);
       sg.addColorStop(0, 'rgba(0,0,0,0)');
-      sg.addColorStop(0.18, 'rgba(0,0,0,0.42)');
-      sg.addColorStop(0.82, 'rgba(0,0,0,0.42)');
+      sg.addColorStop(0.18, 'rgba(0,0,0,0.40)');
+      sg.addColorStop(0.82, 'rgba(0,0,0,0.40)');
       sg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.save(); ctx.globalAlpha = alpha * appear; ctx.fillStyle = sg;
+      ctx.fillRect(0, blockTop, W, bh); ctx.restore();
+    }
+
+    // Is the text light or dark? Pick a contrasting outline color so light
+    // text gets a dark outline and dark text gets a light outline.
+    var outlineColor = isLight(state.fontColor) ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)';
+    var glowColor = isLight(state.fontColor) ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.45)';
+
+    // Helper: draw one string with a soft glow + crisp outline + fill so it
+    // pops on ANY background (this is what actually makes it readable).
+    function drawText(str, x, y, a) {
+      ctx.globalAlpha = a;
+      // soft glow pass
       ctx.save();
-      ctx.globalAlpha = alpha * appear;
-      ctx.fillStyle = sg;
-      ctx.fillRect(0, blockTop, W, bh);
+      ctx.shadowColor = glowColor;
+      ctx.shadowBlur = Math.round(fontSize * 0.35);
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.11));
+      ctx.strokeStyle = outlineColor;
+      ctx.strokeText(str, x, y);
+      ctx.restore();
+      // crisp outline (no shadow) + fill
+      ctx.save();
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.07));
+      ctx.strokeStyle = outlineColor;
+      ctx.strokeText(str, x, y);
+      ctx.fillStyle = state.fontColor;
+      ctx.fillText(str, x, y);
       ctx.restore();
     }
 
     ctx.save();
     ctx.translate(dx, 0);
 
-    // Drop shadow so the letters separate from whatever is behind them.
-    ctx.shadowColor = 'rgba(0,0,0,0.7)';
-    ctx.shadowBlur = Math.round(fontSize * 0.28);
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = Math.round(fontSize * 0.06);
     if (state.style === 'fade') {
-      ctx.globalAlpha = alpha * appear;
       var sh = (1 - appear) * (H * 0.025);
-      lines.forEach(function (ln, i) { ctx.fillText(ln, W / 2, startY + i * lineH + sh); });
+      lines.forEach(function (ln, i) { drawText(ln, W / 2, startY + i * lineH + sh, alpha * appear); });
     } else if (state.style === 'rise') {
       lines.forEach(function (ln, i) {
         var lp = Math.min(1, Math.max(0, (local - i * 0.05) / 0.3));
-        ctx.globalAlpha = alpha * easeOut(lp);
         var dy = (1 - easeOut(lp)) * (H * 0.045);
-        ctx.fillText(ln, W / 2, startY + i * lineH + dy);
+        drawText(ln, W / 2, startY + i * lineH + dy, alpha * easeOut(lp));
       });
     } else if (state.style === 'zoom') {
       var zc = 0.92 + 0.08 * appear;
-      ctx.globalAlpha = alpha * appear;
       ctx.translate(W / 2, H / 2); ctx.scale(zc, zc); ctx.translate(-W / 2, -H / 2);
-      lines.forEach(function (ln, i) { ctx.fillText(ln, W / 2, startY + i * lineH); });
+      lines.forEach(function (ln, i) { drawText(ln, W / 2, startY + i * lineH, alpha * appear); });
     } else if (state.style === 'typewriter') {
       var full = lines.join(' ');
       var chars = Math.floor(easeOut(Math.min(1, local / 0.85)) * full.length);
-      var shown = full.slice(0, chars);
-      // re-wrap the shown text into the same line count
-      ctx.globalAlpha = alpha;
-      var reflow = wrapLines(shown, W - W * 0.22);
-      reflow.forEach(function (ln, i) { ctx.fillText(ln, W / 2, startY + i * lineH); });
+      var reflow = wrapLines(full.slice(0, chars), W - W * 0.22);
+      reflow.forEach(function (ln, i) { drawText(ln, W / 2, startY + i * lineH, alpha); });
     } else { // word
       var totalWords = 0; lines.forEach(function (l) { totalWords += l.split(' ').length; });
       var sw = Math.floor(easeOut(Math.min(1, local / 0.8)) * totalWords);
-      var count = 0; ctx.globalAlpha = alpha;
+      var count = 0;
       lines.forEach(function (ln, i) {
         var lw = ln.split(' '), vis = [];
         for (var w = 0; w < lw.length; w++) { if (count < sw) { vis.push(lw[w]); count++; } }
-        if (vis.length) ctx.fillText(vis.join(' '), W / 2, startY + i * lineH);
+        if (vis.length) drawText(vis.join(' '), W / 2, startY + i * lineH, alpha);
       });
     }
-    // attribution
+
+    // attribution (gold, with the same outline treatment for legibility)
     if (state.showAttribution && slide.attribution) {
-      ctx.globalAlpha = alpha * easeOut(Math.min(1, Math.max(0, (local - 0.25) / 0.4)));
-      ctx.fillStyle = '#E4CB86';
+      var aa = alpha * easeOut(Math.min(1, Math.max(0, (local - 0.25) / 0.4)));
+      var savedFont = ctx.font;
       ctx.font = '700 ' + Math.round(fontSize * 0.6) + 'px ' + state.font;
-      ctx.fillText(slide.attribution, W / 2, startY + lines.length * lineH + lineH * 0.4);
+      // temporarily use gold fill but keep dark outline
+      var prevFill = state.fontColor;
+      ctx.globalAlpha = aa;
+      ctx.save();
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.05));
+      ctx.strokeStyle = 'rgba(0,0,0,0.85)';
+      var ay = startY + lines.length * lineH + lineH * 0.4;
+      ctx.strokeText(slide.attribution, W / 2, ay);
+      ctx.fillStyle = '#E4CB86';
+      ctx.fillText(slide.attribution, W / 2, ay);
+      ctx.restore();
+      ctx.font = savedFont;
     }
     ctx.restore();
+  }
+
+  // Perceived-lightness check for choosing an outline color.
+  function isLight(hex) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+    if (!m) return true;
+    var n = parseInt(m[1], 16);
+    var r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 140;
   }
 
   function drawLogo(alpha) {
@@ -351,34 +417,46 @@
     var slideP = p * n;
     var idx = Math.min(n - 1, Math.floor(slideP));
     var local = slideP - idx;
-    var TR = 0.16; // fraction of each slide spent transitioning out
+    var TR = 0.22; // fraction of each slide spent transitioning out (gentler)
 
     paintBackground(p);
 
     var transitioning = (idx < n - 1) && (local > 1 - TR);
-    var tp = transitioning ? (local - (1 - TR)) / TR : 0; // 0..1 transition progress
+    // Eased transition progress 0..1 — easeInOut removes the "snap" at the ends.
+    var tpRaw = transitioning ? (local - (1 - TR)) / TR : 0;
+    var tp = easeInOut(Math.min(1, Math.max(0, tpRaw)));
 
-    if (state.transition === 'fadelogo' && transitioning) {
-      // Fade current out, flash logo, fade next in — handled across the window
-      var half = tp < 0.5 ? tp / 0.5 : 1 - (tp - 0.5) / 0.5;
-      drawSlideText(state.slides[idx], local, 1 - tp, 0);
-      drawSlideText(state.slides[idx + 1], 0.001, tp, 0);
-      drawLogo(0.4 + 0.6 * half); // logo pulses at the seam
-      return;
-    }
-    if (state.transition === 'slide' && transitioning) {
-      drawSlideText(state.slides[idx], local, 1, -W * easeInOut(tp));
-      drawSlideText(state.slides[idx + 1], easeInOut(tp) * 0.2, 1, W * (1 - easeInOut(tp)));
+    // Key smoothness fix: during a transition the INCOMING slide should be
+    // shown fully settled (local = 1), not re-running its entrance animation,
+    // so it cross-fades cleanly instead of double-animating/flickering.
+    var SETTLED = 1;
+
+    if (!transitioning) {
+      drawSlideText(state.slides[idx], local, 1, 0);
       drawLogo();
       return;
     }
-    // default: crossfade
-    if (transitioning) {
-      drawSlideText(state.slides[idx], local, 1 - tp, 0);
-      drawSlideText(state.slides[idx + 1], tp * 0.2, tp, 0);
-    } else {
-      drawSlideText(state.slides[idx], local, 1, 0);
+
+    if (state.transition === 'slide') {
+      // Both fully opaque, sliding horizontally — no alpha flicker.
+      drawSlideText(state.slides[idx], SETTLED, 1, -W * tp);
+      drawSlideText(state.slides[idx + 1], SETTLED, 1, W * (1 - tp));
+      drawLogo();
+      return;
     }
+    if (state.transition === 'fadelogo') {
+      // Fade current out (first half), next in (second half); logo swells at seam.
+      var outA = 1 - Math.min(1, tp / 0.55);
+      var inA = Math.max(0, (tp - 0.45) / 0.55);
+      var half = tp < 0.5 ? tp / 0.5 : 1 - (tp - 0.5) / 0.5;
+      if (outA > 0.01) drawSlideText(state.slides[idx], SETTLED, outA, 0);
+      if (inA > 0.01) drawSlideText(state.slides[idx + 1], SETTLED, inA, 0);
+      drawLogo(0.55 + 0.45 * half);
+      return;
+    }
+    // default: crossfade — clean opposing alphas
+    drawSlideText(state.slides[idx], SETTLED, 1 - tp, 0);
+    drawSlideText(state.slides[idx + 1], SETTLED, tp, 0);
     drawLogo();
   }
   function drawStatic() { drawFrame(lastP || 0.06); }
@@ -440,13 +518,53 @@
     img.src = URL.createObjectURL(file);
   });
 
-  // ── Soundtrack ──────────────────────────────────────────────
+  // ── Soundtrack (upload OR CC0 preset) ───────────────────────
+  var usingUpload = false;
   audioUpload.addEventListener('change', function () {
     var file = audioUpload.files && audioUpload.files[0]; if (!file) return;
-    if (audioObjectUrl) URL.revokeObjectURL(audioObjectUrl);
-    audioObjectUrl = URL.createObjectURL(file);
+    if (audioObjectUrl && usingUpload) URL.revokeObjectURL(audioObjectUrl);
+    audioObjectUrl = URL.createObjectURL(file); usingUpload = true;
     audioName.textContent = file.name;
+    if (soundSel) soundSel.value = ''; // clear the preset selection
   });
+  function buildSoundtracks() {
+    if (!soundSel) return;
+    soundSel.innerHTML = '';
+    SOUNDTRACKS.forEach(function (t) {
+      var o = document.createElement('option'); o.value = t.id; o.textContent = t.label; soundSel.appendChild(o);
+    });
+    soundSel.addEventListener('change', function () {
+      var picked = SOUNDTRACKS.filter(function (t) { return t.id === soundSel.value; })[0];
+      if (audioObjectUrl && usingUpload) URL.revokeObjectURL(audioObjectUrl);
+      usingUpload = false;
+      audioObjectUrl = (picked && picked.src) ? picked.src : null;
+      audioName.textContent = (picked && picked.src) ? (picked.label + ' (CC0)') : '';
+      if (audioUpload) audioUpload.value = '';
+    });
+  }
+
+  // ── Book / Chapter / Verse dropdowns ────────────────────────
+  function buildBookSelectors() {
+    if (!bookSel || !chapSel) return;
+    bookSel.innerHTML = '<option value="">Book…</option>';
+    BIBLE_BOOKS.forEach(function (b) {
+      var o = document.createElement('option'); o.value = b[0]; o.textContent = b[0]; bookSel.appendChild(o);
+    });
+    bookSel.addEventListener('change', function () {
+      var bk = BIBLE_BOOKS.filter(function (x) { return x[0] === bookSel.value; })[0];
+      chapSel.innerHTML = '<option value="">Ch.</option>';
+      if (bk) { for (var c = 1; c <= bk[1]; c++) { var o = document.createElement('option'); o.value = c; o.textContent = c; chapSel.appendChild(o); } }
+      syncRefFromSelectors();
+    });
+    chapSel.addEventListener('change', syncRefFromSelectors);
+    if (verseInput) verseInput.addEventListener('input', syncRefFromSelectors);
+  }
+  function syncRefFromSelectors() {
+    if (!bookSel.value) return;
+    var ref = bookSel.value + (chapSel.value ? ' ' + chapSel.value : '');
+    if (verseInput && verseInput.value.trim()) ref += ':' + verseInput.value.trim();
+    refInput.value = ref;
+  }
 
   // ── Recording ───────────────────────────────────────────────
   function pickMimeType(withAudio) {
@@ -526,7 +644,7 @@
   recBtn.addEventListener('click', record);
 
   // ── Init ────────────────────────────────────────────────────
-  buildSwatches(); buildFontColors();
+  buildSwatches(); buildFontColors(); buildSoundtracks(); buildBookSelectors();
   applyFormat();
   renderPassages();
   drawStatic();

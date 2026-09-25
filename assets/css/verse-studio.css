@@ -174,3 +174,13 @@
   .vs-promo__go { display: none; }
   .vs-promo { gap: 0.75rem; padding: 0.9rem 1rem; }
 }
+
+/* Book / Chapter / Verse selector row */
+.vs-bcv { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+.vs-bcv select, .vs-bcv input {
+  padding: 0.55rem 0.6rem; border: 1px solid var(--border-warm, #ddd); border-radius: 10px;
+  font: inherit; background: #fff; color: var(--color-text, #1f1f1f);
+}
+.vs-bcv #vs-book { flex: 1 1 auto; min-width: 0; }
+.vs-bcv #vs-chapter { flex: 0 0 78px; }
+.vs-bcv #vs-verse { flex: 0 0 72px; }

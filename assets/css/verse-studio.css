@@ -101,3 +101,23 @@
 .vs-downloads a { color: var(--green, #2C5F2E); font-weight: 700; font-size: 0.9rem; }
 
 .vs-legal { margin-top: 0.75rem; font-size: 0.72rem; color: var(--muted, #888); line-height: 1.5; }
+
+/* v2 additions: attribution toggle, upload buttons, audio name */
+.vs-check {
+  display: flex; align-items: center; gap: 0.45rem;
+  font-size: 0.82rem; text-transform: none; letter-spacing: 0; font-weight: 500;
+  color: var(--muted, #555); margin-top: 0.15rem;
+}
+.vs-check input { width: auto; }
+.vs-upload-btn {
+  display: inline-block; margin-top: 0.5rem; cursor: pointer;
+  padding: 0.55rem 0.9rem; border-radius: 10px;
+  border: 1px dashed var(--border-warm, #cbb); background: #faf8f4;
+  color: var(--green, #2C5F2E); font-weight: 600; font-size: 0.85rem;
+  text-transform: none; letter-spacing: 0;
+}
+.vs-upload-btn:hover { border-color: var(--green, #2C5F2E); background: #f3efe7; }
+.vs-audio-name {
+  display: inline-block; margin-left: 0.5rem; font-size: 0.8rem; color: var(--muted, #666);
+  vertical-align: middle;
+}

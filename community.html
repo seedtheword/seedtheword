@@ -14,6 +14,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <title>Community — Seed the Word Ministry</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <!-- Extra display fonts for Verse Studio -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@600;700;800&family=Dancing+Script:wght@600;700&display=swap">
   <link rel="stylesheet" href="assets/css/theme.css?v=1">
   <link rel="stylesheet" href="assets/css/main.css?v=33">
   <link rel="stylesheet" href="assets/css/lms.css?v=2">
@@ -304,7 +306,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
   <link rel="stylesheet" href="assets/css/community-forkful.css?v=25">
-  <link rel="stylesheet" href="assets/css/verse-studio.css?v=1">
+  <link rel="stylesheet" href="assets/css/verse-studio.css?v=2">
 </head>
 <body class="community-body">
 
@@ -448,15 +450,20 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
             <!-- Controls -->
             <div class="vs-controls">
               <div class="vs-field">
-                <label for="vs-ref">Verse reference (KJV)</label>
+                <label for="vs-ref">Look up a verse (KJV) — or just paste your own text below</label>
                 <div class="vs-ref-row">
-                  <input type="text" id="vs-ref" placeholder="e.g. John 3:16" autocomplete="off">
+                  <input type="text" id="vs-ref" placeholder="e.g. John 3:16 or Psalm 23" autocomplete="off">
                   <button type="button" class="vs-btn" id="vs-fetch">Look up</button>
                 </div>
               </div>
               <div class="vs-field">
-                <label for="vs-text">Verse text (edit if you like)</label>
-                <textarea id="vs-text" rows="4"></textarea>
+                <label for="vs-text">Text (paste a whole chapter if you like — it pages automatically)</label>
+                <textarea id="vs-text" rows="5"></textarea>
+              </div>
+              <div class="vs-field">
+                <label for="vs-attrib">Attribution / caption (edit or clear it)</label>
+                <input type="text" id="vs-attrib" placeholder="e.g. — John 3:16 (KJV)" autocomplete="off">
+                <label class="vs-check"><input type="checkbox" id="vs-show-attrib" checked> Show this line on the clip</label>
               </div>
               <div class="vs-row2">
                 <div class="vs-field">
@@ -472,23 +479,49 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
                   <select id="vs-style">
                     <option value="fade">Fade &amp; lift</option>
                     <option value="rise">Line-by-line rise</option>
+                    <option value="zoom">Slow zoom</option>
                     <option value="word">Word by word</option>
                   </select>
                 </div>
               </div>
-              <div class="vs-field">
-                <label for="vs-font">Font</label>
-                <select id="vs-font">
-                  <option value="Georgia, serif">Georgia (serif)</option>
-                  <option value="'Playfair Display', Georgia, serif">Playfair (elegant)</option>
-                  <option value="Inter, system-ui, sans-serif">Inter (modern)</option>
-                </select>
+              <div class="vs-row2">
+                <div class="vs-field">
+                  <label for="vs-font">Font</label>
+                  <select id="vs-font">
+                    <option value="Georgia, serif">Georgia (serif)</option>
+                    <option value="'Playfair Display', Georgia, serif">Playfair (elegant serif)</option>
+                    <option value="'Fraunces', Georgia, serif">Fraunces (display serif)</option>
+                    <option value="'Cormorant Garamond', Georgia, serif">Cormorant (classic)</option>
+                    <option value="Inter, system-ui, sans-serif">Inter (modern sans)</option>
+                    <option value="'Montserrat', system-ui, sans-serif">Montserrat (bold sans)</option>
+                    <option value="'Dancing Script', cursive">Dancing Script (handwritten)</option>
+                  </select>
+                </div>
+                <div class="vs-field">
+                  <label for="vs-duration">Clip length</label>
+                  <select id="vs-duration">
+                    <option value="5">5 seconds</option>
+                    <option value="8" selected>8 seconds</option>
+                    <option value="12">12 seconds</option>
+                    <option value="15">15 seconds</option>
+                    <option value="20">20 seconds</option>
+                    <option value="30">30 seconds</option>
+                  </select>
+                </div>
               </div>
               <div class="vs-field">
                 <label>Background</label>
                 <div class="vs-swatches" id="vs-swatches"></div>
+                <label class="vs-upload-btn" for="vs-bg-upload">🖼 Upload your own background image</label>
+                <input type="file" id="vs-bg-upload" accept="image/*" hidden>
               </div>
-              <p class="vs-legal">Scripture shown in the King James Version (Public Domain). Videos are made on your device — nothing is uploaded. Add music inside Instagram when you post.</p>
+              <div class="vs-field">
+                <label>Soundtrack (optional)</label>
+                <label class="vs-upload-btn" for="vs-audio-upload">🎵 Add a music / audio file</label>
+                <input type="file" id="vs-audio-upload" accept="audio/*" hidden>
+                <span class="vs-audio-name" id="vs-audio-name"></span>
+              </div>
+              <p class="vs-legal">KJV Scripture is Public Domain. Everything is made on your device — nothing is uploaded. When a soundtrack is added the clip records as WebM (video + audio). Note: baking copyrighted music into a Reel can get it muted or flagged — for public posts, adding music inside Instagram is safer.</p>
             </div>
           </div>
         </div>
@@ -674,7 +707,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/google-calendar.js?v=16"></script>
 <script src="assets/js/community-catalog.js?v=6"></script>
-<script src="assets/js/verse-studio.js?v=1" defer></script>
+<script src="assets/js/verse-studio.js?v=2" defer></script>
 <script>
 (function(){
 'use strict';

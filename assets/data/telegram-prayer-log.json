@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617206,
-  "lastModified": "2026-09-25T21:10:34Z",
+  "lastModified": "2026-09-25T21:40:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -318,16 +318,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6041,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey guys, I wanna ask for prayer for safety, I hear police sirens in my area, I also found out that nearby there was a shooting",
-      "ts": "2026-09-11T21:39:18Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6045,

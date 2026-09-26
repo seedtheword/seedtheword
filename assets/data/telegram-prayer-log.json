@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617220,
-  "lastModified": "2026-09-26T16:40:47Z",
+  "lastModified": "2026-09-26T21:10:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -324,56 +324,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6109,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Please pray for me and Eric everyone!",
-      "ts": "2026-09-12T21:08:30Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6110,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I'm putting in my 2 week notice and shared the gospel with Eric (my manager)",
-      "ts": "2026-09-12T21:08:46Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6111,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hope he comes unto Christ!",
-      "ts": "2026-09-12T21:08:57Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6112,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "🙏PRAYER DOG🙏 for visbility",
-      "ts": "2026-09-12T21:09:21Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6113,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "AMEN & HALLELUJAH JESUS!!! I see Your kingdom come. I praise You my King and Lord and Savior. My Yeshua. My Alpha & Omega, JESUS✝️",
-      "ts": "2026-09-12T21:10:23Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6114,

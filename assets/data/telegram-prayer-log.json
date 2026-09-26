@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617206,
-  "lastModified": "2026-09-25T22:40:32Z",
+  "lastUpdateId": 669617218,
+  "lastModified": "2026-09-26T15:17:56Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -315,19 +315,15 @@
       "messageId": 6528,
       "entryCount": 6,
       "postedAt": "2026-09-24T15:17:39Z"
+    },
+    "2026-W39-sat": {
+      "since": "2026-09-26T15:17:38Z",
+      "messageId": 6581,
+      "entryCount": 6,
+      "postedAt": "2026-09-26T15:17:56Z"
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6092,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer for me, and Everyone going to the Abortion walk. That we can have endurance, that we can have boldness, that we can have strength, that we can be protected against the enemy, and the Lords words may be our own, and we can cut down the enemy in this establishment... I believe this is my first time doing an evangelism thing with my church too, so yeah... bless me with favor from the Lord!!!",
-      "ts": "2026-09-12T12:49:33Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6109,
@@ -937,6 +933,36 @@
       "kind": "telegram",
       "text": "This marks the very first international evangelism Outreach success @ilya_nikitenko Edward @Davy_Lep @Vanessa_mind Noah @miaangelagyllen Sam Elijah @shiny7i",
       "ts": "2026-09-25T19:25:04Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6569,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Pray for my trip tonight guys. For easy navigation through the airport, for patient and graceful Spirits, and for safety.\n\nI will miss y’all (it’s only 5 days long but still)",
+      "ts": "2026-09-26T03:11:34Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6570,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Praying for you & myself 😊",
+      "ts": "2026-09-26T03:18:49Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6572,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thank you guys. I just got on the plane!",
+      "ts": "2026-09-26T05:35:46Z"
     }
   ]
 }

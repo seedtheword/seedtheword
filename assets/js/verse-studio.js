@@ -71,8 +71,9 @@
 
   // Reading pace presets → ms of DWELL per word (after the slide appears).
   var PACE = { fast: 220, medium: 320, slow: 440 };
-  var INTRO_MS = 900;   // time for a slide's entrance animation
-  var TRANS_MS = 700;   // time for the between-slide transition
+  var INTRO_MS = 900;   // time for a slide's entrance (text animates in)
+  var EXIT_MS  = 550;   // time for the text to animate OUT (clears the slate)
+  var TRANS_MS = 700;   // time for the blank-stage transition between slides
 
   var state = {
     groups: [{ text: 'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.', attribution: '— John 3:16 (KJV)', label: 'John 3:16', verses: null }],
@@ -167,12 +168,16 @@
     var perWord = PACE[state.pace] || PACE.medium;
     var segs = [];
     var t = 0;
+    var last = state.slides.length - 1;
     state.slides.forEach(function(sl, i){
       var dwell = Math.max(1400, slideWordCount(sl) * perWord);
       var intro = INTRO_MS;
-      var trans = (i < state.slides.length - 1) ? TRANS_MS : 0;
-      segs.push({ start: t, intro: intro, dwell: dwell, trans: trans, dur: intro + dwell + trans });
-      t += intro + dwell + trans;
+      // Text exits (clears the slate) before the transition, so the transition
+      // moves a BLANK stage and the next slide's text animates in fresh.
+      var exit = (i < last) ? EXIT_MS : 0;
+      var trans = (i < last) ? TRANS_MS : 0;
+      segs.push({ start: t, intro: intro, dwell: dwell, exit: exit, trans: trans, dur: intro + dwell + exit + trans });
+      t += intro + dwell + exit + trans;
     });
     var autoTotal = t;
     var total = state.manualTotalMs > 0 ? state.manualTotalMs : autoTotal;
@@ -292,50 +297,55 @@
   }
 
   // ── Frame renderer driven by the timeline ───────────────────
+  // Per slide, four phases: INTRO (text animates in) -> DWELL (hold to read)
+  // -> EXIT (text animates out, clearing the slate) -> TRANS (blank stage
+  // hand-off, NO text). So text never slides fully-formed; each slide's text
+  // always animates in fresh onto a clean stage.
   function drawAtTime(ms){
     var W=canvas.width,H=canvas.height;
     var tl=computeTimeline();
-    var segs=tl.segs, scale=tl.scale;
-    // find current slide segment (scaled)
-    var n=state.slides.length, idx=0, into=0, seg=null;
-    for(var i=0;i<n;i++){ var s=segs[i], start=s.start*scale, dur=s.dur*scale; if(ms>=start && ms<start+dur || i===n-1){ idx=i; seg=s; into=ms-start; if(i<n-1 && ms>=start+dur) continue; break; } }
-    seg=segs[idx]; into=ms-segs[idx].start*scale;
-    var intro=seg.intro*scale, dwell=seg.dwell*scale, trans=seg.trans*scale;
+    var segs=tl.segs, scale=tl.scale, n=state.slides.length;
 
-    paintBackground(Math.min(1,ms/tl.total));
+    // locate current segment
+    var idx=0;
+    for(var i=0;i<n;i++){ var s=segs[i], start=s.start*scale, dur=s.dur*scale; if(ms < start+dur || i===n-1){ idx=i; break; } }
+    var seg=segs[idx];
+    var into=ms - seg.start*scale;
+    var intro=seg.intro*scale, dwell=seg.dwell*scale, exit=seg.exit*scale, trans=seg.trans*scale;
 
-    // entrance progress for current slide
-    var enter=Math.min(1, into/Math.max(1,intro));
-    var inTransition = trans>0 && into > intro+dwell;
-    var tp = inTransition ? easeInOut(Math.min(1,(into-(intro+dwell))/trans)) : 0;
+    paintBackground(Math.min(1, ms/tl.total));
 
-    if(!inTransition){
+    var tIntroEnd = intro;
+    var tDwellEnd = intro + dwell;
+    var tExitEnd  = intro + dwell + exit;
+
+    if(into < tDwellEnd){
+      // INTRO or DWELL — text animating in, or held
+      var enter = Math.min(1, into/Math.max(1,intro));
       drawSlide(state.slides[idx], enter, 1, 0, 1);
       drawLogo();
       return;
     }
-    // TRANSITIONS — incoming slide always fully settled (enter=1), never re-runs entrance.
-    var cur=state.slides[idx], nxt=state.slides[idx+1];
-    if(state.transition==='slide'){
-      drawSlide(cur,1,1,-W*tp,1); drawSlide(nxt,1,1,W*(1-tp),1); drawLogo();
-    } else if(state.transition==='push'){
-      drawSlide(cur,1,1,-W*tp*0.6,1); drawSlide(nxt,1,tp,W*(1-tp)*0.6,1); drawLogo();
-    } else if(state.transition==='zoomblur'){
-      drawSlide(cur,1,1-tp,0,1-0.12*tp); drawSlide(nxt,1,tp,0,0.9+0.1*tp); drawLogo();
-    } else if(state.transition==='dipblack'){
-      var half=tp<0.5?tp/0.5:1-(tp-0.5)/0.5;
-      var showOut=1-Math.min(1,tp/0.5), showIn=Math.max(0,(tp-0.5)/0.5);
-      if(showOut>0.01) drawSlide(cur,1,showOut,0,1);
-      if(showIn>0.01) drawSlide(nxt,1,showIn,0,1);
-      ctx.save(); ctx.globalAlpha=half; ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H); ctx.restore();
+    if(into < tExitEnd){
+      // EXIT — current text animates out (fade + gentle lift), leaving a clean slate
+      var ep = easeInOut(Math.min(1, (into - tDwellEnd)/Math.max(1,exit)));
+      drawSlide(state.slides[idx], 1, 1 - ep, 0, 1 - 0.06*ep);
+      drawLogo();
+      return;
+    }
+    // TRANS — BLANK stage hand-off (no text). Vary the motion by transition type.
+    var tp = easeInOut(Math.min(1, (into - tExitEnd)/Math.max(1,trans)));
+    var dip = 1 - Math.abs(2*tp - 1);         // 0 -> 1 -> 0 over the transition
+    if(state.transition==='dipblack'){
+      ctx.save(); ctx.globalAlpha=dip; ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H); ctx.restore();
       drawLogo();
     } else if(state.transition==='fadelogo'){
-      var outA=1-Math.min(1,tp/0.5), inA=Math.max(0,(tp-0.5)/0.5), swell=tp<0.5?tp/0.5:1-(tp-0.5)/0.5;
-      if(outA>0.01) drawSlide(cur,1,outA,0,1);
-      if(inA>0.01) drawSlide(nxt,1,inA,0,1);
-      drawLogo(0.55+0.45*swell);
-    } else { // crossfade
-      drawSlide(cur,1,1-tp,0,1); drawSlide(nxt,1,tp,0,1); drawLogo();
+      drawLogo(0.55 + 0.45*dip);
+    } else {
+      // crossfade / slide / push / zoomblur all read as a gentle dip on the
+      // now-blank stage — smooth and consistent, then text animates in fresh.
+      ctx.save(); ctx.globalAlpha=dip*0.45; ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H); ctx.restore();
+      drawLogo();
     }
   }
   function drawStatic(){ repageAll(); drawAtTime(lastP); }

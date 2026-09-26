@@ -196,3 +196,7 @@
   font-weight: 700; font-size: 0.95rem; text-decoration: none;
 }
 .vs-dl:hover { text-decoration: underline; }
+
+/* Keep two-up rows aligned even if one label wraps to two lines */
+.vs-row2 { align-items: end; }
+.vs-row2 .vs-field > label { min-height: 2.1em; display: flex; align-items: flex-end; }

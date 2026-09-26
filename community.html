@@ -306,7 +306,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
   <link rel="stylesheet" href="assets/css/community-forkful.css?v=25">
-  <link rel="stylesheet" href="assets/css/verse-studio.css?v=4">
+  <link rel="stylesheet" href="assets/css/verse-studio.css?v=5">
 </head>
 <body class="community-body">
 
@@ -371,7 +371,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <span class="vs-promo__icon" aria-hidden="true">🎬</span>
         <span class="vs-promo__body">
           <span class="vs-promo__title">Verse Studio — make animated Scripture clips</span>
-          <span class="vs-promo__sub">Turn verses, your reading-plan passages, and Bible studies into short animated videos for Instagram Reels &amp; Stories. Pick a look, add music, download.</span>
+          <span class="vs-promo__sub">Turn verses, your reading-plan passages, and Bible studies into short animated videos for social media — Reels, Stories, TikTok, Shorts. Pick a look, add music, download or share.</span>
         </span>
         <span class="vs-promo__go" aria-hidden="true">Try it →</span>
       </button>
@@ -431,7 +431,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <div class="groups-list" id="groups-list"><div class="groups-list__loading">Loading groups…</div></div>
       </div>
 
-      <!-- Verse Studio: make an animated, shareable KJV verse clip for Instagram -->
+      <!-- Verse Studio: make an animated, shareable KJV verse clip for social media -->
       <div class="vs-block" id="verse-studio">
         <div class="vs-block__head">
           <div>
@@ -439,7 +439,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
             <h3 class="vs-block__title">🎬 Verse Studio</h3>
           </div>
         </div>
-        <p class="vs-block__hint">Turn a KJV verse into an animated clip you can post to Instagram Reels, Stories, or feed. Pick a verse, choose a look, preview it, and download the video.</p>
+        <p class="vs-block__hint">Turn Scripture into an animated clip for social media — Reels, Stories, TikTok, YouTube Shorts, or a feed post. Stack passages, choose a look and reading pace, preview it, then download or share.</p>
         <button type="button" class="vs-block__toggle" id="vs-open">🎬 Open Verse Studio</button>
 
         <div class="vs-studio">
@@ -452,10 +452,12 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
               <div class="vs-playbar">
                 <button type="button" class="vs-btn vs-btn--primary" id="vs-play">▶ Preview</button>
                 <button type="button" class="vs-btn vs-btn--record" id="vs-record">● Record clip</button>
+                <button type="button" class="vs-btn" id="vs-share" hidden>↗ Share</button>
               </div>
               <p class="vs-status" id="vs-status"></p>
+              <p class="vs-total" id="vs-total"></p>
               <div class="vs-downloads" id="vs-downloads"></div>
-              <p class="vs-stage__note">Tip: Instagram Reels &amp; Stories use the 9:16 “Story” size.</p>
+              <p class="vs-stage__note">Tip: Reels, Stories, TikTok &amp; Shorts use the 9:16 “Story” size.</p>
             </div>
 
             <!-- Controls -->
@@ -482,6 +484,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
                 <label for="vs-attrib">Caption / attribution (used for pasted text; edit or clear)</label>
                 <input type="text" id="vs-attrib" placeholder="e.g. — John 3:16 (KJV)" autocomplete="off">
                 <label class="vs-check"><input type="checkbox" id="vs-show-attrib" checked> Show the caption line on the clip</label>
+                <label class="vs-check"><input type="checkbox" id="vs-show-versenums" checked> Show verse numbers next to each verse</label>
               </div>
               <div class="vs-row2">
                 <div class="vs-field">
@@ -493,21 +496,17 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
                   </select>
                 </div>
                 <div class="vs-field">
-                  <label for="vs-duration">Clip length</label>
-                  <select id="vs-duration">
-                    <option value="5">5 seconds</option>
-                    <option value="8" selected>8 seconds</option>
-                    <option value="12">12 seconds</option>
-                    <option value="15">15 seconds</option>
-                    <option value="20">20 seconds</option>
-                    <option value="30">30 seconds</option>
-                    <option value="45">45 seconds</option>
-                    <option value="60">1 minute</option>
-                    <option value="120">2 minutes</option>
-                    <option value="180">3 minutes</option>
-                    <option value="300">5 minutes</option>
+                  <label for="vs-pace">Reading pace (time to read each slide)</label>
+                  <select id="vs-pace">
+                    <option value="fast">Fast</option>
+                    <option value="medium" selected>Comfortable</option>
+                    <option value="slow">Slow (more time to read)</option>
                   </select>
                 </div>
+              </div>
+              <div class="vs-field">
+                <label for="vs-duration">Total length — leave 0 for automatic (based on reading pace)</label>
+                <input type="number" id="vs-duration" min="0" max="600" step="1" value="0" placeholder="0 = auto">
               </div>
               <div class="vs-row2">
                 <div class="vs-field">
@@ -515,8 +514,9 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
                   <select id="vs-style">
                     <option value="fade">Fade &amp; lift</option>
                     <option value="rise">Line-by-line rise</option>
+                    <option value="drop">Line-by-line drop</option>
                     <option value="zoom">Slow zoom</option>
-                    <option value="typewriter">Typewriter</option>
+                    <option value="blur">Blur in</option>
                     <option value="word">Word by word</option>
                   </select>
                 </div>
@@ -525,6 +525,9 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
                   <select id="vs-transition">
                     <option value="crossfade">Crossfade</option>
                     <option value="slide">Slide across</option>
+                    <option value="push">Push</option>
+                    <option value="zoomblur">Zoom blend</option>
+                    <option value="dipblack">Dip to black</option>
                     <option value="fadelogo">Fade through logo</option>
                   </select>
                 </div>
@@ -564,7 +567,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
                 <input type="file" id="vs-audio-upload" accept="audio/*" hidden>
                 <span class="vs-audio-name" id="vs-audio-name"></span>
               </div>
-              <p class="vs-legal">KJV Scripture is Public Domain. Everything is made on your device — nothing is uploaded. With a soundtrack the clip records as WebM (video + audio). Note: baking copyrighted music into a Reel can get it muted or flagged — for public posts, adding music inside Instagram is safer.</p>
+              <p class="vs-legal">KJV Scripture is Public Domain. Everything is made on your device — nothing is uploaded. With a soundtrack the clip records as WebM (video + audio). Note: baking copyrighted music in can get a post muted or flagged on some platforms — for public posts, adding music inside the app you post to is safer.</p>
             </div>
           </div>
         </div>
@@ -750,7 +753,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/google-calendar.js?v=16"></script>
 <script src="assets/js/community-catalog.js?v=6"></script>
-<script src="assets/js/verse-studio.js?v=7" defer></script>
+<script src="assets/js/verse-studio.js?v=8" defer></script>
 <script>
 (function(){
 'use strict';

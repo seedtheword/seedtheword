@@ -184,3 +184,15 @@
 .vs-bcv #vs-book { flex: 1 1 auto; min-width: 0; }
 .vs-bcv #vs-chapter { flex: 0 0 78px; }
 .vs-bcv #vs-verse { flex: 0 0 72px; }
+
+/* v4: total-length label, manual duration input, download link, share btn */
+.vs-total { font-size: 0.78rem; color: var(--muted, #777); margin: 0.15rem 0 0; text-align: center; }
+.vs-field input[type="number"] {
+  width: 100%; box-sizing: border-box; padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border-warm, #ddd); border-radius: 10px; font: inherit;
+}
+.vs-dl {
+  display: inline-block; margin-top: 0.25rem; color: var(--green, #2C5F2E);
+  font-weight: 700; font-size: 0.95rem; text-decoration: none;
+}
+.vs-dl:hover { text-decoration: underline; }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617236,
-  "lastModified": "2026-09-27T15:55:35Z",
+  "lastModified": "2026-09-27T16:55:38Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -324,16 +324,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6120,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Good morning and Blessed days for everyone, I wanna ask everyone for prayer of healing, yesterday when I had breakfast my stomach started to cramp and it started to worsen all throughout the day, I kept waking up with my body cramping and almost throwing up, so I ask please pray for my body to heal.",
-      "ts": "2026-09-13T16:50:11Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6122,

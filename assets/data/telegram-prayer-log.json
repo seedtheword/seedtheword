@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617223,
-  "lastModified": "2026-09-27T00:10:33Z",
+  "lastUpdateId": 669617225,
+  "lastModified": "2026-09-27T07:40:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -903,6 +903,16 @@
       "kind": "telegram",
       "text": "Let's pray for @Vanessa_mind on her \"evangelism trip\" so God blesses her and they have success in handing out Bibles",
       "ts": "2026-09-26T16:27:34Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6587,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Be still and know that I am God... right now I am struggling, actually I am having such bad mental and emotional reactions I am still awake, I am having physiological issues too, right now a storm is surrounding me, and the army of darkness encamps against me\n\nHowever the lord is my fortress, my stronghold, my help in this time of trouble... and nothing, nobody, can remove him from me... so I shall not fear, even if the actual biological signs are almost like I am in the fight of my life... I can rest knowing I am safe with you... I shall not be afaid.... I shall be still and know... my God is God... that the storm thats tossing me around will end, and I shall rejoice when it comes, and I shall sing and clap my hands... I shall praise you again! I will hold on, and wait...  show me what you can do, I believe in you!",
+      "ts": "2026-09-27T07:27:32Z"
     }
   ]
 }

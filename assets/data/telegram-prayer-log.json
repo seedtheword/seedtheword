@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617239,
-  "lastModified": "2026-09-27T18:55:34Z",
+  "lastModified": "2026-09-27T19:40:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -324,16 +324,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6126,
-      "userId": 8011089117,
-      "displayName": "Noah",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Psalm 91:8-13 ESV \n[8] You will only look with your eyes and see the recompense of the wicked. [9] Because you have made the Lord your dwelling place— the Most High, who is my refuge— [10]  no evil shall be allowed to befall you, no plague come near your tent. [11]  For he will command his angels concerning you to guard you in all your ways. [12] On their hands they will bear you up, lest you strike your foot against a stone. [13] You will tread on the lion and the adder; the young lion and the serpent you will trample underfoot.",
-      "ts": "2026-09-13T19:30:02Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6144,

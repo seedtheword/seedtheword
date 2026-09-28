@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617266,
-  "lastModified": "2026-09-28T21:55:46Z",
+  "lastUpdateId": 669617269,
+  "lastModified": "2026-09-28T22:10:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -919,6 +919,16 @@
       "kind": "telegram",
       "text": "Feel like we should also pray for happiness for today and everyday, lots of sadness, we can't have this in God's kingdom!",
       "ts": "2026-09-28T21:50:57Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6626,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "No pray for Joy, happiness and sadness are based on circumstances, Joy cannot be taken",
+      "ts": "2026-09-28T21:58:13Z"
     }
   ]
 }

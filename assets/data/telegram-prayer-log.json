@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617265,
-  "lastModified": "2026-09-28T20:10:39Z",
+  "lastModified": "2026-09-28T20:25:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -330,16 +330,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6154,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I am trying to start classes again at EvCC, so I can extend platnum insurance through the military, so planning to work and go to school... going to try to get my FAA, additionally if any of you guys enroll, I suggest we evangelize here and collaborate with the Christian group on campus",
-      "ts": "2026-09-14T20:25:12Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6166,

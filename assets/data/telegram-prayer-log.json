@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617270,
-  "lastModified": "2026-09-29T05:41:02Z",
+  "lastModified": "2026-09-29T05:56:19Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -330,66 +330,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6169,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "They’re not just nuts but it’s a whole mentality thing, but yes regardless we preach and evangelize those who are lost from the world, I’m honestly saddened to see so many lost in the world rather than seeing people spread the word, the word of God",
-      "ts": "2026-09-15T05:44:39Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6178,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Come grab a Bible bro, let's go to work this Saturday at Bellevue downtown park, God's already calling for labourers",
-      "ts": "2026-09-15T05:52:59Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6180,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Here’s my bible",
-      "ts": "2026-09-15T05:55:13Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6181,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Give it away now brother",
-      "ts": "2026-09-15T05:55:30Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6182,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I don’t understand",
-      "ts": "2026-09-15T05:55:47Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6183,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "We give away Bibles",
-      "ts": "2026-09-15T05:55:56Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6184,

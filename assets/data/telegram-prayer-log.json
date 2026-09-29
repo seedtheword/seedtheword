@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617314,
-  "lastModified": "2026-09-29T21:40:36Z",
+  "lastUpdateId": 669617319,
+  "lastModified": "2026-09-29T21:55:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -829,6 +829,16 @@
       "kind": "telegram",
       "text": "Praise God!!!",
       "ts": "2026-09-29T06:25:03Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6674,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Met a guy named Dallas, from Dallas Texas, got to talk to him on the bus about Jesus, gave him a QR code so he can get connected with us, he has a prayer request for Blessing over his family, and their souls",
+      "ts": "2026-09-29T21:50:49Z"
     }
   ]
 }

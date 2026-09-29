@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617275,
-  "lastModified": "2026-09-29T14:55:37Z",
+  "lastModified": "2026-09-29T20:40:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -330,16 +330,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6200,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Currently at the dentist with family (for a family member) prayers would be greatly appreciated",
-      "ts": "2026-09-15T20:38:15Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6202,

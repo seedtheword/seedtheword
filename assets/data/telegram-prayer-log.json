@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617270,
-  "lastModified": "2026-09-29T05:56:19Z",
+  "lastModified": "2026-09-29T06:10:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -330,26 +330,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6184,
-      "userId": 8349167884,
-      "displayName": "Jheremie Cruz",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "But this is my personal bible, this is what I felt was pulling me, like it was calling for me",
-      "ts": "2026-09-15T05:58:35Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6185,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "We got Bibles  grab one of ours",
-      "ts": "2026-09-15T05:58:47Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6190,

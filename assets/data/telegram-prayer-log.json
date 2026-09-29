@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617270,
-  "lastModified": "2026-09-29T06:10:35Z",
+  "lastUpdateId": 669617272,
+  "lastModified": "2026-09-29T06:25:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -330,16 +330,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6190,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Sorry I just reread your message. Yeah right that Bible is yours. We'll get you another one brother",
-      "ts": "2026-09-15T06:14:40Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6200,
@@ -839,6 +829,16 @@
       "kind": "telegram",
       "text": "Thanksgiving Announcement 9/28/2026:\n\n\"Thank you, David and Seed the Word. \n\nThis prayer means so much to me, thank you so much.\"\n\nGood job family 💯🙌",
       "ts": "2026-09-29T02:08:45Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6629,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Praise God!!!",
+      "ts": "2026-09-29T06:25:03Z"
     }
   ]
 }

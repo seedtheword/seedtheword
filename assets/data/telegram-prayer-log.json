@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617323,
-  "lastModified": "2026-09-29T23:55:36Z",
+  "lastModified": "2026-09-30T00:10:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -330,16 +330,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6202,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "plz also pray over me. Been feeling off today, can't quite put my figure on it but I'm sure there are many reasons why I feel this way and it could be just collectively adding up.",
-      "ts": "2026-09-16T00:00:54Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6204,

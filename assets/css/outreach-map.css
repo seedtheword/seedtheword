@@ -132,3 +132,13 @@
 #showcase #outreach-reach .reach__title { color: #fff; }
 #showcase #outreach-reach .reach__sub { color: rgba(255,255,255,0.75); }
 #showcase #outreach-reach .reach__stat-label { color: rgba(255,255,255,0.7); }
+
+/* Compact-mode reached location lists (donate.html) */
+.reach__reached { margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.reach__reached-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem; }
+.reach__reached-label { font-size: 0.82rem; flex: 0 0 auto; opacity: 0.7; }
+.reach-chip--sm {
+  font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 999px;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+  white-space: nowrap;
+}

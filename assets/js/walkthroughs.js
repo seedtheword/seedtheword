@@ -207,10 +207,10 @@
       steps: [
         { target: 'map-nav', tab: 'studio', title: 'Open the Outreach Map', body: 'In Content Studio\'s sidebar, pick <strong>🗺️ Outreach Map</strong>.' },
         { target: 'map-type', tab: 'studio', title: 'Pick the type', body: 'Choose <strong>Country</strong>, <strong>State / region</strong>, or <strong>City</strong>.' },
-        { target: 'map-name', tab: 'studio', title: 'Enter the name', body: 'Type the place name, e.g. <strong>Pakistan</strong>. For a city, put its state in "Region / parent."' },
+        { target: 'map-name', tab: 'studio', title: 'Enter the name', body: 'Type <strong>just the place name</strong> — one entry at a time. E.g. for Miami: name = <strong>Miami</strong>, type = <strong>City</strong>, region = <strong>Florida</strong>. Then save, and add a separate <strong>State</strong> entry for Florida, region = United States.' },
         { target: 'map-iso', tab: 'studio', title: 'Add the country code (countries only)', body: 'For a country, add the 2-letter code (<strong>US</strong>, <strong>SR</strong>, <strong>PK</strong>…) so it pins on the globe.', behind: 'The code field auto-disables for states and cities — only countries tint the world map.' },
         { target: 'map-pub', tab: 'studio', title: 'Keep "Published" on', body: 'Leave <strong>Published</strong> checked to show it live.', behind: 'The "countries reached" number counts only <b>published countries</b>; states/cities show in lists but don\'t bump that count.' },
-        { target: 'map-save', tab: 'studio', title: 'Save the location', body: 'Tap <strong>💾 Save location</strong>. The globe and count update within a couple of minutes.' }
+        { target: 'map-save', tab: 'studio', title: 'Save the location', body: 'Tap <strong>💾 Save location</strong>. The globe and location lists update within about a minute.' }
       ]
     },
 

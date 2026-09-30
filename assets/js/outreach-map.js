@@ -13,7 +13,7 @@
  */
 (function () {
   var CACHE_KEY = 'stw_outreach_locations';
-  var TTL = 5 * 60 * 1000;
+  var TTL = 60 * 1000; // 60 seconds — short so new locations saved in Content Studio appear quickly
   var FALLBACK = {
     ok: true,
     countries: [
@@ -46,12 +46,44 @@
   // Covers the reached WA cities + a few likely future ones; unknown cities are
   // simply skipped (no pin) until added here.
   var CITY_LATLON = {
+    // Washington State
     'seattle': [-122.33, 47.61], 'bellevue': [-122.20, 47.61], 'lynnwood': [-122.31, 47.82],
     'everett': [-122.20, 47.98], 'mukilteo': [-122.30, 47.94], 'federal way': [-122.31, 47.32],
     'tacoma': [-122.44, 47.25], 'redmond': [-122.12, 47.67], 'kirkland': [-122.21, 47.68],
     'renton': [-122.21, 47.48], 'kent': [-122.23, 47.38], 'shoreline': [-122.34, 47.76],
     'edmonds': [-122.38, 47.81], 'bothell': [-122.21, 47.76], 'seatac': [-122.31, 47.44],
-    'houston': [-95.37, 29.76], 'dallas': [-96.80, 32.78], 'austin': [-97.74, 30.27], 'paramaribo': [-55.17, 5.87]
+    'burien': [-122.35, 47.47], 'auburn': [-122.23, 47.31], 'marysville': [-122.18, 48.05],
+    'snohomish': [-122.10, 47.91], 'mountlake terrace': [-122.31, 47.79],
+    // Texas
+    'houston': [-95.37, 29.76], 'dallas': [-96.80, 32.78], 'austin': [-97.74, 30.27],
+    'san antonio': [-98.49, 29.42], 'fort worth': [-97.33, 32.75], 'el paso': [-106.49, 31.76],
+    'arlington': [-97.11, 32.74], 'corpus christi': [-97.40, 27.80], 'lubbock': [-101.85, 33.58],
+    // Florida
+    'miami': [-80.19, 25.77], 'orlando': [-81.38, 28.54], 'tampa': [-82.46, 27.95],
+    'jacksonville': [-81.66, 30.33], 'fort lauderdale': [-80.14, 26.12], 'tallahassee': [-84.28, 30.44],
+    'st. petersburg': [-82.64, 27.77], 'st. pete': [-82.64, 27.77], 'gainesville': [-82.32, 29.65],
+    'pensacola': [-87.22, 30.42], 'naples': [-81.80, 26.14], 'cape coral': [-81.99, 26.57],
+    // California
+    'los angeles': [-118.24, 34.05], 'san francisco': [-122.42, 37.77], 'san diego': [-117.16, 32.72],
+    'sacramento': [-121.49, 38.58], 'fresno': [-119.79, 36.74], 'san jose': [-121.89, 37.34],
+    // New York
+    'new york': [-74.01, 40.71], 'brooklyn': [-73.95, 40.65], 'bronx': [-73.86, 40.84],
+    'buffalo': [-78.88, 42.88], 'rochester': [-77.61, 43.16],
+    // Other major US
+    'chicago': [-87.63, 41.88], 'phoenix': [-112.07, 33.45], 'philadelphia': [-75.16, 39.95],
+    'san antonio': [-98.49, 29.42], 'las vegas': [-115.14, 36.17], 'denver': [-104.99, 39.74],
+    'portland': [-122.68, 45.52], 'memphis': [-90.05, 35.15], 'nashville': [-86.78, 36.17],
+    'atlanta': [-84.39, 33.75], 'detroit': [-83.05, 42.33], 'minneapolis': [-93.27, 44.98],
+    'boston': [-71.06, 42.36], 'washington dc': [-77.04, 38.91], 'washington d.c.': [-77.04, 38.91],
+    'baltimore': [-76.61, 39.29], 'charlotte': [-80.84, 35.23], 'raleigh': [-78.64, 35.78],
+    'columbus': [-82.99, 39.96], 'indianapolis': [-86.16, 39.77], 'louisville': [-85.76, 38.25],
+    'kansas city': [-94.58, 39.10], 'oklahoma city': [-97.52, 35.47], 'albuquerque': [-106.65, 35.08],
+    'salt lake city': [-111.89, 40.76], 'boise': [-116.20, 43.62], 'spokane': [-117.43, 47.66],
+    // International
+    'paramaribo': [-55.17, 5.87], 'karachi': [67.01, 24.86], 'lahore': [74.33, 31.56],
+    'islamabad': [73.04, 33.72], 'nairobi': [36.82, -1.29], 'lagos': [3.38, 6.45],
+    'accra': [-0.19, 5.56], 'london': [-0.13, 51.51], 'toronto': [-79.38, 43.65],
+    'sydney': [151.21, -33.87], 'manila': [120.98, 14.60]
   };
 
   // World coastlines as [lon,lat] polylines — denser outlines for a more
@@ -466,10 +498,23 @@
       // Just the globe — the surrounding page provides its own counts/labels.
       container.innerHTML = '<div class="reach reach--globe-only">' + globeBlock + '</div>';
     } else if (compact) {
+      // Compact mode (donate.html): globe + counter + a small collapsible
+      // "Reached" list so newly-added locations are actually visible.
+      var compactChips = '';
+      if (countries.length) {
+        compactChips += '<div class="reach__reached-row"><span class="reach__reached-label">🌍</span>' + countries.map(function(x){ return '<span class="reach-chip reach-chip--sm">'+esc(x.name)+'</span>'; }).join('') + '</div>';
+      }
+      if (states.length) {
+        compactChips += '<div class="reach__reached-row"><span class="reach__reached-label">🏳️</span>' + states.map(function(x){ return '<span class="reach-chip reach-chip--sm">'+esc(x.name)+'</span>'; }).join('') + '</div>';
+      }
+      if (cities.length) {
+        compactChips += '<div class="reach__reached-row"><span class="reach__reached-label">📍</span>' + cities.map(function(x){ return '<span class="reach-chip reach-chip--sm">'+esc(x.name)+'</span>'; }).join('') + '</div>';
+      }
       container.innerHTML =
         '<div class="reach reach--compact">' +
           '<div class="reach__eyebrow">Our Reach — Where We\'ve Sent Bibles</div>' +
           globeBlock + counterInline +
+          (compactChips ? '<div class="reach__reached">' + compactChips + '</div>' : '') +
         '</div>';
     } else {
       container.innerHTML =

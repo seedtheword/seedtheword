@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617323,
-  "lastModified": "2026-09-30T01:10:36Z",
+  "lastUpdateId": 669617326,
+  "lastModified": "2026-09-30T02:55:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -749,6 +749,16 @@
       "kind": "telegram",
       "text": "Met a guy named Dallas, from Dallas Texas, got to talk to him on the bus about Jesus, gave him a QR code so he can get connected with us, he has a prayer request for Blessing over his family, and their souls",
       "ts": "2026-09-29T21:50:49Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6681,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Let's #GoTeamJesus\n\nMatthew 28:20 NIV \n[20] and teaching them to obey everything I have commanded you. And surely I am with you always, to the very end of the age.” \n \nhttps://bible.com/bible/111/mat.28.20.NIV",
+      "ts": "2026-09-30T02:53:33Z"
     }
   ]
 }

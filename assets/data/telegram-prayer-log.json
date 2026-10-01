@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617355,
-  "lastModified": "2026-10-01T08:25:35Z",
+  "lastUpdateId": 669617357,
+  "lastModified": "2026-10-01T09:09:38Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -809,6 +809,16 @@
       "kind": "telegram",
       "text": "Let me know if you need more anytime!",
       "ts": "2026-10-01T01:04:11Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6707,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for Randy 10/1/2026:\n\nRandy is a Catholic who lives near me and I've reconnected with him since the last time we spoke and he is still grieving the loss of his son if I'm not mistaken but at least it was good to hear that he prays daily and unfortunately he is still not interested to show up in church because he believes that his sins cannot be cleansed (although after conversation with them he knows that's not the case and he's just over exaggerating) \n\nLet's continue to keep him in prayer so the Lord brings him home and he finds reconciliation with maintaining his relationship with Jesus.",
+      "ts": "2026-10-01T08:56:43Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617358,
-  "lastModified": "2026-10-01T09:25:33Z",
+  "lastUpdateId": 669617364,
+  "lastModified": "2026-10-01T09:40:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -819,6 +819,56 @@
       "kind": "telegram",
       "text": "Prayer Request for Randy 10/1/2026:\n\nRandy is a Catholic who lives near me and I've reconnected with him since the last time we spoke and he is still grieving the loss of his son if I'm not mistaken but at least it was good to hear that he prays daily and unfortunately he is still not interested to show up in church because he believes that his sins cannot be cleansed (although after conversation with them he knows that's not the case and he's just over exaggerating) \n\nLet's continue to keep him in prayer so the Lord brings him home and he finds reconciliation with maintaining his relationship with Jesus.",
       "ts": "2026-10-01T08:56:43Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6710,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Although no caffeine at this hour is roughhhh 😫",
+      "ts": "2026-10-01T09:26:08Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6711,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for Maca 9/30/2026:\n\n\"Can I request a prayer\nIt's been some stressful days for me\"\n\nFrom Instagram story",
+      "ts": "2026-10-01T09:30:47Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6712,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request from Jose 9/30/2026:\n\n\"For my schooling/overall wellness. Lots of schoolwork/stress even if it’s my passion.\"\n\nFrom Instagram story",
+      "ts": "2026-10-01T09:31:39Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6714,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "It's Jose (our ministry member)😅",
+      "ts": "2026-10-01T09:40:05Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6715,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "He's a dude",
+      "ts": "2026-10-01T09:40:28Z"
     }
   ]
 }

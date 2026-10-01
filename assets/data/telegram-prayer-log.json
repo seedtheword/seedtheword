@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617342,
-  "lastModified": "2026-10-01T00:55:34Z",
+  "lastUpdateId": 669617347,
+  "lastModified": "2026-10-01T01:10:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -779,6 +779,46 @@
       "kind": "telegram",
       "text": "Despite their rejection of God, they still desperately wanted the Bibles, also they all flocked to me and said thank you for blessing their friend, his name is Mike's, Praise God!!! 🙏🙌",
       "ts": "2026-10-01T00:47:33Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6695,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "So you handed out Bibles?",
+      "ts": "2026-10-01T01:00:55Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6696,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Every one",
+      "ts": "2026-10-01T01:01:06Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6697,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "They kinda begged for them, funnily enough",
+      "ts": "2026-10-01T01:01:19Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6698,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Let me know if you need more anytime!",
+      "ts": "2026-10-01T01:04:11Z"
     }
   ]
 }

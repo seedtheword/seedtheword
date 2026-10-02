@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617387,
-  "lastModified": "2026-10-02T20:55:36Z",
+  "lastModified": "2026-10-02T21:39:47Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -336,16 +336,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6426,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer Request 9/18/2026:\n\nPraying for complete victory over anxiety, distress, evil.\n\nMy Spirit wants more freedom but the body is rejecting and pushing back really hard, feel locked in the middle, need a breakthrough.",
-      "ts": "2026-09-18T21:34:46Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6428,

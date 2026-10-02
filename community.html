@@ -306,7 +306,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
   </style>
   <!-- Forkful warm theme layer — loaded LAST so it refines the inline styles above -->
   <link rel="stylesheet" href="assets/css/community-forkful.css?v=25">
-  <link rel="stylesheet" href="assets/css/verse-studio.css?v=6">
+  <link rel="stylesheet" href="assets/css/verse-studio.css?v=7">
 </head>
 <body class="community-body">
 
@@ -443,6 +443,11 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
         <button type="button" class="vs-block__toggle" id="vs-open">🎬 Open Verse Studio</button>
 
         <div class="vs-studio">
+          <!-- Mode toggle: Verse Clip | Series Intro -->
+          <div class="vs-mode-bar">
+            <button type="button" class="vs-mode-btn vs-mode-btn--active" id="vs-mode-verse">📖 Verse Clip</button>
+            <button type="button" class="vs-mode-btn" id="vs-mode-intro">🎬 Series Intro</button>
+          </div>
           <div class="vs-grid">
             <!-- Live preview -->
             <div class="vs-stage">
@@ -457,11 +462,11 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
               <p class="vs-status" id="vs-status"></p>
               <p class="vs-total" id="vs-total"></p>
               <div class="vs-downloads" id="vs-downloads"></div>
-              <p class="vs-stage__note">Tip: Reels, Stories, TikTok &amp; Shorts use the 9:16 “Story” size.</p>
+              <p class="vs-stage__note" id="vs-stage-note">Tip: Reels, Stories, TikTok &amp; Shorts use the 9:16 “Story” size.</p>
             </div>
 
-            <!-- Controls -->
-            <div class="vs-controls">
+            <!-- Verse Clip controls (shown in verse mode) -->
+            <div class="vs-controls" id="vs-controls-verse">
               <div class="vs-field">
                 <label>Add Scripture (KJV) — pick from the dropdowns, or type a reference</label>
                 <div class="vs-bcv">
@@ -568,6 +573,86 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
             </div>
           </div>
         </div>
+
+            <!-- Series Intro controls (shown in intro mode) -->
+            <div class="vs-controls vs-controls--intro" id="vs-controls-intro" hidden>
+              <div class="vs-intro-hint">
+                <p>Create a cinematic opening card for a series, challenge, or study campaign. The STW logo and your branding animate in together.</p>
+              </div>
+              <div class="vs-field">
+                <label for="si-title">Main title line</label>
+                <input type="text" id="si-title" placeholder="e.g. #TryOutJesus Challenge" autocomplete="off">
+              </div>
+              <div class="vs-field">
+                <label for="si-subtitle">Subtitle / series tag</label>
+                <input type="text" id="si-subtitle" placeholder="e.g. Gospel of John" autocomplete="off">
+              </div>
+              <div class="vs-field">
+                <label for="si-eyebrow">Eyebrow text (optional — small line above the title)</label>
+                <input type="text" id="si-eyebrow" placeholder="e.g. Seed the Word · Series 1" autocomplete="off">
+              </div>
+              <div class="vs-row2">
+                <div class="vs-field">
+                  <label for="si-format">Size</label>
+                  <select id="si-format">
+                    <option value="story">Story / Reel (9:16)</option>
+                    <option value="square">Square (1:1)</option>
+                    <option value="wide" selected>YouTube / Landscape (16:9)</option>
+                    <option value="post">Portrait (4:5)</option>
+                  </select>
+                </div>
+                <div class="vs-field">
+                  <label for="si-duration">Clip length</label>
+                  <select id="si-duration">
+                    <option value="5">5 seconds</option>
+                    <option value="8" selected>8 seconds</option>
+                    <option value="12">12 seconds</option>
+                    <option value="15">15 seconds</option>
+                  </select>
+                </div>
+              </div>
+              <div class="vs-row2">
+                <div class="vs-field">
+                  <label for="si-style">Animation</label>
+                  <select id="si-style">
+                    <option value="cinematic">Cinematic reveal</option>
+                    <option value="titledrop">Title drop</option>
+                    <option value="glowrise">Glow rise</option>
+                    <option value="typewriter">Typewriter</option>
+                  </select>
+                </div>
+                <div class="vs-field">
+                  <label for="si-font">Font</label>
+                  <select id="si-font">
+                    <option value="'Fraunces', Georgia, serif">Fraunces (display)</option>
+                    <option value="'Playfair Display', Georgia, serif">Playfair (elegant)</option>
+                    <option value="Georgia, serif">Georgia (classic)</option>
+                    <option value="'Montserrat', system-ui, sans-serif">Montserrat (bold)</option>
+                    <option value="'Oswald', system-ui, sans-serif">Oswald (condensed)</option>
+                    <option value="'Dancing Script', cursive">Dancing Script</option>
+                  </select>
+                </div>
+              </div>
+              <div class="vs-field">
+                <label>Title color</label>
+                <div class="vs-swatches vs-swatches--sm" id="si-titlecolors"></div>
+                <label class="vs-hex"><span>Custom:</span> <input type="color" id="si-title-hex" value="#E4CB86"></label>
+              </div>
+              <div class="vs-field">
+                <label>Background</label>
+                <div class="vs-swatches" id="si-swatches"></div>
+                <label class="vs-hex"><span>Custom color:</span> <input type="color" id="si-bg-hex" value="#0f2417"></label>
+                <label class="vs-upload-btn" for="si-bg-upload">🖼 Upload your own background</label>
+                <input type="file" id="si-bg-upload" accept="image/*" hidden>
+              </div>
+              <div class="vs-field">
+                <label for="si-soundtrack">Soundtrack (optional)</label>
+                <select id="si-soundtrack"></select>
+                <label class="vs-upload-btn" for="si-audio-upload">🎵 …or upload your own audio</label>
+                <input type="file" id="si-audio-upload" accept="audio/*" hidden>
+                <span class="vs-audio-name" id="si-audio-name"></span>
+              </div>
+            </div>
       </div>
 
       <!-- Group chat room (shown when a group is open; hides the reader/discussion) -->
@@ -750,7 +835,7 @@ body.community-body{background:var(--color-bg);color:var(--color-text);font-fami
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/google-calendar.js?v=16"></script>
 <script src="assets/js/community-catalog.js?v=6"></script>
-<script src="assets/js/verse-studio.js?v=9" defer></script>
+<script src="assets/js/verse-studio.js?v=10" defer></script>
 <script>
 (function(){
 'use strict';

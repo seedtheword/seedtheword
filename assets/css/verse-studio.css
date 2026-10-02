@@ -200,3 +200,25 @@
 /* Keep two-up rows aligned even if one label wraps to two lines */
 .vs-row2 { align-items: end; }
 .vs-row2 .vs-field > label { min-height: 2.1em; display: flex; align-items: flex-end; }
+
+/* ── Series Intro mode ─────────────────────────────────────── */
+.vs-mode-bar {
+  display: flex; gap: 0; margin-bottom: 1.25rem;
+  border: 1px solid var(--border-warm, #ddd); border-radius: 12px; overflow: hidden;
+}
+.vs-mode-btn {
+  flex: 1; padding: 0.7rem 1rem; border: 0; cursor: pointer; font-weight: 600;
+  font-size: 0.9rem; background: #f5f3ef; color: var(--muted, #555);
+  transition: background .18s, color .18s;
+}
+.vs-mode-btn:first-child { border-right: 1px solid var(--border-warm, #ddd); }
+.vs-mode-btn--active {
+  background: var(--green, #2C5F2E); color: #fff;
+}
+.vs-mode-btn:not(.vs-mode-btn--active):hover { background: #eceae5; }
+
+.vs-intro-hint {
+  background: rgba(201,165,77,0.10); border: 1px solid rgba(201,165,77,0.3);
+  border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 0.5rem;
+  font-size: 0.88rem; color: var(--color-text, #1f1f1f); line-height: 1.55;
+}

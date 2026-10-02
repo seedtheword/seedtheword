@@ -45,7 +45,7 @@
   var playBtn = $('#vs-play'), recBtn = $('#vs-record'), shareBtn = $('#vs-share');
   var statusEl = $('#vs-status'), downloadsEl = $('#vs-downloads'), totalEl = $('#vs-total');
 
-  var FORMATS = { story: { w: 1080, h: 1920 }, square: { w: 1080, h: 1080 }, post: { w: 1080, h: 1350 } };
+  var FORMATS = { story: { w: 1080, h: 1920 }, square: { w: 1080, h: 1080 }, post: { w: 1080, h: 1350 }, wide: { w: 1920, h: 1080 } };
   var GRADIENTS = [
     { type: 'grad', stops: ['#2C5F2E', '#0f2417'] }, { type: 'grad', stops: ['#1a2740', '#0a0f1c'] },
     { type: 'grad', stops: ['#4a2a52', '#1c1022'] }, { type: 'grad', stops: ['#c9744d', '#3d2140'] }
@@ -495,5 +495,288 @@
   // ── Init ────────────────────────────────────────────────────
   buildSwatches(); buildFontColors(); buildSoundtracks(); buildBookSelectors();
   applyFormat(); renderPassages(); updateTotalLabel(); drawStatic();
+
+  // ── Series Intro mode ────────────────────────────────────────────────────
+  // Completely separate from verse mode: its own state, renderer, and controls.
+  var siState = {
+    title: '#TryOutJesus Challenge', subtitle: 'Gospel of John',
+    eyebrow: 'Seed the Word', format: 'wide',
+    style: 'cinematic', font: "'Fraunces', Georgia, serif",
+    titleColor: '#E4CB86', bg: { type: 'grad', stops: GRADIENTS[0].stops },
+    bgImage: null, durationMs: 8000, audioUrl: null
+  };
+  var SI_TITLE_COLORS = ['#E4CB86','#ffffff','#f7ecd0','#C9A54D','#cfe8d8','#ffd9a0','#111111'];
+  var siPlaying = false, siAnimStart = 0, siRafId = null;
+  var siLastBlob = null;
+
+  var siTitleInput = $('#si-title'), siSubInput = $('#si-subtitle'), siEyeInput = $('#si-eyebrow');
+  var siFmtSel = $('#si-format'), siDurSel = $('#si-duration');
+  var siStyleSel = $('#si-style'), siFontSel = $('#si-font');
+  var siTitleColWrap = $('#si-titlecolors'), siTitleHex = $('#si-title-hex');
+  var siBgWrap = $('#si-swatches'), siBgHex = $('#si-bg-hex'), siBgUpload = $('#si-bg-upload');
+  var siSoundSel = $('#si-soundtrack'), siAudioUpload = $('#si-audio-upload'), siAudioName = $('#si-audio-name');
+
+  // Build intro swatches
+  function buildIntroSwatches() {
+    if (!siBgWrap) return;
+    GRADIENTS.forEach(function(g) {
+      var s = mkSwatch('linear-gradient(160deg,'+g.stops[0]+','+g.stops[1]+')');
+      s.addEventListener('click', function(){ siState.bg={type:'grad',stops:g.stops}; siState.bgImage=null; setActive(siBgWrap,s); siDrawStatic(); });
+      siBgWrap.appendChild(s);
+    });
+    SOLIDS.forEach(function(c) {
+      var s = mkSwatch(c);
+      s.addEventListener('click', function(){ siState.bg={type:'solid',color:c}; siState.bgImage=null; setActive(siBgWrap,s); if(siBgHex)siBgHex.value=c; siDrawStatic(); });
+      siBgWrap.appendChild(s);
+    });
+    var f = siBgWrap.querySelector('.vs-swatch'); if(f) f.classList.add('is-active');
+  }
+  function buildIntroTitleColors() {
+    if (!siTitleColWrap) return;
+    SI_TITLE_COLORS.forEach(function(c,i) {
+      var s = document.createElement('button'); s.type='button';
+      s.className = 'vs-swatch vs-swatch--sm' + (i===0?' is-active':'');
+      s.style.background = c;
+      s.addEventListener('click', function(){ siState.titleColor=c; setActive(siTitleColWrap,s); if(siTitleHex)siTitleHex.value=c; siDrawStatic(); });
+      siTitleColWrap.appendChild(s);
+    });
+  }
+  function buildIntroSoundtracks() {
+    if (!siSoundSel) return;
+    siSoundSel.innerHTML = '';
+    SOUNDTRACKS.forEach(function(t){ var o=document.createElement('option'); o.value=t.id; o.textContent=t.label; siSoundSel.appendChild(o); });
+    siSoundSel.addEventListener('change', function(){
+      var p = SOUNDTRACKS.filter(function(t){ return t.id===siSoundSel.value; })[0];
+      siState.audioUrl = (p&&p.src) ? p.src : null;
+      siAudioName.textContent = (p&&p.src) ? p.label : '';
+      if(siAudioUpload) siAudioUpload.value='';
+    });
+  }
+
+  // ── Intro canvas ─────────────────────────────────────────────
+  function siApplyFormat() {
+    var f = FORMATS[siState.format] || FORMATS.wide;
+    canvas.width = f.w; canvas.height = f.h;
+    siDrawStatic();
+  }
+
+  function siDrawFrame(p) {
+    var W = canvas.width, H = canvas.height;
+    var ctx2 = ctx; // same canvas/ctx
+    // Background (reuse verse paintBackground logic via siState)
+    var savedBg = state.bg, savedBgImg = state.bgImage;
+    state.bg = siState.bg; state.bgImage = siState.bgImage;
+    paintBackground(p);
+    state.bg = savedBg; state.bgImage = savedBgImg;
+
+    var eO = easeOut, eIO = easeInOut;
+    var outline = '#000000';
+    var glow = 'rgba(0,0,0,0.6)';
+    ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+
+    function drawOutlined(txt, x, y, fs, color, a) {
+      if (!txt) return;
+      ctx2.save();
+      ctx2.globalAlpha = a;
+      ctx2.font = 'bold ' + fs + 'px ' + siState.font;
+      ctx2.shadowColor = glow; ctx2.shadowBlur = Math.round(fs * 0.4);
+      ctx2.lineJoin = 'round'; ctx2.lineWidth = Math.max(2, Math.round(fs * 0.09));
+      ctx2.strokeStyle = outline; ctx2.strokeText(txt, x, y);
+      ctx2.fillStyle = color; ctx2.fillText(txt, x, y);
+      ctx2.restore();
+    }
+
+    var cx = W / 2, cy = H / 2;
+    // Layout percentages (work for both portrait and landscape)
+    var eyeFS = Math.round(W * 0.030);
+    var titleFS = Math.round(W * (siState.format === 'wide' ? 0.060 : 0.072));
+    var subFS = Math.round(W * (siState.format === 'wide' ? 0.036 : 0.042));
+    var logoW = W * (siState.format === 'wide' ? 0.10 : 0.14);
+    var logoH = logoReady ? logoW * (logo.height / logo.width) : logoW * 0.5;
+    var gap = H * 0.035;
+    var totalH = (siState.eyebrow ? eyeFS * 1.8 : 0) + titleFS * 1.4 + subFS * 1.4 + logoH + H * 0.04;
+    var topY = cy - totalH / 2;
+    var eyeY = topY + eyeFS;
+    var titleY = eyeY + (siState.eyebrow ? eyeFS * 1.8 : 0) + titleFS * 0.7;
+    var subY = titleY + titleFS * 0.7 + gap + subFS * 0.7;
+    var logoY = subY + subFS * 0.7 + gap * 1.6;
+
+    if (siState.style === 'cinematic') {
+      // Slow push in: elements arrive staggered with a Ken-Burns zoom feel
+      var zoom = 1 + 0.04 * (1 - eO(Math.min(1, p / 0.5)));
+      ctx2.save(); ctx2.translate(cx, cy); ctx2.scale(zoom, zoom); ctx2.translate(-cx, -cy);
+      if (siState.eyebrow) drawOutlined(siState.eyebrow, cx, eyeY, eyeFS, 'rgba(255,255,255,0.75)', eO(Math.min(1, p / 0.3)));
+      drawOutlined(siState.title,    cx, titleY, titleFS, siState.titleColor, eO(Math.min(1, (p - 0.05) / 0.35)));
+      drawOutlined(siState.subtitle, cx, subY,   subFS,   '#ffffff',          eO(Math.min(1, (p - 0.18) / 0.35)));
+      ctx2.restore();
+    } else if (siState.style === 'titledrop') {
+      // Title drops down, subtitle rises up
+      var drop = (1 - eO(Math.min(1, p / 0.4))) * (H * -0.12);
+      var rise = (1 - eO(Math.min(1, (p - 0.1) / 0.4))) * (H * 0.12);
+      if (siState.eyebrow) drawOutlined(siState.eyebrow, cx, eyeY, eyeFS, 'rgba(255,255,255,0.75)', eO(Math.min(1, p / 0.3)));
+      drawOutlined(siState.title,    cx, titleY + drop, titleFS, siState.titleColor, eO(Math.min(1, p / 0.35)));
+      drawOutlined(siState.subtitle, cx, subY + rise,   subFS,   '#ffffff',          eO(Math.min(1, (p - 0.1) / 0.4)));
+    } else if (siState.style === 'glowrise') {
+      // Bloom glow that swells then settles
+      var bloom = Math.max(0, 1 - Math.abs(p - 0.25) / 0.25);
+      ctx2.save();
+      ctx2.shadowColor = siState.titleColor; ctx2.shadowBlur = Math.round(titleFS * 1.2 * bloom);
+      if (siState.eyebrow) drawOutlined(siState.eyebrow, cx, eyeY, eyeFS, 'rgba(255,255,255,0.75)', eO(Math.min(1, p / 0.3)));
+      drawOutlined(siState.title,    cx, titleY, titleFS, siState.titleColor, eO(Math.min(1, p / 0.4)));
+      ctx2.restore();
+      drawOutlined(siState.subtitle, cx, subY, subFS, '#ffffff', eO(Math.min(1, (p - 0.15) / 0.35)));
+    } else { // typewriter
+      var fullT = siState.title || '', fullS = siState.subtitle || '';
+      var shownT = Math.floor(eO(Math.min(1, p / 0.5)) * fullT.length);
+      var shownS = Math.floor(eO(Math.min(1, Math.max(0, (p - 0.4) / 0.4))) * fullS.length);
+      if (siState.eyebrow) drawOutlined(siState.eyebrow, cx, eyeY, eyeFS, 'rgba(255,255,255,0.75)', eO(Math.min(1, p / 0.3)));
+      if (shownT) drawOutlined(fullT.slice(0, shownT), cx, titleY, titleFS, siState.titleColor, 1);
+      if (shownS) drawOutlined(fullS.slice(0, shownS), cx, subY, subFS, '#ffffff', 1);
+    }
+
+    // Logo + wordmark
+    var logoAlpha = eO(Math.min(1, Math.max(0, (p - 0.45) / 0.4)));
+    if (logoAlpha > 0) {
+      ctx2.globalAlpha = logoAlpha * 0.95;
+      if (logoReady) ctx2.drawImage(logo, cx - logoW / 2, logoY, logoW, logoH);
+      ctx2.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx2.font = '600 ' + Math.round(logoW * 0.22) + "px 'Dancing Script', Georgia, serif";
+      ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+      ctx2.fillText('Seed the Word', cx, logoY + logoH + H * 0.024);
+      ctx2.globalAlpha = 1;
+    }
+  }
+
+  function siDrawStatic() { siDrawFrame(0.7); }
+
+  function siPlay() {
+    cancelAnimationFrame(siRafId); siAnimStart = 0; siPlaying = true;
+    playBtn.textContent = '❚❚ Playing…';
+    if (siState.audioUrl) {
+      try { var a = new Audio(siState.audioUrl); a.play(); setTimeout(function(){ try{a.pause();}catch(e){} }, siState.durationMs); } catch(e) {}
+    }
+    (function loop2(ts) {
+      if (!siAnimStart) siAnimStart = ts;
+      var p = Math.min(1, (ts - siAnimStart) / siState.durationMs);
+      siDrawFrame(p);
+      if (p < 1 && siPlaying) siRafId = requestAnimationFrame(loop2);
+      else { siPlaying = false; playBtn.textContent = '▶ Preview'; }
+    })(performance.now());
+  }
+
+  function siRecord() {
+    if (!window.MediaRecorder || !canvas.captureStream) { setStatus('This browser can\'t record here.', 'err'); return; }
+    var haveAudio = !!siState.audioUrl;
+    var mime = pickMime(haveAudio);
+    var isMp4 = mime.indexOf('mp4') !== -1;
+    var vstream = canvas.captureStream(30), tracks = vstream.getVideoTracks();
+    var audioCtx = null, playbackEl = null;
+    if (haveAudio) {
+      try {
+        audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+        playbackEl = new Audio(siState.audioUrl);
+        var sn = audioCtx.createMediaElementSource(playbackEl);
+        var dest = audioCtx.createMediaStreamDestination();
+        sn.connect(dest); sn.connect(audioCtx.destination);
+        tracks = tracks.concat(dest.stream.getAudioTracks());
+      } catch(e) { haveAudio = false; }
+    }
+    var combined = new MediaStream(tracks), chunks = [], rec;
+    try { rec = new MediaRecorder(combined, mime ? {mimeType:mime, videoBitsPerSecond:8000000} : undefined); }
+    catch(e) { setStatus('Recording not supported here.', 'err'); return; }
+    rec.ondataavailable = function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
+    rec.onstop = function(){
+      if(audioCtx){ try{audioCtx.close();}catch(e){} }
+      var ext = isMp4 ? 'mp4' : 'webm';
+      siLastBlob = new Blob(chunks, {type: mime||'video/webm'});
+      var urlObj = URL.createObjectURL(siLastBlob);
+      downloadsEl.innerHTML = '';
+      var a = document.createElement('a'); a.href=urlObj; a.download='seedtheword-intro.'+ext; a.className='vs-dl';
+      a.textContent = '⬇ Download intro ('+ext.toUpperCase()+(haveAudio?' + audio':'')+')';
+      downloadsEl.appendChild(a);
+      if (shareBtn && navigator.canShare) shareBtn.hidden = false;
+      recBtn.disabled=false; recBtn.textContent='● Record clip';
+      setStatus('Done! Download or share your intro.', 'ok');
+    };
+    recBtn.disabled=true; recBtn.textContent='Recording…';
+    setStatus('Recording intro ('+(isMp4?'MP4':'WebM')+')…', 'busy');
+    downloadsEl.innerHTML=''; if(shareBtn) shareBtn.hidden=true;
+    siAnimStart=0; siPlaying=true; rec.start();
+    if(playbackEl){ try{playbackEl.currentTime=0; playbackEl.play();}catch(e){} }
+    requestAnimationFrame(function loop3(ts) {
+      if(!siAnimStart) siAnimStart=ts;
+      var p=Math.min(1,(ts-siAnimStart)/siState.durationMs);
+      siDrawFrame(p);
+      if(p<1) siRafId=requestAnimationFrame(loop3);
+    });
+    setTimeout(function(){ try{rec.stop();}catch(e){} if(playbackEl){try{playbackEl.pause();}catch(e){}} siPlaying=false; }, siState.durationMs+400);
+  }
+
+  // ── Mode switching ───────────────────────────────────────────
+  var currentMode = 'verse';
+  var verseControlsEl = document.getElementById('vs-controls-verse');
+  var introControlsEl = document.getElementById('vs-controls-intro');
+  var modeBtns = [document.getElementById('vs-mode-verse'), document.getElementById('vs-mode-intro')];
+  var stageNoteEl = document.getElementById('vs-stage-note');
+
+  function switchMode(mode) {
+    currentMode = mode;
+    modeBtns.forEach(function(b){ b.classList.toggle('vs-mode-btn--active', b.id === 'vs-mode-' + mode); });
+    if (verseControlsEl) verseControlsEl.hidden = (mode !== 'verse');
+    if (introControlsEl) introControlsEl.hidden = (mode !== 'intro');
+    cancelAnimationFrame(rafId); cancelAnimationFrame(siRafId); playing = false; siPlaying = false;
+    playBtn.textContent = '▶ Preview';
+    setStatus(''); totalEl.textContent = '';
+    downloadsEl.innerHTML = ''; if(shareBtn) shareBtn.hidden = true;
+    if (mode === 'intro') {
+      siApplyFormat();
+      if (stageNoteEl) stageNoteEl.textContent = 'Tip: YouTube / Landscape (16:9) is the intro default. Story (9:16) for Reels/TikTok.';
+    } else {
+      applyFormat();
+      if (stageNoteEl) stageNoteEl.textContent = 'Tip: Reels, Stories, TikTok & Shorts use the 9:16 "Story" size.';
+    }
+  }
+
+  // Override play/record buttons to dispatch to the right mode
+  playBtn.removeEventListener('click', play);
+  playBtn.addEventListener('click', function(){ currentMode === 'intro' ? siPlay() : play(); });
+  recBtn.removeEventListener('click', record);
+  recBtn.addEventListener('click', function(){ currentMode === 'intro' ? siRecord() : record(); });
+  if(shareBtn) { shareBtn.removeEventListener('click', share); shareBtn.addEventListener('click', function(){
+    var blob = currentMode === 'intro' ? siLastBlob : lastBlob;
+    var ext = (currentMode === 'intro' && siLastBlob) ? 'webm' : lastExt;
+    if (!blob) { setStatus('Record a clip first, then share.','err'); return; }
+    var file = new File([blob], 'seedtheword-clip.' + ext, {type: blob.type});
+    if (navigator.canShare && navigator.canShare({files:[file]})) {
+      navigator.share({files:[file], title:'Seed the Word'}).catch(function(){});
+    } else { setStatus('Sharing not supported in this browser — use Download instead.','err'); }
+  }); }
+
+  modeBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      var mode = b.id === 'vs-mode-intro' ? 'intro' : 'verse';
+      switchMode(mode);
+    });
+  });
+
+  // ── Intro controls wiring ────────────────────────────────────
+  if(siTitleInput) siTitleInput.addEventListener('input', function(){ siState.title=siTitleInput.value; siDrawStatic(); });
+  if(siSubInput)   siSubInput.addEventListener('input',   function(){ siState.subtitle=siSubInput.value; siDrawStatic(); });
+  if(siEyeInput)   siEyeInput.addEventListener('input',   function(){ siState.eyebrow=siEyeInput.value; siDrawStatic(); });
+  if(siFmtSel)     siFmtSel.addEventListener('change', function(){ siState.format=siFmtSel.value; siApplyFormat(); });
+  if(siDurSel)     siDurSel.addEventListener('change', function(){ siState.durationMs=parseInt(siDurSel.value,10)*1000; });
+  if(siStyleSel)   siStyleSel.addEventListener('change', function(){ siState.style=siStyleSel.value; siPlay(); });
+  if(siFontSel)    siFontSel.addEventListener('change', function(){ siState.font=siFontSel.value; siDrawStatic(); });
+  if(siTitleHex)   siTitleHex.addEventListener('input', function(){ siState.titleColor=siTitleHex.value; setActive(siTitleColWrap,null); siDrawStatic(); });
+  if(siBgHex)      siBgHex.addEventListener('input', function(){ siState.bg={type:'solid',color:siBgHex.value}; siState.bgImage=null; setActive(siBgWrap,null); siDrawStatic(); });
+  if(siBgUpload)   siBgUpload.addEventListener('change', function(){ var f=siBgUpload.files&&siBgUpload.files[0]; if(!f)return; var img=new Image(); img.onload=function(){siState.bgImage=img;setActive(siBgWrap,null);siDrawStatic();}; img.src=URL.createObjectURL(f); });
+  if(siAudioUpload) siAudioUpload.addEventListener('change', function(){ var f=siAudioUpload.files&&siAudioUpload.files[0]; if(!f)return; siState.audioUrl=URL.createObjectURL(f); siAudioName.textContent=f.name; if(siSoundSel)siSoundSel.value=''; });
+
+  // Seed the default intro values into the form
+  if(siTitleInput) siTitleInput.value = siState.title;
+  if(siSubInput)   siSubInput.value   = siState.subtitle;
+  if(siEyeInput)   siEyeInput.value   = siState.eyebrow;
+
+  buildIntroSwatches(); buildIntroTitleColors(); buildIntroSoundtracks();
   }
 })();

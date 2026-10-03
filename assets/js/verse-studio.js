@@ -763,9 +763,26 @@
   if(siTitleInput) siTitleInput.addEventListener('input', function(){ siState.title=siTitleInput.value; siDrawStatic(); });
   if(siSubInput)   siSubInput.addEventListener('input',   function(){ siState.subtitle=siSubInput.value; siDrawStatic(); });
   if(siEyeInput)   siEyeInput.addEventListener('input',   function(){ siState.eyebrow=siEyeInput.value; siDrawStatic(); });
-  if(siFmtSel)     siFmtSel.addEventListener('change', function(){ siState.format=siFmtSel.value; siApplyFormat(); });
-  if(siDurSel)     siDurSel.addEventListener('change', function(){ siState.durationMs=parseInt(siDurSel.value,10)*1000; });
-  if(siStyleSel)   siStyleSel.addEventListener('change', function(){ siState.style=siStyleSel.value; siPlay(); });
+  // si-format and si-duration are now pill buttons; si-style is a choice-grid.
+  // Wire them via delegation on the container elements.
+  if(siFmtSel) siFmtSel.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-format]'); if(!btn) return;
+    siFmtSel.querySelectorAll('.vs-pill').forEach(function(p){ p.classList.remove('is-active'); });
+    btn.classList.add('is-active');
+    siState.format = btn.dataset.format; siApplyFormat();
+  });
+  if(siDurSel) siDurSel.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-duration]'); if(!btn) return;
+    siDurSel.querySelectorAll('.vs-pill').forEach(function(p){ p.classList.remove('is-active'); });
+    btn.classList.add('is-active');
+    siState.durationMs = parseInt(btn.dataset.duration, 10) * 1000;
+  });
+  if(siStyleSel) siStyleSel.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-style]'); if(!btn) return;
+    siStyleSel.querySelectorAll('.vs-choice').forEach(function(c){ c.classList.remove('is-active'); c.setAttribute('aria-selected','false'); });
+    btn.classList.add('is-active'); btn.setAttribute('aria-selected','true');
+    siState.style = btn.dataset.style; siPlay();
+  });
   if(siFontSel)    siFontSel.addEventListener('change', function(){ siState.font=siFontSel.value; siDrawStatic(); });
   if(siTitleHex)   siTitleHex.addEventListener('input', function(){ siState.titleColor=siTitleHex.value; setActive(siTitleColWrap,null); siDrawStatic(); });
   if(siBgHex)      siBgHex.addEventListener('input', function(){ siState.bg={type:'solid',color:siBgHex.value}; siState.bgImage=null; setActive(siBgWrap,null); siDrawStatic(); });

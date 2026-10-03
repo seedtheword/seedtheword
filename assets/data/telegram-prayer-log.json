@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617424,
-  "lastModified": "2026-10-03T19:55:32Z",
+  "lastModified": "2026-10-03T20:25:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -342,16 +342,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6447,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "(I say all of you guys, greatful for each one of you ❤️)",
-      "ts": "2026-09-19T20:15:14Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6448,

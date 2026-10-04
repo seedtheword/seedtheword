@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617455,
-  "lastModified": "2026-10-04T21:40:42Z",
+  "lastUpdateId": 669617457,
+  "lastModified": "2026-10-04T22:55:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -911,6 +911,16 @@
       "kind": "telegram",
       "text": "@Vanessa_mind this is Pastor Chand, he is updating his telegram for the first time, he is our brother from Pakistan who we send Urdu Bibles to",
       "ts": "2026-10-04T21:37:25Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6797,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for Irena & Vasya ICC Church 10/4/2026:\n\nGod put it in their hearts to make financial contributions to me for our ministry so I really want to give God all the glory and also you raise them up in prayer.\n\nI spent some time talking with Irena and she asked us to pray for her 5 year old nephew who was type 1 diabetes I believe so God heals him.",
+      "ts": "2026-10-04T22:41:48Z"
     }
   ]
 }

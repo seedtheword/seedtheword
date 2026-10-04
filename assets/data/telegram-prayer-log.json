@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617436,
-  "lastModified": "2026-10-04T21:10:35Z",
+  "lastUpdateId": 669617455,
+  "lastModified": "2026-10-04T21:40:42Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -861,6 +861,56 @@
       "kind": "telegram",
       "text": "Prayer Request for Anonymous 10/3/2026:\n\nPrayer for overall health and work conditions to help alleviate stress.\n\nPlease pray earnestly for healing.",
       "ts": "2026-10-04T05:32:00Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6790,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Here is the prayer thread for our ministry @ykwim_Jason",
+      "ts": "2026-10-04T21:34:22Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6793,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I am at SOL rn",
+      "ts": "2026-10-04T21:34:53Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6794,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I am waiting for you!",
+      "ts": "2026-10-04T21:35:04Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6795,
+      "userId": 7365988044,
+      "displayName": "Jason 🐾",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "This is the First time I am using Telegram.",
+      "ts": "2026-10-04T21:36:28Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6796,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "@Vanessa_mind this is Pastor Chand, he is updating his telegram for the first time, he is our brother from Pakistan who we send Urdu Bibles to",
+      "ts": "2026-10-04T21:37:25Z"
     }
   ]
 }

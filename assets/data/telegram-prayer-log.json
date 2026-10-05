@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617468,
-  "lastModified": "2026-10-05T06:55:33Z",
+  "lastModified": "2026-10-05T07:25:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -342,16 +342,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6455,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey guys I would like to ask a prayer for my Grandpa for a speedy recovery he’s currently in icu",
-      "ts": "2026-09-21T07:11:22Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6456,

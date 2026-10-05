@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617472,
-  "lastModified": "2026-10-05T12:40:44Z",
+  "lastUpdateId": 669617474,
+  "lastModified": "2026-10-05T14:10:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -342,16 +342,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6456,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Wait grandma or pa, or is it literally both?",
-      "ts": "2026-09-21T14:01:45Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6465,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617464,
-  "lastModified": "2026-10-05T04:40:49Z",
+  "lastUpdateId": 669617467,
+  "lastModified": "2026-10-05T05:55:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -931,6 +931,16 @@
       "kind": "telegram",
       "text": "#Jesus4Alex, and Fellow smoothie person... prayer that God can work in their lives and lead them to him, that he can place the spirit in them, and they can repent and believe... Alex is on the right track, with a gideon, and hearing the word of God spoken also nice to see him again, we went to sno-isle together",
       "ts": "2026-10-04T23:55:47Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6806,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for Home 10/4/2026:\n\nPraying for this household's salvation, we've placed a Bible in their library/pantry and would like to make sure Jesus opens their heart to receive the gospel.\n\nMay God have mercy on their souls.",
+      "ts": "2026-10-05T05:54:55Z"
     }
   ]
 }

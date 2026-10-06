@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617484,
-  "lastModified": "2026-10-06T05:55:32Z",
+  "lastUpdateId": 669617485,
+  "lastModified": "2026-10-06T12:10:38Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -957,6 +957,16 @@
       "kind": "telegram",
       "text": "Prayer Request from David 10/5/2026:\n\nPlease pray for our ministry leaders, churches, and ministers.\n\nSo the gospel can spread and the good news of Jesus Christ be heard all over the world.\n\nAlso please pray for Alex, he is suffering from a stomach problem and need healing in Jesus' name.\n\nThank you Seed the Word",
       "ts": "2026-10-06T01:19:54Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6826,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for Oksana 10/6/2026:\n\nOksana is the mom of Vitaliy, who is one of the very first people that appeared on my walk to encounter Jesus, or the Holy Spirit encountering me and his mom was at prayer tonight and she is having spiritual attacks that affect her physical health.\n\nShe describes it as sharp pain cutting her from within and it is actually a demonic oppression that needs to be rebuked but also need mercy from Jesus as it is not something we can help her with but only Jesus can take mercy on her from what came to my heart.\n\nPlease do pray for her.\n\nShe is a mom to our friend and someone's wife and a member of the body of Christ.",
+      "ts": "2026-10-06T12:05:41Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617483,
-  "lastModified": "2026-10-06T00:40:41Z",
+  "lastModified": "2026-10-06T00:55:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -348,16 +348,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6465,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Please keep praying for my family y’all. I spoke about Jesus and the gospel to my sister and she completely rejected it, so I just pray that a seed was planted..",
-      "ts": "2026-09-22T00:46:03Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6466,

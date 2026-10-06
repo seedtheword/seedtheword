@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617483,
-  "lastModified": "2026-10-06T00:55:31Z",
+  "lastUpdateId": 669617484,
+  "lastModified": "2026-10-06T01:40:06Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -957,6 +957,16 @@
       "kind": "telegram",
       "text": "For smarts and other things",
       "ts": "2026-10-06T00:38:07Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6823,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request from David 10/5/2026:\n\nPlease pray for our ministry leaders, churches, and ministers.\n\nSo the gospel can spread and the good news of Jesus Christ be heard all over the world.\n\nAlso please pray for Alex, he is suffering from a stomach problem and need healing in Jesus' name.\n\nThank you Seed the Word",
+      "ts": "2026-10-06T01:19:54Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617491,
-  "lastModified": "2026-10-06T20:10:37Z",
+  "lastModified": "2026-10-06T21:10:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -348,16 +348,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6487,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey update on Granny's health she got better, Praise God, additionally prayer for Annette (my aunt) and her daughter (my cousin) that they can just continue to walk in Christ amd stay close to him, that they can walk in the spirit, and they may be protected from whatever issues they have in their life",
-      "ts": "2026-09-22T20:58:44Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6490,

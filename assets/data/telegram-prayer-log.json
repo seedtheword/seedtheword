@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617481,
-  "lastModified": "2026-10-05T18:40:38Z",
+  "lastUpdateId": 669617483,
+  "lastModified": "2026-10-06T00:40:41Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -947,6 +947,26 @@
       "kind": "telegram",
       "text": "https://open.spotify.com/track/4LklvptJ5yENts3L55ycLW?si=miEAF_iJTCeZ_714-iI23Q&utm_source=copy-link",
       "ts": "2026-10-05T14:27:33Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6821,
+      "userId": 7341880285,
+      "displayName": "Pavlo F",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Pray for me I keep getting spirit attacks and smarts",
+      "ts": "2026-10-06T00:37:49Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6822,
+      "userId": 7341880285,
+      "displayName": "Pavlo F",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "For smarts and other things",
+      "ts": "2026-10-06T00:38:07Z"
     }
   ]
 }

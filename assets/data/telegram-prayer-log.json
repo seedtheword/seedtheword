@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617484,
-  "lastModified": "2026-10-06T01:40:06Z",
+  "lastModified": "2026-10-06T05:55:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -348,16 +348,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6466,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Also pray that I get my credit card thing figured out because I’m realizing it’s more difficult to figure out and get set up",
-      "ts": "2026-09-22T05:42:01Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6487,

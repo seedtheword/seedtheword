@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617500,
-  "lastModified": "2026-10-07T20:25:34Z",
+  "lastUpdateId": 669617503,
+  "lastModified": "2026-10-07T23:55:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -348,16 +348,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6503,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thanksgiving Announcement 9/23/2026:",
-      "ts": "2026-09-23T23:34:56Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6564,

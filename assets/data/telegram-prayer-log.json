@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617493,
-  "lastModified": "2026-10-06T23:47:21Z",
+  "lastUpdateId": 669617494,
+  "lastModified": "2026-10-07T08:40:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -977,6 +977,16 @@
       "kind": "telegram",
       "text": "Allow the ministry to discuss this matter and determine if God will bless the finances of the ministry to give after prayer as appropriate and we are taught by Scripture\n\nAny personal contributions you make cannot be made on behalf of the ministry and are solely your discretion to do with the finances as you please\n\nI would caution you to have discernment in understanding if this will achieve greater good or evil long term for the non believers and their growth in faith with Jesus Christ versus single small contributions that may seem like they help now but will hurt them in the long term",
       "ts": "2026-10-06T23:42:59Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6836,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for ministry 10/7/2026:\n\nEveryone please pray for this ministry and our team leaders and ministry members.\n\nI really need you all to lift each other in prayer for spiritual protection from the enemy.",
+      "ts": "2026-10-07T08:27:18Z"
     }
   ]
 }

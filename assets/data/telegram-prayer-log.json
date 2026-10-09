@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617537,
-  "lastModified": "2026-10-09T17:55:39Z",
+  "lastModified": "2026-10-09T19:25:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -354,36 +354,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6564,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Testimony from minister Suresh Madramootoo in South America that we sent Bibles to\n\nHere's his quote\n\n\"Good afternoon, Beloved, the two big bible ,share out,they are happy.\"",
-      "ts": "2026-09-25T19:24:05Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6565,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Lets GOOO",
-      "ts": "2026-09-25T19:24:54Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6566,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "This marks the very first international evangelism Outreach success @ilya_nikitenko Edward @Davy_Lep @Vanessa_mind Noah @miaangelagyllen Sam Elijah @shiny7i",
-      "ts": "2026-09-25T19:25:04Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6569,

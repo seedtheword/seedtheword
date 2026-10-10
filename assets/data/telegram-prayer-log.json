@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617583,
-  "lastModified": "2026-10-10T23:40:33Z",
+  "lastUpdateId": 669617587,
+  "lastModified": "2026-10-10T23:55:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1039,6 +1039,36 @@
       "kind": "telegram",
       "text": "As I was doing Bible studies, I had a brother in faith, walk up and ask if I was reading a Bible, I said yes, and proceeded to describe what I was doing openly in the break room, Got a knuckle bump from him, I didn't get his name, but when I see him again I will ask if hes interested in joining the ministry today is a great day!!!",
       "ts": "2026-10-10T18:19:19Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6912,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Also free pie",
+      "ts": "2026-10-10T23:47:58Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6914,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "His name is cion I am getting him connected to the group!!!",
+      "ts": "2026-10-10T23:51:21Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6915,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "He's going to Denver but we might have a new member!!!",
+      "ts": "2026-10-10T23:51:46Z"
     }
   ]
 }

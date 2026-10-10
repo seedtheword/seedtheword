@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617552,
-  "lastModified": "2026-10-10T01:40:33Z",
+  "lastUpdateId": 669617554,
+  "lastModified": "2026-10-10T02:25:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1023,6 +1023,16 @@
       "kind": "telegram",
       "text": "Hey y’all pray for my friend Justin @justinc87 , he just moved, I think from what I remember Texas or North Carolina, either way, pray he can find a job and find purpose in Jesus again, and some new friends!",
       "ts": "2026-10-09T21:51:26Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6885,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for two young kids being baptized, that the Lord allows them to be reborn in water, that he blesses them and keeps them safe, and when they are of age they me be baptized in faith like me.\n\nI know God saved me, and so I pray those young souls also may be committed to him. 🙏",
+      "ts": "2026-10-10T02:12:42Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617588,
-  "lastModified": "2026-10-11T07:40:30Z",
+  "lastModified": "2026-10-11T09:55:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -360,26 +360,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6591,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I'm praying for you Liam",
-      "ts": "2026-09-27T09:51:45Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6592,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Btw also say a prayer for me, as me and my camp treasurer Stephen O'Brien are preparing to make our trip to Vlad Savchuk's Hungry Gen church I got nightmares tonight that I awoke from and it's demons who are threatening me and my family with murder\n\nI rebuke any and all evil spirits in the mighty Name of Jesus and ask you all to all pray for me as this is a very specific and targeted attack\n\nPraying for everyone in this ministry likewise and your personal families, selves, and friends",
-      "ts": "2026-09-27T09:54:27Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6615,

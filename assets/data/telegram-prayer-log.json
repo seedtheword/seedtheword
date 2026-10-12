@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617629,
-  "lastModified": "2026-10-12T21:25:37Z",
+  "lastModified": "2026-10-12T21:55:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -366,16 +366,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6624,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Feel like we should also pray for happiness for today and everyday, lots of sadness, we can't have this in God's kingdom!",
-      "ts": "2026-09-28T21:50:57Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6626,

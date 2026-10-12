@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617629,
-  "lastModified": "2026-10-12T21:55:32Z",
+  "lastModified": "2026-10-12T22:10:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -366,16 +366,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6626,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "No pray for Joy, happiness and sadness are based on circumstances, Joy cannot be taken",
-      "ts": "2026-09-28T21:58:13Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6628,

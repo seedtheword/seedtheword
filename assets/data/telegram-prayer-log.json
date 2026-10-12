@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617619,
-  "lastModified": "2026-10-12T15:17:40Z",
+  "lastUpdateId": 669617622,
+  "lastModified": "2026-10-12T18:25:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -1075,6 +1075,26 @@
       "kind": "telegram",
       "text": "Prayer he reads it and he starts going to church.",
       "ts": "2026-10-11T16:07:42Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6941,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Good morning y’all ! I’m grateful for a new and sunny day today! Can’t wait for young adults tonight at 6:30pm 😁 so grateful for this ministry",
+      "ts": "2026-10-12T18:16:36Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6942,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Amen, I am excited too!!!",
+      "ts": "2026-10-12T18:22:13Z"
     }
   ]
 }

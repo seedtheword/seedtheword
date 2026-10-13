@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617634,
-  "lastModified": "2026-10-13T00:25:34Z",
+  "lastModified": "2026-10-13T02:10:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -366,16 +366,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6628,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thanksgiving Announcement 9/28/2026:\n\n\"Thank you, David and Seed the Word. \n\nThis prayer means so much to me, thank you so much.\"\n\nGood job family 💯🙌",
-      "ts": "2026-09-29T02:08:45Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6629,

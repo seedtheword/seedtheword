@@ -91,15 +91,40 @@ def _unfold(lines: list[str]) -> list[str]:
     return out
 
 
-def _parse_dt(raw: str) -> datetime | None:
+def _parse_dt(raw: str, tzid: str | None = None) -> datetime | None:
+    """Parse an iCal DTSTART value and return a timezone-aware UTC datetime.
+
+    Handles three forms:
+      20260925T193000Z        → already UTC (Z suffix)
+      20260925T193000         → floating or TZID-qualified (use tzid arg)
+      20260925                → all-day date (treat as UTC midnight)
+
+    The original code always stamped tzinfo=UTC even for TZID-qualified
+    values (e.g. DTSTART;TZID=America/Los_Angeles:20260925T193000),
+    which shifted Pacific-timezone events 7 hours earlier and caused
+    them to fall *before* the search window — hence the false "0 events"
+    reports even when the calendar had upcoming events.
+    """
+    from zoneinfo import ZoneInfo  # stdlib since Python 3.9
     v = raw.strip()
     try:
         if "T" in v:
-            return datetime(
-                int(v[:4]), int(v[4:6]), int(v[6:8]),
-                int(v[9:11]), int(v[11:13]),
-                tzinfo=timezone.utc,
-            )
+            y, mo, d = int(v[:4]), int(v[4:6]), int(v[6:8])
+            hh, mm = int(v[9:11]), int(v[11:13])
+            if v.endswith("Z"):
+                # UTC-explicit — no conversion needed
+                return datetime(y, mo, d, hh, mm, tzinfo=timezone.utc)
+            if tzid:
+                # TZID-qualified local time — convert to UTC
+                try:
+                    tz = ZoneInfo(tzid)
+                    local = datetime(y, mo, d, hh, mm, tzinfo=tz)
+                    return local.astimezone(timezone.utc)
+                except Exception:
+                    pass
+            # Fallback: treat as UTC (better than silently misplacing it)
+            return datetime(y, mo, d, hh, mm, tzinfo=timezone.utc)
+        # All-day date: 20260925
         return datetime(int(v[:4]), int(v[4:6]), int(v[6:8]), tzinfo=timezone.utc)
     except (ValueError, IndexError):
         return None
@@ -135,12 +160,19 @@ def fetch_upcoming(days: int) -> list[dict]:
             for c in cur:
                 if ":" not in c:
                     continue
-                name, val = c.split(":", 1)
-                base = name.split(";")[0].upper()
+                name_raw, val = c.split(":", 1)
+                # The property name may carry parameters: DTSTART;TZID=America/Los_Angeles
+                parts = name_raw.split(";")
+                base = parts[0].strip().upper()
+                # Extract TZID parameter if present
+                tzid = None
+                for p in parts[1:]:
+                    if p.upper().startswith("TZID="):
+                        tzid = p[5:].strip()
                 if base == "SUMMARY":
                     ev["summary"] = val.strip()
                 elif base == "DTSTART":
-                    parsed = _parse_dt(val)
+                    parsed = _parse_dt(val, tzid)
                     if parsed:
                         ev["start"] = parsed
             if "start" in ev:

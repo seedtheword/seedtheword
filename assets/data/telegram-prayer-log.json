@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617424,
-  "lastModified": "2026-10-03T22:10:31Z",
+  "lastUpdateId": 669617655,
+  "lastModified": "2026-10-14T02:55:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -339,309 +339,33 @@
       "messageId": 6755,
       "entryCount": 5,
       "postedAt": "2026-10-03T15:17:34Z"
+    },
+    "2026-W41-mon": {
+      "since": "2026-10-05T15:17:33Z",
+      "messageId": 6815,
+      "entryCount": 13,
+      "postedAt": "2026-10-05T15:17:49Z"
+    },
+    "2026-W41-thu": {
+      "since": "2026-10-08T15:17:35Z",
+      "messageId": 6848,
+      "entryCount": 8,
+      "postedAt": "2026-10-08T15:17:57Z"
+    },
+    "2026-W41-sat": {
+      "since": "2026-10-10T15:17:26Z",
+      "messageId": 6892,
+      "entryCount": 10,
+      "postedAt": "2026-10-10T15:17:42Z"
+    },
+    "2026-W42-mon": {
+      "since": "2026-10-12T15:17:26Z",
+      "messageId": 6938,
+      "entryCount": 9,
+      "postedAt": "2026-10-12T15:17:40Z"
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6453,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey guys my Grandma Suzanne is in the hospital right now got rushed there by ambulance, please have her in your prayers",
-      "ts": "2026-09-20T01:40:37Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6455,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey guys I would like to ask a prayer for my Grandpa for a speedy recovery he’s currently in icu",
-      "ts": "2026-09-21T07:11:22Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6456,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Wait grandma or pa, or is it literally both?",
-      "ts": "2026-09-21T14:01:45Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6465,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Please keep praying for my family y’all. I spoke about Jesus and the gospel to my sister and she completely rejected it, so I just pray that a seed was planted..",
-      "ts": "2026-09-22T00:46:03Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6466,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Also pray that I get my credit card thing figured out because I’m realizing it’s more difficult to figure out and get set up",
-      "ts": "2026-09-22T05:42:01Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6487,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey update on Granny's health she got better, Praise God, additionally prayer for Annette (my aunt) and her daughter (my cousin) that they can just continue to walk in Christ amd stay close to him, that they can walk in the spirit, and they may be protected from whatever issues they have in their life",
-      "ts": "2026-09-22T20:58:44Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6490,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hey, I am getting vibes that something big might happen in the near future, that there will be a temptation that I will have to endure that if I fail, will impact my life long term, like how Davids, sickness allowed the rebellion from his son\n\n\nHowever God has given me an out, prayer, I need to pray, and pray without ceasing, as I approach the end of John, I am realizing its almost matching up with my plans on Friday, thats actually when Peter will deny Jesus if I continue my plan, and so I am becoming painfully aware that something will happen then, my request and prayer, is that you intercede for me, and do it as often as you can, not just once, but again and again, and again... that I may be protected against the enemy, anxiety, depression, fear... that I may seek and obey Gods will, rather then my own... I don't want to sin, but I also know as my verse of the day shows, in that same chapter, there are sins, I may commit I have no awareness of, and so I need protection and forgiveness for those sins, but also that they may be revealed to me so I can repent... I am trying my absolute best to be faithful to God, so please help me... and I will pray and do my own part... additionally if temptation comes, I know God will provide a way out, so please keep encouraging me to walk the good walk, however, as Jesus instructed Peter back in gethsemene, he said pray without ceasing, and he tried to shelter Peter from his sin, in advance, to build up his spiritual walls... I ask you all help me. \n\nLet my words, my prayers, be sufficient for God, but even more so, let our words, I know its written when two or more agree on something it will be done for them in Jesus's name...\n\nSo I ask all this in Jesus's name, and I pray... Amen 😞🙏",
-      "ts": "2026-09-23T15:03:52Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6491,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Please pray for my heart. That I would not loose hope, that I would not allow the enemy to get in my head with lies and discouragement. I also need guidance from the Lord.. I want to know what to do next.. I just want peace, unity.. I rebuke rejection, I rebuke manipulation, I rebuke unkindness, I rebuke impatience, pride and arrogance. We’re children of God, let’s act like it. God doesn’t promise tomorrow, let’s start acting like today is our last chance to show the love of God.",
-      "ts": "2026-09-23T15:07:04Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6503,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thanksgiving Announcement 9/23/2026:",
-      "ts": "2026-09-23T23:34:56Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6564,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Testimony from minister Suresh Madramootoo in South America that we sent Bibles to\n\nHere's his quote\n\n\"Good afternoon, Beloved, the two big bible ,share out,they are happy.\"",
-      "ts": "2026-09-25T19:24:05Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6565,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Lets GOOO",
-      "ts": "2026-09-25T19:24:54Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6566,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "This marks the very first international evangelism Outreach success @ilya_nikitenko Edward @Davy_Lep @Vanessa_mind Noah @miaangelagyllen Sam Elijah @shiny7i",
-      "ts": "2026-09-25T19:25:04Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6569,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Pray for my trip tonight guys. For easy navigation through the airport, for patient and graceful Spirits, and for safety.\n\nI will miss y’all (it’s only 5 days long but still)",
-      "ts": "2026-09-26T03:11:34Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6570,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Praying for you & myself 😊",
-      "ts": "2026-09-26T03:18:49Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6572,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thank you guys. I just got on the plane!",
-      "ts": "2026-09-26T05:35:46Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6582,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Let's pray for @Vanessa_mind on her \"evangelism trip\" so God blesses her and they have success in handing out Bibles",
-      "ts": "2026-09-26T16:27:34Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6587,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Be still and know that I am God... right now I am struggling, actually I am having such bad mental and emotional reactions I am still awake, I am having physiological issues too, right now a storm is surrounding me, and the army of darkness encamps against me\n\nHowever the lord is my fortress, my stronghold, my help in this time of trouble... and nothing, nobody, can remove him from me... so I shall not fear, even if the actual biological signs are almost like I am in the fight of my life... I can rest knowing I am safe with you... I shall not be afaid.... I shall be still and know... my God is God... that the storm thats tossing me around will end, and I shall rejoice when it comes, and I shall sing and clap my hands... I shall praise you again! I will hold on, and wait...  show me what you can do, I believe in you!",
-      "ts": "2026-09-27T07:27:32Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6591,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I'm praying for you Liam",
-      "ts": "2026-09-27T09:51:45Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6592,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Btw also say a prayer for me, as me and my camp treasurer Stephen O'Brien are preparing to make our trip to Vlad Savchuk's Hungry Gen church I got nightmares tonight that I awoke from and it's demons who are threatening me and my family with murder\n\nI rebuke any and all evil spirits in the mighty Name of Jesus and ask you all to all pray for me as this is a very specific and targeted attack\n\nPraying for everyone in this ministry likewise and your personal families, selves, and friends",
-      "ts": "2026-09-27T09:54:27Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6615,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer Request from India 9/28/2026:\n\n\"Good morning David \n\nI'm sorry to disturb you like this, at this hour but I've been going through a rough patch recently. \n\nFinancing my brother's college fees and tuition is draining all of my savings. Even him helping me by getting a job is only keeping us afloat with no savings at all. I fear, I may run out of savings, if this continues. \n\nGod has always rescued me in such times and protected me by giving me a shelter. Giving my existing job and blessings me. \n\nAll I can do is pray right now and I would appreciate your prayers too. I know you and the others are people of faith and that you pray for those who come to you seeking God's guidance and blessings. \n\nThat's why I felt comfortable reaching out to you. Again thank you for taking the time to read this, God bless you.\"",
-      "ts": "2026-09-28T18:26:49Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6616,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer Request for Sam 9/28/2026:\n\nDamaged his thumb in a car door\n\nPlease pray for Sam's fingers🙏",
-      "ts": "2026-09-28T18:28:37Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6619,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Bless you Liam 🤧🙏",
-      "ts": "2026-09-28T18:31:47Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6621,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Fanx",
-      "ts": "2026-09-28T18:39:44Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6622,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Anytime",
-      "ts": "2026-09-28T18:41:27Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6624,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Feel like we should also pray for happiness for today and everyday, lots of sadness, we can't have this in God's kingdom!",
-      "ts": "2026-09-28T21:50:57Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6626,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "No pray for Joy, happiness and sadness are based on circumstances, Joy cannot be taken",
-      "ts": "2026-09-28T21:58:13Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6628,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thanksgiving Announcement 9/28/2026:\n\n\"Thank you, David and Seed the Word. \n\nThis prayer means so much to me, thank you so much.\"\n\nGood job family 💯🙌",
-      "ts": "2026-09-29T02:08:45Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6629,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Praise God!!!",
-      "ts": "2026-09-29T06:25:03Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6674,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Met a guy named Dallas, from Dallas Texas, got to talk to him on the bus about Jesus, gave him a QR code so he can get connected with us, he has a prayer request for Blessing over his family, and their souls",
-      "ts": "2026-09-29T21:50:49Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6681,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Let's #GoTeamJesus\n\nMatthew 28:20 NIV \n[20] and teaching them to obey everything I have commanded you. And surely I am with you always, to the very end of the age.” \n \nhttps://bible.com/bible/111/mat.28.20.NIV",
-      "ts": "2026-09-30T02:53:33Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6683,
@@ -851,6 +575,516 @@
       "kind": "telegram",
       "text": "Prayer that I get moved to a better time even if I get paid less in Costco so I can be awake for evangelism, asleep when others sleep, and that I can keep going to church... I submitted paperwork to payroll, however, I still cannot come back to work due to my arms being weak. Muscles need to regrow from the atrophy. So prayer I can be restored to full healthy... I am taking a leap of faith, and keeping today's and tomorrow as Holy Days, and then pop back into work on Monday morning to see how to proceed in going back to work hopefully this leads to better opportunities",
       "ts": "2026-10-03T17:56:14Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6770,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Ministry Prayer 10/3/2026\n\nWatch on Instagram:\nhttps://www.instagram.com/reel/DeDbcj0uuCf/?stkn=MWh2NWZwdWIxa3Jkdw==\n\nWatch on TikTok:\nhttps://www.tiktok.com/t/ZPLRd1XPh/",
+      "ts": "2026-10-04T01:20:03Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6772,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for Anonymous 10/3/2026:\n\nPrayer for overall health and work conditions to help alleviate stress.\n\nPlease pray earnestly for healing.",
+      "ts": "2026-10-04T05:32:00Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6790,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Here is the prayer thread for our ministry @ykwim_Jason",
+      "ts": "2026-10-04T21:34:22Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6793,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I am at SOL rn",
+      "ts": "2026-10-04T21:34:53Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6794,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I am waiting for you!",
+      "ts": "2026-10-04T21:35:04Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6795,
+      "userId": 7365988044,
+      "displayName": "Jason 🐾",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "This is the First time I am using Telegram.",
+      "ts": "2026-10-04T21:36:28Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6796,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "@Vanessa_mind this is Pastor Chand, he is updating his telegram for the first time, he is our brother from Pakistan who we send Urdu Bibles to",
+      "ts": "2026-10-04T21:37:25Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6797,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for Irena & Vasya ICC Church 10/4/2026:\n\nGod put it in their hearts to make financial contributions to me for our ministry so I really want to give God all the glory and also you raise them up in prayer.\n\nI spent some time talking with Irena and she asked us to pray for her 5 year old nephew who was type 1 diabetes I believe so God heals him.",
+      "ts": "2026-10-04T22:41:48Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6800,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "#Jesus4Alex, and Fellow smoothie person... prayer that God can work in their lives and lead them to him, that he can place the spirit in them, and they can repent and believe... Alex is on the right track, with a gideon, and hearing the word of God spoken also nice to see him again, we went to sno-isle together",
+      "ts": "2026-10-04T23:55:47Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6806,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for Home 10/4/2026:\n\nPraying for this household's salvation, we've placed a Bible in their library/pantry and would like to make sure Jesus opens their heart to receive the gospel.\n\nMay God have mercy on their souls.",
+      "ts": "2026-10-05T05:54:55Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6811,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer we don't forget what God delivered us from, that we don't forget what it means to be apart from God.\n\nI remember, I remember what I got delivered from... that empty pit in my chest and numbness, and he gave me feeling again... given over to despair and hopelessness... don't forget the Lord, like David share so you don't ever experience it again...\n\nDONT FORGET, REFLECT AND REMEMBER WHO YOU WERE BEFORE CHRIST. THANK HIM FOR NOT BEING DEAD IN SIN.\n\nPraise him for where you are at now. Don't forget his love. Don't forget his grace. \n\nAll these things are gifts we were unworthy of receiving, every moment we aren't immediately dead is a gift, every heartbeat, breath, is a gift, gift, gift.\n\nEvery moment you feel an emotion of joy and hope GIFT 🎁 \n\nDONT EVER ASK TO BE WITHOUT HIS GIFTS, HOW UNBELIEVABLY FOOLISH.\n\nDon't take him for granted and place all your hope in him for apart from him... even for a moment... WE ARE NOTHING.\n\nDust, and yet, yet he hears our cries, even though we are dust... \n\nJust imagine... a sandcastle on the beach about to be swallowed by the waves... and then he, loving that castle dug a moat, got swallowed by that water, so we don't have to be sucked under the waves... and not only that, he placed a person to keep rebuilding our sandcastle and keep the moat working, endlessly... also we... meaningless grains of sand, do not return to the sea... \n\nTHANK GOD, THANK YOU JESUS FOR SAVING ME!",
+      "ts": "2026-10-05T14:10:39Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6813,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "https://open.spotify.com/track/4LklvptJ5yENts3L55ycLW?si=miEAF_iJTCeZ_714-iI23Q&utm_source=copy-link",
+      "ts": "2026-10-05T14:27:33Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6821,
+      "userId": 7341880285,
+      "displayName": "Pavlo F",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Pray for me I keep getting spirit attacks and smarts",
+      "ts": "2026-10-06T00:37:49Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6822,
+      "userId": 7341880285,
+      "displayName": "Pavlo F",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "For smarts and other things",
+      "ts": "2026-10-06T00:38:07Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6823,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request from David 10/5/2026:\n\nPlease pray for our ministry leaders, churches, and ministers.\n\nSo the gospel can spread and the good news of Jesus Christ be heard all over the world.\n\nAlso please pray for Alex, he is suffering from a stomach problem and need healing in Jesus' name.\n\nThank you Seed the Word",
+      "ts": "2026-10-06T01:19:54Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6826,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for Oksana 10/6/2026:\n\nOksana is the mom of Vitaliy, who is one of the very first people that appeared on my walk to encounter Jesus, or the Holy Spirit encountering me and his mom was at prayer tonight and she is having spiritual attacks that affect her physical health.\n\nShe describes it as sharp pain cutting her from within and it is actually a demonic oppression that needs to be rebuked but also need mercy from Jesus as it is not something we can help her with but only Jesus can take mercy on her from what came to my heart.\n\nPlease do pray for her.\n\nShe is a mom to our friend and someone's wife and a member of the body of Christ.",
+      "ts": "2026-10-06T12:05:41Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6833,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I want to pray for Ousman Darboe, and hes a guy asking for money for food, hes given me his name, and he has chatted with me. I want to pray he if he is a genuine believer he may find the food hes looking for.\n\nAdditionally, decernment for myself, because actually I still feel convicted to help.\n\nI genuinely don't believe he's lying, then again, I have learned I can be quite gullible. So decernment that I might not be deceived.\n\nI don't know if he's safe, but I want to send something small, I looked up the money for a meal there, if at a restaurant.\n\n5 - 15 is enough for a meal there, and in the grand scheme of things not a big monetary loss, as I am going to be going back to work soon. And so if he isn't a believer, I am not giving him much, but for someone who genuinely needs it will genuinely help.\n\nSo yeah, prayers, and also decernment. Lastly, like reach out.\n\nA man needs the counsel of others, to not fail. So I trust yall, what shall I do, how should I proceed",
+      "ts": "2026-10-06T20:07:58Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6835,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Allow the ministry to discuss this matter and determine if God will bless the finances of the ministry to give after prayer as appropriate and we are taught by Scripture\n\nAny personal contributions you make cannot be made on behalf of the ministry and are solely your discretion to do with the finances as you please\n\nI would caution you to have discernment in understanding if this will achieve greater good or evil long term for the non believers and their growth in faith with Jesus Christ versus single small contributions that may seem like they help now but will hurt them in the long term",
+      "ts": "2026-10-06T23:42:59Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6836,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for ministry 10/7/2026:\n\nEveryone please pray for this ministry and our team leaders and ministry members.\n\nI really need you all to lift each other in prayer for spiritual protection from the enemy.",
+      "ts": "2026-10-07T08:27:18Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6845,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for Fin 8/10/2026\n\n he is a brother in Christ, who lives in UK, hes having lots of pain in his back, additionally, he is probably lukewarm within his faith, so prayer he may be set on fire for Christ.\n\nThat he may spend time in the word, and do it consistently.\n\nThat he may pray for healing, he may restore his back / and arm, so he may proclaim all the good things God has done for him.\n\nI am going to do Bible studies with him this morning, also the verse of the day, is this so this is the perfect opportunity to step in and help a brother in need!!! ❤️",
+      "ts": "2026-10-08T11:56:04Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6866,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "My boss, allowed me to only work 3 days so I can have Sunday off, so I can go to Church, Praise GOD!!!",
+      "ts": "2026-10-08T22:23:15Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6867,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hallelujah! Praise Jesus!",
+      "ts": "2026-10-08T22:23:39Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6869,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for trip 10/8/2026:\n\nOur team just boarded the plane and are preparing for take off.\n\nPlease pray for our safe flight and may God bless you, we are praying also.",
+      "ts": "2026-10-09T02:07:26Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6870,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I will record one when I get home but I am praying for you 🙏",
+      "ts": "2026-10-09T02:08:46Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6872,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for Jules:\n\nStrength, Vigilance, and be on guard from spiritual attacks. To be anchored in the word, filled with faith and equipped with it as her shield.",
+      "ts": "2026-10-09T12:28:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6875,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for safety as I am riding my bike today",
+      "ts": "2026-10-09T16:54:55Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6876,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thank you Liam!",
+      "ts": "2026-10-09T17:43:05Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6877,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hey y’all pray for my friend Justin @justinc87 , he just moved, I think from what I remember Texas or North Carolina, either way, pray he can find a job and find purpose in Jesus again, and some new friends!",
+      "ts": "2026-10-09T21:51:26Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6885,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for two young kids being baptized, that the Lord allows them to be reborn in water, that he blesses them and keeps them safe, and when they are of age they me be baptized in faith like me.\n\nI know God saved me, and so I pray those young souls also may be committed to him. 🙏",
+      "ts": "2026-10-10T02:12:42Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6889,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Good morning fam!\n\nI'm so excited to be posting today especially from a new place and praising God for all His rich blessings!\n\nPraying for all of you today and here's the verse for the day:\nPhilippians 4:19 ESV \n[19] And my God will supply every need of yours according to his riches in glory in Christ Jesus.",
+      "ts": "2026-10-10T08:55:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6898,
+      "userId": 8583445613,
+      "displayName": "Edward Wei",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I'm going to a pumpkin patch today and I hope to pass out our flyers to those who God is calling to join our ministry.",
+      "ts": "2026-10-10T17:21:20Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6899,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I love that ! Praying for your success!",
+      "ts": "2026-10-10T17:22:39Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6908,
+      "userId": 8045440327,
+      "displayName": "Liam Webster 🐑PrayerDog🐺",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "As I was doing Bible studies, I had a brother in faith, walk up and ask if I was reading a Bible, I said yes, and proceeded to describe what I was doing openly in the break room, Got a knuckle bump from him, I didn't get his name, but when I see him again I will ask if hes interested in joining the ministry today is a great day!!!",
+      "ts": "2026-10-10T18:19:19Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6912,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Also free pie",
+      "ts": "2026-10-10T23:47:58Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6914,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "His name is cion I am getting him connected to the group!!!",
+      "ts": "2026-10-10T23:51:21Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6915,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "He's going to Denver but we might have a new member!!!",
+      "ts": "2026-10-10T23:51:46Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6917,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for Bakari: \n\n-that God supports his business ventures, and provides for his basic needs\n\n-prayer he may seek after him so all his needs may be made complete.\n\n-prayer the soles of his feet may harden (he wasn't wearing shoes/ socks, hes not homeless, just trying to harden his feet\n\n-prayer for corrective surgery to heal",
+      "ts": "2026-10-11T16:04:00Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6918,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "-Also gave him a gideon",
+      "ts": "2026-10-11T16:07:21Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6919,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer he reads it and he starts going to church.",
+      "ts": "2026-10-11T16:07:42Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6941,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Good morning y’all ! I’m grateful for a new and sunny day today! Can’t wait for young adults tonight at 6:30pm 😁 so grateful for this ministry",
+      "ts": "2026-10-12T18:16:36Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6942,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Amen, I am excited too!!!",
+      "ts": "2026-10-12T18:22:13Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6947,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I got a prayer request for my Granny, but also for the extended fam as a whole for wisdom and decernment.",
+      "ts": "2026-10-12T21:14:00Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6951,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Jesus4Gino(I believe thats how its spelled)",
+      "ts": "2026-10-13T00:22:48Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6959,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer for spiritual defense for me, so I may trust and take every thought captive for the Lord. That I may endure whatever is happening to me. That my faith would be made stronger.\n\nI am starting my shift in like ~40 mins, and I don't feel the strength or will to do this, but I also know its written I shouldn't grow tired of doing good.\n\nI know the enemy must submit to Jesus, and things will get better.\n\nHowever, right now its really hard for me.\n\nSo I will take whatever prayers you can offer me. I need every one rn 🙏",
+      "ts": "2026-10-13T18:17:28Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6960,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "We’re praying Liam 🙌🏻🙏🏻",
+      "ts": "2026-10-13T18:35:43Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6961,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I pray for strength in obedience, I pray for patience, I pray for fire 🔥 for Jesus, I pray for humility in us, friends ! Pray for our ministry that we may keep serving You and our cities for You! 🌆 May Jesus fill every corner of our lives, let us not be ashamed of our God in front of our lukewarm/un believers, I rebuke the denial of Jesus but to walk with confidence and faith, He is our strength, our source, our redeemer, Lord may we walk proudly knowing we are Yours and You are ours, and keep praying for the fruits of the Spirit to grow and for You to prune our dead and unfruitful parts of our lives. \n\nWe love you Jesus. Amen",
+      "ts": "2026-10-13T18:39:55Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6962,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "May we pray for what we need to pray for, and remember no prayer is too big or too much for our God, Lord You bear our burdens because you care for us, You want us to reach out to You for help, for everything, You want us to depend on You, how great is our God? How wonderful and loving is He? We give You all the glory and praise Jesus our Savior 🙏🏻💕",
+      "ts": "2026-10-13T18:45:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6963,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Amen! ✊",
+      "ts": "2026-10-13T18:47:17Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6964,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "You didn’t just die to save us from our sins, You died so we can have a bridge to You, so You could come down to us and allow us to have a true relationship with You, and give us confidence that we can do all things through You who strengthens us. May we never forget this!!! Amen and amen and amen",
+      "ts": "2026-10-13T18:47:51Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6965,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Jesus thank you for all you do, for calling us to be Christians, for making us more then conquers and kings and queens. With a royal inheritance into your kingdom.\n\nYou met us in the mess, and made us into saints.\n\nPraise you for all the good you gave done, and will do. I believe you will work all things for our good.\n\nYou gave us hope, a future in a kingdom of heaven. And promised whatever suffering now is incomparable to the glory ahead of us.\n\nLet us walk by faith, and not by sight. Renew our strength when we grow tired.\n\nThis war was won, and is ours.\n\nThe gates of hell shall not prevail against us, against this ministry, against your church, your bride.\n\nYou love us, and there is hope.\n\nAmen and Hallelujah.\n\nVictory is yours",
+      "ts": "2026-10-13T18:52:28Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6966,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I didn't get the chance to say this but we got free cookies in the break room, 😋 God really helped me through the lows. \n\nIt feels so good to be blessed",
+      "ts": "2026-10-13T23:35:52Z"
     }
   ]
 }

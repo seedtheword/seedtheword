@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617667,
-  "lastModified": "2026-10-14T23:25:01Z",
+  "lastModified": "2026-10-15T00:55:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -366,16 +366,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6694,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Despite their rejection of God, they still desperately wanted the Bibles, also they all flocked to me and said thank you for blessing their friend, his name is Mike's, Praise God!!! 🙏🙌",
-      "ts": "2026-10-01T00:47:33Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6695,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617667,
-  "lastModified": "2026-10-15T00:55:36Z",
+  "lastUpdateId": 669617668,
+  "lastModified": "2026-10-15T01:10:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -366,46 +366,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6695,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "So you handed out Bibles?",
-      "ts": "2026-10-01T01:00:55Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6696,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Every one",
-      "ts": "2026-10-01T01:01:06Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6697,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "They kinda begged for them, funnily enough",
-      "ts": "2026-10-01T01:01:19Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6698,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Let me know if you need more anytime!",
-      "ts": "2026-10-01T01:04:11Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6707,
@@ -1065,6 +1025,16 @@
       "kind": "telegram",
       "text": "I didn't get the chance to say this but we got free cookies in the break room, 😋 God really helped me through the lows. \n\nIt feels so good to be blessed",
       "ts": "2026-10-13T23:35:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 6977,
+      "userId": 8626979782,
+      "displayName": "Ava Smith",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "​Prayer Requests for my Friend Chloe and her Family:\n\n​Emotional Healing & Comfort:\n\n Pray for strength and peace as she grieves the recent passing of her aunt.\n\n​For Her Uncle:\n\n​Grief & Loss: Pray for comfort, strength, and support as he navigates the painful loss of his wife.",
+      "ts": "2026-10-15T00:53:59Z"
     }
   ]
 }

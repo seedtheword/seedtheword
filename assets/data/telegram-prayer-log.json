@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617702,
-  "lastModified": "2026-10-16T15:10:33Z",
+  "lastModified": "2026-10-16T20:55:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -372,16 +372,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6740,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "#JESUS4HAYDEN",
-      "ts": "2026-10-02T20:51:53Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6766,

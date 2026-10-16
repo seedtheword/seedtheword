@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617679,
-  "lastModified": "2026-10-15T23:55:38Z",
+  "lastModified": "2026-10-16T00:40:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -372,16 +372,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6730,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Pray for me too, just got back from my vacation and I feel my flesh bubbling up with slight bit of anxiety I think maybe about my future or something or maybe just I’m not liking that I’m back and all my responsibilities are coming back 😅😂 but I’m not sure exactly what it’s from so pray that I get discernment and also just not allow the feeling to effect me.",
-      "ts": "2026-10-02T00:36:38Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6731,

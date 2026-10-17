@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617722,
-  "lastModified": "2026-10-17T21:10:40Z",
+  "lastUpdateId": 669617724,
+  "lastModified": "2026-10-17T21:25:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -907,6 +907,26 @@
       "kind": "telegram",
       "text": "We will be praying Ava, tonight we have prayer night at Maple Park Church and will be praying in unison for these things. If anyone else who can’t come has prayer requests, please put them down here !!!",
       "ts": "2026-10-15T01:13:43Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7033,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I got called Christian boy by one of my coworkers whom I evangelised to before they worked at Costco, it makes me slightly happy my coworkers either openly acknowledge my faith, and or suggest I avoid doing things because it wouldn't be beneficial to my faith, for example in the breakroom they were playing horror movies, and I was told it might be better to avoid what I watch, what I see. Thats good because I am clearly demonstrating what it means to be set apart and to lead by example. Praise God.",
+      "ts": "2026-10-17T21:20:55Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7034,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Also members recognize me from when I evangelized in the summer and they point and I just wave with a smile. Its hilarious some days 🤣 their mouths drop open",
+      "ts": "2026-10-17T21:22:01Z"
     }
   ]
 }

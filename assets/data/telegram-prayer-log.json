@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617727,
-  "lastModified": "2026-10-18T02:10:33Z",
+  "lastModified": "2026-10-18T05:40:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -378,16 +378,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6772,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer Request for Anonymous 10/3/2026:\n\nPrayer for overall health and work conditions to help alleviate stress.\n\nPlease pray earnestly for healing.",
-      "ts": "2026-10-04T05:32:00Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6790,

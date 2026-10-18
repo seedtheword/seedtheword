@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617726,
-  "lastModified": "2026-10-17T23:40:33Z",
+  "lastModified": "2026-10-18T01:25:42Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -378,16 +378,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6770,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Ministry Prayer 10/3/2026\n\nWatch on Instagram:\nhttps://www.instagram.com/reel/DeDbcj0uuCf/?stkn=MWh2NWZwdWIxa3Jkdw==\n\nWatch on TikTok:\nhttps://www.tiktok.com/t/ZPLRd1XPh/",
-      "ts": "2026-10-04T01:20:03Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6772,

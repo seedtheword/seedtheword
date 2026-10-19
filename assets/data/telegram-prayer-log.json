@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617759,
-  "lastModified": "2026-10-18T22:55:40Z",
+  "lastModified": "2026-10-19T00:10:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -378,16 +378,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6800,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "#Jesus4Alex, and Fellow smoothie person... prayer that God can work in their lives and lead them to him, that he can place the spirit in them, and they can repent and believe... Alex is on the right track, with a gideon, and hearing the word of God spoken also nice to see him again, we went to sno-isle together",
-      "ts": "2026-10-04T23:55:47Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6806,

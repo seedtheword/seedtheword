@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617759,
-  "lastModified": "2026-10-19T14:10:42Z",
+  "lastModified": "2026-10-19T14:40:43Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -378,16 +378,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6813,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "https://open.spotify.com/track/4LklvptJ5yENts3L55ycLW?si=miEAF_iJTCeZ_714-iI23Q&utm_source=copy-link",
-      "ts": "2026-10-05T14:27:33Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6821,

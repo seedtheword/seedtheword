@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617789,
-  "lastModified": "2026-10-21T18:10:44Z",
+  "lastUpdateId": 669617791,
+  "lastModified": "2026-10-21T18:40:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -833,6 +833,26 @@
       "kind": "telegram",
       "text": "Once again blessed with food, now we have vegetables and fruits.",
       "ts": "2026-10-21T18:01:33Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7093,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I went to place Bible tracks in the Costco breakroom again, decided to remove them because I looked up the rules and regulations, and I might get disciplinary actions taken against me if I keep them there. So I have decided to remove them because I am submitting to the authorities above me",
+      "ts": "2026-10-21T18:39:46Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7094,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thats disappointing",
+      "ts": "2026-10-21T18:40:02Z"
     }
   ]
 }

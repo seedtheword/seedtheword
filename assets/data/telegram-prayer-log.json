@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617777,
-  "lastModified": "2026-10-21T00:10:35Z",
+  "lastModified": "2026-10-21T08:40:45Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -384,16 +384,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6836,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer Request for ministry 10/7/2026:\n\nEveryone please pray for this ministry and our team leaders and ministry members.\n\nI really need you all to lift each other in prayer for spiritual protection from the enemy.",
-      "ts": "2026-10-07T08:27:18Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6845,

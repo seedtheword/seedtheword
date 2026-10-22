@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617828,
-  "lastModified": "2026-10-22T18:25:38Z",
+  "lastUpdateId": 669617830,
+  "lastModified": "2026-10-22T22:25:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -390,26 +390,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6866,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "My boss, allowed me to only work 3 days so I can have Sunday off, so I can go to Church, Praise GOD!!!",
-      "ts": "2026-10-08T22:23:15Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6867,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hallelujah! Praise Jesus!",
-      "ts": "2026-10-08T22:23:39Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6869,
@@ -879,6 +859,26 @@
       "kind": "telegram",
       "text": "Praying for you pastor @chandsajad ! 🔥🙏✝️",
       "ts": "2026-10-22T08:14:02Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7128,
+      "userId": 8626979782,
+      "displayName": "Ava Smith",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer request:\n\nMay I please have prayers for my friend, Roberto, who just lost his uncle and is going through a hard time. He was very close to him. May he have prayers for strength and the ability to move peacefully past this challenging time.",
+      "ts": "2026-10-22T22:13:20Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7129,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Thank you Ava for notifying and absolutely will pray for him.",
+      "ts": "2026-10-22T22:13:54Z"
     }
   ]
 }

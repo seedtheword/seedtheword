@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617845,
-  "lastModified": "2026-10-23T17:10:35Z",
+  "lastUpdateId": 669617847,
+  "lastModified": "2026-10-23T17:25:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -879,6 +879,16 @@
       "kind": "telegram",
       "text": "4 Roberto",
       "ts": "2026-10-23T17:08:33Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7141,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "4 coworker Heather (who is Christian]",
+      "ts": "2026-10-23T17:15:07Z"
     }
   ]
 }

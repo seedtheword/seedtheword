@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617831,
-  "lastModified": "2026-10-23T00:10:32Z",
+  "lastModified": "2026-10-23T02:10:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -390,26 +390,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6869,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer Request for trip 10/8/2026:\n\nOur team just boarded the plane and are preparing for take off.\n\nPlease pray for our safe flight and may God bless you, we are praying also.",
-      "ts": "2026-10-09T02:07:26Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6870,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I will record one when I get home but I am praying for you 🙏",
-      "ts": "2026-10-09T02:08:46Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6872,

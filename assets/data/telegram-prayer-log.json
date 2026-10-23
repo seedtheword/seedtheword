@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617834,
-  "lastModified": "2026-10-23T12:40:36Z",
+  "lastUpdateId": 669617835,
+  "lastModified": "2026-10-23T14:40:41Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -849,6 +849,16 @@
       "kind": "telegram",
       "text": "Thank you Ava for notifying and absolutely will pray for him.",
       "ts": "2026-10-22T22:13:54Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7131,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I need prayers for decernment, that I may understand the plans, God has for me. And then the courage to act on them in faith.\n\nI ask for prayers he will open doors that need to be open, and shut doors he needs to shut.\n\nIts his will be done in the end.\n\nHe establishes my steps, and directs my paths.\n\nI ask for courage and trust to obey that will because his will will be done, or there are consequences.\n\nI don't want to lose anymore.",
+      "ts": "2026-10-23T14:27:11Z"
     }
   ]
 }

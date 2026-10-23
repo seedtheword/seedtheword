@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617842,
-  "lastModified": "2026-10-23T16:40:37Z",
+  "lastModified": "2026-10-23T16:55:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -390,16 +390,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6875,
-      "userId": 8045440327,
-      "displayName": "Liam Webster 🐑PrayerDog🐺",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer for safety as I am riding my bike today",
-      "ts": "2026-10-09T16:54:55Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6876,

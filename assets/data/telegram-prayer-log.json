@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617850,
-  "lastModified": "2026-10-24T02:25:34Z",
+  "lastModified": "2026-10-24T09:10:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -390,16 +390,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6889,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Good morning fam!\n\nI'm so excited to be posting today especially from a new place and praising God for all His rich blessings!\n\nPraying for all of you today and here's the verse for the day:\nPhilippians 4:19 ESV \n[19] And my God will supply every need of yours according to his riches in glory in Christ Jesus.",
-      "ts": "2026-10-10T08:55:52Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6898,

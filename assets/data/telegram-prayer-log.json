@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617862,
-  "lastModified": "2026-10-24T23:25:32Z",
+  "lastUpdateId": 669617863,
+  "lastModified": "2026-10-24T23:55:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -396,36 +396,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6912,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Also free pie",
-      "ts": "2026-10-10T23:47:58Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6914,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "His name is cion I am getting him connected to the group!!!",
-      "ts": "2026-10-10T23:51:21Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6915,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "He's going to Denver but we might have a new member!!!",
-      "ts": "2026-10-10T23:51:46Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6917,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617850,
-  "lastModified": "2026-10-24T09:10:34Z",
+  "lastUpdateId": 669617851,
+  "lastModified": "2026-10-24T12:40:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -859,6 +859,16 @@
       "kind": "telegram",
       "text": "Blessed again with more food!!!",
       "ts": "2026-10-23T17:30:30Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7144,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request 10/24/2026:\n\nPlease pray for the people we evangelized to today. Some of them lost faith while others are not completely understanding the difference between what Catholic and a true relationship with God is.\n\n🙏PRAYER DOG🙏 please don't name drop the location or any details, just say a prayer in general because the Holy Spirit knows them by name.",
+      "ts": "2026-10-24T12:29:51Z"
     }
   ]
 }

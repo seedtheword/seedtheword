@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617852,
-  "lastModified": "2026-10-24T15:40:32Z",
+  "lastModified": "2026-10-24T17:25:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -396,26 +396,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6898,
-      "userId": 8583445613,
-      "displayName": "Edward Wei",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I'm going to a pumpkin patch today and I hope to pass out our flyers to those who God is calling to join our ministry.",
-      "ts": "2026-10-10T17:21:20Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6899,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I love that ! Praying for your success!",
-      "ts": "2026-10-10T17:22:39Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6908,

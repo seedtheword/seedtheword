@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617865,
-  "lastModified": "2026-10-25T10:55:43Z",
+  "lastModified": "2026-10-25T16:10:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -396,36 +396,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6917,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer for Bakari: \n\n-that God supports his business ventures, and provides for his basic needs\n\n-prayer he may seek after him so all his needs may be made complete.\n\n-prayer the soles of his feet may harden (he wasn't wearing shoes/ socks, hes not homeless, just trying to harden his feet\n\n-prayer for corrective surgery to heal",
-      "ts": "2026-10-11T16:04:00Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6918,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "-Also gave him a gideon",
-      "ts": "2026-10-11T16:07:21Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 6919,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer he reads it and he starts going to church.",
-      "ts": "2026-10-11T16:07:42Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6941,

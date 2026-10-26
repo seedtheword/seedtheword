@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617890,
-  "lastModified": "2026-10-26T18:25:34Z",
+  "lastUpdateId": 669617891,
+  "lastModified": "2026-10-26T19:25:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -801,6 +801,16 @@
       "kind": "telegram",
       "text": "🙏PRAYER DOG🙏 🐶🙏 prayer up!",
       "ts": "2026-10-26T17:14:21Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7181,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Hey This is Jessy typing from Liams phone\nRequesting a prayer for my start to a physical healing from ms",
+      "ts": "2026-10-26T19:17:02Z"
     }
   ]
 }

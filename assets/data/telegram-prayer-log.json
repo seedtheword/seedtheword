@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617897,
-  "lastModified": "2026-10-26T19:55:41Z",
+  "lastModified": "2026-10-26T21:25:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -402,16 +402,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6947,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I got a prayer request for my Granny, but also for the extended fam as a whole for wisdom and decernment.",
-      "ts": "2026-10-12T21:14:00Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6951,

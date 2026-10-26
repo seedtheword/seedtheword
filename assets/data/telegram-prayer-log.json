@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617891,
-  "lastModified": "2026-10-26T19:25:35Z",
+  "lastUpdateId": 669617896,
+  "lastModified": "2026-10-26T19:40:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -811,6 +811,26 @@
       "kind": "telegram",
       "text": "Hey This is Jessy typing from Liams phone\nRequesting a prayer for my start to a physical healing from ms",
       "ts": "2026-10-26T19:17:02Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7182,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Laid hands and prayed over him on bus and gave a Bible to him too. It was awesome!!!",
+      "ts": "2026-10-26T19:26:07Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7183,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "(This is Liam)",
+      "ts": "2026-10-26T19:26:25Z"
     }
   ]
 }

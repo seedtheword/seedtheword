@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617939,
-  "lastModified": "2026-10-28T21:40:33Z",
+  "lastModified": "2026-10-29T00:55:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -402,16 +402,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6977,
-      "userId": 8626979782,
-      "displayName": "Ava Smith",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "​Prayer Requests for my Friend Chloe and her Family:\n\n​Emotional Healing & Comfort:\n\n Pray for strength and peace as she grieves the recent passing of her aunt.\n\n​For Her Uncle:\n\n​Grief & Loss: Pray for comfort, strength, and support as he navigates the painful loss of his wife.",
-      "ts": "2026-10-15T00:53:59Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 6978,

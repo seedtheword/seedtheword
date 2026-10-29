@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669617948,
-  "lastModified": "2026-10-29T17:25:41Z",
+  "lastUpdateId": 669617949,
+  "lastModified": "2026-10-29T17:40:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -867,6 +867,16 @@
       "kind": "telegram",
       "text": "Additionally follow up to my video, I actually wasn't able to get the light duty for my work, however was able to get stuff for my physical therapist appointment, I have an appointment scheduled tomorrow, so I can get everything I need however, rn, I got the paperwork so I can start healing",
       "ts": "2026-10-29T17:25:19Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7227,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I got got me the appointment, and everything will work out.",
+      "ts": "2026-10-29T17:25:59Z"
     }
   ]
 }

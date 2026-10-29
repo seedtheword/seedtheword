@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669617939,
-  "lastModified": "2026-10-29T00:55:32Z",
+  "lastModified": "2026-10-29T01:25:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -402,16 +402,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 6978,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "We will be praying Ava, tonight we have prayer night at Maple Park Church and will be praying in unison for these things. If anyone else who can’t come has prayer requests, please put them down here !!!",
-      "ts": "2026-10-15T01:13:43Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7033,

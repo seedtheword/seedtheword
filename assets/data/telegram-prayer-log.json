@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618007,
-  "lastModified": "2026-11-01T22:55:37Z",
+  "lastUpdateId": 669618014,
+  "lastModified": "2026-11-01T23:40:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -933,6 +933,16 @@
       "kind": "telegram",
       "text": "Yay",
       "ts": "2026-11-01T19:41:51Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7281,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Seed the Word on Instagram/TikTok:\n\n—Instagram—\nhttps://www.instagram.com/reel/DfN4vW2ow4N/?psln=ZnBjN2drbDBwZXdu\n\n—TikTok—\nhttps://www.tiktok.com/t/ZTfw2NuLB/",
+      "ts": "2026-11-01T23:31:43Z"
     }
   ]
 }

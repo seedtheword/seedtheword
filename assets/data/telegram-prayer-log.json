@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618048,
-  "lastModified": "2026-11-03T19:41:45Z",
+  "lastUpdateId": 669618053,
+  "lastModified": "2026-11-03T19:58:00Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -899,6 +899,16 @@
       "kind": "telegram",
       "text": "Seed the Word on Instagram/TikTok:\n\n—Instagram—\nhttps://www.instagram.com/reel/DfN4vW2ow4N/?psln=ZnBjN2drbDBwZXdu\n\n—TikTok—\nhttps://www.tiktok.com/t/ZTfw2NuLB/",
       "ts": "2026-11-01T23:31:43Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7321,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Last night at Applebees we got to meet a homeless man, Jerry, and we got to pray for him and he said he had a Bible, but he just asks for sin to leave his life. He was a very sweet man. Keep him in your prayers ! 🙏🏻",
+      "ts": "2026-11-03T19:49:05Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618082,
-  "lastModified": "2026-11-04T17:55:45Z",
+  "lastModified": "2026-11-04T18:10:57Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -420,16 +420,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7089,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Once again blessed with food, now we have vegetables and fruits.",
-      "ts": "2026-10-21T18:01:33Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7093,

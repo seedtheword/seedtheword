@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618112,
-  "lastModified": "2026-11-05T22:10:32Z",
+  "lastModified": "2026-11-05T22:25:38Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -426,26 +426,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7128,
-      "userId": 8626979782,
-      "displayName": "Ava Smith",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer request:\n\nMay I please have prayers for my friend, Roberto, who just lost his uncle and is going through a hard time. He was very close to him. May he have prayers for strength and the ability to move peacefully past this challenging time.",
-      "ts": "2026-10-22T22:13:20Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 7129,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thank you Ava for notifying and absolutely will pray for him.",
-      "ts": "2026-10-22T22:13:54Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7131,

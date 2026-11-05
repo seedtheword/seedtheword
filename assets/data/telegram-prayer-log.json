@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618095,
-  "lastModified": "2026-11-05T03:40:36Z",
+  "lastModified": "2026-11-05T08:25:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -420,16 +420,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7115,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Praying for you pastor @chandsajad ! 🔥🙏✝️",
-      "ts": "2026-10-22T08:14:02Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7128,

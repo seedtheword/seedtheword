@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618155,
-  "lastModified": "2026-11-06T06:25:32Z",
+  "lastUpdateId": 669618156,
+  "lastModified": "2026-11-06T06:40:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -825,6 +825,16 @@
       "kind": "telegram",
       "text": "Last night at Applebees we got to meet a homeless man, Jerry, and we got to pray for him and he said he had a Bible, but he just asks for sin to leave his life. He was a very sweet man. Keep him in your prayers ! 🙏🏻",
       "ts": "2026-11-03T19:49:05Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7412,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Also guys plz be praying for my little brother Eric. He’s been acting strange and drawing weird demon faces and mocking me saying “you better pray for me or the demons will get me” and things. Being especially rude to me, disrespecting parents, etc.",
+      "ts": "2026-11-06T06:30:03Z"
     }
   ]
 }

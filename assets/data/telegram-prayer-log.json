@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618162,
-  "lastModified": "2026-11-06T15:55:37Z",
+  "lastModified": "2026-11-06T17:10:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -426,16 +426,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7138,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "4 Roberto",
-      "ts": "2026-10-23T17:08:33Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7141,

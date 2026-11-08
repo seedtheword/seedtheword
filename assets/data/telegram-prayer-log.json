@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618180,
-  "lastModified": "2026-11-08T19:25:36Z",
+  "lastUpdateId": 669618181,
+  "lastModified": "2026-11-08T20:10:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -761,6 +761,16 @@
       "kind": "telegram",
       "text": "Also guys plz be praying for my little brother Eric. He’s been acting strange and drawing weird demon faces and mocking me saying “you better pray for me or the demons will get me” and things. Being especially rude to me, disrespecting parents, etc.",
       "ts": "2026-11-06T06:30:03Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7436,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Kindly requesting prayer, I've had a very minor physical altercation with a leader where I am staying and would appreciate it that God guides the situation for His glory.\n\nThey've attempted to remove my cell phone as a measure to prevent me from communicating online and instead of politely doing it, physical force was applied to the matter.\n\nI've had a brief conversation with this individual and decided to postpone it to rest until I'm able to regain composure to speak on the matter again.",
+      "ts": "2026-11-08T19:58:24Z"
     }
   ]
 }

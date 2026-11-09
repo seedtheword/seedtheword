@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618183,
-  "lastModified": "2026-11-09T01:55:33Z",
+  "lastModified": "2026-11-09T03:40:42Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -432,16 +432,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7164,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Hi @Vanessa_mind and @davidageyev \nPlease pray for our ministry in Pakistan as we are praying to the Lord to provide us a new Building for Church services. Our contract is about to expire with the current landlord. \nPlease keep in prayers.",
-      "ts": "2026-10-26T03:37:00Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7169,

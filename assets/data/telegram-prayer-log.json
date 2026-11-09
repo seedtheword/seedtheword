@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618191,
-  "lastModified": "2026-11-09T19:40:33Z",
+  "lastModified": "2026-11-09T19:56:01Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -438,16 +438,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7186,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer for Albanian riots, to de-escalate and for general safety of individuals in the country. Peaceful resolution to conflict \n\nFrom Daniel (Liams friend)",
-      "ts": "2026-10-26T19:53:22Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7187,

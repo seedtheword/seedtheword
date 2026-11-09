@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618192,
-  "lastModified": "2026-11-09T21:10:31Z",
+  "lastModified": "2026-11-09T23:10:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -438,16 +438,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7187,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Got to talk about Jesus to a transgender person he wasn't entirely opposed to everything I said. And just openly talked about faith on the college campus today, and so that definitely felt amazing.",
-      "ts": "2026-10-26T23:03:33Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7189,

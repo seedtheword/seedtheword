@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618197,
-  "lastModified": "2026-11-10T01:10:35Z",
+  "lastModified": "2026-11-10T03:55:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -438,16 +438,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7189,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Clayton, prayer for physical healing for disability, that God can continue to provide his base needs, and he can find people to support him, and give him community and support.",
-      "ts": "2026-10-27T03:53:33Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7204,

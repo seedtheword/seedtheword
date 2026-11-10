@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618206,
-  "lastModified": "2026-11-10T21:25:32Z",
+  "lastUpdateId": 669618207,
+  "lastModified": "2026-11-10T21:55:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -707,6 +707,16 @@
       "kind": "telegram",
       "text": "Prayer Request 11/10/2026:\n\nHey Seed the Word, please pray for me and my missionary work, I've been caught up in an uncomfortable position both spiritually and physically where I am located and ask God to help deliver me with safe passage from my trouble.\n\nI'm super grateful for all the prayers I have received until this point and would like to assure everyone I am in the Lord's hands and feel confident in His protection wherever I go🙏❤️",
       "ts": "2026-11-10T19:30:02Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7456,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I had a coworker come to me to pray for a non Christian coworker named Remy she's having medical things done, and so she needs prayers (not the person who asked, she herself isn't Christian and so God can use this to demonstrate his healing power so lets pray for Remy too)",
+      "ts": "2026-11-10T21:53:08Z"
     }
   ]
 }

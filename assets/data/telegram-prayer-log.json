@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618207,
-  "lastModified": "2026-11-10T21:55:36Z",
+  "lastModified": "2026-11-10T22:10:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -438,16 +438,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7207,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Enemy is just mad we were working for the kingdom. Hold on tight brothers we shall be fine",
-      "ts": "2026-10-27T21:57:06Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7208,

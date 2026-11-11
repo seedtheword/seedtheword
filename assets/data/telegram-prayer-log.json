@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618213,
-  "lastModified": "2026-11-11T02:10:35Z",
+  "lastUpdateId": 669618219,
+  "lastModified": "2026-11-11T02:18:55Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -727,6 +727,36 @@
       "kind": "telegram",
       "text": "Pray for strength.",
       "ts": "2026-11-11T00:36:08Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7460,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Sorry y’all, thats embarrassing 😅",
+      "ts": "2026-11-11T02:11:12Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7461,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I had no internet at all at the time",
+      "ts": "2026-11-11T02:11:16Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7462,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Must’ve sent multiple times",
+      "ts": "2026-11-11T02:11:21Z"
     }
   ]
 }

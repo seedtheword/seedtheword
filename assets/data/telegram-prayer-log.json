@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618235,
-  "lastModified": "2026-11-12T13:40:43Z",
+  "lastUpdateId": 669618244,
+  "lastModified": "2026-11-12T16:10:49Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -747,6 +747,26 @@
       "kind": "telegram",
       "text": "Prayer Request 11/11/2026:\n\nAsking for prayer for the place where I am staying, today Brothers decided to have a full-on shouting competition in the room where I am situated and rudely awoken me without anywhere to go so I had to hug one of them to calm them down.\n\nI'm really praying for this house where I'm staying at, but I understand there's a lot of tension so may the Lord provide relief and allow me to help wherever I can 🙏",
       "ts": "2026-11-11T19:29:48Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7482,
+      "userId": 7161271161,
+      "displayName": "Dominika",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I have a prayer request",
+      "ts": "2026-11-12T16:04:28Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7484,
+      "userId": 7161271161,
+      "displayName": "Dominika",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Actually, two",
+      "ts": "2026-11-12T16:05:06Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618267,
-  "lastModified": "2026-11-12T23:10:35Z",
+  "lastUpdateId": 669618270,
+  "lastModified": "2026-11-12T23:25:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -773,6 +773,16 @@
       "kind": "telegram",
       "text": "Prayer Request for Lindiwe 11/12/2026:\n\nLindiwe has sent me a personal prayer request seeking spirit support for a heavy spirit and has asked me to lift her up in prayer.\n\nI shared a passage from Acts 17:16-34 with her but I know the enemy is attempting everything he can to make it difficult for us (God's children) to lift our voices to Him, because when we do, God will smite the enemy and he WILL need to run.",
       "ts": "2026-11-12T20:07:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7511,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Pray for me, I'm on the bus talking with a Ukranian who isn't Christian\n\nAnd trying to figure out his mindset on why he thinks Jesus isn't the Truth \n\nLong story short, I think he just doesn't really care and claims that mostly it's not probable and the resurrection didn't happen... But it did",
+      "ts": "2026-11-12T23:15:31Z"
     }
   ]
 }

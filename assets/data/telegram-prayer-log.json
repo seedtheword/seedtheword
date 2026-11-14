@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618403,
-  "lastModified": "2026-11-14T20:10:30Z",
+  "lastModified": "2026-11-14T20:25:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -450,16 +450,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7239,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Amen and Hallelujah to Jesus",
-      "ts": "2026-10-31T20:12:15Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7266,

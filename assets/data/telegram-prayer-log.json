@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618400,
-  "lastModified": "2026-11-14T14:10:31Z",
+  "lastModified": "2026-11-14T14:40:42Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -444,16 +444,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7236,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Prayer Request 10/31/2026:\n\nPlease pray for evangelism outreach during this evil day of human sacrifice.\n\nGod is our strength and we will overcome by the power, authority, and name of Jesus Christ ✝️",
-      "ts": "2026-10-31T14:35:07Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7238,

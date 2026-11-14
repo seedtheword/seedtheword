@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618403,
-  "lastModified": "2026-11-14T18:40:32Z",
+  "lastModified": "2026-11-14T20:10:30Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -450,16 +450,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7238,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Please pray for me and for my heart for any discouragement or tiredness or laziness, or even confusion or worry. pray for the people going out with evangelizing today for the trick or treaters, rebuke all witchcraft and evil spirits that may try to linger and attack us on this day.",
-      "ts": "2026-10-31T19:57:22Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7239,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618432,
-  "lastModified": "2026-11-15T19:25:33Z",
+  "lastModified": "2026-11-15T19:40:31Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -450,16 +450,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7268,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Meeee too 😊",
-      "ts": "2026-11-01T19:33:33Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7271,

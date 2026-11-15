@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618418,
-  "lastModified": "2026-11-15T14:25:32Z",
+  "lastUpdateId": 669618426,
+  "lastModified": "2026-11-15T17:25:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -749,6 +749,16 @@
       "kind": "telegram",
       "text": "Pray for me, I'm on the bus talking with a Ukranian who isn't Christian\n\nAnd trying to figure out his mindset on why he thinks Jesus isn't the Truth \n\nLong story short, I think he just doesn't really care and claims that mostly it's not probable and the resurrection didn't happen... But it did",
       "ts": "2026-11-12T23:15:31Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7650,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "A while back I had a discussion on what Hasbin Hotel is to a non believer, not telling her she is going to hell, but I told her that is where demons go, and that there is no redemption for them... and she talked to me on the bus, she didn't believe but she let slip... she doesn't watch the show anymore, and so thats the holy spirit convicting and making progress within her.\n\nI ask we keep praying for her, that she may accept Christ.\n\nThat she may grow and know his love, and that there is a way out.",
+      "ts": "2026-11-15T17:23:01Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618446,
-  "lastModified": "2026-11-16T19:25:33Z",
+  "lastUpdateId": 669618448,
+  "lastModified": "2026-11-16T22:55:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -805,6 +805,26 @@
       "kind": "telegram",
       "text": "No we aren't, I am just using the opportunities provided, my talents for the kingdom",
       "ts": "2026-11-16T18:24:05Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7668,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I keep inviting people to our ministry, hopefully they come, campus evangelism yay!!!\n\nKeep praying for more people to join the harvest",
+      "ts": "2026-11-16T22:45:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7669,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Amen and Hallelujah, Praise Jesus, may God bless you Liam 🥰✝️",
+      "ts": "2026-11-16T22:50:25Z"
     }
   ]
 }

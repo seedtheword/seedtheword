@@ -116,23 +116,17 @@ window.PublishCalendar = (function () {
     var container = document.getElementById('publish-event-list');
     if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Loading calendar…</p>';
     try {
-      // session is a global var from team-portal.js (same window scope)
-      var token = (typeof session !== 'undefined' && session && session.token) ? session.token : '';
-      if (!token) {
-        if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Sign in to load events.</p>';
-        return;
-      }
-      var res = await postAction({ action: 'getCalendarEvents', token: token });
+      // postAction is a global from team-portal.js and handles its own
+      // token via the session var — just pass the action, no token needed here.
+      var res = await postAction({ action: 'getCalendarEvents', token: (typeof session !== 'undefined' && session) ? session.token : '' });
       console.log('[PublishCalendar] getCalendarEvents response:', res);
       if (res && res.ok && Array.isArray(res.events)) {
         events = res.events;
         loaded = true;
       } else {
         events = [];
-        // Surface the exact error so it's visible without opening DevTools.
         var errMsg = (res && res.error) ? res.error
-          : (res && res.route === undefined && !res.ok) ? 'Apps Script action not recognized — redeploy the web app with the new getCalendarEvents handler.'
-          : 'Could not load calendar. Check the Apps Script is redeployed.';
+          : 'Apps Script action not recognized — redeploy the web app with the new getCalendarEvents handler.';
         if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">⚠️ ' + escapeHtml(errMsg) + '</p>';
         return;
       }

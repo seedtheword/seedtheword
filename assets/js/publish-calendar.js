@@ -116,22 +116,28 @@ window.PublishCalendar = (function () {
     var container = document.getElementById('publish-event-list');
     if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Loading calendar…</p>';
     try {
-      var token = (window.session && session.token) || '';
+      var token = (window.session && window.session.token) || '';
+      if (!token) {
+        if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Sign in to load events.</p>';
+        return;
+      }
       var res = await postAction({ action: 'getCalendarEvents', token: token });
+      console.log('[PublishCalendar] getCalendarEvents response:', res);
       if (res && res.ok && Array.isArray(res.events)) {
         events = res.events;
         loaded = true;
       } else {
         events = [];
         if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">' +
-          (res && res.error ? escapeHtml(res.error) : 'No events found.') + '</p>';
+          '⚠️ ' + (res && res.error ? escapeHtml(res.error) : 'Could not load calendar. Check the Apps Script is redeployed.') + '</p>';
         return;
       }
       renderEventList();
       populateEventSelect();
     } catch (e) {
+      console.error('[PublishCalendar] loadEvents error:', e);
       events = [];
-      if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Could not load calendar: ' + escapeHtml(e.message) + '</p>';
+      if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">⚠️ Could not load calendar: ' + escapeHtml(e.message) + '</p>';
     }
   }
 

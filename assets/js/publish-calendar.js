@@ -116,7 +116,8 @@ window.PublishCalendar = (function () {
     var container = document.getElementById('publish-event-list');
     if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Loading calendar…</p>';
     try {
-      var token = (window.session && window.session.token) || '';
+      // session is a global var from team-portal.js (same window scope)
+      var token = (typeof session !== 'undefined' && session && session.token) ? session.token : '';
       if (!token) {
         if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Sign in to load events.</p>';
         return;

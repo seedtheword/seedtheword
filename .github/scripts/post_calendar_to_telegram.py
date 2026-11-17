@@ -928,6 +928,19 @@ def _run_test(cfg: dict, tz: ZoneInfo, chat_id, thread_id, now: datetime) -> int
 
 # ── Main ───────────────────────────────────────────────────────────────
 def main() -> int:
+    # ── Startup diagnostics ────────────────────────────────────────────
+    # Log key env-var presence so the Actions run log immediately shows
+    # what's missing/set when the job fails.
+    log(f"[startup] TELEGRAM_BOT_TOKEN set: {bool(TELEGRAM_BOT_TOKEN)}")
+    log(f"[startup] GOOGLE_CAL_ID: {GOOGLE_CAL_ID}")
+    log(f"[startup] DRY_RUN: {DRY_RUN} | TEST_RUN: {TEST_RUN}")
+    if not TELEGRAM_BOT_TOKEN:
+        log("ERROR: TELEGRAM_BOT_TOKEN is empty. "
+            "Set it in repo Settings → Secrets → Actions → TELEGRAM_BOT_TOKEN. "
+            "The token comes from BotFather; verify it still works with: "
+            "https://api.telegram.org/bot<TOKEN>/getMe")
+        return 1
+
     full_cfg = load_json(BOT_CONFIG_PATH, None)
     if not full_cfg:
         log(f"Bot config missing at {BOT_CONFIG_PATH}; aborting.")

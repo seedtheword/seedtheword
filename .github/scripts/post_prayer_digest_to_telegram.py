@@ -299,6 +299,16 @@ def mark_slot_complete(log_state: dict, slot: str, since: datetime,
 
 # ── Main ──────────────────────────────────────────────────────────────
 def main() -> int:
+    # ── Startup diagnostics ────────────────────────────────────────────
+    log(f"[startup] TELEGRAM_PRAYER_BOT_TOKEN set: {bool(TOKEN)}")
+    log(f"[startup] GEMINI_API_KEY set: {bool(GEMINI_API_KEY)}")
+    log(f"[startup] DRY_RUN: {DRY_RUN}")
+    if not TOKEN:
+        log("ERROR: TELEGRAM_PRAYER_BOT_TOKEN is empty. "
+            "Set it in repo Settings → Secrets → Actions → TELEGRAM_PRAYER_BOT_TOKEN. "
+            "Verify: https://api.telegram.org/bot<TOKEN>/getMe")
+        return 1
+
     cfg = load_config()
     digest_cfg = cfg.get("prayer", {}).get("digest", {})
     if not digest_cfg.get("enabled", False):

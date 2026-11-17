@@ -637,6 +637,16 @@ def fetch_updates(token: str, offset: int, timeout_seconds: int = 30) -> Optiona
 
 # ── Main ──────────────────────────────────────────────────────────────
 def main() -> int:
+    # ── Startup diagnostics ────────────────────────────────────────────
+    log(f"[startup] TELEGRAM_PRAYER_BOT_TOKEN set: {bool(TOKEN)}")
+    log(f"[startup] DRY_RUN: {DRY_RUN}")
+    if not TOKEN:
+        log("ERROR: TELEGRAM_PRAYER_BOT_TOKEN is empty. "
+            "Set it in repo Settings → Secrets → Actions → TELEGRAM_PRAYER_BOT_TOKEN. "
+            "Verify the token is still valid: "
+            "https://api.telegram.org/bot<TOKEN>/getMe")
+        return 1
+
     cfg = load_config()
     digest_cfg = cfg.get("prayer", {}).get("digest", {})
     if not digest_cfg.get("enabled", False):

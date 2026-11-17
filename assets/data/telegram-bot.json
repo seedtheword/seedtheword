@@ -12,11 +12,15 @@
     "timezone": "America/Los_Angeles",
     "schedule": {
       "_help": "Controls when announcements fire. Monday: weekly overview. Day-of: morning + 3hr reminder. Saturday: recap + preview. Live: only for events with streaming links.",
+      "weeklyOverviewEnabled": false,
       "weeklyOverviewDay": "Monday",
       "weeklyOverviewHour": 7,
+      "weeklyRecapEnabled": false,
       "weeklyRecapDay": "Saturday",
       "weeklyRecapHour": 8,
+      "morningAnnouncementEnabled": false,
       "morningAnnouncementHour": 7,
+      "reminderEnabled": true,
       "reminderMinutesBefore": 180,
       "liveAutoDetect": true,
       "liveStreamingDomains": ["youtube.com", "youtu.be", "twitch.tv", "spotify.com", "open.spotify.com"]

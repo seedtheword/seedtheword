@@ -1047,6 +1047,14 @@ def main() -> int:
     recap_hour = int(schedule.get("weeklyRecapHour", 8))
     morning_hour = int(schedule.get("morningAnnouncementHour", 7))
     reminder_minutes = int(schedule.get("reminderMinutesBefore", 180))
+    # Per-trigger enable flags (all default true for backward compat).
+    # Set to false in telegram-bot.json to suppress that trigger type
+    # without touching the script — useful when manual announcement is
+    # preferred (e.g. while building the team-portal scheduling feature).
+    overview_enabled = schedule.get("weeklyOverviewEnabled", True)
+    recap_enabled = schedule.get("weeklyRecapEnabled", True)
+    morning_enabled = schedule.get("morningAnnouncementEnabled", True)
+    reminder_enabled = schedule.get("reminderEnabled", True)
     live_domains = schedule.get("liveStreamingDomains", [
         "youtube.com", "youtu.be", "twitch.tv", "spotify.com", "open.spotify.com"
     ])
@@ -1080,7 +1088,8 @@ def main() -> int:
             to_post.append((ev, "live"))
 
     # ── Monday weekly overview ──────────────────────────────────────
-    if (weekday == overview_day
+    if (overview_enabled
+        and weekday == overview_day
         and overview_hour <= local_hour < overview_hour + 2
         and schedule_dedup.get("lastOverview") != today_str):
         # Gather all events for this week (Mon-Sun)
@@ -1100,7 +1109,8 @@ def main() -> int:
             schedule_dedup["lastOverview"] = today_str
 
     # ── Saturday weekly recap ───────────────────────────────────────
-    elif (weekday == recap_day
+    elif (recap_enabled
+          and weekday == recap_day
           and recap_hour <= local_hour < recap_hour + 2
           and schedule_dedup.get("lastRecap") != today_str):
         # Gather events from the past week for recap
@@ -1130,7 +1140,8 @@ def main() -> int:
             schedule_dedup["lastRecap"] = today_str
 
     # ── Day-of morning announcement ────────────────────────────────
-    elif (morning_hour <= local_hour < morning_hour + 2
+    elif (morning_enabled
+          and morning_hour <= local_hour < morning_hour + 2
           and weekday not in [overview_day, recap_day]):
         today_events = []
         for ev in in_scope:
@@ -1151,24 +1162,25 @@ def main() -> int:
 
     # ── Day-of reminder (3 hours before) ───────────────────────────
     # This runs independently of the morning announcement
-    for ev in in_scope:
-        ev_id = ev.get("id")
-        if not ev_id:
-            continue
-        entry = dedup["events"].get(ev_id, {})
-        if entry.get("reminderPosted"):
-            continue
-        start = parse_ev_start(ev)
-        if not start:
-            continue
-        mins_to_start = (start - now).total_seconds() / 60.0
-        if 0 <= mins_to_start <= reminder_minutes and not entry.get("reminderPosted"):
-            # Only add if not already in to_post as another kind
-            already_queued = any(e.get("id") == ev_id for e, _ in to_post)
-            if not already_queued:
-                to_post.append((ev, "reminder"))
-                if not header_line:
-                    header_line = headers_cfg.get("reminder") or "⏰ Starting soon"
+    if reminder_enabled:
+        for ev in in_scope:
+            ev_id = ev.get("id")
+            if not ev_id:
+                continue
+            entry = dedup["events"].get(ev_id, {})
+            if entry.get("reminderPosted"):
+                continue
+            start = parse_ev_start(ev)
+            if not start:
+                continue
+            mins_to_start = (start - now).total_seconds() / 60.0
+            if 0 <= mins_to_start <= reminder_minutes and not entry.get("reminderPosted"):
+                # Only add if not already in to_post as another kind
+                already_queued = any(e.get("id") == ev_id for e, _ in to_post)
+                if not already_queued:
+                    to_post.append((ev, "reminder"))
+                    if not header_line:
+                        header_line = headers_cfg.get("reminder") or "⏰ Starting soon"
 
     # ── Manual live trigger via workflow_dispatch ───────────────────
     # If DRY_RUN is not set and there's a FORCE_LIVE env var, post

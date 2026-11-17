@@ -117,22 +117,25 @@ window.PublishCalendar = (function () {
     if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Loading calendar…</p>';
     try {
       var token = (typeof session !== 'undefined' && session) ? session.token : '';
-      // Race the Apps Script call against a 15s timeout so it never hangs.
+      var res;
+      // 15-second timeout so it never hangs forever
+      var timer;
       var timeoutPromise = new Promise(function(_, reject) {
-        setTimeout(function() { reject(new Error('Request timed out — Apps Script may not be redeployed yet.')); }, 15000);
+        timer = setTimeout(function() { reject(new Error('Timed out after 15s — the Apps Script may not be redeployed yet. Go to Apps Script → Deploy → Manage Deployments → pencil → New version → Deploy.')); }, 15000);
       });
-      var res = await Promise.race([
+      res = await Promise.race([
         postAction({ action: 'getCalendarEvents', token: token }),
         timeoutPromise
       ]);
-      console.log('[PublishCalendar] getCalendarEvents response:', res);
+      clearTimeout(timer);
+      console.log('[PublishCalendar] getCalendarEvents response:', JSON.stringify(res).slice(0, 300));
       if (res && res.ok && Array.isArray(res.events)) {
         events = res.events;
         loaded = true;
       } else {
         events = [];
         var errMsg = (res && res.error) ? res.error
-          : 'Apps Script action not recognized — redeploy the web app with the new getCalendarEvents handler.';
+          : 'Apps Script action not recognized — redeploy the web app: Deploy → Manage Deployments → pencil → New version → Deploy.';
         if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">⚠️ ' + escapeHtml(errMsg) + '</p>';
         return;
       }

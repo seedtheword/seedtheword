@@ -128,8 +128,11 @@ window.PublishCalendar = (function () {
         loaded = true;
       } else {
         events = [];
-        if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">' +
-          '⚠️ ' + (res && res.error ? escapeHtml(res.error) : 'Could not load calendar. Check the Apps Script is redeployed.') + '</p>';
+        // Surface the exact error so it's visible without opening DevTools.
+        var errMsg = (res && res.error) ? res.error
+          : (res && res.route === undefined && !res.ok) ? 'Apps Script action not recognized — redeploy the web app with the new getCalendarEvents handler.'
+          : 'Could not load calendar. Check the Apps Script is redeployed.';
+        if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">⚠️ ' + escapeHtml(errMsg) + '</p>';
         return;
       }
       renderEventList();

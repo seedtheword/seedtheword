@@ -116,9 +116,15 @@ window.PublishCalendar = (function () {
     var container = document.getElementById('publish-event-list');
     if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Loading calendar…</p>';
     try {
-      // postAction is a global from team-portal.js and handles its own
-      // token via the session var — just pass the action, no token needed here.
-      var res = await postAction({ action: 'getCalendarEvents', token: (typeof session !== 'undefined' && session) ? session.token : '' });
+      var token = (typeof session !== 'undefined' && session) ? session.token : '';
+      // Race the Apps Script call against a 15s timeout so it never hangs.
+      var timeoutPromise = new Promise(function(_, reject) {
+        setTimeout(function() { reject(new Error('Request timed out — Apps Script may not be redeployed yet.')); }, 15000);
+      });
+      var res = await Promise.race([
+        postAction({ action: 'getCalendarEvents', token: token }),
+        timeoutPromise
+      ]);
       console.log('[PublishCalendar] getCalendarEvents response:', res);
       if (res && res.ok && Array.isArray(res.events)) {
         events = res.events;
@@ -135,7 +141,7 @@ window.PublishCalendar = (function () {
     } catch (e) {
       console.error('[PublishCalendar] loadEvents error:', e);
       events = [];
-      if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">⚠️ Could not load calendar: ' + escapeHtml(e.message) + '</p>';
+      if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">⚠️ ' + escapeHtml(e.message) + '</p>';
     }
   }
 

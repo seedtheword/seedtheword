@@ -2265,3 +2265,360 @@ function showTelegramTokenStatus() {
     Logger.log('OK: announcements token is different from the Bible bot token.');
   }
 }
+
+
+// ══════════════════════════════════════════════════════════════════════
+// PUBLISH TAB — Calendar + Scheduled Posts
+// ══════════════════════════════════════════════════════════════════════
+// Actions that power the Publish tab (team.html #tab-publish):
+//   getCalendarEvents     — fetch the public iCal feed server-side, parse,
+//                           return upcoming events (no API key, no CORS).
+//   scheduleAnnouncement   — queue a post for a future send time.
+//   getScheduledPosts      — return the scheduled-post queue.
+//   cancelScheduledPost    — cancel a waiting post.
+//   fireScheduledPosts     — called by the cron (type:'fire-scheduled-posts')
+//                           to send due posts and mark them sent/failed.
+//
+// Routing (in order-handler.gs doPost):
+//   if ((payload && payload.action) === 'getCalendarEvents')   return handleGetCalendarEvents_(payload);
+//   if ((payload && payload.action) === 'scheduleAnnouncement') return handleScheduleAnnouncement_(payload);
+//   if ((payload && payload.action) === 'getScheduledPosts')   return handleGetScheduledPosts_(payload);
+//   if ((payload && payload.action) === 'cancelScheduledPost') return handleCancelScheduledPost_(payload);
+//   if (type === 'fire-scheduled-posts')                       return handleFireScheduledPosts_(payload);
+//
+// SHEET: "Scheduled Posts" (auto-created). Columns:
+//   A id | B created_at | C created_by | D send_at(ms) | E status
+//   F subject | G body | H audience_json | I priority | J photo_urls
+//   K source_event_id | L sent_at | M telegram_result | N error
+
+var PUBLISH_CAL_ID = 'seedthewordministry@gmail.com';
+
+function getPublishCalIcalUrl_() {
+  return 'https://calendar.google.com/calendar/ical/' +
+    encodeURIComponent(PUBLISH_CAL_ID) + '/public/basic.ics';
+}
+
+// ── iCal parsing (mirrors post_calendar_to_telegram.py _parse_vevent_block) ──
+
+function icsUnfold_(lines) {
+  var out = [];
+  for (var i = 0; i < lines.length; i++) {
+    if ((lines[i].charAt(0) === ' ' || lines[i].charAt(0) === '\t') && out.length) {
+      out[out.length - 1] += lines[i].substring(1);
+    } else {
+      out.push(lines[i]);
+    }
+  }
+  return out;
+}
+
+function icsUnescape_(val) {
+  return String(val)
+    .replace(/\\N/g, '\n').replace(/\\n/g, '\n')
+    .replace(/\\,/g, ',').replace(/\\;/g, ';').replace(/\\\\/g, '\\');
+}
+
+// Compute the UTC offset (in ms) for a timezone at a given UTC moment,
+// using Utilities.formatDate to read the wall-clock in that tz.
+function icsTzOffsetMs_(tzid, utcMs) {
+  try {
+    var s = Utilities.formatDate(new Date(utcMs), tzid, 'yyyyMMddHHmm');
+    var tzWall = Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8),
+      +s.slice(8, 10), +s.slice(10, 12));
+    return utcMs - tzWall; // positive when UTC is ahead of tz
+  } catch (e) { return 0; }
+}
+
+function icsToMs_(value, tzid) {
+  var v = String(value).trim();
+  // All-day date: 20260925
+  if (v.indexOf('T') === -1) {
+    return { ms: Date.UTC(+v.slice(0, 4), +v.slice(4, 6) - 1, +v.slice(6, 8)), allDay: true };
+  }
+  var y = +v.slice(0, 4), mo = +v.slice(4, 6) - 1, d = +v.slice(6, 8);
+  var h = +v.slice(9, 11), mi = +v.slice(11, 13);
+  // UTC-explicit (Z suffix)
+  if (v.charAt(v.length - 1) === 'Z') {
+    return { ms: Date.UTC(y, mo, d, h, mi), allDay: false };
+  }
+  // TZID-qualified or floating
+  var wallAsUtc = Date.UTC(y, mo, d, h, mi);
+  if (tzid) {
+    return { ms: wallAsUtc + icsTzOffsetMs_(tzid, wallAsUtc), allDay: false };
+  }
+  return { ms: wallAsUtc, allDay: false };
+}
+
+function parseIcal_(raw) {
+  var lines = icsUnfold_(raw.replace(/\r\n/g, '\n').split('\n'));
+  var events = [];
+  var inEvent = false, cur = [];
+  for (var i = 0; i < lines.length; i++) {
+    var ln = lines[i];
+    if (ln.trim() === 'BEGIN:VEVENT') { inEvent = true; cur = []; continue; }
+    if (ln.trim() === 'END:VEVENT') {
+      inEvent = false;
+      var ev = {};
+      for (var j = 0; j < cur.length; j++) {
+        if (cur[j].indexOf(':') === -1) continue;
+        var colon = cur[j].indexOf(':');
+        var nameRaw = cur[j].substring(0, colon);
+        var val = cur[j].substring(colon + 1);
+        var parts = nameRaw.split(';');
+        var name = parts[0].toUpperCase();
+        var props = {};
+        for (var k = 1; k < parts.length; k++) {
+          if (parts[k].indexOf('=') !== -1) {
+            var eq = parts[k].indexOf('=');
+            props[parts[k].substring(0, eq).toUpperCase()] = parts[k].substring(eq + 1);
+          }
+        }
+        if (name === 'UID') ev.id = val.trim();
+        else if (name === 'SUMMARY') ev.summary = icsUnescape_(val.trim());
+        else if (name === 'DESCRIPTION') ev.description = icsUnescape_(val.trim());
+        else if (name === 'LOCATION') ev.location = icsUnescape_(val.trim());
+        else if (name === 'DTSTART') {
+          var sd = icsToMs_(val, props.TZID);
+          ev.startMs = sd.ms; ev.allDay = sd.allDay;
+        } else if (name === 'DTEND') {
+          var ed = icsToMs_(val, props.TZID);
+          ev.endMs = ed.ms;
+        }
+      }
+      if (ev.startMs) events.push(ev);
+      continue;
+    }
+    if (inEvent) cur.push(ln);
+  }
+  return events;
+}
+
+// { action:'getCalendarEvents', token } → upcoming events from the public iCal feed.
+function handleGetCalendarEvents_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    var url = getPublishCalIcalUrl_();
+    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    if (resp.getResponseCode() !== 200) {
+      return jsonResponse({ ok: false, error: 'Calendar feed returned HTTP ' + resp.getResponseCode() });
+    }
+    var events = parseIcal_(resp.getContentText());
+    // Filter to upcoming (start >= now - 1 hour), sort, cap at 50.
+    var now = Date.now();
+    events = events.filter(function (e) { return e.startMs >= now - 3600000; });
+    events.sort(function (a, b) { return a.startMs - b.startMs; });
+    events = events.slice(0, 50);
+    return jsonResponse({ ok: true, events: events });
+  } catch (err) {
+    return jsonResponse({ ok: false, error: String(err) });
+  }
+}
+
+// ── Scheduled Posts sheet ──
+
+function getScheduledPostsSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Scheduled Posts');
+  if (!sheet) {
+    sheet = ss.insertSheet('Scheduled Posts');
+    sheet.appendRow(['id', 'created_at', 'created_by', 'send_at', 'status',
+      'subject', 'body', 'audience_json', 'priority', 'photo_urls',
+      'source_event_id', 'sent_at', 'telegram_result', 'error']);
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+// { action:'scheduleAnnouncement', token, subject, body, priority, audience, send_at, photo_urls }
+function handleScheduleAnnouncement_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    if (!announcerAllowed_(user)) return jsonResponse({ ok: false, error: 'Not allowed to post announcements' });
+
+    var subject = String(payload.subject || '').trim();
+    var body = String(payload.body || '').trim();
+    var priority = String(payload.priority || 'normal').trim().toLowerCase();
+    if (['normal', 'urgent', 'emergency'].indexOf(priority) === -1) priority = 'normal';
+    if (!subject || !body) return jsonResponse({ ok: false, error: 'Subject and body required' });
+
+    var sendAt = Number(payload.send_at || 0);
+    if (!sendAt || sendAt <= Date.now()) return jsonResponse({ ok: false, error: 'Pick a future send time' });
+
+    var aud = payload.audience || {};
+    var audienceJson = JSON.stringify({
+      admins: !!(aud.admins === true || aud.admins === 'true'),
+      members: !!(aud.members === true || aud.members === 'true'),
+      public: !!(aud.public === true || aud.public === 'true'),
+      email: !!(aud.email === true || aud.email === 'true')
+    });
+
+    var photoUrls = [];
+    if (Array.isArray(payload.photo_urls)) {
+      photoUrls = payload.photo_urls.map(function (u) { return String(u || '').trim(); })
+        .filter(function (u) { return !!u; }).slice(0, 10);
+    }
+
+    var id = 'sched_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+    var sheet = getScheduledPostsSheet_();
+    sheet.appendRow([id, new Date().toISOString(), user.name, sendAt, 'waiting',
+      subject, body, audienceJson, priority, JSON.stringify(photoUrls),
+      String(payload.source_event_id || ''), '', '', '']);
+
+    return jsonResponse({ ok: true, id: id });
+  } catch (err) {
+    return jsonResponse({ ok: false, error: String(err) });
+  }
+}
+
+// { action:'getScheduledPosts', token } → queue of waiting/sent/failed posts.
+function handleGetScheduledPosts_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    if (!announcerAllowed_(user)) return jsonResponse({ ok: false, error: 'Not allowed' });
+
+    var sheet = getScheduledPostsSheet_();
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, queue: [] });
+
+    var data = sheet.getDataRange().getValues();
+    var headers = data[0];
+    var col = {};
+    headers.forEach(function (h, i) { col[h] = i; });
+
+    var queue = [];
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
+      var status = String(row[col.status] || '').trim();
+      if (status === 'cancelled') continue;
+      var audience = null;
+      try { audience = JSON.parse(row[col.audience_json] || '{}'); } catch (e) {}
+      queue.push({
+        id: String(row[col.id] || ''),
+        send_at: Number(row[col.send_at] || 0),
+        status: status,
+        subject: String(row[col.subject] || ''),
+        priority: String(row[col.priority] || 'normal'),
+        audience: audience,
+        created_by: String(row[col.created_by] || ''),
+        sent_at: String(row[col.sent_at] || '')
+      });
+    }
+    // Waiting posts first (by send_at ascending), then sent/failed (most recent first).
+    queue.sort(function (a, b) {
+      if (a.status === 'waiting' && b.status !== 'waiting') return -1;
+      if (a.status !== 'waiting' && b.status === 'waiting') return 1;
+      if (a.status === 'waiting') return a.send_at - b.send_at;
+      return (b.send_at || 0) - (a.send_at || 0);
+    });
+    queue = queue.slice(0, 20);
+    return jsonResponse({ ok: true, queue: queue });
+  } catch (err) {
+    return jsonResponse({ ok: false, error: String(err) });
+  }
+}
+
+// { action:'cancelScheduledPost', token, id } → cancel a waiting post.
+function handleCancelScheduledPost_(payload) {
+  try {
+    var user = validateTeamToken_(String(payload.token || ''));
+    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    if (!announcerAllowed_(user)) return jsonResponse({ ok: false, error: 'Not allowed' });
+
+    var id = String(payload.id || '').trim();
+    if (!id) return jsonResponse({ ok: false, error: 'Missing id' });
+
+    var sheet = getScheduledPostsSheet_();
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: false, error: 'Not found' });
+
+    var data = sheet.getDataRange().getValues();
+    var headers = data[0];
+    var col = {};
+    headers.forEach(function (h, i) { col[h] = i; });
+
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][col.id] || '') === id) {
+        if (String(data[i][col.status] || '') === 'waiting') {
+          sheet.getRange(i + 1, col.status + 1).setValue('cancelled');
+          return jsonResponse({ ok: true });
+        }
+        return jsonResponse({ ok: false, error: 'Only waiting posts can be cancelled' });
+      }
+    }
+    return jsonResponse({ ok: false, error: 'Not found' });
+  } catch (err) {
+    return jsonResponse({ ok: false, error: String(err) });
+  }
+}
+
+// ── Cron-fired: send due scheduled posts ──
+// Called by the cron via type:'fire-scheduled-posts' (no team token —
+// the Apps Script URL itself is the secret). Reads the Scheduled Posts
+// sheet for status=waiting and send_at<=now, sends each via the same
+// Telegram thread 553 + community mirror path as handlePostAnnouncement_,
+// and marks the row sent or failed.
+function handleFireScheduledPosts_(payload) {
+  try {
+    var sheet = getScheduledPostsSheet_();
+    if (sheet.getLastRow() < 2) return jsonResponse({ ok: true, fired: 0, failed: 0 });
+
+    var data = sheet.getDataRange().getValues();
+    var headers = data[0];
+    var col = {};
+    headers.forEach(function (h, i) { col[h] = i; });
+
+    var now = Date.now();
+    var fired = 0, failed = 0;
+
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
+      var status = String(row[col.status] || '').trim();
+      var sendAt = Number(row[col.send_at] || 0);
+      if (status !== 'waiting' || sendAt > now) continue;
+
+      var subject = String(row[col.subject] || '');
+      var body = String(row[col.body] || '');
+      var priority = String(row[col.priority] || 'normal');
+      var audience = {};
+      try { audience = JSON.parse(row[col.audience_json] || '{}'); } catch (e) {}
+      var photoUrls = [];
+      try { photoUrls = JSON.parse(row[col.photo_urls] || '[]'); } catch (e) {}
+
+      try {
+        var priorityEmoji = priority === 'emergency' ? '\u{1F6A8}' : (priority === 'urgent' ? '\u26A0\uFE0F' : '\u{1F4E2}');
+        var telegramText = priorityEmoji + ' <b>' + subject + '</b>\n\n' + body + '\n\n\u2014 ' + String(row[col.created_by] || 'Seed the Word');
+        var telegramSent = false;
+        if (audience.public) {
+          if (photoUrls.length && typeof sendTelegramPhotosFromAppsScript_ === 'function') {
+            telegramSent = sendTelegramPhotosFromAppsScript_('@seedtheword', telegramText, 553, photoUrls);
+          } else {
+            telegramSent = sendTelegramFromAppsScript_('@seedtheword', telegramText, 553);
+          }
+          // Mirror to community feed (best-effort).
+          try {
+            if (typeof getPostsSheet_ === 'function' && typeof socialNewId_ === 'function') {
+              var firstPhoto = photoUrls.length ? photoUrls[0] : '';
+              getPostsSheet_().appendRow([socialNewId_('post'), Date.now(),
+                String(row[col.created_by] || 'Seed the Word'), 'admin',
+                '**' + subject + '**\n\n' + body, firstPhoto, 'announcements', 'YES', '', '', '']);
+            }
+          } catch (e) { Logger.log('scheduled community mirror failed: ' + e); }
+        }
+        sheet.getRange(i + 1, col.status + 1).setValue('sent');
+        sheet.getRange(i + 1, col.sent_at + 1).setValue(new Date().toISOString());
+        sheet.getRange(i + 1, col.telegram_result + 1).setValue(telegramSent ? 'sent' : 'not sent');
+        fired++;
+      } catch (err) {
+        sheet.getRange(i + 1, col.status + 1).setValue('failed');
+        sheet.getRange(i + 1, col.sent_at + 1).setValue(new Date().toISOString());
+        sheet.getRange(i + 1, col.error + 1).setValue(String(err).slice(0, 500));
+        failed++;
+      }
+    }
+
+    return jsonResponse({ ok: true, fired: fired, failed: failed });
+  } catch (err) {
+    return jsonResponse({ ok: false, error: String(err) });
+  }
+}

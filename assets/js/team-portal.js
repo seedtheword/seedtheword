@@ -221,9 +221,9 @@ function showPortal(){
   // Preload the Community-tab activity badge for oversight admins (chat_admin/
   // moderation) so the new-count shows without opening the tab. Non-fatal.
   if((canPortal('chat_admin')||canPortal('moderation'))&&typeof preloadActivityBadge==='function')preloadActivityBadge();
-  // Show announcement compose only if the member has the chat_admin permission.
-  if(canPortal('chat_admin')){document.getElementById('chat-admin-compose').style.display='';}
-  else{document.getElementById('chat-admin-compose').style.display='none';}
+  // The announcement composer now lives in the Publish tab. It is shown
+  // when that tab is opened (see the publish-tab click handler). No
+  // portal-level show/hide needed here.
   checkEmergencyAlerts();
   var recentLink=document.getElementById('ann-recent-link');if(recentLink)recentLink.style.display='';
 }
@@ -277,7 +277,10 @@ document.querySelectorAll('.chat-topic').forEach(function(el){
     var chatContainer=document.querySelector('#tab-messages .chat-container');
     if(inbox)inbox.style.display=isDm?'':'none';
     if(chatContainer)chatContainer.querySelector('.chat-main').style.display=isDm?'none':'';
-    document.getElementById('chat-admin-compose').style.display=(activeChannel==='announcements'&&canPortal('chat_admin'))?'':'none';
+    // Composer moved to Publish tab — keep it hidden if the legacy
+    // channel handler somehow fires.
+    var annCompose=document.getElementById('chat-admin-compose');
+    if(annCompose)annCompose.style.display='none';
     if(isDm){ openDmInbox(); return; }
     // Update compose placeholder
     var placeholders={main:'Write a message...',announcements:'Read-only for members',prayer:'Share a prayer request...',thanksgiving:'Share what God has done...',dms:'Type a message...'};
@@ -576,6 +579,9 @@ async function sendAnnouncement(btn,opts){
       var ob=document.getElementById('ann-open-btn');if(ob)ob.style.display='';
       checkEmergencyAlerts();
       loadAnnouncementHistory();
+      var evtSel=document.getElementById('ann-event-select');if(evtSel)evtSel.value='';
+      var schInput=document.getElementById('ann-schedule-at');if(schInput)schInput.value='';
+      loadScheduledQueue();
       var parts=[];
       if(audience.public){parts.push(res.telegram_sent?(force?'Telegram force-sent':'Telegram sent'):(res.telegram_skipped?'Telegram skipped (same announcement just sent — wait a moment to re-post)':'Telegram not sent — check bot token'));parts.push('community posted');}
       if(typeof res.emailed==='number'&&res.emailed>0)parts.push('emailed '+res.emailed);
@@ -620,6 +626,84 @@ async function loadAnnouncementHistory(){
     this.disabled=false;this.textContent=orig;
   });
 })();
+
+// ── Scheduled post queue (Publish tab) ──
+// Posts queued for a future send time. The cron fires them at ≤15-min
+// resolution by calling the Apps Script fireScheduledPosts action.
+
+// Wire the "Schedule post" button.
+(function(){
+  var btn=document.getElementById('ann-schedule-btn');
+  if(btn)btn.addEventListener('click',async function(){
+    var subject=document.getElementById('ann-subject').value.trim();
+    var body=document.getElementById('ann-body').value.trim();
+    var audience={
+      admins:document.getElementById('ann-aud-admins').checked,
+      members:document.getElementById('ann-aud-members').checked,
+      public:document.getElementById('ann-aud-public').checked,
+      email:document.getElementById('ann-aud-email').checked
+    };
+    var when=document.getElementById('ann-schedule-at').value;
+    if(!subject||!body){alert('Fill in subject and message first.');return;}
+    if(!when){alert('Pick a date/time to schedule for.');return;}
+    if(!audience.admins&&!audience.members&&!audience.public&&!audience.email){alert('Pick at least one audience.');return;}
+    var sendAt=new Date(when).getTime();
+    if(sendAt<=Date.now()){alert('Pick a time in the future.');return;}
+    btn.disabled=true;btn.textContent='Scheduling\u2026';
+    try{
+      var res=await postAction({action:'scheduleAnnouncement',token:session.token,subject:subject,body:body,priority:annPriority,audience:audience,send_at:sendAt,photo_urls:annPhotoUrls.slice()});
+      if(res&&res.ok){
+        // Clear the form but keep the composer open for the next draft.
+        document.getElementById('ann-subject').value='';document.getElementById('ann-body').value='';
+        annPhotoUrls=[];annRenderPhotos();
+        var evtSel=document.getElementById('ann-event-select');if(evtSel)evtSel.value='';
+        document.getElementById('ann-schedule-at').value='';
+        loadScheduledQueue();
+        alert('Scheduled! It will post '+(audience.public?'to Telegram & community ':'')+'around '+new Date(sendAt).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'})+'.');
+      }else{alert((res&&res.error)||'Could not schedule.');}
+    }catch(e){alert(e.message);}
+    btn.disabled=false;btn.textContent='Schedule post';
+  });
+})();
+
+async function loadScheduledQueue(){
+  var list=document.getElementById('publish-queue-list');if(!list||!session)return;
+  try{
+    var res=await postAction({action:'getScheduledPosts',token:session.token});
+    var items=(res&&res.ok&&res.queue)||[];
+    if(!items.length){list.innerHTML='<p class="dm-empty" style="padding:0.6rem;">No scheduled posts.</p>';return;}
+    list.innerHTML=items.map(function(q){
+      var st=q.status==='sent'?'\u2705 Sent':(q.status==='failed'?'\u274C Failed':'\u23F3 Waiting');
+      var stColor=q.status==='sent'?'var(--color-olive)':(q.status==='failed'?'#a6251f':'var(--color-text-muted)');
+      var when=q.send_at?new Date(q.send_at).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'}):'';
+      var row='<div style="padding:0.5rem;border:1px solid var(--color-border);border-radius:8px;margin-bottom:0.4rem;">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.15rem;">'+
+          '<span style="font-size:0.66rem;font-weight:700;color:'+stColor+';">'+st+'</span>'+
+          '<span style="font-size:0.66rem;color:var(--color-text-muted);">'+escapeHtml(when)+'</span>'+
+        '</div>'+
+        '<div style="font-weight:600;font-size:0.82rem;color:var(--color-text);overflow:hidden;text-overflow:ellipsis;">'+escapeHtml(q.subject||'')+'</div>'+
+        '<div style="font-size:0.68rem;color:var(--color-text-muted);margin-top:0.1rem;">'+escapeHtml(annAudienceLabel(q.audience))+(q.priority&&q.priority!=='normal'?' \u00b7 '+q.priority:'')+'</div>';
+      if(q.status==='waiting'&&q.id){
+        row+='<button class="btn btn--outline btn--sm" data-cancel-sched="'+q.id+'" style="margin-top:0.3rem;font-size:0.72rem;">Cancel</button>';
+      }
+      row+='</div>';
+      return row;
+    }).join('');
+    // Wire cancel buttons for waiting posts.
+    list.querySelectorAll('[data-cancel-sched]').forEach(function(b){
+      b.addEventListener('click',async function(){
+        var id=this.getAttribute('data-cancel-sched');
+        if(!confirm('Cancel this scheduled post?'))return;
+        try{
+          var r=await postAction({action:'cancelScheduledPost',token:session.token,id:id});
+          if(r&&r.ok){loadScheduledQueue();}
+          else{alert((r&&r.error)||'Could not cancel.');}
+        }catch(e){alert(e.message);}
+      });
+    });
+  }catch(e){list.innerHTML='<p class="dm-empty" style="padding:0.6rem;">Could not load queue.</p>';}
+}
+(function(){var r=document.getElementById('pub-queue-refresh');if(r)r.addEventListener('click',loadScheduledQueue);})();
 
 // ── Recent announcements viewer (this week) — always available ──
 async function openRecentAnnouncements(){
@@ -696,9 +780,19 @@ document.querySelector('[data-tab="messages"]').addEventListener('click',functio
   openDmInbox();
   loadTeamStoriesRail();
   loadCommunityOverview();
-  // Show the announcement composer entry to chat_admins.
+});
+
+// Init Publish tab on click — calendar-driven announcements.
+var pubTabBtn=document.querySelector('[data-tab="publish"]');
+if(pubTabBtn)pubTabBtn.addEventListener('click',function(){
+  // Show the "New announcement" button to chat_admins (composer starts hidden).
   var annBtn=document.getElementById('ann-open-btn');
   if(annBtn)annBtn.style.display=canPortal('chat_admin')?'':'none';
+  // Load the calendar (iCal via Apps Script — no API key, no CORS).
+  if(window.PublishCalendar)PublishCalendar.loadEvents();
+  // Load announcement history + scheduled queue.
+  loadAnnouncementHistory();
+  loadScheduledQueue();
 });
 
 // ══════════════════════════════════════════════════════════════════════

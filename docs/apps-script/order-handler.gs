@@ -183,6 +183,7 @@ function doPost(e) {
   if (type === 'story')   return handleStory(payload);
   if (type === 'admin-sms-cc') return handleAdminSmsCc(payload);
   if (type === 'weekly-digest-email') return handleWeeklyDigestEmail(payload);
+  if (type === 'fire-scheduled-posts') return handleFireScheduledPosts_(payload);
   if ((payload && payload.action) === 'prayer-intake') {
     return handlePrayerIntake_(payload, e && e.parameter);
   }
@@ -271,6 +272,11 @@ function doPost(e) {
   if ((payload && payload.action) === 'getAnnouncements') return handleGetAnnouncements_(payload);
   if ((payload && payload.action) === 'getAnnouncementHistory') return handleGetAnnouncementHistory_(payload);
   if ((payload && payload.action) === 'telegramSelfTest') return handleTelegramSelfTest_(payload);
+  // ── Publish tab: calendar + scheduled posts (see team-messaging-handlers.gs) ──
+  if ((payload && payload.action) === 'getCalendarEvents') return handleGetCalendarEvents_(payload);
+  if ((payload && payload.action) === 'scheduleAnnouncement') return handleScheduleAnnouncement_(payload);
+  if ((payload && payload.action) === 'getScheduledPosts') return handleGetScheduledPosts_(payload);
+  if ((payload && payload.action) === 'cancelScheduledPost') return handleCancelScheduledPost_(payload);
   if ((payload && payload.action) === 'deleteAnnouncement') return handleDeleteAnnouncement_(payload);
   if ((payload && payload.action) === 'sendDm') return handleSendDm_(payload);
   if ((payload && payload.action) === 'getDmContacts') return handleGetDmContacts_(payload);

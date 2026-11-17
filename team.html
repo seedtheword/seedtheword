@@ -289,6 +289,7 @@
       <button class="main-tab" data-tab="finance"><span class="main-tab__icon">💰</span> Finance</button>
       <button class="main-tab" data-tab="orders" id="tab-btn-orders" style="display:none;"><span class="main-tab__icon">🛒</span> Orders</button>
       <button class="main-tab" data-tab="messages"><span class="main-tab__icon">💬</span> Chat</button>
+      <button class="main-tab" data-tab="publish" id="tab-btn-publish" style="display:none;"><span class="main-tab__icon">📣</span> Publish</button>
       <button class="main-tab" data-tab="forum"><span class="main-tab__icon">📝</span> Community <span class="activity-badge" id="activity-badge" hidden>0</span></button>
       <button class="main-tab" data-tab="training"><span class="main-tab__icon">📚</span> Train</button>
       <button class="main-tab" data-tab="content" id="tab-btn-content" style="display:none;"><span class="main-tab__icon">✨</span> Content</button>
@@ -703,9 +704,40 @@
         </div>
       </div>
 
-      <!-- Announcement composer — integrated into the Chat section, gated to
-           chat_admin. Opened by the "＋ Announcement" button (shown by JS). -->
-      <button class="btn btn--outline btn--sm" id="ann-open-btn" style="display:none;margin-top:0.9rem;width:100%;">📣 New announcement</button>
+    </div>
+
+    <!-- Publish Tab — calendar-driven announcements: pick an event → draft → send now or schedule -->
+    <div class="tab-panel" id="tab-publish" hidden>
+      <h3 class="dash-group__title">Publish</h3>
+
+      <!-- Calendar shortcuts (moved from the Content tab) -->
+      <div class="launch-grid" style="margin-bottom:1rem;">
+        <a class="launch-card" href="https://calendar.google.com/calendar/r/eventedit" target="_blank" rel="noopener">
+          <span class="launch-card__icon">➕</span>
+          <span class="launch-card__title">Add Calendar Event</span>
+          <span class="launch-card__desc">Create a ministry event in Google Calendar — it shows up here automatically.</span>
+          <span class="launch-card__cta">Add event &rarr;</span>
+        </a>
+        <a class="launch-card" href="https://calendar.google.com/calendar/r" target="_blank" rel="noopener">
+          <span class="launch-card__icon">📅</span>
+          <span class="launch-card__title">Ministry Calendar</span>
+          <span class="launch-card__desc">Open the full calendar to view and edit all scheduled outreach events.</span>
+          <span class="launch-card__cta">Open calendar &rarr;</span>
+        </a>
+      </div>
+
+      <!-- Upcoming events from the ministry Google Calendar (public iCal feed) -->
+      <div class="glass-card" style="margin-bottom:1rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;">
+          <h3 class="glass-card__title" style="margin:0;">📅 Upcoming events</h3>
+          <button type="button" class="btn btn--outline btn--sm" id="pub-cal-refresh" title="Refresh">↻</button>
+        </div>
+        <p style="font-size:0.75rem;color:var(--color-text-muted);margin-bottom:0.5rem;">Pick an event to auto-fill an announcement draft. Events are created &amp; managed in Google Calendar.</p>
+        <div id="publish-event-list"><p class="dm-empty" style="padding:0.6rem;">Loading calendar…</p></div>
+      </div>
+
+      <!-- Announcement composer (moved from Chat tab, now calendar-fed) -->
+      <button class="btn btn--outline btn--sm" id="ann-open-btn" style="display:none;margin-bottom:0.6rem;width:100%;">📣 New announcement</button>
       <div id="chat-admin-compose" class="ann-composer" style="display:none;">
         <div class="glass-card">
           <div class="ann-composer__head">
@@ -713,11 +745,17 @@
             <button class="ann-composer__close" id="ann-close-btn" aria-label="Close">×</button>
           </div>
 
+          <!-- Event picker — auto-fills the draft from a calendar event -->
+          <label class="ann-field-label">Draft from a calendar event <span style="font-weight:400;color:var(--color-text-muted);font-size:0.72rem;">(optional)</span></label>
+          <select id="ann-event-select" style="width:100%;margin-bottom:0.6rem;padding:0.4rem 0.5rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-card);color:var(--color-text);font-size:0.82rem;">
+            <option value="">— Pick an event to auto-fill —</option>
+          </select>
+
           <label class="ann-field-label">Who should see this?</label>
           <div class="ann-audience" id="ann-audience">
             <label class="ann-aud"><input type="checkbox" id="ann-aud-admins" checked> <span>👔 Admins &amp; super-admins</span></label>
             <label class="ann-aud"><input type="checkbox" id="ann-aud-members" checked> <span>👥 Members</span></label>
-            <label class="ann-aud"><input type="checkbox" id="ann-aud-public"> <span>🌍 Public — Community page &amp; Telegram</span></label>
+            <label class="ann-aud"><input type="checkbox" id="ann-aud-public" checked> <span>🌍 Public — Community page &amp; Telegram</span></label>
             <label class="ann-aud"><input type="checkbox" id="ann-aud-email"> <span>📧 Email / newsletter — team &amp; subscribers</span></label>
           </div>
 
@@ -730,21 +768,37 @@
           <p class="ann-pri-hint" id="ann-pri-hint">A calm heads-up — “take a look here.”</p>
 
           <input id="ann-subject" placeholder="Subject…" style="margin-bottom:0.4rem;">
-          <textarea id="ann-body" placeholder="Message…" rows="3" style="margin-bottom:0.6rem;"></textarea>
+          <textarea id="ann-body" placeholder="Message…" rows="4" style="margin-bottom:0.6rem;"></textarea>
 
           <!-- Optional photo attachments (usually one, up to 10). Sent to
                Telegram as photo(s); the first also shows on the community post. -->
           <input type="file" id="ann-photo-input" accept="image/*" multiple hidden>
           <div class="ann-photos" id="ann-photos" hidden></div>
 
-          <div style="display:flex;align-items:center;gap:0.75rem;">
+          <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
             <button type="button" class="btn btn--outline btn--sm" id="ann-photo-btn">🖼️ Add photo</button>
             <span class="ann-emergency-note" id="ann-emergency-note" style="display:none;">🔴 Emergency emails everyone selected (who allow notifications).</span>
-            <button class="btn btn--green btn--sm" id="ann-send-btn" style="margin-left:auto;">Post announcement</button>
+            <button class="btn btn--green btn--sm" id="ann-send-btn" style="margin-left:auto;">Post now</button>
+          </div>
+
+          <!-- Schedule for later (fires via the cron, up to 15-min resolution) -->
+          <div style="margin-top:0.6rem;padding-top:0.6rem;border-top:1px dashed var(--color-border);display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <label class="ann-field-label" style="margin:0;white-space:nowrap;">⏰ Schedule for:</label>
+            <input type="datetime-local" id="ann-schedule-at" style="padding:0.35rem 0.5rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-card);color:var(--color-text);font-size:0.8rem;">
+            <button class="btn btn--outline btn--sm" id="ann-schedule-btn">Schedule post</button>
+          </div>
+
+          <!-- Scheduled queue — posts waiting to fire -->
+          <div style="margin-top:0.8rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+              <span class="ann-field-label" style="margin:0;">⏰ Scheduled queue</span>
+              <button type="button" id="pub-queue-refresh" style="border:none;background:none;font-size:0.68rem;font-weight:700;color:var(--color-text-muted);cursor:pointer;">↻ Refresh</button>
+            </div>
+            <div id="publish-queue-list"><p class="dm-empty" style="padding:0.6rem;">No scheduled posts.</p></div>
           </div>
 
           <!-- Recent announcements (so the team doesn't repost the same thing) -->
-          <div class="ann-history">
+          <div class="ann-history" style="margin-top:0.8rem;">
             <div class="ann-history__head">
               <span class="ann-field-label" style="margin:0;">Recently posted</span>
               <span style="display:flex;gap:0.6rem;align-items:center;">
@@ -882,18 +936,6 @@
           <span class="launch-card__desc">Publish outreach stories &amp; testimonies, manage inventory, members &amp; announcements.</span>
           <span class="launch-card__cta">Open &rarr;</span>
         </a>
-        <a class="launch-card" href="https://calendar.google.com/calendar/r/eventedit" target="_blank" rel="noopener">
-          <span class="launch-card__icon">➕</span>
-          <span class="launch-card__title">Add Calendar Event</span>
-          <span class="launch-card__desc">Create a ministry event in Google Calendar — the homepage feed reads from it.</span>
-          <span class="launch-card__cta">Add event &rarr;</span>
-        </a>
-        <a class="launch-card" href="https://calendar.google.com/calendar/r" target="_blank" rel="noopener">
-          <span class="launch-card__icon">📅</span>
-          <span class="launch-card__title">Ministry Calendar</span>
-          <span class="launch-card__desc">Open the full calendar to view and edit all scheduled outreach events.</span>
-          <span class="launch-card__cta">Open calendar &rarr;</span>
-        </a>
       </div>
 
     </div>
@@ -920,7 +962,8 @@
   <p style="font-size:0.72rem;color:var(--color-text-muted);margin-top:1rem;">&copy; 2026 Seed the Word Ministry. All rights reserved.</p>
 </div>
 
-<script src="assets/js/team-portal.js?v=41"></script>
+<script src="assets/js/team-portal.js?v=42"></script>
+<script src="assets/js/publish-calendar.js?v=1"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
 <script>
@@ -1224,6 +1267,7 @@
     scanner: 'scanner',
     finance: 'finance',
     orders: 'orders',
+    publish: 'chat_admin',
     content: 'content_studio'
   };
 

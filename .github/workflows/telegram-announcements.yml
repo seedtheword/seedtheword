@@ -2,10 +2,18 @@ name: Telegram Announcements
 
 on:
   schedule:
-    # Cron is UTC. Runs every 15 minutes, every day. Each run is
-    # idempotent — the dedup log at assets/data/telegram-announcement-log.json
-    # prevents re-posting anything that has already been announced
-    # under the same trigger kind (upcoming / reminder / live).
+    # Cron is UTC. Runs every 15 minutes, every day. Each run does TWO things:
+    #
+    # 1. Calendar announcements (post_calendar_to_telegram.py) — gated by
+    #    config flags in telegram-bot.json. With the auto-post flags off,
+    #    only the reminder safety-net fires. The dedup log prevents
+    #    re-posting anything already announced under the same trigger kind.
+    #
+    # 2. Scheduled post queue (fire_publish_queue.py) — fires posts a human
+    #    queued from the Publish tab. The Apps Script reads the "Scheduled
+    #    Posts" sheet for due rows (status=waiting, send_at<=now) and sends
+    #    each to Telegram thread 553 + community. This is the human-controlled
+    #    path: nothing posts unless someone clicked "Schedule" in the portal.
     #
     # Why every 15 minutes instead of 3 fixed daily slots:
     #   * GitHub free-tier scheduled actions can be delayed 5-30 minutes
@@ -73,6 +81,16 @@ jobs:
           ADMIN_SMS_GATEWAY_ADDRESS: ${{ secrets.ADMIN_SMS_GATEWAY_ADDRESS }}
           APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
         run: python .github/scripts/post_calendar_to_telegram.py
+
+      - name: Fire scheduled post queue
+        # Posts queued from the Publish tab by a human. The Apps Script
+        # reads the "Scheduled Posts" sheet for due rows (status=waiting,
+        # send_at<=now) and sends each to Telegram thread 553 + community.
+        # Skipped during dry-runs so manual test runs don't fire the queue.
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
+        run: python .github/scripts/fire_publish_queue.py
 
       - name: Commit dedup log if changed
         if: ${{ github.event.inputs.test_run != 'true' && github.event.inputs.dry_run != 'true' }}

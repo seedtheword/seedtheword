@@ -2399,9 +2399,13 @@ function handleGetCalendarEvents_(payload) {
     var user = validateTeamToken_(String(payload.token || ''));
     if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
     var url = getPublishCalIcalUrl_();
-    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: true });
     if (resp.getResponseCode() !== 200) {
-      return jsonResponse({ ok: false, error: 'Calendar feed returned HTTP ' + resp.getResponseCode() });
+      return jsonResponse({ ok: false, error: 'Calendar feed returned HTTP ' + resp.getResponseCode() + '. Make sure the calendar is set to public in Google Calendar settings.' });
+    }
+    var contentType = resp.getHeaders()['Content-Type'] || resp.getHeaders()['content-type'] || '';
+    if (contentType.indexOf('text/calendar') === -1 && contentType.indexOf('text/plain') === -1) {
+      return jsonResponse({ ok: false, error: 'Calendar is not public. Go to Google Calendar → Settings → your calendar → "Make available to public" → Save.' });
     }
     var events = parseIcal_(resp.getContentText());
     // Filter to upcoming (start >= now - 1 hour), sort, cap at 50.

@@ -49,16 +49,19 @@ async function getHandlerUrl(){
 }
 async function postAction(data,timeoutMs){
   var url=await getHandlerUrl();
-  var controller=new AbortController();
-  var timer=setTimeout(function(){controller.abort();},timeoutMs||30000);
+  var ms=timeoutMs||30000;
+  var controller=typeof AbortController!=='undefined'?new AbortController():null;
+  var timer=controller?setTimeout(function(){controller.abort();},ms):null;
   try{
-    var res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data),signal:controller.signal});
+    var opts={method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)};
+    if(controller)opts.signal=controller.signal;
+    var res=await fetch(url,opts);
+    if(timer)clearTimeout(timer);
     var text=await res.text();
-    clearTimeout(timer);
     try{return JSON.parse(text);}catch(e){throw new Error('Server unavailable');}
   }catch(e){
-    clearTimeout(timer);
-    if(e.name==='AbortError')throw new Error('Request timed out — check the Apps Script execution log.');
+    if(timer)clearTimeout(timer);
+    if(e.name==='AbortError')throw new Error('Request timed out after '+(ms/1000)+'s — check the Apps Script execution log.');
     throw e;
   }
 }

@@ -2398,23 +2398,28 @@ function handleGetCalendarEvents_(payload) {
   try {
     var user = validateTeamToken_(String(payload.token || ''));
     if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    Logger.log('getCalendarEvents: token validated, fetching iCal');
     var url = getPublishCalIcalUrl_();
+    Logger.log('getCalendarEvents: url=' + url);
     var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: true });
+    Logger.log('getCalendarEvents: HTTP ' + resp.getResponseCode());
     if (resp.getResponseCode() !== 200) {
       return jsonResponse({ ok: false, error: 'Calendar feed returned HTTP ' + resp.getResponseCode() + '. Make sure the calendar is set to public in Google Calendar settings.' });
     }
     var contentType = resp.getHeaders()['Content-Type'] || resp.getHeaders()['content-type'] || '';
+    Logger.log('getCalendarEvents: content-type=' + contentType);
     if (contentType.indexOf('text/calendar') === -1 && contentType.indexOf('text/plain') === -1) {
-      return jsonResponse({ ok: false, error: 'Calendar is not public. Go to Google Calendar → Settings → your calendar → "Make available to public" → Save.' });
+      return jsonResponse({ ok: false, error: 'Calendar is not public. Go to Google Calendar → Settings → your calendar → "Make available to public" → Save. Content-Type was: ' + contentType });
     }
     var events = parseIcal_(resp.getContentText());
-    // Filter to upcoming (start >= now - 1 hour), sort, cap at 50.
+    Logger.log('getCalendarEvents: parsed ' + events.length + ' events');
     var now = Date.now();
     events = events.filter(function (e) { return e.startMs >= now - 3600000; });
     events.sort(function (a, b) { return a.startMs - b.startMs; });
     events = events.slice(0, 50);
     return jsonResponse({ ok: true, events: events });
   } catch (err) {
+    Logger.log('getCalendarEvents error: ' + err);
     return jsonResponse({ ok: false, error: String(err) });
   }
 }

@@ -117,17 +117,7 @@ window.PublishCalendar = (function () {
     if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Loading calendar…</p>';
     try {
       var token = (typeof session !== 'undefined' && session) ? session.token : '';
-      var res;
-      // 15-second timeout so it never hangs forever
-      var timer;
-      var timeoutPromise = new Promise(function(_, reject) {
-        timer = setTimeout(function() { reject(new Error('Timed out after 15s — the Apps Script may not be redeployed yet. Go to Apps Script → Deploy → Manage Deployments → pencil → New version → Deploy.')); }, 15000);
-      });
-      res = await Promise.race([
-        postAction({ action: 'getCalendarEvents', token: token }),
-        timeoutPromise
-      ]);
-      clearTimeout(timer);
+      var res = await postAction({ action: 'getCalendarEvents', token: token }, 20000);
       console.log('[PublishCalendar] getCalendarEvents response:', JSON.stringify(res).slice(0, 300));
       if (res && res.ok && Array.isArray(res.events)) {
         events = res.events;
@@ -254,7 +244,7 @@ window.PublishCalendar = (function () {
       if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Running diagnostic…</p>';
       try {
         var token = (typeof session !== 'undefined' && session) ? session.token : '';
-        var raw = await postAction({ action: 'getCalendarEvents', token: token });
+        var raw = await postAction({ action: 'getCalendarEvents', token: token }, 20000);
         var msg = JSON.stringify(raw, null, 2);
         if (container) container.innerHTML = '<pre style="font-size:0.68rem;white-space:pre-wrap;padding:0.6rem;overflow:auto;max-height:300px;">' + escapeHtml(msg) + '</pre>';
       } catch (e) {

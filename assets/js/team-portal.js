@@ -47,11 +47,20 @@ async function getHandlerUrl(){
   var cfg=await fetch(CONFIG_URL+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();});
   return cfg.orderHandlerUrl;
 }
-async function postAction(data){
+async function postAction(data,timeoutMs){
   var url=await getHandlerUrl();
-  var res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});
-  var text=await res.text();
-  try{return JSON.parse(text);}catch(e){throw new Error('Server unavailable');}
+  var controller=new AbortController();
+  var timer=setTimeout(function(){controller.abort();},timeoutMs||30000);
+  try{
+    var res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data),signal:controller.signal});
+    var text=await res.text();
+    clearTimeout(timer);
+    try{return JSON.parse(text);}catch(e){throw new Error('Server unavailable');}
+  }catch(e){
+    clearTimeout(timer);
+    if(e.name==='AbortError')throw new Error('Request timed out — check the Apps Script execution log.');
+    throw e;
+  }
 }
 async function sha256(text){
   var buf=new TextEncoder().encode(text);

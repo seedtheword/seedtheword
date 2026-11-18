@@ -730,7 +730,10 @@
       <div class="glass-card" style="margin-bottom:1rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;">
           <h3 class="glass-card__title" style="margin:0;">📅 Upcoming events</h3>
-          <button type="button" class="btn btn--outline btn--sm" id="pub-cal-refresh" title="Refresh">↻</button>
+          <span style="display:flex;gap:0.5rem;">
+            <button type="button" class="btn btn--outline btn--sm" id="pub-cal-diagnose" style="font-size:0.68rem;">🩺 Diagnose</button>
+            <button type="button" class="btn btn--outline btn--sm" id="pub-cal-refresh" title="Refresh">↻</button>
+          </span>
         </div>
         <p style="font-size:0.75rem;color:var(--color-text-muted);margin-bottom:0.5rem;">Pick an event to auto-fill an announcement draft. Events are created &amp; managed in Google Calendar.</p>
         <div id="publish-event-list"><p class="dm-empty" style="padding:0.6rem;">Loading calendar…</p></div>
@@ -963,7 +966,7 @@
 </div>
 
 <script src="assets/js/team-portal.js?v=42"></script>
-<script src="assets/js/publish-calendar.js?v=7"></script>
+<script src="assets/js/publish-calendar.js?v=8"></script>
 <script src="assets/js/lms.js?v=2"></script>
 <script src="assets/js/profile-settings.js?v=4"></script>
 <script>

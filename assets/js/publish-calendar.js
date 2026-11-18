@@ -243,10 +243,25 @@ window.PublishCalendar = (function () {
     }
   }
 
-  // ── Init: wire the refresh button + event-select change ──
+  // ── Init: wire the refresh button + diagnose button + event-select change ──
   function init() {
     var refresh = document.getElementById('pub-cal-refresh');
     if (refresh) refresh.addEventListener('click', loadEvents);
+
+    var diagnose = document.getElementById('pub-cal-diagnose');
+    if (diagnose) diagnose.addEventListener('click', async function() {
+      var container = document.getElementById('publish-event-list');
+      if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Running diagnostic…</p>';
+      try {
+        var token = (typeof session !== 'undefined' && session) ? session.token : '';
+        var raw = await postAction({ action: 'getCalendarEvents', token: token });
+        var msg = JSON.stringify(raw, null, 2);
+        if (container) container.innerHTML = '<pre style="font-size:0.68rem;white-space:pre-wrap;padding:0.6rem;overflow:auto;max-height:300px;">' + escapeHtml(msg) + '</pre>';
+      } catch (e) {
+        if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">❌ ' + escapeHtml(e.message) + '</p>';
+      }
+    });
+
     var sel = document.getElementById('ann-event-select');
     if (sel) sel.addEventListener('change', function () {
       var idx = parseInt(this.value, 10);

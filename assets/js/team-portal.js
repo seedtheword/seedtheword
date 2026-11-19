@@ -54,7 +54,6 @@ async function postAction(data){
   try{return JSON.parse(text);}catch(e){throw new Error('Server unavailable');}
 }
 window.postAction=postAction;
-function saveSession(){
 async function sha256(text){
   var buf=new TextEncoder().encode(text);
   var digest=await crypto.subtle.digest('SHA-256',buf);

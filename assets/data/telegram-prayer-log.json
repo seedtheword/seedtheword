@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618484,
-  "lastModified": "2026-11-19T18:25:32Z",
+  "lastUpdateId": 669618485,
+  "lastModified": "2026-11-19T18:55:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -871,6 +871,16 @@
       "kind": "telegram",
       "text": "Prayer Request for Pakistan 11/19/2026:\n\nPastor Chand @chandsajad and myself are asking everyone to lift us in prayer so God may provide a path for my missionary trip visit to Pakistan, India, and Nepal to evangelize and spread the gospel of Jesus Christ.\n\nIf anyone has USA contacts that frequently visit Pakistan, please refer via private DM and our team will be grateful to serve. We are praying if this is in God's will, we will make a successful trip there and go forward to other countries as it be His will.",
       "ts": "2026-11-19T18:23:12Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7703,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request for David Lepesha family 11/19/2026:\n\nPlease pray for David's family and what they are going through currently so that God has mercy, grace and everything goes well for them.\n\nOnce David gives me an update, I will post a thanksgiving announcement, thank you everyone!",
+      "ts": "2026-11-19T18:52:40Z"
     }
   ]
 }

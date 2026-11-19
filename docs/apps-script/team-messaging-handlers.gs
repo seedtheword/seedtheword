@@ -2416,12 +2416,15 @@ function handleGetCalendarEvents_(payload) {
       return jsonResponse({ ok: false, error: 'Calendar not public. Content-Type: ' + contentType });
     }
     var events = parseIcal_(resp.getContentText());
-    Logger.log('getCalendarEvents: parsed ' + events.length + ' events');
+    Logger.log('getCalendarEvents: parsed ' + events.length + ' total events before filter');
     var now = Date.now();
-    events = events.filter(function (e) { return e.startMs >= now - 3600000; });
+    // Show events from up to 7 days in the past through 6 months ahead
+    // so recently-passed events still show for drafting
+    events = events.filter(function (e) { return e.startMs >= now - (7 * 24 * 3600000); });
     events.sort(function (a, b) { return a.startMs - b.startMs; });
     events = events.slice(0, 50);
-    return jsonResponse({ ok: true, events: events });
+    Logger.log('getCalendarEvents: returning ' + events.length + ' events after filter');
+    return jsonResponse({ ok: true, events: events, _debug_total: events.length });
   } catch (err) {
     Logger.log('getCalendarEvents error: ' + err);
     return jsonResponse({ ok: false, error: String(err) });

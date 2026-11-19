@@ -115,7 +115,7 @@ window.PublishCalendar = (function () {
   function upcomingSnapshot() {
     var now = Date.now();
     return events
-      .filter(function (e) { return e.startMs && e.startMs >= now - 3600000; })
+      .filter(function (e) { return e.startMs && e.startMs >= now - (7 * 24 * 3600000); })
       .sort(function (a, b) { return a.startMs - b.startMs; })
       .slice(0, 30);
   }

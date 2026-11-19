@@ -120,14 +120,14 @@ window.PublishCalendar = (function () {
     if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Loading calendar…</p>';
     try {
       var token = (window.session && window.session.token) ? window.session.token : '';
-      console.log('[PublishCalendar] getCalendarEvents response:', JSON.stringify(res).slice(0, 300));
+      var res = await window.postAction({ action: 'getCalendarEvents', token: token });
+      console.log('[PublishCalendar] response:', JSON.stringify(res).slice(0, 300));
       if (res && res.ok && Array.isArray(res.events)) {
         events = res.events;
         loaded = true;
       } else {
         events = [];
-        var errMsg = (res && res.error) ? res.error
-          : 'Apps Script action not recognized — redeploy the web app: Deploy → Manage Deployments → pencil → New version → Deploy.';
+        var errMsg = (res && res.error) ? res.error : 'Apps Script action not recognized — redeploy with the new getCalendarEvents handler.';
         if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">⚠️ ' + escapeHtml(errMsg) + '</p>';
         return;
       }
@@ -246,7 +246,7 @@ window.PublishCalendar = (function () {
       if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Running diagnostic…</p>';
       try {
         var token = (window.session && window.session.token) ? window.session.token : '';
-        var raw = await window.postAction({ action: 'getCalendarEvents', token: token }, 20000);
+        var raw = await window.postAction({ action: 'getCalendarEvents', token: token });
         var msg = JSON.stringify(raw, null, 2);
         if (container) container.innerHTML = '<pre style="font-size:0.68rem;white-space:pre-wrap;padding:0.6rem;overflow:auto;max-height:300px;">' + escapeHtml(msg) + '</pre>';
       } catch (e) {

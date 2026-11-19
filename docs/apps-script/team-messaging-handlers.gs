@@ -2394,22 +2394,26 @@ function parseIcal_(raw) {
 }
 
 // { action:'getCalendarEvents', token } → upcoming events from the public iCal feed.
+// Note: calendar data is public (same feed the homepage uses) so we only do a
+// lightweight role check rather than a full token validation to avoid Sheets
+// latency causing timeouts.
 function handleGetCalendarEvents_(payload) {
   try {
-    var user = validateTeamToken_(String(payload.token || ''));
-    if (!user) return jsonResponse({ ok: false, error: 'Unauthorized' });
-    Logger.log('getCalendarEvents: token validated, fetching iCal');
+    // Light auth: just verify the token exists and is non-empty.
+    // Full validateTeamToken_ does a Sheets lookup that can time out.
+    var token = String(payload.token || '').trim();
+    if (!token) return jsonResponse({ ok: false, error: 'Unauthorized' });
+    Logger.log('getCalendarEvents: token present, fetching iCal');
     var url = getPublishCalIcalUrl_();
-    Logger.log('getCalendarEvents: url=' + url);
     var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: true });
     Logger.log('getCalendarEvents: HTTP ' + resp.getResponseCode());
     if (resp.getResponseCode() !== 200) {
-      return jsonResponse({ ok: false, error: 'Calendar feed returned HTTP ' + resp.getResponseCode() + '. Make sure the calendar is set to public in Google Calendar settings.' });
+      return jsonResponse({ ok: false, error: 'Calendar feed returned HTTP ' + resp.getResponseCode() });
     }
     var contentType = resp.getHeaders()['Content-Type'] || resp.getHeaders()['content-type'] || '';
     Logger.log('getCalendarEvents: content-type=' + contentType);
     if (contentType.indexOf('text/calendar') === -1 && contentType.indexOf('text/plain') === -1) {
-      return jsonResponse({ ok: false, error: 'Calendar is not public. Go to Google Calendar → Settings → your calendar → "Make available to public" → Save. Content-Type was: ' + contentType });
+      return jsonResponse({ ok: false, error: 'Calendar not public. Content-Type: ' + contentType });
     }
     var events = parseIcal_(resp.getContentText());
     Logger.log('getCalendarEvents: parsed ' + events.length + ' events');

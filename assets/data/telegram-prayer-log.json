@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618508,
-  "lastModified": "2026-11-19T22:40:33Z",
+  "lastUpdateId": 669618509,
+  "lastModified": "2026-11-19T23:10:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -901,6 +901,16 @@
       "kind": "telegram",
       "text": "Praying for you Liam 🙏🏻",
       "ts": "2026-11-19T19:21:19Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7723,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "One of my coworkers got baptized in the Jordan river last week, I'm so happy he's coming back to Christianity",
+      "ts": "2026-11-19T23:07:46Z"
     }
   ]
 }

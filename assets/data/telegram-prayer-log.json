@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618486,
-  "lastModified": "2026-11-19T19:10:33Z",
+  "lastUpdateId": 669618487,
+  "lastModified": "2026-11-19T19:25:36Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -891,6 +891,16 @@
       "kind": "telegram",
       "text": "I got into a crash and my knee hurts.\n\nI need prayers, otherwise not only will my arms be screwed but also my legs, I cannot do this anymore.",
       "ts": "2026-11-19T19:07:59Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7705,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Praying for you Liam 🙏🏻",
+      "ts": "2026-11-19T19:21:19Z"
     }
   ]
 }

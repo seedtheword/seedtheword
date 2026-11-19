@@ -2431,7 +2431,7 @@ function handleGetCalendarEvents_(payload) {
 // ── Scheduled Posts sheet ──
 
 function getScheduledPostsSheet_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SpreadsheetApp.openById(LEDGER_SHEET_ID);
   var sheet = ss.getSheetByName('Scheduled Posts');
   if (!sheet) {
     sheet = ss.insertSheet('Scheduled Posts');

@@ -16,6 +16,9 @@
 window.PublishCalendar = (function () {
   'use strict';
 
+  // Local escapeHtml — can't rely on team-portal.js scope inside an IIFE
+  function escapeHtml(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
+
   var events = [];   // cached parsed events [{id,summary,description,location,startMs,endMs,allDay}]
   var loaded = false;
 

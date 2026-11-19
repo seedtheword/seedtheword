@@ -705,6 +705,20 @@ async function loadScheduledQueue(){
   }catch(e){list.innerHTML='<p class="dm-empty" style="padding:0.6rem;">Could not load queue.</p>';}
 }
 (function(){var r=document.getElementById('pub-queue-refresh');if(r)r.addEventListener('click',loadScheduledQueue);})();
+(function(){
+  var fireBtn=document.getElementById('pub-queue-fire');
+  if(fireBtn)fireBtn.addEventListener('click',async function(){
+    this.disabled=true;var orig=this.textContent;this.textContent='Firing…';
+    try{
+      var res=await postAction({action:'fireScheduledPosts',token:session.token});
+      if(res&&res.ok){
+        alert('Fired: '+res.fired+' sent, '+res.failed+' failed.');
+        loadScheduledQueue();loadAnnouncementHistory();
+      }else{alert((res&&res.error)||'Could not fire queue.');}
+    }catch(e){alert(e.message);}
+    this.disabled=false;this.textContent=orig;
+  });
+})();
 
 // ── Recent announcements viewer (this week) — always available ──
 async function openRecentAnnouncements(){

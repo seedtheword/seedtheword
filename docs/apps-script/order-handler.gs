@@ -277,6 +277,7 @@ function doPost(e) {
   if ((payload && payload.action) === 'scheduleAnnouncement') return handleScheduleAnnouncement_(payload);
   if ((payload && payload.action) === 'getScheduledPosts') return handleGetScheduledPosts_(payload);
   if ((payload && payload.action) === 'cancelScheduledPost') return handleCancelScheduledPost_(payload);
+  if ((payload && payload.action) === 'fireScheduledPosts') return handleFireScheduledPosts_(payload);
   if ((payload && payload.action) === 'deleteAnnouncement') return handleDeleteAnnouncement_(payload);
   if ((payload && payload.action) === 'sendDm') return handleSendDm_(payload);
   if ((payload && payload.action) === 'getDmContacts') return handleGetDmContacts_(payload);

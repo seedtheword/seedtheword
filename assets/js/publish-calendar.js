@@ -23,10 +23,14 @@ window.PublishCalendar = (function () {
   var loaded = false;
 
   // ── Image extraction (mirrors google-calendar.js + post_calendar_to_telegram.py) ──
-  var IMG_TAG_RE  = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/gi;
-  var DRIVE_FILE_RE = /https?:\/\/(?:drive|docs)\.google\.com\/file\/d\/([A-Za-z0-9_-]+)(?:\/[^\s"'<>]*)?/gi;
-  var DRIVE_OPEN_RE = /https?:\/\/drive\.google\.com\/open\?[^\s"'<>]*?id=([A-Za-z0-9_-]+)[^\s"'<>]*/gi;
-  var IMAGE_URL_RE  = /https?:\/\/[^\s"'<>]+?\.(?:jpg|jpeg|png|webp|gif)(?:\?[^\s"'<>]*)?/gi;
+  // iCal descriptions are plain text after unescaping — Drive URLs appear as
+  // raw https://drive.google.com/... links, not as <img> tags.
+  var IMG_TAG_RE    = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/gi;
+  var DRIVE_FILE_RE = /https?:\/\/(?:drive|docs)\.google\.com\/file\/d\/([A-Za-z0-9_-]+)(?:\/[^\s"'<>\n]*)?/gi;
+  var DRIVE_OPEN_RE = /https?:\/\/drive\.google\.com\/open\?[^\s"'<>\n]*?id=([A-Za-z0-9_-]+)[^\s"'<>\n]*/gi;
+  // Also catch lh3.googleusercontent.com direct-view URLs the Python script rewrites to
+  var LH3_RE        = /https?:\/\/lh3\.googleusercontent\.com\/d\/([A-Za-z0-9_-]+)[^\s"'<>\n]*/gi;
+  var IMAGE_URL_RE  = /https?:\/\/[^\s"'<>\n]+?\.(?:jpg|jpeg|png|webp|gif)(?:\?[^\s"'<>\n]*)?/gi;
 
   function driveFileToDirectUrl(fileId) {
     return 'https://lh3.googleusercontent.com/d/' + fileId + '=w2000';
@@ -46,6 +50,8 @@ window.PublishCalendar = (function () {
     while ((m = DRIVE_FILE_RE.exec(htmlOrText)) !== null) add(driveFileToDirectUrl(m[1]));
     DRIVE_OPEN_RE.lastIndex = 0;
     while ((m = DRIVE_OPEN_RE.exec(htmlOrText)) !== null) add(driveFileToDirectUrl(m[1]));
+    LH3_RE.lastIndex = 0;
+    while ((m = LH3_RE.exec(htmlOrText)) !== null) add('https://lh3.googleusercontent.com/d/' + m[1] + '=w2000');
     IMAGE_URL_RE.lastIndex = 0;
     while ((m = IMAGE_URL_RE.exec(htmlOrText)) !== null) add(m[0].trim().replace(/[).,;]+$/, ''));
     return urls.slice(0, 10);
@@ -208,6 +214,7 @@ window.PublishCalendar = (function () {
   }
 
   function draftFromEvent(e) {
+    console.log('[PublishCalendar] draftFromEvent description:', e.description ? e.description.slice(0, 500) : '(empty)');
     var subj = document.getElementById('ann-subject');
     var body = document.getElementById('ann-body');
     if (!subj || !body) return;

@@ -119,7 +119,15 @@ window.PublishCalendar = (function () {
     var container = document.getElementById('publish-event-list');
     if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Loading calendar…</p>';
     try {
+      // Try window.session first, fall back to localStorage directly
       var token = (window.session && window.session.token) ? window.session.token : '';
+      if (!token) {
+        try {
+          var saved = JSON.parse(localStorage.getItem('stwm-team-session') || sessionStorage.getItem('stwm-team-session') || 'null');
+          if (saved && saved.token) token = saved.token;
+        } catch (e) {}
+      }
+      console.log('[PublishCalendar] token present:', !!token);
       var res = await window.postAction({ action: 'getCalendarEvents', token: token });
       console.log('[PublishCalendar] response:', JSON.stringify(res).slice(0, 300));
       if (res && res.ok && Array.isArray(res.events)) {
@@ -246,6 +254,12 @@ window.PublishCalendar = (function () {
       if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Running diagnostic…</p>';
       try {
         var token = (window.session && window.session.token) ? window.session.token : '';
+        if (!token) {
+          try {
+            var saved = JSON.parse(localStorage.getItem('stwm-team-session') || sessionStorage.getItem('stwm-team-session') || 'null');
+            if (saved && saved.token) token = saved.token;
+          } catch (e) {}
+        }
         var raw = await window.postAction({ action: 'getCalendarEvents', token: token });
         var msg = JSON.stringify(raw, null, 2);
         if (container) container.innerHTML = '<pre style="font-size:0.68rem;white-space:pre-wrap;padding:0.6rem;overflow:auto;max-height:300px;">' + escapeHtml(msg) + '</pre>';

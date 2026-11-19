@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618462,
-  "lastModified": "2026-11-18T15:55:40Z",
+  "lastUpdateId": 669618464,
+  "lastModified": "2026-11-19T03:40:49Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -815,6 +815,26 @@
       "kind": "telegram",
       "text": "Amen and Hallelujah, Praise Jesus, may God bless you Liam 🥰✝️",
       "ts": "2026-11-16T22:50:25Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7685,
+      "userId": 8583445613,
+      "displayName": "Edward Wei",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I am sort of seeing this girl. She is Ukrainian. Prayer for God's Will for how it will play out- either to end it or have it be something more.\n\nI would also like prayer regarding renaming our ministry (when at maple park) to \"Maple Park Young Adults Bible Study\" as outreach should not be the responsibility of one ministry and we wanted some language that is a bit more familiar with our target audience.",
+      "ts": "2026-11-19T03:33:50Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7686,
+      "userId": 8583445613,
+      "displayName": "Edward Wei",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "And Praise God for all of you, our community, and His Love and Presence in every part of our lives.",
+      "ts": "2026-11-19T03:34:40Z"
     }
   ]
 }

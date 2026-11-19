@@ -120,7 +120,7 @@ window.PublishCalendar = (function () {
     if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Loading calendar…</p>';
     try {
       var token = (typeof session !== 'undefined' && session) ? session.token : '';
-      var res = await postAction({ action: 'getCalendarEvents', token: token }, 20000);
+      var res = await window.postAction({ action: 'getCalendarEvents', token: token }, 20000);
       console.log('[PublishCalendar] getCalendarEvents response:', JSON.stringify(res).slice(0, 300));
       if (res && res.ok && Array.isArray(res.events)) {
         events = res.events;
@@ -247,7 +247,7 @@ window.PublishCalendar = (function () {
       if (container) container.innerHTML = '<p class="dm-empty" style="padding:0.6rem;">Running diagnostic…</p>';
       try {
         var token = (typeof session !== 'undefined' && session) ? session.token : '';
-        var raw = await postAction({ action: 'getCalendarEvents', token: token }, 20000);
+        var raw = await window.postAction({ action: 'getCalendarEvents', token: token }, 20000);
         var msg = JSON.stringify(raw, null, 2);
         if (container) container.innerHTML = '<pre style="font-size:0.68rem;white-space:pre-wrap;padding:0.6rem;overflow:auto;max-height:300px;">' + escapeHtml(msg) + '</pre>';
       } catch (e) {

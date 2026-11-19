@@ -65,6 +65,7 @@ async function postAction(data,timeoutMs){
     throw e;
   }
 }
+window.postAction=postAction;
 async function sha256(text){
   var buf=new TextEncoder().encode(text);
   var digest=await crypto.subtle.digest('SHA-256',buf);

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618485,
-  "lastModified": "2026-11-19T18:55:33Z",
+  "lastUpdateId": 669618486,
+  "lastModified": "2026-11-19T19:10:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -881,6 +881,16 @@
       "kind": "telegram",
       "text": "Prayer Request for David Lepesha family 11/19/2026:\n\nPlease pray for David's family and what they are going through currently so that God has mercy, grace and everything goes well for them.\n\nOnce David gives me an update, I will post a thanksgiving announcement, thank you everyone!",
       "ts": "2026-11-19T18:52:40Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7704,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I got into a crash and my knee hurts.\n\nI need prayers, otherwise not only will my arms be screwed but also my legs, I cannot do this anymore.",
+      "ts": "2026-11-19T19:07:59Z"
     }
   ]
 }

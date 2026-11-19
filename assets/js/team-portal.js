@@ -66,6 +66,7 @@ async function postAction(data,timeoutMs){
   }
 }
 window.postAction=postAction;
+function saveSession(){
 async function sha256(text){
   var buf=new TextEncoder().encode(text);
   var digest=await crypto.subtle.digest('SHA-256',buf);
@@ -1054,7 +1055,7 @@ function rememberChecked(){
 try{
   var rawSaved=localStorage.getItem('stwm-team-session')||sessionStorage.getItem('stwm-team-session')||'null';
   var saved=JSON.parse(rawSaved);
-  if(saved&&saved.token){session=saved;session.todayScans=session.todayScans||[];showEventOrPortal();
+  if(saved&&saved.token){session=saved;window.session=session;session.todayScans=session.todayScans||[];showEventOrPortal();
     // Refresh persisted profile fields in the background (non-blocking).
     hydrateProfile().then(function(){ if(typeof renderProfileCard==='function')renderProfileCard(); });
   }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618578,
-  "lastModified": "2026-11-21T19:25:33Z",
+  "lastUpdateId": 669618579,
+  "lastModified": "2026-11-21T19:40:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -967,6 +967,16 @@
       "kind": "telegram",
       "text": "Thanksgiving Announcement from David 11/21/2026:\n\nGod has given me dreams and also spoke to me through prophets regarding His will and is opening up more doors for where I am to serve while I'm on this missionary trip around the world.\n\nDuring my time in America, God has placed in my heart a burden for missionary work and it has been nearly a year since that I believe God has realized this desire of mine to serve His kingdom (initially not my own desire, but in agreement with the Lord, has become my desire nowadays) so I spoke on the phone today to get a direction to head into Finland, Uzbekistan, and other possible countries that are nearby where I have been invited.\n\nOur God is alive and works in miraculous ways that are far beyond my own human comprehension however the one constant that has never changed: He has always been faithful.\n\nSo if there's anything you could thank God for during this Thanksgiving holiday, remember. He is the Almighty God. He hears your prayers, your thanksgivings, your worries, and every other thing that is running in your mind.\n\nHere's a passage from Romans to help you solidify this concept (hopefully permanently although humans need constant reminding 😂)\n\nRomans 2:6-8, 14-16 ESV \n[6]  He will render to each one according to his works: [7] to those who by patience in well-doing seek for glory and honor and immortality, he will give eternal life; [8] but for those who are self-seeking and do not obey the truth, but obey unrighteousness, there will be wrath and fury.  \n[14] For when Gentiles, who do not have the law, by nature do what the law requires, they are a law to themselves, even though they do not have the law. [15] They show that the work of the law is written on their hearts, while their conscience also bears witness, and their conflicting thoughts accuse or even excuse them [16] on that day when, according to my gospel, God judges the secrets of men by Christ Jesus.\n \n \nhttps://bible.com/bible/59/rom.2.6-16.ESV",
       "ts": "2026-11-21T16:26:43Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7774,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayers for my momma and her birthday to go well today. 💕",
+      "ts": "2026-11-21T19:38:53Z"
     }
   ]
 }

@@ -15,7 +15,7 @@
       "weeklyOverviewEnabled": false,
       "weeklyOverviewDay": "Monday",
       "weeklyOverviewHour": 7,
-      "weeklyRecapEnabled": false,
+      "weeklyRecapEnabled": true,
       "weeklyRecapDay": "Saturday",
       "weeklyRecapHour": 8,
       "morningAnnouncementEnabled": false,

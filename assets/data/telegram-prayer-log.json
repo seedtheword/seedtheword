@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618598,
-  "lastModified": "2026-11-23T14:40:33Z",
+  "lastModified": "2026-11-23T17:10:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -468,26 +468,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7445,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Thanksgiving Announcement from Identity in Christ Church for our ministry/missionary work team!",
-      "ts": "2026-11-09T17:08:16Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 7446,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Благословений Давид! Спасибо за твое свидетельство. -Lena K",
-      "ts": "2026-11-09T17:08:16Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7455,

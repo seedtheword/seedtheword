@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618611,
-  "lastModified": "2026-11-24T21:25:31Z",
+  "lastModified": "2026-11-24T21:55:40Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -474,16 +474,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7456,
-      "userId": 8045440327,
-      "displayName": "Liam Webster PrayerDog",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "I had a coworker come to me to pray for a non Christian coworker named Remy she's having medical things done, and so she needs prayers (not the person who asked, she herself isn't Christian and so God can use this to demonstrate his healing power so lets pray for Remy too)",
-      "ts": "2026-11-10T21:53:08Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7457,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618601,
-  "lastModified": "2026-11-24T09:25:32Z",
+  "lastUpdateId": 669618602,
+  "lastModified": "2026-11-24T13:40:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -963,6 +963,16 @@
       "kind": "telegram",
       "text": "Please pray for my friend Roberto. He is facing car and financial issues and wants to move out of his house by the end of January. Please lift him up in prayer and love.",
       "ts": "2026-11-23T05:21:44Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7793,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "So this morning I woke up and saw my schedule and realized I literally didn't have any time set, so I messaged my old manager Faith, whom is a Christian too, and I asked her what was going on, and she gave me 8 hr shifts for the rest of the week.\n\nFor context I have been praying for more work time so I can get some money for a car, and also so I can serve in other ways within my community.\n\nHe's giving me such.\n\nLike Joshua this war has begun, its time to capture the future God gives, kingdom by kingdom, step by step, prayer by prayer, and I know.\n\nThis war is ours",
+      "ts": "2026-11-24T13:34:52Z"
     }
   ]
 }

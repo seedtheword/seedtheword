@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618604,
-  "lastModified": "2026-11-24T17:55:35Z",
+  "lastUpdateId": 669618606,
+  "lastModified": "2026-11-24T18:25:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -973,6 +973,16 @@
       "kind": "telegram",
       "text": "So this morning I woke up and saw my schedule and realized I literally didn't have any time set, so I messaged my old manager Faith, whom is a Christian too, and I asked her what was going on, and she gave me 8 hr shifts for the rest of the week.\n\nFor context I have been praying for more work time so I can get some money for a car, and also so I can serve in other ways within my community.\n\nHe's giving me such.\n\nLike Joshua this war has begun, its time to capture the future God gives, kingdom by kingdom, step by step, prayer by prayer, and I know.\n\nThis war is ours",
       "ts": "2026-11-24T13:34:52Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7797,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Please pray for my strength in Jesus, that I may keep persevering even when times get tough or discouraging",
+      "ts": "2026-11-24T18:14:35Z"
     }
   ]
 }

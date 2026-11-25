@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618615,
-  "lastModified": "2026-11-25T17:10:32Z",
+  "lastUpdateId": 669618618,
+  "lastModified": "2026-11-25T17:25:37Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -903,6 +903,26 @@
       "kind": "telegram",
       "text": "Prayer request from Derek Baker Nov/25/2026\n\nPlease pray for our group. We had a difficult situation surrounding a discussion about deliverance and healing that unfortunately became very divisive. Please pray for wisdom, humility, grace, and discernment as we navigate these differences in theology. Pray that the Lord would guard the unity of the group, help us speak the truth in love, and keep our focus centered on Jesus rather than allowing disagreements to create division.",
       "ts": "2026-11-25T16:59:29Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7807,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "@Vanessa_mind Thank you for sharing, we will certainly lift you all up in prayer as we are consistently praying for PNW and other ministries whose heart is at the forefront of this spiritual warfare.",
+      "ts": "2026-11-25T17:16:14Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7808,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Derek additionally adds:\n\n“Also, right now the situation is under control. It's mainly between that person and few others but I just want to lift it up for any future issues”",
+      "ts": "2026-11-25T17:23:38Z"
     }
   ]
 }

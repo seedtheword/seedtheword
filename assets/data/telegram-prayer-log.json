@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618611,
-  "lastModified": "2026-11-25T02:25:33Z",
+  "lastUpdateId": 669618614,
+  "lastModified": "2026-11-25T16:10:52Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -873,6 +873,26 @@
       "kind": "telegram",
       "text": "Please pray for my strength in Jesus, that I may keep persevering even when times get tough or discouraging",
       "ts": "2026-11-24T18:14:35Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7802,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I keep falling off the bike, and I read proverbs, remember the old proverb I read... Prince's walk, fools ride on horses, when I first fell, and now I got hurt again. Nothing is broken I don't believe, but today's chapter had \"2\" warnings\n\n“[12]  The prudent sees danger and hides himself, but the simple go on and suffer for it. \n[22]  Crush a fool in a mortar with a pestle along with crushed grain, yet his folly will not depart from him.” \nProverbs 27:12, 22 ESV \n\nTime for me to use the bus",
+      "ts": "2026-11-25T15:54:18Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7803,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "🙏PRAYER DOG🙏 Please DM me Liam",
+      "ts": "2026-11-25T15:54:50Z"
     }
   ]
 }

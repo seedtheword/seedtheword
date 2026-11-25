@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618611,
-  "lastModified": "2026-11-24T21:55:40Z",
+  "lastModified": "2026-11-25T00:40:34Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -474,36 +474,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7457,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Pray for strength.",
-      "ts": "2026-11-11T00:36:08Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 7458,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Pray for strength.",
-      "ts": "2026-11-11T00:36:08Z"
-    },
-    {
-      "chatId": -1003502632009,
-      "messageId": 7459,
-      "userId": 7369089799,
-      "displayName": "Vanessa Arent",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Pray for strength.",
-      "ts": "2026-11-11T00:36:08Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7460,

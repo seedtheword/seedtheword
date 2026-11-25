@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618614,
-  "lastModified": "2026-11-25T16:10:52Z",
+  "lastUpdateId": 669618615,
+  "lastModified": "2026-11-25T17:10:32Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -893,6 +893,16 @@
       "kind": "telegram",
       "text": "🙏PRAYER DOG🙏 Please DM me Liam",
       "ts": "2026-11-25T15:54:50Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7806,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer request from Derek Baker Nov/25/2026\n\nPlease pray for our group. We had a difficult situation surrounding a discussion about deliverance and healing that unfortunately became very divisive. Please pray for wisdom, humility, grace, and discernment as we navigate these differences in theology. Pray that the Lord would guard the unity of the group, help us speak the truth in love, and keep our focus centered on Jesus rather than allowing disagreements to create division.",
+      "ts": "2026-11-25T16:59:29Z"
     }
   ]
 }

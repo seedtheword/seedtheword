@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618631,
-  "lastModified": "2026-11-26T18:10:33Z",
+  "lastUpdateId": 669618634,
+  "lastModified": "2026-11-26T18:26:45Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -899,6 +899,26 @@
       "kind": "telegram",
       "text": "Derek additionally adds:\n\n“Also, right now the situation is under control. It's mainly between that person and few others but I just want to lift it up for any future issues”",
       "ts": "2026-11-25T17:23:38Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7823,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I’m so thankful for every single one of you guys for being a part of Seed The Word, even if it’s from a distance spectating this chat or our social medias. You’re my second family, and I cannot wait to see where this ministry goes in the future!!!\n\nMay God make our hearts sensitive to see the abundance of blessings we have in our lives today and be thankful for every single one.",
+      "ts": "2026-11-26T18:11:12Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7824,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I’m probably going to make another thanksgiving message since there is truly so much to be thankful for, and if anyone else wants to share as well please feel free to here 🤗",
+      "ts": "2026-11-26T18:11:44Z"
     }
   ]
 }

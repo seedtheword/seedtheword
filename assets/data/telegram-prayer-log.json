@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "lastUpdateId": 669618643,
-  "lastModified": "2026-11-26T23:10:43Z",
+  "lastModified": "2026-11-26T23:25:35Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -480,16 +480,6 @@
     }
   },
   "entries": [
-    {
-      "chatId": -1003502632009,
-      "messageId": 7511,
-      "userId": 5309134293,
-      "displayName": "David",
-      "anonymous": false,
-      "kind": "telegram",
-      "text": "Pray for me, I'm on the bus talking with a Ukranian who isn't Christian\n\nAnd trying to figure out his mindset on why he thinks Jesus isn't the Truth \n\nLong story short, I think he just doesn't really care and claims that mostly it's not probable and the resurrection didn't happen... But it did",
-      "ts": "2026-11-12T23:15:31Z"
-    },
     {
       "chatId": -1003502632009,
       "messageId": 7650,

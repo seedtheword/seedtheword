@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618646,
-  "lastModified": "2026-11-27T07:55:36Z",
+  "lastUpdateId": 669618648,
+  "lastModified": "2026-11-27T08:10:39Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -899,6 +899,16 @@
       "kind": "telegram",
       "text": "I thank God for everything He has done this year: for the opportunity to go to Poland, for the wonderful time spent with the youth, for the Holy Spirit, for the moments of evangelism, and for David Ageev.",
       "ts": "2026-11-26T22:01:37Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7834,
+      "userId": 7369089799,
+      "displayName": "Vanessa Arent",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Amen\n\nAnd please again pray for the spirit of lust to be removed from my family’s household, specifically from my little brother, it makes me very uncomfortable because he’s so young, and through this I pray also for strength that I do not resort to running away from this environment if it is not in Gods will… May my little brother be revoked of all usage of the internet if possible… I rebuke every dark part of the internet that perverts the minds of the young ones..",
+      "ts": "2026-11-27T07:56:22Z"
     }
   ]
 }

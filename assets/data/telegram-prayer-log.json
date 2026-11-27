@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618655,
-  "lastModified": "2026-11-27T09:10:36Z",
+  "lastUpdateId": 669618656,
+  "lastModified": "2026-11-27T14:40:30Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -959,6 +959,16 @@
       "kind": "telegram",
       "text": "Forwarded from Pastor Chand @chandsajad 🤗\n\nI am so glad to be part of this Wonderful Ministry through prayers ❤️",
       "ts": "2026-11-27T08:46:42Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7840,
+      "userId": 5309134293,
+      "displayName": "David",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Prayer Request 11/27/2026:\n\nPraying for patience since I keep coming across many people and situations that are abusive, aggressive, or negligent and leaving me in compromised positions where I want to extend a grateful heart.\n\nI try to rebuke the matter and set the record straight but attempting to do so calmly without the people arguing back proves difficult. May God give me wisdom and discernment how to instruct and rebuke with gentleness. I am doing well myself and I appreciate all of your prayers!",
+      "ts": "2026-11-27T14:25:48Z"
     }
   ]
 }

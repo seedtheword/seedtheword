@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastUpdateId": 669618659,
-  "lastModified": "2026-11-27T19:40:33Z",
+  "lastUpdateId": 669618661,
+  "lastModified": "2026-11-28T03:25:33Z",
   "optOut": [],
   "completedSlots": {
     "2026-W22-thu": {
@@ -979,6 +979,26 @@
       "kind": "telegram",
       "text": "Pray for strength in my life, guidance on what the next step is, for wisdom, and most of all, for my family.\nThank you Seed The Word",
       "ts": "2026-11-27T19:35:19Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7847,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "I have a Thanksgiving, so at Costco there's a thing called floating, its basically trying to get people to buy stuff...\n\nWell if you all remember how I am with evangelism, it carries over to this too.\n\nGod blessed me with that\n\nAnd so without training, without knowledge on how to sell the Executive membership, without even having the administrators giving me the ability to use the tablet.\n\n\nI successfully got a member right as I needed to clock out resulting in me getting overtime, and a successful float.\n\nIn that time I got to give lots of God bless you's to other Christians, entering the store, and encouragement so they continue their walk.\n\nLastly, this is a prayer request.\n\nI am not feeling 100% I need prayers for healing so I don't get sick, so I can do my staging job on Sunday and Monday.\n\nThis is an update on my life, also I am taking the bus home, so no more bike crashes!",
+      "ts": "2026-11-28T03:13:20Z"
+    },
+    {
+      "chatId": -1003502632009,
+      "messageId": 7848,
+      "userId": 8045440327,
+      "displayName": "Liam Webster PrayerDog",
+      "anonymous": false,
+      "kind": "telegram",
+      "text": "Praise God",
+      "ts": "2026-11-28T03:13:52Z"
     }
   ]
 }
